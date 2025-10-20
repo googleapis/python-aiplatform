@@ -52,6 +52,8 @@ profiler_extra_require = [
 ]
 tensorboard_extra_require = profiler_extra_require
 
+grpc_extra_require = ["grpcio >= 1.75.1; python_version>='3.14'"]
+
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
 xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
 lit_extra_require = [
@@ -291,11 +293,9 @@ setuptools.setup(
     url="https://github.com/googleapis/python-aiplatform",
     platforms="Posix; MacOS X; Windows",
     include_package_data=True,
-    install_requires=(
-        (
-            "google-api-core[grpc] >= 1.34.1,"
-            " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
-        ),
+    install_requires=list((
+        "google-api-core[grpc] >= 1.34.1,"
+        " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*",
         "google-auth >= 2.14.1, <3.0.0",
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
@@ -305,8 +305,9 @@ setuptools.setup(
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
         "google-genai >= 1.37.0, <2.0.0",
-    )
-    + genai_requires,
+    ))
+    + list(genai_requires)
+    + grpc_extra_require,
     extras_require={
         "endpoint": endpoint_extra_require,
         "full": full_extra_require,
@@ -348,6 +349,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

@@ -99,7 +99,7 @@ if has_generator_updates:
     templated_files = common.py_library(
         cov_level=98,
         system_test_python_versions=["3.9"],
-        unit_test_python_versions=["3.9", "3.10", "3.11", "3.12"],
+        unit_test_python_versions=["3.9", "3.10", "3.11", "3.12", "3.14"],
         unit_test_extras=["testing"],
         system_test_extras=["testing"],
         microgenerator=True,
