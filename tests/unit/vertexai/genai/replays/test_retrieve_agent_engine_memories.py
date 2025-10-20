@@ -14,6 +14,9 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import pytest
+
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import pagers
@@ -22,7 +25,7 @@ from google.genai import pagers
 def test_retrieve_memories_with_similarity_search_params(client):
     agent_engine = client.agent_engines.create()
     assert not list(
-        client.agent_engines.retrieve_memories(
+        client.agent_engines.memories.retrieve(
             name=agent_engine.api_resource.name,
             scope={"user_id": "123"},
             similarity_search_params=types.RetrieveMemoriesRequestSimilaritySearchParams(
@@ -30,7 +33,7 @@ def test_retrieve_memories_with_similarity_search_params(client):
             ),
         )
     )
-    client.agent_engines.create_memory(
+    client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact_1",
         scope={"user_id": "123"},
@@ -38,7 +41,7 @@ def test_retrieve_memories_with_similarity_search_params(client):
     assert (
         len(
             list(
-                client.agent_engines.retrieve_memories(
+                client.agent_engines.memories.retrieve(
                     name=agent_engine.api_resource.name,
                     scope={"user_id": "123"},
                 )
@@ -47,12 +50,12 @@ def test_retrieve_memories_with_similarity_search_params(client):
         == 1
     )
     assert not list(
-        client.agent_engines.retrieve_memories(
+        client.agent_engines.memories.retrieve(
             name=agent_engine.api_resource.name,
             scope={"user_id": "456"},
         )
     )
-    client.agent_engines.create_memory(
+    client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact_2",
         scope={"user_id": "123"},
@@ -60,7 +63,7 @@ def test_retrieve_memories_with_similarity_search_params(client):
     assert (
         len(
             list(
-                client.agent_engines.retrieve_memories(
+                client.agent_engines.memories.retrieve(
                     name=agent_engine.api_resource.name,
                     scope={"user_id": "123"},
                 )
@@ -74,12 +77,12 @@ def test_retrieve_memories_with_similarity_search_params(client):
 
 def test_retrieve_memories_with_simple_retrieval_params(client):
     agent_engine = client.agent_engines.create()
-    client.agent_engines.create_memory(
+    client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact_1",
         scope={"user_id": "123"},
     )
-    memories = client.agent_engines.retrieve_memories(
+    memories = client.agent_engines.memories.retrieve(
         name=agent_engine.api_resource.name,
         scope={"user_id": "123"},
         simple_retrieval_params=types.RetrieveMemoriesRequestSimpleRetrievalParams(
@@ -98,3 +101,27 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="agent_engines.create_memory",
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_retrieve_memories_async(client):
+    agent_engine = client.agent_engines.create()
+    operation = await client.aio.agent_engines.memories.create(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact",
+        scope={"user_id": "123"},
+    )
+    assert isinstance(operation, types.AgentEngineMemoryOperation)
+    pager = await client.aio.agent_engines.memories.retrieve(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "123"},
+    )
+    memories = [item async for item in pager]
+    assert len(memories) == 1
+    assert isinstance(memories[0], types.RetrieveMemoriesResponseRetrievedMemory)
+    await client.aio.agent_engines.delete(
+        name=agent_engine.api_resource.name, force=True
+    )
