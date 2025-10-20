@@ -200,6 +200,9 @@ class TestEvalsRunInference:
         importlib.reload(_evals_metric_handlers)
         importlib.reload(_genai.evals)
 
+        if hasattr(_evals_common._thread_local_data, "agent_engine_instances"):
+            del _evals_common._thread_local_data.agent_engine_instances
+
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
@@ -967,6 +970,227 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_and_session_inputs_dict(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    }
+                ],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_engine = mock.Mock()
+        mock_agent_engine.async_create_session = mock.AsyncMock(
+            return_value={"id": "session1"}
+        )
+        stream_query_return_value = [
+            {
+                "id": "1",
+                "content": {"parts": [{"text": "intermediate1"}]},
+                "timestamp": 123,
+                "author": "model",
+            },
+            {
+                "id": "2",
+                "content": {"parts": [{"text": "agent response"}]},
+                "timestamp": 124,
+                "author": "model",
+            },
+        ]
+
+        async def _async_iterator(iterable):
+            for item in iterable:
+                yield item
+
+        mock_agent_engine.async_stream_query.return_value = _async_iterator(
+            stream_query_return_value
+        )
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        inference_result = self.client.evals.run_inference(
+            agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+            src=mock_df,
+        )
+
+        mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
+        mock_vertexai_client.return_value.agent_engines.get.assert_called_once_with(
+            name="projects/test-project/locations/us-central1/reasoningEngines/123"
+        )
+        mock_agent_engine.async_create_session.assert_called_once_with(
+            user_id="123", state={"a": "1"}
+        )
+        mock_agent_engine.async_stream_query.assert_called_once_with(
+            user_id="123", session_id="session1", message="agent prompt"
+        )
+
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "prompt": ["agent prompt"],
+                    "session_inputs": [
+                        {
+                            "user_id": "123",
+                            "state": {"a": "1"},
+                        }
+                    ],
+                    "intermediate_events": [
+                        [
+                            {
+                                "event_id": "1",
+                                "content": {"parts": [{"text": "intermediate1"}]},
+                                "creation_timestamp": 123,
+                                "author": "model",
+                            }
+                        ]
+                    ],
+                    "response": ["agent response"],
+                }
+            ),
+        )
+        assert inference_result.candidate_name == "agent"
+        assert inference_result.gcs_source is None
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_and_session_inputs_literal_string(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        session_inputs_str = '{"user_id": "123", "state": {"a": "1"}}'
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [session_inputs_str],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_engine = mock.Mock()
+        mock_agent_engine.async_create_session = mock.AsyncMock(
+            return_value={"id": "session1"}
+        )
+        stream_query_return_value = [
+            {
+                "id": "1",
+                "content": {"parts": [{"text": "intermediate1"}]},
+                "timestamp": 123,
+                "author": "model",
+            },
+            {
+                "id": "2",
+                "content": {"parts": [{"text": "agent response"}]},
+                "timestamp": 124,
+                "author": "model",
+            },
+        ]
+
+        async def _async_iterator(iterable):
+            for item in iterable:
+                yield item
+
+        mock_agent_engine.async_stream_query.return_value = _async_iterator(
+            stream_query_return_value
+        )
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        inference_result = self.client.evals.run_inference(
+            agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+            src=mock_df,
+        )
+
+        mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
+        mock_vertexai_client.return_value.agent_engines.get.assert_called_once_with(
+            name="projects/test-project/locations/us-central1/reasoningEngines/123"
+        )
+        mock_agent_engine.async_create_session.assert_called_once_with(
+            user_id="123", state={"a": "1"}
+        )
+        mock_agent_engine.async_stream_query.assert_called_once_with(
+            user_id="123", session_id="session1", message="agent prompt"
+        )
+
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df,
+            pd.DataFrame(
+                {
+                    "prompt": ["agent prompt"],
+                    "session_inputs": [session_inputs_str],
+                    "intermediate_events": [
+                        [
+                            {
+                                "event_id": "1",
+                                "content": {"parts": [{"text": "intermediate1"}]},
+                                "creation_timestamp": 123,
+                                "author": "model",
+                            }
+                        ]
+                    ],
+                    "response": ["agent response"],
+                }
+            ),
+        )
+        assert inference_result.candidate_name == "agent"
+        assert inference_result.gcs_source is None
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_with_response_column_raises_error(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    }
+                ],
+                "response": ["some response"],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_engine = mock.Mock()
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        with pytest.raises(ValueError) as excinfo:
+            self.client.evals.run_inference(
+                agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+                src=mock_df,
+            )
+        assert (
+            "The eval dataset provided for agent run should not contain "
+            "'intermediate_events' or 'response' columns"
+        ) in str(excinfo.value)
+
     def test_run_inference_with_litellm_string_prompt_format(
         self,
         mock_api_client_fixture,
@@ -1227,6 +1451,102 @@ class TestEvalsRunInference:
         _, call_kwargs = mock_run_litellm_inference.call_args
         assert call_kwargs["model"] == "gpt-4o"
         pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestRunAgentInternal:
+    """Unit tests for the _run_agent_internal function."""
+
+    def setup_method(self):
+        importlib.reload(vertexai_genai_types)
+        importlib.reload(_evals_common)
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_success(self, mock_run_agent):
+        mock_run_agent.return_value = [
+            [
+                {
+                    "id": "1",
+                    "content": {"parts": [{"text": "intermediate1"}]},
+                    "timestamp": 123,
+                    "author": "model",
+                },
+                {
+                    "id": "2",
+                    "content": {"parts": [{"text": "final response"}]},
+                    "timestamp": 124,
+                    "author": "model",
+                },
+            ]
+        ]
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        mock_agent_engine = mock.Mock()
+        mock_api_client = mock.Mock()
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock_api_client,
+            agent_engine=mock_agent_engine,
+            prompt_dataset=prompt_dataset,
+        )
+
+        expected_df = pd.DataFrame(
+            {
+                "prompt": ["prompt1"],
+                "intermediate_events": [
+                    [
+                        {
+                            "event_id": "1",
+                            "content": {"parts": [{"text": "intermediate1"}]},
+                            "creation_timestamp": 123,
+                            "author": "model",
+                        }
+                    ]
+                ],
+                "response": ["final response"],
+            }
+        )
+        pd.testing.assert_frame_equal(result_df, expected_df)
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_error_response(self, mock_run_agent):
+        mock_run_agent.return_value = [{"error": "agent run failed"}]
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        mock_agent_engine = mock.Mock()
+        mock_api_client = mock.Mock()
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock_api_client,
+            agent_engine=mock_agent_engine,
+            prompt_dataset=prompt_dataset,
+        )
+
+        assert "response" in result_df.columns
+        response_content = result_df["response"][0]
+        assert "Unexpected response type from agent run" in response_content
+        assert not result_df["intermediate_events"][0]
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_malformed_event(self, mock_run_agent):
+        mock_run_agent.return_value = [
+            [
+                {
+                    "id": "1",
+                    "content": {"parts1": [{"text123": "final response"}]},
+                    "timestamp": 124,
+                    "author": "model",
+                },
+            ]
+        ]
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        mock_agent_engine = mock.Mock()
+        mock_api_client = mock.Mock()
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock_api_client,
+            agent_engine=mock_agent_engine,
+            prompt_dataset=prompt_dataset,
+        )
+        assert "response" in result_df.columns
+        response_content = result_df["response"][0]
+        assert "Failed to parse agent run response" in response_content
+        assert not result_df["intermediate_events"][0]
 
 
 class TestMetricPromptBuilder:

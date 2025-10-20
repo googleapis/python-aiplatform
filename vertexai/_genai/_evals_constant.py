@@ -40,3 +40,5 @@ SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES = frozenset(
         "jamba-",  # AI21 (Jamba)
     }
 )
+INTERMEDIATE_EVENTS = "intermediate_events"
+RESPONSE = "response"
