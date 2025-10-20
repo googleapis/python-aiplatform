@@ -18,7 +18,6 @@ import json
 import os
 from unittest import mock
 from typing import Optional
-import dataclasses
 
 from google import auth
 import vertexai
@@ -96,27 +95,11 @@ def vertexai_init_mock():
 
 
 @pytest.fixture
-def cloud_trace_exporter_mock():
-    import sys
-    import opentelemetry
-
-    mock_cloud_trace_exporter = mock.Mock()
-
-    opentelemetry.exporter = type(sys)("exporter")
-    opentelemetry.exporter.cloud_trace = type(sys)("cloud_trace")
-    opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter = (
-        mock_cloud_trace_exporter
-    )
-
-    sys.modules["opentelemetry.exporter"] = opentelemetry.exporter
-    sys.modules["opentelemetry.exporter.cloud_trace"] = (
-        opentelemetry.exporter.cloud_trace
-    )
-
-    yield mock_cloud_trace_exporter
-
-    del sys.modules["opentelemetry.exporter.cloud_trace"]
-    del sys.modules["opentelemetry.exporter"]
+def otlp_span_exporter_mock():
+    with mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    ) as otlp_span_exporter_mock:
+        yield otlp_span_exporter_mock
 
 
 @pytest.fixture
@@ -523,7 +506,7 @@ class TestAdkApp:
 
     @mock.patch.dict(os.environ, {"GOOGLE_CLOUD_AGENT_ENGINE_ID": "test_agent_id"})
     def test_tracing_setup(
-        self, trace_provider_mock: mock.Mock, cloud_trace_exporter_mock: mock.Mock
+        self, trace_provider_mock: mock.Mock, otlp_span_exporter_mock: mock.Mock
     ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app.set_up()
@@ -537,17 +520,9 @@ class TestAdkApp:
             "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
         }
 
-        @dataclasses.dataclass
-        class RegexMatchingAll:
-            keys: set[str]
-
-            def __eq__(self, regex: object) -> bool:
-                return isinstance(regex, str) and set(regex.split("|")) == self.keys
-
-        cloud_trace_exporter_mock.assert_called_once_with(
-            project_id=_TEST_PROJECT,
-            client=mock.ANY,
-            resource_regex=RegexMatchingAll(keys=set(expected_attributes.keys())),
+        otlp_span_exporter_mock.assert_called_once_with(
+            session=mock.ANY,
+            endpoint="https://telemetry.googleapis.com/v1/traces",
         )
 
         assert (
@@ -559,7 +534,6 @@ class TestAdkApp:
     def test_enable_tracing(
         self,
         caplog,
-        cloud_trace_exporter_mock,
         tracer_provider_mock,
         simple_span_processor_mock,
     ):
