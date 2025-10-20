@@ -17,8 +17,8 @@
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
-
 import pytest
+
 
 TEST_PROMPT_DATASET_ID = "8005484238453342208"
 TEST_VARIABLES = [
@@ -287,6 +287,36 @@ def test_create_with_file_data(client):
     # Test assemble_contents on the prompt works.
     contents = retrieved_prompt.assemble_contents()
     assert contents[0] == prompt_resource.prompt_data.contents[0]
+
+
+def test_create_with_encryption_spec(client):
+    encryption_spec = genai_types.EncryptionSpec(
+        kms_key_name="projects/vertex-sdk-dev/locations/us-central1/keyRings/my-key-ring/cryptoKeys/my-key",
+    )
+    config = types.CreatePromptConfig(
+        prompt_display_name="my_prompt_with_encryption_spec",
+        encryption_spec=encryption_spec,
+    )
+    prompt_resource = client.prompts.create(
+        prompt=TEST_PROMPT,
+        config=config,
+    )
+    assert isinstance(prompt_resource, types.Prompt)
+    assert isinstance(prompt_resource.dataset, types.Dataset)
+
+    # Create a version on a prompt with an encryption spec.
+    new_prompt = TEST_PROMPT.model_copy(deep=True)
+    new_prompt.prompt_data.contents[0].parts[0].text = "Is this Alice?"
+    prompt_version_resource = client.prompts.create_version(
+        prompt_id=prompt_resource.prompt_id,
+        prompt=new_prompt,
+        config=types.CreatePromptVersionConfig(
+            version_display_name="my_version_existing_dataset",
+        ),
+    )
+    assert isinstance(prompt_version_resource, types.Prompt)
+    assert isinstance(prompt_version_resource.dataset, types.Dataset)
+    assert isinstance(prompt_version_resource.dataset_version, types.DatasetVersion)
 
 
 pytestmark = pytest_helper.setup(
