@@ -15,7 +15,38 @@
 """Utility functions for prompt optimizer."""
 
 import json
+from google.genai import types as genai_types
 from . import types
+
+
+def _get_parameter_model(
+        config: types.OptimizeConfigOrDict | None,
+        content: genai_types.ContentOrDict | None
+        ):
+    """Get the parameters from the config and content."""
+
+    if isinstance(config, types.OptimizeConfig):
+        optimization_target = config.optimization_target
+    elif isinstance(config, dict):
+        optimization_target = config.get("optimization_target")
+    else:
+        optimization_target = None
+
+    if optimization_target is None:
+        return  types._OptimizeRequestParameters(
+                content=content,
+                config=config,
+            )
+
+    if optimization_target != types.OptimizeTarget.GEMINI_NANO:
+        raise ValueError(
+            "Currently, only `gemini_nano` optimization_target is supported."
+        )
+    return types._OptimizeRequestParameters(
+        content=content,
+        optimization_target="OPTIMIZATION_TARGET_GEMINI_NANO",
+        config=config,
+    )
 
 
 def _get_service_account(
