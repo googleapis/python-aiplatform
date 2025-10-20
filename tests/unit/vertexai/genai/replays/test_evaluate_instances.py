@@ -238,6 +238,18 @@ def test_inference_with_prompt_template(client):
     assert inference_result.gcs_source is None
 
 
+def test_run_inference_with_agent(client):
+    test_df = pd.DataFrame(
+        {"prompt": ["agent prompt"], "session_inputs": ['{"user_id": "user_123"}']}
+    )
+    inference_result = client.evals.run_inference(
+        agent="projects/977012026409/locations/us-central1/reasoningEngines/7188347537655332864",
+        src=test_df,
+    )
+    assert inference_result.candidate_name == "agent"
+    assert inference_result.gcs_source is None
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
