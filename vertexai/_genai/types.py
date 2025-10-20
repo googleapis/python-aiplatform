@@ -279,6 +279,17 @@ class State(_common.CaseInSensitiveEnum):
     """Sandbox runtime has been deleted."""
 
 
+class EvaluationItemType(_common.CaseInSensitiveEnum):
+    """The type of the EvaluationItem."""
+
+    EVALUATION_ITEM_TYPE_UNSPECIFIED = "EVALUATION_ITEM_TYPE_UNSPECIFIED"
+    """The default value. This value is unused."""
+    REQUEST = "REQUEST"
+    """The EvaluationItem is a request to evaluate."""
+    RESULT = "RESULT"
+    """The EvaluationItem is the result of evaluation."""
+
+
 class SamplingMethod(_common.CaseInSensitiveEnum):
     """Represents the sampling method for a BigQuery request set."""
 
@@ -333,17 +344,6 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
-class EvaluationItemType(_common.CaseInSensitiveEnum):
-    """The type of the EvaluationItem."""
-
-    EVALUATION_ITEM_TYPE_UNSPECIFIED = "EVALUATION_ITEM_TYPE_UNSPECIFIED"
-    """The default value. This value is unused."""
-    REQUEST = "REQUEST"
-    """The EvaluationItem is a request to evaluate."""
-    RESULT = "RESULT"
-    """The EvaluationItem is the result of evaluation."""
-
-
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -358,6 +358,515 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
       """
     DELETED = "DELETED"
     """The memory was deleted."""
+
+
+class CreateEvaluationItemConfig(_common.BaseModel):
+    """Config to create an evaluation item."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationItemConfigDict(TypedDict, total=False):
+    """Config to create an evaluation item."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationItemConfigOrDict = Union[
+    CreateEvaluationItemConfig, CreateEvaluationItemConfigDict
+]
+
+
+class _CreateEvaluationItemParameters(_common.BaseModel):
+    """Represents a job that creates an evaluation item."""
+
+    evaluation_item_type: Optional[str] = Field(default=None, description="""""")
+    gcs_uri: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[CreateEvaluationItemConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationItemParametersDict(TypedDict, total=False):
+    """Represents a job that creates an evaluation item."""
+
+    evaluation_item_type: Optional[str]
+    """"""
+
+    gcs_uri: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    config: Optional[CreateEvaluationItemConfigDict]
+    """"""
+
+
+_CreateEvaluationItemParametersOrDict = Union[
+    _CreateEvaluationItemParameters, _CreateEvaluationItemParametersDict
+]
+
+
+class PromptTemplateData(_common.BaseModel):
+    """Message to hold a prompt template and the values to populate the template."""
+
+    values: Optional[dict[str, genai_types.Content]] = Field(
+        default=None, description="""The values for fields in the prompt template."""
+    )
+
+
+class PromptTemplateDataDict(TypedDict, total=False):
+    """Message to hold a prompt template and the values to populate the template."""
+
+    values: Optional[dict[str, genai_types.ContentDict]]
+    """The values for fields in the prompt template."""
+
+
+PromptTemplateDataOrDict = Union[PromptTemplateData, PromptTemplateDataDict]
+
+
+class EvaluationPrompt(_common.BaseModel):
+    """Represents the prompt to be evaluated."""
+
+    text: Optional[str] = Field(default=None, description="""Text prompt.""")
+    value: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Fields and values that can be used to populate the prompt template.""",
+    )
+    prompt_template_data: Optional[PromptTemplateData] = Field(
+        default=None, description="""Prompt template data."""
+    )
+
+
+class EvaluationPromptDict(TypedDict, total=False):
+    """Represents the prompt to be evaluated."""
+
+    text: Optional[str]
+    """Text prompt."""
+
+    value: Optional[dict[str, Any]]
+    """Fields and values that can be used to populate the prompt template."""
+
+    prompt_template_data: Optional[PromptTemplateDataDict]
+    """Prompt template data."""
+
+
+EvaluationPromptOrDict = Union[EvaluationPrompt, EvaluationPromptDict]
+
+
+class CandidateResponse(_common.BaseModel):
+    """Responses from model or agent."""
+
+    candidate: Optional[str] = Field(
+        default=None,
+        description="""The name of the candidate that produced the response.""",
+    )
+    text: Optional[str] = Field(default=None, description="""The text response.""")
+    value: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Fields and values that can be used to populate the response template.""",
+    )
+    events: Optional[list[genai_types.Content]] = Field(
+        default=None,
+        description="""Intermediate events (such as tool calls and responses) that led to the final response.""",
+    )
+
+
+class CandidateResponseDict(TypedDict, total=False):
+    """Responses from model or agent."""
+
+    candidate: Optional[str]
+    """The name of the candidate that produced the response."""
+
+    text: Optional[str]
+    """The text response."""
+
+    value: Optional[dict[str, Any]]
+    """Fields and values that can be used to populate the response template."""
+
+    events: Optional[list[genai_types.ContentDict]]
+    """Intermediate events (such as tool calls and responses) that led to the final response."""
+
+
+CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
+
+
+class EvaluationItemRequest(_common.BaseModel):
+    """Single evaluation request."""
+
+    prompt: Optional[EvaluationPrompt] = Field(
+        default=None, description="""The request/prompt to evaluate."""
+    )
+    golden_response: Optional[CandidateResponse] = Field(
+        default=None, description="""The ideal response or ground truth."""
+    )
+    rubrics: Optional[dict[str, "RubricGroup"]] = Field(
+        default=None,
+        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
+    )
+    candidate_responses: Optional[list[CandidateResponse]] = Field(
+        default=None,
+        description="""Responses from model under test and other baseline models for comparison.""",
+    )
+
+
+class EvaluationItemRequestDict(TypedDict, total=False):
+    """Single evaluation request."""
+
+    prompt: Optional[EvaluationPromptDict]
+    """The request/prompt to evaluate."""
+
+    golden_response: Optional[CandidateResponseDict]
+    """The ideal response or ground truth."""
+
+    rubrics: Optional[dict[str, "RubricGroupDict"]]
+    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
+
+    candidate_responses: Optional[list[CandidateResponseDict]]
+    """Responses from model under test and other baseline models for comparison."""
+
+
+EvaluationItemRequestOrDict = Union[EvaluationItemRequest, EvaluationItemRequestDict]
+
+
+class RubricContentProperty(_common.BaseModel):
+    """Defines criteria based on a specific property."""
+
+    description: Optional[str] = Field(
+        default=None,
+        description="""Description of the property being evaluated.
+      Example: "The model's response is grammatically correct." """,
+    )
+
+
+class RubricContentPropertyDict(TypedDict, total=False):
+    """Defines criteria based on a specific property."""
+
+    description: Optional[str]
+    """Description of the property being evaluated.
+      Example: "The model's response is grammatically correct." """
+
+
+RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
+
+
+class RubricContent(_common.BaseModel):
+    """Content of the rubric, defining the testable criteria."""
+
+    property: Optional[RubricContentProperty] = Field(
+        default=None,
+        description="""Evaluation criteria based on a specific property.""",
+    )
+
+
+class RubricContentDict(TypedDict, total=False):
+    """Content of the rubric, defining the testable criteria."""
+
+    property: Optional[RubricContentPropertyDict]
+    """Evaluation criteria based on a specific property."""
+
+
+RubricContentOrDict = Union[RubricContent, RubricContentDict]
+
+
+class Rubric(_common.BaseModel):
+    """Message representing a single testable criterion for evaluation.
+
+    One input prompt could have multiple rubrics.
+    """
+
+    rubric_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Unique identifier for the rubric.
+      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
+    )
+    content: Optional[RubricContent] = Field(
+        default=None,
+        description="""Required. The actual testable criteria for the rubric.""",
+    )
+    type: Optional[str] = Field(
+        default=None,
+        description="""Optional. A type designator for the rubric, which can inform how it's
+      evaluated or interpreted by systems or users.
+      It's recommended to use consistent, well-defined, upper snake_case strings.
+      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE".""",
+    )
+    importance: Optional[Importance] = Field(
+        default=None,
+        description="""Optional. The relative importance of this rubric.""",
+    )
+
+
+class RubricDict(TypedDict, total=False):
+    """Message representing a single testable criterion for evaluation.
+
+    One input prompt could have multiple rubrics.
+    """
+
+    rubric_id: Optional[str]
+    """Required. Unique identifier for the rubric.
+      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
+
+    content: Optional[RubricContentDict]
+    """Required. The actual testable criteria for the rubric."""
+
+    type: Optional[str]
+    """Optional. A type designator for the rubric, which can inform how it's
+      evaluated or interpreted by systems or users.
+      It's recommended to use consistent, well-defined, upper snake_case strings.
+      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
+      "INSTRUCTION_ADHERENCE"."""
+
+    importance: Optional[Importance]
+    """Optional. The relative importance of this rubric."""
+
+
+RubricOrDict = Union[Rubric, RubricDict]
+
+
+class RubricVerdict(_common.BaseModel):
+    """Represents the verdict of an evaluation against a single rubric."""
+
+    evaluated_rubric: Optional[Rubric] = Field(
+        default=None,
+        description="""Required. The full rubric definition that was evaluated.
+      Storing this ensures the verdict is self-contained and understandable,
+      especially if the original rubric definition changes or was dynamically
+      generated.""",
+    )
+    verdict: Optional[bool] = Field(
+        default=None,
+        description="""Required. Outcome of the evaluation against the rubric, represented as a
+      boolean. `true` indicates a "Pass", `false` indicates a "Fail".""",
+    )
+    reasoning: Optional[str] = Field(
+        default=None,
+        description="""Optional. Human-readable reasoning or explanation for the verdict.
+      This can include specific examples or details from the evaluated content
+      that justify the given verdict.""",
+    )
+
+
+class RubricVerdictDict(TypedDict, total=False):
+    """Represents the verdict of an evaluation against a single rubric."""
+
+    evaluated_rubric: Optional[RubricDict]
+    """Required. The full rubric definition that was evaluated.
+      Storing this ensures the verdict is self-contained and understandable,
+      especially if the original rubric definition changes or was dynamically
+      generated."""
+
+    verdict: Optional[bool]
+    """Required. Outcome of the evaluation against the rubric, represented as a
+      boolean. `true` indicates a "Pass", `false` indicates a "Fail"."""
+
+    reasoning: Optional[str]
+    """Optional. Human-readable reasoning or explanation for the verdict.
+      This can include specific examples or details from the evaluated content
+      that justify the given verdict."""
+
+
+RubricVerdictOrDict = Union[RubricVerdict, RubricVerdictDict]
+
+
+class CandidateResult(_common.BaseModel):
+    """Result for a single candidate."""
+
+    candidate: Optional[str] = Field(
+        default=None,
+        description="""The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest.""",
+    )
+    metric: Optional[str] = Field(
+        default=None, description="""The metric that was evaluated."""
+    )
+    score: Optional[float] = Field(
+        default=None, description="""The score of the metric."""
+    )
+    explanation: Optional[str] = Field(
+        default=None, description="""The explanation for the metric."""
+    )
+    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+        default=None, description="""The rubric verdicts for the metric."""
+    )
+    additional_results: Optional[dict[str, Any]] = Field(
+        default=None, description="""Additional results for the metric."""
+    )
+
+
+class CandidateResultDict(TypedDict, total=False):
+    """Result for a single candidate."""
+
+    candidate: Optional[str]
+    """The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest."""
+
+    metric: Optional[str]
+    """The metric that was evaluated."""
+
+    score: Optional[float]
+    """The score of the metric."""
+
+    explanation: Optional[str]
+    """The explanation for the metric."""
+
+    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    """The rubric verdicts for the metric."""
+
+    additional_results: Optional[dict[str, Any]]
+    """Additional results for the metric."""
+
+
+CandidateResultOrDict = Union[CandidateResult, CandidateResultDict]
+
+
+class EvaluationItemResult(_common.BaseModel):
+    """Represents the result of an evaluation item."""
+
+    evaluation_request: Optional[str] = Field(
+        default=None, description="""The request item that was evaluated."""
+    )
+    evaluation_run: Optional[str] = Field(
+        default=None,
+        description="""The evaluation run that was used to generate the result.""",
+    )
+    request: Optional[EvaluationItemRequest] = Field(
+        default=None, description="""The request that was evaluated."""
+    )
+    metric: Optional[str] = Field(
+        default=None, description="""The metric that was evaluated."""
+    )
+    candidate_results: Optional[list[CandidateResult]] = Field(
+        default=None, description="""TThe results for the metric."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""Metadata about the evaluation result."""
+    )
+
+
+class EvaluationItemResultDict(TypedDict, total=False):
+    """Represents the result of an evaluation item."""
+
+    evaluation_request: Optional[str]
+    """The request item that was evaluated."""
+
+    evaluation_run: Optional[str]
+    """The evaluation run that was used to generate the result."""
+
+    request: Optional[EvaluationItemRequestDict]
+    """The request that was evaluated."""
+
+    metric: Optional[str]
+    """The metric that was evaluated."""
+
+    candidate_results: Optional[list[CandidateResultDict]]
+    """TThe results for the metric."""
+
+    metadata: Optional[dict[str, Any]]
+    """Metadata about the evaluation result."""
+
+
+EvaluationItemResultOrDict = Union[EvaluationItemResult, EvaluationItemResultDict]
+
+
+class EvaluationItem(_common.BaseModel):
+    """EvaluationItem is a single evaluation request or result.
+
+    The content of an EvaluationItem is immutable - it cannot be updated once
+    created. EvaluationItems can be deleted when no longer needed.
+    """
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the EvaluationItem."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the EvaluationItem."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""Metadata for the EvaluationItem."""
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the EvaluationItem."""
+    )
+    evaluation_item_type: Optional[EvaluationItemType] = Field(
+        default=None, description="""The type of the EvaluationItem."""
+    )
+    evaluation_request: Optional[EvaluationItemRequest] = Field(
+        default=None, description="""The request to evaluate."""
+    )
+    evaluation_response: Optional[EvaluationItemResult] = Field(
+        default=None, description="""The response from evaluation."""
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The Cloud Storage object where the request or response is stored.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Timestamp when this item was created."""
+    )
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
+        default=None, description="""Error for the evaluation item."""
+    )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["EvaluationItem"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "EvaluationItem":
+        """Converts a dictionary response into a EvaluationItem object."""
+
+        response = _camel_key_to_snake(response)
+        result = super()._from_response(response=response, kwargs=kwargs)
+        return result
+
+
+class EvaluationItemDict(TypedDict, total=False):
+    """EvaluationItem is a single evaluation request or result.
+
+    The content of an EvaluationItem is immutable - it cannot be updated once
+    created. EvaluationItems can be deleted when no longer needed.
+    """
+
+    name: Optional[str]
+    """The resource name of the EvaluationItem."""
+
+    display_name: Optional[str]
+    """The display name of the EvaluationItem."""
+
+    metadata: Optional[dict[str, Any]]
+    """Metadata for the EvaluationItem."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the EvaluationItem."""
+
+    evaluation_item_type: Optional[EvaluationItemType]
+    """The type of the EvaluationItem."""
+
+    evaluation_request: Optional[EvaluationItemRequestDict]
+    """The request to evaluate."""
+
+    evaluation_response: Optional[EvaluationItemResultDict]
+    """The response from evaluation."""
+
+    gcs_uri: Optional[str]
+    """The Cloud Storage object where the request or response is stored."""
+
+    create_time: Optional[datetime.datetime]
+    """Timestamp when this item was created."""
+
+    error: Optional[genai_types.GoogleRpcStatusDict]
+    """Error for the evaluation item."""
+
+
+EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
 
 
 class SamplingConfig(_common.BaseModel):
@@ -1229,6 +1738,103 @@ class EvaluationRunDict(TypedDict, total=False):
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
 
 
+class CreateEvaluationSetConfig(_common.BaseModel):
+    """Config to create an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationSetConfigDict(TypedDict, total=False):
+    """Config to create an evaluation set."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationSetConfigOrDict = Union[
+    CreateEvaluationSetConfig, CreateEvaluationSetConfigDict
+]
+
+
+class _CreateEvaluationSetParameters(_common.BaseModel):
+    """Represents a job that creates an evaluation set."""
+
+    evaluation_items: Optional[list[str]] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[CreateEvaluationSetConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationSetParametersDict(TypedDict, total=False):
+    """Represents a job that creates an evaluation set."""
+
+    evaluation_items: Optional[list[str]]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    config: Optional[CreateEvaluationSetConfigDict]
+    """"""
+
+
+_CreateEvaluationSetParametersOrDict = Union[
+    _CreateEvaluationSetParameters, _CreateEvaluationSetParametersDict
+]
+
+
+class EvaluationSet(_common.BaseModel):
+    """Represents an evaluation set."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the evaluation set."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the evaluation set."""
+    )
+    evaluation_items: Optional[list[str]] = Field(
+        default=None,
+        description="""The EvaluationItems that are part of this dataset.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""The create time of the evaluation set."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None, description="""The update time of the evaluation set."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""The metadata of the evaluation set."""
+    )
+
+
+class EvaluationSetDict(TypedDict, total=False):
+    """Represents an evaluation set."""
+
+    name: Optional[str]
+    """The resource name of the evaluation set."""
+
+    display_name: Optional[str]
+    """The display name of the evaluation set."""
+
+    evaluation_items: Optional[list[str]]
+    """The EvaluationItems that are part of this dataset."""
+
+    create_time: Optional[datetime.datetime]
+    """The create time of the evaluation set."""
+
+    update_time: Optional[datetime.datetime]
+    """The update time of the evaluation set."""
+
+    metadata: Optional[dict[str, Any]]
+    """The metadata of the evaluation set."""
+
+
+EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
+
+
 class BleuInstance(_common.BaseModel):
     """Bleu instance."""
 
@@ -2002,102 +2608,6 @@ EvaluateInstancesConfigOrDict = Union[
 ]
 
 
-class RubricContentProperty(_common.BaseModel):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str] = Field(
-        default=None,
-        description="""Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """,
-    )
-
-
-class RubricContentPropertyDict(TypedDict, total=False):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str]
-    """Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """
-
-
-RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
-
-
-class RubricContent(_common.BaseModel):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentProperty] = Field(
-        default=None,
-        description="""Evaluation criteria based on a specific property.""",
-    )
-
-
-class RubricContentDict(TypedDict, total=False):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentPropertyDict]
-    """Evaluation criteria based on a specific property."""
-
-
-RubricContentOrDict = Union[RubricContent, RubricContentDict]
-
-
-class Rubric(_common.BaseModel):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str] = Field(
-        default=None,
-        description="""Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
-    )
-    content: Optional[RubricContent] = Field(
-        default=None,
-        description="""Required. The actual testable criteria for the rubric.""",
-    )
-    type: Optional[str] = Field(
-        default=None,
-        description="""Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE".""",
-    )
-    importance: Optional[Importance] = Field(
-        default=None,
-        description="""Optional. The relative importance of this rubric.""",
-    )
-
-
-class RubricDict(TypedDict, total=False):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str]
-    """Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
-
-    content: Optional[RubricContentDict]
-    """Required. The actual testable criteria for the rubric."""
-
-    type: Optional[str]
-    """Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE"."""
-
-    importance: Optional[Importance]
-    """Optional. The relative importance of this rubric."""
-
-
-RubricOrDict = Union[Rubric, RubricDict]
-
-
 class RubricGenerationSpec(_common.BaseModel):
     """Spec for generating rubrics."""
 
@@ -2643,51 +3153,6 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 _EvaluateInstancesRequestParametersOrDict = Union[
     _EvaluateInstancesRequestParameters, _EvaluateInstancesRequestParametersDict
 ]
-
-
-class RubricVerdict(_common.BaseModel):
-    """Represents the verdict of an evaluation against a single rubric."""
-
-    evaluated_rubric: Optional[Rubric] = Field(
-        default=None,
-        description="""Required. The full rubric definition that was evaluated.
-      Storing this ensures the verdict is self-contained and understandable,
-      especially if the original rubric definition changes or was dynamically
-      generated.""",
-    )
-    verdict: Optional[bool] = Field(
-        default=None,
-        description="""Required. Outcome of the evaluation against the rubric, represented as a
-      boolean. `true` indicates a "Pass", `false` indicates a "Fail".""",
-    )
-    reasoning: Optional[str] = Field(
-        default=None,
-        description="""Optional. Human-readable reasoning or explanation for the verdict.
-      This can include specific examples or details from the evaluated content
-      that justify the given verdict.""",
-    )
-
-
-class RubricVerdictDict(TypedDict, total=False):
-    """Represents the verdict of an evaluation against a single rubric."""
-
-    evaluated_rubric: Optional[RubricDict]
-    """Required. The full rubric definition that was evaluated.
-      Storing this ensures the verdict is self-contained and understandable,
-      especially if the original rubric definition changes or was dynamically
-      generated."""
-
-    verdict: Optional[bool]
-    """Required. Outcome of the evaluation against the rubric, represented as a
-      boolean. `true` indicates a "Pass", `false` indicates a "Fail"."""
-
-    reasoning: Optional[str]
-    """Optional. Human-readable reasoning or explanation for the verdict.
-      This can include specific examples or details from the evaluated content
-      that justify the given verdict."""
-
-
-RubricVerdictOrDict = Union[RubricVerdict, RubricVerdictDict]
 
 
 class MetricResult(_common.BaseModel):
@@ -3449,55 +3914,6 @@ _GetEvaluationSetParametersOrDict = Union[
 ]
 
 
-class EvaluationSet(_common.BaseModel):
-    """Represents an evaluation set."""
-
-    name: Optional[str] = Field(
-        default=None, description="""The resource name of the evaluation set."""
-    )
-    display_name: Optional[str] = Field(
-        default=None, description="""The display name of the evaluation set."""
-    )
-    evaluation_items: Optional[list[str]] = Field(
-        default=None,
-        description="""The EvaluationItems that are part of this dataset.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None, description="""The create time of the evaluation set."""
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None, description="""The update time of the evaluation set."""
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None, description="""The metadata of the evaluation set."""
-    )
-
-
-class EvaluationSetDict(TypedDict, total=False):
-    """Represents an evaluation set."""
-
-    name: Optional[str]
-    """The resource name of the evaluation set."""
-
-    display_name: Optional[str]
-    """The display name of the evaluation set."""
-
-    evaluation_items: Optional[list[str]]
-    """The EvaluationItems that are part of this dataset."""
-
-    create_time: Optional[datetime.datetime]
-    """The create time of the evaluation set."""
-
-    update_time: Optional[datetime.datetime]
-    """The update time of the evaluation set."""
-
-    metadata: Optional[dict[str, Any]]
-    """The metadata of the evaluation set."""
-
-
-EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
-
-
 class GetEvaluationItemConfig(_common.BaseModel):
     """Config for get evaluation item."""
 
@@ -3538,322 +3954,6 @@ class _GetEvaluationItemParametersDict(TypedDict, total=False):
 _GetEvaluationItemParametersOrDict = Union[
     _GetEvaluationItemParameters, _GetEvaluationItemParametersDict
 ]
-
-
-class PromptTemplateData(_common.BaseModel):
-    """Message to hold a prompt template and the values to populate the template."""
-
-    values: Optional[dict[str, genai_types.Content]] = Field(
-        default=None, description="""The values for fields in the prompt template."""
-    )
-
-
-class PromptTemplateDataDict(TypedDict, total=False):
-    """Message to hold a prompt template and the values to populate the template."""
-
-    values: Optional[dict[str, genai_types.ContentDict]]
-    """The values for fields in the prompt template."""
-
-
-PromptTemplateDataOrDict = Union[PromptTemplateData, PromptTemplateDataDict]
-
-
-class EvaluationPrompt(_common.BaseModel):
-    """Represents the prompt to be evaluated."""
-
-    text: Optional[str] = Field(default=None, description="""Text prompt.""")
-    value: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Fields and values that can be used to populate the prompt template.""",
-    )
-    prompt_template_data: Optional[PromptTemplateData] = Field(
-        default=None, description="""Prompt template data."""
-    )
-
-
-class EvaluationPromptDict(TypedDict, total=False):
-    """Represents the prompt to be evaluated."""
-
-    text: Optional[str]
-    """Text prompt."""
-
-    value: Optional[dict[str, Any]]
-    """Fields and values that can be used to populate the prompt template."""
-
-    prompt_template_data: Optional[PromptTemplateDataDict]
-    """Prompt template data."""
-
-
-EvaluationPromptOrDict = Union[EvaluationPrompt, EvaluationPromptDict]
-
-
-class CandidateResponse(_common.BaseModel):
-    """Responses from model or agent."""
-
-    candidate: Optional[str] = Field(
-        default=None,
-        description="""The name of the candidate that produced the response.""",
-    )
-    text: Optional[str] = Field(default=None, description="""The text response.""")
-    value: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Fields and values that can be used to populate the response template.""",
-    )
-    events: Optional[list[genai_types.Content]] = Field(
-        default=None,
-        description="""Intermediate events (such as tool calls and responses) that led to the final response.""",
-    )
-
-
-class CandidateResponseDict(TypedDict, total=False):
-    """Responses from model or agent."""
-
-    candidate: Optional[str]
-    """The name of the candidate that produced the response."""
-
-    text: Optional[str]
-    """The text response."""
-
-    value: Optional[dict[str, Any]]
-    """Fields and values that can be used to populate the response template."""
-
-    events: Optional[list[genai_types.ContentDict]]
-    """Intermediate events (such as tool calls and responses) that led to the final response."""
-
-
-CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
-
-
-class EvaluationItemRequest(_common.BaseModel):
-    """Single evaluation request."""
-
-    prompt: Optional[EvaluationPrompt] = Field(
-        default=None, description="""The request/prompt to evaluate."""
-    )
-    golden_response: Optional[CandidateResponse] = Field(
-        default=None, description="""The ideal response or ground truth."""
-    )
-    rubrics: Optional[dict[str, "RubricGroup"]] = Field(
-        default=None,
-        description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
-    )
-    candidate_responses: Optional[list[CandidateResponse]] = Field(
-        default=None,
-        description="""Responses from model under test and other baseline models for comparison.""",
-    )
-
-
-class EvaluationItemRequestDict(TypedDict, total=False):
-    """Single evaluation request."""
-
-    prompt: Optional[EvaluationPromptDict]
-    """The request/prompt to evaluate."""
-
-    golden_response: Optional[CandidateResponseDict]
-    """The ideal response or ground truth."""
-
-    rubrics: Optional[dict[str, "RubricGroupDict"]]
-    """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
-
-    candidate_responses: Optional[list[CandidateResponseDict]]
-    """Responses from model under test and other baseline models for comparison."""
-
-
-EvaluationItemRequestOrDict = Union[EvaluationItemRequest, EvaluationItemRequestDict]
-
-
-class CandidateResult(_common.BaseModel):
-    """Result for a single candidate."""
-
-    candidate: Optional[str] = Field(
-        default=None,
-        description="""The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest.""",
-    )
-    metric: Optional[str] = Field(
-        default=None, description="""The metric that was evaluated."""
-    )
-    score: Optional[float] = Field(
-        default=None, description="""The score of the metric."""
-    )
-    explanation: Optional[str] = Field(
-        default=None, description="""The explanation for the metric."""
-    )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
-        default=None, description="""The rubric verdicts for the metric."""
-    )
-    additional_results: Optional[dict[str, Any]] = Field(
-        default=None, description="""Additional results for the metric."""
-    )
-
-
-class CandidateResultDict(TypedDict, total=False):
-    """Result for a single candidate."""
-
-    candidate: Optional[str]
-    """The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest."""
-
-    metric: Optional[str]
-    """The metric that was evaluated."""
-
-    score: Optional[float]
-    """The score of the metric."""
-
-    explanation: Optional[str]
-    """The explanation for the metric."""
-
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
-    """The rubric verdicts for the metric."""
-
-    additional_results: Optional[dict[str, Any]]
-    """Additional results for the metric."""
-
-
-CandidateResultOrDict = Union[CandidateResult, CandidateResultDict]
-
-
-class EvaluationItemResult(_common.BaseModel):
-    """Represents the result of an evaluation item."""
-
-    evaluation_request: Optional[str] = Field(
-        default=None, description="""The request item that was evaluated."""
-    )
-    evaluation_run: Optional[str] = Field(
-        default=None,
-        description="""The evaluation run that was used to generate the result.""",
-    )
-    request: Optional[EvaluationItemRequest] = Field(
-        default=None, description="""The request that was evaluated."""
-    )
-    metric: Optional[str] = Field(
-        default=None, description="""The metric that was evaluated."""
-    )
-    candidate_results: Optional[list[CandidateResult]] = Field(
-        default=None, description="""TThe results for the metric."""
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None, description="""Metadata about the evaluation result."""
-    )
-
-
-class EvaluationItemResultDict(TypedDict, total=False):
-    """Represents the result of an evaluation item."""
-
-    evaluation_request: Optional[str]
-    """The request item that was evaluated."""
-
-    evaluation_run: Optional[str]
-    """The evaluation run that was used to generate the result."""
-
-    request: Optional[EvaluationItemRequestDict]
-    """The request that was evaluated."""
-
-    metric: Optional[str]
-    """The metric that was evaluated."""
-
-    candidate_results: Optional[list[CandidateResultDict]]
-    """TThe results for the metric."""
-
-    metadata: Optional[dict[str, Any]]
-    """Metadata about the evaluation result."""
-
-
-EvaluationItemResultOrDict = Union[EvaluationItemResult, EvaluationItemResultDict]
-
-
-class EvaluationItem(_common.BaseModel):
-    """EvaluationItem is a single evaluation request or result.
-
-    The content of an EvaluationItem is immutable - it cannot be updated once
-    created. EvaluationItems can be deleted when no longer needed.
-    """
-
-    name: Optional[str] = Field(
-        default=None, description="""The resource name of the EvaluationItem."""
-    )
-    display_name: Optional[str] = Field(
-        default=None, description="""The display name of the EvaluationItem."""
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None, description="""Metadata for the EvaluationItem."""
-    )
-    labels: Optional[dict[str, str]] = Field(
-        default=None, description="""Labels for the EvaluationItem."""
-    )
-    evaluation_item_type: Optional[EvaluationItemType] = Field(
-        default=None, description="""The type of the EvaluationItem."""
-    )
-    evaluation_request: Optional[EvaluationItemRequest] = Field(
-        default=None, description="""The request to evaluate."""
-    )
-    evaluation_response: Optional[EvaluationItemResult] = Field(
-        default=None, description="""The response from evaluation."""
-    )
-    gcs_uri: Optional[str] = Field(
-        default=None,
-        description="""The Cloud Storage object where the request or response is stored.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None, description="""Timestamp when this item was created."""
-    )
-    error: Optional[genai_types.GoogleRpcStatus] = Field(
-        default=None, description="""Error for the evaluation item."""
-    )
-
-    # TODO(b/448806531): Remove all the overridden _from_response methods once the
-    # ticket is resolved and published.
-    @classmethod
-    def _from_response(
-        cls: typing.Type["EvaluationItem"],
-        *,
-        response: dict[str, object],
-        kwargs: dict[str, object],
-    ) -> "EvaluationItem":
-        """Converts a dictionary response into a EvaluationItem object."""
-
-        response = _camel_key_to_snake(response)
-        result = super()._from_response(response=response, kwargs=kwargs)
-        return result
-
-
-class EvaluationItemDict(TypedDict, total=False):
-    """EvaluationItem is a single evaluation request or result.
-
-    The content of an EvaluationItem is immutable - it cannot be updated once
-    created. EvaluationItems can be deleted when no longer needed.
-    """
-
-    name: Optional[str]
-    """The resource name of the EvaluationItem."""
-
-    display_name: Optional[str]
-    """The display name of the EvaluationItem."""
-
-    metadata: Optional[dict[str, Any]]
-    """Metadata for the EvaluationItem."""
-
-    labels: Optional[dict[str, str]]
-    """Labels for the EvaluationItem."""
-
-    evaluation_item_type: Optional[EvaluationItemType]
-    """The type of the EvaluationItem."""
-
-    evaluation_request: Optional[EvaluationItemRequestDict]
-    """The request to evaluate."""
-
-    evaluation_response: Optional[EvaluationItemResultDict]
-    """The response from evaluation."""
-
-    gcs_uri: Optional[str]
-    """The Cloud Storage object where the request or response is stored."""
-
-    create_time: Optional[datetime.datetime]
-    """Timestamp when this item was created."""
-
-    error: Optional[genai_types.GoogleRpcStatusDict]
-    """Error for the evaluation item."""
-
-
-EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
 
 
 class OptimizeConfig(_common.BaseModel):
