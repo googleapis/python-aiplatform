@@ -4266,6 +4266,28 @@ class TestEvalsRunEvaluation:
         call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
         assert "pointwise_metric_input" in call_args[1]["metric_config"]
 
+    def test_execute_evaluation_hallucination_metric(self, mock_api_client_fixture):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[
+                vertexai_genai_types.RubricMetric.HALLUCINATION,
+                vertexai_genai_types.RubricMetric.TOOL_USE_QUALITY,
+            ],
+        )
+        assert isinstance(result, vertexai_genai_types.EvaluationResult)
+        assert result.evaluation_dataset == [input_dataset]
+        assert len(result.summary_metrics) == 2
+        assert result.summary_metrics[0].metric_name == "hallucination_v1"
+        assert result.summary_metrics[1].metric_name == "tool_use_quality_v1"
+
     @mock.patch.object(_evals_data_converters, "get_dataset_converter")
     def test_execute_evaluation_with_openai_schema(
         self,

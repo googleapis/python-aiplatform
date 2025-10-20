@@ -450,22 +450,74 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 const candidateMetrics = (caseResult.response_candidate_results && caseResult.response_candidate_results[0] && caseResult.response_candidate_results[0].metric_results) || {{}};
                 Object.entries(candidateMetrics).forEach(([name, val]) => {{
                     let metricNameCell = name;
-                    if (val.rubric_verdicts && val.rubric_verdicts.length > 0) {{
-                        metricNameCell += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
+                    let explanationHandled = false;
+                    let bubbles = '';
+
+                    if (name.startsWith('hallucination') && val.explanation) {{
+                        try {{
+                            const explanationData = JSON.parse(val.explanation);
+                            if (Array.isArray(explanationData) && explanationData.length > 0 && explanationData[0].sentence) {{
+                                bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
+                                explanationData.forEach(item => {{
+                                    const sentence = item.sentence || 'N/A';
+                                    const label = item.label ? item.label.toLowerCase() : '';
+                                    const verdictText = label === 'no_rad' ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                                    const rationale = item.rationale || 'N/A';
+                                    const itemJson = JSON.stringify(item, null, 2);
+                                    bubbles += `
+                                        <details class="rubric-details">
+                                            <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(sentence)}}</summary>
+                                            <div class="explanation" style="padding: 10px 0 0 20px;">${{DOMPurify.sanitize(rationale)}}</div>
+                                            <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                        </details>`;
+                                }});
+                                bubbles += '</div>';
+                                explanationHandled = true;
+                            }}
+                        }} catch (e) {{
+                            console.error("Failed to parse hallucination explanation:", e);
+                        }}
+                    }} else if (name.startsWith('safety') && val.score != null) {{
+                        try {{
+                            bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
+                            const verdictText = val.score >= 1.0 ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                            const explanation = val.explanation || (val.score >= 1.0 ? 'Safety check passed' : 'Safety check failed');
+                            const itemJson = JSON.stringify(val, null, 2);
+                            bubbles += `
+                                <details class="rubric-details">
+                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(explanation)}}</summary>
+                                    <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                </details>`;
+                            bubbles += '</div>';
+                            explanationHandled = true;
+                        }} catch (e) {{
+                            console.error("Failed to process safety metric:", e);
+                        }}
+                    }}
+
+                    if (!bubbles && val.rubric_verdicts && val.rubric_verdicts.length > 0) {{
+                        bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
                         val.rubric_verdicts.forEach(verdict => {{
                             const rubricDescription = verdict.evaluated_rubric && verdict.evaluated_rubric.content && verdict.evaluated_rubric.content.property ? verdict.evaluated_rubric.content.property.description : 'N/A';
                             const verdictText = verdict.verdict ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
                             const verdictJson = JSON.stringify(verdict, null, 2);
-                            metricNameCell += `
+                            bubbles += `
                                 <details class="rubric-details">
                                     <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(rubricDescription)}}</summary>
                                     <pre class="raw-json-container">${{DOMPurify.sanitize(verdictJson)}}</pre>
                                 </details>`;
                         }});
-                        metricNameCell += '</div>';
+                        bubbles += '</div>';
                     }}
+
+                    if(bubbles) {{
+                        metricNameCell += bubbles;
+                    }}
+
                     metricTable += `<tr><td>${{metricNameCell}}</td><td><b>${{val.score != null ? val.score.toFixed(2) : 'N/A'}}</b></td></tr>`;
-                    if (val.explanation) {{ metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`; }}
+                    if (val.explanation && !explanationHandled) {{
+                        metricTable += `<tr><td colspan="2"><div class="explanation">${{DOMPurify.sanitize(marked.parse(String(val.explanation)))}}</div></td></tr>`;
+                    }}
                 }});
                 card += metricTable + '</tbody></table>';
                 container.innerHTML += card + '</details>';
