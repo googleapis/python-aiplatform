@@ -230,6 +230,9 @@ def _EvaluationRun_from_vertex(
             getv(from_object, ["evaluationResults"]),
         )
 
+    if getv(from_object, ["evaluationConfig"]) is not None:
+        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
+
     if getv(from_object, ["inferenceConfigs"]) is not None:
         setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
 
@@ -460,7 +463,7 @@ class Evals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
-        evaluation_config: genai_types.EvaluationConfigOrDict,
+        evaluation_config: types.EvaluationRunConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
@@ -1306,9 +1309,12 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         name: str,
-        display_name: Optional[str] = None,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        display_name: Optional[str] = None,
+        metrics: Optional[
+            list[types.EvaluationRunMetricOrDict]
+        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
@@ -1328,7 +1334,12 @@ class Evals(_api_module.BaseModule):
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
-        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
+            metrics, self._api_client
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config, metrics=resolved_metrics
+        )
         inference_configs = {}
         if agent_info:
             logger.warning(
@@ -1554,7 +1565,7 @@ class AsyncEvals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
-        evaluation_config: genai_types.EvaluationConfigOrDict,
+        evaluation_config: types.EvaluationRunConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
@@ -2103,9 +2114,12 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         name: str,
-        display_name: Optional[str] = None,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        display_name: Optional[str] = None,
+        metrics: Optional[
+            list[types.EvaluationRunMetricOrDict]
+        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
@@ -2125,7 +2139,12 @@ class AsyncEvals(_api_module.BaseModule):
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
-        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
+            metrics, self._api_client
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config, metrics=resolved_metrics
+        )
         inference_configs = {}
         if agent_info:
             logger.warning(
