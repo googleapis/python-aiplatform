@@ -1138,6 +1138,8 @@ from .prediction_service import (
     DirectPredictResponse,
     DirectRawPredictRequest,
     DirectRawPredictResponse,
+    EmbedContentRequest,
+    EmbedContentResponse,
     ExplainRequest,
     ExplainResponse,
     GenerateContentRequest,
@@ -1384,6 +1386,9 @@ from .ui_pipeline_spec import (
 )
 from .unmanaged_container_model import (
     UnmanagedContainerModel,
+)
+from .usage_metadata import (
+    UsageMetadata,
 )
 from .user_action_reference import (
     UserActionReference,
@@ -2381,6 +2386,8 @@ __all__ = (
     "DirectPredictResponse",
     "DirectRawPredictRequest",
     "DirectRawPredictResponse",
+    "EmbedContentRequest",
+    "EmbedContentResponse",
     "ExplainRequest",
     "ExplainResponse",
     "GenerateContentRequest",
@@ -2575,6 +2582,7 @@ __all__ = (
     "ArtifactTypeSchema",
     "RuntimeArtifact",
     "UnmanagedContainerModel",
+    "UsageMetadata",
     "UserActionReference",
     "Value",
     "CorpusStatus",
