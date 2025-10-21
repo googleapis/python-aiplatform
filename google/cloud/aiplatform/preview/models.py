@@ -670,6 +670,46 @@ class Endpoint(aiplatform.Endpoint):
                     "Minimum and maximum replica counts must not be specified"
                     "if not using a shared resource pool."
                 )
+            # Validate STZ parameters
+            if min_replica_count != 0:
+                if initial_replica_count:
+                    raise ValueError(
+                        "Initial replica count cannot be set for non-STZ models."
+                    )
+                if min_scaleup_period:
+                    raise ValueError(
+                        "Min scaleup period cannot be set for non-STZ models."
+                    )
+                if idle_scaledown_period:
+                    raise ValueError(
+                        "Idle scaledown period cannot be set for non-STZ models."
+                    )
+            if min_replica_count == 0 and initial_replica_count:
+                if initial_replica_count < 0:
+                    raise ValueError("Initial replica count must be at least 0.")
+                if initial_replica_count > max_replica_count:
+                    raise ValueError(
+                        "Initial replica count cannot be "
+                        "greater than max replica count."
+                    )
+            if min_replica_count == 0 and min_scaleup_period:
+                if min_scaleup_period < 300:
+                    raise ValueError(
+                        "Min scaleup period cannot be less than 300 (5 minutes)."
+                    )
+                if min_scaleup_period > 28800:
+                    raise ValueError(
+                        "Min scaleup period cannot be greater than 28800 (8 hours)."
+                    )
+            if min_replica_count == 0 and idle_scaledown_period:
+                if idle_scaledown_period < 300:
+                    raise ValueError(
+                        "Idle scaledown period cannot be less than 300 (5 minutes)."
+                    )
+                if idle_scaledown_period > 28800:
+                    raise ValueError(
+                        "Idle scaledown period cannot be greater than 28800 (8 hours)."
+                    )
             return aiplatform.Endpoint._validate_deploy_args(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
@@ -679,9 +719,6 @@ class Endpoint(aiplatform.Endpoint):
                 traffic_percentage=traffic_percentage,
                 deployment_resource_pool=deployment_resource_pool,
                 required_replica_count=required_replica_count,
-                initial_replica_count=initial_replica_count,
-                min_scaleup_period=min_scaleup_period,
-                idle_scaledown_period=idle_scaledown_period,
             )
 
         if (

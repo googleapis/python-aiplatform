@@ -2460,8 +2460,8 @@ class TestEndpoint:
     )
     @pytest.mark.parametrize("sync", [True, False])
     def test_deploy_endpoint_raise_error_invalid_stz_config(self, sync):
-        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
-        test_model = models.Model(_TEST_ID)
+        test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = preview_models.Model(_TEST_ID)
         test_model._gca_resource.supported_deployment_resources_types.append(
             aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
         )
