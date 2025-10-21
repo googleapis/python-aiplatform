@@ -934,7 +934,7 @@ class Prompts(_api_module.BaseModule):
         elif not config:
             config = types.CreatePromptConfig()
 
-        _prompt_management_utils._raise_for_invalid_prompt(prompt, config)
+        _prompt_management_utils._raise_for_invalid_prompt(prompt)
 
         prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
             prompt,
@@ -1001,7 +1001,7 @@ class Prompts(_api_module.BaseModule):
         elif not config:
             config = types.CreatePromptVersionConfig()
 
-        _prompt_management_utils._raise_for_invalid_prompt(prompt, config)
+        _prompt_management_utils._raise_for_invalid_prompt(prompt)
 
         if config and config.version_display_name:
             version_name = config.version_display_name
@@ -2093,7 +2093,7 @@ class AsyncPrompts(_api_module.BaseModule):
         elif not config:
             config = types.CreatePromptConfig()
 
-        _prompt_management_utils._raise_for_invalid_prompt(prompt, config)
+        _prompt_management_utils._raise_for_invalid_prompt(prompt)
 
         prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
             prompt,
@@ -2160,7 +2160,7 @@ class AsyncPrompts(_api_module.BaseModule):
         elif not config:
             config = types.CreatePromptVersionConfig()
 
-        _prompt_management_utils._raise_for_invalid_prompt(prompt, config)
+        _prompt_management_utils._raise_for_invalid_prompt(prompt)
 
         if config and config.version_display_name:
             version_name = config.version_display_name

@@ -22,23 +22,24 @@ from vertexai._genai import types
 
 def test_get_memory(client):
     agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.create_memory(
+    operation = client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
     assert isinstance(operation, types.AgentEngineMemoryOperation)
-    memory = client.agent_engines.get_memory(
+    memory = client.agent_engines.memories.get(
         name=operation.response.name,
     )
     assert isinstance(memory, types.Memory)
     assert memory.name == operation.response.name
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.get_memory",
+    test_method="agent_engines.memories.get",
 )
 
 
@@ -47,16 +48,18 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_get_memory_async(client):
-    # TODO(b/431785750): use async methods for create() and create_memory() when available
     agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.create_memory(
+    operation = await client.aio.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
     assert isinstance(operation, types.AgentEngineMemoryOperation)
-    memory = await client.aio.agent_engines.get_memory(
+    memory = await client.aio.agent_engines.memories.get(
         name=operation.response.name,
     )
     assert isinstance(memory, types.Memory)
     assert memory.name == operation.response.name
+    await client.aio.agent_engines.delete(
+        name=agent_engine.api_resource.name, force=True
+    )

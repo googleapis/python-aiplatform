@@ -25,7 +25,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import types
 
@@ -380,3 +380,28 @@ class AsyncMemoryRevisions(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineMemoryRevisionsConfigOrDict] = None,
+    ) -> AsyncPager[types.MemoryRevision]:
+        """Lists Agent Engine memory revisions.
+
+        Args:
+            name (str):
+                Required. The name of the Memory to list revisions for.
+            config (ListAgentEngineMemoryRevisionsConfigOrDict):
+                Optional. The configuration for the memories to list revisions.
+
+        Returns:
+            AsyncPager[MemoryRevision]: An async pager of memory revisions.
+        """
+
+        return AsyncPager(
+            "memory_revisions",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )

@@ -14,12 +14,16 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import pytest
+
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
 
 
 def test_generate_and_rollback_memories(client):
+    # TODO(): Use prod endpoint once experiment is fully rolled out.
     client._api_client._http_options.base_url = (
         "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
     )
@@ -146,3 +150,64 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="agent_engines.generate_memories",
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_generate_and_rollback_memories_async(client):
+    # TODO(): Use prod endpoint once revisions experiment is fully rolled out.
+    client._api_client._http_options.base_url = (
+        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+    )
+    agent_engine = client.agent_engines.create()
+    await client.aio.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "test-user-id"},
+        direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
+            direct_memories=[
+                types.GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(
+                    fact="I am a software engineer."
+                ),
+                types.GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(
+                    fact="I like to write replay tests."
+                ),
+            ]
+        ),
+        config=types.GenerateAgentEngineMemoriesConfig(wait_for_completion=True),
+    )
+    memories_pager = await client.aio.agent_engines.memories.list(
+        name=agent_engine.api_resource.name
+    )
+    memory_list = [item async for item in memories_pager]
+    assert len(memory_list) >= 1
+
+    revisions_pager = await client.aio.agent_engines.memories.revisions.list(
+        name=memory_list[0].name
+    )
+    memory_revisions = [item async for item in revisions_pager]
+    assert len(memory_revisions) >= 1
+    revision_name = memory_revisions[0].name
+
+    # Update the memory.
+    client.agent_engines.memories._update(
+        name=memory_list[0].name,
+        fact="This is temporary",
+        scope={"user_id": "test-user-id"},
+    )
+    memory = await client.aio.agent_engines.memories.get(name=memory_list[0].name)
+    assert memory.fact == "This is temporary"
+
+    # Rollback to the revision with the original fact that was created by the
+    # generation request.
+    await client.aio.agent_engines.memories.rollback(
+        name=memory_list[0].name,
+        target_revision_id=revision_name.split("/")[-1],
+    )
+    memory = await client.aio.agent_engines.memories.get(name=memory_list[0].name)
+    assert memory.fact == memory_revisions[0].fact
+
+    await client.aio.agent_engines.delete(
+        name=agent_engine.api_resource.name, force=True
+    )

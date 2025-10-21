@@ -26,7 +26,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import _agent_engines_utils
 from . import types
@@ -1048,6 +1048,7 @@ class Memories(_api_module.BaseModule):
                 operation = _agent_engines_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_memory_operation,
+                    poll_interval_seconds=0.5,
                 )
             # We need to make a call to get the memory because the operation
             # response might not contain the relevant fields.
@@ -1855,3 +1856,256 @@ class AsyncMemories(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    _revisions = None
+
+    @property
+    def revisions(self):
+        if self._revisions is None:
+            try:
+                # We need to lazy load the revisions module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._revisions = importlib.import_module(
+                    ".memory_revisions", __package__
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.memories.revisions' module requires "
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._revisions.AsyncMemoryRevisions(self._api_client)
+
+    async def create(
+        self,
+        *,
+        name: str,
+        fact: str,
+        scope: dict[str, str],
+        config: Optional[types.AgentEngineMemoryConfigOrDict] = None,
+    ) -> types.AgentEngineMemoryOperation:
+        """Creates a new memory in the Agent Engine.
+
+        Args:
+            name (str):
+                Required. The name of the memory to create.
+            fact (str):
+                Required. The fact to be stored in the memory.
+            scope (dict[str, str]):
+                Required. The scope of the memory. For example, {"user_id": "123"}.
+            config (AgentEngineMemoryConfigOrDict):
+                Optional. The configuration for the memory.
+
+        Returns:
+            AgentEngineMemoryOperation: The operation for creating the memory.
+        """
+        if config is None:
+            config = types.AgentEngineMemoryConfig()
+        elif isinstance(config, dict):
+            config = types.AgentEngineMemoryConfig.model_validate(config)
+        operation = await self._create(
+            name=name,
+            fact=fact,
+            scope=scope,
+            config=config,
+        )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = await _agent_engines_utils._await_async_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_memory_operation,
+                    poll_interval_seconds=0.5,
+                )
+            # We need to make a call to get the memory because the operation
+            # response might not contain the relevant fields.
+            if operation.response:
+                operation.response = await self.get(name=operation.response.name)
+            elif operation.error:
+                raise RuntimeError(f"Failed to create memory: {operation.error}")
+            else:
+                raise RuntimeError("Error creating memory.")
+        return operation
+
+    async def generate(
+        self,
+        *,
+        name: str,
+        vertex_session_source: Optional[
+            types.GenerateMemoriesRequestVertexSessionSourceOrDict
+        ] = None,
+        direct_contents_source: Optional[
+            types.GenerateMemoriesRequestDirectContentsSourceOrDict
+        ] = None,
+        direct_memories_source: Optional[
+            types.GenerateMemoriesRequestDirectMemoriesSourceOrDict
+        ] = None,
+        scope: Optional[dict[str, str]] = None,
+        config: Optional[types.GenerateAgentEngineMemoriesConfigOrDict] = None,
+    ) -> types.AgentEngineGenerateMemoriesOperation:
+        """Generates memories for the agent engine.
+
+        Args:
+            name (str):
+                Required. The name of the agent engine to generate memories for.
+            vertex_session_source (GenerateMemoriesRequestVertexSessionSource):
+                Optional. The vertex session source to use for generating
+                memories. Only one of vertex_session_source,
+                direct_contents_source, or direct_memories_source can be
+                specified.
+            direct_contents_source(GenerateMemoriesRequestDirectContentsSource):
+                Optional. The direct contents source to use for generating
+                memories. Only one of vertex_session_source, direct_contents_source,
+                or direct_memories_source can be specified.
+            direct_memories_source (GenerateMemoriesRequestDirectMemoriesSource):
+                Optional. The direct memories source to use for generating
+                memories. Only one of vertex_session_source, direct_contents_source,
+                or direct_memories_source can be specified.
+            scope (dict[str, str]):
+                Optional. The scope of the memories to generate. This is optional
+                if vertex_session_source is used, otherwise it must be specified.
+            config (GenerateMemoriesConfig):
+                Optional. The configuration for the memories to generate.
+
+        Returns:
+            AgentEngineGenerateMemoriesOperation:
+                The operation for generating the memories.
+        """
+        if config is None:
+            config = types.GenerateAgentEngineMemoriesConfig()
+        elif isinstance(config, dict):
+            config = types.GenerateAgentEngineMemoriesConfig.model_validate(config)
+        operation = await self._generate(
+            name=name,
+            vertex_session_source=vertex_session_source,
+            direct_contents_source=direct_contents_source,
+            direct_memories_source=direct_memories_source,
+            scope=scope,
+            config=config,
+        )
+        if config.wait_for_completion and not operation.done:
+            operation = await _agent_engines_utils._await_async_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_generate_memories_operation,
+                poll_interval_seconds=0.5,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to generate memory: {operation.error}")
+        return operation
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineMemoryConfigOrDict] = None,
+    ) -> AsyncPager[types.Memory]:
+        """Lists Agent Engine memories.
+
+        Args:
+            name (str):
+                Required. The name of the agent engine to list memories for.
+            config (ListAgentEngineMemoryConfig):
+                Optional. The configuration for the memories to list.
+
+        Returns:
+            AsyncPager[Memory]: An async pager of memories.
+        """
+
+        return AsyncPager(
+            "memories",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )
+
+    async def retrieve(
+        self,
+        *,
+        name: str,
+        scope: dict[str, str],
+        similarity_search_params: Optional[
+            types.RetrieveMemoriesRequestSimilaritySearchParamsOrDict
+        ] = None,
+        simple_retrieval_params: Optional[
+            types.RetrieveMemoriesRequestSimpleRetrievalParamsOrDict
+        ] = None,
+        config: Optional[types.RetrieveAgentEngineMemoriesConfigOrDict] = None,
+    ) -> AsyncPager[types.RetrieveMemoriesResponseRetrievedMemory]:
+        """Retrieves memories for the agent.
+
+        Args:
+            name (str):
+                Required. The name of the agent engine to retrieve memories for.
+            scope (dict[str, str]):
+                Required. The scope of the memories to retrieve. For example,
+                {"user_id": "123"}.
+            similarity_search_params (RetrieveMemoriesRequestSimilaritySearchParams):
+                Optional. The similarity search parameters to use for retrieving
+                memories.
+            simple_retrieval_params (RetrieveMemoriesRequestSimpleRetrievalParams):
+                Optional. The simple retrieval parameters to use for retrieving
+                memories.
+            config (RetrieveAgentEngineMemoriesConfig):
+                Optional. The configuration for the memories to retrieve.
+
+        Returns:
+            AsyncPager[RetrieveMemoriesResponseRetrievedMemory]: An async pager of
+                retrieved memories.
+        """
+        return AsyncPager(
+            "retrieved_memories",
+            lambda config: self._retrieve(
+                name=name,
+                similarity_search_params=similarity_search_params,
+                simple_retrieval_params=simple_retrieval_params,
+                scope=scope,
+                config=config,
+            ),
+            await self._retrieve(
+                name=name,
+                similarity_search_params=similarity_search_params,
+                simple_retrieval_params=simple_retrieval_params,
+                scope=scope,
+                config=config,
+            ),
+            config,
+        )
+
+    async def rollback(
+        self,
+        *,
+        name: str,
+        target_revision_id: str,
+        config: Optional[types.RollbackAgentEngineMemoryConfigOrDict] = None,
+    ) -> types.AgentEngineRollbackMemoryOperation:
+        """Rolls back a memory to a previous revision.
+
+        Args:
+            name (str):
+                Required. The name of the memory to rollback.
+            target_revision_id (str):
+                Required. The revision ID to roll back to
+            config (RollbackAgentEngineMemoryConfig):
+                Optional. The configuration for the rollback.
+
+        Returns:
+            AgentEngineRollbackMemoryOperation:
+                The operation for rolling back the memory.
+        """
+        if config is None:
+            config = types.RollbackAgentEngineMemoryConfig()
+        elif isinstance(config, dict):
+            config = types.RollbackAgentEngineMemoryConfig.model_validate(config)
+        operation = await self._rollback(
+            name=name,
+            target_revision_id=target_revision_id,
+            config=config,
+        )
+        if config.wait_for_completion and not operation.done:
+            operation = await _agent_engines_utils._await_async_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_rollback_memory_operation,
+                poll_interval_seconds=0.5,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to rollback memory: {operation.error}")
+        return operation

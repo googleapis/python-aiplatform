@@ -995,6 +995,9 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     config: Optional[CreateEvaluationRunConfig] = Field(
         default=None, description=""""""
     )
+    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -1013,6 +1016,9 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """"""
 
     config: Optional[CreateEvaluationRunConfigDict]
+    """"""
+
+    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
     """"""
 
 
@@ -1678,6 +1684,32 @@ class EvaluationRun(_common.BaseModel):
         default=None,
         description="""The parsed EvaluationItem results for the evaluation run. This is only populated when include_evaluation_items is set to True.""",
     )
+    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The inference configs for the evaluation run.""",
+    )
+
+    # TODO(b/448806531): Remove all the overridden _from_response methods once the
+    # ticket is resolved and published.
+    @classmethod
+    def _from_response(
+        cls: typing.Type["EvaluationRun"],
+        *,
+        response: dict[str, object],
+        kwargs: dict[str, object],
+    ) -> "EvaluationRun":
+        """Converts a dictionary response into a EvaluationRun object."""
+
+        snaked_response = _camel_key_to_snake(response)
+        if (
+            "evaluation_run_results" in response
+            and "summaryMetrics" in response["evaluation_run_results"]
+        ):
+            snaked_response["evaluation_run_results"]["summary_metrics"] = response[
+                "evaluation_run_results"
+            ]["summaryMetrics"]
+        result = super()._from_response(response=snaked_response, kwargs=kwargs)
+        return result
 
     def show(self) -> None:
         """Shows the evaluation result."""
@@ -1733,6 +1765,9 @@ class EvaluationRunDict(TypedDict, total=False):
 
     evaluation_item_results: Optional[EvaluationResultDict]
     """The parsed EvaluationItem results for the evaluation run. This is only populated when include_evaluation_items is set to True."""
+
+    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
+    """This field is experimental and may change in future versions. The inference configs for the evaluation run."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
@@ -7799,12 +7834,33 @@ SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict = Union[
 ]
 
 
+class SandboxEnvironmentSpecComputerUseEnvironment(_common.BaseModel):
+    """The computer use environment with customized settings."""
+
+    pass
+
+
+class SandboxEnvironmentSpecComputerUseEnvironmentDict(TypedDict, total=False):
+    """The computer use environment with customized settings."""
+
+    pass
+
+
+SandboxEnvironmentSpecComputerUseEnvironmentOrDict = Union[
+    SandboxEnvironmentSpecComputerUseEnvironment,
+    SandboxEnvironmentSpecComputerUseEnvironmentDict,
+]
+
+
 class SandboxEnvironmentSpec(_common.BaseModel):
     """The specification of a sandbox environment."""
 
     code_execution_environment: Optional[
         SandboxEnvironmentSpecCodeExecutionEnvironment
     ] = Field(default=None, description="""Optional. The code execution environment.""")
+    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironment] = (
+        Field(default=None, description="""Optional. The computer use environment.""")
+    )
 
 
 class SandboxEnvironmentSpecDict(TypedDict, total=False):
@@ -7814,6 +7870,9 @@ class SandboxEnvironmentSpecDict(TypedDict, total=False):
         SandboxEnvironmentSpecCodeExecutionEnvironmentDict
     ]
     """Optional. The code execution environment."""
+
+    computer_use_environment: Optional[SandboxEnvironmentSpecComputerUseEnvironmentDict]
+    """Optional. The computer use environment."""
 
 
 SandboxEnvironmentSpecOrDict = Union[SandboxEnvironmentSpec, SandboxEnvironmentSpecDict]
@@ -7892,9 +7951,47 @@ _CreateAgentEngineSandboxRequestParametersOrDict = Union[
 ]
 
 
+class SandboxEnvironmentConnectionInfo(_common.BaseModel):
+    """The connection information of the SandboxEnvironment."""
+
+    load_balancer_hostname: Optional[str] = Field(
+        default=None, description="""Output only. The hostname of the load balancer."""
+    )
+    load_balancer_ip: Optional[str] = Field(
+        default=None,
+        description="""Output only. The IP address of the load balancer.""",
+    )
+    sandbox_internal_ip: Optional[str] = Field(
+        default=None,
+        description="""Output only. The internal IP address of the SandboxEnvironment.""",
+    )
+
+
+class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
+    """The connection information of the SandboxEnvironment."""
+
+    load_balancer_hostname: Optional[str]
+    """Output only. The hostname of the load balancer."""
+
+    load_balancer_ip: Optional[str]
+    """Output only. The IP address of the load balancer."""
+
+    sandbox_internal_ip: Optional[str]
+    """Output only. The internal IP address of the SandboxEnvironment."""
+
+
+SandboxEnvironmentConnectionInfoOrDict = Union[
+    SandboxEnvironmentConnectionInfo, SandboxEnvironmentConnectionInfoDict
+]
+
+
 class SandboxEnvironment(_common.BaseModel):
     """A sandbox environment."""
 
+    connection_info: Optional[SandboxEnvironmentConnectionInfo] = Field(
+        default=None,
+        description="""Output only. The connection information of the SandboxEnvironment.""",
+    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. The timestamp when this SandboxEnvironment was created.""",
@@ -7926,6 +8023,9 @@ class SandboxEnvironment(_common.BaseModel):
 
 class SandboxEnvironmentDict(TypedDict, total=False):
     """A sandbox environment."""
+
+    connection_info: Optional[SandboxEnvironmentConnectionInfoDict]
+    """Output only. The connection information of the SandboxEnvironment."""
 
     create_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironment was created."""
@@ -11865,6 +11965,71 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
 
 
 EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+
+
+class EvaluationRunAgentConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""The developer instruction for the agent."""
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The tools available to the agent."""
+    )
+
+
+class EvaluationRunAgentConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.ContentDict]
+    """The developer instruction for the agent."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The tools available to the agent."""
+
+
+EvaluationRunAgentConfigOrDict = Union[
+    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
+]
+
+
+class EvaluationRunInferenceConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfig] = Field(
+        default=None, description="""The agent config."""
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+    )
+
+
+class EvaluationRunInferenceConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfigDict]
+    """The agent config."""
+
+    model: Optional[str]
+    """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+
+EvaluationRunInferenceConfigOrDict = Union[
+    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
+]
 
 
 class SessionInput(_common.BaseModel):

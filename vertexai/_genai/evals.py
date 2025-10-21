@@ -80,6 +80,9 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["inference_configs"]) is not None:
+        setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
+
     return to_object
 
 
@@ -226,6 +229,9 @@ def _EvaluationRun_from_vertex(
             ["evaluation_run_results"],
             getv(from_object, ["evaluationResults"]),
         )
+
+    if getv(from_object, ["inferenceConfigs"]) is not None:
+        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
 
     return to_object
 
@@ -456,6 +462,9 @@ class Evals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: genai_types.EvaluationConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -467,6 +476,7 @@ class Evals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             config=config,
+            inference_configs=inference_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -886,24 +896,33 @@ class Evals(_api_module.BaseModule):
     def run_inference(
         self,
         *,
-        model: Union[str, Callable[[Any], Any]],
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
+        model: Optional[Union[str, Callable[[Any], Any]]] = None,
+        agent: Optional[Union[str, types.AgentEngine]] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation.
 
         Args:
-          model: The model to use for inference.
+          src: The source of the dataset. Can be a string (path to a local file,
+                a GCS path, or a BigQuery table), a Pandas DataFrame, or an
+                EvaluationDataset object. If an Evalu
+                ationDataset is provided,
+                it must have `eval_dataset_df` populated.
+          model: Optional type is experimental and may change in future versions.
+                The model to use for inference, optional for agent evaluations.
               - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
               - For third-party models via LiteLLM, use the format "provider/model_name"
                 (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g., OPENAI_API_KEY)
                 is set as an environment variable.
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
-          src: The source of the dataset. Can be a string (path to a local file,
-                a GCS path, or a BigQuery table), a Pandas DataFrame, or an
-                EvaluationDataset object. If an EvaluationDataset is provided,
-                it must have `eval_dataset_df` populated.
+          agent: This field is experimental and may change in future versions
+                The agent engine used to run agent, optional for non-agent evaluations.
+              - agent engine resource name in str type, with format
+                `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
+                run_inference will fetch the agent engine from the resource name.
+              - Or `types.AgentEngine` object.
           config: The optional configuration for the inference run. Must be a dict or
               `types.EvalRunInferenceConfig` type.
                 - dest: The destination path for storage of the inference results.
@@ -928,6 +947,7 @@ class Evals(_api_module.BaseModule):
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
+            agent_engine=agent,
             src=src,
             dest=config.dest,
             config=config.generate_content_config,
@@ -1287,21 +1307,48 @@ class Evals(_api_module.BaseModule):
         *,
         name: str,
         display_name: Optional[str] = None,
-        data_source: types.EvaluationRunDataSource,
+        dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
+        if type(dataset).__name__ == "EvaluationDataset":
+            logger.warning(
+                "EvaluationDataset input is experimental and may change in future versions."
+            )
+            if dataset.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            eval_set = _evals_common._create_evaluation_set_from_dataframe(
+                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+            )
+            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        inference_configs = {}
+        if agent_info:
+            logger.warning(
+                "The agent_info field is experimental and may change in future versions."
+            )
+            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
+                agent_config=types.EvaluationRunAgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[genai_types.Part(text=agent_info.instruction)]
+                    ),
+                    tools=agent_info.tool_declarations,
+                )
+            )
 
         return self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
             display_name=display_name,
-            data_source=data_source,
+            data_source=dataset,
             evaluation_config=evaluation_config,
+            inference_configs=inference_configs,
             config=config,
         )
 
@@ -1509,6 +1556,9 @@ class AsyncEvals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: genai_types.EvaluationConfigOrDict,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1520,6 +1570,7 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             config=config,
+            inference_configs=inference_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2053,21 +2104,48 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         name: str,
         display_name: Optional[str] = None,
-        data_source: types.EvaluationRunDataSource,
+        dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        agent_info: Optional[types.AgentInfo] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
+        if type(dataset).__name__ == "EvaluationDataset":
+            logger.warning(
+                "EvaluationDataset input is experimental and may change in future versions."
+            )
+            if dataset.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            eval_set = _evals_common._create_evaluation_set_from_dataframe(
+                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+            )
+            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        inference_configs = {}
+        if agent_info:
+            logger.warning(
+                "The agent_info field is experimental and may change in future versions."
+            )
+            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
+                agent_config=types.EvaluationRunAgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[genai_types.Part(text=agent_info.instruction)]
+                    ),
+                    tools=agent_info.tool_declarations,
+                )
+            )
 
         result = await self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
             display_name=display_name,
-            data_source=data_source,
+            data_source=dataset,
             evaluation_config=evaluation_config,
+            inference_configs=inference_configs,
             config=config,
         )
 

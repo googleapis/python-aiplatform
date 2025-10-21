@@ -23,15 +23,16 @@ from vertexai._genai import types
 
 def test_delete_memory(client):
     agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.create_memory(
+    operation = client.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
     memory = operation.response
-    operation = client.agent_engines.delete_memory(name=memory.name)
+    operation = client.agent_engines.memories.delete(name=memory.name)
     assert isinstance(operation, types.DeleteAgentEngineMemoryOperation)
     assert operation.name.startswith(memory.name + "/operations/")
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
@@ -46,14 +47,16 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_delete_memory_async(client):
-    # TODO(b/431785750): use async methods for create() and create_memory() when available
     agent_engine = client.agent_engines.create()
-    operation = client.agent_engines.create_memory(
+    operation = await client.aio.agent_engines.memories.create(
         name=agent_engine.api_resource.name,
         fact="memory_fact",
         scope={"user_id": "123"},
     )
     memory = operation.response
-    operation = await client.aio.agent_engines.delete_memory(name=memory.name)
+    operation = await client.aio.agent_engines.memories.delete(name=memory.name)
     assert isinstance(operation, types.DeleteAgentEngineMemoryOperation)
     assert operation.name.startswith(memory.name + "/operations/")
+    await client.aio.agent_engines.delete(
+        name=agent_engine.api_resource.name, force=True
+    )
