@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.122.0](https://github.com/googleapis/python-aiplatform/compare/v1.121.0...v1.122.0) (2025-10-21)
+
+
+### Features
+
+* Add STZ support for Endpoint.deploy and Model.deploy (preview). ([7dd2629](https://github.com/googleapis/python-aiplatform/commit/7dd2629d826377560ad9ac3c0e24724e80c7e1bc))
+* Add support for Python v3.13 ([db286c4](https://github.com/googleapis/python-aiplatform/commit/db286c4c6035d690a6bc76f7f955223f0f10c610))
+* Add support for telemetry env enablement and logging setup in default instrumentor. ([a26171c](https://github.com/googleapis/python-aiplatform/commit/a26171cac0409794f1691d0d23735840250d8891))
+* Allow Memory Revisions to be disabled ([cf0948f](https://github.com/googleapis/python-aiplatform/commit/cf0948feeb403bd22006163a202a9833af7fbf5a))
+* Disable request/response content in custom ADK spans on Agent Engine in case there's no explicit consent ([dc5dcc7](https://github.com/googleapis/python-aiplatform/commit/dc5dcc769ff7b4d8772ecd119fa2fcbcd34c2115))
+* GenAI Client(evals) - Add `create_evaluation_set` and `create_evaluation_item` methods to Vertex AI GenAI SDK evals ([83553a9](https://github.com/googleapis/python-aiplatform/commit/83553a9467a0eb4040d92546977737f7b9eb2449))
+* GenAI Client(evals) - Add `evaluation_df` input support to `create_evaluation_run` method in Vertex AI GenAI SDK evals ([7a1262b](https://github.com/googleapis/python-aiplatform/commit/7a1262b27796ad205c3e71552b1381123eb72052))
+* GenAI Client(evals) - Add `inference_configs` to `create_evaluation_run` method in Vertex AI GenAI SDK evals ([5b5e6bd](https://github.com/googleapis/python-aiplatform/commit/5b5e6bdd73e66d1d7fe8e17ff1bb19027fed9404))
+* GenAI Client(evals) - Add `labels` to EvaluationRun in Vertex AI GenAI SDK evals ([67cf80b](https://github.com/googleapis/python-aiplatform/commit/67cf80b06b353a32eb9ce4082678d7fec7ec37e3))
+* GenAI Client(evals) - Add `metrics` to `create_evaluation_run` method in Vertex AI GenAI SDK evals ([ce35218](https://github.com/googleapis/python-aiplatform/commit/ce35218a96d393713b3d85e7ca14e2b54c05ce59))
+* GenAI Client(evals) - Add agent eval data converter evals ([cd61c86](https://github.com/googleapis/python-aiplatform/commit/cd61c86bcf1be7b07e287b06d2bc34492b2b3e17))
+* GenAI Client(evals) - Add Detailed View to `show` method for EvaluationRun for Vertex AI GenAI SDK evals ([dc16065](https://github.com/googleapis/python-aiplatform/commit/dc160653d22071bf41434da17ebf2bd9de687e56))
+* GenAI Client(evals) - Register hallucination and tool_usage_quality metrics for agent eval ([7ae013e](https://github.com/googleapis/python-aiplatform/commit/7ae013e1ce777717983de59105f782c82f5a0262))
+* GenAI Client(evals) - Update agent eval evaluation report dashboard ([e2aa3eb](https://github.com/googleapis/python-aiplatform/commit/e2aa3ebf5d26c91b6b5d250f49192fa0549916f4))
+* GenAI SDK client - Add TTL support for Agent Engine Code Execution ([9d139eb](https://github.com/googleapis/python-aiplatform/commit/9d139ebb32fc5aee0b3d4e8b88859bd1f2bffa36))
+* GenAI SDK client: Add async Memory and Memory Revisions methods ([55b7c23](https://github.com/googleapis/python-aiplatform/commit/55b7c23950a40731ecbb3918f6e4721c66b1e9d3))
+* GenAI SDK client(evals) - Add agent run in run_inference ([8b9ed04](https://github.com/googleapis/python-aiplatform/commit/8b9ed0445e86688a08853cee9a1e5287e399415c))
+* GenAI SDK client(evals) - Add predefined metrics for Gecko text-to-image and text-to-video evaluations ([b05e5b3](https://github.com/googleapis/python-aiplatform/commit/b05e5b335d960911631d60e3a1758f1bc60c4dd0))
+* GenAI SDK client(evals) - Update evaluate function to enable agent_info ([d13b230](https://github.com/googleapis/python-aiplatform/commit/d13b230e52d069ce180d0d57a692aed41db0c59e))
+* GenAI SDK client(evals) Send agent eval request to EvaluateInstance ([87ea594](https://github.com/googleapis/python-aiplatform/commit/87ea5943245854bdfa2857ccb7e77c3ed64f9aba))
+* Support TTL (per Memory Bank and per-request) for Memory Revisions ([cf0948f](https://github.com/googleapis/python-aiplatform/commit/cf0948feeb403bd22006163a202a9833af7fbf5a))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Support multiple metrics in Detailed View `show` method for EvaluationRun for Vertex AI GenAI SDK evals ([3ac82ea](https://github.com/googleapis/python-aiplatform/commit/3ac82ea8ff01e5fc1334b0a7c207c99104f06542))
+* GenAI SDK (prompts) - Fix bug where passing encryption_spec to prompts.create raised an error ([f0a4a00](https://github.com/googleapis/python-aiplatform/commit/f0a4a005d008843b2669314662fcd4b38d2ae5d0))
+
 ## [1.121.0](https://github.com/googleapis/python-aiplatform/compare/v1.120.0...v1.121.0) (2025-10-15)
 
 
