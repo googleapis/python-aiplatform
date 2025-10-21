@@ -603,6 +603,14 @@ class PrebuiltMetricLoader:
     def TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("TOOL_USE_QUALITY")
 
+    @property
+    def GECKO_TEXT2IMAGE(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("GECKO_TEXT2IMAGE")
+
+    @property
+    def GECKO_TEXT2VIDEO(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("GECKO_TEXT2VIDEO")
+
 
 PrebuiltMetric = PrebuiltMetricLoader()
 RubricMetric = PrebuiltMetric
