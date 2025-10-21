@@ -7894,6 +7894,10 @@ class CreateAgentEngineSandboxConfig(_common.BaseModel):
         default=True,
         description="""Waits for the operation to complete before returning.""",
     )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""The TTL for this resource. The expiration time is computed: now + TTL.""",
+    )
 
 
 class CreateAgentEngineSandboxConfigDict(TypedDict, total=False):
@@ -7910,6 +7914,9 @@ class CreateAgentEngineSandboxConfigDict(TypedDict, total=False):
 
     wait_for_completion: Optional[bool]
     """Waits for the operation to complete before returning."""
+
+    ttl: Optional[str]
+    """The TTL for this resource. The expiration time is computed: now + TTL."""
 
 
 CreateAgentEngineSandboxConfigOrDict = Union[
@@ -7988,6 +7995,11 @@ SandboxEnvironmentConnectionInfoOrDict = Union[
 class SandboxEnvironment(_common.BaseModel):
     """A sandbox environment."""
 
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Expiration time of the sandbox environment.
+      """,
+    )
     connection_info: Optional[SandboxEnvironmentConnectionInfo] = Field(
         default=None,
         description="""Output only. The connection information of the SandboxEnvironment.""",
@@ -8023,6 +8035,10 @@ class SandboxEnvironment(_common.BaseModel):
 
 class SandboxEnvironmentDict(TypedDict, total=False):
     """A sandbox environment."""
+
+    expire_time: Optional[datetime.datetime]
+    """Expiration time of the sandbox environment.
+      """
 
     connection_info: Optional[SandboxEnvironmentConnectionInfoDict]
     """Output only. The connection information of the SandboxEnvironment."""
