@@ -19,7 +19,7 @@ from vertexai import types
 from google.genai import types as genai_types
 import pytest
 
-GCS_DEST = "gs://lakeyk-test-limited/eval_run_output"
+GCS_DEST = "gs://lakeyk-limited-bucket/eval_run_output"
 UNIVERSAL_AR_METRIC = types.EvaluationRunMetric(
     metric="universal_ar_v1",
     metric_config=types.UnifiedMetric(
@@ -51,9 +51,6 @@ LLM_METRIC = types.EvaluationRunMetric(
 # TODO(b/431231205): Re-enable once Unified Metrics are in prod.
 # def test_create_eval_run_data_source_evaluation_set(client):
 #     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
-#     client._api_client._http_options.base_url = (
-#         "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
-#     )
 #     client._api_client._http_options.api_version = "v1beta1"
 #     tool = genai_types.Tool(
 #         function_declarations=[
@@ -80,10 +77,12 @@ LLM_METRIC = types.EvaluationRunMetric(
 #             LLM_METRIC
 #         ],
 #         agent_info=types.AgentInfo(
+#             agent="project/123/locations/us-central1/reasoningEngines/456",
 #             name="agent-1",
 #             instruction="agent-1 instruction",
 #             tool_declarations=[tool],
 #         ),
+#         labels={"label1": "value1"},
 #     )
 #     assert isinstance(evaluation_run, types.EvaluationRun)
 #     assert evaluation_run.display_name == "test4"
@@ -108,6 +107,10 @@ LLM_METRIC = types.EvaluationRunMetric(
 #             tools=[tool],
 #         )
 #     )
+#     assert evaluation_run.labels == {
+#        "vertex-ai-evaluation-agent-engine-id": "456",
+#        "label1": "value1",
+#     }
 #     assert evaluation_run.error is None
 
 
@@ -127,6 +130,7 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
                 },
             )
         ),
+        labels={"label1": "value1"},
         dest=GCS_DEST,
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
@@ -150,6 +154,9 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
         ),
     )
     assert evaluation_run.inference_configs is None
+    assert evaluation_run.labels == {
+        "label1": "value1",
+    }
     assert evaluation_run.error is None
 
 
@@ -288,6 +295,8 @@ async def test_create_eval_run_async(client):
     )
     assert evaluation_run.error is None
     assert evaluation_run.inference_configs is None
+    assert evaluation_run.error is None
+    assert evaluation_run.labels is None
     assert evaluation_run.error is None
 
 

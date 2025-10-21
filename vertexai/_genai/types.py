@@ -1220,6 +1220,7 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     evaluation_config: Optional[EvaluationRunConfig] = Field(
         default=None, description=""""""
     )
+    labels: Optional[dict[str, str]] = Field(default=None, description="""""")
     config: Optional[CreateEvaluationRunConfig] = Field(
         default=None, description=""""""
     )
@@ -1241,6 +1242,9 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """"""
 
     evaluation_config: Optional[EvaluationRunConfigDict]
+    """"""
+
+    labels: Optional[dict[str, str]]
     """"""
 
     config: Optional[CreateEvaluationRunConfigDict]
@@ -1482,6 +1486,11 @@ EventOrDict = Union[Event, EventDict]
 class AgentInfo(_common.BaseModel):
     """The agent info of an agent, used for agent eval."""
 
+    agent: Optional[str] = Field(
+        default=None,
+        description="""The agent engine used to run agent. Agent engine resource name in str type, with format
+            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
+    )
     name: Optional[str] = Field(
         default=None, description="""Agent name, used as an identifier."""
     )
@@ -1498,6 +1507,10 @@ class AgentInfo(_common.BaseModel):
 
 class AgentInfoDict(TypedDict, total=False):
     """The agent info of an agent, used for agent eval."""
+
+    agent: Optional[str]
+    """The agent engine used to run agent. Agent engine resource name in str type, with format
+            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
 
     name: Optional[str]
     """Agent name, used as an identifier."""
@@ -1919,6 +1932,7 @@ class EvaluationRun(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. The inference configs for the evaluation run.""",
     )
+    labels: Optional[dict[str, str]] = Field(default=None, description="""""")
 
     # TODO(b/448806531): Remove all the overridden _from_response methods once the
     # ticket is resolved and published.
@@ -2002,6 +2016,9 @@ class EvaluationRunDict(TypedDict, total=False):
 
     inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
     """This field is experimental and may change in future versions. The inference configs for the evaluation run."""
+
+    labels: Optional[dict[str, str]]
+    """"""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]
