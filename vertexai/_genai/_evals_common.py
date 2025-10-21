@@ -1338,28 +1338,24 @@ def _get_eval_case_result_from_eval_item(
     eval_item: types.EvaluationItem,
 ) -> types.EvalCaseResult:
     """Transforms EvaluationItem to EvalCaseResult."""
-    response_candidate_results = []
-    for candidate_index, candidate_result in enumerate(
-        eval_item.evaluation_response.candidate_results
-    ):
-        response_candidate_results.append(
-            types.ResponseCandidateResult(
-                response_index=candidate_index,
-                metric_results={
-                    candidate_result.metric: types.EvalCaseMetricResult(
-                        metric_name=candidate_result.metric,
-                        score=candidate_result.score,
-                        explanation=candidate_result.explanation,
-                        rubric_verdicts=candidate_result.rubric_verdicts,
-                        error_message=(
-                            eval_item.error.message if eval_item.error else None
-                        ),
-                    ),
-                },
+    metric_results = {}
+    if eval_item.evaluation_response.candidate_results:
+        for candidate_result in eval_item.evaluation_response.candidate_results:
+            metric_results[candidate_result.metric] = types.EvalCaseMetricResult(
+                metric_name=candidate_result.metric,
+                score=candidate_result.score,
+                explanation=candidate_result.explanation,
+                rubric_verdicts=candidate_result.rubric_verdicts,
+                error_message=(eval_item.error.message if eval_item.error else None),
             )
-        )
     return types.EvalCaseResult(
-        eval_case_index=index, response_candidate_results=response_candidate_results
+        eval_case_index=index,
+        response_candidate_results=[
+            types.ResponseCandidateResult(
+                response_index=0,
+                metric_results=metric_results,
+            )
+        ],
     )
 
 
@@ -1421,6 +1417,7 @@ def _get_eval_cases_eval_dfs_from_eval_items(
             eval_item
             and eval_item.evaluation_response
             and eval_item.evaluation_response.request
+            and eval_item.evaluation_response.candidate_results
         ):
             eval_case_results.append(
                 _get_eval_case_result_from_eval_item(index, eval_item)
