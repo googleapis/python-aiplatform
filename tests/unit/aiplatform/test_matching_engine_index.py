@@ -619,6 +619,45 @@ class TestMatchingEngineIndex:
         )
 
     @pytest.mark.usefixtures("get_index_mock")
+    def test_create_tree_ah_index_empty_algorithm_config(self, create_index_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        aiplatform.MatchingEngineIndex.create_tree_ah_index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            contents_delta_uri=_TEST_CONTENTS_DELTA_URI,
+            dimensions=_TEST_INDEX_CONFIG_DIMENSIONS,
+            approximate_neighbors_count=_TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+            distance_measure_type=_TEST_INDEX_DISTANCE_MEASURE_TYPE.value,
+            feature_norm_type=_TEST_INDEX_FEATURE_NORM_TYPE.value,
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        expected = gca_index.Index(
+            display_name=_TEST_INDEX_DISPLAY_NAME,
+            metadata={
+                "config": {
+                    "algorithmConfig": None,
+                    "dimensions": _TEST_INDEX_CONFIG_DIMENSIONS,
+                    "approximateNeighborsCount": _TEST_INDEX_APPROXIMATE_NEIGHBORS_COUNT,
+                    "distanceMeasureType": _TEST_INDEX_DISTANCE_MEASURE_TYPE,
+                    "featureNormType": _TEST_INDEX_FEATURE_NORM_TYPE,
+                    "shardSize": None,
+                },
+                "contentsDeltaUri": _TEST_CONTENTS_DELTA_URI,
+            },
+            description=_TEST_INDEX_DESCRIPTION,
+            labels=_TEST_LABELS,
+        )
+
+        create_index_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            index=expected,
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures("get_index_mock")
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.parametrize(
         "index_update_method",
