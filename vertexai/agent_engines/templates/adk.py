@@ -273,18 +273,25 @@ def _default_instrumentor_builder(
             "opentelemetry-sdk", needed_for_tracing=True, needed_for_logging=True
         )
 
+    import uuid
+
+    # Provide a set of resource attributes but allow to override them with env
+    # variables like OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME.
     cloud_resource_id = _detect_cloud_resource_id(project_id)
     resource = opentelemetry.sdk.resources.Resource.create(
         attributes={
             "gcp.project_id": project_id,
+            "cloud.account.id": project_id,
             "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
+            "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
+            "cloud.region": os.getenv("GOOGLE_CLOUD_LOCATION", ""),
         }
         | (
             {"cloud.resource_id": cloud_resource_id}
             if cloud_resource_id is not None
             else {}
         )
-    )
+    ).merge(opentelemetry.sdk.resources.OTELResourceDetector().detect())
 
     if enable_tracing:
         try:
