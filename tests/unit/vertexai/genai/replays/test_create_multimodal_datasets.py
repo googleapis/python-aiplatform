@@ -40,6 +40,17 @@ def test_create_dataset(client):
     assert create_dataset_operation
 
 
+def test_create_dataset_from_bigquery(client):
+    dataset = client.datasets.create_multimodal_dataset_from_bigquery(
+        multimodal_dataset=types.MultimodalDataset(
+            display_name="test-from-bigquery",
+            bigquery_uri=BIGQUERY_TABLE_NAME,
+        )
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigquery"
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -62,3 +73,28 @@ async def test_create_dataset_async(client):
     )
     assert isinstance(create_dataset_operation, types.MultimodalDatasetOperation)
     assert create_dataset_operation
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_from_bigquery_async(client):
+    dataset = await client.aio.datasets.create_multimodal_dataset_from_bigquery(
+        multimodal_dataset=types.MultimodalDataset(
+            display_name="test-from-bigquery",
+            bigquery_uri=BIGQUERY_TABLE_NAME,
+        )
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigquery"
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_from_bigquery_async_with_timeout(client):
+    dataset = await client.aio.datasets.create_multimodal_dataset_from_bigquery(
+        config=types.CreateMultimodalDatasetConfig(timeout=120),
+        multimodal_dataset=types.MultimodalDataset(
+            display_name="test-from-bigquery",
+            bigquery_uri=BIGQUERY_TABLE_NAME,
+        ),
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigquery"

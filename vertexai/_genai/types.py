@@ -9697,6 +9697,11 @@ class CreateMultimodalDatasetConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the create dataset request in seconds. If not set,
+      the default timeout is 90 seconds.""",
+    )
 
 
 class CreateMultimodalDatasetConfigDict(TypedDict, total=False):
@@ -9704,6 +9709,10 @@ class CreateMultimodalDatasetConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the create dataset request in seconds. If not set,
+      the default timeout is 90 seconds."""
 
 
 CreateMultimodalDatasetConfigOrDict = Union[
@@ -9821,6 +9830,36 @@ _CreateMultimodalDatasetParametersOrDict = Union[
 ]
 
 
+class MultimodalDataset(_common.BaseModel):
+    """Represents a multimodal dataset."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The ID of the multimodal dataset."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the multimodal dataset."""
+    )
+    bigquery_uri: Optional[str] = Field(
+        default=None, description="""The BigQuery URI of the multimodal dataset."""
+    )
+
+
+class MultimodalDatasetDict(TypedDict, total=False):
+    """Represents a multimodal dataset."""
+
+    name: Optional[str]
+    """The ID of the multimodal dataset."""
+
+    display_name: Optional[str]
+    """The display name of the multimodal dataset."""
+
+    bigquery_uri: Optional[str]
+    """The BigQuery URI of the multimodal dataset."""
+
+
+MultimodalDatasetOrDict = Union[MultimodalDataset, MultimodalDatasetDict]
+
+
 class MultimodalDatasetOperation(_common.BaseModel):
     """Represents the create dataset operation."""
 
@@ -9840,7 +9879,7 @@ class MultimodalDatasetOperation(_common.BaseModel):
         default=None,
         description="""The error result of the operation in case of failure or cancellation.""",
     )
-    response: Optional[dict[str, Any]] = Field(
+    response: Optional[MultimodalDataset] = Field(
         default=None, description="""The result of the dataset operation."""
     )
 
@@ -9860,12 +9899,61 @@ class MultimodalDatasetOperationDict(TypedDict, total=False):
     error: Optional[dict[str, Any]]
     """The error result of the operation in case of failure or cancellation."""
 
-    response: Optional[dict[str, Any]]
+    response: Optional[MultimodalDatasetDict]
     """The result of the dataset operation."""
 
 
 MultimodalDatasetOperationOrDict = Union[
     MultimodalDatasetOperation, MultimodalDatasetOperationDict
+]
+
+
+class GetMultimodalDatasetOperationConfig(_common.BaseModel):
+    """Config for getting a multimodal dataset operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetMultimodalDatasetOperationConfigDict(TypedDict, total=False):
+    """Config for getting a multimodal dataset operation."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetMultimodalDatasetOperationConfigOrDict = Union[
+    GetMultimodalDatasetOperationConfig, GetMultimodalDatasetOperationConfigDict
+]
+
+
+class _GetMultimodalDatasetOperationParameters(_common.BaseModel):
+    """Parameters for getting a dataset operation."""
+
+    config: Optional[GetMultimodalDatasetOperationConfig] = Field(
+        default=None, description=""""""
+    )
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+    operation_id: Optional[str] = Field(default=None, description="""""")
+
+
+class _GetMultimodalDatasetOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a dataset operation."""
+
+    config: Optional[GetMultimodalDatasetOperationConfigDict]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+    operation_id: Optional[str]
+    """"""
+
+
+_GetMultimodalDatasetOperationParametersOrDict = Union[
+    _GetMultimodalDatasetOperationParameters,
+    _GetMultimodalDatasetOperationParametersDict,
 ]
 
 

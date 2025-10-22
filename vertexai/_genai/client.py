@@ -55,7 +55,7 @@ class AsyncClient:
         self._agent_engines = None
         self._prompt_optimizer = None
         self._prompts = None
-        self._multimodal = None
+        self._datasets = None
 
     @property
     @_common.experimental_warning(
@@ -121,16 +121,16 @@ class AsyncClient:
 
     @property
     @_common.experimental_warning(
-        "The Vertex SDK GenAI async multimodal module is experimental, "
+        "The Vertex SDK GenAI async datasets module is experimental, "
         "and may change in future versions."
     )
-    def multimodal(self):
-        if self._multimodal is None:
-            self._multimodal = importlib.import_module(
-                ".multimodal",
+    def datasets(self):
+        if self._datasets is None:
+            self._datasets = importlib.import_module(
+                ".datasets",
                 __package__,
             )
-        return self._multimodal.AsyncMultimodal(self._api_client)
+        return self._datasets.AsyncDatasets(self._api_client)
 
 
 class Client:
@@ -192,7 +192,7 @@ class Client:
         self._prompt_optimizer = None
         self._agent_engines = None
         self._prompts = None
-        self._multimodal = None
+        self._datasets = None
 
     @property
     def evals(self) -> Any:
@@ -282,13 +282,13 @@ class Client:
 
     @property
     @_common.experimental_warning(
-        "The Vertex SDK GenAI multimodal module is experimental, "
+        "The Vertex SDK GenAI datasets module is experimental, "
         "and may change in future versions."
     )
-    def multimodal(self):
-        if self._multimodal is None:
-            self._multimodal = importlib.import_module(
-                ".multimodal",
+    def datasets(self):
+        if self._datasets is None:
+            self._datasets = importlib.import_module(
+                ".datasets",
                 __package__,
             )
-        return self._multimodal.Multimodal(self._api_client)
+        return self._datasets.Datasets(self._api_client)
