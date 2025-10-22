@@ -9757,7 +9757,7 @@ class SchemaTablesDatasetMetadata(_common.BaseModel):
     """Represents the metadata schema for multimodal dataset metadata."""
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfig] = Field(
-        default=None, description=""""""
+        default=None, description="""inputConfig"""
     )
 
 
@@ -9765,7 +9765,7 @@ class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
     """Represents the metadata schema for multimodal dataset metadata."""
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
-    """"""
+    """inputConfig"""
 
 
 SchemaTablesDatasetMetadataOrDict = Union[
