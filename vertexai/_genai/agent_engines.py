@@ -895,7 +895,7 @@ class AgentEngines(_api_module.BaseModule):
         if agent_engine.api_resource:
             logger.info("Agent Engine created. To use it in another session:")
             logger.info(
-                f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
+                f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
             raise RuntimeError(f"Failed to create Agent Engine: {operation.error}")
@@ -1313,7 +1313,7 @@ class AgentEngines(_api_module.BaseModule):
         if agent_engine.api_resource:
             logger.info("Agent Engine updated. To use it in another session:")
             logger.info(
-                f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
+                f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
             raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
