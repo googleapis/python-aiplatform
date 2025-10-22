@@ -77,6 +77,9 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["evaluation_config"]) is not None:
         setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
 
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -230,8 +233,14 @@ def _EvaluationRun_from_vertex(
             getv(from_object, ["evaluationResults"]),
         )
 
+    if getv(from_object, ["evaluationConfig"]) is not None:
+        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
+
     if getv(from_object, ["inferenceConfigs"]) is not None:
         setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
 
     return to_object
 
@@ -460,7 +469,8 @@ class Evals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
-        evaluation_config: genai_types.EvaluationConfigOrDict,
+        evaluation_config: types.EvaluationRunConfigOrDict,
+        labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
@@ -475,6 +485,7 @@ class Evals(_api_module.BaseModule):
             display_name=display_name,
             data_source=data_source,
             evaluation_config=evaluation_config,
+            labels=labels,
             config=config,
             inference_configs=inference_configs,
         )
@@ -1306,10 +1317,14 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         name: str,
-        display_name: Optional[str] = None,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        display_name: Optional[str] = None,
+        metrics: Optional[
+            list[types.EvaluationRunMetricOrDict]
+        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.AgentInfo] = None,
+        labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
@@ -1328,7 +1343,12 @@ class Evals(_api_module.BaseModule):
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
-        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
+            metrics, self._api_client
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config, metrics=resolved_metrics
+        )
         inference_configs = {}
         if agent_info:
             logger.warning(
@@ -1342,6 +1362,17 @@ class Evals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
+            if (
+                not agent_info.agent
+                or len(agent_info.agent.split("reasoningEngines/")) != 2
+            ):
+                raise ValueError(
+                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
+                )
+            labels = labels or {}
+            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
+                "reasoningEngines/"
+            )[-1]
 
         return self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
@@ -1349,6 +1380,7 @@ class Evals(_api_module.BaseModule):
             data_source=dataset,
             evaluation_config=evaluation_config,
             inference_configs=inference_configs,
+            labels=labels,
             config=config,
         )
 
@@ -1554,7 +1586,8 @@ class AsyncEvals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
-        evaluation_config: genai_types.EvaluationConfigOrDict,
+        evaluation_config: types.EvaluationRunConfigOrDict,
+        labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
@@ -1569,6 +1602,7 @@ class AsyncEvals(_api_module.BaseModule):
             display_name=display_name,
             data_source=data_source,
             evaluation_config=evaluation_config,
+            labels=labels,
             config=config,
             inference_configs=inference_configs,
         )
@@ -2103,10 +2137,14 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         name: str,
-        display_name: Optional[str] = None,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        display_name: Optional[str] = None,
+        metrics: Optional[
+            list[types.EvaluationRunMetricOrDict]
+        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.AgentInfo] = None,
+        labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun."""
@@ -2125,7 +2163,12 @@ class AsyncEvals(_api_module.BaseModule):
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
-        evaluation_config = genai_types.EvaluationConfig(output_config=output_config)
+        resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
+            metrics, self._api_client
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config, metrics=resolved_metrics
+        )
         inference_configs = {}
         if agent_info:
             logger.warning(
@@ -2139,6 +2182,17 @@ class AsyncEvals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
+            if (
+                not agent_info.agent
+                or len(agent_info.agent.split("reasoningEngines/")) != 2
+            ):
+                raise ValueError(
+                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
+                )
+            labels = labels or {}
+            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
+                "reasoningEngines/"
+            )[-1]
 
         result = await self._create_evaluation_run(  # type: ignore[no-any-return]
             name=name,
@@ -2146,6 +2200,7 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=dataset,
             evaluation_config=evaluation_config,
             inference_configs=inference_configs,
+            labels=labels,
             config=config,
         )
 

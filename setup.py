@@ -55,12 +55,12 @@ tensorboard_extra_require = profiler_extra_require
 grpc_extra_require = ["grpcio >= 1.75.1; python_version>='3.14'"]
 
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0; python_version<'3.13'"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0, <3.0.0",
+    "tensorflow >= 2.3.0, <3.0.0; python_version<'3.13'",
     "pandas >= 1.0.0",
     "lit-nlp == 0.4.0",
-    "explainable-ai-sdk >= 1.0.0",
+    "explainable-ai-sdk >= 1.0.0; python_version<'3.13'",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
@@ -133,7 +133,7 @@ ray_testing_extra_require = ray_extra_require + [
     "ray[train]",
     # Framework version constraints copied from testing_extra_require
     "scikit-learn<1.6.0",
-    "tensorflow",
+    "tensorflow; python_version<'3.13'",
     "torch >= 2.0.0, < 2.1.0",
     "xgboost",
     "xgboost_ray",
@@ -252,20 +252,23 @@ testing_extra_require = (
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
         "grpcio-testing",
+        "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",
-        "kfp >= 2.6.0, < 3.0.0",
+        "kfp >= 2.6.0, < 3.0.0; python_version<'3.13'",
         "pytest-asyncio",
+        "pytest-cov",
+        "mock",
         "pytest-xdist",
         "scikit-learn<1.6.0; python_version<='3.10'",
         "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
         "tensorflow == 2.14.1; python_version<='3.11'",
-        "tensorflow == 2.19.0; python_version>'3.11'",
+        "tensorflow == 2.19.0; python_version>'3.11' and python_version<'3.13'",
         "protobuf <= 5.29.4",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
-        "torch >= 2.2.0; python_version>'3.11'",
+        "torch >= 2.2.0; python_version>'3.11' and python_version<'3.13'",
         "requests-toolbelt <= 1.0.0",
         "immutabledict",
         "xgboost",
@@ -300,7 +303,8 @@ setuptools.setup(
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 3.0.0",
+        "google-cloud-storage >= 1.32.0, < 3.0.0; python_version<'3.13'",
+        "google-cloud-storage >= 2.10.0, < 3.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
@@ -349,6 +353,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",

@@ -28,6 +28,8 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "final_response_quality_v1",
         "hallucination_v1",
         "tool_use_quality_v1",
+        "gecko_text2image_v1",
+        "gecko_text2video_v1",
     }
 )
 

@@ -933,6 +933,73 @@ def _resolve_dataset_inputs(
     return processed_eval_dataset, num_response_candidates
 
 
+def _resolve_evaluation_run_metrics(
+    metrics: list[types.EvaluationRunMetric], api_client: Any
+) -> list[types.EvaluationRunMetric]:
+    """Resolves a list of evaluation run metric instances, loading RubricMetric if necessary."""
+    if not metrics:
+        return []
+    resolved_metrics_list = []
+    for metric_instance in metrics:
+        if isinstance(metric_instance, types.EvaluationRunMetric):
+            resolved_metrics_list.append(metric_instance)
+        elif isinstance(metric_instance, _evals_utils.LazyLoadedPrebuiltMetric):
+            try:
+                resolved_metric = metric_instance.resolve(api_client=api_client)
+                if resolved_metric.name:
+                    resolved_metrics_list.append(
+                        types.EvaluationRunMetric(
+                            metric=resolved_metric.name,
+                            metric_config=types.UnifiedMetric(
+                                predefined_metric_spec=types.PredefinedMetricSpec(
+                                    metric_spec_name=resolved_metric.name,
+                                )
+                            ),
+                        )
+                    )
+            except Exception as e:
+                logger.error(
+                    "Failed to resolve RubricMetric %s@%s: %s",
+                    metric_instance.name,
+                    metric_instance.version,
+                    e,
+                )
+                raise
+        else:
+            try:
+                metric_name_str = str(metric_instance)
+                lazy_metric_instance = getattr(
+                    _evals_utils.RubricMetric, metric_name_str.upper()
+                )
+                if isinstance(
+                    lazy_metric_instance, _evals_utils.LazyLoadedPrebuiltMetric
+                ):
+                    resolved_metric = lazy_metric_instance.resolve(
+                        api_client=api_client
+                    )
+                    if resolved_metric.name:
+                        resolved_metrics_list.append(
+                            types.EvaluationRunMetric(
+                                metric=resolved_metric.name,
+                                metric_config=types.UnifiedMetric(
+                                    predefined_metric_spec=types.PredefinedMetricSpec(
+                                        metric_spec_name=resolved_metric.name,
+                                    )
+                                ),
+                            )
+                        )
+                else:
+                    raise TypeError(
+                        f"RubricMetric.{metric_name_str.upper()} cannot be resolved."
+                    )
+            except AttributeError as exc:
+                raise TypeError(
+                    "Unsupported metric type or invalid RubricMetric name:"
+                    f" {metric_instance}"
+                ) from exc
+    return resolved_metrics_list
+
+
 def _resolve_metrics(
     metrics: list[types.Metric], api_client: Any
 ) -> list[types.Metric]:
@@ -1338,28 +1405,24 @@ def _get_eval_case_result_from_eval_item(
     eval_item: types.EvaluationItem,
 ) -> types.EvalCaseResult:
     """Transforms EvaluationItem to EvalCaseResult."""
-    response_candidate_results = []
-    for candidate_index, candidate_result in enumerate(
-        eval_item.evaluation_response.candidate_results
-    ):
-        response_candidate_results.append(
-            types.ResponseCandidateResult(
-                response_index=candidate_index,
-                metric_results={
-                    candidate_result.metric: types.EvalCaseMetricResult(
-                        metric_name=candidate_result.metric,
-                        score=candidate_result.score,
-                        explanation=candidate_result.explanation,
-                        rubric_verdicts=candidate_result.rubric_verdicts,
-                        error_message=(
-                            eval_item.error.message if eval_item.error else None
-                        ),
-                    ),
-                },
+    metric_results = {}
+    if eval_item.evaluation_response.candidate_results:
+        for candidate_result in eval_item.evaluation_response.candidate_results:
+            metric_results[candidate_result.metric] = types.EvalCaseMetricResult(
+                metric_name=candidate_result.metric,
+                score=candidate_result.score,
+                explanation=candidate_result.explanation,
+                rubric_verdicts=candidate_result.rubric_verdicts,
+                error_message=(eval_item.error.message if eval_item.error else None),
             )
-        )
     return types.EvalCaseResult(
-        eval_case_index=index, response_candidate_results=response_candidate_results
+        eval_case_index=index,
+        response_candidate_results=[
+            types.ResponseCandidateResult(
+                response_index=0,
+                metric_results=metric_results,
+            )
+        ],
     )
 
 
@@ -1421,6 +1484,7 @@ def _get_eval_cases_eval_dfs_from_eval_items(
             eval_item
             and eval_item.evaluation_response
             and eval_item.evaluation_response.request
+            and eval_item.evaluation_response.candidate_results
         ):
             eval_case_results.append(
                 _get_eval_case_result_from_eval_item(index, eval_item)

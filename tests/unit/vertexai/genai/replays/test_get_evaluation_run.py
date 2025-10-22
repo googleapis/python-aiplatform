@@ -256,7 +256,7 @@ def check_run_1957799200510967808_evaluation_item_results(
     assert isinstance(eval_case_result, types.EvalCaseResult)
     # Check the response candidate results.
     response_candidate_result = eval_case_result.response_candidate_results[0]
-    assert isinstance(response_candidate_result, types.ResponseCandidateResult)
+    assert response_candidate_result.response_index == 0
     universal_metric_result = response_candidate_result.metric_results["universal"]
     assert isinstance(universal_metric_result, types.EvalCaseMetricResult)
     assert universal_metric_result.metric_name == "universal"

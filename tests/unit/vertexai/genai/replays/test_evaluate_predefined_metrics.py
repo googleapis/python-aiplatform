@@ -248,6 +248,127 @@ def test_evaluation_grounding_metric(client):
         assert case_result.response_candidate_results is not None
 
 
+def test_evaluation_gecko_text2image_metric(client):
+    """Tests that Gecko text2image metric produces a correctly structured EvaluationResult."""
+    prompts_df = pd.DataFrame(
+        {
+            "prompt": ["sunset over a calm ocean"],
+            "response": [
+                {
+                    "parts": [
+                        {
+                            "file_data": {
+                                "mime_type": "image/png",
+                                "file_uri": (
+                                    "gs://cloud-samples-data/generative-ai/evaluation/"
+                                    "images/sunset.png"
+                                ),
+                            }
+                        }
+                    ],
+                    "role": "model",
+                },
+            ],
+        }
+    )
+
+    data_with_rubrics = client.evals.generate_rubrics(
+        src=prompts_df,
+        rubric_group_name="gecko_image_rubrics",
+        predefined_spec_name=types.RubricMetric.GECKO_TEXT2IMAGE,
+    )
+
+    assert isinstance(data_with_rubrics, types.EvaluationDataset)
+    assert data_with_rubrics.eval_dataset_df is not None
+    assert len(data_with_rubrics.eval_dataset_df) == 1
+    for _, case in data_with_rubrics.eval_dataset_df.iterrows():
+        assert case.rubric_groups is not None
+        assert "gecko_image_rubrics" in case.rubric_groups
+
+    evaluation_result = client.evals.evaluate(
+        dataset=data_with_rubrics,
+        metrics=[
+            types.RubricMetric.GECKO_TEXT2IMAGE,
+        ],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+
+    assert evaluation_result.summary_metrics is not None
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name is not None
+        assert summary.mean_score is not None
+
+    assert evaluation_result.eval_case_results is not None
+    for case_result in evaluation_result.eval_case_results:
+        assert isinstance(case_result, types.EvalCaseResult)
+        assert case_result.eval_case_index is not None
+        assert case_result.response_candidate_results is not None
+
+
+def test_evaluation_gecko_text2video_metric(client):
+    """Tests that Gecko text2video metric produces a correctly structured EvaluationResult."""
+    prompts_df = pd.DataFrame(
+        {
+            "prompt": [
+                "A boat sailing leisurely along the Seine River with the Eiffel Tower "
+                "in background"
+            ],
+            "response": [
+                {
+                    "parts": [
+                        {
+                            "file_data": {
+                                "mime_type": "video/mp4",
+                                "file_uri": (
+                                    "gs://cloud-samples-data/generative-ai/evaluation/"
+                                    "videos/boat.mp4"
+                                ),
+                            }
+                        }
+                    ],
+                    "role": "model",
+                },
+            ],
+        }
+    )
+
+    data_with_rubrics = client.evals.generate_rubrics(
+        src=prompts_df,
+        rubric_group_name="gecko_video_rubrics",
+        predefined_spec_name=types.RubricMetric.GECKO_TEXT2VIDEO,
+    )
+
+    assert isinstance(data_with_rubrics, types.EvaluationDataset)
+    assert data_with_rubrics.eval_dataset_df is not None
+    assert len(data_with_rubrics.eval_dataset_df) == 1
+    for _, case in data_with_rubrics.eval_dataset_df.iterrows():
+        assert case.rubric_groups is not None
+        assert "gecko_video_rubrics" in case.rubric_groups
+
+    evaluation_result = client.evals.evaluate(
+        dataset=data_with_rubrics,
+        metrics=[
+            types.RubricMetric.GECKO_TEXT2VIDEO,
+        ],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+
+    assert evaluation_result.summary_metrics is not None
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name is not None
+        assert summary.mean_score is not None
+
+    assert evaluation_result.eval_case_results is not None
+    for case_result in evaluation_result.eval_case_results:
+        assert isinstance(case_result, types.EvalCaseResult)
+        assert case_result.eval_case_index is not None
+        assert case_result.response_candidate_results is not None
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

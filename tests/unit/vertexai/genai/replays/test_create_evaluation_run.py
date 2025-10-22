@@ -19,53 +19,99 @@ from vertexai import types
 from google.genai import types as genai_types
 import pytest
 
-
-def test_create_eval_run_data_source_evaluation_set(client):
-    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
-    client._api_client._http_options.api_version = "v1beta1"
-    tool = genai_types.Tool(
-        function_declarations=[
-            genai_types.FunctionDeclaration(
-                name="get_weather",
-                description="Get weather in a location",
-                parameters={
-                    "type": "object",
-                    "properties": {"location": {"type": "string"}},
-                },
-            )
-        ]
-    )
-    evaluation_run = client.evals.create_evaluation_run(
-        name="test4",
-        display_name="test4",
-        dataset=types.EvaluationRunDataSource(
-            evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
-        ),
-        agent_info=types.AgentInfo(
-            name="agent-1",
-            instruction="agent-1 instruction",
-            tool_declarations=[tool],
-        ),
-        dest="gs://lakeyk-limited-bucket/eval_run_output",
-    )
-    assert isinstance(evaluation_run, types.EvaluationRun)
-    assert evaluation_run.display_name == "test4"
-    assert evaluation_run.state == types.EvaluationRunState.PENDING
-    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
-    assert evaluation_run.data_source.evaluation_set == (
-        "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
-    )
-    assert evaluation_run.inference_configs[
-        "agent-1"
-    ] == types.EvaluationRunInferenceConfig(
-        agent_config=types.EvaluationRunAgentConfig(
-            developer_instruction=genai_types.Content(
-                parts=[genai_types.Part(text="agent-1 instruction")]
-            ),
-            tools=[tool],
+GCS_DEST = "gs://lakeyk-limited-bucket/eval_run_output"
+UNIVERSAL_AR_METRIC = types.EvaluationRunMetric(
+    metric="universal_ar_v1",
+    metric_config=types.UnifiedMetric(
+        predefined_metric_spec=types.PredefinedMetricSpec(
+            metric_spec_name="universal_ar_v1",
         )
-    )
-    assert evaluation_run.error is None
+    ),
+)
+FINAL_RESPONSE_QUALITY_METRIC = types.EvaluationRunMetric(
+    metric="final_response_quality_v1",
+    metric_config=types.UnifiedMetric(
+        predefined_metric_spec=types.PredefinedMetricSpec(
+            metric_spec_name="final_response_quality_v1",
+        )
+    ),
+)
+LLM_METRIC = types.EvaluationRunMetric(
+    metric="llm_metric",
+    metric_config=types.UnifiedMetric(
+        llm_based_metric_spec=types.LLMBasedMetricSpec(
+            metric_prompt_template=(
+                "\nEvaluate the fluency of the response. Provide a score from 1-5."
+            )
+        )
+    ),
+)
+
+
+# TODO(b/431231205): Re-enable once Unified Metrics are in prod.
+# def test_create_eval_run_data_source_evaluation_set(client):
+#     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
+#     client._api_client._http_options.api_version = "v1beta1"
+#     tool = genai_types.Tool(
+#         function_declarations=[
+#             genai_types.FunctionDeclaration(
+#                 name="get_weather",
+#                 description="Get weather in a location",
+#                 parameters={
+#                     "type": "object",
+#                     "properties": {"location": {"type": "string"}},
+#                 },
+#             )
+#         ]
+#     )
+#     evaluation_run = client.evals.create_evaluation_run(
+#         name="test4",
+#         display_name="test4",
+#         dataset=types.EvaluationRunDataSource(
+#             evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+#         ),
+#         dest=GCS_DEST,
+#         metrics=[
+#             UNIVERSAL_AR_METRIC,
+#             types.RubricMetric.FINAL_RESPONSE_QUALITY,
+#             LLM_METRIC
+#         ],
+#         agent_info=types.AgentInfo(
+#             agent="project/123/locations/us-central1/reasoningEngines/456",
+#             name="agent-1",
+#             instruction="agent-1 instruction",
+#             tool_declarations=[tool],
+#         ),
+#         labels={"label1": "value1"},
+#     )
+#     assert isinstance(evaluation_run, types.EvaluationRun)
+#     assert evaluation_run.display_name == "test4"
+#     assert evaluation_run.state == types.EvaluationRunState.PENDING
+#     assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+#     assert evaluation_run.data_source.evaluation_set == (
+#         "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+#     )
+#     assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+#         output_config=genai_types.OutputConfig(
+#             gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+#         ),
+#         metrics=[UNIVERSAL_AR_METRIC, FINAL_RESPONSE_QUALITY_METRIC, LLM_METRIC],
+#     )
+#     assert evaluation_run.inference_configs[
+#         "agent-1"
+#     ] == types.EvaluationRunInferenceConfig(
+#         agent_config=types.EvaluationRunAgentConfig(
+#             developer_instruction=genai_types.Content(
+#                 parts=[genai_types.Part(text="agent-1 instruction")]
+#             ),
+#             tools=[tool],
+#         )
+#     )
+#     assert evaluation_run.labels == {
+#        "vertex-ai-evaluation-agent-engine-id": "456",
+#        "label1": "value1",
+#     }
+#     assert evaluation_run.error is None
 
 
 def test_create_eval_run_data_source_bigquery_request_set(client):
@@ -84,7 +130,8 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
                 },
             )
         ),
-        dest="gs://lakeyk-limited-bucket/eval_run_output",
+        labels={"label1": "value1"},
+        dest=GCS_DEST,
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test5"
@@ -101,7 +148,15 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
             },
         )
     )
+    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+        ),
+    )
     assert evaluation_run.inference_configs is None
+    assert evaluation_run.labels == {
+        "label1": "value1",
+    }
     assert evaluation_run.error is None
 
 
@@ -220,7 +275,7 @@ async def test_create_eval_run_async(client):
                 },
             )
         ),
-        dest="gs://lakeyk-limited-bucket/eval_run_output",
+        dest=GCS_DEST,
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test8"
@@ -233,7 +288,15 @@ async def test_create_eval_run_async(client):
             "checkpoint_2": "checkpoint_2",
         },
     )
+    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+        ),
+    )
+    assert evaluation_run.error is None
     assert evaluation_run.inference_configs is None
+    assert evaluation_run.error is None
+    assert evaluation_run.labels is None
     assert evaluation_run.error is None
 
 

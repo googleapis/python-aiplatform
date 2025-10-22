@@ -21,6 +21,13 @@ import os.path
 import shutil
 import tempfile
 
+import sys
+
+import pytest
+
+if sys.version_info >= (3, 13):
+    pytest.skip("Tensorflow not available for Python 3.13+", allow_module_level=True)
+
 from google.cloud.aiplatform.tensorboard import logdir_loader
 import tensorflow as tf
 

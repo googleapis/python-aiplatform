@@ -1235,9 +1235,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         traffic_percentage: Optional[int],
         deployment_resource_pool: Optional[DeploymentResourcePool],
         required_replica_count: Optional[int],
-        initial_replica_count: Optional[int] = None,
-        min_scaleup_period: Optional[int] = None,
-        idle_scaledown_period: Optional[int] = None,
     ):
         """Helper method to validate deploy arguments.
 
@@ -1293,17 +1290,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
-            initial_replica_count (int):
-                Optional. The number of replicas to deploy the model with.
-                Only applicable for scale-to-zero deployments where
-                min_replica_count is 0.
-            min_scaleup_period (int):
-                Optional. For scale-to-zero deployments, Minimum duration that
-                a deployment will be scaled up before traffic is
-                evaluated for potential scale-down.
-            idle_scaledown_period (int):
-                Optional. For scale-to-zero deployments, duration of no traffic
-                before scaling to zero.
 
         Raises:
             ValueError: if Min or Max replica is negative. Traffic percentage > 100 or
@@ -1319,7 +1305,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 and max_replica_count != 1
                 or required_replica_count
                 and required_replica_count != 0
-                or initial_replica_count
             ):
                 raise ValueError(
                     "Ignoring explicitly specified replica counts, "
@@ -1342,44 +1327,6 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 raise ValueError("Required replica cannot be negative.")
             if accelerator_type:
                 utils.validate_accelerator_type(accelerator_type)
-            if min_replica_count != 0:
-                if initial_replica_count:
-                    raise ValueError(
-                        "Initial replica count cannot be set for non-STZ models."
-                    )
-                if min_scaleup_period:
-                    raise ValueError(
-                        "Min scaleup period cannot be set for non-STZ models."
-                    )
-                if idle_scaledown_period:
-                    raise ValueError(
-                        "Idle scaledown period cannot be set for non-STZ models."
-                    )
-            if min_replica_count == 0 and initial_replica_count:
-                if initial_replica_count < 0:
-                    raise ValueError("Initial replica count must be at least 0.")
-                if initial_replica_count > max_replica_count:
-                    raise ValueError(
-                        "Initial replica count cannot be greater than max replica count."
-                    )
-            if min_replica_count == 0 and min_scaleup_period:
-                if min_scaleup_period < 300:
-                    raise ValueError(
-                        "Min scaleup period cannot be less than 300 (5 minutes)."
-                    )
-                if min_scaleup_period > 28800:
-                    raise ValueError(
-                        "Min scaleup period cannot be greater than 28800 (8 hours)."
-                    )
-            if min_replica_count == 0 and idle_scaledown_period:
-                if idle_scaledown_period < 300:
-                    raise ValueError(
-                        "Idle scaledown period cannot be less than 300 (5 minutes)."
-                    )
-                if idle_scaledown_period > 28800:
-                    raise ValueError(
-                        "Idle scaledown period cannot be greater than 28800 (8 hours)."
-                    )
 
         if deployed_model_display_name is not None:
             utils.validate_display_name(deployed_model_display_name)

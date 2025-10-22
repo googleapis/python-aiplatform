@@ -1263,7 +1263,7 @@ class TestAgentEngine:
             assert "View progress and logs at" in caplog.text
             assert "Agent Engine created. To use it in another session:" in caplog.text
             assert (
-                f"agent_engine=client.agent_engines.get("
+                f"agent_engine=client.agent_engines.get(name="
                 f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
             )
 
@@ -1687,7 +1687,7 @@ class TestAgentEngine:
             assert "Agent Engine updated. To use it in another session:" in caplog.text
             assert (
                 f"agent_engine=client.agent_engines.get("
-                f"'{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
+                f"name='{_TEST_AGENT_ENGINE_RESOURCE_NAME}')" in caplog.text
             )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")

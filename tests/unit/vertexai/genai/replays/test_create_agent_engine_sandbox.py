@@ -30,7 +30,9 @@ def test_create_sandbox(client):
                 "machineConfig": "MACHINE_CONFIG_VCPU4_RAM4GIB"
             }
         },
-        config=types.CreateAgentEngineSandboxConfig(display_name="test_sandbox"),
+        config=types.CreateAgentEngineSandboxConfig(
+            display_name="test_sandbox", ttl="3600s"
+        ),
     )
     assert isinstance(operation, types.AgentEngineSandboxOperation)
     assert operation.response.display_name == "test_sandbox"
