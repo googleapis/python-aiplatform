@@ -5330,6 +5330,30 @@ MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = U
 ]
 
 
+class MemoryTopicId(_common.BaseModel):
+    """The topic ID for a memory."""
+
+    custom_memory_topic_label: Optional[str] = Field(
+        default=None, description="""Optional. The custom memory topic label."""
+    )
+    managed_memory_topic: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Optional. The managed memory topic."""
+    )
+
+
+class MemoryTopicIdDict(TypedDict, total=False):
+    """The topic ID for a memory."""
+
+    custom_memory_topic_label: Optional[str]
+    """Optional. The custom memory topic label."""
+
+    managed_memory_topic: Optional[ManagedTopicEnum]
+    """Optional. The managed memory topic."""
+
+
+MemoryTopicIdOrDict = Union[MemoryTopicId, MemoryTopicIdDict]
+
+
 class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
     _common.BaseModel
 ):
@@ -5337,6 +5361,10 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
 
     fact: Optional[str] = Field(
         default=None, description="""Required. The fact to generate a memory from."""
+    )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
     )
 
 
@@ -5347,6 +5375,9 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
 
     fact: Optional[str]
     """Required. The fact to generate a memory from."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
@@ -6432,6 +6463,9 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. Input only. If true, no revision will be created for this request.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None, description="""Optional. The topics of the memory."""
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -6465,6 +6499,9 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     disable_memory_revisions: Optional[bool]
     """Optional. Input only. If true, no revision will be created for this request."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics of the memory."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -6573,6 +6610,9 @@ class Memory(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this Memory was most recently updated.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None, description="""Optional. The Topics of the Memory."""
+    )
 
 
 class MemoryDict(TypedDict, total=False):
@@ -6613,6 +6653,9 @@ class MemoryDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory was most recently updated."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The Topics of the Memory."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -6840,6 +6883,10 @@ class GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(_common.BaseModel)
         default=None,
         description="""Required. The fact to consolidate with existing memories.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. The topics that the consolidated memories should be associated with.""",
+    )
 
 
 class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
@@ -6849,6 +6896,9 @@ class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
 
     fact: Optional[str]
     """Required. The fact to consolidate with existing memories."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics that the consolidated memories should be associated with."""
 
 
 GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryOrDict = Union[
@@ -7683,6 +7733,9 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. Input only. If true, no revision will be created for this request.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None, description="""Optional. The topics of the memory."""
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -7721,6 +7774,9 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     disable_memory_revisions: Optional[bool]
     """Optional. Input only. If true, no revision will be created for this request."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics of the memory."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
