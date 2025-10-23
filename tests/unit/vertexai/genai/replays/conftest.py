@@ -25,7 +25,7 @@ from vertexai._genai import (
 from google.cloud import storage, bigquery
 from google.genai import _replay_api_client
 from google.genai import client as google_genai_client_module
-from vertexai._genai import _evals_utils
+from vertexai._genai import _gcs_utils
 from vertexai._genai import prompt_optimizer
 import pytest
 
@@ -246,7 +246,7 @@ def client(use_vertex, replays_prefix, http_options, request):
                     mock_bigquery_client.return_value = mock.MagicMock()
 
                     with mock.patch.object(
-                        _evals_utils.GcsUtils, "read_file_contents"
+                        _gcs_utils.GcsUtils, "read_file_contents"
                     ) as mock_read_file_contents:
                         mock_read_file_contents.side_effect = (
                             _mock_read_file_contents_side_effect
