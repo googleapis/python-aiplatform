@@ -16,6 +16,7 @@
 #
 
 import re
+import sys
 import threading
 import time
 from unittest import mock
@@ -1061,6 +1062,9 @@ class TestEvaluation:
             "explanation",
         ]
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 13), reason="flaky race condition in python 3.13"
+    )
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_model_based_translation_metrics_without_model_inference(
         self, api_transport
@@ -1372,6 +1376,9 @@ class TestEvaluation:
             == 0.5
         )
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 13), reason="flaky race condition in python 3.13"
+    )
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_multiple_metrics(self, api_transport):
         aiplatform.init(
@@ -1499,6 +1506,9 @@ class TestEvaluation:
             {"row_count": 1, "mock_metric/mean": 1.0, "mock_metric/std": "NaN"}
         )
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 13), reason="flaky race condition in python 3.13"
+    )
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_rubric_based_instruction_following_metric(self, api_transport):
         aiplatform.init(
