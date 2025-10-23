@@ -571,6 +571,7 @@ from .common import OptimizeResponseEndpoint
 from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
+from .common import OptimizeTarget
 from .common import PairwiseChoice
 from .common import PairwiseMetricInput
 from .common import PairwiseMetricInputDict
@@ -1786,6 +1787,7 @@ __all__ = [
     "RubricContentType",
     "EvaluationRunState",
     "Importance",
+    "OptimizeTarget",
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "PromptData",
     "PromptDataDict",
