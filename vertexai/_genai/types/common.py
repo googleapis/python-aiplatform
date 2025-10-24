@@ -9544,7 +9544,7 @@ class SchemaTablesDatasetMetadataBigQuerySource(_common.BaseModel):
 
     uri: Optional[str] = Field(
         default=None,
-        description="""The URI of a BigQuery table. e.g. bq://projectId.bqDatasetId.bqTableId""",
+        description="""The URI of the BigQuery table. This accepts the table name with or without the bq:// prefix.""",
     )
 
 
@@ -9552,7 +9552,7 @@ class SchemaTablesDatasetMetadataBigQuerySourceDict(TypedDict, total=False):
     """Represents the BigQuery source for multimodal dataset metadata."""
 
     uri: Optional[str]
-    """The URI of a BigQuery table. e.g. bq://projectId.bqDatasetId.bqTableId"""
+    """The URI of the BigQuery table. This accepts the table name with or without the bq:// prefix."""
 
 
 SchemaTablesDatasetMetadataBigQuerySourceOrDict = Union[
@@ -9565,7 +9565,8 @@ class SchemaTablesDatasetMetadataInputConfig(_common.BaseModel):
     """Represents the input config for multimodal dataset metadata."""
 
     bigquery_source: Optional[SchemaTablesDatasetMetadataBigQuerySource] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""The BigQuery source for multimodal dataset metadata.""",
     )
 
 
@@ -9573,7 +9574,7 @@ class SchemaTablesDatasetMetadataInputConfigDict(TypedDict, total=False):
     """Represents the input config for multimodal dataset metadata."""
 
     bigquery_source: Optional[SchemaTablesDatasetMetadataBigQuerySourceDict]
-    """"""
+    """The BigQuery source for multimodal dataset metadata."""
 
 
 SchemaTablesDatasetMetadataInputConfigOrDict = Union[
@@ -9585,7 +9586,8 @@ class SchemaTablesDatasetMetadata(_common.BaseModel):
     """Represents the metadata schema for multimodal dataset metadata."""
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfig] = Field(
-        default=None, description="""inputConfig"""
+        default=None,
+        description="""The input config for multimodal dataset metadata.""",
     )
 
 
@@ -9593,7 +9595,7 @@ class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
     """Represents the metadata schema for multimodal dataset metadata."""
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
-    """inputConfig"""
+    """The input config for multimodal dataset metadata."""
 
 
 SchemaTablesDatasetMetadataOrDict = Union[
@@ -9658,8 +9660,11 @@ class MultimodalDataset(_common.BaseModel):
     display_name: Optional[str] = Field(
         default=None, description="""The display name of the multimodal dataset."""
     )
-    bigquery_uri: Optional[str] = Field(
-        default=None, description="""The BigQuery URI of the multimodal dataset."""
+    metadata: Optional[SchemaTablesDatasetMetadata] = Field(
+        default=None, description="""The metadata of the multimodal dataset."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the multimodal dataset."""
     )
 
 
@@ -9672,8 +9677,11 @@ class MultimodalDatasetDict(TypedDict, total=False):
     display_name: Optional[str]
     """The display name of the multimodal dataset."""
 
-    bigquery_uri: Optional[str]
-    """The BigQuery URI of the multimodal dataset."""
+    metadata: Optional[SchemaTablesDatasetMetadataDict]
+    """The metadata of the multimodal dataset."""
+
+    description: Optional[str]
+    """The description of the multimodal dataset."""
 
 
 MultimodalDatasetOrDict = Union[MultimodalDataset, MultimodalDatasetDict]
@@ -9727,6 +9735,53 @@ MultimodalDatasetOperationOrDict = Union[
 ]
 
 
+class _DeleteMultimodalDatasetRequestParameters(_common.BaseModel):
+    """Parameters for deleting a multimodal dataset."""
+
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(
+        default=None, description="""ID of the dataset to be deleted."""
+    )
+
+
+class _DeleteMultimodalDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a multimodal dataset."""
+
+    config: Optional[VertexBaseConfigDict]
+    """"""
+
+    name: Optional[str]
+    """ID of the dataset to be deleted."""
+
+
+_DeleteMultimodalDatasetRequestParametersOrDict = Union[
+    _DeleteMultimodalDatasetRequestParameters,
+    _DeleteMultimodalDatasetRequestParametersDict,
+]
+
+
+class _GetMultimodalDatasetParameters(_common.BaseModel):
+    """Parameters for getting a multimodal dataset resource."""
+
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+
+
+class _GetMultimodalDatasetParametersDict(TypedDict, total=False):
+    """Parameters for getting a multimodal dataset resource."""
+
+    config: Optional[VertexBaseConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+
+_GetMultimodalDatasetParametersOrDict = Union[
+    _GetMultimodalDatasetParameters, _GetMultimodalDatasetParametersDict
+]
+
+
 class GetMultimodalDatasetOperationConfig(_common.BaseModel):
     """Config for getting a multimodal dataset operation."""
 
@@ -9773,6 +9828,177 @@ class _GetMultimodalDatasetOperationParametersDict(TypedDict, total=False):
 _GetMultimodalDatasetOperationParametersOrDict = Union[
     _GetMultimodalDatasetOperationParameters,
     _GetMultimodalDatasetOperationParametersDict,
+]
+
+
+class ListMultimodalDatasetsConfig(_common.BaseModel):
+    """Config for listing multimodal datasets."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListMultimodalDatasetsConfigDict(TypedDict, total=False):
+    """Config for listing multimodal datasets."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListMultimodalDatasetsConfigOrDict = Union[
+    ListMultimodalDatasetsConfig, ListMultimodalDatasetsConfigDict
+]
+
+
+class _ListMultimodalDatasetsRequestParameters(_common.BaseModel):
+    """Parameters for listing multimodal datasets."""
+
+    config: Optional[ListMultimodalDatasetsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListMultimodalDatasetsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing multimodal datasets."""
+
+    config: Optional[ListMultimodalDatasetsConfigDict]
+    """"""
+
+
+_ListMultimodalDatasetsRequestParametersOrDict = Union[
+    _ListMultimodalDatasetsRequestParameters,
+    _ListMultimodalDatasetsRequestParametersDict,
+]
+
+
+class ListMultimodalDatasetsResponse(_common.BaseModel):
+    """Response for listing multimodal datasets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the list datasets request in seconds. If not set,
+      the default timeout is 90 seconds.""",
+    )
+    datasets: Optional[list[MultimodalDataset]] = Field(
+        default=None,
+        description="""List of datasets for the project.
+      """,
+    )
+
+
+class ListMultimodalDatasetsResponseDict(TypedDict, total=False):
+    """Response for listing multimodal datasets."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    timeout: Optional[int]
+    """The timeout for the list datasets request in seconds. If not set,
+      the default timeout is 90 seconds."""
+
+    datasets: Optional[list[MultimodalDatasetDict]]
+    """List of datasets for the project.
+      """
+
+
+ListMultimodalDatasetsResponseOrDict = Union[
+    ListMultimodalDatasetsResponse, ListMultimodalDatasetsResponseDict
+]
+
+
+class UpdateMultimodalDatasetConfig(_common.BaseModel):
+    """Config for updating a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the update dataset request in seconds. If not set,
+      the default timeout is 90 seconds.""",
+    )
+
+
+class UpdateMultimodalDatasetConfigDict(TypedDict, total=False):
+    """Config for updating a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the update dataset request in seconds. If not set,
+      the default timeout is 90 seconds."""
+
+
+UpdateMultimodalDatasetConfigOrDict = Union[
+    UpdateMultimodalDatasetConfig, UpdateMultimodalDatasetConfigDict
+]
+
+
+class _UpdateMultimodalDatasetParameters(_common.BaseModel):
+    """Parameters for updating a multimodal dataset resource."""
+
+    config: Optional[UpdateMultimodalDatasetConfig] = Field(
+        default=None, description=""""""
+    )
+    name: Optional[str] = Field(default=None, description="""""")
+    display_name: Optional[str] = Field(default=None, description="""""")
+    metadata: Optional[dict[str, Any]] = Field(default=None, description="""""")
+    description: Optional[str] = Field(default=None, description="""""")
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None, description=""""""
+    )
+
+
+class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
+    """Parameters for updating a multimodal dataset resource."""
+
+    config: Optional[UpdateMultimodalDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    display_name: Optional[str]
+    """"""
+
+    metadata: Optional[dict[str, Any]]
+    """"""
+
+    description: Optional[str]
+    """"""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """"""
+
+
+_UpdateMultimodalDatasetParametersOrDict = Union[
+    _UpdateMultimodalDatasetParameters, _UpdateMultimodalDatasetParametersDict
 ]
 
 

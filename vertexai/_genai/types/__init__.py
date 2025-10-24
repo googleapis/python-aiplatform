@@ -35,6 +35,7 @@ from .common import _DeleteAgentEngineRequestParameters
 from .common import _DeleteAgentEngineSandboxRequestParameters
 from .common import _DeleteAgentEngineSessionRequestParameters
 from .common import _DeleteDatasetRequestParameters
+from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
@@ -58,6 +59,7 @@ from .common import _GetEvaluationItemParameters
 from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetMultimodalDatasetOperationParameters
+from .common import _GetMultimodalDatasetParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
 from .common import _ListAgentEngineRequestParameters
@@ -66,6 +68,7 @@ from .common import _ListAgentEngineSessionEventsRequestParameters
 from .common import _ListAgentEngineSessionsRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
+from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _RestoreVersionRequestParameters
@@ -75,6 +78,7 @@ from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
+from .common import _UpdateMultimodalDatasetParameters
 from .common import AcceleratorType
 from .common import AgentEngine
 from .common import AgentEngineConfig
@@ -461,6 +465,12 @@ from .common import ListDatasetsResponseOrDict
 from .common import ListDatasetVersionsResponse
 from .common import ListDatasetVersionsResponseDict
 from .common import ListDatasetVersionsResponseOrDict
+from .common import ListMultimodalDatasetsConfig
+from .common import ListMultimodalDatasetsConfigDict
+from .common import ListMultimodalDatasetsConfigOrDict
+from .common import ListMultimodalDatasetsResponse
+from .common import ListMultimodalDatasetsResponseDict
+from .common import ListMultimodalDatasetsResponseOrDict
 from .common import ListPromptsConfig
 from .common import ListPromptsConfigDict
 from .common import ListPromptsConfigOrDict
@@ -935,6 +945,9 @@ from .common import UpdateAgentEngineSessionConfigOrDict
 from .common import UpdateDatasetConfig
 from .common import UpdateDatasetConfigDict
 from .common import UpdateDatasetConfigOrDict
+from .common import UpdateMultimodalDatasetConfig
+from .common import UpdateMultimodalDatasetConfigDict
+from .common import UpdateMultimodalDatasetConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
@@ -1591,6 +1604,15 @@ __all__ = [
     "GetMultimodalDatasetOperationConfig",
     "GetMultimodalDatasetOperationConfigDict",
     "GetMultimodalDatasetOperationConfigOrDict",
+    "ListMultimodalDatasetsConfig",
+    "ListMultimodalDatasetsConfigDict",
+    "ListMultimodalDatasetsConfigOrDict",
+    "ListMultimodalDatasetsResponse",
+    "ListMultimodalDatasetsResponseDict",
+    "ListMultimodalDatasetsResponseOrDict",
+    "UpdateMultimodalDatasetConfig",
+    "UpdateMultimodalDatasetConfigDict",
+    "UpdateMultimodalDatasetConfigOrDict",
     "CreateDatasetConfig",
     "CreateDatasetConfigDict",
     "CreateDatasetConfigOrDict",
@@ -1838,7 +1860,11 @@ __all__ = [
     "_AppendAgentEngineSessionEventRequestParameters",
     "_ListAgentEngineSessionEventsRequestParameters",
     "_CreateMultimodalDatasetParameters",
+    "_DeleteMultimodalDatasetRequestParameters",
+    "_GetMultimodalDatasetParameters",
     "_GetMultimodalDatasetOperationParameters",
+    "_ListMultimodalDatasetsRequestParameters",
+    "_UpdateMultimodalDatasetParameters",
     "_CreateDatasetParameters",
     "_CreateDatasetVersionParameters",
     "_GetDatasetParameters",
