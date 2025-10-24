@@ -1073,6 +1073,13 @@ class AdkApp:
             state=state,
             **kwargs,
         )
+        if asyncio.iscoroutine(session):
+            session = await session
+
+        from google.cloud.aiplatform import base
+        _LOGGER = base.Logger(__name__)
+        _LOGGER.debug("session content: %s", session)
+        _LOGGER.debug("session type: %s", type(session))
         return session
 
     def create_session(
