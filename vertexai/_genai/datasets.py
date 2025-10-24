@@ -66,6 +66,20 @@ def _CreateMultimodalDatasetParameters_to_vertex(
     return to_object
 
 
+def _DeleteMultimodalDatasetRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
 def _GetMultimodalDatasetOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -79,6 +93,81 @@ def _GetMultimodalDatasetOperationParameters_to_vertex(
 
     if getv(from_object, ["operation_id"]) is not None:
         setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
+
+    return to_object
+
+
+def _GetMultimodalDatasetParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
+def _ListMultimodalDatasetsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    return to_object
+
+
+def _ListMultimodalDatasetsRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListMultimodalDatasetsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _UpdateMultimodalDatasetParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["encryption_spec"]) is not None:
+        setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
     return to_object
 
@@ -148,6 +237,111 @@ class Datasets(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _delete_multimodal_dataset(
+        self, *, config: Optional[types.VertexBaseConfigOrDict] = None, name: str
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Deletes a multimodal dataset resource.
+        """
+
+        parameter_model = types._DeleteMultimodalDatasetRequestParameters(
+            config=config,
+            name=name,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteMultimodalDatasetRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_multimodal_dataset(
+        self,
+        *,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
+        name: Optional[str] = None,
+    ) -> types.MultimodalDataset:
+        """
+        Gets a multimodal dataset resource.
+        """
+
+        parameter_model = types._GetMultimodalDatasetParameters(
+            config=config,
+            name=name,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDataset._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _get_multimodal_dataset_operation(
         self,
         *,
@@ -197,6 +391,118 @@ class Datasets(_api_module.BaseModule):
         request_dict = _common.encode_unserializable_types(request_dict)
 
         response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _list_multimodal_datasets(
+        self, *, config: Optional[types.ListMultimodalDatasetsConfigOrDict] = None
+    ) -> types.ListMultimodalDatasetsResponse:
+        """
+        Lists multimodal datasets.
+        """
+
+        parameter_model = types._ListMultimodalDatasetsRequestParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListMultimodalDatasetsRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets".format_map(request_url_dict)
+            else:
+                path = "datasets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ListMultimodalDatasetsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _update_multimodal_dataset(
+        self,
+        *,
+        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        description: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Updates a multimodal dataset resource.
+        """
+
+        parameter_model = types._UpdateMultimodalDatasetParameters(
+            config=config,
+            name=name,
+            display_name=display_name,
+            metadata=metadata,
+            description=description,
+            encryption_spec=encryption_spec,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("patch", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
 
@@ -271,10 +577,10 @@ class Datasets(_api_module.BaseModule):
             )
         return multimodal_operation.response
 
-    def create_multimodal_dataset_from_bigquery(
+    def create_from_bigquery(
         self,
         *,
-        multimodal_dataset: types.MultimodalDataset,
+        multimodal_dataset: types.MultimodalDatasetOrDict,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Creates a multimodal dataset from a BigQuery table.
@@ -289,8 +595,14 @@ class Datasets(_api_module.BaseModule):
         Returns:
           A types.MultimodalDataset object representing a multimodal dataset.
         """
-        if not multimodal_dataset.bigquery_uri.startswith("bq://"):
-            multimodal_dataset.bigquery_uri = f"bq://{multimodal_dataset.bigquery_uri}"
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
+            "bq://"
+        ):
+            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
+                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
@@ -300,11 +612,7 @@ class Datasets(_api_module.BaseModule):
             config=config,
             display_name=multimodal_dataset.display_name,
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
-            metadata={
-                "inputConfig": {
-                    "bigquerySource": {"uri": multimodal_dataset.bigquery_uri},
-                },
-            },
+            metadata=multimodal_dataset.metadata,
         )
         return self._wait_for_operation(
             operation=multimodal_dataset_operation,
@@ -379,6 +687,115 @@ class AsyncDatasets(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _delete_multimodal_dataset(
+        self, *, config: Optional[types.VertexBaseConfigOrDict] = None, name: str
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Deletes a multimodal dataset resource.
+        """
+
+        parameter_model = types._DeleteMultimodalDatasetRequestParameters(
+            config=config,
+            name=name,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteMultimodalDatasetRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_multimodal_dataset(
+        self,
+        *,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
+        name: Optional[str] = None,
+    ) -> types.MultimodalDataset:
+        """
+        Gets a multimodal dataset resource.
+        """
+
+        parameter_model = types._GetMultimodalDatasetParameters(
+            config=config,
+            name=name,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDataset._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_multimodal_dataset_operation(
         self,
         *,
@@ -429,6 +846,122 @@ class AsyncDatasets(_api_module.BaseModule):
 
         response = await self._api_client.async_request(
             "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _list_multimodal_datasets(
+        self, *, config: Optional[types.ListMultimodalDatasetsConfigOrDict] = None
+    ) -> types.ListMultimodalDatasetsResponse:
+        """
+        Lists multimodal datasets.
+        """
+
+        parameter_model = types._ListMultimodalDatasetsRequestParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListMultimodalDatasetsRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets".format_map(request_url_dict)
+            else:
+                path = "datasets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ListMultimodalDatasetsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _update_multimodal_dataset(
+        self,
+        *,
+        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        metadata: Optional[dict[str, Any]] = None,
+        description: Optional[str] = None,
+        encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Updates a multimodal dataset resource.
+        """
+
+        parameter_model = types._UpdateMultimodalDatasetParameters(
+            config=config,
+            name=name,
+            display_name=display_name,
+            metadata=metadata,
+            description=description,
+            encryption_spec=encryption_spec,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "patch", path, request_dict, http_options
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
@@ -504,10 +1037,10 @@ class AsyncDatasets(_api_module.BaseModule):
             )
         return multimodal_operation.response
 
-    async def create_multimodal_dataset_from_bigquery(
+    async def create_from_bigquery(
         self,
         *,
-        multimodal_dataset: types.MultimodalDataset,
+        multimodal_dataset: types.MultimodalDatasetOrDict,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Creates a multimodal dataset from a BigQuery table.
@@ -517,13 +1050,19 @@ class AsyncDatasets(_api_module.BaseModule):
             Optional. A configuration for creating the multimodal dataset. If not
             provided, the default configuration will be used.
           multimodal_dataset:
-            Required. A representation of amultimodal dataset.
+            Required. A representation of a multimodal dataset.
 
         Returns:
           A types.MultimodalDataset object representing a multimodal dataset.
         """
-        if not multimodal_dataset.bigquery_uri.startswith("bq://"):
-            multimodal_dataset.bigquery_uri = f"bq://{multimodal_dataset.bigquery_uri}"
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
+            "bq://"
+        ):
+            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
+                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
@@ -533,11 +1072,7 @@ class AsyncDatasets(_api_module.BaseModule):
             config=config,
             display_name=multimodal_dataset.display_name,
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
-            metadata={
-                "inputConfig": {
-                    "bigquerySource": {"uri": multimodal_dataset.bigquery_uri},
-                },
-            },
+            metadata=multimodal_dataset.metadata,
         )
         return await self._wait_for_operation(
             operation=multimodal_dataset_operation,
