@@ -279,6 +279,7 @@ class ModuleAgent(Cloneable, OperationRegistrable):
             agent_name=self._tmpl_attrs.get("agent_name"),
             register_operations=self._tmpl_attrs.get("register_operations"),
             sys_paths=self._tmpl_attrs.get("sys_paths"),
+            agent_framework=self.agent_framework,
         )
 
     def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:
