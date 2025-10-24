@@ -16,6 +16,8 @@
 #
 
 import dataclasses
+import io
+import json
 from typing import Dict, List, Optional, Tuple
 import uuid
 
@@ -32,7 +34,6 @@ from google.cloud.aiplatform.compat.types import (
 from vertexai import generative_models
 from vertexai.generative_models import _generative_models
 from vertexai.preview import prompts
-import pandas
 
 from google.protobuf import field_mask_pb2
 from google.protobuf import struct_pb2
@@ -758,7 +759,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
     def from_pandas(
         cls,
         *,
-        dataframe: pandas.DataFrame,
+        dataframe: "pandas.DataFrame",  # type: ignore # noqa: F821
         target_table_id: Optional[str] = None,
         display_name: Optional[str] = None,
         project: Optional[str] = None,
@@ -1077,7 +1078,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
 
         jsonl_string = blob.download_as_text()
         lines = [line.strip() for line in jsonl_string.splitlines() if line.strip()]
-        df = pandas.DataFrame(lines, columns=[request_column_name])
+        json_string = json.dumps({request_column_name: lines})
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -1085,7 +1086,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(df)
+            temp_bigframes_df = session.read_json(io.StringIO(json_string))
             temp_bigframes_df[request_column_name] = bigframes.bigquery.parse_json(
                 temp_bigframes_df[request_column_name]
             )

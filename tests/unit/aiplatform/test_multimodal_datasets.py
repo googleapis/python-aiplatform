@@ -584,9 +584,10 @@ class TestMultimodalDataset:
         mock_bucket.blob.assert_called_once_with("test-file.jsonl")
         mock_blob.download_as_text.assert_called_once()
 
-        pandas.testing.assert_frame_equal(
-            session_mock.read_pandas.call_args[0][0],
-            pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
+        session_mock.read_json.assert_called_once()
+        assert (
+            session_mock.read_json.call_args[0][0].getvalue()
+            == '{"requests": ["json_line_1", "json_line_2"]}'
         )
         bq_client_mock.return_value.copy_table.assert_called_once_with(
             sources=mock.ANY,
@@ -636,9 +637,10 @@ class TestMultimodalDataset:
         mock_bucket.blob.assert_called_once_with("test-file.jsonl")
         mock_blob.download_as_text.assert_called_once()
 
-        pandas.testing.assert_frame_equal(
-            session_mock.read_pandas.call_args[0][0],
-            pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
+        session_mock.read_json.assert_called_once()
+        assert (
+            session_mock.read_json.call_args[0][0].getvalue()
+            == '{"requests": ["json_line_1", "json_line_2"]}'
         )
 
         # Assert that the default BQ dataset is created
