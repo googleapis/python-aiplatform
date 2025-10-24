@@ -133,10 +133,14 @@ EVAL_CONFIG_GCS_URI = (
 )
 EVAL_ITEM_REQUEST_GCS_URI = "gs://lakeyk-limited-bucket/agora_eval_080525/request_"
 EVAL_ITEM_RESULT_GCS_URI = "gs://lakeyk-limited-bucket/agora_eval_080525/result_"
+EVAL_ITEM_REQUEST_GCS_URI_2 = "gs://lakeyk-limited-bucket/eval-data/request_"
+EVAL_ITEM_RESULT_GCS_URI_2 = "gs://lakeyk-limited-bucket/eval-data/result_"
 EVAL_GCS_URI_ITEMS = {
     EVAL_CONFIG_GCS_URI: "test_resources/mock_eval_config.yaml",
     EVAL_ITEM_REQUEST_GCS_URI: "test_resources/request_4813679498589372416.json",
     EVAL_ITEM_RESULT_GCS_URI: "test_resources/result_1486082323915997184.json",
+    EVAL_ITEM_REQUEST_GCS_URI_2: "test_resources/request_4813679498589372416.json",
+    EVAL_ITEM_RESULT_GCS_URI_2: "test_resources/result_1486082323915997184.json",
 }
 
 
@@ -148,11 +152,15 @@ def _mock_read_file_contents_side_effect(uri: str):
     current_dir = os.path.dirname(__file__)
     if uri in EVAL_GCS_URI_ITEMS:
         local_mock_file_path = os.path.join(current_dir, EVAL_GCS_URI_ITEMS[uri])
-    elif uri.startswith(EVAL_ITEM_REQUEST_GCS_URI):
+    elif uri.startswith(EVAL_ITEM_REQUEST_GCS_URI) or uri.startswith(
+        EVAL_ITEM_REQUEST_GCS_URI_2
+    ):
         local_mock_file_path = os.path.join(
             current_dir, EVAL_GCS_URI_ITEMS[EVAL_ITEM_REQUEST_GCS_URI]
         )
-    elif uri.startswith(EVAL_ITEM_RESULT_GCS_URI):
+    elif uri.startswith(EVAL_ITEM_RESULT_GCS_URI) or uri.startswith(
+        EVAL_ITEM_RESULT_GCS_URI_2
+    ):
         local_mock_file_path = os.path.join(
             current_dir, EVAL_GCS_URI_ITEMS[EVAL_ITEM_RESULT_GCS_URI]
         )
