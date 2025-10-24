@@ -18,10 +18,11 @@ import json
 import logging
 from typing import Any, Optional
 
-from pydantic import errors
 import pandas as pd
+from pydantic import errors
 
 from . import types
+
 
 logger = logging.getLogger(__name__)
 

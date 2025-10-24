@@ -72,6 +72,11 @@ def _AgentEngineMemoryConfig_to_vertex(
             getv(from_object, ["disable_memory_revisions"]),
         )
 
+    if getv(from_object, ["topics"]) is not None:
+        setv(
+            parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
+        )
+
     return to_object
 
 
@@ -363,6 +368,11 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
             parent_object,
             ["disableMemoryRevisions"],
             getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["topics"]) is not None:
+        setv(
+            parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
         )
 
     if getv(from_object, ["update_mask"]) is not None:

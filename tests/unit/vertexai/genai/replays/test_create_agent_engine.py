@@ -17,6 +17,7 @@
 import os
 
 from tests.unit.vertexai.genai.replays import pytest_helper
+from vertexai._genai import types
 
 
 def test_create_config_lightweight(client):
@@ -54,6 +55,29 @@ def test_create_with_context_spec(client):
     parent = f"projects/{project}/locations/{location}"
     generation_model = f"{parent}/publishers/google/models/gemini-2.0-flash-001"
     embedding_model = f"{parent}/publishers/google/models/text-embedding-005"
+    customization_config = {
+        "memory_topics": [
+            {"managed_memory_topic": {"managed_topic_enum": "USER_PREFERENCES"}}
+        ],
+        "generate_memories_examples": [
+            {
+                "conversation_source": {
+                    "events": [
+                        {"content": {"role": "user", "parts": [{"text": "Hello"}]}}
+                    ]
+                },
+                "generatedMemories": [
+                    {
+                        "fact": "I like to say hello.",
+                        "topics": [{"managed_memory_topic": "USER_PREFERENCES"}],
+                    }
+                ],
+            }
+        ],
+    }
+    memory_bank_customization_config = types.MemoryBankCustomizationConfig(
+        **customization_config
+    )
 
     agent_engine = client.agent_engines.create(
         config={
@@ -64,6 +88,7 @@ def test_create_with_context_spec(client):
                         "embedding_model": embedding_model,
                     },
                     "ttl_config": {"default_ttl": "120s"},
+                    "customization_configs": [memory_bank_customization_config],
                 },
             },
             "http_options": {"api_version": "v1beta1"},
@@ -76,6 +101,9 @@ def test_create_with_context_spec(client):
         memory_bank_config.similarity_search_config.embedding_model == embedding_model
     )
     assert memory_bank_config.ttl_config.default_ttl == "120s"
+    assert memory_bank_config.customization_configs == [
+        memory_bank_customization_config
+    ]
     # Clean up resources.
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 

@@ -103,9 +103,9 @@ def test_pointwise_metric_with_agent_data(client):
     """Tests the _evaluate_instances method with PointwiseMetricInput and agent_data."""
     instance_dict = {"prompt": "What is the capital of France?", "response": "Paris"}
     json_instance = json.dumps(instance_dict)
-    agent_data = types.AgentData(
-        agent_config=types.AgentConfig(
-            tools=types.Tools(
+    agent_data = types.evals.AgentData(
+        agent_config=types.evals.AgentConfig(
+            tools=types.evals.Tools(
                 tool=[
                     genai_types.Tool(
                         function_declarations=[
@@ -114,15 +114,15 @@ def test_pointwise_metric_with_agent_data(client):
                     )
                 ]
             ),
-            developer_instruction=types.InstanceData(text="instruction"),
+            developer_instruction=types.evals.InstanceData(text="instruction"),
         ),
-        events=types.Events(
+        events=types.evals.Events(
             event=[genai_types.Content(parts=[genai_types.Part(text="hello")])]
         ),
     )
     instance = types.EvaluationInstance(
-        prompt=types.InstanceData(text="What is the capital of France?"),
-        response=types.InstanceData(text="Paris"),
+        prompt=types.evals.InstanceData(text="What is the capital of France?"),
+        response=types.evals.InstanceData(text="Paris"),
         agent_data=agent_data,
     )
 
@@ -144,9 +144,9 @@ def test_pointwise_metric_with_agent_data(client):
 
 def test_predefined_metric_with_agent_data(client):
     """Tests the _evaluate_instances method with predefined metric and agent_data."""
-    agent_data = types.AgentData(
-        agent_config=types.AgentConfig(
-            tools=types.Tools(
+    agent_data = types.evals.AgentData(
+        agent_config=types.evals.AgentConfig(
+            tools=types.evals.Tools(
                 tool=[
                     genai_types.Tool(
                         function_declarations=[
@@ -155,16 +155,16 @@ def test_predefined_metric_with_agent_data(client):
                     )
                 ]
             ),
-            developer_instruction=types.InstanceData(text="instruction"),
+            developer_instruction=types.evals.InstanceData(text="instruction"),
         ),
-        events=types.Events(
+        events=types.evals.Events(
             event=[genai_types.Content(parts=[genai_types.Part(text="hello")])]
         ),
     )
     instance = types.EvaluationInstance(
-        prompt=types.InstanceData(text="What is the capital of France?"),
-        response=types.InstanceData(text="Paris"),
-        reference=types.InstanceData(text="Paris"),
+        prompt=types.evals.InstanceData(text="What is the capital of France?"),
+        response=types.evals.InstanceData(text="Paris"),
+        reference=types.evals.InstanceData(text="Paris"),
         agent_data=agent_data,
     )
 

@@ -1323,7 +1323,7 @@ class Evals(_api_module.BaseModule):
         metrics: Optional[
             list[types.EvaluationRunMetricOrDict]
         ] = None,  # TODO: Make required unified metrics available in prod.
-        agent_info: Optional[types.AgentInfo] = None,
+        agent_info: Optional[types.evals.AgentInfo] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
@@ -2143,7 +2143,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: Optional[
             list[types.EvaluationRunMetricOrDict]
         ] = None,  # TODO: Make required unified metrics available in prod.
-        agent_info: Optional[types.AgentInfo] = None,
+        agent_info: Optional[types.evals.AgentInfo] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:

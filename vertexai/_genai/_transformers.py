@@ -23,7 +23,7 @@ from . import types
 
 
 def t_metrics(
-    metrics: list[types.MetricSubclass],
+    metrics: list["types.MetricSubclass"],
     set_default_aggregation_metrics: bool = False,
 ) -> list[dict[str, Any]]:
     """Prepares the metric payload for the evaluation request.

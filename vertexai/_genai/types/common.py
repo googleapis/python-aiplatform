@@ -45,15 +45,14 @@ from pydantic import (
     model_validator,
 )
 from typing_extensions import TypedDict
-
-logger = logging.getLogger("vertexai_genai.types")
+from . import evals as evals_types
 
 __all__ = ["PrebuiltMetric", "RubricMetric"]  # noqa: F822
 
 
 def __getattr__(name: str) -> typing.Any:
     if name == "PrebuiltMetric" or name == "RubricMetric":
-        module = importlib.import_module("._evals_utils", __package__)
+        module = importlib.import_module(".._evals_metric_loaders", __package__)
         prebuilt_metric_obj = getattr(module, name)
         globals()[name] = prebuilt_metric_obj
         return prebuilt_metric_obj
@@ -1483,51 +1482,6 @@ class EventDict(TypedDict, total=False):
 EventOrDict = Union[Event, EventDict]
 
 
-class AgentInfo(_common.BaseModel):
-    """The agent info of an agent, used for agent eval."""
-
-    agent: Optional[str] = Field(
-        default=None,
-        description="""The agent engine used to run agent. Agent engine resource name in str type, with format
-            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
-    )
-    name: Optional[str] = Field(
-        default=None, description="""Agent name, used as an identifier."""
-    )
-    instruction: Optional[str] = Field(
-        default=None, description="""Agent developer instruction."""
-    )
-    description: Optional[str] = Field(
-        default=None, description="""Agent description."""
-    )
-    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
-        default=None, description="""List of tools used by the Agent."""
-    )
-
-
-class AgentInfoDict(TypedDict, total=False):
-    """The agent info of an agent, used for agent eval."""
-
-    agent: Optional[str]
-    """The agent engine used to run agent. Agent engine resource name in str type, with format
-            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
-
-    name: Optional[str]
-    """Agent name, used as an identifier."""
-
-    instruction: Optional[str]
-    """Agent developer instruction."""
-
-    description: Optional[str]
-    """Agent description."""
-
-    tool_declarations: Optional[genai_types.ToolListUnionDict]
-    """List of tools used by the Agent."""
-
-
-AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
-
-
 class Message(_common.BaseModel):
     """Represents a single message turn in a conversation."""
 
@@ -1597,7 +1551,7 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
     )
-    agent_info: Optional[AgentInfo] = Field(
+    agent_info: Optional[evals_types.AgentInfo] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
     )
@@ -1632,7 +1586,7 @@ class EvalCaseDict(TypedDict, total=False):
     intermediate_events: Optional[list[EventDict]]
     """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
 
-    agent_info: Optional[AgentInfoDict]
+    agent_info: Optional[evals_types.AgentInfo]
     """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
 
 
@@ -1723,7 +1677,7 @@ class EvaluationDataset(_common.BaseModel):
         """Fetches GenAI Observability data from GCS and parses into a DataFrame."""
         try:
             import pandas as pd
-            from . import _evals_utils
+            from .. import _gcs_utils
 
             formats = []
             requests = []
@@ -1731,7 +1685,7 @@ class EvaluationDataset(_common.BaseModel):
             system_instructions = []
 
             for case in cases:
-                gcs_utils = _evals_utils.GcsUtils(
+                gcs_utils = _gcs_utils.GcsUtils(
                     case.api_client._api_client if case.api_client else None
                 )
 
@@ -1770,7 +1724,7 @@ class EvaluationDataset(_common.BaseModel):
 
     def show(self) -> None:
         """Shows the evaluation dataset."""
-        from . import _evals_visualization
+        from .. import _evals_visualization
 
         _evals_visualization.display_evaluation_dataset(self)
 
@@ -1858,7 +1812,7 @@ class EvaluationResult(_common.BaseModel):
     metadata: Optional[EvaluationRunMetadata] = Field(
         default=None, description="""Metadata for the evaluation run."""
     )
-    agent_info: Optional[AgentInfo] = Field(
+    agent_info: Optional[evals_types.AgentInfo] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
     )
@@ -1870,7 +1824,7 @@ class EvaluationResult(_common.BaseModel):
             candidate_names: list of names for the evaluated candidates, used in
             comparison reports.
         """
-        from . import _evals_visualization
+        from .. import _evals_visualization
 
         _evals_visualization.display_evaluation_result(self, candidate_names)
 
@@ -1893,7 +1847,7 @@ class EvaluationResultDict(TypedDict, total=False):
     metadata: Optional[EvaluationRunMetadataDict]
     """Metadata for the evaluation run."""
 
-    agent_info: Optional[AgentInfoDict]
+    agent_info: Optional[evals_types.AgentInfo]
     """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
 
 
@@ -1958,7 +1912,7 @@ class EvaluationRun(_common.BaseModel):
 
     def show(self) -> None:
         """Shows the evaluation result."""
-        from . import _evals_visualization
+        from .. import _evals_visualization
 
         logger.warning(f"Evaluation Run state: {self.state}.")
         if self.error:
@@ -2668,50 +2622,10 @@ ToolParameterKVMatchInputOrDict = Union[
 ]
 
 
-class InstanceDataContents(_common.BaseModel):
-    """List of standard Content messages from Gemini API."""
-
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Repeated contents."""
-    )
-
-
-class InstanceDataContentsDict(TypedDict, total=False):
-    """List of standard Content messages from Gemini API."""
-
-    contents: Optional[list[genai_types.ContentDict]]
-    """Repeated contents."""
-
-
-InstanceDataContentsOrDict = Union[InstanceDataContents, InstanceDataContentsDict]
-
-
-class InstanceData(_common.BaseModel):
-    """Instance data used to populate placeholders in a metric prompt template."""
-
-    text: Optional[str] = Field(default=None, description="""Text data.""")
-    contents: Optional[InstanceDataContents] = Field(
-        default=None, description="""List of Gemini content data."""
-    )
-
-
-class InstanceDataDict(TypedDict, total=False):
-    """Instance data used to populate placeholders in a metric prompt template."""
-
-    text: Optional[str]
-    """Text data."""
-
-    contents: Optional[InstanceDataContentsDict]
-    """List of Gemini content data."""
-
-
-InstanceDataOrDict = Union[InstanceData, InstanceDataDict]
-
-
 class MapInstance(_common.BaseModel):
     """Instance data specified as a map."""
 
-    map_instance: Optional[dict[str, InstanceData]] = Field(
+    map_instance: Optional[dict[str, evals_types.InstanceData]] = Field(
         default=None, description="""Map of instance data."""
     )
 
@@ -2719,120 +2633,25 @@ class MapInstance(_common.BaseModel):
 class MapInstanceDict(TypedDict, total=False):
     """Instance data specified as a map."""
 
-    map_instance: Optional[dict[str, InstanceDataDict]]
+    map_instance: Optional[dict[str, evals_types.InstanceData]]
     """Map of instance data."""
 
 
 MapInstanceOrDict = Union[MapInstance, MapInstanceDict]
 
 
-class Tools(_common.BaseModel):
-    """Represents a list of tools for an agent."""
-
-    tool: Optional[list[genai_types.Tool]] = Field(
-        default=None,
-        description="""List of tools: each tool can have multiple function declarations.""",
-    )
-
-
-class ToolsDict(TypedDict, total=False):
-    """Represents a list of tools for an agent."""
-
-    tool: Optional[list[genai_types.ToolDict]]
-    """List of tools: each tool can have multiple function declarations."""
-
-
-ToolsOrDict = Union[Tools, ToolsDict]
-
-
-class AgentConfig(_common.BaseModel):
-    """Configuration for an Agent."""
-
-    tools_text: Optional[str] = Field(
-        default=None,
-        description="""A JSON string containing a list of tools available to an agent.""",
-    )
-    tools: Optional[Tools] = Field(default=None, description="""List of tools.""")
-    developer_instruction: Optional[InstanceData] = Field(
-        default=None,
-        description="""A field containing instructions from the developer for the agent.""",
-    )
-
-
-class AgentConfigDict(TypedDict, total=False):
-    """Configuration for an Agent."""
-
-    tools_text: Optional[str]
-    """A JSON string containing a list of tools available to an agent."""
-
-    tools: Optional[ToolsDict]
-    """List of tools."""
-
-    developer_instruction: Optional[InstanceDataDict]
-    """A field containing instructions from the developer for the agent."""
-
-
-AgentConfigOrDict = Union[AgentConfig, AgentConfigDict]
-
-
-class Events(_common.BaseModel):
-    """Represents a list of events for an agent."""
-
-    event: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""A list of events."""
-    )
-
-
-class EventsDict(TypedDict, total=False):
-    """Represents a list of events for an agent."""
-
-    event: Optional[list[genai_types.ContentDict]]
-    """A list of events."""
-
-
-EventsOrDict = Union[Events, EventsDict]
-
-
-class AgentData(_common.BaseModel):
-    """Contains data specific to agent evaluations."""
-
-    agent_config: Optional[AgentConfig] = Field(
-        default=None, description="""Agent configuration."""
-    )
-    events_text: Optional[str] = Field(
-        default=None, description="""A JSON string containing a sequence of events."""
-    )
-    events: Optional[Events] = Field(default=None, description="""A list of events.""")
-
-
-class AgentDataDict(TypedDict, total=False):
-    """Contains data specific to agent evaluations."""
-
-    agent_config: Optional[AgentConfigDict]
-    """Agent configuration."""
-
-    events_text: Optional[str]
-    """A JSON string containing a sequence of events."""
-
-    events: Optional[EventsDict]
-    """A list of events."""
-
-
-AgentDataOrDict = Union[AgentData, AgentDataDict]
-
-
 class EvaluationInstance(_common.BaseModel):
     """A single instance to be evaluated."""
 
-    prompt: Optional[InstanceData] = Field(
+    prompt: Optional[evals_types.InstanceData] = Field(
         default=None,
         description="""Data used to populate placeholder `prompt` in a metric prompt template.""",
     )
-    response: Optional[InstanceData] = Field(
+    response: Optional[evals_types.InstanceData] = Field(
         default=None,
         description="""Data used to populate placeholder `response` in a metric prompt template.""",
     )
-    reference: Optional[InstanceData] = Field(
+    reference: Optional[evals_types.InstanceData] = Field(
         default=None,
         description="""Data used to populate placeholder `reference` in a metric prompt template.""",
     )
@@ -2840,7 +2659,7 @@ class EvaluationInstance(_common.BaseModel):
         default=None,
         description="""Other data used to populate placeholders based on their key.""",
     )
-    agent_data: Optional[AgentData] = Field(
+    agent_data: Optional[evals_types.AgentData] = Field(
         default=None, description="""Data used for agent evaluation."""
     )
     rubric_groups: Optional[dict[str, "RubricGroup"]] = Field(
@@ -2852,19 +2671,19 @@ class EvaluationInstance(_common.BaseModel):
 class EvaluationInstanceDict(TypedDict, total=False):
     """A single instance to be evaluated."""
 
-    prompt: Optional[InstanceDataDict]
+    prompt: Optional[evals_types.InstanceData]
     """Data used to populate placeholder `prompt` in a metric prompt template."""
 
-    response: Optional[InstanceDataDict]
+    response: Optional[evals_types.InstanceData]
     """Data used to populate placeholder `response` in a metric prompt template."""
 
-    reference: Optional[InstanceDataDict]
+    reference: Optional[evals_types.InstanceData]
     """Data used to populate placeholder `reference` in a metric prompt template."""
 
     other_data: Optional[MapInstanceDict]
     """Other data used to populate placeholders based on their key."""
 
-    agent_data: Optional[AgentDataDict]
+    agent_data: Optional[evals_types.AgentData]
     """Data used for agent evaluation."""
 
     rubric_groups: Optional[dict[str, "RubricGroupDict"]]
@@ -5330,6 +5149,30 @@ MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = U
 ]
 
 
+class MemoryTopicId(_common.BaseModel):
+    """The topic ID for a memory."""
+
+    custom_memory_topic_label: Optional[str] = Field(
+        default=None, description="""Optional. The custom memory topic label."""
+    )
+    managed_memory_topic: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Optional. The managed memory topic."""
+    )
+
+
+class MemoryTopicIdDict(TypedDict, total=False):
+    """The topic ID for a memory."""
+
+    custom_memory_topic_label: Optional[str]
+    """Optional. The custom memory topic label."""
+
+    managed_memory_topic: Optional[ManagedTopicEnum]
+    """Optional. The managed memory topic."""
+
+
+MemoryTopicIdOrDict = Union[MemoryTopicId, MemoryTopicIdDict]
+
+
 class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
     _common.BaseModel
 ):
@@ -5337,6 +5180,10 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
 
     fact: Optional[str] = Field(
         default=None, description="""Required. The fact to generate a memory from."""
+    )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
     )
 
 
@@ -5347,6 +5194,9 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
 
     fact: Optional[str]
     """Required. The fact to generate a memory from."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
@@ -6432,6 +6282,9 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. Input only. If true, no revision will be created for this request.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None, description="""Optional. The topics of the memory."""
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -6465,6 +6318,9 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     disable_memory_revisions: Optional[bool]
     """Optional. Input only. If true, no revision will be created for this request."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics of the memory."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -6573,6 +6429,9 @@ class Memory(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this Memory was most recently updated.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None, description="""Optional. The Topics of the Memory."""
+    )
 
 
 class MemoryDict(TypedDict, total=False):
@@ -6613,6 +6472,9 @@ class MemoryDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory was most recently updated."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The Topics of the Memory."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -6840,6 +6702,10 @@ class GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(_common.BaseModel)
         default=None,
         description="""Required. The fact to consolidate with existing memories.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. The topics that the consolidated memories should be associated with.""",
+    )
 
 
 class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
@@ -6849,6 +6715,9 @@ class GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryDict(
 
     fact: Optional[str]
     """Required. The fact to consolidate with existing memories."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics that the consolidated memories should be associated with."""
 
 
 GenerateMemoriesRequestDirectMemoriesSourceDirectMemoryOrDict = Union[
@@ -7683,6 +7552,9 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. Input only. If true, no revision will be created for this request.""",
     )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None, description="""Optional. The topics of the memory."""
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -7721,6 +7593,9 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     disable_memory_revisions: Optional[bool]
     """Optional. Input only. If true, no revision will be created for this request."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The topics of the memory."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -9641,6 +9516,11 @@ class CreateMultimodalDatasetConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the create dataset request in seconds. If not set,
+      the default timeout is 90 seconds.""",
+    )
 
 
 class CreateMultimodalDatasetConfigDict(TypedDict, total=False):
@@ -9648,6 +9528,10 @@ class CreateMultimodalDatasetConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the create dataset request in seconds. If not set,
+      the default timeout is 90 seconds."""
 
 
 CreateMultimodalDatasetConfigOrDict = Union[
@@ -9701,7 +9585,7 @@ class SchemaTablesDatasetMetadata(_common.BaseModel):
     """Represents the metadata schema for multimodal dataset metadata."""
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfig] = Field(
-        default=None, description=""""""
+        default=None, description="""inputConfig"""
     )
 
 
@@ -9709,7 +9593,7 @@ class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
     """Represents the metadata schema for multimodal dataset metadata."""
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
-    """"""
+    """inputConfig"""
 
 
 SchemaTablesDatasetMetadataOrDict = Union[
@@ -9765,6 +9649,36 @@ _CreateMultimodalDatasetParametersOrDict = Union[
 ]
 
 
+class MultimodalDataset(_common.BaseModel):
+    """Represents a multimodal dataset."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The ID of the multimodal dataset."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the multimodal dataset."""
+    )
+    bigquery_uri: Optional[str] = Field(
+        default=None, description="""The BigQuery URI of the multimodal dataset."""
+    )
+
+
+class MultimodalDatasetDict(TypedDict, total=False):
+    """Represents a multimodal dataset."""
+
+    name: Optional[str]
+    """The ID of the multimodal dataset."""
+
+    display_name: Optional[str]
+    """The display name of the multimodal dataset."""
+
+    bigquery_uri: Optional[str]
+    """The BigQuery URI of the multimodal dataset."""
+
+
+MultimodalDatasetOrDict = Union[MultimodalDataset, MultimodalDatasetDict]
+
+
 class MultimodalDatasetOperation(_common.BaseModel):
     """Represents the create dataset operation."""
 
@@ -9784,7 +9698,7 @@ class MultimodalDatasetOperation(_common.BaseModel):
         default=None,
         description="""The error result of the operation in case of failure or cancellation.""",
     )
-    response: Optional[dict[str, Any]] = Field(
+    response: Optional[MultimodalDataset] = Field(
         default=None, description="""The result of the dataset operation."""
     )
 
@@ -9804,12 +9718,61 @@ class MultimodalDatasetOperationDict(TypedDict, total=False):
     error: Optional[dict[str, Any]]
     """The error result of the operation in case of failure or cancellation."""
 
-    response: Optional[dict[str, Any]]
+    response: Optional[MultimodalDatasetDict]
     """The result of the dataset operation."""
 
 
 MultimodalDatasetOperationOrDict = Union[
     MultimodalDatasetOperation, MultimodalDatasetOperationDict
+]
+
+
+class GetMultimodalDatasetOperationConfig(_common.BaseModel):
+    """Config for getting a multimodal dataset operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetMultimodalDatasetOperationConfigDict(TypedDict, total=False):
+    """Config for getting a multimodal dataset operation."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetMultimodalDatasetOperationConfigOrDict = Union[
+    GetMultimodalDatasetOperationConfig, GetMultimodalDatasetOperationConfigDict
+]
+
+
+class _GetMultimodalDatasetOperationParameters(_common.BaseModel):
+    """Parameters for getting a dataset operation."""
+
+    config: Optional[GetMultimodalDatasetOperationConfig] = Field(
+        default=None, description=""""""
+    )
+    dataset_id: Optional[str] = Field(default=None, description="""""")
+    operation_id: Optional[str] = Field(default=None, description="""""")
+
+
+class _GetMultimodalDatasetOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a dataset operation."""
+
+    config: Optional[GetMultimodalDatasetOperationConfigDict]
+    """"""
+
+    dataset_id: Optional[str]
+    """"""
+
+    operation_id: Optional[str]
+    """"""
+
+
+_GetMultimodalDatasetOperationParametersOrDict = Union[
+    _GetMultimodalDatasetOperationParameters,
+    _GetMultimodalDatasetOperationParametersDict,
 ]
 
 

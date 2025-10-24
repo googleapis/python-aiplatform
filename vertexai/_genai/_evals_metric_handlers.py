@@ -837,18 +837,18 @@ class PredefinedMetricHandler(MetricHandler):
     @staticmethod
     def _content_to_instance_data(
         content: Optional[genai_types.Content],
-    ) -> Optional[types.InstanceData]:
+    ) -> Optional[types.evals.InstanceData]:
         """Converts a genai_types.Content object to a types.InstanceData object."""
         if not content:
             return None
-        return types.InstanceData(
-            contents=types.InstanceDataContents(contents=[content])
+        return types.evals.InstanceData(
+            contents=types.evals.InstanceDataContents(contents=[content])
         )
 
     @staticmethod
     def _eval_case_to_agent_data(
         eval_case: types.EvalCase,
-    ) -> Optional[types.AgentData]:
+    ) -> Optional[types.evals.AgentData]:
         """Converts an EvalCase object to an AgentData object."""
         if not eval_case.agent_info and not eval_case.intermediate_events:
             return None
@@ -860,12 +860,14 @@ class PredefinedMetricHandler(MetricHandler):
         if eval_case.agent_info:
             agent_info = eval_case.agent_info
             if agent_info.instruction:
-                developer_instruction = types.InstanceData(text=agent_info.instruction)
+                developer_instruction = types.evals.InstanceData(
+                    text=agent_info.instruction
+                )
             if agent_info.tool_declarations:
                 tool_declarations = agent_info.tool_declarations
-                tools = types.Tools(tool=tool_declarations)
+                tools = types.evals.Tools(tool=tool_declarations)
             if tools or developer_instruction:
-                agent_config = types.AgentConfig(
+                agent_config = types.evals.AgentConfig(
                     tools=tools,
                     developer_instruction=developer_instruction,
                 )
@@ -877,15 +879,15 @@ class PredefinedMetricHandler(MetricHandler):
                 if event.content
             ]
             if event_contents:
-                events = types.Events(event=event_contents)
+                events = types.evals.Events(event=event_contents)
 
         if events:
-            return types.AgentData(
+            return types.evals.AgentData(
                 agent_config=agent_config,
                 events=events,
             )
         else:
-            return types.AgentData(
+            return types.evals.AgentData(
                 agent_config=agent_config,
                 events_text="",
             )
@@ -918,8 +920,8 @@ class PredefinedMetricHandler(MetricHandler):
             if eval_case.prompt:
                 prompt_contents.append(eval_case.prompt)
 
-            prompt_instance_data = types.InstanceData(
-                contents=types.InstanceDataContents(contents=prompt_contents)
+            prompt_instance_data = types.evals.InstanceData(
+                contents=types.evals.InstanceDataContents(contents=prompt_contents)
             )
         else:
             prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
@@ -929,7 +931,9 @@ class PredefinedMetricHandler(MetricHandler):
         other_data_map = {}
         if hasattr(eval_case, "context") and eval_case.context:
             if isinstance(eval_case.context, str):
-                other_data_map["context"] = types.InstanceData(text=eval_case.context)
+                other_data_map["context"] = types.evals.InstanceData(
+                    text=eval_case.context
+                )
             elif isinstance(eval_case.context, genai_types.Content):
                 other_data_map["context"] = (
                     PredefinedMetricHandler._content_to_instance_data(eval_case.context)

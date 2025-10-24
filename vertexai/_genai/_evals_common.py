@@ -35,7 +35,8 @@ from tqdm import tqdm
 from . import _evals_constant
 from . import _evals_data_converters
 from . import _evals_metric_handlers
-from . import _evals_utils
+from . import _evals_metric_loaders
+from . import _gcs_utils
 
 from . import evals
 from . import types
@@ -693,7 +694,7 @@ def _load_dataframe(
     """Loads and prepares the prompt dataset for inference."""
     logger.info("Loading prompt dataset from: %s", src)
     try:
-        loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+        loader = _evals_metric_loaders.EvalDatasetLoader(api_client=api_client)
         dataset_list_of_dicts = loader.load(src)
         if not dataset_list_of_dicts:
             raise ValueError("Prompt dataset 'prompt_dataset' must not be empty.")
@@ -805,7 +806,7 @@ def _execute_inference(
 
     if dest:
         file_name = "inference_results.jsonl" if model else "agent_run_results.jsonl"
-        is_gcs_path = dest.startswith(_evals_utils.GCS_PREFIX)
+        is_gcs_path = dest.startswith(_gcs_utils.GCS_PREFIX)
 
         if is_gcs_path:
             full_dest_path = os.path.join(dest, file_name)
@@ -816,7 +817,7 @@ def _execute_inference(
         logger.info("Saving inference / agent run results to: %s", full_dest_path)
         try:
             if is_gcs_path:
-                _evals_utils.GcsUtils(api_client=api_client).upload_dataframe(
+                _gcs_utils.GcsUtils(api_client=api_client).upload_dataframe(
                     df=results_df,
                     gcs_destination_blob_path=full_dest_path,
                     file_type="jsonl",
@@ -858,8 +859,8 @@ def _get_dataset_source(
 def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
-    loader: "_evals_utils.EvalDatasetLoader",
-    agent_info: Optional[types.AgentInfo] = None,
+    loader: "_evals_metric_loaders.EvalDatasetLoader",
+    agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 
@@ -943,7 +944,9 @@ def _resolve_evaluation_run_metrics(
     for metric_instance in metrics:
         if isinstance(metric_instance, types.EvaluationRunMetric):
             resolved_metrics_list.append(metric_instance)
-        elif isinstance(metric_instance, _evals_utils.LazyLoadedPrebuiltMetric):
+        elif isinstance(
+            metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
+        ):
             try:
                 resolved_metric = metric_instance.resolve(api_client=api_client)
                 if resolved_metric.name:
@@ -969,10 +972,10 @@ def _resolve_evaluation_run_metrics(
             try:
                 metric_name_str = str(metric_instance)
                 lazy_metric_instance = getattr(
-                    _evals_utils.RubricMetric, metric_name_str.upper()
+                    _evals_metric_loaders.RubricMetric, metric_name_str.upper()
                 )
                 if isinstance(
-                    lazy_metric_instance, _evals_utils.LazyLoadedPrebuiltMetric
+                    lazy_metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
                 ):
                     resolved_metric = lazy_metric_instance.resolve(
                         api_client=api_client
@@ -1006,7 +1009,7 @@ def _resolve_metrics(
     """Resolves a list of metric instances, loading RubricMetric if necessary."""
     resolved_metrics_list = []
     for metric_instance in metrics:
-        if isinstance(metric_instance, _evals_utils.LazyLoadedPrebuiltMetric):
+        if isinstance(metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric):
             try:
                 resolved_metrics_list.append(
                     metric_instance.resolve(api_client=api_client)
@@ -1025,10 +1028,10 @@ def _resolve_metrics(
             try:
                 metric_name_str = str(metric_instance)
                 lazy_metric_instance = getattr(
-                    _evals_utils.RubricMetric, metric_name_str.upper()
+                    _evals_metric_loaders.RubricMetric, metric_name_str.upper()
                 )
                 if isinstance(
-                    lazy_metric_instance, _evals_utils.LazyLoadedPrebuiltMetric
+                    lazy_metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
                 ):
                     resolved_metrics_list.append(
                         lazy_metric_instance.resolve(api_client=api_client)
@@ -1100,14 +1103,14 @@ def _execute_evaluation(
         else:
             deduped_candidate_names.append(name)
 
-    loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+    loader = _evals_metric_loaders.EvalDatasetLoader(api_client=api_client)
 
     agent_info = kwargs.get("agent_info", None)
     validated_agent_info = None
     if agent_info:
         if isinstance(agent_info, dict):
-            validated_agent_info = types.AgentInfo.model_validate(agent_info)
-        elif isinstance(agent_info, types.AgentInfo):
+            validated_agent_info = types.evals.AgentInfo.model_validate(agent_info)
+        elif isinstance(agent_info, types.evals.AgentInfo):
             validated_agent_info = agent_info
         else:
             raise TypeError(
@@ -1154,7 +1157,7 @@ def _execute_evaluation(
     logger.info("Evaluation run completed.")
 
     if dest:
-        uploaded_path = _evals_utils.GcsUtils(
+        uploaded_path = _gcs_utils.GcsUtils(
             api_client=api_client
         ).upload_json_to_prefix(
             data=evaluation_result.model_dump(
@@ -1334,7 +1337,7 @@ def _convert_gcs_to_evaluation_item_result(
 ) -> types.EvaluationItemResult:
     """Converts a json file to an EvaluationItemResult."""
     logger.info("Loading evaluation item result from GCS: %s", gcs_uri)
-    gcs_utils = _evals_utils.GcsUtils(api_client=api_client)
+    gcs_utils = _gcs_utils.GcsUtils(api_client=api_client)
     try:
         eval_item_data = json.loads(gcs_utils.read_file_contents(gcs_uri))
         return types.EvaluationItemResult(**eval_item_data)
@@ -1351,7 +1354,7 @@ def _convert_gcs_to_evaluation_item_request(
 ) -> types.EvaluationItemRequest:
     """Converts a json file to an EvaluationItemRequest."""
     logger.info("Loading evaluation item request from GCS: %s", gcs_uri)
-    gcs_utils = _evals_utils.GcsUtils(api_client=api_client)
+    gcs_utils = _gcs_utils.GcsUtils(api_client=api_client)
     try:
         eval_item_data = json.loads(gcs_utils.read_file_contents(gcs_uri))
         return types.EvaluationItemRequest(**eval_item_data)
@@ -1634,7 +1637,7 @@ def _create_evaluation_set_from_dataframe(
             )
         )
     logger.info("Writing evaluation item requests to GCS.")
-    gcs_utils = _evals_utils.GcsUtils(api_client=api_client)
+    gcs_utils = _gcs_utils.GcsUtils(api_client=api_client)
     evals_module = evals.Evals(api_client_=api_client)
     eval_items = []
     for eval_item_request in eval_item_requests:
