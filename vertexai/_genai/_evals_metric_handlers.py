@@ -970,7 +970,13 @@ class PredefinedMetricHandler(MetricHandler):
         try:
             payload = self._build_request_payload(eval_case, response_index)
             api_response = self.module._evaluate_instances(
-                metrics=[self.metric], instance=payload.get("instance")
+                metrics=[self.metric],
+                instance=payload.get("instance"),
+                config=types.EvaluateInstancesConfig(
+                    http_options=genai_types.HttpOptions(
+                        base_url="https://us-central1-staging-aiplatform.sandbox.googleapis.com"
+                    )
+                ),
             )
 
             if (
