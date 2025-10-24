@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.123.0](https://github.com/googleapis/python-aiplatform/compare/v1.122.0...v1.123.0) (2025-10-24)
+
+
+### Features
+
+* Add more attributes to OTel resource for ADK tracing ([5aaa60e](https://github.com/googleapis/python-aiplatform/commit/5aaa60e30a5695c2a5eb49283388fa36809e389e))
+* Add Python 3.13 Kokoro run config ([57d2709](https://github.com/googleapis/python-aiplatform/commit/57d270909b02132296692b4adc6dbc89ee8de9c6))
+* Disable prompt/response content in ADK spans if telemetry env is set ([be5d1f5](https://github.com/googleapis/python-aiplatform/commit/be5d1f59121c5255e6061a518a5abe9e3e3c0a17))
+* GenAI Client(evals) - Add agent data to EvaluationRun `show` in Vertex AI GenAI SDK evals ([d62afc3](https://github.com/googleapis/python-aiplatform/commit/d62afc32db85a103c25878dd82a338feb86f53fe))
+* GenAI SDK client (Multimodal Dataset) - Create a multimodal dataset from Big Query. ([d4e211d](https://github.com/googleapis/python-aiplatform/commit/d4e211d00d3276aa6cb645deb27397467fc27c5b))
+* GenAI SDK client(memory): Add Memory Topic labels to Memory ([de941a6](https://github.com/googleapis/python-aiplatform/commit/de941a6fc3ca7885a0fc3e42b5ef7c44a783963b))
+* GenAI SDK client(multimodal) - Add get/update/list/delete to multimodal datasets. ([34996a2](https://github.com/googleapis/python-aiplatform/commit/34996a28de0495462aea9c7c2baf8b4249afb9df))
+
+
+### Bug Fixes
+
+* Allow both camelCase and snake_case in _StreamRunRequest ([6a6674d](https://github.com/googleapis/python-aiplatform/commit/6a6674d76bcd148ededfafd7d3f248d880c2b110))
+* Clone agent_framework attribute in ModuleAgent.clone() ([81f8c40](https://github.com/googleapis/python-aiplatform/commit/81f8c406bb979f3521067b2dea1544db0f4194f4))
+* GenAI SDK client - Fix log showing how to get an Agent Engine. Positional arguments are not allowed. ([0fc74de](https://github.com/googleapis/python-aiplatform/commit/0fc74dea6d9e8826f29b7b9c1a10f348be911f6a))
+* Remove unnecessary pandas import from multimodal datasets preview module. ([5dd51a2](https://github.com/googleapis/python-aiplatform/commit/5dd51a2ea6fa115ab8d33970d22aefaab31dfcbd))
+
+
+### Documentation
+
+* Add docstring for classes and fields that are not supported in Gemini or Vertex API ([cd99635](https://github.com/googleapis/python-aiplatform/commit/cd99635cd5b85334dbdfddd0ef3cb7ec5c93846d))
+* Add docstring for enum classes that are not supported in Gemini or Vertex API ([db364ab](https://github.com/googleapis/python-aiplatform/commit/db364ab793cde5c25518bbaaa6df9a0f44ee9ac6))
+
 ## [1.122.0](https://github.com/googleapis/python-aiplatform/compare/v1.121.0...v1.122.0) (2025-10-21)
 
 
