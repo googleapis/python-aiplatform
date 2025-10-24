@@ -25,6 +25,8 @@ import warnings
 
 import nox
 
+nox.options.default_venv_backend = "uv"
+
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
