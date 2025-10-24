@@ -180,10 +180,14 @@ class _StreamRunRequest:
         )
         # The authorizations of the user, keyed by authorization ID.
 
-        self.user_id: Optional[str] = kwargs.get("user_id", _DEFAULT_USER_ID)
+        self.user_id: Optional[str] = kwargs.get("user_id") or kwargs.get(
+            "userId", _DEFAULT_USER_ID
+        )
         # The user ID.
 
-        self.session_id: Optional[str] = kwargs.get("session_id")
+        self.session_id: Optional[str] = kwargs.get("session_id") or kwargs.get(
+            "sessionId"
+        )
         # The session ID.
 
 
