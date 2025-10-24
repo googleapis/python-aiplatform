@@ -116,7 +116,7 @@ class PairwiseChoice(_common.CaseInSensitiveEnum):
 
 
 class Strategy(_common.CaseInSensitiveEnum):
-    """Optional. This determines which type of scheduling strategy to use."""
+    """This determines which type of scheduling strategy to use."""
 
     STRATEGY_UNSPECIFIED = "STRATEGY_UNSPECIFIED"
     """Strategy will default to STANDARD."""
@@ -174,7 +174,7 @@ class AcceleratorType(_common.CaseInSensitiveEnum):
 
 
 class Type(_common.CaseInSensitiveEnum):
-    """Required. Specifies the reservation affinity type."""
+    """Specifies the reservation affinity type."""
 
     TYPE_UNSPECIFIED = "TYPE_UNSPECIFIED"
     """Default value. This should not be used."""
@@ -227,7 +227,7 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
 
 
 class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """Required. The managed topic."""
+    """The managed topic."""
 
     MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
     """Unspecified topic. This value should not be used."""
