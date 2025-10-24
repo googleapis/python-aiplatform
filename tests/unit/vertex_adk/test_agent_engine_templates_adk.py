@@ -264,6 +264,39 @@ class TestAdkApp:
             for operation in operations:
                 assert operation in dir(app)
 
+    def test_stream_query(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = list(
+            app.stream_query(
+                user_id=_TEST_USER_ID,
+                message="test message",
+            )
+        )
+        assert len(events) == 1
+
+    def test_stream_query_with_content(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = list(
+            app.stream_query(
+                user_id=_TEST_USER_ID,
+                message=types.Content(
+                    role="user",
+                    parts=[
+                        types.Part(
+                            text="test message with content",
+                        )
+                    ],
+                ).model_dump(),
+            )
+        )
+        assert len(events) == 1
+
     @pytest.mark.asyncio
     async def test_async_stream_query(self):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
@@ -383,6 +416,51 @@ class TestAdkApp:
             session_id=session.id,
         )
         response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
+        assert not response0.sessions
+
+    def test_create_session(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        session1 = app.create_session(user_id=_TEST_USER_ID)
+        assert session1.user_id == _TEST_USER_ID
+        session2 = app.create_session(
+            user_id=_TEST_USER_ID, session_id="test_session_id"
+        )
+        assert session2.user_id == _TEST_USER_ID
+        assert session2.id == "test_session_id"
+
+    def test_get_session(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        session1 = app.create_session(user_id=_TEST_USER_ID)
+        session2 = app.get_session(
+            user_id=_TEST_USER_ID,
+            session_id=session1.id,
+        )
+        assert session2.user_id == _TEST_USER_ID
+        assert session1.id == session2.id
+
+    def test_list_sessions(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        response0 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert not response0.sessions
+        session = app.create_session(user_id=_TEST_USER_ID)
+        response1 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(response1.sessions) == 1
+        assert response1.sessions[0].id == session.id
+        session2 = app.create_session(user_id=_TEST_USER_ID)
+        response2 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(response2.sessions) == 2
+        assert response2.sessions[0].id == session.id
+        assert response2.sessions[1].id == session2.id
+
+    def test_delete_session(self):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        response = app.delete_session(user_id=_TEST_USER_ID, session_id="")
+        assert not response
+        session = app.create_session(user_id=_TEST_USER_ID)
+        response1 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(response1.sessions) == 1
+        app.delete_session(user_id=_TEST_USER_ID, session_id=session.id)
+        response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
 
     @pytest.mark.asyncio
