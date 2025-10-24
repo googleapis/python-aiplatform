@@ -48,7 +48,7 @@ _api_client.append_library_version_headers = _add_tracking_headers
 class AsyncClient:
     """Async Gen AI Client for the Vertex SDK."""
 
-    def __init__(self, api_client: genai_client.Client):
+    def __init__(self, api_client: genai_client.BaseApiClient):
         self._api_client = api_client
         self._live = live.AsyncLive(self._api_client)
         self._evals = None
