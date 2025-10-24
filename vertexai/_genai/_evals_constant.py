@@ -46,3 +46,17 @@ SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES = frozenset(
 )
 INTERMEDIATE_EVENTS = "intermediate_events"
 RESPONSE = "response"
+PROMPT = "prompt"
+REFERENCE = "reference"
+SESSION_INPUT = "session_inputs"
+CONTEXT = "context"
+
+COMMON_DATASET_COLUMNS = frozenset(
+    {
+        INTERMEDIATE_EVENTS,
+        PROMPT,
+        REFERENCE,
+        SESSION_INPUT,
+        CONTEXT,
+    }
+)

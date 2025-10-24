@@ -16,12 +16,12 @@
 import io
 import json
 import logging
-import time
 from typing import Any, Union
 
 from google.cloud import storage  # type: ignore[attr-defined]
 from google.genai._api_client import BaseApiClient
 import pandas as pd
+import uuid
 
 
 logger = logging.getLogger(__name__)
@@ -125,7 +125,7 @@ class GcsUtils:
         gcs_dest_prefix: str,
         filename_prefix: str = "data",
     ) -> str:
-        """Uploads a dictionary to a GCS prefix with a timestamped JSON filename.
+        """Uploads a dictionary to a GCS prefix with a UUID JSON filename.
 
         Args:
           data: The dictionary to upload.
@@ -151,8 +151,7 @@ class GcsUtils:
         if user_prefix_path and not user_prefix_path.endswith("/"):
             user_prefix_path += "/"
 
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        filename = f"{filename_prefix}_{timestamp}.json"
+        filename = f"{filename_prefix}_{uuid.uuid4()}.json"
 
         blob_name = f"{user_prefix_path}{filename}"
 

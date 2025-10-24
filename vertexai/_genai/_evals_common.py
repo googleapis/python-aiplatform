@@ -14,6 +14,7 @@
 #
 """Common utilities for evals."""
 import asyncio
+import base64
 import collections
 import concurrent.futures
 import datetime
@@ -1114,7 +1115,7 @@ def _execute_evaluation(
             validated_agent_info = agent_info
         else:
             raise TypeError(
-                f"agent_info values must be of type types.AgentInfo or dict, but got {type(agent_info)}'"
+                f"agent_info values must be of type types.evals.AgentInfo or dict, but got {type(agent_info)}'"
             )
 
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
@@ -1395,7 +1396,7 @@ def _get_aggregated_metrics(
 
     return [
         types.AggregatedMetricResult(
-            metric_name=name,
+            metric_name=name.split("/")[-1],
             mean_score=values.get("AVERAGE"),
             stdev_score=values.get("STANDARD_DEVIATION"),
         )
@@ -1434,10 +1435,23 @@ def _convert_request_to_dataset_row(
 ) -> dict[str, Any]:
     """Converts an EvaluationItemRequest to a dictionary."""
     dict_row = {}
-    dict_row["prompt"] = request.prompt.text if request.prompt.text else None
-    dict_row["reference"] = request.golden_response
-    for candidate in request.candidate_responses:
-        dict_row[candidate.candidate] = candidate.text if candidate.text else None
+    dict_row[_evals_constant.PROMPT] = (
+        request.prompt.text if request.prompt.text else None
+    )
+    dict_row[_evals_constant.REFERENCE] = request.golden_response
+    intermediate_events = []
+    if request.candidate_responses:
+        for candidate in request.candidate_responses:
+            dict_row[candidate.candidate] = candidate.text if candidate.text else None
+            if candidate.events:
+                for event in candidate.events:
+                    content_dict = {"parts": event.parts, "role": event.role}
+                    int_events_dict = {
+                        "event_id": candidate.candidate,
+                        "content": content_dict,
+                    }
+                    intermediate_events.append(int_events_dict)
+    dict_row[_evals_constant.INTERMEDIATE_EVENTS] = intermediate_events
     return dict_row
 
 
@@ -1451,15 +1465,14 @@ def _transform_dataframe(rows: list[dict[str, Any]]) -> list[types.EvaluationDat
       A list of EvaluationDatasets, one for each candidate.
     """
     df = pd.DataFrame(rows)
-    exclude_cols = ["prompt", "reference"]
-    candidates = [col for col in df.columns if col not in exclude_cols]
+    candidates = [
+        col for col in df.columns if col not in _evals_constant.COMMON_DATASET_COLUMNS
+    ]
 
     eval_dfs = [
         types.EvaluationDataset(
             candidate_name=candidate,
-            eval_dataset_df=df[["prompt", "reference", candidate]].rename(
-                columns={candidate: "response"}
-            ),
+            eval_dataset_df=df.rename(columns={candidate: _evals_constant.RESPONSE}),
         )
         for candidate in candidates
     ]
@@ -1487,7 +1500,6 @@ def _get_eval_cases_eval_dfs_from_eval_items(
             eval_item
             and eval_item.evaluation_response
             and eval_item.evaluation_response.request
-            and eval_item.evaluation_response.candidate_results
         ):
             eval_case_results.append(
                 _get_eval_case_result_from_eval_item(index, eval_item)
@@ -1499,9 +1511,37 @@ def _get_eval_cases_eval_dfs_from_eval_items(
     return eval_case_results, eval_dfs
 
 
+def _get_agent_info_from_inference_configs(
+    candidate_names: list[str],
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
+) -> Optional[types.evals.AgentInfo]:
+    """Retrieves an AgentInfo from the inference configs."""
+    # TODO(lakeyk): Support multiple agents.
+    if not (
+        inference_configs
+        and candidate_names
+        and candidate_names[0] in inference_configs
+        and inference_configs[candidate_names[0]].agent_config
+    ):
+        return None
+    if len(inference_configs.keys()) > 1:
+        logger.warning(
+            "Multiple agents are not supported yet. Displaying the first agent."
+        )
+    agent_config = inference_configs[candidate_names[0]].agent_config
+    di = agent_config.developer_instruction
+    instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
+    return types.evals.AgentInfo(
+        name=candidate_names[0],
+        instruction=instruction,
+        tool_declarations=agent_config.tools,
+    )
+
+
 def _get_eval_result_from_eval_items(
     results: types.EvaluationRunResults,
     eval_items: list[types.EvaluationItem],
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
 ) -> types.EvaluationResult:
     """Retrieves an EvaluationResult from the EvaluationRunResults.
 
@@ -1525,6 +1565,9 @@ def _get_eval_result_from_eval_items(
         metadata=types.EvaluationRunMetadata(
             candidate_names=candidate_names,
         ),
+        agent_info=_get_agent_info_from_inference_configs(
+            candidate_names, inference_configs
+        ),
     )
     return eval_result
 
@@ -1532,6 +1575,7 @@ def _get_eval_result_from_eval_items(
 def _convert_evaluation_run_results(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
 ) -> list[types.EvaluationItem]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
@@ -1548,12 +1592,15 @@ def _convert_evaluation_run_results(
             evals_module.get_evaluation_item(name=item_name)
             for item_name in eval_set.evaluation_items
         ]
-    return _get_eval_result_from_eval_items(evaluation_run_results, eval_items)
+    return _get_eval_result_from_eval_items(
+        evaluation_run_results, eval_items, inference_configs
+    )
 
 
 async def _convert_evaluation_run_results_async(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
 ) -> list[types.EvaluationItem]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
@@ -1571,7 +1618,9 @@ async def _convert_evaluation_run_results_async(
             for eval_item in eval_set.evaluation_items
         ]
         eval_items = await asyncio.gather(*tasks)
-    return _get_eval_result_from_eval_items(evaluation_run_results, eval_items)
+    return _get_eval_result_from_eval_items(
+        evaluation_run_results, eval_items, inference_configs
+    )
 
 
 def _object_to_dict(obj) -> dict[str, Any]:
@@ -1587,6 +1636,8 @@ def _object_to_dict(obj) -> dict[str, Any]:
             result[key] = value
         elif isinstance(value, (list, tuple)):
             result[key] = [_object_to_dict(item) for item in value]
+        elif isinstance(value, bytes):
+            result[key] = base64.b64encode(value).decode("utf-8")
         elif hasattr(value, "__dict__"):  # Nested object
             result[key] = _object_to_dict(value)
         else:
@@ -1604,29 +1655,30 @@ def _create_evaluation_set_from_dataframe(
     eval_item_requests = []
     for _, row in eval_df.iterrows():
         intermediate_events = []
-        if "intermediate_events" in row:
-            for event in row["intermediate_events"]:
-                intermediate_events.append(
-                    genai_types.Content(
-                        parts=event["content"]["parts"], role=event["content"]["role"]
-                    )
-                )
+        if (
+            _evals_constant.INTERMEDIATE_EVENTS in row
+            and isinstance(row[_evals_constant.INTERMEDIATE_EVENTS], list)
+            and len(row[_evals_constant.INTERMEDIATE_EVENTS]) > 0
+        ):
+            for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
+                if "content" in event:
+                    intermediate_events.append(event["content"])
         eval_item_requests.append(
             types.EvaluationItemRequest(
                 prompt=(
-                    types.EvaluationPrompt(text=row["prompt"])
-                    if "prompt" in row
+                    types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
+                    if _evals_constant.PROMPT in row
                     else None
                 ),
                 golden_response=(
-                    types.CandidateResponse(text=row["reference"])
-                    if "reference" in row
+                    types.CandidateResponse(text=row[_evals_constant.REFERENCE])
+                    if _evals_constant.REFERENCE in row
                     else None
                 ),
                 candidate_responses=[
                     types.CandidateResponse(
                         candidate=candidate_name or "Candidate 1",
-                        text=row.get("response", None),
+                        text=row.get(_evals_constant.RESPONSE, None),
                         events=(
                             intermediate_events
                             if len(intermediate_events) > 0
