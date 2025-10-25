@@ -9,7 +9,7 @@ mock==4.0.2
 google-cloud-storage==2.2.1 # Increased for kfp 2.0 compatibility
 packaging==24.1 # Increased to unbreak canonicalize_version error (b/377774673)
 pytest-xdist==3.3.1 # Pinned to unbreak unit tests
-ray==2.5.0 # Pinned until 2.9.3 is verified for Ray tests
+ray==2.9.3
 ipython==8.22.2 # Pinned to unbreak TypeAliasType import error
 google-vizier==0.1.21
 google-adk==0.0.2
