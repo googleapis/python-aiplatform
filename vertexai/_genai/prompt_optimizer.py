@@ -38,13 +38,16 @@ logger = logging.getLogger("vertexai_genai.promptoptimizer")
 def _CustomJobParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["custom_job"]) is not None:
         setv(
             parent_object,
             ["customJob"],
-            _CustomJob_to_vertex(getv(from_object, ["custom_job"]), to_object),
+            _CustomJob_to_vertex(
+                getv(from_object, ["custom_job"]), to_object, root_object
+            ),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -56,6 +59,7 @@ def _CustomJobParameters_to_vertex(
 def _CustomJob_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(parent_object, ["displayName"]) is not None:
@@ -106,6 +110,7 @@ def _CustomJob_from_vertex(
 def _CustomJob_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["display_name"]) is not None:
@@ -156,6 +161,7 @@ def _CustomJob_to_vertex(
 def _GetCustomJobParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -170,6 +176,7 @@ def _GetCustomJobParameters_to_vertex(
 def _OptimizeRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["content"]) is not None:
@@ -203,7 +210,9 @@ class PromptOptimizer(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+            request_dict = _OptimizeRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
@@ -256,7 +265,9 @@ class PromptOptimizer(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CustomJobParameters_to_vertex(parameter_model)
+            request_dict = _CustomJobParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs".format_map(request_url_dict)
@@ -309,7 +320,9 @@ class PromptOptimizer(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
+            request_dict = _GetCustomJobParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs/{name}".format_map(request_url_dict)
@@ -590,7 +603,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _OptimizeRequestParameters_to_vertex(parameter_model)
+            request_dict = _OptimizeRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "tuningJobs:optimizePrompt".format_map(request_url_dict)
@@ -645,7 +660,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _CustomJobParameters_to_vertex(parameter_model)
+            request_dict = _CustomJobParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs".format_map(request_url_dict)
@@ -700,7 +717,9 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetCustomJobParameters_to_vertex(parameter_model)
+            request_dict = _GetCustomJobParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "customJobs/{name}".format_map(request_url_dict)
