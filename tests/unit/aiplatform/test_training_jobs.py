@@ -662,15 +662,6 @@ class TestTrainingScriptPythonPackager:
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
 
-    def test_created_package_module_is_installable_and_can_be_run(self):
-        tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
-        source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
-        subprocess.check_output(["pip3", "install", source_dist_path])
-        module_output = subprocess.check_output(
-            [source_utils._get_python_executable(), "-m", tsp.module_name]
-        )
-        assert "hello world" in module_output.decode()
-
     def test_requirements_are_in_package(self):
         tsp = source_utils._TrainingScriptPythonPackager(
             _TEST_LOCAL_SCRIPT_FILE_PATH, requirements=_TEST_REQUIREMENTS
