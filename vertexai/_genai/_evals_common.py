@@ -278,7 +278,8 @@ def _execute_inference_concurrently(
                             and type(agent_engine).__name__ == "AgentEngine"
                         ):
                             agent_engine_instance = agent_engine
-                        return asyncio.run(
+                        loop = asyncio.get_event_loop()
+                        return loop.run_until_complete(
                             inference_fn_arg(
                                 row=row_arg,
                                 contents=contents_arg,
