@@ -100,6 +100,15 @@ def test_vertexai_import():
     assert "pandas" not in modules_after_genai_client_import
     assert "pydantic" in modules_after_genai_client_import
 
+    # The types module should not import _evals_metric_loaders until
+    # PrebuiltMetric or RubricMetric are accessed.
+    from vertexai._genai import types  # noqa: F401
+
+    assert (
+        "google.cloud.aiplatform.vertexai._genai._evals_metric_loaders"
+        not in sys.modules
+    )
+
     # Tests the evals module is lazy loaded.
     from vertexai._genai import evals as _  # noqa: F401,F811
 
