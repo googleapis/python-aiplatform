@@ -460,9 +460,13 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                             if (Array.isArray(explanationData) && explanationData.length > 0 && explanationData[0].sentence) {{
                                 bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
                                 explanationData.forEach(item => {{
-                                    const sentence = item.sentence || 'N/A';
+                                    let sentence = item.sentence || 'N/A';
                                     const label = item.label ? item.label.toLowerCase() : '';
-                                    const verdictText = label === 'no_rad' ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                                    const isPass = label === 'no_rad' || label === 'supported';
+                                    const verdictText = isPass ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                                    if (isPass) {{
+                                        sentence = `"${{sentence}}" is grounded`;
+                                    }}
                                     const rationale = item.rationale || 'N/A';
                                     const itemJson = JSON.stringify(item, null, 2);
                                     bubbles += `
