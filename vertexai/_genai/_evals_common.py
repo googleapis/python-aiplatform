@@ -278,12 +278,10 @@ def _execute_inference_concurrently(
                             and type(agent_engine).__name__ == "AgentEngine"
                         ):
                             agent_engine_instance = agent_engine
-                        return asyncio.run(
-                            inference_fn_arg(
-                                row=row_arg,
-                                contents=contents_arg,
-                                agent_engine=agent_engine_instance,
-                            )
+                        return inference_fn_arg(
+                            row=row_arg,
+                            contents=contents_arg,
+                            agent_engine=agent_engine_instance,
                         )
 
                     future = executor.submit(
@@ -1265,7 +1263,7 @@ def _run_agent(
     )
 
 
-async def _execute_agent_run_with_retry(
+def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent_engine: types.AgentEngine,
@@ -1287,7 +1285,7 @@ async def _execute_agent_run_with_retry(
             )
         user_id = session_inputs.user_id
         session_state = session_inputs.state
-        session = await agent_engine.async_create_session(
+        session = agent_engine.create_session(
             user_id=user_id,
             state=session_state,
         )
@@ -1298,7 +1296,7 @@ async def _execute_agent_run_with_retry(
     for attempt in range(max_retries):
         try:
             responses = []
-            async for event in agent_engine.async_stream_query(
+            for event in agent_engine.stream_query(
                 user_id=user_id,
                 session_id=session["id"],
                 message=contents,
@@ -1317,7 +1315,7 @@ async def _execute_agent_run_with_retry(
             )
             if attempt == max_retries - 1:
                 return {"error": f"Resource exhausted after retries: {e}"}
-            await asyncio.sleep(2**attempt)
+            time.sleep(2**attempt)
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(
                 "Unexpected error during generate_content on attempt %d/%d: %s",
@@ -1328,7 +1326,7 @@ async def _execute_agent_run_with_retry(
 
             if attempt == max_retries - 1:
                 return {"error": f"Failed after retries: {e}"}
-            await asyncio.sleep(1)
+            time.sleep(1)
     return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 
