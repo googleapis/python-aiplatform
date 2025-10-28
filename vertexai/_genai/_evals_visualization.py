@@ -283,26 +283,27 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 let traceHtml = `<div class="trace-event-row"><div class="name"><span class="icon">🏃</span>agent_run</div></div>`;
                 eventsArray.forEach(event => {{
                     if (event.content && event.content.parts && event.content.parts.length > 0) {{
-                        const part = event.content.parts[0];
-                        if (part.function_call) {{
-                            traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">🛠️</span>function_call</div></div></summary>`;
-                            traceHtml += `<div class="trace-details details-l1">function name: ${{part.function_call.name}}</div>`;
-                            traceHtml += `<div class="trace-details details-l1">function args: ${{formatDictVals(part.function_call.args)}}</div></details></div>`;
-                        }} else if (part.text && event.content.role === 'model') {{
-                            traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">💬</span>call_llm</div></div></summary>`;
-                            traceHtml += `<div class="trace-details details-l1">model response: ${{part.text}}</div></details></div>`;
-                        }} else if (part.function_response) {{
-                            traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">🛠️</span>function_response</div></div></summary>`;
-                            traceHtml += `<div class="trace-details details-l1">function name: ${{part.function_response.name}}</div>`;
-                            let response_val = part.function_response.response;
-                            if(typeof response_val === 'object' && response_val !== null && response_val.result !== undefined) {{
-                                response_val = response_val.result;
+                        event.content.parts.forEach(part => {{
+                            if (part.function_call) {{
+                                traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">🛠️</span>function_call</div></div></summary>`;
+                                traceHtml += `<div class="trace-details details-l1">function name: ${{part.function_call.name}}</div>`;
+                                traceHtml += `<div class="trace-details details-l1">function args: ${{formatDictVals(part.function_call.args)}}</div></details></div>`;
+                            }} else if (part.text && event.content.role === 'model') {{
+                                traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">💬</span>call_llm</div></div></summary>`;
+                                traceHtml += `<div class="trace-details details-l1">model response: ${{part.text}}</div></details></div>`;
+                            }} else if (part.function_response) {{
+                                traceHtml += `<div class="trace-details-wrapper"><details><summary><div class="trace-event-row"><div class="name trace-l1"><span class="icon">🛠️</span>function_response</div></div></summary>`;
+                                traceHtml += `<div class="trace-details details-l1">function name: ${{part.function_response.name}}</div>`;
+                                let response_val = part.function_response.response;
+                                if(typeof response_val === 'object' && response_val !== null && response_val.result !== undefined) {{
+                                    response_val = response_val.result;
+                                }}
+                                traceHtml += `<div class="trace-details details-l1">function response: ${{formatDictVals(response_val)}}</div></details></div>`;
+                            }} else {{
+                                // Skipping user messages and other parts in trace view
+                                return;
                             }}
-                            traceHtml += `<div class="trace-details details-l1">function response: ${{formatDictVals(response_val)}}</div></details></div>`;
-                        }} else {{
-                            // Skipping user messages and other parts in trace view
-                            return;
-                        }}
+                        }});
                     }}
                 }});
                 return traceHtml;
@@ -313,16 +314,17 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 const role = event.content.role;
                 let contentHtml = '';
                 if (event.content && event.content.parts && event.content.parts.length > 0) {{
-                    const part = event.content.parts[0];
-                    if (part.text) {{
-                        contentHtml = DOMPurify.sanitize(marked.parse(String(part.text)));
-                    }} else if (part.function_call) {{
-                        contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part.function_call, null, 2))}}</pre>`;
-                    }} else if (part.function_response) {{
-                        contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part.function_response, null, 2))}}</pre>`;
-                    }} else {{
-                         contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(event.content, null, 2))}}</pre>`;
-                    }}
+                    event.content.parts.forEach(part => {{
+                        if (part.text) {{
+                            contentHtml += DOMPurify.sanitize(marked.parse(String(part.text)));
+                        }} else if (part.function_call) {{
+                            contentHtml += `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part.function_call, null, 2))}}</pre>`;
+                        }} else if (part.function_response) {{
+                            contentHtml += `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part.function_response, null, 2))}}</pre>`;
+                        }} else {{
+                            contentHtml += `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(part, null, 2))}}</pre>`;
+                        }}
+                    }});
                 }} else {{
                     contentHtml = `<pre class="raw-json-container">${{DOMPurify.sanitize(JSON.stringify(event.content, null, 2))}}</pre>`;
                 }}
@@ -456,28 +458,43 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 
                     if (name.startsWith('hallucination') && val.explanation) {{
                         try {{
-                            const explanationData = JSON.parse(val.explanation);
-                            if (Array.isArray(explanationData) && explanationData.length > 0 && explanationData[0].sentence) {{
-                                bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
-                                explanationData.forEach(item => {{
-                                    let sentence = item.sentence || 'N/A';
-                                    const label = item.label ? item.label.toLowerCase() : '';
-                                    const isPass = label === 'no_rad' || label === 'supported';
-                                    const verdictText = isPass ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
-                                    if (isPass) {{
-                                        sentence = `"${{sentence}}" is grounded`;
-                                    }}
-                                    const rationale = item.rationale || 'N/A';
-                                    const itemJson = JSON.stringify(item, null, 2);
-                                    bubbles += `
-                                        <details class="rubric-details">
-                                            <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(sentence)}}</summary>
-                                            <div class="explanation" style="padding: 10px 0 0 20px;">${{DOMPurify.sanitize(rationale)}}</div>
-                                            <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
-                                        </details>`;
-                                }});
-                                bubbles += '</div>';
-                                explanationHandled = true;
+                            const explanationData = typeof val.explanation === 'string' ? JSON.parse(val.explanation) : val.explanation;
+                            if (Array.isArray(explanationData) && explanationData.length > 0) {{
+                                let sentenceGroups = [];
+                                if (explanationData[0].explanation && Array.isArray(explanationData[0].explanation)) {{
+                                    explanationData.forEach(item => {{
+                                        if(item.explanation && Array.isArray(item.explanation)) {{
+                                            sentenceGroups.push(item.explanation);
+                                        }}
+                                    }});
+                                }} else if (explanationData[0].sentence) {{
+                                    sentenceGroups.push(explanationData);
+                                }}
+
+                                if(sentenceGroups.length > 0) {{
+                                    sentenceGroups.forEach(sentenceList => {{
+                                        bubbles += '<div class="rubric-bubble-container" style="margin-top: 8px;">';
+                                        sentenceList.forEach(item => {{
+                                            let sentence = item.sentence || 'N/A';
+                                            const label = item.label ? item.label.toLowerCase() : '';
+                                            const isPass = label === 'no_rad' || label === 'supported';
+                                            const verdictText = isPass ? '<span class="pass">Pass</span>' : '<span class="fail">Fail</span>';
+                                            if (isPass) {{
+                                                sentence = `"${{sentence}}" is grounded`;
+                                            }}
+                                            const rationale = item.rationale || 'N/A';
+                                            const itemJson = JSON.stringify(item, null, 2);
+                                            bubbles += `
+                                                <details class="rubric-details">
+                                                    <summary class="rubric-bubble">${{verdictText}}: ${{DOMPurify.sanitize(sentence)}}</summary>
+                                                    <div class="explanation" style="padding: 10px 0 0 20px;">${{DOMPurify.sanitize(rationale)}}</div>
+                                                    <pre class="raw-json-container">${{DOMPurify.sanitize(itemJson)}}</pre>
+                                                </details>`;
+                                        }});
+                                        bubbles += '</div>';
+                                    }});
+                                    explanationHandled = true;
+                                }}
                             }}
                         }} catch (e) {{
                             console.error("Failed to parse hallucination explanation:", e);
