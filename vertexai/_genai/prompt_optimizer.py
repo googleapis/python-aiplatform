@@ -167,6 +167,22 @@ def _GetCustomJobParameters_to_vertex(
     return to_object
 
 
+def _OptimizeConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["optimization_target"]) is not None:
+        setv(
+            parent_object,
+            ["optimizationTarget"],
+            getv(from_object, ["optimization_target"]),
+        )
+
+    return to_object
+
+
 def _OptimizeRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -176,7 +192,11 @@ def _OptimizeRequestParameters_to_vertex(
         setv(to_object, ["content"], getv(from_object, ["content"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+        setv(
+            to_object,
+            ["config"],
+            _OptimizeConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
 
     return to_object
 
@@ -468,7 +488,10 @@ class PromptOptimizer(_api_module.BaseModule):
         return job
 
     def optimize_prompt(
-        self, *, prompt: str, config: Optional[types.OptimizeConfig] = None
+        self,
+        *,
+        prompt: str,
+        config: Optional[types.OptimizeConfig] = None,
     ) -> types.OptimizeResponse:
         """Makes an API request to _optimize_prompt and returns the parsed response.
 
@@ -480,19 +503,21 @@ class PromptOptimizer(_api_module.BaseModule):
 
         Args:
           prompt: The prompt to optimize.
-          config: The configuration for prompt optimization. Currently, config is
-            not supported for a single prompt optimization.
+          config: Optional.The configuration for prompt optimization. To optimize
+            prompts from Android API provide
+            types.OptimizeConfig(
+                optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO
+            )
         Returns:
           The parsed response from the API request.
         """
-        if config is not None:
-            raise ValueError(
-                "Currently, config is not supported for a single prompt optimization."
-            )
 
         prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
         # TODO: b/435653980 - replace the custom method with a generated method.
-        return self._custom_optimize_prompt(content=prompt)
+        return self._custom_optimize_prompt(
+            content=prompt,
+            config=config,
+        )
 
     def _custom_optimize_prompt(
         self,
@@ -511,7 +536,6 @@ class PromptOptimizer(_api_module.BaseModule):
             content=content,
             config=config,
         )
-
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
@@ -850,7 +874,6 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             content=content,
             config=config,
         )
-
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
@@ -909,7 +932,10 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         return final_response
 
     async def optimize_prompt(
-        self, *, prompt: str, config: Optional[types.OptimizeConfig] = None
+        self,
+        *,
+        prompt: str,
+        config: Optional[types.OptimizeConfig] = None,
     ) -> types.OptimizeResponse:
         """Makes an async request to _optimize_prompt and returns an optimized prompt.
 
@@ -920,16 +946,18 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         Args:
           prompt: The prompt to optimize.
-          config: The configuration for prompt optimization. Currently, config is
-            not supported for a single prompt optimization.
+          config: Optional.The configuration for prompt optimization. To optimize
+            prompts from Android API provide
+            types.OptimizeConfig(
+                optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO
+            )
         Returns:
           The parsed response from the API request.
         """
-        if config is not None:
-            raise ValueError(
-                "Currently, config is not supported for a single prompt optimization."
-            )
 
         prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
         # TODO: b/435653980 - replace the custom method with a generated method.
-        return await self._custom_optimize_prompt(content=prompt)
+        return await self._custom_optimize_prompt(
+            content=prompt,
+            config=config,
+        )

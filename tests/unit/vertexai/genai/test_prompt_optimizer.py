@@ -69,10 +69,57 @@ class TestPromptOptimizer:
     def test_prompt_optimizer_optimize_prompt(
         self, mock_custom_optimize_prompt, mock_client
     ):
-        """Test that prompt_optimizer.optimize method creates a custom job."""
+        """Test that prompt_optimizer.optimize_prompt method calls optimize_prompt API."""
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_client.prompt_optimizer.optimize_prompt(prompt="test_prompt")
         mock_client.assert_called_once()
         mock_custom_optimize_prompt.assert_called_once()
 
-    # TODO(b/415060797): add more tests for prompt_optimizer.optimize
+    @mock.patch.object(prompt_optimizer.PromptOptimizer, "_custom_optimize_prompt")
+    def test_prompt_optimizer_optimize_prompt_with_optimization_target(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that prompt_optimizer.optimize_prompt method calls _custom_optimize_prompt with optimization_target."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO,
+        )
+        test_client.prompt_optimizer.optimize_prompt(
+            prompt="test_prompt",
+            config=config,
+        )
+        mock_custom_optimize_prompt.assert_called_once_with(
+            content=mock.ANY,
+            config=config,
+        )
+
+    @pytest.mark.asyncio
+    @mock.patch.object(prompt_optimizer.AsyncPromptOptimizer, "_custom_optimize_prompt")
+    async def test_async_prompt_optimizer_optimize_prompt(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that async prompt_optimizer.optimize_prompt method calls optimize_prompt API."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        await test_client.aio.prompt_optimizer.optimize_prompt(prompt="test_prompt")
+        mock_custom_optimize_prompt.assert_called_once()
+
+    @pytest.mark.asyncio
+    @mock.patch.object(prompt_optimizer.AsyncPromptOptimizer, "_custom_optimize_prompt")
+    async def test_async_prompt_optimizer_optimize_prompt_with_optimization_target(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that async prompt_optimizer.optimize_prompt calls optimize_prompt with optimization_target."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO,
+        )
+        await test_client.aio.prompt_optimizer.optimize_prompt(
+            prompt="test_prompt",
+            config=config,
+        )
+        mock_custom_optimize_prompt.assert_called_once_with(
+            content=mock.ANY,
+            config=config,
+        )
+
+    # # TODO(b/415060797): add more tests for prompt_optimizer.optimize
