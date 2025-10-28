@@ -4784,64 +4784,64 @@ SecretEnvVarOrDict = Union[SecretEnvVar, SecretEnvVarDict]
 class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     """The specification of a Reasoning Engine deployment."""
 
-    env: Optional[list[EnvVar]] = Field(
-        default=None,
-        description="""Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API.""",
-    )
-    secret_env: Optional[list[SecretEnvVar]] = Field(
-        default=None,
-        description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
-    )
     agent_server_mode: Optional[AgentServerMode] = Field(
         default=None, description="""The agent server mode."""
     )
-    psc_interface_config: Optional[PscInterfaceConfig] = Field(
-        default=None, description="""Optional. Configuration for PSC-I."""
-    )
-    min_instances: Optional[int] = Field(
+    container_concurrency: Optional[int] = Field(
         default=None,
-        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1.""",
+        description="""Optional. The maximum number of concurrent requests that can be handled by the application. Defaults to 8.""",
+    )
+    env: Optional[list[EnvVar]] = Field(
+        default=None,
+        description="""Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API.""",
     )
     max_instances: Optional[int] = Field(
         default=None,
         description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100.""",
     )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1.""",
+    )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None, description="""Optional. Configuration for PSC-I."""
+    )
     resource_limits: Optional[dict[str, str]] = Field(
         default=None,
         description="""Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * For supported 'memory' values and syntax, go to https://cloud.google.com/run/docs/configuring/memory-limits""",
     )
-    container_concurrency: Optional[int] = Field(
+    secret_env: Optional[list[SecretEnvVar]] = Field(
         default=None,
-        description="""Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9.""",
+        description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
     )
 
 
 class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
     """The specification of a Reasoning Engine deployment."""
 
-    env: Optional[list[EnvVarDict]]
-    """Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API."""
-
-    secret_env: Optional[list[SecretEnvVarDict]]
-    """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
-
     agent_server_mode: Optional[AgentServerMode]
     """The agent server mode."""
 
-    psc_interface_config: Optional[PscInterfaceConfigDict]
-    """Optional. Configuration for PSC-I."""
+    container_concurrency: Optional[int]
+    """Optional. The maximum number of concurrent requests that can be handled by the application. Defaults to 8."""
 
-    min_instances: Optional[int]
-    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1."""
+    env: Optional[list[EnvVarDict]]
+    """Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API."""
 
     max_instances: Optional[int]
     """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100."""
 
+    min_instances: Optional[int]
+    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. Configuration for PSC-I."""
+
     resource_limits: Optional[dict[str, str]]
     """Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * For supported 'memory' values and syntax, go to https://cloud.google.com/run/docs/configuring/memory-limits"""
 
-    container_concurrency: Optional[int]
-    """Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9."""
+    secret_env: Optional[list[SecretEnvVarDict]]
+    """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
 
 
 ReasoningEngineSpecDeploymentSpecOrDict = Union[
@@ -4850,7 +4850,7 @@ ReasoningEngineSpecDeploymentSpecOrDict = Union[
 
 
 class ReasoningEngineSpecPackageSpec(_common.BaseModel):
-    """User provided package spec like pickled object and package requirements."""
+    """User-provided package specification, containing pickled object and package requirements."""
 
     dependency_files_gcs_uri: Optional[str] = Field(
         default=None,
@@ -4871,7 +4871,7 @@ class ReasoningEngineSpecPackageSpec(_common.BaseModel):
 
 
 class ReasoningEngineSpecPackageSpecDict(TypedDict, total=False):
-    """User provided package spec like pickled object and package requirements."""
+    """User-provided package specification, containing pickled object and package requirements."""
 
     dependency_files_gcs_uri: Optional[str]
     """Optional. The Cloud Storage URI of the dependency files in tar.gz format."""
@@ -4888,6 +4888,97 @@ class ReasoningEngineSpecPackageSpecDict(TypedDict, total=False):
 
 ReasoningEngineSpecPackageSpecOrDict = Union[
     ReasoningEngineSpecPackageSpec, ReasoningEngineSpecPackageSpecDict
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecInlineSource(_common.BaseModel):
+    """Specifies source code provided as a byte stream."""
+
+    source_archive: Optional[bytes] = Field(
+        default=None,
+        description="""Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecInlineSourceDict(TypedDict, total=False):
+    """Specifies source code provided as a byte stream."""
+
+    source_archive: Optional[bytes]
+    """Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file."""
+
+
+ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecInlineSource,
+    ReasoningEngineSpecSourceCodeSpecInlineSourceDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecPythonSpec(_common.BaseModel):
+    """Specification for running a Python application from source."""
+
+    entrypoint_module: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Python module to load as the entrypoint, specified as a fully qualified module name. For example: path.to.agent. If not specified, defaults to "agent". The project root will be added to Python sys.path, allowing imports to be specified relative to the root.""",
+    )
+    entrypoint_object: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the callable object within the `entrypoint_module` to use as the application If not specified, defaults to "root_agent".""",
+    )
+    requirements_file: Optional[str] = Field(
+        default=None,
+        description="""Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt".""",
+    )
+    version: Optional[str] = Field(
+        default=None,
+        description="""Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified, default value is 3.10.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecPythonSpecDict(TypedDict, total=False):
+    """Specification for running a Python application from source."""
+
+    entrypoint_module: Optional[str]
+    """Optional. The Python module to load as the entrypoint, specified as a fully qualified module name. For example: path.to.agent. If not specified, defaults to "agent". The project root will be added to Python sys.path, allowing imports to be specified relative to the root."""
+
+    entrypoint_object: Optional[str]
+    """Optional. The name of the callable object within the `entrypoint_module` to use as the application If not specified, defaults to "root_agent"."""
+
+    requirements_file: Optional[str]
+    """Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt"."""
+
+    version: Optional[str]
+    """Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified, default value is 3.10."""
+
+
+ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecPythonSpec,
+    ReasoningEngineSpecSourceCodeSpecPythonSpecDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
+    """Specification for deploying from source code."""
+
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
+        default=None, description="""Source code is provided directly in the request."""
+    )
+    python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpec] = Field(
+        default=None, description="""Configuration for a Python application."""
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
+    """Specification for deploying from source code."""
+
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
+    """Source code is provided directly in the request."""
+
+    python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpecDict]
+    """Configuration for a Python application."""
+
+
+ReasoningEngineSpecSourceCodeSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpec, ReasoningEngineSpecSourceCodeSpecDict
 ]
 
 
@@ -4908,11 +4999,15 @@ class ReasoningEngineSpec(_common.BaseModel):
     )
     package_spec: Optional[ReasoningEngineSpecPackageSpec] = Field(
         default=None,
-        description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes.""",
+        description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified.""",
     )
     service_account: Optional[str] = Field(
         default=None,
         description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
+    source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpec] = Field(
+        default=None,
+        description="""Deploy from source code files with a defined entrypoint.""",
     )
 
 
@@ -4929,10 +5024,13 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
     """Optional. The specification of a Reasoning Engine deployment."""
 
     package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
-    """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes."""
+    """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified."""
 
     service_account: Optional[str]
     """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
+    source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpecDict]
+    """Deploy from source code files with a defined entrypoint."""
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
@@ -5497,6 +5595,43 @@ class CreateAgentEngineConfig(_common.BaseModel):
       agent class.
       """,
     )
+    source_packages: Optional[list[str]] = Field(
+        default=None,
+        description="""The user-provided paths to the source packages (if any).
+      If specified, the files in the source packages will be packed into a
+      a tarball file, uploaded to Agent Engine's API, and deployed to the
+      Agent Engine.
+      The following fields will be ignored:
+        - agent
+        - extra_packages
+        - staging_bucket
+        - requirements
+      The following fields will be used to install and use the agent from the
+      source packages:
+        - entrypoint_module (required)
+        - entrypoint_object (required)
+        - requirements_file (optional)
+        - class_methods     (required)
+      """,
+    )
+    entrypoint_module: Optional[str] = Field(
+        default=None,
+        description="""The entrypoint module to be used for the Agent Engine
+      This field only used when source_packages is specified.""",
+    )
+    entrypoint_object: Optional[str] = Field(
+        default=None,
+        description="""The entrypoint object to be used for the Agent Engine.
+      This field only used when source_packages is specified.""",
+    )
+    requirements_file: Optional[str] = Field(
+        default=None,
+        description="""The user-provided path to the requirements file (if any).
+      This field is only used when source_packages is specified.
+      If not specified, agent engine will find and use the `requirements.txt` in
+      the source package.
+      """,
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -5562,6 +5697,39 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       agent class.
       """
 
+    source_packages: Optional[list[str]]
+    """The user-provided paths to the source packages (if any).
+      If specified, the files in the source packages will be packed into a
+      a tarball file, uploaded to Agent Engine's API, and deployed to the
+      Agent Engine.
+      The following fields will be ignored:
+        - agent
+        - extra_packages
+        - staging_bucket
+        - requirements
+      The following fields will be used to install and use the agent from the
+      source packages:
+        - entrypoint_module (required)
+        - entrypoint_object (required)
+        - requirements_file (optional)
+        - class_methods     (required)
+      """
+
+    entrypoint_module: Optional[str]
+    """The entrypoint module to be used for the Agent Engine
+      This field only used when source_packages is specified."""
+
+    entrypoint_object: Optional[str]
+    """The entrypoint object to be used for the Agent Engine.
+      This field only used when source_packages is specified."""
+
+    requirements_file: Optional[str]
+    """The user-provided path to the requirements file (if any).
+      This field is only used when source_packages is specified.
+      If not specified, agent engine will find and use the `requirements.txt` in
+      the source package.
+      """
+
 
 CreateAgentEngineConfigOrDict = Union[
     CreateAgentEngineConfig, CreateAgentEngineConfigDict
@@ -5609,12 +5777,12 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Required. The display name of the ReasoningEngine.""",
     )
-    labels: Optional[dict[str, str]] = Field(
-        default=None, description="""Labels for the ReasoningEngine."""
-    )
     etag: Optional[str] = Field(
         default=None,
         description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the ReasoningEngine."""
     )
     name: Optional[str] = Field(
         default=None,
@@ -5647,11 +5815,11 @@ class ReasoningEngineDict(TypedDict, total=False):
     display_name: Optional[str]
     """Required. The display name of the ReasoningEngine."""
 
-    labels: Optional[dict[str, str]]
-    """Labels for the ReasoningEngine."""
-
     etag: Optional[str]
     """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the ReasoningEngine."""
 
     name: Optional[str]
     """Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`"""
@@ -6128,6 +6296,43 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       agent class.
       """,
     )
+    source_packages: Optional[list[str]] = Field(
+        default=None,
+        description="""The user-provided paths to the source packages (if any).
+      If specified, the files in the source packages will be packed into a
+      a tarball file, uploaded to Agent Engine's API, and deployed to the
+      Agent Engine.
+      The following fields will be ignored:
+        - agent
+        - extra_packages
+        - staging_bucket
+        - requirements
+      The following fields will be used to install and use the agent from the
+      source packages:
+        - entrypoint_module (required)
+        - entrypoint_object (required)
+        - requirements_file (optional)
+        - class_methods     (required)
+      """,
+    )
+    entrypoint_module: Optional[str] = Field(
+        default=None,
+        description="""The entrypoint module to be used for the Agent Engine
+      This field only used when source_packages is specified.""",
+    )
+    entrypoint_object: Optional[str] = Field(
+        default=None,
+        description="""The entrypoint object to be used for the Agent Engine.
+      This field only used when source_packages is specified.""",
+    )
+    requirements_file: Optional[str] = Field(
+        default=None,
+        description="""The user-provided path to the requirements file (if any).
+      This field is only used when source_packages is specified.
+      If not specified, agent engine will find and use the `requirements.txt` in
+      the source package.
+      """,
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -6196,6 +6401,39 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       default. By default, methods are generated by inspecting the agent object
       and generating a corresponding method for each method defined on the
       agent class.
+      """
+
+    source_packages: Optional[list[str]]
+    """The user-provided paths to the source packages (if any).
+      If specified, the files in the source packages will be packed into a
+      a tarball file, uploaded to Agent Engine's API, and deployed to the
+      Agent Engine.
+      The following fields will be ignored:
+        - agent
+        - extra_packages
+        - staging_bucket
+        - requirements
+      The following fields will be used to install and use the agent from the
+      source packages:
+        - entrypoint_module (required)
+        - entrypoint_object (required)
+        - requirements_file (optional)
+        - class_methods     (required)
+      """
+
+    entrypoint_module: Optional[str]
+    """The entrypoint module to be used for the Agent Engine
+      This field only used when source_packages is specified."""
+
+    entrypoint_object: Optional[str]
+    """The entrypoint object to be used for the Agent Engine.
+      This field only used when source_packages is specified."""
+
+    requirements_file: Optional[str]
+    """The user-provided path to the requirements file (if any).
+      This field is only used when source_packages is specified.
+      If not specified, agent engine will find and use the `requirements.txt` in
+      the source package.
       """
 
     update_mask: Optional[str]
@@ -12847,6 +13085,43 @@ class AgentEngineConfig(_common.BaseModel):
       agent class.
       """,
     )
+    source_packages: Optional[list[str]] = Field(
+        default=None,
+        description="""The user-provided paths to the source packages (if any).
+      If specified, the files in the source packages will be packed into a
+      a tarball file, uploaded to Agent Engine's API, and deployed to the
+      Agent Engine.
+      The following fields will be ignored:
+        - agent
+        - extra_packages
+        - staging_bucket
+        - requirements
+      The following fields will be used to install and use the agent from the
+      source packages:
+        - entrypoint_module (required)
+        - entrypoint_object (required)
+        - requirements_file (optional)
+        - class_methods     (required)
+      """,
+    )
+    entrypoint_module: Optional[str] = Field(
+        default=None,
+        description="""The entrypoint module to be used for the Agent Engine
+      This field only used when source_packages is specified.""",
+    )
+    entrypoint_object: Optional[str] = Field(
+        default=None,
+        description="""The entrypoint object to be used for the Agent Engine.
+      This field only used when source_packages is specified.""",
+    )
+    requirements_file: Optional[str] = Field(
+        default=None,
+        description="""The user-provided path to the requirements file (if any).
+      This field is only used when source_packages is specified.
+      If not specified, agent engine will find and use the `requirements.txt` in
+      the source package.
+      """,
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -12939,6 +13214,39 @@ class AgentEngineConfigDict(TypedDict, total=False):
       default. By default, methods are generated by inspecting the agent object
       and generating a corresponding method for each method defined on the
       agent class.
+      """
+
+    source_packages: Optional[list[str]]
+    """The user-provided paths to the source packages (if any).
+      If specified, the files in the source packages will be packed into a
+      a tarball file, uploaded to Agent Engine's API, and deployed to the
+      Agent Engine.
+      The following fields will be ignored:
+        - agent
+        - extra_packages
+        - staging_bucket
+        - requirements
+      The following fields will be used to install and use the agent from the
+      source packages:
+        - entrypoint_module (required)
+        - entrypoint_object (required)
+        - requirements_file (optional)
+        - class_methods     (required)
+      """
+
+    entrypoint_module: Optional[str]
+    """The entrypoint module to be used for the Agent Engine
+      This field only used when source_packages is specified."""
+
+    entrypoint_object: Optional[str]
+    """The entrypoint object to be used for the Agent Engine.
+      This field only used when source_packages is specified."""
+
+    requirements_file: Optional[str]
+    """The user-provided path to the requirements file (if any).
+      This field is only used when source_packages is specified.
+      If not specified, agent engine will find and use the `requirements.txt` in
+      the source package.
       """
 
 

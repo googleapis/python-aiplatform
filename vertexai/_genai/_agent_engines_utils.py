@@ -16,6 +16,7 @@
 
 import abc
 import asyncio
+import base64
 from importlib import metadata as importlib_metadata
 import inspect
 import io
@@ -1159,6 +1160,30 @@ def _upload_extra_packages(
     blob.upload_from_string(tar_fileobj.read())
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"  # type: ignore[attr-defined]
     logger.info(f"Writing to {dir_name}/{_EXTRA_PACKAGES_FILE}")
+
+
+def _create_base64_encoded_tarball(
+    *,
+    source_packages: Sequence[str],
+) -> str:
+    """Creates a base64 encoded tarball from the source packages."""
+    logger.info("Creating in-memory tarfile of source_packages")
+    tar_fileobj = io.BytesIO()
+    project_dir = os.path.realpath(os.getcwd())
+    with tarfile.open(fileobj=tar_fileobj, mode="w|gz") as tar:
+        for file in source_packages:
+            real_file_path = os.path.realpath(file)
+            if real_file_path != project_dir and not real_file_path.startswith(
+                project_dir + os.sep
+            ):
+                raise ValueError(
+                    f"File path '{file}' is outside the project directory "
+                    f"'{project_dir}'."
+                )
+            tar.add(file)
+    tar_fileobj.seek(0)
+    tarball_bytes = tar_fileobj.read()
+    return base64.b64encode(tarball_bytes).decode("utf-8")
 
 
 def _validate_extra_packages_or_raise(

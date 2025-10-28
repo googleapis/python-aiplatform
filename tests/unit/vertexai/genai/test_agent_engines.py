@@ -13,11 +13,14 @@
 # limitations under the License.
 #
 import asyncio
+import base64
 import importlib
+import io
 import json
 import logging
 import os
 import sys
+import tarfile
 import tempfile
 from typing import Any, AsyncIterable, Dict, Iterable, List
 from unittest import mock
@@ -901,6 +904,48 @@ class TestAgentEngineHelpers:
             == _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT
         )
 
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_source_packages(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                source_packages=[test_file_path],
+                entrypoint_module="main",
+                entrypoint_object="app",
+                requirements_file=requirements_file_path,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            )
+            assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+            assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+            assert config["spec"]["source_code_spec"] == {
+                "inline_source": {"source_archive": "test_tarball"},
+                "python_spec": {
+                    "version": _TEST_PYTHON_VERSION,
+                    "entrypoint_module": "main",
+                    "entrypoint_object": "app",
+                    "requirements_file": requirements_file_path,
+                },
+            }
+            assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+            mock_create_base64_encoded_tarball.assert_called_once_with(
+                source_packages=[test_file_path]
+            )
+
     @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_update_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
@@ -951,10 +996,10 @@ class TestAgentEngineHelpers:
                 "spec.package_spec.pickle_object_gcs_uri",
                 "spec.package_spec.dependency_files_gcs_uri",
                 "spec.package_spec.requirements_gcs_uri",
+                "spec.class_methods",
                 "spec.deployment_spec.env",
                 "spec.deployment_spec.secret_env",
                 "spec.service_account",
-                "spec.class_methods",
                 "spec.agent_framework",
             ]
         )
@@ -1170,6 +1215,45 @@ class TestAgentEngineHelpers:
         for got, want in zip(_agent_engines_utils._yield_parsed_json(obj), expected):
             assert got == want
 
+    def test_create_base64_encoded_tarball(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+
+            origin_dir = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                encoded_tarball = _agent_engines_utils._create_base64_encoded_tarball(
+                    source_packages=["test_file.txt"]
+                )
+            finally:
+                os.chdir(origin_dir)
+
+            decoded_tarball = base64.b64decode(encoded_tarball)
+            with tarfile.open(fileobj=io.BytesIO(decoded_tarball), mode="r:gz") as tar:
+                names = tar.getnames()
+                assert "test_file.txt" in names
+
+    def test_create_base64_encoded_tarball_outside_project_dir_raises(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_dir = os.path.join(tmpdir, "project")
+            os.makedirs(project_dir)
+            sibling_path = os.path.join(tmpdir, "sibling.txt")
+            with open(sibling_path, "w") as f:
+                f.write("test content")
+
+            origin_dir = os.getcwd()
+            try:
+                os.chdir(project_dir)
+                with pytest.raises(ValueError) as excinfo:
+                    _agent_engines_utils._create_base64_encoded_tarball(
+                        source_packages=["../sibling.txt"]
+                    )
+                assert "is outside the project directory" in str(excinfo.value)
+            finally:
+                os.chdir(origin_dir)
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngine:
@@ -1365,6 +1449,10 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 labels=None,
                 class_methods=None,
+                source_packages=None,
+                entrypoint_module=None,
+                entrypoint_object=None,
+                requirements_file=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1447,6 +1535,10 @@ class TestAgentEngine:
                 labels=None,
                 agent_server_mode=None,
                 class_methods=None,
+                source_packages=None,
+                entrypoint_module=None,
+                entrypoint_object=None,
+                requirements_file=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1531,6 +1623,10 @@ class TestAgentEngine:
                 labels=None,
                 agent_server_mode=_genai_types.AgentServerMode.EXPERIMENTAL,
                 class_methods=None,
+                source_packages=None,
+                entrypoint_module=None,
+                entrypoint_object=None,
+                requirements_file=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1552,6 +1648,72 @@ class TestAgentEngine:
                 },
                 None,
             )
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_agent_engine_with_source_packages(
+        self,
+        mock_await_operation,
+        mock_create_base64_encoded_tarball,
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            with mock.patch.object(
+                self.client.agent_engines._api_client, "request"
+            ) as request_mock:
+                request_mock.return_value = genai_types.HttpResponse(body="")
+                self.client.agent_engines.create(
+                    config=_genai_types.AgentEngineConfig(
+                        display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                        description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                        source_packages=[test_file_path],
+                        entrypoint_module="main",
+                        entrypoint_object="app",
+                        requirements_file=requirements_file_path,
+                        class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                    ),
+                )
+                request_mock.assert_called_with(
+                    "post",
+                    "reasoningEngines",
+                    {
+                        "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+                        "description": _TEST_AGENT_ENGINE_DESCRIPTION,
+                        "spec": {
+                            "agent_framework": "custom",
+                            "source_code_spec": {
+                                "inline_source": {"source_archive": "test_tarball"},
+                                "python_spec": {
+                                    "version": _TEST_PYTHON_VERSION,
+                                    "entrypoint_module": "main",
+                                    "entrypoint_object": "app",
+                                    "requirements_file": requirements_file_path,
+                                },
+                            },
+                            "class_methods": _TEST_AGENT_ENGINE_CLASS_METHODS,
+                        },
+                    },
+                    None,
+                )
+                mock_create_base64_encoded_tarball.assert_called_once_with(
+                    source_packages=[test_file_path]
+                )
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
@@ -1613,6 +1775,10 @@ class TestAgentEngine:
                 labels=None,
                 agent_server_mode=None,
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                source_packages=None,
+                entrypoint_module=None,
+                entrypoint_object=None,
+                requirements_file=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1772,9 +1938,9 @@ class TestAgentEngine:
                 [
                     "spec.package_spec.pickle_object_gcs_uri",
                     "spec.package_spec.requirements_gcs_uri",
+                    "spec.class_methods",
                     "spec.deployment_spec.env",
                     "spec.deployment_spec.secret_env",
-                    "spec.class_methods",
                     "spec.agent_framework",
                 ]
             )

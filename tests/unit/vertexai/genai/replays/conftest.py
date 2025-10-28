@@ -22,6 +22,7 @@ from unittest import mock
 from vertexai._genai import (
     client as vertexai_genai_client_module,
 )
+from vertexai._genai import _agent_engines_utils
 from google.cloud import storage, bigquery
 from google.genai import _replay_api_client
 from google.genai import client as google_genai_client_module
@@ -120,6 +121,16 @@ def use_vertex():
 @pytest.fixture
 def replays_prefix():
     return "test"
+
+
+@pytest.fixture
+def mock_agent_engine_create_base64_encoded_tarball():
+    """Mocks the _create_base64_encoded_tarball function."""
+    with mock.patch.object(
+        _agent_engines_utils, "_create_base64_encoded_tarball"
+    ) as mock_create_base64_encoded_tarball:
+        mock_create_base64_encoded_tarball.return_value = "H4sIAAAAAAAAA-3UvWrDMBAHcM9-CpEpGRLkD8VQ6JOUElT7LFxkydEHxG9f2V1CKXSyu_x_i6TjJN2gk6N7HByNZIK_hEfINsCTa82zilcNTyMvRSPKao2vBM8KwZu6vJZXITJepGyRMb5FMT9FH6RjLHsM0mpr1CyN-i1vcsMo3aycjdMede0kV9YqTedW29id5TBpGXrrxjep0pO4kVGDIf-e_3edsI1APtxG20VNl2ne5o6_-r-oRer_Ypk2dd0s_Z82oP_3kLdaes-ensFLzpKOenaP5OajJ92fvoMLRyE6ww7LjrTwkzWeDnm-nmA_PqkN7PX5vOMJnwcAAAAAAAAAAAAAAAAAAADAdr4AI-kzQQAoAAA="
+        yield mock_create_base64_encoded_tarball
 
 
 def _get_replay_id(use_vertex: bool, replays_prefix: str) -> str:
