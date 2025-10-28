@@ -331,6 +331,13 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
+class OptimizeTarget(_common.CaseInSensitiveEnum):
+    """None"""
+
+    OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
+    """The data driven prompt optimizer designer for prompts from Android core API."""
+
+
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -3986,6 +3993,9 @@ class OptimizeConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    optimization_target: Optional[OptimizeTarget] = Field(
+        default=None, description=""""""
+    )
 
 
 class OptimizeConfigDict(TypedDict, total=False):
@@ -3993,6 +4003,9 @@ class OptimizeConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    optimization_target: Optional[OptimizeTarget]
+    """"""
 
 
 OptimizeConfigOrDict = Union[OptimizeConfig, OptimizeConfigDict]
