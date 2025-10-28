@@ -65,6 +65,7 @@ def _get_agent_engine_instance(
         client = vertexai.Client(
             project=api_client.project,
             location=api_client.location,
+            http_options=api_client._http_options,  # pylint: disable=protected-access
         )
         _thread_local_data.agent_engine_instances[agent_name] = (
             client.agent_engines.get(name=agent_name)
