@@ -70,6 +70,30 @@ def _CreateAgentEngineConfig_to_vertex(
     if getv(from_object, ["labels"]) is not None:
         setv(parent_object, ["labels"], getv(from_object, ["labels"]))
 
+    if getv(from_object, ["source_packages"]) is not None:
+        setv(parent_object, ["sourcePackages"], getv(from_object, ["source_packages"]))
+
+    if getv(from_object, ["entrypoint_module"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointModule"],
+            getv(from_object, ["entrypoint_module"]),
+        )
+
+    if getv(from_object, ["entrypoint_object"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointObject"],
+            getv(from_object, ["entrypoint_object"]),
+        )
+
+    if getv(from_object, ["requirements_file"]) is not None:
+        setv(
+            parent_object,
+            ["requirementsFile"],
+            getv(from_object, ["requirements_file"]),
+        )
+
     return to_object
 
 
@@ -236,6 +260,30 @@ def _UpdateAgentEngineConfig_to_vertex(
 
     if getv(from_object, ["labels"]) is not None:
         setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["source_packages"]) is not None:
+        setv(parent_object, ["sourcePackages"], getv(from_object, ["source_packages"]))
+
+    if getv(from_object, ["entrypoint_module"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointModule"],
+            getv(from_object, ["entrypoint_module"]),
+        )
+
+    if getv(from_object, ["entrypoint_object"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointObject"],
+            getv(from_object, ["entrypoint_object"]),
+        )
+
+    if getv(from_object, ["requirements_file"]) is not None:
+        setv(
+            parent_object,
+            ["requirementsFile"],
+            getv(from_object, ["requirements_file"]),
+        )
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -871,16 +919,20 @@ class AgentEngines(_api_module.BaseModule):
             agent_server_mode=config.agent_server_mode,
             labels=config.labels,
             class_methods=config.class_methods,
+            source_packages=config.source_packages,
+            entrypoint_module=config.entrypoint_module,
+            entrypoint_object=config.entrypoint_object,
+            requirements_file=config.requirements_file,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
         logger.info(
             f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
         )
-        if agent is None:
-            poll_interval_seconds = 1  # Lightweight agent engine resource creation.
-        else:
+        if agent is not None or config.source_packages is not None:
             poll_interval_seconds = 10
+        else:
+            poll_interval_seconds = 1  # Lightweight agent engine resource creation.
         operation = _agent_engines_utils._await_operation(
             operation_name=operation.name,
             get_operation_fn=self._get_agent_operation,
@@ -901,7 +953,7 @@ class AgentEngines(_api_module.BaseModule):
             raise RuntimeError(f"Failed to create Agent Engine: {operation.error}")
         else:
             logger.warning("The operation returned an empty response.")
-        if agent is not None:
+        if agent is not None or config.source_packages is not None:
             # If the user did not provide an agent_engine (e.g. lightweight
             # provisioning), it will not have any API methods registered.
             agent_engine = self._register_api_methods(agent_engine=agent_engine)
@@ -930,6 +982,10 @@ class AgentEngines(_api_module.BaseModule):
         labels: Optional[dict[str, str]] = None,
         agent_server_mode: Optional[types.AgentServerMode] = None,
         class_methods: Optional[Sequence[dict[str, Any]]] = None,
+        source_packages: Optional[Sequence[str]] = None,
+        entrypoint_module: Optional[str] = None,
+        entrypoint_object: Optional[str] = None,
+        requirements_file: Optional[str] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -957,14 +1013,23 @@ class AgentEngines(_api_module.BaseModule):
         if labels is not None:
             update_masks.append("labels")
             config["labels"] = labels
+
+        sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        agent_engine_spec = None
         if agent is not None:
+            if source_packages is not None:
+                raise ValueError(
+                    "If you have provided `source_packages` in `config`, please "
+                    "do not specify `agent` in `agent_engines.create()` or "
+                    "`agent_engines.update()`."
+                )
+
             project = self._api_client.project
             if project is None:
                 raise ValueError("project must be set using `vertexai.Client`.")
             location = self._api_client.location
             if location is None:
                 raise ValueError("location must be set using `vertexai.Client`.")
-            sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
             gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
             agent = _agent_engines_utils._validate_agent_or_raise(agent=agent)
             staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
@@ -1013,9 +1078,86 @@ class AgentEngines(_api_module.BaseModule):
                     gcs_dir_name,
                     _agent_engines_utils._REQUIREMENTS_FILE,
                 )
+
+            update_masks.append("spec.class_methods")
+            class_methods_spec = []
+            if class_methods is not None:
+                class_methods_spec = (
+                    _agent_engines_utils._class_methods_to_class_methods_spec(
+                        class_methods=class_methods
+                    )
+                )
+            else:
+                class_methods_spec = (
+                    _agent_engines_utils._generate_class_methods_spec_or_raise(
+                        agent=agent,
+                        operations=_agent_engines_utils._get_registered_operations(
+                            agent=agent
+                        ),
+                    )
+                )
+
             agent_engine_spec: types.ReasoningEngineSpecDict = {
                 "package_spec": package_spec,
+                "class_methods": [
+                    _agent_engines_utils._to_dict(class_method_spec)
+                    for class_method_spec in class_methods_spec
+                ],
             }
+
+        if source_packages is not None:
+            update_masks.append("spec.source_code_spec.inline_source.source_archive")
+            source_code_spec = {
+                "inline_source": {
+                    "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
+                        source_packages=source_packages
+                    )
+                }
+            }
+
+            update_masks.append("spec.source_code_spec.python_spec.version")
+            python_spec = {
+                "version": sys_version,
+            }
+            if not entrypoint_module:
+                raise ValueError(
+                    "entrypoint_module must be specified if source_packages is specified."
+                )
+            update_masks.append("spec.source_code_spec.python_spec.entrypoint_module")
+            python_spec["entrypoint_module"] = entrypoint_module
+            if not entrypoint_object:
+                raise ValueError(
+                    "entrypoint_object must be specified if source_packages is specified."
+                )
+            update_masks.append("spec.source_code_spec.python_spec.entrypoint_object")
+            python_spec["entrypoint_object"] = entrypoint_object
+            if requirements_file is not None:
+                update_masks.append(
+                    "spec.source_code_spec.python_spec.requirements_file"
+                )
+                python_spec["requirements_file"] = requirements_file
+            source_code_spec["python_spec"] = python_spec
+
+            if class_methods is None:
+                raise ValueError(
+                    "class_methods must be specified if source_packages is specified."
+                )
+            update_masks.append("spec.class_methods")
+            class_methods_spec = (
+                _agent_engines_utils._class_methods_to_class_methods_spec(
+                    class_methods=class_methods
+                )
+            )
+
+            agent_engine_spec: types.ReasoningEngineSpecDict = {
+                "source_code_spec": source_code_spec,
+                "class_methods": [
+                    _agent_engines_utils._to_dict(class_method_spec)
+                    for class_method_spec in class_methods_spec
+                ],
+            }
+
+        if agent_engine_spec is not None:
             if (
                 env_vars is not None
                 or psc_interface_config is not None
@@ -1041,28 +1183,6 @@ class AgentEngines(_api_module.BaseModule):
                 agent_engine_spec["service_account"] = service_account
                 update_masks.append("spec.service_account")
 
-            update_masks.append("spec.class_methods")
-            class_methods_spec = []
-            if class_methods is not None:
-                class_methods_spec = (
-                    _agent_engines_utils._class_methods_to_class_methods_spec(
-                        class_methods=class_methods
-                    )
-                )
-            else:
-                class_methods_spec = (
-                    _agent_engines_utils._generate_class_methods_spec_or_raise(
-                        agent=agent,
-                        operations=_agent_engines_utils._get_registered_operations(
-                            agent=agent
-                        ),
-                    )
-                )
-            agent_engine_spec["class_methods"] = [
-                _agent_engines_utils._to_dict(class_method_spec)
-                for class_method_spec in class_methods_spec
-            ]
-
             if agent_server_mode:
                 if not agent_engine_spec.get("deployment_spec"):
                     agent_engine_spec["deployment_spec"] = (
@@ -1077,6 +1197,7 @@ class AgentEngines(_api_module.BaseModule):
             )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
+
         if update_masks and mode == "update":
             config["update_mask"] = ",".join(update_masks)
         return config
@@ -1296,6 +1417,10 @@ class AgentEngines(_api_module.BaseModule):
             container_concurrency=config.container_concurrency,
             labels=config.labels,
             class_methods=config.class_methods,
+            source_packages=config.source_packages,
+            entrypoint_module=config.entrypoint_module,
+            entrypoint_object=config.entrypoint_object,
+            requirements_file=config.requirements_file,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(

@@ -19,6 +19,10 @@ import os
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
+_TEST_CLASS_METHODS = [
+    {"name": "query", "api_mode": ""},
+]
+
 
 def test_create_config_lightweight(client):
     agent_display_name = "test-display-name"
@@ -106,6 +110,36 @@ def test_create_with_context_spec(client):
     ]
     # Clean up resources.
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
+def test_create_with_source_packages(
+    client,
+    mock_agent_engine_create_base64_encoded_tarball,
+):
+    """Tests creating an agent engine with source packages."""
+    with mock_agent_engine_create_base64_encoded_tarball:
+        agent_engine = client.agent_engines.create(
+            config={
+                "display_name": "test-agent-engine-source-packages",
+                "source_packages": [
+                    "test_module.py",
+                    "requirements.txt",
+                ],
+                "entrypoint_module": "test_module",
+                "entrypoint_object": "test_object",
+                "class_methods": _TEST_CLASS_METHODS,
+                "http_options": {
+                    "base_url": "https://us-west1-aiplatform.googleapis.com",
+                    "api_version": "v1beta1",
+                },
+            },
+        )
+        assert (
+            agent_engine.api_resource.display_name
+            == "test-agent-engine-source-packages"
+        )
+        # Clean up resources.
+        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(

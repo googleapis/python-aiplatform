@@ -681,6 +681,15 @@ from .common import ReasoningEngineSpecOrDict
 from .common import ReasoningEngineSpecPackageSpec
 from .common import ReasoningEngineSpecPackageSpecDict
 from .common import ReasoningEngineSpecPackageSpecOrDict
+from .common import ReasoningEngineSpecSourceCodeSpec
+from .common import ReasoningEngineSpecSourceCodeSpecDict
+from .common import ReasoningEngineSpecSourceCodeSpecInlineSource
+from .common import ReasoningEngineSpecSourceCodeSpecInlineSourceDict
+from .common import ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict
+from .common import ReasoningEngineSpecSourceCodeSpecOrDict
+from .common import ReasoningEngineSpecSourceCodeSpecPythonSpec
+from .common import ReasoningEngineSpecSourceCodeSpecPythonSpecDict
+from .common import ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict
 from .common import ReservationAffinity
 from .common import ReservationAffinityDict
 from .common import ReservationAffinityOrDict
@@ -1318,6 +1327,15 @@ __all__ = [
     "ReasoningEngineSpecPackageSpec",
     "ReasoningEngineSpecPackageSpecDict",
     "ReasoningEngineSpecPackageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSource",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpec",
+    "ReasoningEngineSpecSourceCodeSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecOrDict",
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
