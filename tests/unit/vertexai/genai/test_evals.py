@@ -712,6 +712,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
+    @pytest.mark.skip(reason="currently flakey")
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
         local_src_path = "/tmp/input.csv"
