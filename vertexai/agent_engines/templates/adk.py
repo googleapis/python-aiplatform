@@ -38,6 +38,13 @@ if TYPE_CHECKING:
         Event = Any
 
     try:
+        from google.adk.apps import App
+
+        App = App
+    except (ImportError, AttributeError):
+        App = Any
+
+    try:
         from google.adk.agents import BaseAgent
 
         BaseAgent = BaseAgent
@@ -449,7 +456,8 @@ class AdkApp:
     def __init__(
         self,
         *,
-        agent: "BaseAgent",
+        app: "App" = None,
+        agent: "BaseAgent" = None,
         app_name: Optional[str] = None,
         plugins: Optional[List["BasePlugin"]] = None,
         enable_tracing: Optional[bool] = None,
@@ -505,10 +513,26 @@ class AdkApp:
             )
             raise ValueError(msg)
 
+        if not agent and not app:
+            raise ValueError("One of `agent` or `app` must be provided.")
+        if app:
+            if app_name:
+                raise ValueError(
+                    "When app is provided, app_name should not be provided."
+                )
+            if agent:
+                raise ValueError("When app is provided, agent should not be provided.")
+            if plugins:
+                raise ValueError(
+                    "When app is provided, plugins should not be provided and"
+                    " should be provided in the app instead."
+                )
+
         self._tmpl_attrs: Dict[str, Any] = {
             "project": initializer.global_config.project,
             "location": initializer.global_config.location,
             "agent": agent,
+            "app": app,
             "app_name": app_name,
             "plugins": plugins,
             "enable_tracing": enable_tracing,
@@ -624,10 +648,23 @@ class AdkApp:
         import copy
 
         return self.__class__(
-            agent=copy.deepcopy(self._tmpl_attrs.get("agent")),
+            app=copy.deepcopy(self._tmpl_attrs.get("app")),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
-            app_name=self._tmpl_attrs.get("app_name"),
-            plugins=self._tmpl_attrs.get("plugins"),
+            agent=(
+                None
+                if self._tmpl_attrs.get("app")
+                else copy.deepcopy(self._tmpl_attrs.get("agent"))
+            ),
+            app_name=(
+                None
+                if self._tmpl_attrs.get("app")
+                else self._tmpl_attrs.get("app_name")
+            ),
+            plugins=(
+                None
+                if self._tmpl_attrs.get("app")
+                else copy.deepcopy(self._tmpl_attrs.get("plugins"))
+            ),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
             artifact_service_builder=self._tmpl_attrs.get("artifact_service_builder"),
             memory_service_builder=self._tmpl_attrs.get("memory_service_builder"),
@@ -774,20 +811,38 @@ class AdkApp:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
         self._tmpl_attrs["runner"] = Runner(
-            agent=self._tmpl_attrs.get("agent"),
-            plugins=self._tmpl_attrs.get("plugins"),
+            app=self._tmpl_attrs.get("app"),
+            agent=(
+                None if self._tmpl_attrs.get("app") else self._tmpl_attrs.get("agent")
+            ),
+            app_name=(
+                None
+                if self._tmpl_attrs.get("app")
+                else self._tmpl_attrs.get("app_name")
+            ),
+            plugins=(
+                None if self._tmpl_attrs.get("app") else self._tmpl_attrs.get("plugins")
+            ),
             session_service=self._tmpl_attrs.get("session_service"),
             artifact_service=self._tmpl_attrs.get("artifact_service"),
             memory_service=self._tmpl_attrs.get("memory_service"),
-            app_name=self._tmpl_attrs.get("app_name"),
         )
         self._tmpl_attrs["in_memory_session_service"] = InMemorySessionService()
         self._tmpl_attrs["in_memory_artifact_service"] = InMemoryArtifactService()
         self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
         self._tmpl_attrs["in_memory_runner"] = Runner(
-            app_name=self._tmpl_attrs.get("app_name"),
-            agent=self._tmpl_attrs.get("agent"),
-            plugins=self._tmpl_attrs.get("plugins"),
+            app=self._tmpl_attrs.get("app"),
+            app_name=(
+                None
+                if self._tmpl_attrs.get("app")
+                else self._tmpl_attrs.get("app_name")
+            ),
+            agent=(
+                None if self._tmpl_attrs.get("app") else self._tmpl_attrs.get("agent")
+            ),
+            plugins=(
+                None if self._tmpl_attrs.get("app") else self._tmpl_attrs.get("plugins")
+            ),
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
             artifact_service=self._tmpl_attrs.get("in_memory_artifact_service"),
             memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
@@ -968,12 +1023,13 @@ class AdkApp:
             self.set_up()
         session_service = self._tmpl_attrs.get("in_memory_session_service")
         artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+        app = self._tmpl_attrs.get("app")
         # Try to get the session, if it doesn't exist, create a new one.
         session = None
         if request.session_id:
             try:
                 session = await session_service.get_session(
-                    app_name=self._tmpl_attrs.get("app_name"),
+                    app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                     user_id=request.user_id,
                     session_id=request.session_id,
                 )
@@ -1006,8 +1062,9 @@ class AdkApp:
                 yield converted_event
         finally:
             if session and not request.session_id:
+                app = self._tmpl_attrs.get("app")
                 await session_service.delete_session(
-                    app_name=self._tmpl_attrs.get("app_name"),
+                    app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                     user_id=request.user_id,
                     session_id=session.id,
                 )
@@ -1039,8 +1096,9 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
+        app = self._tmpl_attrs.get("app")
         session = await self._tmpl_attrs.get("session_service").get_session(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
@@ -1116,8 +1174,9 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
+        app = self._tmpl_attrs.get("app")
         return await self._tmpl_attrs.get("session_service").list_sessions(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             **kwargs,
         )
@@ -1188,8 +1247,9 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
+        app = self._tmpl_attrs.get("app")
         session = await self._tmpl_attrs.get("session_service").create_session(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             session_id=session_id,
             state=state,
@@ -1269,8 +1329,9 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
+        app = self._tmpl_attrs.get("app")
         await self._tmpl_attrs.get("session_service").delete_session(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
@@ -1359,8 +1420,9 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("memory_service"):
             self.set_up()
+        app = self._tmpl_attrs.get("app")
         return await self._tmpl_attrs.get("memory_service").search_memory(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             query=query,
         )
