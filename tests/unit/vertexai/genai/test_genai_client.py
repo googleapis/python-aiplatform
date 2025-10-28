@@ -17,9 +17,11 @@
 
 import importlib
 import pytest
+from unittest import mock
 
 from google.cloud import aiplatform
 import vertexai
+from vertexai._genai import client as vertexai_client
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 
 
@@ -66,3 +68,28 @@ class TestGenAiClient:
     def test_types(self):
         assert vertexai.types is not None
         assert vertexai.types.LLMMetric is not None
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("google_auth_mock")
+    async def test_async_content_manager(self):
+        with mock.patch.object(
+            vertexai_client.AsyncClient, "aclose", autospec=True
+        ) as mock_aclose:
+            async with vertexai.Client(
+                project=_TEST_PROJECT, location=_TEST_LOCATION
+            ).aio as async_client:
+                assert isinstance(async_client, vertexai_client.AsyncClient)
+
+            mock_aclose.assert_called_once()
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("google_auth_mock")
+    async def test_call_aclose_async_client(self):
+        with mock.patch.object(
+            vertexai_client.AsyncClient, "aclose", autospec=True
+        ) as mock_aclose:
+            async_client = vertexai.Client(
+                project=_TEST_PROJECT, location=_TEST_LOCATION
+            ).aio
+            await async_client.aclose()
+            mock_aclose.assert_called_once()

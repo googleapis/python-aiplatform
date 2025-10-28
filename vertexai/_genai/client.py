@@ -13,8 +13,10 @@
 # limitations under the License.
 #
 
+import asyncio
 import importlib
 from typing import Optional, Union, Any
+from types import TracebackType
 
 import google.auth
 from google.cloud.aiplatform import version as aip_version
@@ -48,7 +50,7 @@ _api_client.append_library_version_headers = _add_tracking_headers
 class AsyncClient:
     """Async Gen AI Client for the Vertex SDK."""
 
-    def __init__(self, api_client: genai_client.Client):
+    def __init__(self, api_client: genai_client.BaseApiClient):
         self._api_client = api_client
         self._live = live.AsyncLive(self._api_client)
         self._evals = None
@@ -131,6 +133,40 @@ class AsyncClient:
                 __package__,
             )
         return self._datasets.AsyncDatasets(self._api_client)
+
+    async def aclose(self) -> None:
+        """Closes the async client explicitly.
+
+        Example usage:
+
+        from vertexai import Client
+
+        async_client = vertexai.Client(
+            project='my-project-id', location='us-central1'
+        ).aio
+        prompt_1 = await async_client.prompts.create(...)
+        prompt_2 = await async_client.prompts.create(...)
+        # Close the client to release resources.
+        await async_client.aclose()
+        """
+        await self._api_client.aclose()
+
+    async def __aenter__(self) -> "AsyncClient":
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Exception],
+        exc_value: Optional[Exception],
+        traceback: Optional[TracebackType],
+    ) -> None:
+        await self.aclose()
+
+    def __del__(self) -> None:
+        try:
+            asyncio.get_running_loop().create_task(self.aclose())
+        except Exception:
+            pass
 
 
 class Client:
