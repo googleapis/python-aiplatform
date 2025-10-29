@@ -287,6 +287,18 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _RetrieveAgentEngineMemoriesConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["filter"], getv(from_object, ["filter"]))
+
+    return to_object
+
+
 def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -313,7 +325,13 @@ def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+        setv(
+            to_object,
+            ["config"],
+            _RetrieveAgentEngineMemoriesConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
 
     return to_object
 

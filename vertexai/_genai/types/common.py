@@ -7520,6 +7520,17 @@ class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    filter: Optional[str] = Field(
+        default=None,
+        description="""The standard list filter that will be applied to the retrieved
+      memories. More detail in [AIP-160](https://google.aip.dev/160).
+
+      Supported fields:
+       * `fact`
+       * `create_time`
+       * `update_time`
+      """,
+    )
 
 
 class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -7527,6 +7538,16 @@ class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    filter: Optional[str]
+    """The standard list filter that will be applied to the retrieved
+      memories. More detail in [AIP-160](https://google.aip.dev/160).
+
+      Supported fields:
+       * `fact`
+       * `create_time`
+       * `update_time`
+      """
 
 
 RetrieveAgentEngineMemoriesConfigOrDict = Union[
@@ -7946,6 +7967,26 @@ _GetAgentEngineMemoryRevisionRequestParametersOrDict = Union[
 ]
 
 
+class IntermediateExtractedMemory(_common.BaseModel):
+    """An extracted memory that is the intermediate result before consolidation."""
+
+    fact: Optional[str] = Field(
+        default=None, description="""Output only. The fact of the extracted memory."""
+    )
+
+
+class IntermediateExtractedMemoryDict(TypedDict, total=False):
+    """An extracted memory that is the intermediate result before consolidation."""
+
+    fact: Optional[str]
+    """Output only. The fact of the extracted memory."""
+
+
+IntermediateExtractedMemoryOrDict = Union[
+    IntermediateExtractedMemory, IntermediateExtractedMemoryDict
+]
+
+
 class MemoryRevision(_common.BaseModel):
     """A memory revision."""
 
@@ -7969,6 +8010,10 @@ class MemoryRevision(_common.BaseModel):
         default=None,
         description="""Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
     )
+    extracted_memories: Optional[list[IntermediateExtractedMemory]] = Field(
+        default=None,
+        description="""Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
+    )
 
 
 class MemoryRevisionDict(TypedDict, total=False):
@@ -7988,6 +8033,9 @@ class MemoryRevisionDict(TypedDict, total=False):
 
     labels: Optional[dict[str, str]]
     """Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
+
+    extracted_memories: Optional[list[IntermediateExtractedMemoryDict]]
+    """Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
 
 
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]

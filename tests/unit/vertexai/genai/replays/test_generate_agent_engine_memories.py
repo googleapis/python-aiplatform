@@ -95,23 +95,27 @@ def test_generate_and_rollback_memories(client):
     # Update the memory again using generation. We use the original source
     # content to ensure that the original memory is updated. The response should
     # refer to the previous revision.
+    pre_extracted_fact = "I am a software engineer focusing in security"
     response = client.agent_engines.memories.generate(
         name=agent_engine.api_resource.name,
         scope={"user_id": "test-user-id"},
-        direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
-            events=[
-                types.GenerateMemoriesRequestDirectContentsSourceEvent(
-                    content=genai_types.Content(
-                        role="model",
-                        parts=[genai_types.Part(text=memory_revisions[0].fact)],
-                    )
+        direct_memories_source=types.GenerateMemoriesRequestDirectMemoriesSource(
+            direct_memories=[
+                types.GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(
+                    fact=pre_extracted_fact
                 )
             ]
         ),
     )
     # The memory was updated, so the previous revision is set.
     assert response.response.generated_memories[0].previous_revision is not None
-
+    memory_revisions = list(
+        client.agent_engines.memories.revisions.list(name=memories[0].name)
+    )
+    # Memory Revisions are returned in descending order by revision create time.
+    # We can't make an assertion on the actual value, since it's
+    # generated and thus non-deterministic.
+    assert memory_revisions[0].extracted_memories[0].fact is not None
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
