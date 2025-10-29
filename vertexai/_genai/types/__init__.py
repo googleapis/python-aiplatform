@@ -433,6 +433,9 @@ from .common import GetPromptConfig
 from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
 from .common import Importance
+from .common import IntermediateExtractedMemory
+from .common import IntermediateExtractedMemoryDict
+from .common import IntermediateExtractedMemoryOrDict
 from .common import JobState
 from .common import Language
 from .common import ListAgentEngineConfig
@@ -1499,6 +1502,9 @@ __all__ = [
     "GetAgentEngineMemoryRevisionConfig",
     "GetAgentEngineMemoryRevisionConfigDict",
     "GetAgentEngineMemoryRevisionConfigOrDict",
+    "IntermediateExtractedMemory",
+    "IntermediateExtractedMemoryDict",
+    "IntermediateExtractedMemoryOrDict",
     "MemoryRevision",
     "MemoryRevisionDict",
     "MemoryRevisionOrDict",
