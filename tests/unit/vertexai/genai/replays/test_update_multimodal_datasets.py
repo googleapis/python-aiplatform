@@ -27,17 +27,37 @@ DATASET = "8810841321427173376"
 
 
 def test_update_dataset(client):
-    operation = client.datasets._update_multimodal_dataset(
+    dataset = client.datasets._update_multimodal_dataset(
         name=DATASET,
-        display_name="test-display-name",
-        description="test-description",
+        display_name="test-display-name (updated with internal method)",
+        description="test-description (updated with internal method)",
         metadata={
             "inputConfig": {
                 "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
             },
         },
     )
-    assert isinstance(operation, types.MultimodalDatasetOperation)
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-display-name (updated with internal method)"
+    assert dataset.description == "test-description (updated with internal method)"
+
+
+def test_update_dataset_with_public_method(client):
+    dataset = client.datasets.update_multimodal_dataset(
+        multimodal_dataset={
+            "name": DATASET,
+            "display_name": "test-display-name (updated with public method)",
+            "description": "test-description (updated with public method)",
+            "metadata": {
+                "inputConfig": {
+                    "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
+                },
+            },
+        }
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-display-name (updated with public method)"
+    assert dataset.description == "test-description (updated with public method)"
 
 
 pytestmark = pytest_helper.setup(
@@ -50,14 +70,35 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_update_dataset_async(client):
-    operation = await client.aio.datasets._update_multimodal_dataset(
+    dataset = await client.aio.datasets._update_multimodal_dataset(
         name=DATASET,
-        display_name="test-display-name",
+        display_name="test-display-name (updated with internal method)",
+        description="test-description (updated with internal method)",
         metadata={
             "inputConfig": {
                 "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
             },
         },
     )
-    assert isinstance(operation, types.MultimodalDatasetOperation)
-    assert operation
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-display-name (updated with internal method)"
+    assert dataset.description == "test-description (updated with internal method)"
+
+
+@pytest.mark.asyncio
+async def test_update_dataset_with_public_method_async(client):
+    dataset = await client.aio.datasets.update_multimodal_dataset(
+        multimodal_dataset={
+            "name": DATASET,
+            "display_name": "test-display-name (updated with public method)",
+            "description": "test-description (updated with public method)",
+            "metadata": {
+                "inputConfig": {
+                    "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
+                },
+            },
+        }
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-display-name (updated with public method)"
+    assert dataset.description == "test-description (updated with public method)"

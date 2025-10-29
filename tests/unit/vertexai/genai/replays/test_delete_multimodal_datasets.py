@@ -39,19 +39,10 @@ def test_delete_dataset(client):
         name=name,
     )
     assert isinstance(operation, types.MultimodalDatasetOperation)
-    assert operation
+    assert operation.done
 
 
-pytestmark = pytest_helper.setup(
-    file=__file__,
-    globals_for_file=globals(),
-)
-
-pytest_plugins = ("pytest_asyncio",)
-
-
-@pytest.mark.asyncio
-async def test_delete_dataset_async(client):
+def test_delete_dataset_with_public_method(client):
     dataset = client.datasets.create_from_bigquery(
         multimodal_dataset={
             "display_name": "test-from-bigquery",
@@ -64,8 +55,58 @@ async def test_delete_dataset_async(client):
     )
     name = dataset.name.split("/datasets/")[1]
 
-    operation = client.datasets._delete_multimodal_dataset(
+    operation = client.datasets.delete_multimodal_dataset(
+        name=name,
+    )
+    assert isinstance(operation, types.MultimodalDatasetOperation)
+    assert operation.done
+
+
+pytestmark = pytest_helper.setup(
+    file=__file__,
+    globals_for_file=globals(),
+)
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_async(client):
+    dataset = await client.aio.datasets.create_from_bigquery(
+        multimodal_dataset={
+            "display_name": "test-from-bigquery",
+            "metadata": {
+                "inputConfig": {
+                    "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
+                },
+            },
+        }
+    )
+    name = dataset.name.split("/datasets/")[1]
+
+    operation = await client.aio.datasets._delete_multimodal_dataset(
         name=name,
     )
     assert isinstance(operation, types.MultimodalDatasetOperation)
     assert operation
+
+
+@pytest.mark.asyncio
+async def test_delete_dataset_with_public_method_async(client):
+    dataset = await client.aio.datasets.create_from_bigquery(
+        multimodal_dataset={
+            "display_name": "test-from-bigquery",
+            "metadata": {
+                "inputConfig": {
+                    "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
+                },
+            },
+        }
+    )
+    name = dataset.name.split("/datasets/")[1]
+
+    operation = await client.aio.datasets.delete_multimodal_dataset(
+        name=name,
+    )
+    assert isinstance(operation, types.MultimodalDatasetOperation)
+    assert operation.done

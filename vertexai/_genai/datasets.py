@@ -458,10 +458,10 @@ class Datasets(_api_module.BaseModule):
         config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-    ) -> types.MultimodalDatasetOperation:
+    ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
         """
@@ -506,7 +506,7 @@ class Datasets(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.MultimodalDatasetOperation._from_response(
+        return_value = types.MultimodalDataset._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -586,11 +586,11 @@ class Datasets(_api_module.BaseModule):
         """Creates a multimodal dataset from a BigQuery table.
 
         Args:
+          multimodal_dataset:
+            Required. A representation of a multimodal dataset.
           config:
             Optional. A configuration for creating the multimodal dataset. If not
             provided, the default configuration will be used.
-          multimodal_dataset:
-            Required. A representation of amultimodal dataset.
 
         Returns:
           A types.MultimodalDataset object representing a multimodal dataset.
@@ -618,6 +618,102 @@ class Datasets(_api_module.BaseModule):
             operation=multimodal_dataset_operation,
             timeout_seconds=config.timeout,
         )
+
+    def update_multimodal_dataset(
+        self,
+        *,
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Updates a multimodal dataset.
+
+        Updatable fields include:
+        - display_name
+        - description
+
+        Args:
+          multimodal_dataset:
+            Required. A representation of a multimodal dataset.
+          config:
+            Optional. A configuration for updating the multimodal dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+          A types.MultimodalDataset object representing the retrieved multimodal
+          dataset.
+        """
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
+            "bq://"
+        ):
+            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
+                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+            )
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        return self._update_multimodal_dataset(
+            config=config,
+            name=multimodal_dataset.name,
+            display_name=multimodal_dataset.display_name,
+            description=multimodal_dataset.description,
+            metadata=multimodal_dataset.metadata,
+        )
+
+    def get_multimodal_dataset(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Gets a multimodal dataset.
+
+        Args:
+          name:
+            Required. name of a multimodal dataset.
+          config:
+            Optional. A configuration for getting the multimodal dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+          A types.MultimodalDataset object representing the retrieved multimodal
+          dataset.
+        """
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        return self._get_multimodal_dataset(config=config, name=name)
+
+    def delete_multimodal_dataset(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """Deletes a multimodal dataset.
+
+        Args:
+          name:
+            Required. name of a multimodal dataset.
+          config:
+            Optional. A configuration for deleting the multimodal dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+          A types.MultimodalDatasetOperation object representing the delete
+          multimodal dataset operation.
+        """
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        return self._delete_multimodal_dataset(config=config, name=name)
 
 
 class AsyncDatasets(_api_module.BaseModule):
@@ -916,10 +1012,10 @@ class AsyncDatasets(_api_module.BaseModule):
         config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-    ) -> types.MultimodalDatasetOperation:
+    ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
         """
@@ -966,7 +1062,7 @@ class AsyncDatasets(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
-        return_value = types.MultimodalDatasetOperation._from_response(
+        return_value = types.MultimodalDataset._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1046,11 +1142,11 @@ class AsyncDatasets(_api_module.BaseModule):
         """Creates a multimodal dataset from a BigQuery table.
 
         Args:
+          multimodal_dataset:
+            Required. A representation of a multimodal dataset.
           config:
             Optional. A configuration for creating the multimodal dataset. If not
             provided, the default configuration will be used.
-          multimodal_dataset:
-            Required. A representation of a multimodal dataset.
 
         Returns:
           A types.MultimodalDataset object representing a multimodal dataset.
@@ -1078,3 +1174,95 @@ class AsyncDatasets(_api_module.BaseModule):
             operation=multimodal_dataset_operation,
             timeout_seconds=config.timeout,
         )
+
+    async def update_multimodal_dataset(
+        self,
+        *,
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Updates a multimodal dataset.
+
+        Args:
+          multimodal_dataset:
+            Required. A representation of a multimodal dataset.
+          config:
+            Optional. A configuration for updating the multimodal dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+          A types.MultimodalDataset object representing the updated multimodal
+          dataset.
+        """
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
+            "bq://"
+        ):
+            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
+                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+            )
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        return await self._update_multimodal_dataset(
+            config=config,
+            name=multimodal_dataset.name,
+            display_name=multimodal_dataset.display_name,
+            description=multimodal_dataset.description,
+            metadata=multimodal_dataset.metadata,
+        )
+
+    async def get_multimodal_dataset(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Gets a multimodal dataset.
+
+        Args:
+          name:
+            Required. name of a multimodal dataset.
+          config:
+            Optional. A configuration for getting the multimodal dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+          A types.MultimodalDataset object representing the updated multimodal
+          dataset.
+        """
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        return await self._get_multimodal_dataset(config=config, name=name)
+
+    async def delete_multimodal_dataset(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """Deletes a multimodal dataset.
+
+        Args:
+          name:
+            Required. name of a multimodal dataset.
+          config:
+            Optional. A configuration for deleting the multimodal dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+          A types.MultimodalDatasetOperation object representing the delete
+          multimodal dataset operation.
+        """
+        if isinstance(config, dict):
+            config = types.CreateMultimodalDatasetConfig(**config)
+        elif not config:
+            config = types.CreateMultimodalDatasetConfig()
+
+        return await self._delete_multimodal_dataset(config=config, name=name)
