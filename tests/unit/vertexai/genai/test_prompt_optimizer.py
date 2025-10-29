@@ -54,8 +54,24 @@ class TestPromptOptimizer:
         """Test that prompt_optimizer.optimize method creates a custom job."""
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_client.prompt_optimizer.optimize(
-            method="vapo",
-            config=types.PromptOptimizerVAPOConfig(
+            method=types.PromptOptimizerMethod.VAPO,
+            config=types.PromptOptimizerConfig(
+                config_path="gs://ssusie-vapo-sdk-test/config.json",
+                wait_for_completion=False,
+                service_account="test-service-account",
+            ),
+        )
+        mock_client.assert_called_once()
+        mock_custom_job.assert_called_once()
+
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(prompt_optimizer.PromptOptimizer, "_create_custom_job_resource")
+    def test_prompt_optimizer_optimize_nano(self, mock_custom_job, mock_client):
+        """Test that prompt_optimizer.optimize method creates a custom job."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.prompt_optimizer.optimize(
+            method=types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO,
+            config=types.PromptOptimizerConfig(
                 config_path="gs://ssusie-vapo-sdk-test/config.json",
                 wait_for_completion=False,
                 service_account="test-service-account",

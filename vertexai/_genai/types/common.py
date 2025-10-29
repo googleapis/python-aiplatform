@@ -354,6 +354,15 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     """The memory was deleted."""
 
 
+class PromptOptimizerMethod(_common.CaseInSensitiveEnum):
+    """The method for data driven prompt optimization."""
+
+    VAPO = "VAPO"
+    """The default data driven Vertex AI Prompt Optimizer."""
+    OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
+    """The data driven prompt optimizer designer for prompts from Android core API."""
+
+
 class CreateEvaluationItemConfig(_common.BaseModel):
     """Config to create an evaluation item."""
 
@@ -12025,7 +12034,7 @@ _UpdateDatasetParametersOrDict = Union[
 ]
 
 
-class PromptOptimizerVAPOConfig(_common.BaseModel):
+class PromptOptimizerConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
     config_path: Optional[str] = Field(
@@ -12050,7 +12059,7 @@ class PromptOptimizerVAPOConfig(_common.BaseModel):
     )
 
 
-class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
+class PromptOptimizerConfigDict(TypedDict, total=False):
     """VAPO Prompt Optimizer Config."""
 
     config_path: Optional[str]
@@ -12069,8 +12078,26 @@ class PromptOptimizerVAPOConfigDict(TypedDict, total=False):
     """The display name of the optimization job. If not provided, a display name in the format of "vapo-optimizer-{timestamp}" will be used."""
 
 
-PromptOptimizerVAPOConfigOrDict = Union[
-    PromptOptimizerVAPOConfig, PromptOptimizerVAPOConfigDict
+PromptOptimizerConfigOrDict = Union[PromptOptimizerConfig, PromptOptimizerConfigDict]
+
+
+class OptimizerMethodPlaceholder(_common.BaseModel):
+    """Placeholder class to generate OptimizerMethod enum in common.py."""
+
+    method: Optional[PromptOptimizerMethod] = Field(
+        default=None, description="""The method for optimizing multiple prompts."""
+    )
+
+
+class OptimizerMethodPlaceholderDict(TypedDict, total=False):
+    """Placeholder class to generate OptimizerMethod enum in common.py."""
+
+    method: Optional[PromptOptimizerMethod]
+    """The method for optimizing multiple prompts."""
+
+
+OptimizerMethodPlaceholderOrDict = Union[
+    OptimizerMethodPlaceholder, OptimizerMethodPlaceholderDict
 ]
 
 

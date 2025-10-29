@@ -407,36 +407,45 @@ class PromptOptimizer(_api_module.BaseModule):
 
     def optimize(
         self,
-        method: str,
-        config: types.PromptOptimizerVAPOConfigOrDict,
+        method: types.PromptOptimizerMethod,
+        config: types.PromptOptimizerConfigOrDict,
     ) -> types.CustomJob:
         """Call PO-Data optimizer.
 
         Args:
-          method: The method for optimizing multiple prompts.
-          config: PromptOptimizerVAPOConfig instance containing the
+          method: The method for optimizing multiple prompts. Supported methods:
+            VAPO, OPTIMIZATION_TARGET_GEMINI_NANO.
+          config: PromptOptimizerConfig instance containing the
               configuration for prompt optimization.
         Returns:
           The custom job that was created.
         """
 
-        if method != "vapo":
-            raise ValueError("Only vapo method is currently supported.")
-
         if isinstance(config, dict):
-            config = types.PromptOptimizerVAPOConfig(**config)
+            config = types.PromptOptimizerConfig(**config)
+
+        if not config.config_path:
+            raise ValueError("Config path is required.")
+
+        _OPTIMIZER_METHOD_TO_CONTAINER_URI = {
+            types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0",
+            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/android-apo:preview_v1_0",
+        }
+        container_uri = _OPTIMIZER_METHOD_TO_CONTAINER_URI.get(method)
+        if not container_uri:
+            raise ValueError(
+                'Only "VAPO" and "OPTIMIZATION_TARGET_GEMINI_NANO" '
+                "methods are currently supported."
+            )
 
         if config.optimizer_job_display_name:
             display_name = config.optimizer_job_display_name
         else:
             timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            display_name = f"vapo-optimizer-{timestamp}"
-        wait_for_completion = config.wait_for_completion
-        if not config.config_path:
-            raise ValueError("Config path is required.")
-        bucket = "/".join(config.config_path.split("/")[:-1])
+            display_name = f"{method.value.lower()}-optimizer-{timestamp}"
 
-        container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
+        wait_for_completion = config.wait_for_completion
+        bucket = "/".join(config.config_path.split("/")[:-1])
 
         region = self._api_client.location
         project = self._api_client.project
@@ -766,8 +775,8 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
     # Todo: b/428953357 - Add example in the README.
     async def optimize(
         self,
-        method: str,
-        config: types.PromptOptimizerVAPOConfigOrDict,
+        method: types.PromptOptimizerMethod,
+        config: types.PromptOptimizerConfigOrDict,
     ) -> types.CustomJob:
         """Call async Vertex AI Prompt Optimizer (VAPO).
 
@@ -777,26 +786,37 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         Example usage:
         client = vertexai.Client(project=PROJECT_NAME, location='us-central1')
-        vapo_config = vertexai.types.PromptOptimizerVAPOConfig(
+        vapo_config = vertexai.types.PromptOptimizerConfig(
             config_path='gs://you-bucket-name/your-config.json',
             service_account=service_account,
         )
         job = await client.aio.prompt_optimizer.optimize(
-            method='vapo', config=vapo_config)
+            method=types.PromptOptimizerMethod.VAPO, config=vapo_config)
 
         Args:
-          method: The method for optimizing multiple prompts (currently only
-            vapo is supported).
-          config: PromptOptimizerVAPOConfig instance containing the
+          method: The method for optimizing multiple prompts. Supported methods:
+            VAPO, OPTIMIZATION_TARGET_GEMINI_NANO.
+          config: PromptOptimizerConfig instance containing the
             configuration for prompt optimization.
         Returns:
           The custom job that was created.
         """
-        if method != "vapo":
-            raise ValueError("Only vapo methods is currently supported.")
-
         if isinstance(config, dict):
-            config = types.PromptOptimizerVAPOConfig(**config)
+            config = types.PromptOptimizerConfig(**config)
+
+        if not config.config_path:
+            raise ValueError("Config path is required.")
+
+        _OPTIMIZER_METHOD_TO_CONTAINER_URI = {
+            types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0",
+            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/android-apo:preview_v1_0",
+        }
+        container_uri = _OPTIMIZER_METHOD_TO_CONTAINER_URI.get(method)
+        if not container_uri:
+            raise ValueError(
+                'Only "VAPO" and "OPTIMIZATION_TARGET_GEMINI_NANO" '
+                "methods are currently supported."
+            )
 
         if config.wait_for_completion:
             logger.info(
@@ -807,13 +827,11 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             display_name = config.optimizer_job_display_name
         else:
             timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-            display_name = f"vapo-optimizer-{timestamp}"
+            display_name = f"{method.value.lower()}-optimizer-{timestamp}"
 
         if not config.config_path:
             raise ValueError("Config path is required.")
         bucket = "/".join(config.config_path.split("/")[:-1])
-
-        container_uri = "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0"
 
         region = self._api_client.location
         project = self._api_client.project

@@ -19,11 +19,11 @@ from . import types
 
 
 def _get_service_account(
-    config: types.PromptOptimizerVAPOConfigOrDict,
+    config: types.PromptOptimizerConfigOrDict,
 ) -> str:
     """Get the service account from the config for the custom job."""
     if isinstance(config, dict):
-        config = types.PromptOptimizerVAPOConfig.model_validate(config)
+        config = types.PromptOptimizerConfig.model_validate(config)
 
     if config.service_account and config.service_account_project_number:
         raise ValueError(
