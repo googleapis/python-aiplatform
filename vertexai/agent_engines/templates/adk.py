@@ -914,9 +914,12 @@ class AdkApp:
                 **kwargs,
             )
 
-        async for event in events_async:
-            # Yield the event data as a dictionary
-            yield _utils.dump_event_for_json(event)
+        try:
+            async for event in events_async:
+                # Yield the event data as a dictionary
+                yield _utils.dump_event_for_json(event)
+        except Exception as e:
+            raise e
 
     def stream_query(
         self,
