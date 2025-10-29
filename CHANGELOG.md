@@ -1,43 +1,5 @@
 # Changelog
 
-## [1.123.0](https://github.com/googleapis/python-aiplatform/compare/v1.122.0...v1.123.0) (2025-10-29)
-
-
-### Features
-
-* Add initial support for Python v3.14 ([4618729](https://github.com/googleapis/python-aiplatform/commit/4618729e9b41163cda3056a3fde497a0c0d7178f))
-* Add more attributes to OTel resource for ADK tracing ([5aaa60e](https://github.com/googleapis/python-aiplatform/commit/5aaa60e30a5695c2a5eb49283388fa36809e389e))
-* Add Python 3.13 Kokoro run config ([57d2709](https://github.com/googleapis/python-aiplatform/commit/57d270909b02132296692b4adc6dbc89ee8de9c6))
-* Add support for `app` input in AdkApp template ([10ca56f](https://github.com/googleapis/python-aiplatform/commit/10ca56f797f7c9cbfbe53e8830420135a58ac003))
-* Add support of google-cloud-storage v3 dependency ([85cbb75](https://github.com/googleapis/python-aiplatform/commit/85cbb7532d1e8337b1747bce53c765a9b94d067a))
-* Disable prompt/response content in ADK spans if telemetry env is set ([be5d1f5](https://github.com/googleapis/python-aiplatform/commit/be5d1f59121c5255e6061a518a5abe9e3e3c0a17))
-* GenAI Client(evals) - Add agent data to EvaluationRun `show` in Vertex AI GenAI SDK evals ([d62afc3](https://github.com/googleapis/python-aiplatform/commit/d62afc32db85a103c25878dd82a338feb86f53fe))
-* GenAI SDK client - add context management to AsyncClient ([8075e60](https://github.com/googleapis/python-aiplatform/commit/8075e6067a9ba924249155ec204488df97512ec8))
-* GenAI SDK client - Enabling zero-shot prompt optimization for prompts from Android API by passing optimization_target=vertexai.types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO in the config ([92d8b2a](https://github.com/googleapis/python-aiplatform/commit/92d8b2a1659cc40c89a651c3a1b93ae5af5a9bf1))
-* GenAI SDK client (Multimodal Dataset) - Create a multimodal dataset from Big Query. ([d4e211d](https://github.com/googleapis/python-aiplatform/commit/d4e211d00d3276aa6cb645deb27397467fc27c5b))
-* GenAI SDK client(memory): Add extracted memories to MemoryRevision resources ([2267d58](https://github.com/googleapis/python-aiplatform/commit/2267d58f6ad849dcd4f0a2cce12e4bb1a06781eb))
-* GenAI SDK client(memory): Add filter to RetrieveMemories ([2267d58](https://github.com/googleapis/python-aiplatform/commit/2267d58f6ad849dcd4f0a2cce12e4bb1a06781eb))
-* GenAI SDK client(memory): Add Memory Topic labels to Memory ([de941a6](https://github.com/googleapis/python-aiplatform/commit/de941a6fc3ca7885a0fc3e42b5ef7c44a783963b))
-* GenAI SDK client(multimodal) - Add get/update/list/delete to multimodal datasets. ([34996a2](https://github.com/googleapis/python-aiplatform/commit/34996a28de0495462aea9c7c2baf8b4249afb9df))
-* GenAI SDK client(multimodal) - Add public get/update/delete methods to multimodal datasets. ([6737a70](https://github.com/googleapis/python-aiplatform/commit/6737a705d8a14023a0dce2902d62f34afb1bb763))
-* Support Inline Source Deployment in Agent Engine ([9ae5f35](https://github.com/googleapis/python-aiplatform/commit/9ae5f356feef56d4ad652b9b6a705ce4f02079e7))
-
-
-### Bug Fixes
-
-* Allow both camelCase and snake_case in _StreamRunRequest ([6a6674d](https://github.com/googleapis/python-aiplatform/commit/6a6674d76bcd148ededfafd7d3f248d880c2b110))
-* Clone agent_framework attribute in ModuleAgent.clone() ([81f8c40](https://github.com/googleapis/python-aiplatform/commit/81f8c406bb979f3521067b2dea1544db0f4194f4))
-* GenAI Client(evals) - fix hallucination visualization ([a52da0b](https://github.com/googleapis/python-aiplatform/commit/a52da0b3d04c19e777ab8fff5d724c5cda8118f3))
-* GenAI Client(evals) - fix visualization ([67f9099](https://github.com/googleapis/python-aiplatform/commit/67f9099af92226fac603c4cbec944e66c4fc737f))
-* GenAI SDK client - Fix log showing how to get an Agent Engine. Positional arguments are not allowed. ([0fc74de](https://github.com/googleapis/python-aiplatform/commit/0fc74dea6d9e8826f29b7b9c1a10f348be911f6a))
-* Remove unnecessary pandas import from multimodal datasets preview module. ([5dd51a2](https://github.com/googleapis/python-aiplatform/commit/5dd51a2ea6fa115ab8d33970d22aefaab31dfcbd))
-
-
-### Documentation
-
-* Add docstring for classes and fields that are not supported in Gemini or Vertex API ([cd99635](https://github.com/googleapis/python-aiplatform/commit/cd99635cd5b85334dbdfddd0ef3cb7ec5c93846d))
-* Add docstring for enum classes that are not supported in Gemini or Vertex API ([db364ab](https://github.com/googleapis/python-aiplatform/commit/db364ab793cde5c25518bbaaa6df9a0f44ee9ac6))
-
 ## [1.122.0](https://github.com/googleapis/python-aiplatform/compare/v1.121.0...v1.122.0) (2025-10-21)
 
 
