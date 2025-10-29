@@ -29,7 +29,16 @@ def test_get_dataset(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.name.endswith(DATASET)
-    assert dataset.display_name == "test-from-bigquery"
+    assert dataset.display_name == "test-display-name"
+
+
+def test_get_dataset_from_public_method(client):
+    dataset = client.datasets.get_multimodal_dataset(
+        name=DATASET,
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.name.endswith(DATASET)
+    assert dataset.display_name == "test-display-name"
 
 
 pytestmark = pytest_helper.setup(
@@ -47,4 +56,14 @@ async def test_get_dataset_async(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.name.endswith(DATASET)
-    assert dataset.display_name == "test-from-bigquery"
+    assert dataset.display_name == "test-display-name"
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_from_public_method_async(client):
+    dataset = await client.aio.datasets.get_multimodal_dataset(
+        name=DATASET,
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.name.endswith(DATASET)
+    assert dataset.display_name == "test-display-name"

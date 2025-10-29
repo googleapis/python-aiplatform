@@ -10255,7 +10255,9 @@ class _UpdateMultimodalDatasetParameters(_common.BaseModel):
     )
     name: Optional[str] = Field(default=None, description="""""")
     display_name: Optional[str] = Field(default=None, description="""""")
-    metadata: Optional[dict[str, Any]] = Field(default=None, description="""""")
+    metadata: Optional[SchemaTablesDatasetMetadata] = Field(
+        default=None, description=""""""
+    )
     description: Optional[str] = Field(default=None, description="""""")
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None, description=""""""
@@ -10274,7 +10276,7 @@ class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
     display_name: Optional[str]
     """"""
 
-    metadata: Optional[dict[str, Any]]
+    metadata: Optional[SchemaTablesDatasetMetadataDict]
     """"""
 
     description: Optional[str]
