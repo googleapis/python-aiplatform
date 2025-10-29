@@ -39,6 +39,7 @@ from vertexai.evaluation.metrics import _base as metrics_base
 from vertexai.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
 )
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 
 if TYPE_CHECKING:
@@ -328,9 +329,9 @@ def _upload_file_to_gcs(upload_gcs_path: str, filename: str) -> None:
         project=initializer.global_config.project,
         credentials=initializer.global_config.credentials,
     )
-    storage.Blob.from_string(
-        uri=upload_gcs_path, client=storage_client
-    ).upload_from_filename(filename)
+    blob_from_uri(uri=upload_gcs_path, client=storage_client).upload_from_filename(
+        filename
+    )
 
 
 def upload_evaluation_results(

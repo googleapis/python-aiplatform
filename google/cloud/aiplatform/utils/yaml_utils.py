@@ -22,6 +22,7 @@ from google.auth import credentials as auth_credentials
 from google.auth import transport
 from google.cloud import storage
 from google.cloud.aiplatform.constants import pipeline as pipeline_constants
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 # Pattern for an Artifact Registry URL.
 _VALID_AR_URL = pipeline_constants._VALID_AR_URL
@@ -98,7 +99,7 @@ def _load_yaml_from_gs_uri(
     """
     yaml = _maybe_import_yaml()
     storage_client = storage.Client(project=project, credentials=credentials)
-    blob = storage.Blob.from_string(uri, storage_client)
+    blob = blob_from_uri(uri, storage_client)
     return yaml.safe_load(blob.download_as_bytes())
 
 

@@ -121,6 +121,7 @@ def _test_external_imports(new_modules: list):
     builtin_modules = {
         "concurrent",
         # "email",  # Imported by google.cloud.storage
+        "importlib_metadata",
         "pickle",
         # Needed for external tests
         "packaging",
