@@ -854,8 +854,9 @@ class PredefinedMetricHandler(MetricHandler):
             return None
         tools = None
         developer_instruction = None
-        events = None
         agent_config = None
+        tool_declarations = []
+        event_contents = []
 
         if eval_case.agent_info:
             agent_info = eval_case.agent_info
@@ -865,7 +866,8 @@ class PredefinedMetricHandler(MetricHandler):
                 )
             if agent_info.tool_declarations:
                 tool_declarations = agent_info.tool_declarations
-                tools = types.evals.Tools(tool=tool_declarations)
+            tools = types.evals.Tools(tool=tool_declarations)
+
             if tools or developer_instruction:
                 agent_config = types.evals.AgentConfig(
                     tools=tools,
@@ -878,19 +880,12 @@ class PredefinedMetricHandler(MetricHandler):
                 for event in eval_case.intermediate_events
                 if event.content
             ]
-            if event_contents:
-                events = types.evals.Events(event=event_contents)
+        events = types.evals.Events(event=event_contents)
 
-        if events:
-            return types.evals.AgentData(
-                agent_config=agent_config,
-                events=events,
-            )
-        else:
-            return types.evals.AgentData(
-                agent_config=agent_config,
-                events_text="",
-            )
+        return types.evals.AgentData(
+            agent_config=agent_config,
+            events=events,
+        )
 
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int

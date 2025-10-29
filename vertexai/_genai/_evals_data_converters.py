@@ -366,10 +366,6 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
 
             intermediate_events: Optional[list[types.Event]] = None
             if intermediate_events_data:
-                logger.warning(
-                    "intermediate_events attribute is experimental and may change in "
-                    "future versions."
-                )
                 if isinstance(intermediate_events_data, list):
                     intermediate_events = []
                     for event in intermediate_events_data:

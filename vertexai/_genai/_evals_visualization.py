@@ -280,7 +280,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 
             // If we have agent info, render as trace
             if(agentInfo) {{
-                let traceHtml = `<div class="trace-event-row"><div class="name"><span class="icon">🏃</span>agent_run</div></div>`;
+                let traceHtml = `<div class="trace-event-row"><div class="name"><span class="icon">🤖</span>agent_run</div></div>`;
                 eventsArray.forEach(event => {{
                     if (event.content && event.content.parts && event.content.parts.length > 0) {{
                         event.content.parts.forEach(part => {{
