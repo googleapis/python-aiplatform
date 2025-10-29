@@ -19,6 +19,7 @@ import logging
 from typing import Any, Union
 
 from google.cloud import storage  # type: ignore[attr-defined]
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 from google.genai._api_client import BaseApiClient
 import pandas as pd
 import uuid
@@ -55,7 +56,7 @@ class GcsUtils:
     def upload_file_to_gcs(self, upload_gcs_path: str, filename: str) -> None:
         """Uploads the provided file to a Google Cloud Storage location."""
 
-        storage.Blob.from_string(
+        blob_from_uri(
             uri=upload_gcs_path, client=self.storage_client
         ).upload_from_filename(filename)
 

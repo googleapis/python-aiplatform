@@ -29,6 +29,7 @@ from google.cloud.aiplatform.metadata.schema.google import (
 )
 from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 import numpy as np
 import sklearn
@@ -332,7 +333,7 @@ class TestExperiments(e2e_base.TestEndToEnd):
             shared_state["resources"].append(model)
 
             storage_client = storage.Client(project=e2e_base._PROJECT)
-            model_blob = storage.Blob.from_string(
+            model_blob = blob_from_uri(
                 uri=test_model_upload._XGBOOST_MODEL_URI, client=storage_client
             )
             model_path = tempfile.mktemp() + ".my_model.xgb"

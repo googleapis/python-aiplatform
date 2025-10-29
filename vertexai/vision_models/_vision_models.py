@@ -30,6 +30,7 @@ from google.cloud import storage
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from vertexai._model_garden import _model_garden_models
 from vertexai._utils import warning_logs
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -193,7 +194,7 @@ class Image:
         storage_client = storage.Client(
             credentials=aiplatform_initializer.global_config.credentials
         )
-        blob = storage.Blob.from_string(uri=self._gcs_uri, client=storage_client)
+        blob = blob_from_uri(uri=self._gcs_uri, client=storage_client)
         # Needed to populate `blob.content_type`
         blob.reload()
         return blob
@@ -538,7 +539,7 @@ class Video:
         storage_client = storage.Client(
             credentials=aiplatform_initializer.global_config.credentials
         )
-        blob = storage.Blob.from_string(uri=self._gcs_uri, client=storage_client)
+        blob = blob_from_uri(uri=self._gcs_uri, client=storage_client)
         # Needed to populate `blob.content_type`
         blob.reload()
         return blob

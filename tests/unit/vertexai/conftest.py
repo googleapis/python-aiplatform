@@ -171,6 +171,10 @@ def mock_storage_blob(mock_filesystem):
                 destination_file_uri = destination_file_uri.split("/")[-1]
             return cls(destination_file_uri, client)
 
+        @classmethod
+        def from_uri(cls, destination_file_uri: str, client: Any):
+            return cls.from_string(destination_file_uri, client)
+
         def upload_from_filename(self, filename: str):
             shutil.copy(filename, self.destination_file_uri)
 
@@ -207,6 +211,10 @@ def mock_storage_blob_tmp_dir(tmp_path):
                     tmp_path / destination_file_uri.split("/")[-1]
                 )
             return cls(destination_file_uri, client)
+
+        @classmethod
+        def from_uri(cls, destination_file_uri: str, client: Any):
+            return cls.from_string(destination_file_uri, client)
 
         def upload_from_filename(self, filename: str):
             shutil.copy(filename, self.destination_file_uri)
