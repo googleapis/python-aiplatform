@@ -231,6 +231,28 @@ def _warn(msg: str):
     _warn._LOGGER.warning(msg)  # pyright: ignore[reportFunctionMemberAccess]
 
 
+def _force_flush_traces():
+    try:
+        import opentelemetry.trace
+    except (ImportError, AttributeError):
+        _warn(
+            "Could not force flush traces. opentelemetry-api is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+        return None
+
+    try:
+        import opentelemetry.sdk.trace
+    except (ImportError, AttributeError):
+        _warn(
+            "Could not force flush traces. opentelemetry-sdk is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+        return None
+
+    provider = opentelemetry.trace.get_tracer_provider()
+    if isinstance(provider, opentelemetry.sdk.trace.TracerProvider):
+        _ = provider.force_flush()
+
+
 def _default_instrumentor_builder(
     project_id: str,
     *,
@@ -311,28 +333,23 @@ def _default_instrumentor_builder(
 
     if enable_tracing:
         try:
-            import opentelemetry.exporter.cloud_trace
+            import opentelemetry.exporter.otlp.proto.http.trace_exporter
+            import google.auth.transport.requests
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
-                "opentelemetry-exporter-gcp-trace", needed_for_tracing=True
-            )
-
-        try:
-            import google.cloud.trace_v2
-        except (ImportError, AttributeError):
-            return _warn_missing_dependency(
-                "google-cloud-trace", needed_for_tracing=True
+                "opentelemetry-exporter-otlp-proto-http", needed_for_tracing=True
             )
 
         import google.auth
 
         credentials, _ = google.auth.default()
-        span_exporter = opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter(
-            project_id=project_id,
-            client=google.cloud.trace_v2.TraceServiceClient(
-                credentials=credentials.with_quota_project(project_id),
-            ),
-            resource_regex="|".join(resource.attributes.keys()),
+        span_exporter = (
+            opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
+                session=google.auth.transport.requests.AuthorizedSession(
+                    credentials=credentials
+                ),
+                endpoint="https://telemetry.googleapis.com/v1/traces",
+            )
         )
         span_processor = opentelemetry.sdk.trace.export.BatchSpanProcessor(
             span_exporter=span_exporter,
@@ -695,54 +712,17 @@ class AdkApp:
         else:
             os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "false"
 
-        GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
-            "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
-        )
-
-        def telemetry_enabled() -> Optional[bool]:
-            return (
-                os.getenv(GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY, "0").lower()
-                in ("true", "1")
-                if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in os.environ
-                else None
-            )
-
-        # Tracing enablement follows truth table:
-        def tracing_enabled() -> bool:
-            """Tracing enablement follows true table:
-
-            | enable_tracing | enable_telemetry(env) | tracing_actually_enabled |
-            |----------------|-----------------------|--------------------------|
-            | false          | false                 | false                    |
-            | false          | true                  | false                    |
-            | false          | None                  | false                    |
-            | true           | false                 | false                    |
-            | true           | true                  | true                     |
-            | true           | None                  | true                     |
-            | None(default)  | false                 | false                    |
-            | None(default)  | true                  | adk_version >= 1.17      |
-            | None(default)  | None                  | false                    |
-            """
-            enable_tracing: Optional[bool] = self._tmpl_attrs.get("enable_tracing")
-            enable_telemetry: Optional[bool] = telemetry_enabled()
-
-            return (enable_tracing is True and enable_telemetry is not False) or (
-                enable_tracing is None
-                and enable_telemetry is True
-                and is_version_sufficient("1.17.0")
-            )
-
-        enable_logging = bool(telemetry_enabled())
+        enable_logging = bool(self._telemetry_enabled())
 
         custom_instrumentor = self._tmpl_attrs.get("instrumentor_builder")
 
-        if custom_instrumentor and tracing_enabled():
+        if custom_instrumentor and self._tracing_enabled():
             self._tmpl_attrs["instrumentor"] = custom_instrumentor(project)
 
         if not custom_instrumentor:
             self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
                 project,
-                enable_tracing=tracing_enabled(),
+                enable_tracing=self._tracing_enabled(),
                 enable_logging=enable_logging,
             )
 
@@ -914,9 +894,14 @@ class AdkApp:
                 **kwargs,
             )
 
-        async for event in events_async:
-            # Yield the event data as a dictionary
-            yield _utils.dump_event_for_json(event)
+        try:
+            async for event in events_async:
+                # Yield the event data as a dictionary
+                yield _utils.dump_event_for_json(event)
+        finally:
+            # Avoid trace data loss having to do with CPU throttling on instance turndown
+            if self._tracing_enabled():
+                _ = await asyncio.to_thread(_force_flush_traces)
 
     def stream_query(
         self,
@@ -1068,6 +1053,9 @@ class AdkApp:
                     user_id=request.user_id,
                     session_id=session.id,
                 )
+            # Avoid trace data loss having to do with CPU throttling on instance turndown
+            if self._tracing_enabled():
+                _ = await asyncio.to_thread(_force_flush_traces)
 
     async def async_get_session(
         self,
@@ -1450,3 +1438,52 @@ class AdkApp:
                 "streaming_agent_run_with_events",
             ],
         }
+
+    def _telemetry_enabled(self) -> Optional[bool]:
+        """Return status of telemetry enablement depending on enablement env variable.
+
+        In detail:
+        - Logging is always enabled when telemetry is enabled.
+        - Tracing is enabled depending on the truth table seen in `_tracing_enabled` method, in order to not break existing user enablement.
+
+        Returns:
+            True if telemetry is enabled, False if telemetry is disabled, or None
+            if telemetry enablement is not set (i.e. old deployments which don't support this env variable).
+        """
+        import os
+
+        GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+            "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
+        )
+
+        return (
+            os.getenv(GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY, "0").lower()
+            in ("true", "1")
+            if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in os.environ
+            else None
+        )
+
+    # Tracing enablement follows truth table:
+    def _tracing_enabled(self) -> bool:
+        """Tracing enablement follows true table:
+
+        | enable_tracing | enable_telemetry(env) | tracing_actually_enabled |
+        |----------------|-----------------------|--------------------------|
+        | false          | false                 | false                    |
+        | false          | true                  | false                    |
+        | false          | None                  | false                    |
+        | true           | false                 | false                    |
+        | true           | true                  | true                     |
+        | true           | None                  | true                     |
+        | None(default)  | false                 | false                    |
+        | None(default)  | true                  | adk_version >= 1.17      |
+        | None(default)  | None                  | false                    |
+        """
+        enable_tracing: Optional[bool] = self._tmpl_attrs.get("enable_tracing")
+        enable_telemetry: Optional[bool] = self._telemetry_enabled()
+
+        return (enable_tracing is True and enable_telemetry is not False) or (
+            enable_tracing is None
+            and enable_telemetry is True
+            and is_version_sufficient("1.17.0")
+        )
