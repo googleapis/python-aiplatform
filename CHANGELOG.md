@@ -5,8 +5,6 @@
 
 ### ⚠ BREAKING CHANGES
 
-* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API.
-* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API.
 * GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing
 
 ### Features
@@ -24,8 +22,6 @@
 ### Miscellaneous Chores
 
 * Release 1.124.0 ([35ac4c5](https://github.com/googleapis/python-aiplatform/commit/35ac4c5d042c350c1af25e37b55983c3866d831d))
-* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API. ([ed76c44](https://github.com/googleapis/python-aiplatform/commit/ed76c44bebe5b37587161efd0c807d00f4ce883c))
-* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API. ([cf218af](https://github.com/googleapis/python-aiplatform/commit/cf218afa22f8c91830577f3978a878b6d7d420f4))
 
 ## [1.123.0](https://github.com/googleapis/python-aiplatform/compare/v1.122.0...v1.123.0) (2025-10-29)
 
