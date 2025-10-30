@@ -12081,26 +12081,6 @@ class PromptOptimizerConfigDict(TypedDict, total=False):
 PromptOptimizerConfigOrDict = Union[PromptOptimizerConfig, PromptOptimizerConfigDict]
 
 
-class OptimizerMethodPlaceholder(_common.BaseModel):
-    """Placeholder class to generate OptimizerMethod enum in common.py."""
-
-    method: Optional[PromptOptimizerMethod] = Field(
-        default=None, description="""The method for optimizing multiple prompts."""
-    )
-
-
-class OptimizerMethodPlaceholderDict(TypedDict, total=False):
-    """Placeholder class to generate OptimizerMethod enum in common.py."""
-
-    method: Optional[PromptOptimizerMethod]
-    """The method for optimizing multiple prompts."""
-
-
-OptimizerMethodPlaceholderOrDict = Union[
-    OptimizerMethodPlaceholder, OptimizerMethodPlaceholderDict
-]
-
-
 class ApplicableGuideline(_common.BaseModel):
     """Applicable guideline for the optimize_prompt method."""
 
