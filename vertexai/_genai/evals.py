@@ -1334,11 +1334,9 @@ class Evals(_api_module.BaseModule):
         *,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        metrics: Optional[
-            list[types.EvaluationRunMetricOrDict]
-        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.evals.AgentInfoOrDict] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
@@ -1348,9 +1346,9 @@ class Evals(_api_module.BaseModule):
         Args:
           dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
           dest: The GCS URI prefix to write the evaluation results to.
+          metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          metrics: The list of metrics to evaluate.
           agent_info: The agent info to evaluate.
           labels: The labels to apply to the evaluation run.
           config: The configuration for the evaluation run.
@@ -1358,15 +1356,22 @@ class Evals(_api_module.BaseModule):
         Returns:
             The created evaluation run.
         """
+        if agent_info and isinstance(agent_info, dict):
+            agent_info = types.evals.AgentInfo.model_validate(agent_info)
         if type(dataset).__name__ == "EvaluationDataset":
-            logger.warning(
-                "EvaluationDataset input is experimental and may change in future versions."
-            )
             if dataset.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
                 )
-            if dataset.candidate_name is None and agent_info:
+            if (
+                dataset.candidate_name
+                and agent_info.name
+                and dataset.candidate_name != agent_info.name
+            ):
+                logger.warning(
+                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+                )
+            elif dataset.candidate_name is None and agent_info:
                 dataset.candidate_name = agent_info.name
             eval_set = _evals_common._create_evaluation_set_from_dataframe(
                 self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
@@ -1383,9 +1388,6 @@ class Evals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            logger.warning(
-                "The agent_info field is experimental and may change in future versions."
-            )
             if isinstance(agent_info, dict):
                 agent_info = types.evals.AgentInfo.model_validate(agent_info)
             if (
@@ -2187,11 +2189,9 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        metrics: Optional[
-            list[types.EvaluationRunMetricOrDict]
-        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.evals.AgentInfo] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
@@ -2201,9 +2201,9 @@ class AsyncEvals(_api_module.BaseModule):
         Args:
           dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
           dest: The GCS URI prefix to write the evaluation results to.
+          metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          metrics: The list of metrics to evaluate.
           agent_info: The agent info to evaluate.
           labels: The labels to apply to the evaluation run.
           config: The configuration for the evaluation run.
@@ -2211,15 +2211,22 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
             The created evaluation run.
         """
+        if agent_info and isinstance(agent_info, dict):
+            agent_info = types.evals.AgentInfo.model_validate(agent_info)
         if type(dataset).__name__ == "EvaluationDataset":
-            logger.warning(
-                "EvaluationDataset input is experimental and may change in future versions."
-            )
             if dataset.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
                 )
-            if dataset.candidate_name is None and agent_info:
+            if (
+                dataset.candidate_name
+                and agent_info.name
+                and dataset.candidate_name != agent_info.name
+            ):
+                logger.warning(
+                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+                )
+            elif dataset.candidate_name is None and agent_info:
                 dataset.candidate_name = agent_info.name
             eval_set = _evals_common._create_evaluation_set_from_dataframe(
                 self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
@@ -2236,9 +2243,6 @@ class AsyncEvals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            logger.warning(
-                "The agent_info field is experimental and may change in future versions."
-            )
             if isinstance(agent_info, dict):
                 agent_info = types.evals.AgentInfo.model_validate(agent_info)
             if (

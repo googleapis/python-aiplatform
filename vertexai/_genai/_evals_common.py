@@ -798,7 +798,6 @@ def _execute_inference(
 
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
-            candidate_name="agent",
         )
     else:
         raise ValueError("Either model or agent_engine must be provided.")

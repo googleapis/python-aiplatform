@@ -1132,7 +1132,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name == "agent"
+        assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
@@ -1211,7 +1211,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name == "agent"
+        assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
