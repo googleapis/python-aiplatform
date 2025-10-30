@@ -587,9 +587,6 @@ from .common import OptimizeResponseEndpoint
 from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
-from .common import OptimizerMethodPlaceholder
-from .common import OptimizerMethodPlaceholderDict
-from .common import OptimizerMethodPlaceholderOrDict
 from .common import OptimizeTarget
 from .common import PairwiseChoice
 from .common import PairwiseMetricInput
@@ -1746,9 +1743,6 @@ __all__ = [
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
-    "OptimizerMethodPlaceholder",
-    "OptimizerMethodPlaceholderDict",
-    "OptimizerMethodPlaceholderOrDict",
     "ApplicableGuideline",
     "ApplicableGuidelineDict",
     "ApplicableGuidelineOrDict",
