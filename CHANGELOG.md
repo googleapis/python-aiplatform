@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.124.0](https://github.com/googleapis/python-aiplatform/compare/v1.123.0...v1.124.0) (2025-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing
+
+### Features
+
+* GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing ([4216790](https://github.com/googleapis/python-aiplatform/commit/42167900de819d82afb7dde93238fb9926738867))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Apply sync function for agent run ([8a20349](https://github.com/googleapis/python-aiplatform/commit/8a2034900c6caa9349d00a0fcf0f5e7af762f9ef))
+* GenAI Client(evals) - Support EvaluationDataset output from run_inference as input `dataset` in `create_evaluation_run` in Vertex AI GenAI SDK evals ([741c6ad](https://github.com/googleapis/python-aiplatform/commit/741c6ad6bf860ec10653f86ad816a62465cdaaf5))
+* GenAI Client(evals) - Update send online eval service request default value and avoid None value ([09bf9a9](https://github.com/googleapis/python-aiplatform/commit/09bf9a99d70bacd67ae741bbebbfad71e8fed821))
+
+
+### Miscellaneous Chores
+
+* Release 1.124.0 ([35ac4c5](https://github.com/googleapis/python-aiplatform/commit/35ac4c5d042c350c1af25e37b55983c3866d831d))
+
 ## [1.123.0](https://github.com/googleapis/python-aiplatform/compare/v1.122.0...v1.123.0) (2025-10-29)
 
 
