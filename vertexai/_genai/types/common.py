@@ -1918,19 +1918,17 @@ class EvaluationRun(_common.BaseModel):
         """Shows the evaluation result."""
         from .. import _evals_visualization
 
-        logger.warning(f"Evaluation Run state: {self.state}.")
-        if self.error:
-            logger.warning(f"Evaluation Run error: {self.error.message}")
         if self.state == "SUCCEEDED":
             if self.evaluation_item_results is not None:
                 _evals_visualization.display_evaluation_result(
                     self.evaluation_item_results, None
                 )
             else:
-                logger.warning(f"Evaluation Run state: {self.state}.")
                 logger.warning(
                     "Evaluation Run succeeded but no evaluation item results found. To display results, please set include_evaluation_items to True when calling get_evaluation_run()."
                 )
+        else:
+            _evals_visualization.display_evaluation_run_status(self)
 
 
 class EvaluationRunDict(TypedDict, total=False):
