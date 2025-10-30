@@ -514,9 +514,13 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         _validate_sys_version_or_raise(sys_version)
         gcs_dir_name = gcs_dir_name or _DEFAULT_GCS_DIR_NAME
         staging_bucket = initializer.global_config.staging_bucket
+
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
             staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
+            if _is_adk_agent(None, agent_engine):
+                env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
+
         if agent_engine is None:
             if requirements is not None:
                 raise ValueError("requirements must be None if agent_engine is None.")
@@ -533,6 +537,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
 
         sdk_resource = cls.__new__(cls)
         base.VertexAiResourceNounWithFutureManager.__init__(sdk_resource)
+
         # Prepares the Agent Engine for creation in Vertex AI.
         # This involves packaging and uploading the artifacts for
         # agent_engine, requirements and extra_packages to
@@ -798,6 +803,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
 
+        if _is_adk_agent(self, agent_engine):
+            env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
+
         # Prepares the Agent Engine for update in Vertex AI. This involves
         # packaging and uploading the artifacts for agent_engine, requirements
         # and extra_packages to `staging_bucket/gcs_dir_name`.
@@ -1056,6 +1064,77 @@ def _validate_agent_engine_or_raise(
     return agent_engine
 
 
+def _is_adk_agent(
+    agent_engine_to_update: Optional[AgentEngine],
+    new_agent_engine: Optional[_AgentEngineInterface],
+) -> bool:
+    """Checks if the agent engine is an ADK agent.
+
+    Args:
+        agent_engine_to_update: Existing agent engine, None if creating new one.
+        new_agent_engine: The new agent engine to deploy. Can be None during an update, if the Python agent implementation is not provided, and should remain unchanged.
+
+    Returns:
+        True if the agent after the create/update operation, will be an ADK agent.
+    """
+
+    from vertexai.agent_engines.templates import adk
+
+    if new_agent_engine is not None:
+        return (
+            getattr(new_agent_engine, "agent_framework", None)
+            == adk.AdkApp.agent_framework
+        )
+    if agent_engine_to_update is not None:
+        return (
+            agent_engine_to_update.gca_resource.spec.agent_framework
+            == adk.AdkApp.agent_framework
+        )
+    return False
+
+
+EnvVars = Optional[Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]]
+
+
+def _add_telemetry_enablement_env(*, env_vars: EnvVars) -> EnvVars:
+    """Adds telemetry enablement env var to the env vars.
+
+    This is in order to achieve default-on telemetry.
+    If the telemetry enablement env var is already set, we do not override it.
+
+    Args:
+        env_vars: The env vars to add the telemetry enablement env var to.
+
+    Returns:
+        The env vars with the telemetry enablement env var added.
+    """
+
+    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+        "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
+    )
+
+    if env_vars is None:
+        return {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+    if isinstance(env_vars, dict):
+        return (
+            env_vars
+            if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in env_vars
+            else env_vars | {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+        )
+    if isinstance(env_vars, list) or isinstance(env_vars, tuple):
+        if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY not in os.environ:
+            os.environ[GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY] = "true"
+
+        if isinstance(env_vars, list):
+            return env_vars + [GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY]
+        else:
+            return env_vars + (GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY,)
+
+    raise TypeError(
+        f"env_vars must be a list, tuple or a dict, but got {type(env_vars)}."
+    )
+
+
 def _validate_requirements_or_raise(
     *,
     agent_engine: _AgentEngineInterface,
@@ -1309,7 +1388,7 @@ def _generate_deployment_spec_or_raise(
             )
         else:
             raise TypeError(
-                f"env_vars must be a list or a dict, but got {type(env_vars)}."
+                f"env_vars must be a list, tuple or a dict, but got {type(env_vars)}."
             )
         if deployment_spec.env:
             update_masks.append("spec.deployment_spec.env")
