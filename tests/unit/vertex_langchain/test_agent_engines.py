@@ -3260,7 +3260,7 @@ class TestAgentEngineErrors:
                     "TEST_ENV_VAR": 0.01,  # should be a string or dict or SecretRef
                 },
             )
-        with pytest.raises(TypeError, match="env_vars must be a list, tuple or a dict"):
+        with pytest.raises(TypeError, match="env_vars must be a list or a dict"):
             agent_engines.create(
                 self.test_agent,
                 display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
