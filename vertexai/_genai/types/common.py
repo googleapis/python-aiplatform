@@ -13420,7 +13420,7 @@ class Prompt(_common.BaseModel):
                 break
 
         if not has_placeholders:
-            return [genai_types.Content(parts=parts_to_process)]
+            return [genai_types.Content(parts=parts_to_process, role="user")]
 
         all_rendered_parts: list[genai_types.Part] = []
 
@@ -13503,6 +13503,10 @@ class CreatePromptConfig(_common.BaseModel):
         default=None,
         description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
     )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the version of the prompt. If not set, a default name with a timestamp will be used.""",
+    )
     timeout: Optional[int] = Field(
         default=90,
         description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
@@ -13521,6 +13525,9 @@ class CreatePromptConfigDict(TypedDict, total=False):
 
     prompt_display_name: Optional[str]
     """The display name for the prompt. If not set, a default name with a timestamp will be used."""
+
+    version_display_name: Optional[str]
+    """The display name for the version of the prompt. If not set, a default name with a timestamp will be used."""
 
     timeout: Optional[int]
     """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
@@ -13582,6 +13589,45 @@ class GetPromptConfigDict(TypedDict, total=False):
 
 
 GetPromptConfigOrDict = Union[GetPromptConfig, GetPromptConfigDict]
+
+
+class UpdatePromptConfig(_common.BaseModel):
+    """Config for creating a prompt."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    prompt_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
+    )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the version of the prompt. If not set, a default name with a timestamp will be used.""",
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
+    )
+
+
+class UpdatePromptConfigDict(TypedDict, total=False):
+    """Config for creating a prompt."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    prompt_display_name: Optional[str]
+    """The display name for the prompt. If not set, a default name with a timestamp will be used."""
+
+    version_display_name: Optional[str]
+    """The display name for the version of the prompt. If not set, a default name with a timestamp will be used."""
+
+    timeout: Optional[int]
+    """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
+
+
+UpdatePromptConfigOrDict = Union[UpdatePromptConfig, UpdatePromptConfigDict]
 
 
 class PromptRef(_common.BaseModel):
