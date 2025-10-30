@@ -107,6 +107,19 @@ _DEFAULT_METHOD_RETURN_TYPE_MAP = {
     _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_RETURN_TYPE,
     _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
 }
+_ADK_TRACING_DISABLED_WARNING = (
+    "[WARNING] Your 'enable_tracing=False' setting is being deprecated and "
+    "will be removed in a future release.\n\n"
+    "This legacy setting overrides the new Cloud Console toggle and "
+    "environment variable controls.\n\n"
+    "Impact: The Cloud Console may incorrectly show telemetry as 'On' when it "
+    "is actually 'Off', and the UI toggle will not work.\n\n"
+    "Action: To fix this and control telemetry, please remove the "
+    "'enable_tracing' parameter from your deployment code.\n\n"
+    "You can then use the 'GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY' "
+    "environment variable or the toggle in the Cloud Console: "
+    "https://console.cloud.google.com/vertex-ai/agents."
+)
 
 
 try:
@@ -519,6 +532,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
             staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
             if _is_adk_agent(None, agent_engine):
+                _warn_if_adk_tracing_disabled(agent_engine=agent_engine)
                 env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
 
         if agent_engine is None:
@@ -804,6 +818,7 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
 
         if _is_adk_agent(self, agent_engine):
+            _warn_if_adk_tracing_disabled(agent_engine=agent_engine)
             env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
 
         # Prepares the Agent Engine for update in Vertex AI. This involves
@@ -1133,6 +1148,12 @@ def _add_telemetry_enablement_env(*, env_vars: EnvVars) -> EnvVars:
     raise TypeError(
         f"env_vars must be a list, tuple or a dict, but got {type(env_vars)}."
     )
+
+
+def _warn_if_adk_tracing_disabled(*, agent_engine: _AgentEngineInterface):
+    tmpl_attrs = getattr(agent_engine, "_tmpl_attrs", {})
+    if tmpl_attrs.get("enable_tracing", None) is False:
+        _LOGGER.warning(_ADK_TRACING_DISABLED_WARNING)
 
 
 def _validate_requirements_or_raise(
