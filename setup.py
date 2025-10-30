@@ -162,7 +162,6 @@ agent_engines_extra_require = [
     "google-cloud-logging < 4",
     "opentelemetry-sdk < 2",
     "opentelemetry-exporter-gcp-trace < 2",
-    "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
 ]
