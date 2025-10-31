@@ -185,6 +185,24 @@ def _check_rag_embedding_model_config(
         return gapic_vector_db.rag_embedding_model_config.ByteSize() > 0
 
 
+def _check_document_corpus(
+    gapic_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
+) -> bool:
+    try:
+        return gapic_corpus_type_config.__contains__("document_corpus")
+    except AttributeError:
+        return gapic_corpus_type_config.document_corpus.ByteSize() > 0
+
+
+def _check_memory_corpus(
+    gapic_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
+) -> bool:
+    try:
+        return gapic_corpus_type_config.__contains__("memory_corpus")
+    except AttributeError:
+        return gapic_corpus_type_config.memory_corpus.ByteSize() > 0
+
+
 def _convert_gapic_to_rag_managed_db(
     gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb,
 ) -> RagManagedDb:
@@ -252,10 +270,10 @@ def convert_gapic_to_vector_db(
 
 
 def convert_gapic_to_vertex_ai_search_config(
-    gapic_vertex_ai_search_config: VertexAiSearchConfig,
-) -> VertexAiSearchConfig:
+    gapic_vertex_ai_search_config: GapicVertexAiSearchConfig,
+) -> Optional[VertexAiSearchConfig]:
     """Convert Gapic VertexAiSearchConfig to VertexAiSearchConfig."""
-    if gapic_vertex_ai_search_config.serving_config:
+    if gapic_vertex_ai_search_config.ByteSize() > 0:
         return VertexAiSearchConfig(
             serving_config=gapic_vertex_ai_search_config.serving_config,
         )
@@ -293,6 +311,8 @@ def convert_gapic_to_backend_config(
     gapic_vector_db: GapicRagVectorDbConfig,
 ) -> RagVectorDbConfig:
     """Convert Gapic RagVectorDbConfig to VertexVectorSearch, Pinecone, or RagManagedDb."""
+    if not gapic_vector_db or not gapic_vector_db.ByteSize():
+        return None
     vector_config = RagVectorDbConfig()
     if _check_pinecone(gapic_vector_db):
         vector_config.vector_db = Pinecone(
@@ -314,6 +334,11 @@ def convert_gapic_to_backend_config(
                 gapic_vector_db.rag_embedding_model_config
             )
         )
+    if (
+        vector_config.vector_db is None
+        and vector_config.rag_embedding_model_config is None
+    ):
+        return None
     return vector_config
 
 
@@ -321,9 +346,9 @@ def convert_gapic_to_rag_corpus_type_config(
     gapic_rag_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
 ) -> RagCorpusTypeConfig:
     """Convert GapicRagCorpus.CorpusTypeConfig to RagCorpusTypeConfig."""
-    if gapic_rag_corpus_type_config.document_corpus:
+    if _check_document_corpus(gapic_rag_corpus_type_config):
         return RagCorpusTypeConfig(corpus_type_config=DocumentCorpus())
-    elif gapic_rag_corpus_type_config.memory_corpus:
+    elif _check_memory_corpus(gapic_rag_corpus_type_config):
         return RagCorpusTypeConfig(
             corpus_type_config=MemoryCorpus(
                 llm_parser=LlmParserConfig(
