@@ -1845,3 +1845,50 @@ def _validate_resource_limits_or_raise(resource_limits: dict[str, str]) -> None:
             f"Memory size of {memory_str} requires at least {min_cpu} CPUs."
             f" Got {cpu}"
         )
+
+
+def _is_adk_agent(agent_engine: _AgentEngineInterface) -> bool:
+    """Checks if the agent engine is an ADK agent.
+
+    Args:
+        agent_engine: The agent engine to check.
+
+    Returns:
+        True if the agent engine is an ADK agent, False otherwise.
+    """
+
+    from vertexai.agent_engines.templates import adk
+
+    return isinstance(agent_engine, adk.AdkApp)
+
+
+def _add_telemetry_enablement_env(
+    env_vars: Optional[Dict[str, Union[str, Any]]]
+) -> Optional[Dict[str, Union[str, Any]]]:
+    """Adds telemetry enablement env var to the env vars.
+
+    This is in order to achieve default-on telemetry.
+    If the telemetry enablement env var is already set, we do not override it.
+
+    Args:
+        env_vars: The env vars to add the telemetry enablement env var to.
+
+    Returns:
+        The env vars with the telemetry enablement env var added.
+    """
+
+    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+        "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
+    )
+    env_to_add = {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+
+    if env_vars is None:
+        return env_to_add
+
+    if not isinstance(env_vars, dict):
+        raise TypeError(f"env_vars must be a dict, but got {type(env_vars)}.")
+
+    if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in env_vars:
+        return env_vars
+
+    return env_vars | env_to_add

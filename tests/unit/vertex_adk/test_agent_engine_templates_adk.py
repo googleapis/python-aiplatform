@@ -16,14 +16,25 @@ import base64
 import importlib
 import json
 import os
+import cloudpickle
+import sys
 from unittest import mock
 from typing import Optional
 
 from google import auth
+from google.auth import credentials as auth_credentials
+from google.cloud import storage
 import vertexai
+from google.cloud import aiplatform
+from google.cloud.aiplatform_v1 import types as aip_types
+from google.cloud.aiplatform_v1.services import reasoning_engine_service
+from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
 from vertexai.agent_engines import _utils
 from vertexai import agent_engines
+from vertexai.agent_engines.templates import adk as adk_template
+from vertexai.agent_engines import _agent_engines
+from google.api_core import operation as ga_operation
 from google.genai import types
 import pytest
 import uuid
@@ -75,6 +86,52 @@ _TEST_RUN_CONFIG = {
     "streaming_mode": "sse",
     "max_llm_calls": 500,
 }
+_TEST_STAGING_BUCKET = "gs://test-bucket"
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_RESOURCE_ID = "1028944691210842416"
+_TEST_AGENT_ENGINE_RESOURCE_NAME = (
+    f"{_TEST_PARENT}/reasoningEngines/{_TEST_RESOURCE_ID}"
+)
+_TEST_AGENT_ENGINE_DISPLAY_NAME = "Agent Engine Display Name"
+_TEST_GCS_DIR_NAME = _agent_engines._DEFAULT_GCS_DIR_NAME
+_TEST_BLOB_FILENAME = _agent_engines._BLOB_FILENAME
+_TEST_REQUIREMENTS_FILE = _agent_engines._REQUIREMENTS_FILE
+_TEST_EXTRA_PACKAGES_FILE = _agent_engines._EXTRA_PACKAGES_FILE
+_TEST_AGENT_ENGINE_GCS_URI = "{}/{}/{}".format(
+    _TEST_STAGING_BUCKET,
+    _TEST_GCS_DIR_NAME,
+    _TEST_BLOB_FILENAME,
+)
+_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI = "{}/{}/{}".format(
+    _TEST_STAGING_BUCKET,
+    _TEST_GCS_DIR_NAME,
+    _TEST_EXTRA_PACKAGES_FILE,
+)
+_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI = "{}/{}/{}".format(
+    _TEST_STAGING_BUCKET,
+    _TEST_GCS_DIR_NAME,
+    _TEST_REQUIREMENTS_FILE,
+)
+_TEST_AGENT_ENGINE_PACKAGE_SPEC = aip_types.ReasoningEngineSpec.PackageSpec(
+    python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+    pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
+    dependency_files_gcs_uri=_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
+    requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+)
+_ADK_AGENT_FRAMEWORK = adk_template.AdkApp.agent_framework
+_TEST_AGENT_ENGINE_OBJ = aip_types.ReasoningEngine(
+    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+    spec=aip_types.ReasoningEngineSpec(
+        package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+        agent_framework=_ADK_AGENT_FRAMEWORK,
+    ),
+)
+
+GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+    "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
+)
 
 
 @pytest.fixture(scope="module")
@@ -727,3 +784,174 @@ class TestAdkAppErrors:
         ):
             async for _ in app.async_stream_query(user_id=_TEST_USER_ID, message=123):
                 pass
+
+
+@pytest.fixture(scope="module")
+def create_agent_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "create_reasoning_engine",
+    ) as create_agent_engine_mock:
+        create_agent_engine_lro_mock = mock.Mock(ga_operation.Operation)
+        create_agent_engine_lro_mock.result.return_value = _TEST_AGENT_ENGINE_OBJ
+        create_agent_engine_mock.return_value = create_agent_engine_lro_mock
+        yield create_agent_engine_mock
+
+
+@pytest.fixture(scope="module")
+def get_agent_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "get_reasoning_engine",
+    ) as get_agent_engine_mock:
+        api_client_mock = mock.Mock()
+        api_client_mock.get_reasoning_engine.return_value = _TEST_AGENT_ENGINE_OBJ
+        get_agent_engine_mock.return_value = api_client_mock
+        yield get_agent_engine_mock
+
+
+@pytest.fixture(scope="module")
+def cloud_storage_create_bucket_mock():
+    with mock.patch.object(storage, "Client") as cloud_storage_mock:
+        bucket_mock = mock.Mock(spec=storage.Bucket)
+        bucket_mock.blob.return_value.open.return_value = "blob_file"
+        bucket_mock.blob.return_value.upload_from_filename.return_value = None
+        bucket_mock.blob.return_value.upload_from_string.return_value = None
+
+        cloud_storage_mock.get_bucket = mock.Mock(
+            side_effect=ValueError("bucket not found")
+        )
+        cloud_storage_mock.bucket.return_value = bucket_mock
+        cloud_storage_mock.create_bucket.return_value = bucket_mock
+
+        yield cloud_storage_mock
+
+
+@pytest.fixture(scope="module")
+def cloudpickle_dump_mock():
+    with mock.patch.object(cloudpickle, "dump") as cloudpickle_dump_mock:
+        yield cloudpickle_dump_mock
+
+
+@pytest.fixture(scope="module")
+def cloudpickle_load_mock():
+    with mock.patch.object(cloudpickle, "load") as cloudpickle_load_mock:
+        yield cloudpickle_load_mock
+
+
+@pytest.fixture(scope="function")
+def get_gca_resource_mock():
+    with mock.patch.object(
+        base.VertexAiResourceNoun,
+        "_get_gca_resource",
+    ) as get_gca_resource_mock:
+        get_gca_resource_mock.return_value = _TEST_AGENT_ENGINE_OBJ
+        yield get_gca_resource_mock
+
+
+# Function scope is required for the pytest parameterized tests.
+@pytest.fixture(scope="function")
+def update_agent_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "update_reasoning_engine",
+    ) as update_agent_engine_mock:
+        yield update_agent_engine_mock
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAgentEngines:
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    def test_create_default_telemetry_enablement(
+        self,
+        create_agent_engine_mock: mock.Mock,
+        cloud_storage_create_bucket_mock: mock.Mock,
+        cloudpickle_dump_mock: mock.Mock,
+        cloudpickle_load_mock: mock.Mock,
+        get_gca_resource_mock: mock.Mock,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        agent_engines.create(
+            agent_engine=agent_engines.AdkApp(agent=_TEST_AGENT),
+            env_vars=env_vars,
+        )
+        create_agent_engine_mock.assert_called_once()
+        deployment_spec = create_agent_engine_mock.call_args.kwargs[
+            "reasoning_engine"
+        ].spec.deployment_spec
+        assert _utils.to_dict(deployment_spec)["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
+
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    def test_update_default_telemetry_enablement(
+        self,
+        update_agent_engine_mock: mock.Mock,
+        cloud_storage_create_bucket_mock: mock.Mock,
+        cloudpickle_dump_mock: mock.Mock,
+        cloudpickle_load_mock: mock.Mock,
+        get_gca_resource_mock: mock.Mock,
+        get_agent_engine_mock: mock.Mock,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        agent_engines.update(
+            resource_name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            description="foobar",  # avoid "At least one of ... must be specified" errors.
+            env_vars=env_vars,
+        )
+        update_agent_engine_mock.assert_called_once()
+        deployment_spec = update_agent_engine_mock.call_args.kwargs[
+            "request"
+        ].reasoning_engine.spec.deployment_spec
+        assert _utils.to_dict(deployment_spec)["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
