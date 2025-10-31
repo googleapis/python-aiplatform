@@ -319,11 +319,11 @@ In order to use this library, you first need to go through the following steps:
 
 Supported Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Python >= 3.9
+Python >= 3.10
 
 Deprecated Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Python <= 3.8.
+Python <= 3.9.
 
 The last version of this library compatible with Python 3.8 is google-cloud-aiplatform==1.90.0.
 
