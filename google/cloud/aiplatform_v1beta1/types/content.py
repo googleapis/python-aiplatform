@@ -330,6 +330,8 @@ class VideoMetadata(proto.Message):
             Optional. The start offset of the video.
         end_offset (google.protobuf.duration_pb2.Duration):
             Optional. The end offset of the video.
+        fps (float):
+            Optional. The frame rate of the video sent to the model. If not specified, the default value is 1.0.
     """
 
     start_offset: duration_pb2.Duration = proto.Field(
@@ -341,6 +343,10 @@ class VideoMetadata(proto.Message):
         proto.MESSAGE,
         number=2,
         message=duration_pb2.Duration,
+    )
+    fps: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
     )
 
 
