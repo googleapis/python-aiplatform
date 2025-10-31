@@ -318,19 +318,6 @@ class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Evaluation run is performing rubric generation."""
 
 
-class Importance(_common.CaseInSensitiveEnum):
-    """Importance level of the rubric."""
-
-    IMPORTANCE_UNSPECIFIED = "IMPORTANCE_UNSPECIFIED"
-    """Importance is not specified."""
-    HIGH = "HIGH"
-    """High importance."""
-    MEDIUM = "MEDIUM"
-    """Medium importance."""
-    LOW = "LOW"
-    """Low importance."""
-
-
 class OptimizeTarget(_common.CaseInSensitiveEnum):
     """None"""
 
@@ -537,196 +524,6 @@ class EvaluationItemRequestDict(TypedDict, total=False):
 EvaluationItemRequestOrDict = Union[EvaluationItemRequest, EvaluationItemRequestDict]
 
 
-class RubricContentProperty(_common.BaseModel):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str] = Field(
-        default=None,
-        description="""Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """,
-    )
-
-
-class RubricContentPropertyDict(TypedDict, total=False):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str]
-    """Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """
-
-
-RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
-
-
-class RubricContent(_common.BaseModel):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentProperty] = Field(
-        default=None,
-        description="""Evaluation criteria based on a specific property.""",
-    )
-
-
-class RubricContentDict(TypedDict, total=False):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentPropertyDict]
-    """Evaluation criteria based on a specific property."""
-
-
-RubricContentOrDict = Union[RubricContent, RubricContentDict]
-
-
-class Rubric(_common.BaseModel):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str] = Field(
-        default=None,
-        description="""Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
-    )
-    content: Optional[RubricContent] = Field(
-        default=None,
-        description="""Required. The actual testable criteria for the rubric.""",
-    )
-    type: Optional[str] = Field(
-        default=None,
-        description="""Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE".""",
-    )
-    importance: Optional[Importance] = Field(
-        default=None,
-        description="""Optional. The relative importance of this rubric.""",
-    )
-
-
-class RubricDict(TypedDict, total=False):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str]
-    """Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
-
-    content: Optional[RubricContentDict]
-    """Required. The actual testable criteria for the rubric."""
-
-    type: Optional[str]
-    """Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE"."""
-
-    importance: Optional[Importance]
-    """Optional. The relative importance of this rubric."""
-
-
-RubricOrDict = Union[Rubric, RubricDict]
-
-
-class RubricVerdict(_common.BaseModel):
-    """Represents the verdict of an evaluation against a single rubric."""
-
-    evaluated_rubric: Optional[Rubric] = Field(
-        default=None,
-        description="""Required. The full rubric definition that was evaluated.
-      Storing this ensures the verdict is self-contained and understandable,
-      especially if the original rubric definition changes or was dynamically
-      generated.""",
-    )
-    verdict: Optional[bool] = Field(
-        default=None,
-        description="""Required. Outcome of the evaluation against the rubric, represented as a
-      boolean. `true` indicates a "Pass", `false` indicates a "Fail".""",
-    )
-    reasoning: Optional[str] = Field(
-        default=None,
-        description="""Optional. Human-readable reasoning or explanation for the verdict.
-      This can include specific examples or details from the evaluated content
-      that justify the given verdict.""",
-    )
-
-
-class RubricVerdictDict(TypedDict, total=False):
-    """Represents the verdict of an evaluation against a single rubric."""
-
-    evaluated_rubric: Optional[RubricDict]
-    """Required. The full rubric definition that was evaluated.
-      Storing this ensures the verdict is self-contained and understandable,
-      especially if the original rubric definition changes or was dynamically
-      generated."""
-
-    verdict: Optional[bool]
-    """Required. Outcome of the evaluation against the rubric, represented as a
-      boolean. `true` indicates a "Pass", `false` indicates a "Fail"."""
-
-    reasoning: Optional[str]
-    """Optional. Human-readable reasoning or explanation for the verdict.
-      This can include specific examples or details from the evaluated content
-      that justify the given verdict."""
-
-
-RubricVerdictOrDict = Union[RubricVerdict, RubricVerdictDict]
-
-
-class CandidateResult(_common.BaseModel):
-    """Result for a single candidate."""
-
-    candidate: Optional[str] = Field(
-        default=None,
-        description="""The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest.""",
-    )
-    metric: Optional[str] = Field(
-        default=None, description="""The metric that was evaluated."""
-    )
-    score: Optional[float] = Field(
-        default=None, description="""The score of the metric."""
-    )
-    explanation: Optional[str] = Field(
-        default=None, description="""The explanation for the metric."""
-    )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
-        default=None, description="""The rubric verdicts for the metric."""
-    )
-    additional_results: Optional[dict[str, Any]] = Field(
-        default=None, description="""Additional results for the metric."""
-    )
-
-
-class CandidateResultDict(TypedDict, total=False):
-    """Result for a single candidate."""
-
-    candidate: Optional[str]
-    """The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest."""
-
-    metric: Optional[str]
-    """The metric that was evaluated."""
-
-    score: Optional[float]
-    """The score of the metric."""
-
-    explanation: Optional[str]
-    """The explanation for the metric."""
-
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
-    """The rubric verdicts for the metric."""
-
-    additional_results: Optional[dict[str, Any]]
-    """Additional results for the metric."""
-
-
-CandidateResultOrDict = Union[CandidateResult, CandidateResultDict]
-
-
 class EvaluationItemResult(_common.BaseModel):
     """Represents the result of an evaluation item."""
 
@@ -743,7 +540,7 @@ class EvaluationItemResult(_common.BaseModel):
     metric: Optional[str] = Field(
         default=None, description="""The metric that was evaluated."""
     )
-    candidate_results: Optional[list[CandidateResult]] = Field(
+    candidate_results: Optional[list[evals_types.CandidateResult]] = Field(
         default=None, description="""TThe results for the metric."""
     )
     metadata: Optional[dict[str, Any]] = Field(
@@ -766,7 +563,7 @@ class EvaluationItemResultDict(TypedDict, total=False):
     metric: Optional[str]
     """The metric that was evaluated."""
 
-    candidate_results: Optional[list[CandidateResultDict]]
+    candidate_results: Optional[list[evals_types.CandidateResult]]
     """TThe results for the metric."""
 
     metadata: Optional[dict[str, Any]]
@@ -1440,89 +1237,6 @@ class ResponseCandidateDict(TypedDict, total=False):
 ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
 
 
-class Event(_common.BaseModel):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the agent event."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the event."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None, description="""The creation timestamp of the event."""
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the event."""
-    )
-
-
-class EventDict(TypedDict, total=False):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str]
-    """Unique identifier for the agent event."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the event."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """The creation timestamp of the event."""
-
-    author: Optional[str]
-    """Name of the entity that produced the event."""
-
-
-EventOrDict = Union[Event, EventDict]
-
-
-class Message(_common.BaseModel):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the message turn."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the message, including function call."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Timestamp indicating when the message was created.""",
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the message."""
-    )
-
-
-class MessageDict(TypedDict, total=False):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str]
-    """Unique identifier for the message turn."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the message, including function call."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """Timestamp indicating when the message was created."""
-
-    author: Optional[str]
-    """Name of the entity that produced the message."""
-
-
-MessageOrDict = Union[Message, MessageDict]
-
-
 class EvalCase(_common.BaseModel):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
@@ -1540,7 +1254,7 @@ class EvalCase(_common.BaseModel):
     system_instruction: Optional[genai_types.Content] = Field(
         default=None, description="""System instruction for the model."""
     )
-    conversation_history: Optional[list[Message]] = Field(
+    conversation_history: Optional[list[evals_types.Message]] = Field(
         default=None,
         description="""List of all prior messages in the conversation (chat history).""",
     )
@@ -1551,7 +1265,7 @@ class EvalCase(_common.BaseModel):
     eval_case_id: Optional[str] = Field(
         default=None, description="""Unique identifier for the evaluation case."""
     )
-    intermediate_events: Optional[list[Event]] = Field(
+    intermediate_events: Optional[list[evals_types.Event]] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
     )
@@ -1578,7 +1292,7 @@ class EvalCaseDict(TypedDict, total=False):
     system_instruction: Optional[genai_types.ContentDict]
     """System instruction for the model."""
 
-    conversation_history: Optional[list[MessageDict]]
+    conversation_history: Optional[list[evals_types.Message]]
     """List of all prior messages in the conversation (chat history)."""
 
     rubric_groups: Optional[dict[str, "RubricGroupDict"]]
@@ -1587,7 +1301,7 @@ class EvalCaseDict(TypedDict, total=False):
     eval_case_id: Optional[str]
     """Unique identifier for the evaluation case."""
 
-    intermediate_events: Optional[list[EventDict]]
+    intermediate_events: Optional[list[evals_types.Event]]
     """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
 
     agent_info: Optional[evals_types.AgentInfo]
@@ -2727,7 +2441,7 @@ class RubricBasedMetricSpec(_common.BaseModel):
         default=None,
         description="""Optional configuration for the judge LLM (Autorater).""",
     )
-    inline_rubrics: Optional[list[Rubric]] = Field(
+    inline_rubrics: Optional[list[evals_types.Rubric]] = Field(
         default=None, description="""Use rubrics provided directly in the spec."""
     )
     rubric_group_key: Optional[str] = Field(
@@ -2752,7 +2466,7 @@ class RubricBasedMetricSpecDict(TypedDict, total=False):
     judge_autorater_config: Optional[genai_types.AutoraterConfigDict]
     """Optional configuration for the judge LLM (Autorater)."""
 
-    inline_rubrics: Optional[list[RubricDict]]
+    inline_rubrics: Optional[list[evals_types.Rubric]]
     """Use rubrics provided directly in the spec."""
 
     rubric_group_key: Optional[str]
@@ -3220,7 +2934,7 @@ class MetricResult(_common.BaseModel):
         default=None,
         description="""The score for the metric. Please refer to each metric's documentation for the meaning of the score.""",
     )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
         default=None,
         description="""For rubric-based metrics, the verdicts for each rubric.""",
     )
@@ -3238,7 +2952,7 @@ class MetricResultDict(TypedDict, total=False):
     score: Optional[float]
     """The score for the metric. Please refer to each metric's documentation for the meaning of the score."""
 
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
     """For rubric-based metrics, the verdicts for each rubric."""
 
     explanation: Optional[str]
@@ -3257,7 +2971,7 @@ class RubricBasedMetricResult(_common.BaseModel):
     score: Optional[float] = Field(
         default=None, description="""Passing rate of all the rubrics."""
     )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
         default=None,
         description="""The details of all the rubrics and their verdicts.""",
     )
@@ -3269,7 +2983,7 @@ class RubricBasedMetricResultDict(TypedDict, total=False):
     score: Optional[float]
     """Passing rate of all the rubrics."""
 
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
     """The details of all the rubrics and their verdicts."""
 
 
@@ -3855,7 +3569,7 @@ _GenerateInstanceRubricsRequestOrDict = Union[
 class GenerateInstanceRubricsResponse(_common.BaseModel):
     """Response for generating rubrics."""
 
-    generated_rubrics: Optional[list[Rubric]] = Field(
+    generated_rubrics: Optional[list[evals_types.Rubric]] = Field(
         default=None, description="""A list of generated rubrics."""
     )
 
@@ -3863,7 +3577,7 @@ class GenerateInstanceRubricsResponse(_common.BaseModel):
 class GenerateInstanceRubricsResponseDict(TypedDict, total=False):
     """Response for generating rubrics."""
 
-    generated_rubrics: Optional[list[RubricDict]]
+    generated_rubrics: Optional[list[evals_types.Rubric]]
     """A list of generated rubrics."""
 
 
@@ -12611,7 +12325,7 @@ class EvalCaseMetricResult(_common.BaseModel):
     explanation: Optional[str] = Field(
         default=None, description="""Explanation of the metric."""
     )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
         default=None,
         description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
     )
@@ -12635,7 +12349,7 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
     explanation: Optional[str]
     """Explanation of the metric."""
 
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
     """The details of all the rubrics and their verdicts for rubric-based metrics."""
 
     raw_output: Optional[list[str]]
@@ -12711,34 +12425,6 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
 EvaluationRunInferenceConfigOrDict = Union[
     EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
 ]
-
-
-class SessionInput(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str] = Field(default=None, description="""The user id.""")
-    state: Optional[dict[str, str]] = Field(
-        default=None, description="""The state of the session."""
-    )
-
-
-class SessionInputDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str]
-    """The user id."""
-
-    state: Optional[dict[str, str]]
-    """The state of the session."""
-
-
-SessionInputOrDict = Union[SessionInput, SessionInputDict]
 
 
 class WinRateStats(_common.BaseModel):
@@ -12953,7 +12639,7 @@ class RubricGroup(_common.BaseModel):
       Example: "Instruction Following V1", "Content Quality - Summarization
       Task".""",
     )
-    rubrics: Optional[list[Rubric]] = Field(
+    rubrics: Optional[list[evals_types.Rubric]] = Field(
         default=None, description="""Rubrics that are part of this group."""
     )
 
@@ -12970,7 +12656,7 @@ class RubricGroupDict(TypedDict, total=False):
       Example: "Instruction Following V1", "Content Quality - Summarization
       Task"."""
 
-    rubrics: Optional[list[RubricDict]]
+    rubrics: Optional[list[evals_types.Rubric]]
     """Rubrics that are part of this group."""
 
 
@@ -13028,6 +12714,37 @@ class AgentEngine(_common.BaseModel):
         if not isinstance(self.api_resource, ReasoningEngine):
             raise ValueError("api_resource is not initialized.")
         self.api_client.delete(name=self.api_resource.name, force=force, config=config)  # type: ignore[union-attr]
+
+
+RubricContentProperty = evals_types.RubricContentProperty
+RubricContentPropertyDict = evals_types.RubricContentPropertyDict
+RubricContentPropertyDictOrDict = evals_types.RubricContentPropertyOrDict
+
+RubricContent = evals_types.RubricContent
+RubricContentDict = evals_types.RubricContentDict
+RubricContentDictOrDict = evals_types.RubricContentOrDict
+
+Rubric = evals_types.Rubric
+RubricDict = evals_types.RubricDict
+RubricDictOrDict = evals_types.RubricOrDict
+
+RubricVerdict = evals_types.RubricVerdict
+RubricVerdictDict = evals_types.RubricVerdictDict
+RubricVerdictDictOrDict = evals_types.RubricVerdictOrDict
+
+CandidateResult = evals_types.CandidateResult
+CandidateResultDict = evals_types.CandidateResultDict
+CandidateResultDictOrDict = evals_types.CandidateResultOrDict
+
+Event = evals_types.Event
+EventDict = evals_types.EventDict
+EventDictOrDict = evals_types.EventOrDict
+
+Message = evals_types.Message
+MessageDict = evals_types.MessageDict
+MessageDictOrDict = evals_types.MessageOrDict
+
+Importance = evals_types.Importance
 
 
 class AgentEngineDict(TypedDict, total=False):

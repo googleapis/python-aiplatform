@@ -129,7 +129,7 @@ class ObservabilityDataConverter(_evals_utils.EvalDataConverter):
             if len(request_msgs) > 1:
                 for i, msg in enumerate(request_msgs[:-1]):
                     conversation_history.append(
-                        types.Message(
+                        types.evals.Message(
                             turn_id=str(i),
                             content=self._message_to_content(msg),
                             author=msg.get("role", ""),

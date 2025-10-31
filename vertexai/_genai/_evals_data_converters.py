@@ -60,7 +60,7 @@ class _GeminiEvalDataConverter(_evals_utils.EvalDataConverter):
     def _parse_request(self, request_data: dict[str, Any]) -> tuple[
         genai_types.Content,
         genai_types.Content,
-        list[types.Message],
+        list[types.evals.Message],
         types.ResponseCandidate,
     ]:
         """Parses a request from a Gemini dataset."""
@@ -76,16 +76,16 @@ class _GeminiEvalDataConverter(_evals_utils.EvalDataConverter):
         for turn_id, content_dict in enumerate(request_data.get("contents", [])):
             if not isinstance(content_dict, dict):
                 raise TypeError(
-                    f"Expected a dictionary for content at turn {turn_id}, but got"
-                    f" {type(content_dict).__name__}: {content_dict}"
+                    "Expected a dictionary for content at turn %s, but got %s: %s"
+                    % (turn_id, type(content_dict).__name__, content_dict)
                 )
             if "parts" not in content_dict:
                 raise ValueError(
-                    f"Missing 'parts' key in content structure at turn {turn_id}:"
-                    f" {content_dict}"
+                    "Missing 'parts' key in content structure at turn %s: %s"
+                    % (turn_id, content_dict)
                 )
             conversation_history.append(
-                types.Message(
+                types.evals.Message(
                     turn_id=str(turn_id),
                     content=genai_types.Content.model_validate(content_dict),
                 )
@@ -121,7 +121,7 @@ class _GeminiEvalDataConverter(_evals_utils.EvalDataConverter):
         eval_cases = []
 
         for i, item in enumerate(raw_data):
-            eval_case_id = f"gemini_eval_case_{i}"
+            eval_case_id = "gemini_eval_case_%s" % i
             request_data = item.get("request", {})
             response_data = item.get("response", {})
 
@@ -187,11 +187,11 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
         for i, item_dict in enumerate(raw_data):
             if not isinstance(item_dict, dict):
                 raise TypeError(
-                    f"Expected a dictionary for item at index {i}, but got"
-                    f" {type(item_dict).__name__}: {item_dict}"
+                    "Expected a dictionary for item at index %s, but got %s: %s"
+                    % (i, type(item_dict).__name__, item_dict)
                 )
             item = copy.deepcopy(item_dict)
-            eval_case_id = f"eval_case_{i}"
+            eval_case_id = "eval_case_%s" % i
             prompt_data = item.pop("prompt", None)
             if not prompt_data:
                 prompt_data = item.pop("source", None)
@@ -205,10 +205,12 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
 
             if not response_data:
                 raise ValueError(
-                    f"Response is required but missing for {eval_case_id}."
+                    "Response is required but missing for %s." % eval_case_id
                 )
             if not prompt_data:
-                raise ValueError(f"Prompt is required but missing for {eval_case_id}.")
+                raise ValueError(
+                    "Prompt is required but missing for %s." % eval_case_id
+                )
 
             prompt: genai_types.Content
             if isinstance(prompt_data, str):
@@ -219,16 +221,16 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                 prompt = prompt_data
             else:
                 raise ValueError(
-                    f"Invalid prompt type for case {i}: {type(prompt_data)}"
+                    "Invalid prompt type for case %s: %s" % (i, type(prompt_data))
                 )
 
-            conversation_history: Optional[list[types.Message]] = None
+            conversation_history: Optional[list[types.evals.Message]] = None
             if isinstance(conversation_history_data, list):
                 conversation_history = []
                 for turn_id, content in enumerate(conversation_history_data):
                     if isinstance(content, genai_types.Content):
                         conversation_history.append(
-                            types.Message(
+                            types.evals.Message(
                                 turn_id=str(turn_id),
                                 content=content,
                             )
@@ -239,7 +241,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                 content
                             )
                             conversation_history.append(
-                                types.Message(
+                                types.evals.Message(
                                     turn_id=str(turn_id),
                                     content=validated_content,
                                 )
@@ -282,7 +284,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                 responses = [types.ResponseCandidate(response=response_data)]
             else:
                 raise ValueError(
-                    f"Invalid response type for case {i}: {type(response_data)}"
+                    "Invalid response type for case %s: %s" % (i, type(response_data))
                 )
 
             reference: Optional[types.ResponseCandidate] = None
@@ -322,14 +324,14 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                             try:
                                 validated_rubrics = [
                                     (
-                                        types.Rubric.model_validate(r)
+                                        types.evals.Rubric.model_validate(r)
                                         if isinstance(r, dict)
                                         else r
                                     )
                                     for r in value
                                 ]
                                 if all(
-                                    isinstance(r, types.Rubric)
+                                    isinstance(r, types.evals.Rubric)
                                     for r in validated_rubrics
                                 ):
                                     rubric_groups[key] = types.RubricGroup(
@@ -337,11 +339,16 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                     )
                                 else:
                                     logger.warning(
-                                        f"Invalid item type in rubric list for group '{key}' in case {i}."
+                                        "Invalid item type in rubric list for group '%s' in case %s.",
+                                        key,
+                                        i,
                                     )
                             except Exception as e:
                                 logger.warning(
-                                    f"Failed to validate rubrics for group '{key}' in case {i}: {e}"
+                                    "Failed to validate rubrics for group '%s' in case %s: %s",
+                                    key,
+                                    i,
+                                    e,
                                 )
                         elif isinstance(value, types.RubricGroup):
                             rubric_groups[key] = value
@@ -352,44 +359,56 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                                 )
                             except Exception as e:
                                 logger.warning(
-                                    f"Failed to validate RubricGroup dict for group '{key}' in case {i}: {e}"
+                                    "Failed to validate RubricGroup dict for group '%s' in case %s: %s",
+                                    key,
+                                    i,
+                                    e,
                                 )
                         else:
                             logger.warning(
-                                f"Invalid type for rubric group '{key}' in case {i}."
-                                " Expected list of rubrics, dict, or RubricGroup."
+                                "Invalid type for rubric group '%s' in case %s."
+                                " Expected list of rubrics, dict, or RubricGroup.",
+                                key,
+                                i,
                             )
                 else:
                     logger.warning(
-                        f"Invalid type for rubric_groups in case {i}. Expected dict."
+                        "Invalid type for rubric_groups in case %s. Expected dict.",
+                        i,
                     )
 
-            intermediate_events: Optional[list[types.Event]] = None
+            intermediate_events: Optional[list[types.evals.Event]] = None
             if intermediate_events_data:
                 if isinstance(intermediate_events_data, list):
                     intermediate_events = []
                     for event in intermediate_events_data:
                         if isinstance(event, dict):
                             try:
-                                validated_event = types.Event.model_validate(event)
+                                validated_event = types.evals.Event.model_validate(
+                                    event
+                                )
                                 intermediate_events.append(validated_event)
                             except Exception as e:
                                 logger.warning(
                                     "Failed to validate intermediate event dict for"
-                                    f" case {i}: {e}"
+                                    " case %s: %s",
+                                    i,
+                                    e,
                                 )
-                        elif isinstance(event, types.Event):
+                        elif isinstance(event, types.evals.Event):
                             intermediate_events.append(event)
                         else:
                             logger.warning(
                                 "Invalid type for intermediate_event in case"
-                                f" {i}. Expected list of dicts or list of"
-                                " types.Event objects."
+                                " %s. Expected list of dicts or list of"
+                                " types.evals.Event objects.",
+                                i,
                             )
                 else:
                     logger.warning(
-                        f"Invalid type for intermediate_events in case {i}. Expected"
-                        " list of types.Event objects."
+                        "Invalid type for intermediate_events in case %s. Expected"
+                        " list of types.evals.Event objects.",
+                        i,
                     )
 
             eval_case = types.EvalCase(
@@ -414,7 +433,7 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
 
     def _parse_messages(self, messages: list[dict[str, Any]]) -> tuple[
         Optional[genai_types.Content],
-        list[types.Message],
+        list[types.evals.Message],
         Optional[genai_types.Content],
         Optional[types.ResponseCandidate],
     ]:
@@ -434,7 +453,7 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
             role = msg.get("role", "user")
             content = msg.get("content", "")
             conversation_history.append(
-                types.Message(
+                types.evals.Message(
                     turn_id=str(turn_id),
                     content=genai_types.Content(
                         parts=[genai_types.Part(text=content)], role=role
@@ -460,11 +479,11 @@ class _OpenAIDataConverter(_evals_utils.EvalDataConverter):
         """Converts a list of OpenAI ChatCompletion data into an EvaluationDataset."""
         eval_cases = []
         for i, item in enumerate(raw_data):
-            eval_case_id = f"openai_eval_case_{i}"
+            eval_case_id = "openai_eval_case_%s" % i
 
             if "request" not in item or "response" not in item:
                 logger.warning(
-                    f"Skipping case {i} due to missing 'request' or 'response' key."
+                    "Skipping case %s due to missing 'request' or 'response' key.", i
                 )
                 continue
 
@@ -610,7 +629,7 @@ def get_dataset_converter(
     if dataset_schema in _CONVERTER_REGISTRY:
         return _CONVERTER_REGISTRY[dataset_schema]()  # type: ignore[abstract]
     else:
-        raise ValueError(f"Unsupported dataset schema: {dataset_schema}")
+        raise ValueError("Unsupported dataset schema: %s" % dataset_schema)
 
 
 def _get_first_part_text(content: genai_types.Content) -> str:
@@ -695,7 +714,7 @@ def merge_response_datasets_into_canonical_format(
     """
     if not isinstance(raw_datasets, list):
         raise TypeError(
-            f"Input 'raw_datasets' must be a list, got {type(raw_datasets)}."
+            "Input 'raw_datasets' must be a list, got %s." % type(raw_datasets)
         )
     if not raw_datasets or not all(isinstance(ds, list) for ds in raw_datasets):
         raise ValueError(
@@ -704,7 +723,7 @@ def merge_response_datasets_into_canonical_format(
     if not schemas or len(schemas) != len(raw_datasets):
         raise ValueError(
             "A list of schemas must be provided, one for each raw dataset. "
-            f"Got {len(schemas)} schemas for {len(raw_datasets)} datasets."
+            "Got %s schemas for %s datasets." % (len(schemas), len(raw_datasets))
         )
 
     num_expected_cases = len(raw_datasets[0])
@@ -719,8 +738,8 @@ def merge_response_datasets_into_canonical_format(
         if len(raw_ds_entry) != num_expected_cases:
             raise ValueError(
                 "All datasets must have the same number of evaluation cases. "
-                f"Base dataset (0) has {num_expected_cases}, but dataset {i} "
-                f"(schema: {schema}) has {len(raw_ds_entry)}."
+                "Base dataset (0) has %s, but dataset %s (schema: %s) has %s."
+                % (num_expected_cases, i, schema, len(raw_ds_entry))
             )
         converter = get_dataset_converter(schema)
         parsed_evaluation_datasets.append(converter.convert(raw_ds_entry))
@@ -746,7 +765,7 @@ def merge_response_datasets_into_canonical_format(
             )
             candidate_responses.append(
                 _create_placeholder_response_candidate(
-                    f"Missing response from base dataset (0) for case {case_idx}"
+                    "Missing response from base dataset (0) for case %s" % case_idx
                 )
             )
 
@@ -799,13 +818,14 @@ def merge_response_datasets_into_canonical_format(
                 )
                 candidate_responses.append(
                     _create_placeholder_response_candidate(
-                        f"Missing response from dataset {dataset_idx_offset} "
-                        f"for case {case_idx}"
+                        "Missing response from dataset %s for case %s"
+                        % (dataset_idx_offset, case_idx)
                     )
                 )
 
         merged_case = types.EvalCase(
-            eval_case_id=base_eval_case.eval_case_id or f"merged_eval_case_{case_idx}",
+            eval_case_id=base_eval_case.eval_case_id
+            or "merged_eval_case_%s" % case_idx,
             prompt=base_eval_case.prompt,
             responses=candidate_responses,
             reference=base_eval_case.reference,

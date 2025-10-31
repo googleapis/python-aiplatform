@@ -361,7 +361,7 @@ def _RubricBasedMetricSpec_to_vertex(
         setv(
             to_object,
             ["inline_rubrics", "rubrics"],
-            [item for item in getv(from_object, ["inline_rubrics"])],
+            getv(from_object, ["inline_rubrics"]),
         )
 
     if getv(from_object, ["rubric_group_key"]) is not None:
