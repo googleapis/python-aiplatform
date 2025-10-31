@@ -708,7 +708,7 @@ def _get_inference_html(dataframe_json: str) -> str:
         body {{ font-family: 'Roboto', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124;}}
         .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
         h1 {{ color: #3c4043; border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
-        table {{ border-collapse: collapse; width: 100%; }}
+        table {{ border-collapse: collapse; width: 100%; table-layout: fixed; }}
         th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
         th {{ background-color: #f2f2f2; font-weight: 500;}}
         td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
