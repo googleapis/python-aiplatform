@@ -1033,6 +1033,7 @@ class AgentEngines(_api_module.BaseModule):
             gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
             agent = _agent_engines_utils._validate_agent_or_raise(agent=agent)
             if _agent_engines_utils._is_adk_agent(agent):
+                _agent_engines_utils._warn_if_adk_tracing_disabled(agent)
                 env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
             staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
                 staging_bucket=staging_bucket,

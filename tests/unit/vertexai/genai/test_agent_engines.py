@@ -896,6 +896,27 @@ class TestAgentEngineHelpers:
         ]
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
+    @pytest.mark.usefixtures("caplog")
+    def test_agent_engine_adk_enable_tracing_warning(
+        self,
+        mock_prepare: mock.Mock,
+        caplog,
+    ):
+        agent = mock.Mock(spec=adk.AdkApp)
+        agent.clone = lambda: agent
+        agent.register_operations = lambda: {}
+        agent._tmpl_attrs = {"enable_tracing": False}
+
+        self.client.agent_engines._create_config(
+            mode="create",
+            agent=agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+        )
+        assert "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_create_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="create",

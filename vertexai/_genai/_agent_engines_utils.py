@@ -181,6 +181,19 @@ _DEFAULT_METHOD_RETURN_TYPE_MAP = {
     _STREAM_API_MODE: _DEFAULT_STREAM_METHOD_RETURN_TYPE,
     _ASYNC_STREAM_API_MODE: _DEFAULT_ASYNC_STREAM_METHOD_RETURN_TYPE,
 }
+_ADK_TRACING_DISABLED_WARNING = (
+    "[WARNING] Your 'enable_tracing=False' setting is being deprecated and "
+    "will be removed in a future release.\n\n"
+    "This legacy setting overrides the new Cloud Console toggle and "
+    "environment variable controls.\n\n"
+    "Impact: The Cloud Console may incorrectly show telemetry as 'On' when it "
+    "is actually 'Off', and the UI toggle will not work.\n\n"
+    "Action: To fix this and control telemetry, please remove the "
+    "'enable_tracing' parameter from your deployment code.\n\n"
+    "You can then use the 'GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY' "
+    "environment variable or the toggle in the Cloud Console: "
+    "https://console.cloud.google.com/vertex-ai/agents."
+)
 
 
 logger = logging.getLogger("vertexai_genai.agentengines")
@@ -1892,3 +1905,9 @@ def _add_telemetry_enablement_env(
         return env_vars
 
     return env_vars | env_to_add
+
+
+def _warn_if_adk_tracing_disabled(agent_engine: _AgentEngineInterface):
+    tmpl_attrs = getattr(agent_engine, "_tmpl_attrs", {})
+    if tmpl_attrs.get("enable_tracing", None) is False:
+        logger.warning(_ADK_TRACING_DISABLED_WARNING)
