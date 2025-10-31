@@ -480,7 +480,7 @@ class LLMMetricHandler(MetricHandler):
             )
             rubrics_list = []
 
-        parsed_rubrics = [types.Rubric(**r) for r in rubrics_list]
+        parsed_rubrics = [types.evals.Rubric(**r) for r in rubrics_list]
         rubric_enhanced_contents = {
             "prompt": (
                 [eval_case.prompt.model_dump(mode="json", exclude_none=True)]
@@ -535,7 +535,7 @@ class LLMMetricHandler(MetricHandler):
             elif isinstance(value, list) and value:
                 if isinstance(value[0], genai_types.Content):
                     content_list_to_serialize = value
-                elif isinstance(value[0], types.Message):
+                elif isinstance(value[0], types.evals.Message):
                     history_texts = []
                     for msg_obj in value:
                         msg_text = _extract_text_from_content(msg_obj.content)

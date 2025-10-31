@@ -146,7 +146,6 @@ from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
 from .common import CandidateResult
 from .common import CandidateResultDict
-from .common import CandidateResultOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
@@ -343,7 +342,6 @@ from .common import EventDict
 from .common import EventMetadata
 from .common import EventMetadataDict
 from .common import EventMetadataOrDict
-from .common import EventOrDict
 from .common import ExactMatchInput
 from .common import ExactMatchInputDict
 from .common import ExactMatchInputOrDict
@@ -552,7 +550,6 @@ from .common import MemoryTopicIdDict
 from .common import MemoryTopicIdOrDict
 from .common import Message
 from .common import MessageDict
-from .common import MessageOrDict
 from .common import Metadata
 from .common import MetadataDict
 from .common import MetadataOrDict
@@ -755,10 +752,8 @@ from .common import RubricBasedMetricSpecDict
 from .common import RubricBasedMetricSpecOrDict
 from .common import RubricContent
 from .common import RubricContentDict
-from .common import RubricContentOrDict
 from .common import RubricContentProperty
 from .common import RubricContentPropertyDict
-from .common import RubricContentPropertyOrDict
 from .common import RubricContentType
 from .common import RubricDict
 from .common import RubricEnhancedContents
@@ -773,10 +768,8 @@ from .common import RubricGenerationSpecOrDict
 from .common import RubricGroup
 from .common import RubricGroupDict
 from .common import RubricGroupOrDict
-from .common import RubricOrDict
 from .common import RubricVerdict
 from .common import RubricVerdictDict
-from .common import RubricVerdictOrDict
 from .common import SamplingConfig
 from .common import SamplingConfigDict
 from .common import SamplingConfigOrDict
@@ -876,9 +869,6 @@ from .common import SessionDict
 from .common import SessionEvent
 from .common import SessionEventDict
 from .common import SessionEventOrDict
-from .common import SessionInput
-from .common import SessionInputDict
-from .common import SessionInputOrDict
 from .common import SessionOrDict
 from .common import State
 from .common import Strategy
@@ -990,21 +980,6 @@ __all__ = [
     "EvaluationItemRequest",
     "EvaluationItemRequestDict",
     "EvaluationItemRequestOrDict",
-    "RubricContentProperty",
-    "RubricContentPropertyDict",
-    "RubricContentPropertyOrDict",
-    "RubricContent",
-    "RubricContentDict",
-    "RubricContentOrDict",
-    "Rubric",
-    "RubricDict",
-    "RubricOrDict",
-    "RubricVerdict",
-    "RubricVerdictDict",
-    "RubricVerdictOrDict",
-    "CandidateResult",
-    "CandidateResultDict",
-    "CandidateResultOrDict",
     "EvaluationItemResult",
     "EvaluationItemResultDict",
     "EvaluationItemResultOrDict",
@@ -1059,12 +1034,6 @@ __all__ = [
     "ResponseCandidate",
     "ResponseCandidateDict",
     "ResponseCandidateOrDict",
-    "Event",
-    "EventDict",
-    "EventOrDict",
-    "Message",
-    "MessageDict",
-    "MessageOrDict",
     "EvalCase",
     "EvalCaseDict",
     "EvalCaseOrDict",
@@ -1770,9 +1739,6 @@ __all__ = [
     "EvaluationRunInferenceConfig",
     "EvaluationRunInferenceConfigDict",
     "EvaluationRunInferenceConfigOrDict",
-    "SessionInput",
-    "SessionInputDict",
-    "SessionInputOrDict",
     "WinRateStats",
     "WinRateStatsDict",
     "WinRateStatsOrDict",
@@ -1835,7 +1801,6 @@ __all__ = [
     "SamplingMethod",
     "RubricContentType",
     "EvaluationRunState",
-    "Importance",
     "OptimizeTarget",
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "PromptOptimizerMethod",
@@ -1844,6 +1809,21 @@ __all__ = [
     "PromptDataOrDict",
     "LLMMetric",
     "MetricPromptBuilder",
+    "RubricContentProperty",
+    "RubricContentPropertyDict",
+    "RubricContent",
+    "RubricContentDict",
+    "Rubric",
+    "RubricDict",
+    "RubricVerdict",
+    "RubricVerdictDict",
+    "CandidateResult",
+    "CandidateResultDict",
+    "Event",
+    "EventDict",
+    "Message",
+    "MessageDict",
+    "Importance",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",

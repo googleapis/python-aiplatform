@@ -2314,7 +2314,7 @@ class TestFlattenEvalDataConverter:
                 "response": ["Hi"],
                 "intermediate_events": [
                     [
-                        vertexai_genai_types.Event(
+                        vertexai_genai_types.evals.Event(
                             event_id="event1",
                             content=genai_types.Content(
                                 parts=[genai_types.Part(text="intermediate event")]
@@ -2577,14 +2577,14 @@ class TestObservabilityDataConverter:
         )
 
         assert len(eval_case.conversation_history) == 2
-        assert eval_case.conversation_history[0] == vertexai_genai_types.Message(
+        assert eval_case.conversation_history[0] == vertexai_genai_types.evals.Message(
             content=genai_types.Content(
                 parts=[genai_types.Part(text="Hello")], role="user"
             ),
             turn_id="0",
             author="user",
         )
-        assert eval_case.conversation_history[1] == vertexai_genai_types.Message(
+        assert eval_case.conversation_history[1] == vertexai_genai_types.evals.Message(
             content=genai_types.Content(
                 parts=[genai_types.Part(text="Hi")], role="system"
             ),
@@ -2786,7 +2786,7 @@ class TestEvent:
     """Unit tests for the Event class."""
 
     def test_event_creation(self):
-        event = vertexai_genai_types.Event(
+        event = vertexai_genai_types.evals.Event(
             event_id="event1",
             content=genai_types.Content(
                 parts=[genai_types.Part(text="intermediate event")]
@@ -2820,7 +2820,7 @@ class TestEvalCase:
             tool_declarations=[tool],
         )
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -2846,7 +2846,7 @@ class TestSessionInput:
     """Unit tests for the SessionInput class."""
 
     def test_session_input_creation(self):
-        session_input = vertexai_genai_types.SessionInput(
+        session_input = vertexai_genai_types.evals.SessionInput(
             user_id="user1",
             state={"key": "value"},
         )
@@ -3692,7 +3692,7 @@ class TestPredefinedMetricHandler:
             tool_declarations=[tool],
         )
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -3722,7 +3722,7 @@ class TestPredefinedMetricHandler:
 
     def test_eval_case_to_agent_data_events_only(self):
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -3751,7 +3751,7 @@ class TestPredefinedMetricHandler:
 
     def test_eval_case_to_agent_data_empty_event_content(self):
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=None,
             )
@@ -3933,12 +3933,12 @@ class TestLLMMetricHandlerPayload:
                 )
             ],
             conversation_history=[
-                vertexai_genai_types.Message(
+                vertexai_genai_types.evals.Message(
                     content=genai_types.Content(
                         parts=[genai_types.Part(text="Turn 1 user")], role="user"
                     )
                 ),
-                vertexai_genai_types.Message(
+                vertexai_genai_types.evals.Message(
                     content=genai_types.Content(
                         parts=[genai_types.Part(text="Turn 1 model")], role="model"
                     )
