@@ -19,11 +19,16 @@ import functools
 import json
 import logging
 import mimetypes
+import random
+import time
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
+from google import genai
+from google.cloud import iam_credentials_v1
 from google.genai import _api_module
 from google.genai import _common
+from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import Pager
@@ -703,6 +708,52 @@ class Sandboxes(_api_module.BaseModule):
               Optional. The configuration for the sandbox to delete.
         """
         return self._delete(name=name, config=config)
+
+    def generate_access_token(
+        self,
+        service_account_email: str,
+        sandbox_id: str,
+        port: str = "8080",
+        timeout: int = 3600,
+    ) -> str:
+        """Signs a JWT with a Google Cloud service account."""
+        client = iam_credentials_v1.IAMCredentialsClient()
+        name = f"projects/-/serviceAccounts/{service_account_email}"
+        custom_claims = {"port": port, "sandbox_id": sandbox_id}
+        payload = {
+            "iat": int(time.time()),
+            "exp": int(time.time()) + timeout,
+            "iss": service_account_email,
+            "nonce": random.randint(1, 1000000000),
+            "aud": "vmaas-proxy-api",  # default audience for sandbox proxy
+            **custom_claims,
+        }
+        request = iam_credentials_v1.SignJwtRequest(
+            name=name,
+            payload=json.dumps(payload),
+        )
+        response = client.sign_jwt(request=request)
+        return response.signed_jwt
+
+    def send_command(
+        self,
+        http_method: str,
+        path: str,
+        query_params: Any,
+        access_token: str,
+        headers: dict[str, str],
+        request_dict: dict[str, object],
+        sandbox_environment: Optional[types.SandboxEnvironment] = None,
+    ) -> str | None:
+        """Sends a command to the sandbox."""
+        # TODO(tenghuil): Get connection info from sandbox environment when it's ready.
+        endpoint = "https://test-us-central1.autopush-sandbox.vertexai.goog/" + path
+
+        headers = {"Authorization": f"Bearer {access_token}"}
+        http_options = genai_types.HttpOptions(headers=headers, base_url=endpoint)
+        http_client = genai.Client(vertexai=True, http_options=http_options)
+        response = http_client._api_client.request(http_method, path, request_dict)
+        return response
 
 
 class AsyncSandboxes(_api_module.BaseModule):
