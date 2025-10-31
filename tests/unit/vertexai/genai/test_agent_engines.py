@@ -533,6 +533,9 @@ _TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
 }
 _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY = 4
 _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT = "test-custom-service-account"
+_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT = (
+    _genai_types.IdentityType.SERVICE_ACCOUNT
+)
 _TEST_AGENT_ENGINE_ENCRYPTION_SPEC = {"kms_key_name": "test-kms-key"}
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
@@ -559,6 +562,7 @@ _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
         requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
     ),
     service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
 )
 _TEST_AGENT_ENGINE_STREAM_QUERY_RESPONSE = [{"output": "hello"}, {"output": "world"}]
 _TEST_AGENT_ENGINE_OPERATION_SCHEMAS = []
@@ -908,6 +912,7 @@ class TestAgentEngineHelpers:
             extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
             env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
             psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
             min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
             max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
@@ -950,6 +955,10 @@ class TestAgentEngineHelpers:
             config["spec"]["service_account"]
             == _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT
         )
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
 
     @mock.patch.object(
         _agent_engines_utils,
@@ -976,6 +985,7 @@ class TestAgentEngineHelpers:
                 entrypoint_object="app",
                 requirements_file=requirements_file_path,
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
             )
             assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
             assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -992,6 +1002,10 @@ class TestAgentEngineHelpers:
             mock_create_base64_encoded_tarball.assert_called_once_with(
                 source_packages=[test_file_path]
             )
+            assert (
+                config["spec"]["identity_type"]
+                == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+            )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_update_agent_engine_config_full(self, mock_prepare):
@@ -1006,6 +1020,7 @@ class TestAgentEngineHelpers:
             extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
             env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1036,6 +1051,10 @@ class TestAgentEngineHelpers:
             config["spec"]["service_account"]
             == _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT
         )
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
         assert config["update_mask"] == ",".join(
             [
                 "display_name",
@@ -1046,8 +1065,28 @@ class TestAgentEngineHelpers:
                 "spec.class_methods",
                 "spec.deployment_spec.env",
                 "spec.deployment_spec.secret_env",
-                "spec.service_account",
                 "spec.agent_framework",
+                "spec.identity_type",
+                "spec.service_account",
+            ]
+        )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_update_agent_engine_clear_service_account(self, mock_prepare):
+        config = self.client.agent_engines._create_config(
+            mode="update",
+            service_account="",
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+        )
+        assert "service_account" not in config["spec"].keys()
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+        assert config["update_mask"] == ",".join(
+            [
+                "spec.identity_type",
+                "spec.service_account",
             ]
         )
 
@@ -1486,6 +1525,7 @@ class TestAgentEngine:
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                 env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
                 service_account=None,
+                identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
                 min_instances=None,
@@ -1538,6 +1578,7 @@ class TestAgentEngine:
                 },
                 "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
                 "service_account": _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+                "identity_type": _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
                 "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
             },
         }
@@ -1559,6 +1600,7 @@ class TestAgentEngine:
                     extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                     staging_bucket=_TEST_STAGING_BUCKET,
                     service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+                    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
                 ),
             )
             mock_create_config.assert_called_with(
@@ -1572,6 +1614,7 @@ class TestAgentEngine:
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                 env_vars=None,
                 service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
                 context_spec=None,
                 psc_interface_config=None,
                 min_instances=None,
@@ -1602,6 +1645,7 @@ class TestAgentEngine:
                             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
                         },
                         "service_account": _TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
+                        "identity_type": _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
                     },
                 },
                 None,
@@ -1660,6 +1704,7 @@ class TestAgentEngine:
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                 env_vars=None,
                 service_account=None,
+                identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
                 min_instances=None,
@@ -1812,6 +1857,7 @@ class TestAgentEngine:
                 extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
                 env_vars=None,
                 service_account=None,
+                identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
                 min_instances=None,
