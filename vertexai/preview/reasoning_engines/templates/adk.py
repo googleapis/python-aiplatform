@@ -233,6 +233,28 @@ def _warn(msg: str):
     _warn._LOGGER.warning(msg)  # pyright: ignore[reportFunctionMemberAccess]
 
 
+def _force_flush_traces():
+    try:
+        import opentelemetry.trace
+    except (ImportError, AttributeError):
+        _warn(
+            "Could not force flush traces. opentelemetry-api is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+        return None
+
+    try:
+        import opentelemetry.sdk.trace
+    except (ImportError, AttributeError):
+        _warn(
+            "Could not force flush traces. opentelemetry-sdk is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+        return None
+
+    provider = opentelemetry.trace.get_tracer_provider()
+    if isinstance(provider, opentelemetry.sdk.trace.TracerProvider):
+        _ = provider.force_flush()
+
+
 def _default_instrumentor_builder(
     project_id: str,
     *,
@@ -314,28 +336,23 @@ def _default_instrumentor_builder(
 
     if enable_tracing:
         try:
-            import opentelemetry.exporter.cloud_trace
+            import opentelemetry.exporter.otlp.proto.http.trace_exporter
+            import google.auth.transport.requests
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
-                "opentelemetry-exporter-gcp-trace", needed_for_tracing=True
-            )
-
-        try:
-            import google.cloud.trace_v2
-        except (ImportError, AttributeError):
-            return _warn_missing_dependency(
-                "google-cloud-trace", needed_for_tracing=True
+                "opentelemetry-exporter-otlp-proto-http", needed_for_tracing=True
             )
 
         import google.auth
 
         credentials, _ = google.auth.default()
-        span_exporter = opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter(
-            project_id=project_id,
-            client=google.cloud.trace_v2.TraceServiceClient(
-                credentials=credentials.with_quota_project(project_id),
-            ),
-            resource_regex="|".join(resource.attributes.keys()),
+        span_exporter = (
+            opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
+                session=google.auth.transport.requests.AuthorizedSession(
+                    credentials=credentials
+                ),
+                endpoint="https://telemetry.googleapis.com/v1/traces",
+            )
         )
         span_processor = opentelemetry.sdk.trace.export.BatchSpanProcessor(
             span_exporter=span_exporter,
@@ -875,9 +892,14 @@ class AdkApp:
                 **kwargs,
             )
 
-        async for event in events_async:
-            # Yield the event data as a dictionary
-            yield _utils.dump_event_for_json(event)
+        try:
+            async for event in events_async:
+                # Yield the event data as a dictionary
+                yield _utils.dump_event_for_json(event)
+        finally:
+            # Avoid trace data loss having to do with CPU throttling on instance turndown
+            if self._tracing_enabled():
+                _ = await asyncio.to_thread(_force_flush_traces)
 
     def streaming_agent_run_with_events(self, request_json: str):
         import json
@@ -938,6 +960,9 @@ class AdkApp:
                         user_id=request.user_id,
                         session_id=session.id,
                     )
+                # Avoid trace data loss having to do with CPU throttling on instance turndown
+                if self._tracing_enabled():
+                    _ = await asyncio.to_thread(_force_flush_traces)
 
         def _asyncio_thread_main():
             try:
