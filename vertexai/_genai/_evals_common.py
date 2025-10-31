@@ -41,6 +41,7 @@ from . import _gcs_utils
 
 from . import evals
 from . import types
+from . import agent_engines
 
 try:
     import litellm
@@ -62,12 +63,9 @@ def _get_agent_engine_instance(
     if not hasattr(_thread_local_data, "agent_engine_instances"):
         _thread_local_data.agent_engine_instances = {}
     if agent_name not in _thread_local_data.agent_engine_instances:
-        client = vertexai.Client(
-            project=api_client.project,
-            location=api_client.location,
-        )
+        agent_engines_module = agent_engines.AgentEngines(api_client_=api_client)
         _thread_local_data.agent_engine_instances[agent_name] = (
-            client.agent_engines.get(name=agent_name)
+            agent_engines_module.get(name=agent_name)
         )
     return _thread_local_data.agent_engine_instances[agent_name]
 
@@ -278,10 +276,12 @@ def _execute_inference_concurrently(
                             and type(agent_engine).__name__ == "AgentEngine"
                         ):
                             agent_engine_instance = agent_engine
-                        return inference_fn_arg(
-                            row=row_arg,
-                            contents=contents_arg,
-                            agent_engine=agent_engine_instance,
+                        return asyncio.run(
+                            inference_fn_arg(
+                                row=row_arg,
+                                contents=contents_arg,
+                                agent_engine=agent_engine_instance,
+                            )
                         )
 
                     future = executor.submit(
@@ -1262,7 +1262,7 @@ def _run_agent(
     )
 
 
-def _execute_agent_run_with_retry(
+async def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent_engine: types.AgentEngine,
@@ -1284,7 +1284,7 @@ def _execute_agent_run_with_retry(
             )
         user_id = session_inputs.user_id
         session_state = session_inputs.state
-        session = agent_engine.create_session(
+        session = await agent_engine.async_create_session(
             user_id=user_id,
             state=session_state,
         )
@@ -1295,7 +1295,7 @@ def _execute_agent_run_with_retry(
     for attempt in range(max_retries):
         try:
             responses = []
-            for event in agent_engine.stream_query(
+            async for event in agent_engine.async_stream_query(
                 user_id=user_id,
                 session_id=session["id"],
                 message=contents,
@@ -1314,7 +1314,7 @@ def _execute_agent_run_with_retry(
             )
             if attempt == max_retries - 1:
                 return {"error": f"Resource exhausted after retries: {e}"}
-            time.sleep(2**attempt)
+            await asyncio.sleep(2**attempt)
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(
                 "Unexpected error during generate_content on attempt %d/%d: %s",
@@ -1325,7 +1325,7 @@ def _execute_agent_run_with_retry(
 
             if attempt == max_retries - 1:
                 return {"error": f"Failed after retries: {e}"}
-            time.sleep(1)
+            await asyncio.sleep(1)
     return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 

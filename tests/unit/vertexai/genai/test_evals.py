@@ -1070,7 +1070,9 @@ class TestEvalsRunInference:
         )
 
         mock_agent_engine = mock.Mock()
-        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        mock_agent_engine.async_create_session = mock.AsyncMock(
+            return_value={"id": "session1"}
+        )
         stream_query_return_value = [
             {
                 "id": "1",
@@ -1086,7 +1088,13 @@ class TestEvalsRunInference:
             },
         ]
 
-        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
+        async def _async_iterator(iterable):
+            for item in iterable:
+                yield item
+
+        mock_agent_engine.async_stream_query.return_value = _async_iterator(
+            stream_query_return_value
+        )
         mock_vertexai_client.return_value.agent_engines.get.return_value = (
             mock_agent_engine
         )
@@ -1100,10 +1108,10 @@ class TestEvalsRunInference:
         mock_vertexai_client.return_value.agent_engines.get.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123"
         )
-        mock_agent_engine.create_session.assert_called_once_with(
+        mock_agent_engine.async_create_session.assert_called_once_with(
             user_id="123", state={"a": "1"}
         )
-        mock_agent_engine.stream_query.assert_called_once_with(
+        mock_agent_engine.async_stream_query.assert_called_once_with(
             user_id="123", session_id="session1", message="agent prompt"
         )
 
@@ -1154,7 +1162,9 @@ class TestEvalsRunInference:
         )
 
         mock_agent_engine = mock.Mock()
-        mock_agent_engine.create_session.return_value = {"id": "session1"}
+        mock_agent_engine.async_create_session = mock.AsyncMock(
+            return_value={"id": "session1"}
+        )
         stream_query_return_value = [
             {
                 "id": "1",
@@ -1170,7 +1180,13 @@ class TestEvalsRunInference:
             },
         ]
 
-        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
+        async def _async_iterator(iterable):
+            for item in iterable:
+                yield item
+
+        mock_agent_engine.async_stream_query.return_value = _async_iterator(
+            stream_query_return_value
+        )
         mock_vertexai_client.return_value.agent_engines.get.return_value = (
             mock_agent_engine
         )
@@ -1184,10 +1200,10 @@ class TestEvalsRunInference:
         mock_vertexai_client.return_value.agent_engines.get.assert_called_once_with(
             name="projects/test-project/locations/us-central1/reasoningEngines/123"
         )
-        mock_agent_engine.create_session.assert_called_once_with(
+        mock_agent_engine.async_create_session.assert_called_once_with(
             user_id="123", state={"a": "1"}
         )
-        mock_agent_engine.stream_query.assert_called_once_with(
+        mock_agent_engine.async_stream_query.assert_called_once_with(
             user_id="123", session_id="session1", message="agent prompt"
         )
 
