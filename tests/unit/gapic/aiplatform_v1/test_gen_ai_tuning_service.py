@@ -4630,6 +4630,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "video_metadata": {
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
+                                    "fps": 0.5,
                                 },
                             }
                         ],
@@ -6231,6 +6232,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "video_metadata": {
                                     "start_offset": {"seconds": 751, "nanos": 543},
                                     "end_offset": {},
+                                    "fps": 0.5,
                                 },
                             }
                         ],
