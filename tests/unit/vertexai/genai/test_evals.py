@@ -1134,6 +1134,7 @@ class TestEvalsRunInference:
         )
         assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
+        mock_vertexai_client.return_value.close.assert_called()
 
     @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.vertexai.Client")
@@ -1213,6 +1214,7 @@ class TestEvalsRunInference:
         )
         assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
+        mock_vertexai_client.return_value.close.assert_called()
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.vertexai.Client")
