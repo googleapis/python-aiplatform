@@ -648,6 +648,7 @@ from .common import RawOutput
 from .common import RawOutputDict
 from .common import RawOutputOrDict
 from .common import ReasoningEngine
+from .common import ReasoningEngineAgentFramework
 from .common import ReasoningEngineContextSpec
 from .common import ReasoningEngineContextSpecDict
 from .common import ReasoningEngineContextSpecMemoryBankConfig
@@ -1802,6 +1803,7 @@ __all__ = [
     "RubricContentType",
     "EvaluationRunState",
     "OptimizeTarget",
+    "ReasoningEngineAgentFramework",
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "PromptOptimizerMethod",
     "PromptData",

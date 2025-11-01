@@ -325,6 +325,23 @@ class OptimizeTarget(_common.CaseInSensitiveEnum):
     """The data driven prompt optimizer designer for prompts from Android core API."""
 
 
+class ReasoningEngineAgentFramework(_common.CaseInSensitiveEnum):
+    """The OSS agent framework reasoning engine supports."""
+
+    GOOGLE_ADK = "GOOGLE_ADK"
+    """Google ADK."""
+    LANGCHAIN = "LANGCHAIN"
+    """Langchain."""
+    LANGGRAPH = "LANGGRAPH"
+    """Langgraph."""
+    AG2 = "AG2"
+    """AG2."""
+    LLAMA_INDEX = "LLAMA_INDEX"
+    """Llama Index."""
+    CUSTOM = "CUSTOM"
+    """Custom."""
+
+
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
     """The action to take."""
 
@@ -5366,6 +5383,17 @@ class CreateAgentEngineConfig(_common.BaseModel):
       the source package.
       """,
     )
+    agent_framework: Optional[ReasoningEngineAgentFramework] = Field(
+        default=None,
+        description="""The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "GOOGLE_ADK", "LANGCHAIN", "LANGGRAPH",
+      "AG2", "LLAMA_INDEX", "CUSTOM".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will be
+        default to "custom".""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -5463,6 +5491,16 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       If not specified, agent engine will find and use the `requirements.txt` in
       the source package.
       """
+
+    agent_framework: Optional[ReasoningEngineAgentFramework]
+    """The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "GOOGLE_ADK", "LANGCHAIN", "LANGGRAPH",
+      "AG2", "LLAMA_INDEX", "CUSTOM".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will be
+        default to "custom"."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -6067,6 +6105,17 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       the source package.
       """,
     )
+    agent_framework: Optional[ReasoningEngineAgentFramework] = Field(
+        default=None,
+        description="""The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "GOOGLE_ADK", "LANGCHAIN", "LANGGRAPH",
+      "AG2", "LLAMA_INDEX", "CUSTOM".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will be
+        default to "custom".""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -6169,6 +6218,16 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       If not specified, agent engine will find and use the `requirements.txt` in
       the source package.
       """
+
+    agent_framework: Optional[ReasoningEngineAgentFramework]
+    """The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "GOOGLE_ADK", "LANGCHAIN", "LANGGRAPH",
+      "AG2", "LLAMA_INDEX", "CUSTOM".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will be
+        default to "custom"."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -12907,6 +12966,17 @@ class AgentEngineConfig(_common.BaseModel):
       the source package.
       """,
     )
+    agent_framework: Optional[ReasoningEngineAgentFramework] = Field(
+        default=None,
+        description="""The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "GOOGLE_ADK", "LANGCHAIN", "LANGGRAPH",
+      "AG2", "LLAMA_INDEX", "CUSTOM".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will be
+        default to "custom".""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -13033,6 +13103,16 @@ class AgentEngineConfigDict(TypedDict, total=False):
       If not specified, agent engine will find and use the `requirements.txt` in
       the source package.
       """
+
+    agent_framework: Optional[ReasoningEngineAgentFramework]
+    """The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "GOOGLE_ADK", "LANGCHAIN", "LANGGRAPH",
+      "AG2", "LLAMA_INDEX", "CUSTOM".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will be
+        default to "custom"."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
