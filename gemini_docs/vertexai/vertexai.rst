@@ -32,6 +32,21 @@ Vertex AI SDK
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: vertexai._genai.agent_engines.memories
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: vertexai._genai.agent_engines.sessions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: vertexai._genai.agent_engines.sessions.events
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: vertexai._genai.prompts
     :members:
     :undoc-members:
