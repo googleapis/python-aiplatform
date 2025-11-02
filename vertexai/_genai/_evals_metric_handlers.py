@@ -20,8 +20,10 @@ from concurrent import futures
 import json
 import logging
 import statistics
+import time
 from typing import Any, Callable, Optional, TypeVar, Union
 
+from google.genai import errors as genai_errors
 from google.genai import _common
 from google.genai import types as genai_types
 from tqdm import tqdm
@@ -34,6 +36,7 @@ from . import types
 
 
 logger = logging.getLogger(__name__)
+_MAX_RETRIES = 3
 
 
 def _extract_text_from_content(
@@ -964,9 +967,30 @@ class PredefinedMetricHandler(MetricHandler):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            api_response = self.module._evaluate_instances(
-                metrics=[self.metric], instance=payload.get("instance")
-            )
+            for attempt in range(_MAX_RETRIES):
+                try:
+                    api_response = self.module._evaluate_instances(
+                        metrics=[self.metric], instance=payload.get("instance")
+                    )
+                    break
+                except genai_errors.ClientError as e:
+                    if e.code == 429:
+                        logger.warning(
+                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                            " seconds...",
+                            attempt + 1,
+                            _MAX_RETRIES,
+                            e,
+                            2**attempt,
+                        )
+                        if attempt == _MAX_RETRIES - 1:
+                            return types.EvalCaseMetricResult(
+                                metric_name=metric_name,
+                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
+                            )
+                        time.sleep(2**attempt)
+                    else:
+                        raise e
 
             if (
                 api_response

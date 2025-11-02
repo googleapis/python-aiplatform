@@ -33,6 +33,7 @@ from vertexai._genai import _observability_data_converter
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
+from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
@@ -4860,6 +4861,110 @@ class TestEvalsRunEvaluation:
 
         assert result.metadata is not None
         assert result.metadata.creation_timestamp == mock_now
+
+    @mock.patch(
+        "vertexai._genai._evals_metric_handlers._evals_constant.SUPPORTED_PREDEFINED_METRICS",
+        frozenset(["summarization_quality"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("vertexai._genai.evals.Evals._evaluate_instances")
+    def test_predefined_metric_retry_on_resource_exhausted(
+        self,
+        mock_private_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        metric = vertexai_genai_types.Metric(name="summarization_quality")
+        metric_result = vertexai_genai_types.MetricResult(
+            score=0.9,
+            explanation="Mocked predefined explanation",
+            rubric_verdicts=[],
+            error=None,
+        )
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": ("Judge model resource exhausted. Please try again later."),
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        mock_private_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            vertexai_genai_types.EvaluateInstancesResponse(
+                metric_results=[metric_result]
+            ),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_private_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "summarization_quality"
+        assert summary_metric.mean_score == 0.9
+
+    @mock.patch(
+        "vertexai._genai._evals_metric_handlers._evals_constant.SUPPORTED_PREDEFINED_METRICS",
+        frozenset(["summarization_quality"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("vertexai._genai.evals.Evals._evaluate_instances")
+    def test_predefined_metric_retry_fail_on_resource_exhausted(
+        self,
+        mock_private_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": ("Judge model resource exhausted. Please try again later."),
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        metric = vertexai_genai_types.Metric(name="summarization_quality")
+        mock_private_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_private_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "summarization_quality"
+        assert summary_metric.mean_score is None
+        assert summary_metric.num_cases_error == 1
+        assert (
+            "Judge model resource exhausted after 3 retries"
+        ) in result.eval_case_results[0].response_candidate_results[0].metric_results[
+            "summarization_quality"
+        ].error_message
 
 
 class TestEvaluationDataset:
