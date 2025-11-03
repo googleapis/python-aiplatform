@@ -129,6 +129,34 @@ def trace_provider_mock():
 
 
 @pytest.fixture
+def trace_provider_force_flush_mock():
+    import opentelemetry.trace
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.trace, "get_tracer_provider"
+    ) as get_tracer_provider_mock:
+        get_tracer_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk.trace.TracerProvider()
+        )
+        yield get_tracer_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
+def logger_provider_force_flush_mock():
+    import opentelemetry._logs
+    import opentelemetry.sdk._logs
+
+    with mock.patch.object(
+        opentelemetry._logs, "get_logger_provider"
+    ) as get_logger_provider_mock:
+        get_logger_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk._logs.LoggerProvider()
+        )
+        yield get_logger_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
 def default_instrumentor_builder_mock():
     with mock.patch(
         "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk._default_instrumentor_builder"
@@ -354,6 +382,31 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"},
+    )
+    async def test_async_stream_query_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL), enable_tracing=True
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_async_stream_query_with_content(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
@@ -403,6 +456,46 @@ class TestAdkApp:
         )
         events = list(app.streaming_agent_run_with_events(request_json=request_json))
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"},
+    )
+    async def test_streaming_agent_run_with_events_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+            enable_tracing=True,
+        )
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+        request_json = json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "file_name": "test_file_name",
+                        "versions": [{"version": "v1", "data": "v1data"}],
+                    }
+                ],
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                    "test_user_id2": {"accessToken": "test-access-token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        list(app.streaming_agent_run_with_events(request_json=request_json))
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_async_bidi_stream_query(self):
