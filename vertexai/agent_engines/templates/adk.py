@@ -534,6 +534,7 @@ class AdkApp:
                 If not provided, a default instrumentor builder will be used.
                 This parameter is ignored if `enable_tracing` is False.
         """
+        import os
         from google.cloud.aiplatform import initializer
 
         adk_version = get_adk_version()
@@ -571,6 +572,9 @@ class AdkApp:
             "artifact_service_builder": artifact_service_builder,
             "memory_service_builder": memory_service_builder,
             "instrumentor_builder": instrumentor_builder,
+            "express_mode_api_key": (
+                initializer.global_config.api_key or os.environ.get("GOOGLE_API_KEY")
+            ),
         }
 
     async def _init_session(
@@ -708,9 +712,18 @@ class AdkApp:
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
         project = self._tmpl_attrs.get("project")
-        os.environ["GOOGLE_CLOUD_PROJECT"] = project
+        if project:
+            os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
-        os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        if location:
+            os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        express_mode_api_key = self._tmpl_attrs.get("express_mode_api_key")
+        if express_mode_api_key and not project:
+            os.environ["GOOGLE_API_KEY"] = express_mode_api_key
+            # Clear location and project env vars if express mode api key is provided.
+            os.environ.pop("GOOGLE_CLOUD_LOCATION", None)
+            os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
+            location = None
 
         # Disable content capture in custom ADK spans unless user enabled
         # tracing explicitly with the old flag
@@ -783,6 +796,8 @@ class AdkApp:
                     VertexAiSessionService,
                 )
 
+                # If the express mode api key is set, it will be read from the
+                # environment variable when initializing the session service.
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
                     location=location,
@@ -793,6 +808,8 @@ class AdkApp:
                     VertexAiSessionService,
                 )
 
+                # If the express mode api key is set, it will be read from the
+                # environment variable when initializing the session service.
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
                     location=location,
@@ -813,6 +830,8 @@ class AdkApp:
                     VertexAiMemoryBankService,
                 )
 
+                # If the express mode api key is set, it will be read from the
+                # environment variable when initializing the memory service.
                 self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
                     project=project,
                     location=location,

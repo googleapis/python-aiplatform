@@ -54,6 +54,7 @@ except ImportError:
 
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
+_TEST_API_KEY = "test-api-key"
 _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
 _TEST_AGENT_NAME = "test_agent"
@@ -866,6 +867,41 @@ def test_dump_event_for_json():
     assert "thought_signature" in part
     assert isinstance(part["thought_signature"], str)
     assert base64.b64decode(part["thought_signature"]) == raw_signature
+
+
+def test_adk_app_initialization_with_api_key():
+    importlib.reload(initializer)
+    importlib.reload(vertexai)
+    try:
+        vertexai.init(api_key=_TEST_API_KEY)
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("project") is None
+        assert app._tmpl_attrs.get("location") is None
+        assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert os.environ.get("GOOGLE_API_KEY") == _TEST_API_KEY
+        assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+        assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+    finally:
+        initializer.global_pool.shutdown(wait=True)
+
+
+def test_adk_app_initialization_with_env_api_key():
+    try:
+        os.environ["GOOGLE_API_KEY"] == _TEST_API_KEY
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("project") is None
+        assert app._tmpl_attrs.get("location") is None
+        assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+        assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+    finally:
+        initializer.global_pool.shutdown(wait=True)
 
 
 @pytest.mark.usefixtures("mock_adk_version")
