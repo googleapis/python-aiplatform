@@ -40,7 +40,7 @@ from google.genai import types as genai_types
 import pytest
 
 
-_TEST_AGENT_FRAMEWORK = "test-agent-framework"
+_TEST_AGENT_FRAMEWORK = "google-adk"
 GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
     "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
 )
@@ -976,9 +976,11 @@ class TestAgentEngineHelpers:
                 entrypoint_object="app",
                 requirements_file=requirements_file_path,
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
             )
             assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
             assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+            assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
             assert config["spec"]["source_code_spec"] == {
                 "inline_source": {"source_archive": "test_tarball"},
                 "python_spec": {
@@ -1500,6 +1502,7 @@ class TestAgentEngine:
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
+                agent_framework=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1513,7 +1516,9 @@ class TestAgentEngine:
                         "package_spec": {
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "python_version": _TEST_PYTHON_VERSION,
-                            "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+                            "requirements_gcs_uri": (
+                                _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI
+                            ),
                         },
                     },
                 },
@@ -1586,6 +1591,7 @@ class TestAgentEngine:
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
+                agent_framework=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1674,6 +1680,7 @@ class TestAgentEngine:
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
+                agent_framework=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1826,6 +1833,7 @@ class TestAgentEngine:
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
+                agent_framework=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1835,6 +1843,92 @@ class TestAgentEngine:
                     "description": _TEST_AGENT_ENGINE_DESCRIPTION,
                     "spec": {
                         "class_methods": _TEST_AGENT_ENGINE_CLASS_METHODS,
+                        "package_spec": {
+                            "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
+                            "python_version": _TEST_PYTHON_VERSION,
+                            "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+                        },
+                    },
+                },
+                None,
+            )
+
+    @mock.patch.object(agent_engines.AgentEngines, "_create_config")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_agent_engine_with_agent_framework(
+        self,
+        mock_await_operation,
+        mock_create_config,
+    ):
+        mock_create_config.return_value = {
+            "display_name": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+            "description": _TEST_AGENT_ENGINE_DESCRIPTION,
+            "spec": {
+                "package_spec": {
+                    "python_version": _TEST_PYTHON_VERSION,
+                    "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
+                    "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+                },
+                "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                "agent_framework": _TEST_AGENT_FRAMEWORK,
+            },
+        }
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.create(
+                agent=self.test_agent,
+                config=_genai_types.AgentEngineConfig(
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                    extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+                    staging_bucket=_TEST_STAGING_BUCKET,
+                    agent_framework=_TEST_AGENT_FRAMEWORK,
+                ),
+            )
+            mock_create_config.assert_called_with(
+                mode="create",
+                agent=self.test_agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=None,
+                gcs_dir_name=None,
+                extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+                env_vars=None,
+                service_account=None,
+                context_spec=None,
+                psc_interface_config=None,
+                min_instances=None,
+                max_instances=None,
+                resource_limits=None,
+                container_concurrency=None,
+                encryption_spec=None,
+                labels=None,
+                agent_server_mode=None,
+                class_methods=None,
+                source_packages=None,
+                entrypoint_module=None,
+                entrypoint_object=None,
+                requirements_file=None,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+            )
+            request_mock.assert_called_with(
+                "post",
+                "reasoningEngines",
+                {
+                    "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    "description": _TEST_AGENT_ENGINE_DESCRIPTION,
+                    "spec": {
+                        "agent_framework": _TEST_AGENT_FRAMEWORK,
+                        "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
                         "package_spec": {
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "python_version": _TEST_PYTHON_VERSION,

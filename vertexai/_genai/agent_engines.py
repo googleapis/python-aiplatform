@@ -94,6 +94,9 @@ def _CreateAgentEngineConfig_to_vertex(
             getv(from_object, ["requirements_file"]),
         )
 
+    if getv(from_object, ["agent_framework"]) is not None:
+        setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
+
     return to_object
 
 
@@ -284,6 +287,9 @@ def _UpdateAgentEngineConfig_to_vertex(
             ["requirementsFile"],
             getv(from_object, ["requirements_file"]),
         )
+
+    if getv(from_object, ["agent_framework"]) is not None:
+        setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -923,6 +929,7 @@ class AgentEngines(_api_module.BaseModule):
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
+            agent_framework=config.agent_framework,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -986,6 +993,7 @@ class AgentEngines(_api_module.BaseModule):
         entrypoint_module: Optional[str] = None,
         entrypoint_object: Optional[str] = None,
         requirements_file: Optional[str] = None,
+        agent_framework: Optional[str] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1195,7 +1203,10 @@ class AgentEngines(_api_module.BaseModule):
                 ] = agent_server_mode
 
             agent_engine_spec["agent_framework"] = (
-                _agent_engines_utils._get_agent_framework(agent=agent)
+                _agent_engines_utils._get_agent_framework(
+                    agent_framework=agent_framework,
+                    agent=agent,
+                )
             )
             update_masks.append("spec.agent_framework")
             config["spec"] = agent_engine_spec
@@ -1423,6 +1434,7 @@ class AgentEngines(_api_module.BaseModule):
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
+            agent_framework=config.agent_framework,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
