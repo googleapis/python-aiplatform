@@ -128,6 +128,16 @@ _BIDI_STREAM_API_MODE = "bidi_stream"
 _BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
 _BLOB_FILENAME = "agent_engine.pkl"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
+_SUPPORTED_AGENT_FRAMEWORKS = frozenset(
+    [
+        "google-adk",
+        "langchain",
+        "langgraph",
+        "ag2",
+        "llama-index",
+        "custom",
+    ]
+)
 _DEFAULT_ASYNC_METHOD_NAME = "async_query"
 _DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any]"
 _DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
@@ -705,13 +715,43 @@ def _generate_schema(
     return schema
 
 
-def _get_agent_framework(*, agent: _AgentEngineInterface) -> str:
-    if (
-        hasattr(agent, _AGENT_FRAMEWORK_ATTR)
-        and getattr(agent, _AGENT_FRAMEWORK_ATTR) is not None
-        and isinstance(getattr(agent, _AGENT_FRAMEWORK_ATTR), str)
-    ):
-        return getattr(agent, _AGENT_FRAMEWORK_ATTR)
+def _get_agent_framework(
+    *,
+    agent_framework: Optional[str],
+    agent: _AgentEngineInterface,
+) -> str:
+    """Gets the agent framework to use.
+
+    The agent framework is determined in the following order of priority:
+    1. The `agent_framework` passed to this function.
+    2. The `agent_framework` attribute on the `agent` object.
+    3. The default framework, "custom".
+
+    Args:
+        agent_framework (str):
+            The agent framework provided by the user.
+        agent (_AgentEngineInterface):
+            The agent engine instance.
+
+    Returns:
+        str: The name of the agent framework to use.
+    """
+    if agent_framework is not None and agent_framework in _SUPPORTED_AGENT_FRAMEWORKS:
+        logger.info(f"Using agent framework: {agent_framework}")
+        return agent_framework
+    if hasattr(agent, _AGENT_FRAMEWORK_ATTR):
+        agent_framework_attr = getattr(agent, _AGENT_FRAMEWORK_ATTR)
+        if (
+            agent_framework_attr is not None
+            and isinstance(agent_framework_attr, str)
+            and agent_framework_attr in _SUPPORTED_AGENT_FRAMEWORKS
+        ):
+            logger.info(f"Using agent framework: {agent_framework_attr}")
+            return agent_framework_attr
+    logger.info(
+        f"The provided agent framework {agent_framework} is not supported."
+        f" Defaulting to {_DEFAULT_AGENT_FRAMEWORK}."
+    )
     return _DEFAULT_AGENT_FRAMEWORK
 
 
