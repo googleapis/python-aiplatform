@@ -781,6 +781,25 @@ class TestAdkApp:
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
+    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+    # @pytest.mark.parametrize(
+    #     "enable_tracing,want_warning",
+    #     [
+    #         (True, False),
+    #         (False, True),
+    #         (None, False),
+    #     ],
+    # )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
+    #     app = reasoning_engines.AdkApp(
+    #         agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+    #         enable_tracing=enable_tracing
+    #     )
+    #     assert (
+    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+    #     ) == want_warning
+
 
 def test_dump_event_for_json():
     from google.adk.events import event
