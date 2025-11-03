@@ -724,6 +724,32 @@ class AdkApp:
 
         custom_instrumentor = self._tmpl_attrs.get("instrumentor_builder")
 
+        if self._tmpl_attrs.get("enable_tracing") is False:
+            _warn(
+                (
+                    "Your 'enable_tracing=False' setting is being deprecated "
+                    "and will be removed in a future release.\n"
+                    "This legacy setting overrides the new Cloud Console "
+                    "toggle and environment variable controls.\n"
+                    "Impact: The Cloud Console may incorrectly show telemetry "
+                    "as 'On' when it is actually 'Off', and the UI toggle will "
+                    "not work.\n"
+                    "Action: To fix this and control telemetry, please remove "
+                    "the 'enable_tracing' parameter from your deployment "
+                    "code.\n"
+                    "You can then use the "
+                    "'GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY' "
+                    "environment variable:\n"
+                    "agent_engines.create(\n"
+                    "  env_vars={\n"
+                    '    "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": true|false\n'
+                    "  }\n"
+                    ")\n"
+                    "or the toggle in the Cloud Console: "
+                    "https://console.cloud.google.com/vertex-ai/agents."
+                ),
+            )
+
         if custom_instrumentor and self._tracing_enabled():
             self._tmpl_attrs["instrumentor"] = custom_instrumentor(project)
 

@@ -657,6 +657,32 @@ class AdkApp:
         else:
             os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "false"
 
+        if self._tmpl_attrs.get("enable_tracing") is False:
+            _warn(
+                (
+                    "Your 'enable_tracing=False' setting is being deprecated "
+                    "and will be removed in a future release.\n"
+                    "This legacy setting overrides the new Cloud Console "
+                    "toggle and environment variable controls.\n"
+                    "Impact: The Cloud Console may incorrectly show telemetry "
+                    "as 'On' when it is actually 'Off', and the UI toggle will "
+                    "not work.\n"
+                    "Action: To fix this and control telemetry, please remove "
+                    "the 'enable_tracing' parameter from your deployment "
+                    "code.\n"
+                    "You can then use the "
+                    "'GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY' "
+                    "environment variable:\n"
+                    "agent_engines.create(\n"
+                    "  env_vars={\n"
+                    '    "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": true|false\n'
+                    "  }\n"
+                    ")\n"
+                    "or the toggle in the Cloud Console: "
+                    "https://console.cloud.google.com/vertex-ai/agents."
+                ),
+            )
+
         enable_logging = bool(self._telemetry_enabled())
 
         self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(

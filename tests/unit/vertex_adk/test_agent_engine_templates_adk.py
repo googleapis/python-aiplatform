@@ -800,6 +800,22 @@ class TestAdkApp:
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
+    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+    # @pytest.mark.parametrize(
+    #     "enable_tracing,want_warning",
+    #     [
+    #         (True, False),
+    #         (False, True),
+    #         (None, False),
+    #     ],
+    # )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
+    #     _ = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=enable_tracing)
+    #     assert (
+    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+    #     ) == want_warning
+
     @mock.patch.dict(os.environ)
     def test_span_content_capture_disabled_by_default(self):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
