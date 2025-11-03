@@ -25,6 +25,7 @@ from typing import (
 )
 
 import asyncio
+from collections.abc import Awaitable
 import queue
 import threading
 import warnings
@@ -231,26 +232,38 @@ def _warn(msg: str):
     _warn._LOGGER.warning(msg)  # pyright: ignore[reportFunctionMemberAccess]
 
 
-def _force_flush_traces():
+async def _force_flush_otel(tracing_enabled: bool, logging_enabled: bool):
     try:
         import opentelemetry.trace
+        import opentelemetry._logs
     except (ImportError, AttributeError):
         _warn(
-            "Could not force flush traces. opentelemetry-api is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
+            "Could not force flush telemetry data. opentelemetry-api is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
         )
         return None
 
     try:
         import opentelemetry.sdk.trace
+        import opentelemetry.sdk._logs
     except (ImportError, AttributeError):
         _warn(
-            "Could not force flush traces. opentelemetry-sdk is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
+            "Could not force flush telemetry data. opentelemetry-sdk is not installed. Please call  'pip install google-cloud-aiplatform[agent_engines]'."
         )
         return None
 
-    provider = opentelemetry.trace.get_tracer_provider()
-    if isinstance(provider, opentelemetry.sdk.trace.TracerProvider):
-        _ = provider.force_flush()
+    coros: List[Awaitable[bool]] = []
+
+    if tracing_enabled:
+        tracer_provider = opentelemetry.trace.get_tracer_provider()
+        if isinstance(tracer_provider, opentelemetry.sdk.trace.TracerProvider):
+            coros.append(asyncio.to_thread(tracer_provider.force_flush))
+
+    if logging_enabled:
+        logger_provider = opentelemetry._logs.get_logger_provider()
+        if isinstance(logger_provider, opentelemetry.sdk._logs.LoggerProvider):
+            coros.append(asyncio.to_thread(logger_provider.force_flush))
+
+    await asyncio.gather(*coros, return_exceptions=True)
 
 
 def _default_instrumentor_builder(
@@ -894,9 +907,11 @@ class AdkApp:
                 # Yield the event data as a dictionary
                 yield _utils.dump_event_for_json(event)
         finally:
-            # Avoid trace data loss having to do with CPU throttling on instance turndown
-            if self._tracing_enabled():
-                _ = await asyncio.to_thread(_force_flush_traces)
+            # Avoid telemetry data loss having to do with CPU throttling on instance turndown
+            _ = await _force_flush_otel(
+                tracing_enabled=self._tracing_enabled(),
+                logging_enabled=bool(self._telemetry_enabled()),
+            )
 
     def stream_query(
         self,
@@ -1066,9 +1081,11 @@ class AdkApp:
                     user_id=request.user_id,
                     session_id=session.id,
                 )
-            # Avoid trace data loss having to do with CPU throttling on instance turndown
-            if self._tracing_enabled():
-                _ = await asyncio.to_thread(_force_flush_traces)
+            # Avoid telemetry data loss having to do with CPU throttling on instance turndown
+            _ = await _force_flush_otel(
+                tracing_enabled=self._tracing_enabled(),
+                logging_enabled=bool(self._telemetry_enabled()),
+            )
 
     async def async_get_session(
         self,
