@@ -982,10 +982,10 @@ class AdkApp:
                 session_service = self._tmpl_attrs.get("in_memory_session_service")
                 artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
                 runner = self._tmpl_attrs.get("in_memory_runner")
-                session = await session_service.create_session(
-                    app_name=self._tmpl_attrs.get("app_name"),
-                    user_id=request.user_id,
-                    session_id=request.session_id,
+                session = await self._init_session(
+                    session_service=session_service,
+                    artifact_service=artifact_service,
+                    request=request,
                 )
             if not session:
                 raise RuntimeError("Session initialization failed.")
