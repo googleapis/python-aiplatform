@@ -54,6 +54,47 @@ def test_evaluation_result(client):
         assert case_result.response_candidate_results is not None
 
 
+def test_evaluation_byor(client):
+    """Tests that evaluate() with BYOR (Bring-Your-Own Response) produces a correctly structured EvaluationResult."""
+    byor_df = pd.DataFrame(
+        {
+            "prompt": [
+                "Write a simple story about a dinosaur",
+                "Generate a poem about Vertex AI",
+            ],
+            "response": [
+                "Once upon a time, there was a T-Rex named Rexy.",
+                "In clouds of code, a mind of silicon born...",
+            ],
+        }
+    )
+
+    metrics_to_run = [
+        types.RubricMetric.GENERAL_QUALITY,
+    ]
+
+    evaluation_result = client.evals.evaluate(
+        dataset=byor_df,
+        metrics=metrics_to_run,
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+
+    assert evaluation_result.summary_metrics is not None
+    assert len(evaluation_result.summary_metrics) > 0
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name is not None
+        assert summary.mean_score is not None
+
+    assert evaluation_result.eval_case_results is not None
+    assert len(evaluation_result.eval_case_results) > 0
+    for case_result in evaluation_result.eval_case_results:
+        assert isinstance(case_result, types.EvalCaseResult)
+        assert case_result.eval_case_index is not None
+        assert case_result.response_candidate_results is not None
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

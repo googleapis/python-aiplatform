@@ -970,7 +970,9 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         dataset: Union[
-            types.EvaluationDatasetOrDict, list[types.EvaluationDatasetOrDict]
+            pd.DataFrame,
+            types.EvaluationDatasetOrDict,
+            list[types.EvaluationDatasetOrDict],
         ],
         metrics: list[types.MetricOrDict] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
@@ -979,10 +981,13 @@ class Evals(_api_module.BaseModule):
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
         Args:
-          dataset: The dataset(s) to evaluate. Can be a single `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+          dataset: The dataset(s) to evaluate. Can be a pandas DataFrame, a single
+            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
           metrics: The list of metrics to use for evaluation.
-          config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
-            - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
+          config: Optional configuration for the evaluation. Can be a dictionary or a
+            `types.EvaluateMethodConfig` object.
+            - dataset_schema: Schema to use for the dataset. If not specified, the
+              dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
@@ -993,6 +998,10 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig()
         if isinstance(config, dict):
             config = types.EvaluateMethodConfig.model_validate(config)
+
+        if isinstance(dataset, pd.DataFrame):
+            dataset = types.EvaluationDataset(eval_dataset_df=dataset)
+
         if isinstance(dataset, list):
             dataset = [
                 (
