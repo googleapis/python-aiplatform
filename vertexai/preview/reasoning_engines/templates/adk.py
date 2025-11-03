@@ -491,7 +491,7 @@ class AdkApp:
         *,
         agent: "BaseAgent",
         plugins: Optional[List["BasePlugin"]] = None,
-        enable_tracing: bool = False,
+        enable_tracing: Optional[bool] = None,
         session_service_builder: Optional[Callable[..., "BaseSessionService"]] = None,
         artifact_service_builder: Optional[Callable[..., "BaseArtifactService"]] = None,
         memory_service_builder: Optional[Callable[..., "BaseMemoryService"]] = None,
