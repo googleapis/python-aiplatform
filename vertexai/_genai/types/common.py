@@ -151,6 +151,8 @@ class AcceleratorType(_common.CaseInSensitiveEnum):
     """Nvidia B200 GPU."""
     NVIDIA_GB200 = "NVIDIA_GB200"
     """Nvidia GB200 GPU."""
+    NVIDIA_RTX_PRO_6000 = "NVIDIA_RTX_PRO_6000"
+    """Nvidia RTX Pro 6000 GPU."""
     TPU_V2 = "TPU_V2"
     """TPU v2."""
     TPU_V3 = "TPU_V3"
@@ -3969,6 +3971,44 @@ class DiskSpecDict(TypedDict, total=False):
 DiskSpecOrDict = Union[DiskSpec, DiskSpecDict]
 
 
+class LustreMount(_common.BaseModel):
+    """Represents a mount configuration for Lustre file system."""
+
+    filesystem: Optional[str] = Field(
+        default=None, description="""Required. The name of the Lustre filesystem."""
+    )
+    instance_ip: Optional[str] = Field(
+        default=None, description="""Required. IP address of the Lustre instance."""
+    )
+    mount_point: Optional[str] = Field(
+        default=None,
+        description="""Required. Destination mount path. The Lustre file system will be mounted for the user under /mnt/lustre/""",
+    )
+    volume_handle: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique identifier of the Lustre volume.""",
+    )
+
+
+class LustreMountDict(TypedDict, total=False):
+    """Represents a mount configuration for Lustre file system."""
+
+    filesystem: Optional[str]
+    """Required. The name of the Lustre filesystem."""
+
+    instance_ip: Optional[str]
+    """Required. IP address of the Lustre instance."""
+
+    mount_point: Optional[str]
+    """Required. Destination mount path. The Lustre file system will be mounted for the user under /mnt/lustre/"""
+
+    volume_handle: Optional[str]
+    """Required. The unique identifier of the Lustre volume."""
+
+
+LustreMountOrDict = Union[LustreMount, LustreMountDict]
+
+
 class ReservationAffinity(_common.BaseModel):
     """A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity."""
 
@@ -4013,6 +4053,10 @@ class MachineSpec(_common.BaseModel):
         default=None,
         description="""Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count.""",
     )
+    gpu_partition_size: Optional[str] = Field(
+        default=None,
+        description="""Optional. Immutable. The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1.""",
+    )
     machine_type: Optional[str] = Field(
         default=None,
         description="""Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.""",
@@ -4039,6 +4083,9 @@ class MachineSpecDict(TypedDict, total=False):
 
     accelerator_type: Optional[AcceleratorType]
     """Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count."""
+
+    gpu_partition_size: Optional[str]
+    """Optional. Immutable. The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1."""
 
     machine_type: Optional[str]
     """Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required."""
@@ -4142,6 +4189,9 @@ class WorkerPoolSpec(_common.BaseModel):
         default=None, description="""The custom container task."""
     )
     disk_spec: Optional[DiskSpec] = Field(default=None, description="""Disk spec.""")
+    lustre_mounts: Optional[list[LustreMount]] = Field(
+        default=None, description="""Optional. List of Lustre mounts."""
+    )
     machine_spec: Optional[MachineSpec] = Field(
         default=None,
         description="""Optional. Immutable. The specification of a single machine.""",
@@ -4166,6 +4216,9 @@ class WorkerPoolSpecDict(TypedDict, total=False):
 
     disk_spec: Optional[DiskSpecDict]
     """Disk spec."""
+
+    lustre_mounts: Optional[list[LustreMountDict]]
+    """Optional. List of Lustre mounts."""
 
     machine_spec: Optional[MachineSpecDict]
     """Optional. Immutable. The specification of a single machine."""
@@ -4531,7 +4584,7 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     )
     max_instances: Optional[int] = Field(
         default=None,
-        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100.""",
+        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].""",
     )
     min_instances: Optional[int] = Field(
         default=None,
@@ -4563,7 +4616,7 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
     """Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API."""
 
     max_instances: Optional[int]
-    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100."""
+    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
 
     min_instances: Optional[int]
     """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1."""
@@ -4768,56 +4821,6 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
-    """Configuration for how to generate memories."""
-
-    model: Optional[str] = Field(
-        default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for how to generate memories."""
-
-    model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigGenerationConfig,
-    ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict,
-]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
-    _common.BaseModel
-):
-    """Configuration for how to perform similarity search on memories."""
-
-    embedding_model: Optional[str] = Field(
-        default=None,
-        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for how to perform similarity search on memories."""
-
-    embedding_model: Optional[str]
-    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
-    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
-]
 
 
 class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
@@ -5098,6 +5101,56 @@ MemoryBankCustomizationConfigOrDict = Union[
 ]
 
 
+class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
+    """Configuration for how to generate memories."""
+
+    model: Optional[str] = Field(
+        default=None,
+        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for how to generate memories."""
+
+    model: Optional[str]
+    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigGenerationConfig,
+    ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
+    _common.BaseModel
+):
+    """Configuration for how to perform similarity search on memories."""
+
+    embedding_model: Optional[str] = Field(
+        default=None,
+        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for how to perform similarity search on memories."""
+
+    embedding_model: Optional[str]
+    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
+    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
+]
+
+
 class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
     _common.BaseModel
 ):
@@ -5181,6 +5234,10 @@ ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
 class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     """Specification for a Memory Bank."""
 
+    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
+        default=None,
+        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
+    )
     generation_config: Optional[
         ReasoningEngineContextSpecMemoryBankConfigGenerationConfig
     ] = Field(
@@ -5192,10 +5249,6 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     ] = Field(
         default=None,
         description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
-    )
-    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
-        default=None,
-        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
     )
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfig] = Field(
         default=None,
@@ -5210,6 +5263,9 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
     """Specification for a Memory Bank."""
 
+    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
+    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
+
     generation_config: Optional[
         ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict
     ]
@@ -5219,9 +5275,6 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
         ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
     ]
     """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
-
-    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
-    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
 
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
     """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
@@ -6395,7 +6448,7 @@ class Memory(_common.BaseModel):
 
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
     )
     ttl: Optional[str] = Field(
         default=None,
@@ -6448,7 +6501,7 @@ class MemoryDict(TypedDict, total=False):
     """A memory."""
 
     expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
 
     ttl: Optional[str]
     """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
@@ -7913,14 +7966,6 @@ class SandboxEnvironmentSpecCodeExecutionEnvironment(_common.BaseModel):
         default=None,
         description="""The coding language supported in this environment.""",
     )
-    dependencies: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. The additional dependencies to install in the code execution environment. For example, "pandas==2.2.3".""",
-    )
-    env: Optional[list[EnvVar]] = Field(
-        default=None,
-        description="""Optional. The environment variables to set in the code execution environment.""",
-    )
     machine_config: Optional[MachineConfig] = Field(
         default=None,
         description="""The machine config of the code execution environment.""",
@@ -7932,12 +7977,6 @@ class SandboxEnvironmentSpecCodeExecutionEnvironmentDict(TypedDict, total=False)
 
     code_language: Optional[Language]
     """The coding language supported in this environment."""
-
-    dependencies: Optional[list[str]]
-    """Optional. The additional dependencies to install in the code execution environment. For example, "pandas==2.2.3"."""
-
-    env: Optional[list[EnvVarDict]]
-    """Optional. The environment variables to set in the code execution environment."""
 
     machine_config: Optional[MachineConfig]
     """The machine config of the code execution environment."""
@@ -8127,10 +8166,6 @@ class SandboxEnvironment(_common.BaseModel):
         default=None,
         description="""Required. The display name of the SandboxEnvironment.""",
     )
-    metadata: Optional[Any] = Field(
-        default=None,
-        description="""Output only. Additional information about the SandboxEnvironment.""",
-    )
     name: Optional[str] = Field(
         default=None, description="""Identifier. The name of the SandboxEnvironment."""
     )
@@ -8141,6 +8176,10 @@ class SandboxEnvironment(_common.BaseModel):
     state: Optional[State] = Field(
         default=None,
         description="""Output only. The runtime state of the SandboxEnvironment.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the sandbox environment. The expiration time is computed: now + TTL.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -8164,9 +8203,6 @@ class SandboxEnvironmentDict(TypedDict, total=False):
     display_name: Optional[str]
     """Required. The display name of the SandboxEnvironment."""
 
-    metadata: Optional[Any]
-    """Output only. Additional information about the SandboxEnvironment."""
-
     name: Optional[str]
     """Identifier. The name of the SandboxEnvironment."""
 
@@ -8175,6 +8211,9 @@ class SandboxEnvironmentDict(TypedDict, total=False):
 
     state: Optional[State]
     """Output only. The runtime state of the SandboxEnvironment."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for the sandbox environment. The expiration time is computed: now + TTL."""
 
     update_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironment was most recently updated."""
@@ -8342,10 +8381,6 @@ MetadataOrDict = Union[Metadata, MetadataDict]
 class Chunk(_common.BaseModel):
     """A chunk of data."""
 
-    mime_type: Optional[str] = Field(
-        default=None,
-        description="""Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list.""",
-    )
     data: Optional[bytes] = Field(
         default=None, description="""Required. The data in the chunk."""
     )
@@ -8353,19 +8388,23 @@ class Chunk(_common.BaseModel):
         default=None,
         description="""Optional. Metadata that is associated with the data in the payload.""",
     )
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list.""",
+    )
 
 
 class ChunkDict(TypedDict, total=False):
     """A chunk of data."""
-
-    mime_type: Optional[str]
-    """Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list."""
 
     data: Optional[bytes]
     """Required. The data in the chunk."""
 
     metadata: Optional[MetadataDict]
     """Optional. Metadata that is associated with the data in the payload."""
+
+    mime_type: Optional[str]
+    """Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list."""
 
 
 ChunkOrDict = Union[Chunk, ChunkDict]
