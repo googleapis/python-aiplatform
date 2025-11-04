@@ -1397,15 +1397,6 @@ class Evals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            if isinstance(agent_info, dict):
-                agent_info = types.evals.AgentInfo.model_validate(agent_info)
-            if (
-                not agent_info.agent
-                or len(agent_info.agent.split("reasoningEngines/")) != 2
-            ):
-                raise ValueError(
-                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
-                )
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -1414,10 +1405,11 @@ class Evals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            labels = labels or {}
-            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                "reasoningEngines/"
-            )[-1]
+            if agent_info.agent:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
+                    "reasoningEngines/"
+                )[-1]
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
@@ -2252,15 +2244,6 @@ class AsyncEvals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            if isinstance(agent_info, dict):
-                agent_info = types.evals.AgentInfo.model_validate(agent_info)
-            if (
-                not agent_info.agent
-                or len(agent_info.agent.split("reasoningEngines/")) != 2
-            ):
-                raise ValueError(
-                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
-                )
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -2269,10 +2252,11 @@ class AsyncEvals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            labels = labels or {}
-            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                "reasoningEngines/"
-            )[-1]
+            if agent_info.agent:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
+                    "reasoningEngines/"
+                )[-1]
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
