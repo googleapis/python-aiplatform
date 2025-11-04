@@ -96,6 +96,16 @@ if TYPE_CHECKING:
 
 _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
+_TELEMETRY_API_DISABLED_WARNING = (
+    "Tracing integration for Agent Engine has migrated to a new API.\n"
+    "The 'telemetry.googleapis.com' has not been enabled in project %s. \n"
+    "**Impact:** Until this API is enabled, telemetry data will not be stored."
+    "\n"
+    "**Action:** Please enable the API by visiting "
+    "https://console.developers.google.com/apis/api/telemetry.googleapis.com/overview?project=%s."
+    "\n"
+    "(If you enabled this API recently, you can safely ignore this warning.)"
+)
 
 
 def get_adk_version() -> Optional[str]:
@@ -662,6 +672,9 @@ class AdkApp:
             os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "true"
         else:
             os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "false"
+
+        if self._tmpl_attrs.get("enable_tracing"):
+            self._warn_if_telemetry_api_disabled()
 
         if self._tmpl_attrs.get("enable_tracing") is False:
             _warn(
@@ -1486,3 +1499,18 @@ class AdkApp:
             and enable_telemetry is True
             and is_version_sufficient("1.17.0")
         )
+
+    def _warn_if_telemetry_api_disabled(self):
+        """Warn if telemetry API is disabled."""
+        try:
+            import google.auth.transport.requests
+            import google.auth
+        except (ImportError, AttributeError):
+            return
+        credentials, project = google.auth.default()
+        session = google.auth.transport.requests.AuthorizedSession(
+            credentials=credentials
+        )
+        r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+        if "Telemetry API has not been used in project" in r.text:
+            _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
