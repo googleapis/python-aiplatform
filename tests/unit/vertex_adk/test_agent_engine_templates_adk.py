@@ -18,6 +18,7 @@ import json
 import os
 import cloudpickle
 import sys
+import re
 from unittest import mock
 from typing import Optional
 
@@ -769,8 +770,17 @@ class TestAdkApp:
         otlp_span_exporter_mock.assert_called_once_with(
             session=mock.ANY,
             endpoint="https://telemetry.googleapis.com/v1/traces",
+            headers=mock.ANY,
         )
 
+        user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
+        assert (
+            re.fullmatch(
+                r"Vertex-Agent-Engine\/[\d\.]+ OTel-OTLP-Exporter-Python\/[\d\.]+",
+                user_agent,
+            )
+            is not None
+        )
         assert (
             trace_provider_mock.call_args.kwargs["resource"].attributes
             == expected_attributes
