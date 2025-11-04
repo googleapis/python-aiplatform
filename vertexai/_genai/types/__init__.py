@@ -430,6 +430,7 @@ from .common import GetMultimodalDatasetOperationConfigOrDict
 from .common import GetPromptConfig
 from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
+from .common import IdentityType
 from .common import Importance
 from .common import IntermediateExtractedMemory
 from .common import IntermediateExtractedMemoryDict
@@ -1798,6 +1799,7 @@ __all__ = [
     "AcceleratorType",
     "Type",
     "JobState",
+    "IdentityType",
     "AgentServerMode",
     "ManagedTopicEnum",
     "Language",

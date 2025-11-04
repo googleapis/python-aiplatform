@@ -907,6 +907,7 @@ class AgentEngines(_api_module.BaseModule):
         api_config = self._create_config(
             mode="create",
             agent=agent,
+            identity_type=config.identity_type,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
@@ -971,6 +972,7 @@ class AgentEngines(_api_module.BaseModule):
         *,
         mode: str,
         agent: Any = None,
+        identity_type: Optional[types.IdentityType] = None,
         staging_bucket: Optional[str] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -1189,9 +1191,6 @@ class AgentEngines(_api_module.BaseModule):
                 )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
-            if service_account is not None:
-                agent_engine_spec["service_account"] = service_account
-                update_masks.append("spec.service_account")
 
             if agent_server_mode:
                 if not agent_engine_spec.get("deployment_spec"):
@@ -1209,6 +1208,21 @@ class AgentEngines(_api_module.BaseModule):
                 )
             )
             update_masks.append("spec.agent_framework")
+
+        if identity_type is not None or service_account is not None:
+            if agent_engine_spec is None:
+                agent_engine_spec = {}
+
+            if identity_type is not None:
+                agent_engine_spec["identity_type"] = identity_type
+                update_masks.append("spec.identity_type")
+            if service_account is not None:
+                # Clear the field in case of empty service_account.
+                if service_account:
+                    agent_engine_spec["service_account"] = service_account
+                update_masks.append("spec.service_account")
+
+        if agent_engine_spec is not None:
             config["spec"] = agent_engine_spec
 
         if update_masks and mode == "update":
@@ -1414,6 +1428,7 @@ class AgentEngines(_api_module.BaseModule):
         api_config = self._create_config(
             mode="update",
             agent=agent,
+            identity_type=config.identity_type,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
