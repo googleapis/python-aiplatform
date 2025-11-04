@@ -359,8 +359,10 @@ def _default_instrumentor_builder(
 
     if enable_tracing:
         try:
+            import opentelemetry.exporter.otlp.proto.http.version
             import opentelemetry.exporter.otlp.proto.http.trace_exporter
             import google.auth.transport.requests
+            from google.cloud.aiplatform import version as aip_version
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
                 "opentelemetry-exporter-otlp-proto-http", needed_for_tracing=True
@@ -369,12 +371,17 @@ def _default_instrumentor_builder(
         import google.auth
 
         credentials, _ = google.auth.default()
+        vertex_sdk_version = aip_version.__version__
+        otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
+        user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
+
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
                 session=google.auth.transport.requests.AuthorizedSession(
                     credentials=credentials
                 ),
                 endpoint="https://telemetry.googleapis.com/v1/traces",
+                headers={"User-Agent": user_agent},
             )
         )
         span_processor = opentelemetry.sdk.trace.export.BatchSpanProcessor(
