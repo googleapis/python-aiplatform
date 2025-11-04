@@ -518,8 +518,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
             staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
-            if _is_adk_agent(None, agent_engine):
-                env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
+            # TODO(jawoszek): Uncomment once we're ready for default-on.
+            # if _is_adk_agent(None, agent_engine):
+            #     env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
 
         if agent_engine is None:
             if requirements is not None:
