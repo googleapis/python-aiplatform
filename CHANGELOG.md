@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.125.0](https://github.com/googleapis/python-aiplatform/compare/v1.124.0...v1.125.0) (2025-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Switch tracing APIs in preview AdkApp.
+* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API.
+
+### Features
+
+* Add reservation affinity support to preview BatchPredictionJob ([c8f38a0](https://github.com/googleapis/python-aiplatform/commit/c8f38a0a51c318a5065438067f85f31be5088af1))
+* Add support for Vertex Express Mode API key in AdkApp ([05834cb](https://github.com/googleapis/python-aiplatform/commit/05834cb43302cf2bfc34f25f400d075e44aa9df3))
+* Add the identity type option for the agent engine and add effective identity to the resource ([bf1851e](https://github.com/googleapis/python-aiplatform/commit/bf1851e59cb34e63b509a2a610e72691e1c4ca28))
+* Alow VertexAiSession for streaming_agent_run_with_events ([13faa27](https://github.com/googleapis/python-aiplatform/commit/13faa27376814f7b0a223ff9455c289a9af75288))
+* GenAI Client(evals) - Add retry to predefine metric ([9a46e67](https://github.com/googleapis/python-aiplatform/commit/9a46e67a8c341673b14bece88bc635b455314711))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Change dataset visualization table to fixed to prevent horizontal expansion. ([7a5a066](https://github.com/googleapis/python-aiplatform/commit/7a5a0667b915bb0ed1009ffc8034a8d29fb2d20e))
+* GenAI Client(evals) - Remove requirement for `agent_info.agent` in `create_evaluation_run` in Vertex AI GenAI SDK evals. ([d02a7da](https://github.com/googleapis/python-aiplatform/commit/d02a7da393a6bb8b1a9c462243b399b62911378c))
+* GenAI Client(evals) - Support direct pandas DataFrame dataset in evaluate() ([a917122](https://github.com/googleapis/python-aiplatform/commit/a9171221e3bafecdc75580c3f25347f1c3d18851))
+* Revert: Alow VertexAiSession for streaming_agent_run_with_events ([7c8c218](https://github.com/googleapis/python-aiplatform/commit/7c8c218f47a6fd919cae6869736d35e4206a123e))
+
+
+### Miscellaneous Chores
+
+* Release 1.125.0 ([d344858](https://github.com/googleapis/python-aiplatform/commit/d34485880bdefd21dccac4548656af1eaedb3727))
+* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API. ([c81f912](https://github.com/googleapis/python-aiplatform/commit/c81f9124dce841a7cbc310c6c7652ad793c9a58f))
+* Switch tracing APIs in preview AdkApp. ([27ef56b](https://github.com/googleapis/python-aiplatform/commit/27ef56b8319ba793f6f00e7857fe0c20c2c8b61a))
+
 ## [1.124.0](https://github.com/googleapis/python-aiplatform/compare/v1.123.0...v1.124.0) (2025-10-30)
 
 
