@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.126.0](https://github.com/googleapis/python-aiplatform/compare/v1.125.0...v1.126.0) (2025-11-05)
+
+
+### Features
+
+* Default to "unspecified" for telemetry enablement ([3ca65cb](https://github.com/googleapis/python-aiplatform/commit/3ca65cbe3ff3bba573bbf36d54d3a7102c740209))
+* GenAI Client(evals) - Add loading agent info util function ([acb6cab](https://github.com/googleapis/python-aiplatform/commit/acb6cabb574e7c08f1c67090b7d7c73c4425f8f7))
+* GenAI Client(evals): Add warning message when tool usage is empty for tool_use_quality ([531d223](https://github.com/googleapis/python-aiplatform/commit/531d2235bd6c6a671d0ca11db11aff2201ee928b))
+
+
+### Bug Fixes
+
+* Populate missing auth_id for _init_session into adk session.state ([37fa3ce](https://github.com/googleapis/python-aiplatform/commit/37fa3ce353ffe34195828ba383a6575c0dbb955d))
+
 ## [1.125.0](https://github.com/googleapis/python-aiplatform/compare/v1.124.0...v1.125.0) (2025-11-04)
 
 
