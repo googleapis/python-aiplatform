@@ -557,7 +557,7 @@ class AdkApp:
             session_state = {}
             for auth_id, auth in request.authorizations.items():
                 auth = _Authorization(**auth)
-                session_state[f"temp:{auth_id}"] = auth.access_token
+                session_state[auth_id] = auth.access_token
 
         if request.session_id:
             session_id = request.session_id
