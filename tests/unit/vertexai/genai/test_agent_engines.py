@@ -31,6 +31,7 @@ from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 import vertexai
 from google.cloud.aiplatform import initializer
+from vertexai.agent_engines.templates import adk
 from vertexai._genai import _agent_engines_utils
 from vertexai._genai import agent_engines
 from vertexai._genai import types as _genai_types
@@ -855,49 +856,52 @@ class TestAgentEngineHelpers:
             "description": _TEST_AGENT_ENGINE_DESCRIPTION,
         }
 
-    # TODO(jawoszek): Uncomment once we're ready for default-on.
-    # @mock.patch.object(_agent_engines_utils, "_prepare")
-    # @pytest.mark.parametrize(
-    #     "env_vars,expected_env_vars",
-    #     [
-    #         ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"}),
-    #         (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"}),
-    #         (
-    #             {"some_env": "some_val"},
-    #             {
-    #                 "some_env": "some_val",
-    #                 GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false",
-    #             },
-    #         ),
-    #         (
-    #             {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
-    #             {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
-    #         ),
-    #     ],
-    # )
-    # def test_agent_engine_adk_telemetry_enablement(
-    #     self,
-    #     mock_prepare: mock.Mock,
-    #     env_vars: dict[str, str],
-    #     expected_env_vars: dict[str, str],
-    # ):
-    #     agent = mock.Mock(spec=adk.AdkApp)
-    #     agent.clone = lambda: agent
-    #     agent.register_operations = lambda: {}
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    def test_agent_engine_adk_telemetry_enablement(
+        self,
+        mock_prepare: mock.Mock,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        agent = mock.Mock(spec=adk.AdkApp)
+        agent.clone = lambda: agent
+        agent.register_operations = lambda: {}
 
-    #     config = self.client.agent_engines._create_config(
-    #         mode="create",
-    #         agent=agent,
-    #         staging_bucket=_TEST_STAGING_BUCKET,
-    #         display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-    #         description=_TEST_AGENT_ENGINE_DESCRIPTION,
-    #         env_vars=env_vars,
-    #     )
-    #     assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
-    #     assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
-    #     assert config["spec"]["deployment_spec"]["env"] == [
-    #         {"name": key, "value": value} for key, value in expected_env_vars.items()
-    #     ]
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            agent=agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            env_vars=env_vars,
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["deployment_spec"]["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_create_agent_engine_config_full(self, mock_prepare):

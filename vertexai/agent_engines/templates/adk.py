@@ -1539,12 +1539,15 @@ class AdkApp:
             "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
         )
 
-        return (
-            os.getenv(GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY, "0").lower()
-            in ("true", "1")
-            if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in os.environ
-            else None
-        )
+        env_value = os.getenv(
+            GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY, "unspecified"
+        ).lower()
+
+        if env_value in ("true", "1"):
+            return True
+        if env_value in ("false", "0"):
+            return False
+        return None
 
     # Tracing enablement follows truth table:
     def _tracing_enabled(self) -> bool:

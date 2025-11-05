@@ -26,6 +26,7 @@ from google import auth
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
 import vertexai
+from google.cloud import aiplatform
 from google.cloud.aiplatform_v1 import types as aip_types
 from google.cloud.aiplatform_v1.services import reasoning_engine_service
 from google.cloud.aiplatform import base
@@ -637,6 +638,9 @@ class TestAdkApp:
             ("1.16.0", None, False, False, False),
             ("1.16.0", None, True, False, True),
             ("1.16.0", None, None, False, False),
+            ("1.16.0", None, "unspecified", False, False),
+            ("1.16.0", False, "unspecified", False, False),
+            ("1.16.0", True, "unspecified", True, False),
             ("1.17.0", False, False, False, False),
             ("1.17.0", False, True, False, True),
             ("1.17.0", False, None, False, False),
@@ -646,6 +650,9 @@ class TestAdkApp:
             ("1.17.0", None, False, False, False),
             ("1.17.0", None, True, True, True),
             ("1.17.0", None, None, False, False),
+            ("1.17.0", None, "unspecified", False, False),
+            ("1.17.0", False, "unspecified", False, False),
+            ("1.17.0", True, "unspecified", True, False),
         ],
     )
     @mock.patch.dict(os.environ)
@@ -690,6 +697,9 @@ class TestAdkApp:
             ("1.16.0", None, False, False),
             ("1.16.0", None, True, False),
             ("1.16.0", None, None, False),
+            ("1.16.0", None, "unspecified", False),
+            ("1.16.0", False, "unspecified", False),
+            ("1.16.0", True, "unspecified", True),
             ("1.17.0", False, False, False),
             ("1.17.0", False, True, False),
             ("1.17.0", False, None, False),
@@ -699,6 +709,9 @@ class TestAdkApp:
             ("1.17.0", None, False, False),
             ("1.17.0", None, True, True),
             ("1.17.0", None, None, False),
+            ("1.17.0", None, "unspecified", False),
+            ("1.17.0", False, "unspecified", False),
+            ("1.17.0", True, "unspecified", True),
         ],
     )
     @mock.patch.dict(os.environ)
@@ -1011,100 +1024,107 @@ def update_agent_engine_mock():
         yield update_agent_engine_mock
 
 
-# TODO(jawoszek): Uncomment once we're ready for default-on.
-# @pytest.mark.usefixtures("google_auth_mock")
-# class TestAgentEngines:
-#     def setup_method(self):
-#         importlib.reload(initializer)
-#         importlib.reload(aiplatform)
-#         aiplatform.init(
-#             project=_TEST_PROJECT,
-#             location=_TEST_LOCATION,
-#             credentials=_TEST_CREDENTIALS,
-#             staging_bucket=_TEST_STAGING_BUCKET,
-#         )
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAgentEngines:
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
 
-#     def teardown_method(self):
-#         initializer.global_pool.shutdown(wait=True)
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
 
-#     @pytest.mark.parametrize(
-#         "env_vars,expected_env_vars",
-#         [
-#             ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"}),
-#             (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"}),
-#             (
-#                 {"some_env": "some_val"},
-#                 {
-#                     "some_env": "some_val",
-#                     GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false",
-#                 },
-#             ),
-#             (
-#                 {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
-#                 {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
-#             ),
-#         ],
-#     )
-#     def test_create_default_telemetry_enablement(
-#         self,
-#         create_agent_engine_mock: mock.Mock,
-#         cloud_storage_create_bucket_mock: mock.Mock,
-#         cloudpickle_dump_mock: mock.Mock,
-#         cloudpickle_load_mock: mock.Mock,
-#         get_gca_resource_mock: mock.Mock,
-#         env_vars: dict[str, str],
-#         expected_env_vars: dict[str, str],
-#     ):
-#         agent_engines.create(
-#             agent_engine=agent_engines.AdkApp(agent=_TEST_AGENT),
-#             env_vars=env_vars,
-#         )
-#         create_agent_engine_mock.assert_called_once()
-#         deployment_spec = create_agent_engine_mock.call_args.kwargs[
-#             "reasoning_engine"
-#         ].spec.deployment_spec
-#         assert _utils.to_dict(deployment_spec)["env"] == [
-#             {"name": key, "value": value} for key, value in expected_env_vars.items()
-#         ]
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    def test_create_default_telemetry_enablement(
+        self,
+        create_agent_engine_mock: mock.Mock,
+        cloud_storage_create_bucket_mock: mock.Mock,
+        cloudpickle_dump_mock: mock.Mock,
+        cloudpickle_load_mock: mock.Mock,
+        get_gca_resource_mock: mock.Mock,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        agent_engines.create(
+            agent_engine=agent_engines.AdkApp(agent=_TEST_AGENT),
+            env_vars=env_vars,
+        )
+        create_agent_engine_mock.assert_called_once()
+        deployment_spec = create_agent_engine_mock.call_args.kwargs[
+            "reasoning_engine"
+        ].spec.deployment_spec
+        assert _utils.to_dict(deployment_spec)["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
 
-#     @pytest.mark.parametrize(
-#         "env_vars,expected_env_vars",
-#         [
-#             ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"}),
-#             (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"}),
-#             (
-#                 {"some_env": "some_val"},
-#                 {
-#                     "some_env": "some_val",
-#                     GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false",
-#                 },
-#             ),
-#             (
-#                 {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
-#                 {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
-#             ),
-#         ],
-#     )
-#     def test_update_default_telemetry_enablement(
-#         self,
-#         update_agent_engine_mock: mock.Mock,
-#         cloud_storage_create_bucket_mock: mock.Mock,
-#         cloudpickle_dump_mock: mock.Mock,
-#         cloudpickle_load_mock: mock.Mock,
-#         get_gca_resource_mock: mock.Mock,
-#         get_agent_engine_mock: mock.Mock,
-#         env_vars: dict[str, str],
-#         expected_env_vars: dict[str, str],
-#     ):
-#         agent_engines.update(
-#             resource_name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-#             description="foobar",  # avoid "At least one of ... must be specified" errors.
-#             env_vars=env_vars,
-#         )
-#         update_agent_engine_mock.assert_called_once()
-#         deployment_spec = update_agent_engine_mock.call_args.kwargs[
-#             "request"
-#         ].reasoning_engine.spec.deployment_spec
-#         assert _utils.to_dict(deployment_spec)["env"] == [
-#             {"name": key, "value": value} for key, value in expected_env_vars.items()
-#         ]
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    def test_update_default_telemetry_enablement(
+        self,
+        update_agent_engine_mock: mock.Mock,
+        cloud_storage_create_bucket_mock: mock.Mock,
+        cloudpickle_dump_mock: mock.Mock,
+        cloudpickle_load_mock: mock.Mock,
+        get_gca_resource_mock: mock.Mock,
+        get_agent_engine_mock: mock.Mock,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        agent_engines.update(
+            resource_name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            description="foobar",  # avoid "At least one of ... must be specified" errors.
+            env_vars=env_vars,
+        )
+        update_agent_engine_mock.assert_called_once()
+        deployment_spec = update_agent_engine_mock.call_args.kwargs[
+            "request"
+        ].reasoning_engine.spec.deployment_spec
+        assert _utils.to_dict(deployment_spec)["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]

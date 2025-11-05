@@ -1920,7 +1920,7 @@ def _add_telemetry_enablement_env(
     GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
         "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
     )
-    env_to_add = {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+    env_to_add = {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
 
     if env_vars is None:
         return env_to_add
