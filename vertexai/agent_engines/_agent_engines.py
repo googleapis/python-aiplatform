@@ -518,9 +518,8 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         if agent_engine is not None:
             agent_engine = _validate_agent_engine_or_raise(agent_engine)
             staging_bucket = _validate_staging_bucket_or_raise(staging_bucket)
-            # TODO(jawoszek): Uncomment once we're ready for default-on.
-            # if _is_adk_agent(None, agent_engine):
-            #     env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
+            if _is_adk_agent(None, agent_engine):
+                env_vars = _add_telemetry_enablement_env(env_vars=env_vars)
 
         if agent_engine is None:
             if requirements is not None:
@@ -1115,16 +1114,16 @@ def _add_telemetry_enablement_env(*, env_vars: EnvVars) -> EnvVars:
     )
 
     if env_vars is None:
-        return {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+        return {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
     if isinstance(env_vars, dict):
         return (
             env_vars
             if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in env_vars
-            else env_vars | {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+            else env_vars | {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
         )
     if isinstance(env_vars, list) or isinstance(env_vars, tuple):
         if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY not in os.environ:
-            os.environ[GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY] = "true"
+            os.environ[GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY] = "unspecified"
 
         if isinstance(env_vars, list):
             return env_vars + [GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY]
