@@ -39,6 +39,18 @@ logger = logging.getLogger(__name__)
 _MAX_RETRIES = 3
 
 
+def _has_tool_call(intermediate_events: Optional[list[types.evals.Event]]) -> bool:
+    """Checks if any event in intermediate_events has a function call."""
+    if not intermediate_events:
+        return False
+    for event in intermediate_events:
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if hasattr(part, "function_call") and part.function_call:
+                    return True
+    return False
+
+
 def _extract_text_from_content(
     content: Optional[genai_types.Content], warn_property: str = "text"
 ) -> Optional[str]:
@@ -902,6 +914,14 @@ class PredefinedMetricHandler(MetricHandler):
             raise ValueError(
                 f"Response content missing for candidate {response_index}."
             )
+
+        if self.metric.name == "tool_use_quality_v1":
+            if not _has_tool_call(eval_case.intermediate_events):
+                logger.warning(
+                    "Metric 'tool_use_quality_v1' requires tool usage in "
+                    "'intermediate_events', but no tool usage was found for case %s.",
+                    eval_case.eval_case_id,
+                )
 
         reference_instance_data = None
         if eval_case.reference:
