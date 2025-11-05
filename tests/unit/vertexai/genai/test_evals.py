@@ -1516,6 +1516,64 @@ class TestEvalsRunInference:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestEvalsMetricHandlers:
+    """Unit tests for utility functions in _evals_metric_handlers."""
+
+    def test_has_tool_call_with_tool_call(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            )
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
+    def test_has_tool_call_no_tool_call(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(parts=[genai_types.Part(text="hello")]),
+            )
+        ]
+        assert not _evals_metric_handlers._has_tool_call(events)
+
+    def test_has_tool_call_empty_events(self):
+        assert not _evals_metric_handlers._has_tool_call([])
+
+    def test_has_tool_call_none_events(self):
+        assert not _evals_metric_handlers._has_tool_call(None)
+
+    def test_has_tool_call_mixed_events(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(parts=[genai_types.Part(text="hello")]),
+            ),
+            vertexai_genai_types.evals.Event(
+                event_id="2",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            ),
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestRunAgentInternal:
     """Unit tests for the _run_agent_internal function."""
 
@@ -3889,6 +3947,39 @@ class TestPredefinedMetricHandler:
         )
 
         assert agent_data.agent_config is None
+
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_tool_use_quality_metric_no_tool_call_logs_warning(
+        self, mock_warning, mock_api_client_fixture
+    ):
+        """Tests that PredefinedMetricHandler warns for tool_use_quality_v1 if no tool call."""
+        metric = vertexai_genai_types.Metric(name="tool_use_quality_v1")
+        handler = _evals_metric_handlers.PredefinedMetricHandler(
+            module=evals.Evals(api_client_=mock_api_client_fixture), metric=metric
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            eval_case_id="case-no-tool-call",
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            intermediate_events=[
+                vertexai_genai_types.evals.Event(
+                    event_id="event1",
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="intermediate event")]
+                    ),
+                )
+            ],
+        )
+        handler._build_request_payload(eval_case, response_index=0)
+        mock_warning.assert_called_once_with(
+            "Metric 'tool_use_quality_v1' requires tool usage in "
+            "'intermediate_events', but no tool usage was found for case %s.",
+            "case-no-tool-call",
+        )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
