@@ -2782,6 +2782,40 @@ class TestAgentInfo:
         assert agent_info.description == "description1"
         assert agent_info.tool_declarations == [tool]
 
+    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
+    def test_load_from_agent(self, mock_from_callable):
+        def my_search_tool(query: str) -> str:
+            """Searches for information."""
+            return f"search result for {query}"
+
+        mock_function_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_from_callable.return_value = mock_function_declaration
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [my_search_tool]
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+            agent_resource_name="projects/123/locations/abc/reasoningEngines/456",
+        )
+
+        assert agent_info.name == "mock_agent"
+        assert agent_info.instruction == "mock instruction"
+        assert agent_info.description == "mock description"
+        assert (
+            agent_info.agent_resource_name
+            == "projects/123/locations/abc/reasoningEngines/456"
+        )
+        assert len(agent_info.tool_declarations) == 1
+        assert isinstance(agent_info.tool_declarations[0], genai_types.Tool)
+        assert agent_info.tool_declarations[0].function_declarations == [
+            mock_function_declaration
+        ]
+        mock_from_callable.assert_called_once_with(callable=my_search_tool)
+
 
 class TestEvent:
     """Unit tests for the Event class."""

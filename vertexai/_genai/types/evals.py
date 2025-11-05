@@ -39,7 +39,7 @@ class Importance(_common.CaseInSensitiveEnum):
 class AgentInfo(_common.BaseModel):
     """The agent info of an agent, used for agent eval."""
 
-    agent: Optional[str] = Field(
+    agent_resource_name: Optional[str] = Field(
         default=None,
         description="""The agent engine used to run agent. Agent engine resource name in str type, with format
             `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
@@ -57,11 +57,67 @@ class AgentInfo(_common.BaseModel):
         default=None, description="""List of tools used by the Agent."""
     )
 
+    @staticmethod
+    def _get_tool_declarations_from_agent(agent: Any) -> genai_types.ToolListUnion:
+        """Gets tool declarations from an agent.
+
+        Args:
+          agent: The agent to get the tool declarations from. Data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
+
+        Returns:
+          The tool declarations of the agent.
+        """
+        tool_declarations: genai_types.ToolListUnion = []
+        for tool in agent.tools:
+            tool_declarations.append(
+                {
+                    "function_declarations": [
+                        genai_types.FunctionDeclaration.from_callable_with_api_option(
+                            callable=tool
+                        )
+                    ]
+                }
+            )
+        return tool_declarations
+
+    @classmethod
+    def load_from_agent(
+        cls, agent: Any, agent_resource_name: Optional[str] = None
+    ) -> "AgentInfo":
+        """Loads agent info from an agent.
+
+        Args:
+          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
+          agent_resource_name: Optional. The agent engine resource name.
+
+        Returns:
+          The agent info of the agent.
+
+        Example:
+        ```
+        from vertexai._genai import types
+
+        # Assuming 'my_agent' is an instance of google.adk.agents.LLMAgent
+
+        agent_info = types.evals.AgentInfo.load_from_agent(
+            agent=my_agent,
+            agent_resource_name="projects/123/locations/us-central1/reasoningEngines/456"
+        )
+        ```
+        """
+        return cls(  # pytype: disable=missing-parameter
+            name=agent.name,
+            agent_resource_name=agent_resource_name,
+            instruction=agent.instruction,
+            description=agent.description,
+            tool_declarations=AgentInfo._get_tool_declarations_from_agent(agent),
+        )
+
 
 class AgentInfoDict(TypedDict, total=False):
     """The agent info of an agent, used for agent eval."""
 
-    agent: Optional[str]
+    agent_resource_name: Optional[str]
     """The agent engine used to run agent. Agent engine resource name in str type, with format
             `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
 

@@ -1405,11 +1405,11 @@ class Evals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            if agent_info.agent:
+            if agent_info.agent_resource_name:
                 labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                    "reasoningEngines/"
-                )[-1]
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
@@ -2252,11 +2252,11 @@ class AsyncEvals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            if agent_info.agent:
+            if agent_info.agent_resource_name:
                 labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                    "reasoningEngines/"
-                )[-1]
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
