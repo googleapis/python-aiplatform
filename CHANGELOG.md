@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.126.1](https://github.com/googleapis/python-aiplatform/compare/v1.126.0...v1.126.1) (2025-11-06)
+
+
+### Bug Fixes
+
+* Add telemetry enablement env for agent engines deployed using module ([e64ff28](https://github.com/googleapis/python-aiplatform/commit/e64ff288e4ad0154cfdb09e3361598f9a0cd9f39))
+
 ## [1.126.0](https://github.com/googleapis/python-aiplatform/compare/v1.125.0...v1.126.0) (2025-11-05)
 
 
