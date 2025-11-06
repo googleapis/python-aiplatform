@@ -1024,6 +1024,9 @@ class AgentEngines(_api_module.BaseModule):
             update_masks.append("labels")
             config["labels"] = labels
 
+        if agent_framework == "google-adk":
+            env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
+
         sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         agent_engine_spec = None
         if agent is not None:
