@@ -904,6 +904,52 @@ class TestAgentEngineHelpers:
         ]
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    def test_agent_engine_adk_telemetry_enablement_through_source_packages(
+        self,
+        mock_prepare: mock.Mock,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            source_packages=[],
+            class_methods=[],
+            entrypoint_module=".",
+            entrypoint_object=".",
+            env_vars=env_vars,
+            agent_framework="google-adk",
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["deployment_spec"]["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_create_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="create",
