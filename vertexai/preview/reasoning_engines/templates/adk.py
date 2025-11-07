@@ -550,7 +550,6 @@ class AdkApp:
     ):
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
-        import random
 
         session_state = None
         if request.authorizations:
@@ -559,14 +558,9 @@ class AdkApp:
                 auth = _Authorization(**auth)
                 session_state[auth_id] = auth.access_token
 
-        if request.session_id:
-            session_id = request.session_id
-        else:
-            session_id = f"temp_session_{random.randbytes(8).hex()}"
         session = await session_service.create_session(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=request.user_id,
-            session_id=session_id,
             state=session_state,
         )
         if not session:
@@ -584,7 +578,7 @@ class AdkApp:
                     saved_version = await artifact_service.save_artifact(
                         app_name=self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
-                        session_id=session_id,
+                        session_id=session.id,
                         filename=artifact.file_name,
                         artifact=version_data.data,
                     )
@@ -965,6 +959,7 @@ class AdkApp:
     def streaming_agent_run_with_events(self, request_json: str):
         import json
         from google.genai import types
+        from google.genai.errors import ClientError
 
         event_queue = queue.Queue(maxsize=1)
 
@@ -972,26 +967,41 @@ class AdkApp:
             request = _StreamRunRequest(**json.loads(request_json))
             if not self._tmpl_attrs.get("in_memory_runner"):
                 self.set_up()
+            if not self._tmpl_attrs.get("runner"):
+                self.set_up()
             # Prepare the in-memory session.
             if not self._tmpl_attrs.get("in_memory_artifact_service"):
                 self.set_up()
+            if not self._tmpl_attrs.get("artifact_service"):
+                self.set_up()
             if not self._tmpl_attrs.get("in_memory_session_service"):
                 self.set_up()
-            session_service = self._tmpl_attrs.get("in_memory_session_service")
-            artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+            if not self._tmpl_attrs.get("session_service"):
+                self.set_up()
+
             # Try to get the session, if it doesn't exist, create a new one.
-            session = None
             if request.session_id:
+                session_service = self._tmpl_attrs.get("session_service")
+                artifact_service = self._tmpl_attrs.get("artifact_service")
+                runner = self._tmpl_attrs.get("runner")
                 try:
                     session = await session_service.get_session(
                         app_name=self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
                         session_id=request.session_id,
                     )
-                except RuntimeError:
-                    pass
-            if not session:
-                #  Fall back to create session if the session is not found.
+                except ClientError:
+                    #  Fall back to create session if the session is not found.
+                    session = await self._init_session(
+                        session_service=session_service,
+                        artifact_service=artifact_service,
+                        request=request,
+                    )
+            else:
+                # Not providing a session ID will create a new in-memory session.
+                session_service = self._tmpl_attrs.get("in_memory_session_service")
+                artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+                runner = self._tmpl_attrs.get("in_memory_runner")
                 session = await self._init_session(
                     session_service=session_service,
                     artifact_service=artifact_service,
@@ -1002,7 +1012,7 @@ class AdkApp:
             # Run the agent.
             message_for_agent = types.Content(**request.message)
             try:
-                for event in self._tmpl_attrs.get("in_memory_runner").run(
+                for event in runner.run_async(
                     user_id=request.user_id,
                     session_id=session.id,
                     new_message=message_for_agent,
