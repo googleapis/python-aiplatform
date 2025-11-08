@@ -173,7 +173,7 @@ def test_public_method_generate_rubrics(client):
     assert "text_quality_rubrics" in first_rubric_group
     assert isinstance(first_rubric_group["text_quality_rubrics"], list)
     assert first_rubric_group["text_quality_rubrics"]
-    assert isinstance(first_rubric_group["text_quality_rubrics"][0], types.Rubric)
+    assert isinstance(first_rubric_group["text_quality_rubrics"][0], types.evals.Rubric)
 
 
 pytestmark = pytest_helper.setup(

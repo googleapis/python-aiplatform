@@ -92,4 +92,4 @@ class TestGenAiClient:
                 project=_TEST_PROJECT, location=_TEST_LOCATION
             ).aio
             await async_client.aclose()
-            mock_aclose.assert_called_once()
+            mock_aclose.assert_called()

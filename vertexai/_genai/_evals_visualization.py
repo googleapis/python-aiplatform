@@ -280,7 +280,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 
             // If we have agent info, render as trace
             if(agentInfo) {{
-                let traceHtml = `<div class="trace-event-row"><div class="name"><span class="icon">🏃</span>agent_run</div></div>`;
+                let traceHtml = `<div class="trace-event-row"><div class="name"><span class="icon">🤖</span>agent_run</div></div>`;
                 eventsArray.forEach(event => {{
                     if (event.content && event.content.parts && event.content.parts.length > 0) {{
                         event.content.parts.forEach(part => {{
@@ -708,7 +708,7 @@ def _get_inference_html(dataframe_json: str) -> str:
         body {{ font-family: 'Roboto', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124;}}
         .container {{ max-width: 95%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
         h1 {{ color: #3c4043; border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
-        table {{ border-collapse: collapse; width: 100%; }}
+        table {{ border-collapse: collapse; width: 100%; table-layout: fixed; }}
         th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
         th {{ background-color: #f2f2f2; font-weight: 500;}}
         td > div {{ white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto; overflow-wrap: break-word; }}
@@ -1072,4 +1072,37 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
 
     dataframe_json_string = json.dumps(processed_rows, ensure_ascii=False, default=str)
     html_content = _get_inference_html(dataframe_json_string)
+    display.display(display.HTML(html_content))
+
+
+def _get_status_html(status: str, error_message: Optional[str] = None) -> str:
+    """Returns a simple HTML string for displaying a status and optional error."""
+    error_html = ""
+    if error_message:
+        error_html = f"""
+        <p>
+            <b>Error:</b>
+            <pre style="white-space: pre-wrap; word-wrap: break-word;">{error_message}</pre>
+        </p>
+        """
+
+    return f"""
+    <div>
+        <p><b>Status:</b> {status}</p>
+        {error_html}
+    </div>
+    """
+
+
+def display_evaluation_run_status(eval_run_obj: "types.EvaluationRun") -> None:
+    """Displays the status of an evaluation run in an IPython environment."""
+    if not _is_ipython_env():
+        logger.warning("Skipping display: not in an IPython environment.")
+        return
+    else:
+        from IPython import display
+
+    status = eval_run_obj.state.name if eval_run_obj.state else "UNKNOWN"
+    error_message = str(eval_run_obj.error) if eval_run_obj.error else None
+    html_content = _get_status_html(status, error_message)
     display.display(display.HTML(html_content))

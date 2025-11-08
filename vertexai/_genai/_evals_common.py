@@ -798,7 +798,6 @@ def _execute_inference(
 
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
-            candidate_name="agent",
         )
     else:
         raise ValueError("Either model or agent_engine must be provided.")
@@ -1272,16 +1271,19 @@ def _execute_agent_run_with_retry(
     """Executes agent run for a single prompt."""
     try:
         if isinstance(row["session_inputs"], str):
-            session_inputs = types.SessionInput.model_validate(
+            session_inputs = types.evals.SessionInput.model_validate(
                 json.loads(row["session_inputs"])
             )
         elif isinstance(row["session_inputs"], dict):
-            session_inputs = types.SessionInput.model_validate(row["session_inputs"])
-        elif isinstance(row["session_inputs"], types.SessionInput):
+            session_inputs = types.evals.SessionInput.model_validate(
+                row["session_inputs"]
+            )
+        elif isinstance(row["session_inputs"], types.evals.SessionInput):
             session_inputs = row["session_inputs"]
         else:
             raise TypeError(
-                f"Unsupported session_inputs type: {type(row['session_inputs'])}. Expecting string or dict in types.SessionInput format."
+                f"Unsupported session_inputs type: {type(row['session_inputs'])}. "
+                "Expecting string or dict in types.evals.SessionInput format."
             )
         user_id = session_inputs.user_id
         session_state = session_inputs.state

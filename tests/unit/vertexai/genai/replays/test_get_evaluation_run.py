@@ -251,10 +251,10 @@ def check_run_5133048044039700480_evaluation_item_results(
     assert universal_metric_result.explanation is None
     # Check the first rubric verdict.
     rubric_verdict_0 = universal_metric_result.rubric_verdicts[0]
-    assert isinstance(rubric_verdict_0, types.RubricVerdict)
-    assert rubric_verdict_0.evaluated_rubric == types.Rubric(
-        content=types.RubricContent(
-            property=types.RubricContentProperty(
+    assert isinstance(rubric_verdict_0, types.evals.RubricVerdict)
+    assert rubric_verdict_0.evaluated_rubric == types.evals.Rubric(
+        content=types.evals.RubricContent(
+            property=types.evals.RubricContentProperty(
                 description="The response is in English."
             )
         ),

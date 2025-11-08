@@ -20,8 +20,10 @@ from concurrent import futures
 import json
 import logging
 import statistics
+import time
 from typing import Any, Callable, Optional, TypeVar, Union
 
+from google.genai import errors as genai_errors
 from google.genai import _common
 from google.genai import types as genai_types
 from tqdm import tqdm
@@ -34,6 +36,19 @@ from . import types
 
 
 logger = logging.getLogger(__name__)
+_MAX_RETRIES = 3
+
+
+def _has_tool_call(intermediate_events: Optional[list[types.evals.Event]]) -> bool:
+    """Checks if any event in intermediate_events has a function call."""
+    if not intermediate_events:
+        return False
+    for event in intermediate_events:
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if hasattr(part, "function_call") and part.function_call:
+                    return True
+    return False
 
 
 def _extract_text_from_content(
@@ -480,7 +495,7 @@ class LLMMetricHandler(MetricHandler):
             )
             rubrics_list = []
 
-        parsed_rubrics = [types.Rubric(**r) for r in rubrics_list]
+        parsed_rubrics = [types.evals.Rubric(**r) for r in rubrics_list]
         rubric_enhanced_contents = {
             "prompt": (
                 [eval_case.prompt.model_dump(mode="json", exclude_none=True)]
@@ -535,7 +550,7 @@ class LLMMetricHandler(MetricHandler):
             elif isinstance(value, list) and value:
                 if isinstance(value[0], genai_types.Content):
                     content_list_to_serialize = value
-                elif isinstance(value[0], types.Message):
+                elif isinstance(value[0], types.evals.Message):
                     history_texts = []
                     for msg_obj in value:
                         msg_text = _extract_text_from_content(msg_obj.content)
@@ -900,6 +915,14 @@ class PredefinedMetricHandler(MetricHandler):
                 f"Response content missing for candidate {response_index}."
             )
 
+        if self.metric.name == "tool_use_quality_v1":
+            if not _has_tool_call(eval_case.intermediate_events):
+                logger.warning(
+                    "Metric 'tool_use_quality_v1' requires tool usage in "
+                    "'intermediate_events', but no tool usage was found for case %s.",
+                    eval_case.eval_case_id,
+                )
+
         reference_instance_data = None
         if eval_case.reference:
             reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
@@ -964,9 +987,30 @@ class PredefinedMetricHandler(MetricHandler):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            api_response = self.module._evaluate_instances(
-                metrics=[self.metric], instance=payload.get("instance")
-            )
+            for attempt in range(_MAX_RETRIES):
+                try:
+                    api_response = self.module._evaluate_instances(
+                        metrics=[self.metric], instance=payload.get("instance")
+                    )
+                    break
+                except genai_errors.ClientError as e:
+                    if e.code == 429:
+                        logger.warning(
+                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                            " seconds...",
+                            attempt + 1,
+                            _MAX_RETRIES,
+                            e,
+                            2**attempt,
+                        )
+                        if attempt == _MAX_RETRIES - 1:
+                            return types.EvalCaseMetricResult(
+                                metric_name=metric_name,
+                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
+                            )
+                        time.sleep(2**attempt)
+                    else:
+                        raise e
 
             if (
                 api_response

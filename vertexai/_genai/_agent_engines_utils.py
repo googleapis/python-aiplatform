@@ -128,6 +128,16 @@ _BIDI_STREAM_API_MODE = "bidi_stream"
 _BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
 _BLOB_FILENAME = "agent_engine.pkl"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
+_SUPPORTED_AGENT_FRAMEWORKS = frozenset(
+    [
+        "google-adk",
+        "langchain",
+        "langgraph",
+        "ag2",
+        "llama-index",
+        "custom",
+    ]
+)
 _DEFAULT_ASYNC_METHOD_NAME = "async_query"
 _DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any]"
 _DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
@@ -705,13 +715,43 @@ def _generate_schema(
     return schema
 
 
-def _get_agent_framework(*, agent: _AgentEngineInterface) -> str:
-    if (
-        hasattr(agent, _AGENT_FRAMEWORK_ATTR)
-        and getattr(agent, _AGENT_FRAMEWORK_ATTR) is not None
-        and isinstance(getattr(agent, _AGENT_FRAMEWORK_ATTR), str)
-    ):
-        return getattr(agent, _AGENT_FRAMEWORK_ATTR)
+def _get_agent_framework(
+    *,
+    agent_framework: Optional[str],
+    agent: _AgentEngineInterface,
+) -> str:
+    """Gets the agent framework to use.
+
+    The agent framework is determined in the following order of priority:
+    1. The `agent_framework` passed to this function.
+    2. The `agent_framework` attribute on the `agent` object.
+    3. The default framework, "custom".
+
+    Args:
+        agent_framework (str):
+            The agent framework provided by the user.
+        agent (_AgentEngineInterface):
+            The agent engine instance.
+
+    Returns:
+        str: The name of the agent framework to use.
+    """
+    if agent_framework is not None and agent_framework in _SUPPORTED_AGENT_FRAMEWORKS:
+        logger.info(f"Using agent framework: {agent_framework}")
+        return agent_framework
+    if hasattr(agent, _AGENT_FRAMEWORK_ATTR):
+        agent_framework_attr = getattr(agent, _AGENT_FRAMEWORK_ATTR)
+        if (
+            agent_framework_attr is not None
+            and isinstance(agent_framework_attr, str)
+            and agent_framework_attr in _SUPPORTED_AGENT_FRAMEWORKS
+        ):
+            logger.info(f"Using agent framework: {agent_framework_attr}")
+            return agent_framework_attr
+    logger.info(
+        f"The provided agent framework {agent_framework} is not supported."
+        f" Defaulting to {_DEFAULT_AGENT_FRAMEWORK}."
+    )
     return _DEFAULT_AGENT_FRAMEWORK
 
 
@@ -1845,3 +1885,50 @@ def _validate_resource_limits_or_raise(resource_limits: dict[str, str]) -> None:
             f"Memory size of {memory_str} requires at least {min_cpu} CPUs."
             f" Got {cpu}"
         )
+
+
+def _is_adk_agent(agent_engine: _AgentEngineInterface) -> bool:
+    """Checks if the agent engine is an ADK agent.
+
+    Args:
+        agent_engine: The agent engine to check.
+
+    Returns:
+        True if the agent engine is an ADK agent, False otherwise.
+    """
+
+    from vertexai.agent_engines.templates import adk
+
+    return isinstance(agent_engine, adk.AdkApp)
+
+
+def _add_telemetry_enablement_env(
+    env_vars: Optional[Dict[str, Union[str, Any]]]
+) -> Optional[Dict[str, Union[str, Any]]]:
+    """Adds telemetry enablement env var to the env vars.
+
+    This is in order to achieve default-on telemetry.
+    If the telemetry enablement env var is already set, we do not override it.
+
+    Args:
+        env_vars: The env vars to add the telemetry enablement env var to.
+
+    Returns:
+        The env vars with the telemetry enablement env var added.
+    """
+
+    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+        "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
+    )
+    env_to_add = {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
+
+    if env_vars is None:
+        return env_to_add
+
+    if not isinstance(env_vars, dict):
+        raise TypeError(f"env_vars must be a dict, but got {type(env_vars)}.")
+
+    if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in env_vars:
+        return env_vars
+
+    return env_vars | env_to_add

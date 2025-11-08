@@ -33,6 +33,7 @@ from vertexai._genai import _observability_data_converter
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
+from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
@@ -1132,7 +1133,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name == "agent"
+        assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
@@ -1211,7 +1212,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name == "agent"
+        assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -1512,6 +1513,64 @@ class TestEvalsRunInference:
         _, call_kwargs = mock_run_litellm_inference.call_args
         assert call_kwargs["model"] == "gpt-4o"
         pd.testing.assert_frame_equal(call_kwargs["prompt_dataset"], mock_df)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestEvalsMetricHandlers:
+    """Unit tests for utility functions in _evals_metric_handlers."""
+
+    def test_has_tool_call_with_tool_call(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            )
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
+    def test_has_tool_call_no_tool_call(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(parts=[genai_types.Part(text="hello")]),
+            )
+        ]
+        assert not _evals_metric_handlers._has_tool_call(events)
+
+    def test_has_tool_call_empty_events(self):
+        assert not _evals_metric_handlers._has_tool_call([])
+
+    def test_has_tool_call_none_events(self):
+        assert not _evals_metric_handlers._has_tool_call(None)
+
+    def test_has_tool_call_mixed_events(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(parts=[genai_types.Part(text="hello")]),
+            ),
+            vertexai_genai_types.evals.Event(
+                event_id="2",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            ),
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -2314,7 +2373,7 @@ class TestFlattenEvalDataConverter:
                 "response": ["Hi"],
                 "intermediate_events": [
                     [
-                        vertexai_genai_types.Event(
+                        vertexai_genai_types.evals.Event(
                             event_id="event1",
                             content=genai_types.Content(
                                 parts=[genai_types.Part(text="intermediate event")]
@@ -2577,14 +2636,14 @@ class TestObservabilityDataConverter:
         )
 
         assert len(eval_case.conversation_history) == 2
-        assert eval_case.conversation_history[0] == vertexai_genai_types.Message(
+        assert eval_case.conversation_history[0] == vertexai_genai_types.evals.Message(
             content=genai_types.Content(
                 parts=[genai_types.Part(text="Hello")], role="user"
             ),
             turn_id="0",
             author="user",
         )
-        assert eval_case.conversation_history[1] == vertexai_genai_types.Message(
+        assert eval_case.conversation_history[1] == vertexai_genai_types.evals.Message(
             content=genai_types.Content(
                 parts=[genai_types.Part(text="Hi")], role="system"
             ),
@@ -2781,12 +2840,46 @@ class TestAgentInfo:
         assert agent_info.description == "description1"
         assert agent_info.tool_declarations == [tool]
 
+    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
+    def test_load_from_agent(self, mock_from_callable):
+        def my_search_tool(query: str) -> str:
+            """Searches for information."""
+            return f"search result for {query}"
+
+        mock_function_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_from_callable.return_value = mock_function_declaration
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [my_search_tool]
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+            agent_resource_name="projects/123/locations/abc/reasoningEngines/456",
+        )
+
+        assert agent_info.name == "mock_agent"
+        assert agent_info.instruction == "mock instruction"
+        assert agent_info.description == "mock description"
+        assert (
+            agent_info.agent_resource_name
+            == "projects/123/locations/abc/reasoningEngines/456"
+        )
+        assert len(agent_info.tool_declarations) == 1
+        assert isinstance(agent_info.tool_declarations[0], genai_types.Tool)
+        assert agent_info.tool_declarations[0].function_declarations == [
+            mock_function_declaration
+        ]
+        mock_from_callable.assert_called_once_with(callable=my_search_tool)
+
 
 class TestEvent:
     """Unit tests for the Event class."""
 
     def test_event_creation(self):
-        event = vertexai_genai_types.Event(
+        event = vertexai_genai_types.evals.Event(
             event_id="event1",
             content=genai_types.Content(
                 parts=[genai_types.Part(text="intermediate event")]
@@ -2820,7 +2913,7 @@ class TestEvalCase:
             tool_declarations=[tool],
         )
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -2846,7 +2939,7 @@ class TestSessionInput:
     """Unit tests for the SessionInput class."""
 
     def test_session_input_creation(self):
-        session_input = vertexai_genai_types.SessionInput(
+        session_input = vertexai_genai_types.evals.SessionInput(
             user_id="user1",
             state={"key": "value"},
         )
@@ -3692,7 +3785,7 @@ class TestPredefinedMetricHandler:
             tool_declarations=[tool],
         )
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -3722,7 +3815,7 @@ class TestPredefinedMetricHandler:
 
     def test_eval_case_to_agent_data_events_only(self):
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -3751,7 +3844,7 @@ class TestPredefinedMetricHandler:
 
     def test_eval_case_to_agent_data_empty_event_content(self):
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=None,
             )
@@ -3855,6 +3948,39 @@ class TestPredefinedMetricHandler:
 
         assert agent_data.agent_config is None
 
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_tool_use_quality_metric_no_tool_call_logs_warning(
+        self, mock_warning, mock_api_client_fixture
+    ):
+        """Tests that PredefinedMetricHandler warns for tool_use_quality_v1 if no tool call."""
+        metric = vertexai_genai_types.Metric(name="tool_use_quality_v1")
+        handler = _evals_metric_handlers.PredefinedMetricHandler(
+            module=evals.Evals(api_client_=mock_api_client_fixture), metric=metric
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            eval_case_id="case-no-tool-call",
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            intermediate_events=[
+                vertexai_genai_types.evals.Event(
+                    event_id="event1",
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="intermediate event")]
+                    ),
+                )
+            ],
+        )
+        handler._build_request_payload(eval_case, response_index=0)
+        mock_warning.assert_called_once_with(
+            "Metric 'tool_use_quality_v1' requires tool usage in "
+            "'intermediate_events', but no tool usage was found for case %s.",
+            "case-no-tool-call",
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLLMMetricHandlerPayload:
@@ -3933,12 +4059,12 @@ class TestLLMMetricHandlerPayload:
                 )
             ],
             conversation_history=[
-                vertexai_genai_types.Message(
+                vertexai_genai_types.evals.Message(
                     content=genai_types.Content(
                         parts=[genai_types.Part(text="Turn 1 user")], role="user"
                     )
                 ),
-                vertexai_genai_types.Message(
+                vertexai_genai_types.evals.Message(
                     content=genai_types.Content(
                         parts=[genai_types.Part(text="Turn 1 model")], role="model"
                     )
@@ -4860,6 +4986,110 @@ class TestEvalsRunEvaluation:
 
         assert result.metadata is not None
         assert result.metadata.creation_timestamp == mock_now
+
+    @mock.patch(
+        "vertexai._genai._evals_metric_handlers._evals_constant.SUPPORTED_PREDEFINED_METRICS",
+        frozenset(["summarization_quality"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("vertexai._genai.evals.Evals._evaluate_instances")
+    def test_predefined_metric_retry_on_resource_exhausted(
+        self,
+        mock_private_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        metric = vertexai_genai_types.Metric(name="summarization_quality")
+        metric_result = vertexai_genai_types.MetricResult(
+            score=0.9,
+            explanation="Mocked predefined explanation",
+            rubric_verdicts=[],
+            error=None,
+        )
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": ("Judge model resource exhausted. Please try again later."),
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        mock_private_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            vertexai_genai_types.EvaluateInstancesResponse(
+                metric_results=[metric_result]
+            ),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_private_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "summarization_quality"
+        assert summary_metric.mean_score == 0.9
+
+    @mock.patch(
+        "vertexai._genai._evals_metric_handlers._evals_constant.SUPPORTED_PREDEFINED_METRICS",
+        frozenset(["summarization_quality"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("vertexai._genai.evals.Evals._evaluate_instances")
+    def test_predefined_metric_retry_fail_on_resource_exhausted(
+        self,
+        mock_private_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": ("Judge model resource exhausted. Please try again later."),
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        metric = vertexai_genai_types.Metric(name="summarization_quality")
+        mock_private_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_private_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "summarization_quality"
+        assert summary_metric.mean_score is None
+        assert summary_metric.num_cases_error == 1
+        assert (
+            "Judge model resource exhausted after 3 retries"
+        ) in result.eval_case_results[0].response_candidate_results[0].metric_results[
+            "summarization_quality"
+        ].error_message
 
 
 class TestEvaluationDataset:
