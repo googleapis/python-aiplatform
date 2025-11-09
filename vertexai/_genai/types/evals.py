@@ -420,6 +420,10 @@ class SessionInput(_common.BaseModel):
     state: Optional[dict[str, str]] = Field(
         default=None, description="""The state of the session."""
     )
+    app_name: Optional[str] = Field(
+        default=None,
+        description="""The name of the app, used for local ADK agent run Runner and Session.""",
+    )
 
 
 class SessionInputDict(TypedDict, total=False):
@@ -433,6 +437,9 @@ class SessionInputDict(TypedDict, total=False):
 
     state: Optional[dict[str, str]]
     """The state of the session."""
+
+    app_name: Optional[str]
+    """The name of the app, used for local ADK agent run Runner and Session."""
 
 
 SessionInputOrDict = Union[SessionInput, SessionInputDict]
