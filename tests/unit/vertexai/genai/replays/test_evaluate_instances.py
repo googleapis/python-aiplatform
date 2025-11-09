@@ -15,6 +15,7 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 import json
+from unittest import mock
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
@@ -246,6 +247,64 @@ def test_run_inference_with_agent(client):
         agent="projects/977012026409/locations/us-central1/reasoningEngines/7188347537655332864",
         src=test_df,
     )
+    assert inference_result.candidate_name is None
+    assert inference_result.gcs_source is None
+
+
+@mock.patch(
+    "google.cloud.aiplatform.vertexai._genai._evals_common.InMemorySessionService"
+)
+@mock.patch("google.cloud.aiplatform.vertexai._genai._evals_common.Runner")
+@mock.patch("google.cloud.aiplatform.vertexai._genai._evals_common.LlmAgent")
+def test_run_inference_with_local_agent(
+    mock_llm_agent,
+    mock_runner,
+    mock_session_service,
+    client,
+    tmp_path,
+):
+    data = {
+        "prompt": "agent prompt",
+        "session_inputs": {"user_id": "123", "state": {"a": "1"}},
+    }
+    jsonl_path = tmp_path / "test_df.jsonl"
+    with open(jsonl_path, "w") as f:
+        f.write(json.dumps(data))
+    mock_agent_instance = mock.Mock()
+    mock_llm_agent.return_value = mock_agent_instance
+    mock_runner_instance = mock_runner.return_value
+    stream_run_return_value = [
+        mock.Mock(
+            model_dump=lambda: {
+                "id": "1",
+                "content": {"parts": [{"text": "intermediate1"}]},
+                "timestamp": 123,
+                "author": "model",
+            }
+        ),
+        mock.Mock(
+            model_dump=lambda: {
+                "id": "2",
+                "content": {"parts": [{"text": "agent response"}]},
+                "timestamp": 124,
+                "author": "model",
+            }
+        ),
+    ]
+    mock_runner_instance.run.return_value = iter(stream_run_return_value)
+
+    inference_result = client.evals.run_inference(
+        agent=mock_agent_instance,
+        src=str(jsonl_path),
+    )
+
+    mock_session_service.assert_called_once()
+    mock_runner.assert_called_once_with(
+        agent=mock_agent_instance,
+        app_name="local agent run",
+        session_service=mock_session_service.return_value,
+    )
+    mock_runner_instance.run.assert_called_once()
     assert inference_result.candidate_name is None
     assert inference_result.gcs_source is None
 
