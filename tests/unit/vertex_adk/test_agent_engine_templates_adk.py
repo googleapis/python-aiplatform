@@ -18,6 +18,7 @@ import json
 import os
 import cloudpickle
 import sys
+import re
 from unittest import mock
 from typing import Optional
 
@@ -54,6 +55,7 @@ except ImportError:
 
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
+_TEST_API_KEY = "test-api-key"
 _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
 _TEST_AGENT_NAME = "test_agent"
@@ -168,6 +170,34 @@ def trace_provider_mock():
         opentelemetry.sdk.trace, "TracerProvider"
     ) as tracer_provider_mock:
         yield tracer_provider_mock
+
+
+@pytest.fixture
+def trace_provider_force_flush_mock():
+    import opentelemetry.trace
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.trace, "get_tracer_provider"
+    ) as get_tracer_provider_mock:
+        get_tracer_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk.trace.TracerProvider()
+        )
+        yield get_tracer_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
+def logger_provider_force_flush_mock():
+    import opentelemetry._logs
+    import opentelemetry.sdk._logs
+
+    with mock.patch.object(
+        opentelemetry._logs, "get_logger_provider"
+    ) as get_logger_provider_mock:
+        get_logger_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk._logs.LoggerProvider()
+        )
+        yield get_logger_provider_mock.return_value.force_flush
 
 
 @pytest.fixture
@@ -352,6 +382,29 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+    )
+    async def test_async_stream_query_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_async_stream_query_with_content(self):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
@@ -402,6 +455,46 @@ class TestAdkApp:
         ):
             events.append(event)
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+    )
+    async def test_streaming_agent_run_with_events_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+        request_json = json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "file_name": "test_file_name",
+                        "versions": [{"version": "v1", "data": "v1data"}],
+                    }
+                ],
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                    "test_user_id2": {"accessToken": "test-access-token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        async for _ in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_async_create_session(self):
@@ -545,6 +638,9 @@ class TestAdkApp:
             ("1.16.0", None, False, False, False),
             ("1.16.0", None, True, False, True),
             ("1.16.0", None, None, False, False),
+            ("1.16.0", None, "unspecified", False, False),
+            ("1.16.0", False, "unspecified", False, False),
+            ("1.16.0", True, "unspecified", True, False),
             ("1.17.0", False, False, False, False),
             ("1.17.0", False, True, False, True),
             ("1.17.0", False, None, False, False),
@@ -554,6 +650,9 @@ class TestAdkApp:
             ("1.17.0", None, False, False, False),
             ("1.17.0", None, True, True, True),
             ("1.17.0", None, None, False, False),
+            ("1.17.0", None, "unspecified", False, False),
+            ("1.17.0", False, "unspecified", False, False),
+            ("1.17.0", True, "unspecified", True, False),
         ],
     )
     @mock.patch.dict(os.environ)
@@ -598,6 +697,9 @@ class TestAdkApp:
             ("1.16.0", None, False, False),
             ("1.16.0", None, True, False),
             ("1.16.0", None, None, False),
+            ("1.16.0", None, "unspecified", False),
+            ("1.16.0", False, "unspecified", False),
+            ("1.16.0", True, "unspecified", True),
             ("1.17.0", False, False, False),
             ("1.17.0", False, True, False),
             ("1.17.0", False, None, False),
@@ -607,6 +709,9 @@ class TestAdkApp:
             ("1.17.0", None, False, False),
             ("1.17.0", None, True, True),
             ("1.17.0", None, None, False),
+            ("1.17.0", None, "unspecified", False),
+            ("1.17.0", False, "unspecified", False),
+            ("1.17.0", True, "unspecified", True),
         ],
     )
     @mock.patch.dict(os.environ)
@@ -666,6 +771,7 @@ class TestAdkApp:
             "telemetry.sdk.version": "1.36.0",
             "gcp.project_id": "test-project",
             "cloud.account.id": "test-project",
+            "cloud.platform": "gcp.agent_engine",
             "service.name": "test_agent_id",
             "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
             "service.instance.id": "12345678123456781234567812345678-123123123",
@@ -676,8 +782,17 @@ class TestAdkApp:
         otlp_span_exporter_mock.assert_called_once_with(
             session=mock.ANY,
             endpoint="https://telemetry.googleapis.com/v1/traces",
+            headers=mock.ANY,
         )
 
+        user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
+        assert (
+            re.fullmatch(
+                r"Vertex-Agent-Engine\/[\d\.]+ OTel-OTLP-Exporter-Python\/[\d\.]+",
+                user_agent,
+            )
+            is not None
+        )
         assert (
             trace_provider_mock.call_args.kwargs["resource"].attributes
             == expected_attributes
@@ -707,6 +822,22 @@ class TestAdkApp:
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+    # @pytest.mark.parametrize(
+    #     "enable_tracing,want_warning",
+    #     [
+    #         (True, False),
+    #         (False, True),
+    #         (None, False),
+    #     ],
+    # )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
+    #     _ = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=enable_tracing)
+    #     assert (
+    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+    #     ) == want_warning
 
     @mock.patch.dict(os.environ)
     def test_span_content_capture_disabled_by_default(self):
@@ -758,6 +889,41 @@ def test_dump_event_for_json():
     assert "thought_signature" in part
     assert isinstance(part["thought_signature"], str)
     assert base64.b64decode(part["thought_signature"]) == raw_signature
+
+
+def test_adk_app_initialization_with_api_key():
+    importlib.reload(initializer)
+    importlib.reload(vertexai)
+    try:
+        vertexai.init(api_key=_TEST_API_KEY)
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("project") is None
+        assert app._tmpl_attrs.get("location") is None
+        assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert os.environ.get("GOOGLE_API_KEY") == _TEST_API_KEY
+        assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+        assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+    finally:
+        initializer.global_pool.shutdown(wait=True)
+
+
+def test_adk_app_initialization_with_env_api_key():
+    try:
+        os.environ["GOOGLE_API_KEY"] == _TEST_API_KEY
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("project") is None
+        assert app._tmpl_attrs.get("location") is None
+        assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+        assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+    finally:
+        initializer.global_pool.shutdown(wait=True)
 
 
 @pytest.mark.usefixtures("mock_adk_version")
@@ -876,14 +1042,18 @@ class TestAgentEngines:
     @pytest.mark.parametrize(
         "env_vars,expected_env_vars",
         [
-            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
-            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
             (
                 {"some_env": "some_val"},
                 {
                     "some_env": "some_val",
-                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
                 },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
             ),
             (
                 {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
@@ -916,14 +1086,18 @@ class TestAgentEngines:
     @pytest.mark.parametrize(
         "env_vars,expected_env_vars",
         [
-            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
-            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}),
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
             (
                 {"some_env": "some_val"},
                 {
                     "some_env": "some_val",
-                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
                 },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
             ),
             (
                 {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},

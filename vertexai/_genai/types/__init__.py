@@ -146,7 +146,6 @@ from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
 from .common import CandidateResult
 from .common import CandidateResultDict
-from .common import CandidateResultOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
@@ -343,7 +342,6 @@ from .common import EventDict
 from .common import EventMetadata
 from .common import EventMetadataDict
 from .common import EventMetadataOrDict
-from .common import EventOrDict
 from .common import ExactMatchInput
 from .common import ExactMatchInputDict
 from .common import ExactMatchInputOrDict
@@ -432,6 +430,7 @@ from .common import GetMultimodalDatasetOperationConfigOrDict
 from .common import GetPromptConfig
 from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
+from .common import IdentityType
 from .common import Importance
 from .common import IntermediateExtractedMemory
 from .common import IntermediateExtractedMemoryDict
@@ -493,6 +492,9 @@ from .common import LLMBasedMetricSpec
 from .common import LLMBasedMetricSpecDict
 from .common import LLMBasedMetricSpecOrDict
 from .common import LLMMetric
+from .common import LustreMount
+from .common import LustreMountDict
+from .common import LustreMountOrDict
 from .common import MachineConfig
 from .common import MachineSpec
 from .common import MachineSpecDict
@@ -552,7 +554,6 @@ from .common import MemoryTopicIdDict
 from .common import MemoryTopicIdOrDict
 from .common import Message
 from .common import MessageDict
-from .common import MessageOrDict
 from .common import Metadata
 from .common import MetadataDict
 from .common import MetadataOrDict
@@ -587,9 +588,6 @@ from .common import OptimizeResponseEndpoint
 from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
-from .common import OptimizerMethodPlaceholder
-from .common import OptimizerMethodPlaceholderDict
-from .common import OptimizerMethodPlaceholderOrDict
 from .common import OptimizeTarget
 from .common import PairwiseChoice
 from .common import PairwiseMetricInput
@@ -758,10 +756,8 @@ from .common import RubricBasedMetricSpecDict
 from .common import RubricBasedMetricSpecOrDict
 from .common import RubricContent
 from .common import RubricContentDict
-from .common import RubricContentOrDict
 from .common import RubricContentProperty
 from .common import RubricContentPropertyDict
-from .common import RubricContentPropertyOrDict
 from .common import RubricContentType
 from .common import RubricDict
 from .common import RubricEnhancedContents
@@ -776,10 +772,8 @@ from .common import RubricGenerationSpecOrDict
 from .common import RubricGroup
 from .common import RubricGroupDict
 from .common import RubricGroupOrDict
-from .common import RubricOrDict
 from .common import RubricVerdict
 from .common import RubricVerdictDict
-from .common import RubricVerdictOrDict
 from .common import SamplingConfig
 from .common import SamplingConfigDict
 from .common import SamplingConfigOrDict
@@ -879,9 +873,6 @@ from .common import SessionDict
 from .common import SessionEvent
 from .common import SessionEventDict
 from .common import SessionEventOrDict
-from .common import SessionInput
-from .common import SessionInputDict
-from .common import SessionInputOrDict
 from .common import SessionOrDict
 from .common import State
 from .common import Strategy
@@ -993,21 +984,6 @@ __all__ = [
     "EvaluationItemRequest",
     "EvaluationItemRequestDict",
     "EvaluationItemRequestOrDict",
-    "RubricContentProperty",
-    "RubricContentPropertyDict",
-    "RubricContentPropertyOrDict",
-    "RubricContent",
-    "RubricContentDict",
-    "RubricContentOrDict",
-    "Rubric",
-    "RubricDict",
-    "RubricOrDict",
-    "RubricVerdict",
-    "RubricVerdictDict",
-    "RubricVerdictOrDict",
-    "CandidateResult",
-    "CandidateResultDict",
-    "CandidateResultOrDict",
     "EvaluationItemResult",
     "EvaluationItemResultDict",
     "EvaluationItemResultOrDict",
@@ -1062,12 +1038,6 @@ __all__ = [
     "ResponseCandidate",
     "ResponseCandidateDict",
     "ResponseCandidateOrDict",
-    "Event",
-    "EventDict",
-    "EventOrDict",
-    "Message",
-    "MessageDict",
-    "MessageOrDict",
     "EvalCase",
     "EvalCaseDict",
     "EvalCaseOrDict",
@@ -1299,6 +1269,9 @@ __all__ = [
     "DiskSpec",
     "DiskSpecDict",
     "DiskSpecOrDict",
+    "LustreMount",
+    "LustreMountDict",
+    "LustreMountOrDict",
     "ReservationAffinity",
     "ReservationAffinityDict",
     "ReservationAffinityOrDict",
@@ -1347,12 +1320,6 @@ __all__ = [
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
-    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfig",
-    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict",
-    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict",
-    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig",
-    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict",
-    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict",
     "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic",
     "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict",
     "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict",
@@ -1380,6 +1347,12 @@ __all__ = [
     "MemoryBankCustomizationConfig",
     "MemoryBankCustomizationConfigDict",
     "MemoryBankCustomizationConfigOrDict",
+    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfig",
+    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict",
+    "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict",
+    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig",
+    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict",
+    "ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigOrDict",
@@ -1746,9 +1719,6 @@ __all__ = [
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
-    "OptimizerMethodPlaceholder",
-    "OptimizerMethodPlaceholderDict",
-    "OptimizerMethodPlaceholderOrDict",
     "ApplicableGuideline",
     "ApplicableGuidelineDict",
     "ApplicableGuidelineOrDict",
@@ -1776,9 +1746,6 @@ __all__ = [
     "EvaluationRunInferenceConfig",
     "EvaluationRunInferenceConfigDict",
     "EvaluationRunInferenceConfigOrDict",
-    "SessionInput",
-    "SessionInputDict",
-    "SessionInputOrDict",
     "WinRateStats",
     "WinRateStatsDict",
     "WinRateStatsOrDict",
@@ -1832,6 +1799,7 @@ __all__ = [
     "AcceleratorType",
     "Type",
     "JobState",
+    "IdentityType",
     "AgentServerMode",
     "ManagedTopicEnum",
     "Language",
@@ -1841,7 +1809,6 @@ __all__ = [
     "SamplingMethod",
     "RubricContentType",
     "EvaluationRunState",
-    "Importance",
     "OptimizeTarget",
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "PromptOptimizerMethod",
@@ -1850,6 +1817,21 @@ __all__ = [
     "PromptDataOrDict",
     "LLMMetric",
     "MetricPromptBuilder",
+    "RubricContentProperty",
+    "RubricContentPropertyDict",
+    "RubricContent",
+    "RubricContentDict",
+    "Rubric",
+    "RubricDict",
+    "RubricVerdict",
+    "RubricVerdictDict",
+    "CandidateResult",
+    "CandidateResultDict",
+    "Event",
+    "EventDict",
+    "Message",
+    "MessageDict",
+    "Importance",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",

@@ -1,5 +1,80 @@
 # Changelog
 
+## [1.126.1](https://github.com/googleapis/python-aiplatform/compare/v1.126.0...v1.126.1) (2025-11-06)
+
+
+### Bug Fixes
+
+* Add telemetry enablement env for agent engines deployed using module ([e64ff28](https://github.com/googleapis/python-aiplatform/commit/e64ff288e4ad0154cfdb09e3361598f9a0cd9f39))
+
+## [1.126.0](https://github.com/googleapis/python-aiplatform/compare/v1.125.0...v1.126.0) (2025-11-05)
+
+
+### Features
+
+* Default to "unspecified" for telemetry enablement ([3ca65cb](https://github.com/googleapis/python-aiplatform/commit/3ca65cbe3ff3bba573bbf36d54d3a7102c740209))
+* GenAI Client(evals) - Add loading agent info util function ([acb6cab](https://github.com/googleapis/python-aiplatform/commit/acb6cabb574e7c08f1c67090b7d7c73c4425f8f7))
+* GenAI Client(evals): Add warning message when tool usage is empty for tool_use_quality ([531d223](https://github.com/googleapis/python-aiplatform/commit/531d2235bd6c6a671d0ca11db11aff2201ee928b))
+
+
+### Bug Fixes
+
+* Populate missing auth_id for _init_session into adk session.state ([37fa3ce](https://github.com/googleapis/python-aiplatform/commit/37fa3ce353ffe34195828ba383a6575c0dbb955d))
+
+## [1.125.0](https://github.com/googleapis/python-aiplatform/compare/v1.124.0...v1.125.0) (2025-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Switch tracing APIs in preview AdkApp.
+* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API.
+
+### Features
+
+* Add reservation affinity support to preview BatchPredictionJob ([c8f38a0](https://github.com/googleapis/python-aiplatform/commit/c8f38a0a51c318a5065438067f85f31be5088af1))
+* Add support for Vertex Express Mode API key in AdkApp ([05834cb](https://github.com/googleapis/python-aiplatform/commit/05834cb43302cf2bfc34f25f400d075e44aa9df3))
+* Add the identity type option for the agent engine and add effective identity to the resource ([bf1851e](https://github.com/googleapis/python-aiplatform/commit/bf1851e59cb34e63b509a2a610e72691e1c4ca28))
+* Alow VertexAiSession for streaming_agent_run_with_events ([13faa27](https://github.com/googleapis/python-aiplatform/commit/13faa27376814f7b0a223ff9455c289a9af75288))
+* GenAI Client(evals) - Add retry to predefine metric ([9a46e67](https://github.com/googleapis/python-aiplatform/commit/9a46e67a8c341673b14bece88bc635b455314711))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Change dataset visualization table to fixed to prevent horizontal expansion. ([7a5a066](https://github.com/googleapis/python-aiplatform/commit/7a5a0667b915bb0ed1009ffc8034a8d29fb2d20e))
+* GenAI Client(evals) - Remove requirement for `agent_info.agent` in `create_evaluation_run` in Vertex AI GenAI SDK evals. ([d02a7da](https://github.com/googleapis/python-aiplatform/commit/d02a7da393a6bb8b1a9c462243b399b62911378c))
+* GenAI Client(evals) - Support direct pandas DataFrame dataset in evaluate() ([a917122](https://github.com/googleapis/python-aiplatform/commit/a9171221e3bafecdc75580c3f25347f1c3d18851))
+* Revert: Alow VertexAiSession for streaming_agent_run_with_events ([7c8c218](https://github.com/googleapis/python-aiplatform/commit/7c8c218f47a6fd919cae6869736d35e4206a123e))
+
+
+### Miscellaneous Chores
+
+* Release 1.125.0 ([d344858](https://github.com/googleapis/python-aiplatform/commit/d34485880bdefd21dccac4548656af1eaedb3727))
+* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API. ([c81f912](https://github.com/googleapis/python-aiplatform/commit/c81f9124dce841a7cbc310c6c7652ad793c9a58f))
+* Switch tracing APIs in preview AdkApp. ([27ef56b](https://github.com/googleapis/python-aiplatform/commit/27ef56b8319ba793f6f00e7857fe0c20c2c8b61a))
+
+## [1.124.0](https://github.com/googleapis/python-aiplatform/compare/v1.123.0...v1.124.0) (2025-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing
+
+### Features
+
+* GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing ([4216790](https://github.com/googleapis/python-aiplatform/commit/42167900de819d82afb7dde93238fb9926738867))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Apply sync function for agent run ([8a20349](https://github.com/googleapis/python-aiplatform/commit/8a2034900c6caa9349d00a0fcf0f5e7af762f9ef))
+* GenAI Client(evals) - Support EvaluationDataset output from run_inference as input `dataset` in `create_evaluation_run` in Vertex AI GenAI SDK evals ([741c6ad](https://github.com/googleapis/python-aiplatform/commit/741c6ad6bf860ec10653f86ad816a62465cdaaf5))
+* GenAI Client(evals) - Update send online eval service request default value and avoid None value ([09bf9a9](https://github.com/googleapis/python-aiplatform/commit/09bf9a99d70bacd67ae741bbebbfad71e8fed821))
+
+
+### Miscellaneous Chores
+
+* Release 1.124.0 ([35ac4c5](https://github.com/googleapis/python-aiplatform/commit/35ac4c5d042c350c1af25e37b55983c3866d831d))
+
 ## [1.123.0](https://github.com/googleapis/python-aiplatform/compare/v1.122.0...v1.123.0) (2025-10-29)
 
 

@@ -361,7 +361,7 @@ def _RubricBasedMetricSpec_to_vertex(
         setv(
             to_object,
             ["inline_rubrics", "rubrics"],
-            [item for item in getv(from_object, ["inline_rubrics"])],
+            getv(from_object, ["inline_rubrics"]),
         )
 
     if getv(from_object, ["rubric_group_key"]) is not None:
@@ -970,7 +970,9 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         dataset: Union[
-            types.EvaluationDatasetOrDict, list[types.EvaluationDatasetOrDict]
+            pd.DataFrame,
+            types.EvaluationDatasetOrDict,
+            list[types.EvaluationDatasetOrDict],
         ],
         metrics: list[types.MetricOrDict] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
@@ -979,10 +981,13 @@ class Evals(_api_module.BaseModule):
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
         Args:
-          dataset: The dataset(s) to evaluate. Can be a single `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+          dataset: The dataset(s) to evaluate. Can be a pandas DataFrame, a single
+            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
           metrics: The list of metrics to use for evaluation.
-          config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
-            - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
+          config: Optional configuration for the evaluation. Can be a dictionary or a
+            `types.EvaluateMethodConfig` object.
+            - dataset_schema: Schema to use for the dataset. If not specified, the
+              dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
@@ -993,6 +998,10 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig()
         if isinstance(config, dict):
             config = types.EvaluateMethodConfig.model_validate(config)
+
+        if isinstance(dataset, pd.DataFrame):
+            dataset = types.EvaluationDataset(eval_dataset_df=dataset)
+
         if isinstance(dataset, list):
             dataset = [
                 (
@@ -1334,11 +1343,9 @@ class Evals(_api_module.BaseModule):
         *,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        metrics: Optional[
-            list[types.EvaluationRunMetricOrDict]
-        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.evals.AgentInfoOrDict] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
@@ -1348,9 +1355,9 @@ class Evals(_api_module.BaseModule):
         Args:
           dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
           dest: The GCS URI prefix to write the evaluation results to.
+          metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          metrics: The list of metrics to evaluate.
           agent_info: The agent info to evaluate.
           labels: The labels to apply to the evaluation run.
           config: The configuration for the evaluation run.
@@ -1358,15 +1365,22 @@ class Evals(_api_module.BaseModule):
         Returns:
             The created evaluation run.
         """
+        if agent_info and isinstance(agent_info, dict):
+            agent_info = types.evals.AgentInfo.model_validate(agent_info)
         if type(dataset).__name__ == "EvaluationDataset":
-            logger.warning(
-                "EvaluationDataset input is experimental and may change in future versions."
-            )
             if dataset.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
                 )
-            if dataset.candidate_name is None and agent_info:
+            if (
+                dataset.candidate_name
+                and agent_info.name
+                and dataset.candidate_name != agent_info.name
+            ):
+                logger.warning(
+                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+                )
+            elif dataset.candidate_name is None and agent_info:
                 dataset.candidate_name = agent_info.name
             eval_set = _evals_common._create_evaluation_set_from_dataframe(
                 self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
@@ -1383,18 +1397,6 @@ class Evals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            logger.warning(
-                "The agent_info field is experimental and may change in future versions."
-            )
-            if isinstance(agent_info, dict):
-                agent_info = types.evals.AgentInfo.model_validate(agent_info)
-            if (
-                not agent_info.agent
-                or len(agent_info.agent.split("reasoningEngines/")) != 2
-            ):
-                raise ValueError(
-                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
-                )
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -1403,10 +1405,11 @@ class Evals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            labels = labels or {}
-            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                "reasoningEngines/"
-            )[-1]
+            if agent_info.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
@@ -2187,11 +2190,9 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
         dest: str,
+        metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        metrics: Optional[
-            list[types.EvaluationRunMetricOrDict]
-        ] = None,  # TODO: Make required unified metrics available in prod.
         agent_info: Optional[types.evals.AgentInfo] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
@@ -2201,9 +2202,9 @@ class AsyncEvals(_api_module.BaseModule):
         Args:
           dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
           dest: The GCS URI prefix to write the evaluation results to.
+          metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          metrics: The list of metrics to evaluate.
           agent_info: The agent info to evaluate.
           labels: The labels to apply to the evaluation run.
           config: The configuration for the evaluation run.
@@ -2211,15 +2212,22 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
             The created evaluation run.
         """
+        if agent_info and isinstance(agent_info, dict):
+            agent_info = types.evals.AgentInfo.model_validate(agent_info)
         if type(dataset).__name__ == "EvaluationDataset":
-            logger.warning(
-                "EvaluationDataset input is experimental and may change in future versions."
-            )
             if dataset.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
                 )
-            if dataset.candidate_name is None and agent_info:
+            if (
+                dataset.candidate_name
+                and agent_info.name
+                and dataset.candidate_name != agent_info.name
+            ):
+                logger.warning(
+                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+                )
+            elif dataset.candidate_name is None and agent_info:
                 dataset.candidate_name = agent_info.name
             eval_set = _evals_common._create_evaluation_set_from_dataframe(
                 self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
@@ -2236,18 +2244,6 @@ class AsyncEvals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            logger.warning(
-                "The agent_info field is experimental and may change in future versions."
-            )
-            if isinstance(agent_info, dict):
-                agent_info = types.evals.AgentInfo.model_validate(agent_info)
-            if (
-                not agent_info.agent
-                or len(agent_info.agent.split("reasoningEngines/")) != 2
-            ):
-                raise ValueError(
-                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
-                )
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -2256,10 +2252,11 @@ class AsyncEvals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            labels = labels or {}
-            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                "reasoningEngines/"
-            )[-1]
+            if agent_info.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 

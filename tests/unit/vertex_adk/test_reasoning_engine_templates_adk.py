@@ -16,8 +16,8 @@ import asyncio
 import base64
 import importlib
 import json
-import dataclasses
 import os
+import re
 from unittest import mock
 from typing import Optional
 
@@ -112,27 +112,11 @@ def simple_span_processor_mock():
 
 
 @pytest.fixture
-def cloud_trace_exporter_mock():
-    import sys
-    import opentelemetry
-
-    mock_cloud_trace_exporter = mock.Mock()
-
-    opentelemetry.exporter = type(sys)("exporter")
-    opentelemetry.exporter.cloud_trace = type(sys)("cloud_trace")
-    opentelemetry.exporter.cloud_trace.CloudTraceSpanExporter = (
-        mock_cloud_trace_exporter
-    )
-
-    sys.modules["opentelemetry.exporter"] = opentelemetry.exporter
-    sys.modules["opentelemetry.exporter.cloud_trace"] = (
-        opentelemetry.exporter.cloud_trace
-    )
-
-    yield mock_cloud_trace_exporter
-
-    del sys.modules["opentelemetry.exporter.cloud_trace"]
-    del sys.modules["opentelemetry.exporter"]
+def otlp_span_exporter_mock():
+    with mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    ) as otlp_span_exporter_mock:
+        yield otlp_span_exporter_mock
 
 
 @pytest.fixture
@@ -143,6 +127,34 @@ def trace_provider_mock():
         opentelemetry.sdk.trace, "TracerProvider"
     ) as tracer_provider_mock:
         yield tracer_provider_mock
+
+
+@pytest.fixture
+def trace_provider_force_flush_mock():
+    import opentelemetry.trace
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.trace, "get_tracer_provider"
+    ) as get_tracer_provider_mock:
+        get_tracer_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk.trace.TracerProvider()
+        )
+        yield get_tracer_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
+def logger_provider_force_flush_mock():
+    import opentelemetry._logs
+    import opentelemetry.sdk._logs
+
+    with mock.patch.object(
+        opentelemetry._logs, "get_logger_provider"
+    ) as get_logger_provider_mock:
+        get_logger_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk._logs.LoggerProvider()
+        )
+        yield get_logger_provider_mock.return_value.force_flush
 
 
 @pytest.fixture
@@ -371,6 +383,31 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"},
+    )
+    async def test_async_stream_query_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL), enable_tracing=True
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_async_stream_query_with_content(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
@@ -420,6 +457,46 @@ class TestAdkApp:
         )
         events = list(app.streaming_agent_run_with_events(request_json=request_json))
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"},
+    )
+    async def test_streaming_agent_run_with_events_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+            enable_tracing=True,
+        )
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+        request_json = json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "file_name": "test_file_name",
+                        "versions": [{"version": "v1", "data": "v1data"}],
+                    }
+                ],
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                    "test_user_id2": {"accessToken": "test-access-token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        list(app.streaming_agent_run_with_events(request_json=request_json))
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_async_bidi_stream_query(self):
@@ -619,9 +696,9 @@ class TestAdkApp:
     )
     def test_tracing_setup(
         self,
-        trace_provider_mock: mock.Mock,
-        cloud_trace_exporter_mock: mock.Mock,
         monkeypatch: pytest.MonkeyPatch,
+        trace_provider_mock: mock.Mock,
+        otlp_span_exporter_mock: mock.Mock,
     ):
         monkeypatch.setattr(
             "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
@@ -636,6 +713,7 @@ class TestAdkApp:
             "telemetry.sdk.version": "1.36.0",
             "gcp.project_id": "test-project",
             "cloud.account.id": "test-project",
+            "cloud.platform": "gcp.agent_engine",
             "service.name": "test_agent_id",
             "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
             "service.instance.id": "12345678123456781234567812345678-123123123",
@@ -643,19 +721,20 @@ class TestAdkApp:
             "some-attribute": "some-value",
         }
 
-        @dataclasses.dataclass
-        class RegexMatchingAll:
-            keys: set[str]
-
-            def __eq__(self, regex: object) -> bool:
-                return isinstance(regex, str) and set(regex.split("|")) == self.keys
-
-        cloud_trace_exporter_mock.assert_called_once_with(
-            project_id=_TEST_PROJECT,
-            client=mock.ANY,
-            resource_regex=RegexMatchingAll(keys=set(expected_attributes.keys())),
+        otlp_span_exporter_mock.assert_called_once_with(
+            session=mock.ANY,
+            endpoint="https://telemetry.googleapis.com/v1/traces",
+            headers=mock.ANY,
         )
 
+        user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
+        assert (
+            re.fullmatch(
+                r"Vertex-Agent-Engine\/[\d\.]+ OTel-OTLP-Exporter-Python\/[\d\.]+",
+                user_agent,
+            )
+            is not None
+        )
         assert (
             trace_provider_mock.call_args.kwargs["resource"].attributes
             == expected_attributes
@@ -685,7 +764,6 @@ class TestAdkApp:
     def test_enable_tracing(
         self,
         caplog,
-        cloud_trace_exporter_mock,
         tracer_provider_mock,
         simple_span_processor_mock,
     ):
@@ -712,6 +790,25 @@ class TestAdkApp:
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+    # @pytest.mark.parametrize(
+    #     "enable_tracing,want_warning",
+    #     [
+    #         (True, False),
+    #         (False, True),
+    #         (None, False),
+    #     ],
+    # )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
+    #     app = reasoning_engines.AdkApp(
+    #         agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+    #         enable_tracing=enable_tracing
+    #     )
+    #     assert (
+    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+    #     ) == want_warning
 
 
 def test_dump_event_for_json():

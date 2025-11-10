@@ -151,6 +151,8 @@ class AcceleratorType(_common.CaseInSensitiveEnum):
     """Nvidia B200 GPU."""
     NVIDIA_GB200 = "NVIDIA_GB200"
     """Nvidia GB200 GPU."""
+    NVIDIA_RTX_PRO_6000 = "NVIDIA_RTX_PRO_6000"
+    """Nvidia RTX Pro 6000 GPU."""
     TPU_V2 = "TPU_V2"
     """TPU v2."""
     TPU_V3 = "TPU_V3"
@@ -201,6 +203,17 @@ class JobState(_common.CaseInSensitiveEnum):
     """The job is being updated. Only jobs in the `RUNNING` state can be updated. After updating, the job goes back to the `RUNNING` state."""
     JOB_STATE_PARTIALLY_SUCCEEDED = "JOB_STATE_PARTIALLY_SUCCEEDED"
     """The job is partially succeeded, some results may be missing due to errors."""
+
+
+class IdentityType(_common.CaseInSensitiveEnum):
+    """The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
+    IDENTITY_TYPE_UNSPECIFIED = "IDENTITY_TYPE_UNSPECIFIED"
+    """Default value. Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project. Same behavior as SERVICE_ACCOUNT."""
+    SERVICE_ACCOUNT = "SERVICE_ACCOUNT"
+    """Use a custom service account if the `service_account` field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project."""
+    AGENT_IDENTITY = "AGENT_IDENTITY"
+    """Use Agent Identity. The `service_account` field must not be set."""
 
 
 class AgentServerMode(_common.CaseInSensitiveEnum):
@@ -316,19 +329,6 @@ class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Evaluation run is performing inference."""
     GENERATING_RUBRICS = "GENERATING_RUBRICS"
     """Evaluation run is performing rubric generation."""
-
-
-class Importance(_common.CaseInSensitiveEnum):
-    """Importance level of the rubric."""
-
-    IMPORTANCE_UNSPECIFIED = "IMPORTANCE_UNSPECIFIED"
-    """Importance is not specified."""
-    HIGH = "HIGH"
-    """High importance."""
-    MEDIUM = "MEDIUM"
-    """Medium importance."""
-    LOW = "LOW"
-    """Low importance."""
 
 
 class OptimizeTarget(_common.CaseInSensitiveEnum):
@@ -537,196 +537,6 @@ class EvaluationItemRequestDict(TypedDict, total=False):
 EvaluationItemRequestOrDict = Union[EvaluationItemRequest, EvaluationItemRequestDict]
 
 
-class RubricContentProperty(_common.BaseModel):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str] = Field(
-        default=None,
-        description="""Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """,
-    )
-
-
-class RubricContentPropertyDict(TypedDict, total=False):
-    """Defines criteria based on a specific property."""
-
-    description: Optional[str]
-    """Description of the property being evaluated.
-      Example: "The model's response is grammatically correct." """
-
-
-RubricContentPropertyOrDict = Union[RubricContentProperty, RubricContentPropertyDict]
-
-
-class RubricContent(_common.BaseModel):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentProperty] = Field(
-        default=None,
-        description="""Evaluation criteria based on a specific property.""",
-    )
-
-
-class RubricContentDict(TypedDict, total=False):
-    """Content of the rubric, defining the testable criteria."""
-
-    property: Optional[RubricContentPropertyDict]
-    """Evaluation criteria based on a specific property."""
-
-
-RubricContentOrDict = Union[RubricContent, RubricContentDict]
-
-
-class Rubric(_common.BaseModel):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str] = Field(
-        default=None,
-        description="""Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict.""",
-    )
-    content: Optional[RubricContent] = Field(
-        default=None,
-        description="""Required. The actual testable criteria for the rubric.""",
-    )
-    type: Optional[str] = Field(
-        default=None,
-        description="""Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE".""",
-    )
-    importance: Optional[Importance] = Field(
-        default=None,
-        description="""Optional. The relative importance of this rubric.""",
-    )
-
-
-class RubricDict(TypedDict, total=False):
-    """Message representing a single testable criterion for evaluation.
-
-    One input prompt could have multiple rubrics.
-    """
-
-    rubric_id: Optional[str]
-    """Required. Unique identifier for the rubric.
-      This ID is used to refer to this rubric, e.g., in RubricVerdict."""
-
-    content: Optional[RubricContentDict]
-    """Required. The actual testable criteria for the rubric."""
-
-    type: Optional[str]
-    """Optional. A type designator for the rubric, which can inform how it's
-      evaluated or interpreted by systems or users.
-      It's recommended to use consistent, well-defined, upper snake_case strings.
-      Examples: "SUMMARIZATION_QUALITY", "SAFETY_HARMFUL_CONTENT",
-      "INSTRUCTION_ADHERENCE"."""
-
-    importance: Optional[Importance]
-    """Optional. The relative importance of this rubric."""
-
-
-RubricOrDict = Union[Rubric, RubricDict]
-
-
-class RubricVerdict(_common.BaseModel):
-    """Represents the verdict of an evaluation against a single rubric."""
-
-    evaluated_rubric: Optional[Rubric] = Field(
-        default=None,
-        description="""Required. The full rubric definition that was evaluated.
-      Storing this ensures the verdict is self-contained and understandable,
-      especially if the original rubric definition changes or was dynamically
-      generated.""",
-    )
-    verdict: Optional[bool] = Field(
-        default=None,
-        description="""Required. Outcome of the evaluation against the rubric, represented as a
-      boolean. `true` indicates a "Pass", `false` indicates a "Fail".""",
-    )
-    reasoning: Optional[str] = Field(
-        default=None,
-        description="""Optional. Human-readable reasoning or explanation for the verdict.
-      This can include specific examples or details from the evaluated content
-      that justify the given verdict.""",
-    )
-
-
-class RubricVerdictDict(TypedDict, total=False):
-    """Represents the verdict of an evaluation against a single rubric."""
-
-    evaluated_rubric: Optional[RubricDict]
-    """Required. The full rubric definition that was evaluated.
-      Storing this ensures the verdict is self-contained and understandable,
-      especially if the original rubric definition changes or was dynamically
-      generated."""
-
-    verdict: Optional[bool]
-    """Required. Outcome of the evaluation against the rubric, represented as a
-      boolean. `true` indicates a "Pass", `false` indicates a "Fail"."""
-
-    reasoning: Optional[str]
-    """Optional. Human-readable reasoning or explanation for the verdict.
-      This can include specific examples or details from the evaluated content
-      that justify the given verdict."""
-
-
-RubricVerdictOrDict = Union[RubricVerdict, RubricVerdictDict]
-
-
-class CandidateResult(_common.BaseModel):
-    """Result for a single candidate."""
-
-    candidate: Optional[str] = Field(
-        default=None,
-        description="""The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest.""",
-    )
-    metric: Optional[str] = Field(
-        default=None, description="""The metric that was evaluated."""
-    )
-    score: Optional[float] = Field(
-        default=None, description="""The score of the metric."""
-    )
-    explanation: Optional[str] = Field(
-        default=None, description="""The explanation for the metric."""
-    )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
-        default=None, description="""The rubric verdicts for the metric."""
-    )
-    additional_results: Optional[dict[str, Any]] = Field(
-        default=None, description="""Additional results for the metric."""
-    )
-
-
-class CandidateResultDict(TypedDict, total=False):
-    """Result for a single candidate."""
-
-    candidate: Optional[str]
-    """The candidate that is being evaluated. The value is the same as the candidate name in the EvaluationRequest."""
-
-    metric: Optional[str]
-    """The metric that was evaluated."""
-
-    score: Optional[float]
-    """The score of the metric."""
-
-    explanation: Optional[str]
-    """The explanation for the metric."""
-
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
-    """The rubric verdicts for the metric."""
-
-    additional_results: Optional[dict[str, Any]]
-    """Additional results for the metric."""
-
-
-CandidateResultOrDict = Union[CandidateResult, CandidateResultDict]
-
-
 class EvaluationItemResult(_common.BaseModel):
     """Represents the result of an evaluation item."""
 
@@ -743,7 +553,7 @@ class EvaluationItemResult(_common.BaseModel):
     metric: Optional[str] = Field(
         default=None, description="""The metric that was evaluated."""
     )
-    candidate_results: Optional[list[CandidateResult]] = Field(
+    candidate_results: Optional[list[evals_types.CandidateResult]] = Field(
         default=None, description="""TThe results for the metric."""
     )
     metadata: Optional[dict[str, Any]] = Field(
@@ -766,7 +576,7 @@ class EvaluationItemResultDict(TypedDict, total=False):
     metric: Optional[str]
     """The metric that was evaluated."""
 
-    candidate_results: Optional[list[CandidateResultDict]]
+    candidate_results: Optional[list[evals_types.CandidateResult]]
     """TThe results for the metric."""
 
     metadata: Optional[dict[str, Any]]
@@ -1440,89 +1250,6 @@ class ResponseCandidateDict(TypedDict, total=False):
 ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
 
 
-class Event(_common.BaseModel):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the agent event."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the event."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None, description="""The creation timestamp of the event."""
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the event."""
-    )
-
-
-class EventDict(TypedDict, total=False):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str]
-    """Unique identifier for the agent event."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the event."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """The creation timestamp of the event."""
-
-    author: Optional[str]
-    """Name of the entity that produced the event."""
-
-
-EventOrDict = Union[Event, EventDict]
-
-
-class Message(_common.BaseModel):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the message turn."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the message, including function call."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Timestamp indicating when the message was created.""",
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the message."""
-    )
-
-
-class MessageDict(TypedDict, total=False):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str]
-    """Unique identifier for the message turn."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the message, including function call."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """Timestamp indicating when the message was created."""
-
-    author: Optional[str]
-    """Name of the entity that produced the message."""
-
-
-MessageOrDict = Union[Message, MessageDict]
-
-
 class EvalCase(_common.BaseModel):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
@@ -1540,7 +1267,7 @@ class EvalCase(_common.BaseModel):
     system_instruction: Optional[genai_types.Content] = Field(
         default=None, description="""System instruction for the model."""
     )
-    conversation_history: Optional[list[Message]] = Field(
+    conversation_history: Optional[list[evals_types.Message]] = Field(
         default=None,
         description="""List of all prior messages in the conversation (chat history).""",
     )
@@ -1551,7 +1278,7 @@ class EvalCase(_common.BaseModel):
     eval_case_id: Optional[str] = Field(
         default=None, description="""Unique identifier for the evaluation case."""
     )
-    intermediate_events: Optional[list[Event]] = Field(
+    intermediate_events: Optional[list[evals_types.Event]] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
     )
@@ -1578,7 +1305,7 @@ class EvalCaseDict(TypedDict, total=False):
     system_instruction: Optional[genai_types.ContentDict]
     """System instruction for the model."""
 
-    conversation_history: Optional[list[MessageDict]]
+    conversation_history: Optional[list[evals_types.Message]]
     """List of all prior messages in the conversation (chat history)."""
 
     rubric_groups: Optional[dict[str, "RubricGroupDict"]]
@@ -1587,7 +1314,7 @@ class EvalCaseDict(TypedDict, total=False):
     eval_case_id: Optional[str]
     """Unique identifier for the evaluation case."""
 
-    intermediate_events: Optional[list[EventDict]]
+    intermediate_events: Optional[list[evals_types.Event]]
     """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
 
     agent_info: Optional[evals_types.AgentInfo]
@@ -1918,19 +1645,17 @@ class EvaluationRun(_common.BaseModel):
         """Shows the evaluation result."""
         from .. import _evals_visualization
 
-        logger.warning(f"Evaluation Run state: {self.state}.")
-        if self.error:
-            logger.warning(f"Evaluation Run error: {self.error.message}")
         if self.state == "SUCCEEDED":
             if self.evaluation_item_results is not None:
                 _evals_visualization.display_evaluation_result(
                     self.evaluation_item_results, None
                 )
             else:
-                logger.warning(f"Evaluation Run state: {self.state}.")
                 logger.warning(
                     "Evaluation Run succeeded but no evaluation item results found. To display results, please set include_evaluation_items to True when calling get_evaluation_run()."
                 )
+        else:
+            _evals_visualization.display_evaluation_run_status(self)
 
 
 class EvaluationRunDict(TypedDict, total=False):
@@ -2729,7 +2454,7 @@ class RubricBasedMetricSpec(_common.BaseModel):
         default=None,
         description="""Optional configuration for the judge LLM (Autorater).""",
     )
-    inline_rubrics: Optional[list[Rubric]] = Field(
+    inline_rubrics: Optional[list[evals_types.Rubric]] = Field(
         default=None, description="""Use rubrics provided directly in the spec."""
     )
     rubric_group_key: Optional[str] = Field(
@@ -2754,7 +2479,7 @@ class RubricBasedMetricSpecDict(TypedDict, total=False):
     judge_autorater_config: Optional[genai_types.AutoraterConfigDict]
     """Optional configuration for the judge LLM (Autorater)."""
 
-    inline_rubrics: Optional[list[RubricDict]]
+    inline_rubrics: Optional[list[evals_types.Rubric]]
     """Use rubrics provided directly in the spec."""
 
     rubric_group_key: Optional[str]
@@ -3222,7 +2947,7 @@ class MetricResult(_common.BaseModel):
         default=None,
         description="""The score for the metric. Please refer to each metric's documentation for the meaning of the score.""",
     )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
         default=None,
         description="""For rubric-based metrics, the verdicts for each rubric.""",
     )
@@ -3240,7 +2965,7 @@ class MetricResultDict(TypedDict, total=False):
     score: Optional[float]
     """The score for the metric. Please refer to each metric's documentation for the meaning of the score."""
 
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
     """For rubric-based metrics, the verdicts for each rubric."""
 
     explanation: Optional[str]
@@ -3259,7 +2984,7 @@ class RubricBasedMetricResult(_common.BaseModel):
     score: Optional[float] = Field(
         default=None, description="""Passing rate of all the rubrics."""
     )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
         default=None,
         description="""The details of all the rubrics and their verdicts.""",
     )
@@ -3271,7 +2996,7 @@ class RubricBasedMetricResultDict(TypedDict, total=False):
     score: Optional[float]
     """Passing rate of all the rubrics."""
 
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
     """The details of all the rubrics and their verdicts."""
 
 
@@ -3857,7 +3582,7 @@ _GenerateInstanceRubricsRequestOrDict = Union[
 class GenerateInstanceRubricsResponse(_common.BaseModel):
     """Response for generating rubrics."""
 
-    generated_rubrics: Optional[list[Rubric]] = Field(
+    generated_rubrics: Optional[list[evals_types.Rubric]] = Field(
         default=None, description="""A list of generated rubrics."""
     )
 
@@ -3865,7 +3590,7 @@ class GenerateInstanceRubricsResponse(_common.BaseModel):
 class GenerateInstanceRubricsResponseDict(TypedDict, total=False):
     """Response for generating rubrics."""
 
-    generated_rubrics: Optional[list[RubricDict]]
+    generated_rubrics: Optional[list[evals_types.Rubric]]
     """A list of generated rubrics."""
 
 
@@ -4257,6 +3982,44 @@ class DiskSpecDict(TypedDict, total=False):
 DiskSpecOrDict = Union[DiskSpec, DiskSpecDict]
 
 
+class LustreMount(_common.BaseModel):
+    """Represents a mount configuration for Lustre file system."""
+
+    filesystem: Optional[str] = Field(
+        default=None, description="""Required. The name of the Lustre filesystem."""
+    )
+    instance_ip: Optional[str] = Field(
+        default=None, description="""Required. IP address of the Lustre instance."""
+    )
+    mount_point: Optional[str] = Field(
+        default=None,
+        description="""Required. Destination mount path. The Lustre file system will be mounted for the user under /mnt/lustre/""",
+    )
+    volume_handle: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique identifier of the Lustre volume.""",
+    )
+
+
+class LustreMountDict(TypedDict, total=False):
+    """Represents a mount configuration for Lustre file system."""
+
+    filesystem: Optional[str]
+    """Required. The name of the Lustre filesystem."""
+
+    instance_ip: Optional[str]
+    """Required. IP address of the Lustre instance."""
+
+    mount_point: Optional[str]
+    """Required. Destination mount path. The Lustre file system will be mounted for the user under /mnt/lustre/"""
+
+    volume_handle: Optional[str]
+    """Required. The unique identifier of the Lustre volume."""
+
+
+LustreMountOrDict = Union[LustreMount, LustreMountDict]
+
+
 class ReservationAffinity(_common.BaseModel):
     """A ReservationAffinity can be used to configure a Vertex AI resource (e.g., a DeployedModel) to draw its Compute Engine resources from a Shared Reservation, or exclusively from on-demand capacity."""
 
@@ -4301,6 +4064,10 @@ class MachineSpec(_common.BaseModel):
         default=None,
         description="""Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count.""",
     )
+    gpu_partition_size: Optional[str] = Field(
+        default=None,
+        description="""Optional. Immutable. The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1.""",
+    )
     machine_type: Optional[str] = Field(
         default=None,
         description="""Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.""",
@@ -4327,6 +4094,9 @@ class MachineSpecDict(TypedDict, total=False):
 
     accelerator_type: Optional[AcceleratorType]
     """Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count."""
+
+    gpu_partition_size: Optional[str]
+    """Optional. Immutable. The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1."""
 
     machine_type: Optional[str]
     """Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required."""
@@ -4430,6 +4200,9 @@ class WorkerPoolSpec(_common.BaseModel):
         default=None, description="""The custom container task."""
     )
     disk_spec: Optional[DiskSpec] = Field(default=None, description="""Disk spec.""")
+    lustre_mounts: Optional[list[LustreMount]] = Field(
+        default=None, description="""Optional. List of Lustre mounts."""
+    )
     machine_spec: Optional[MachineSpec] = Field(
         default=None,
         description="""Optional. Immutable. The specification of a single machine.""",
@@ -4454,6 +4227,9 @@ class WorkerPoolSpecDict(TypedDict, total=False):
 
     disk_spec: Optional[DiskSpecDict]
     """Disk spec."""
+
+    lustre_mounts: Optional[list[LustreMountDict]]
+    """Optional. List of Lustre mounts."""
 
     machine_spec: Optional[MachineSpecDict]
     """Optional. Immutable. The specification of a single machine."""
@@ -4819,7 +4595,7 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     )
     max_instances: Optional[int] = Field(
         default=None,
-        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100.""",
+        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].""",
     )
     min_instances: Optional[int] = Field(
         default=None,
@@ -4851,7 +4627,7 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
     """Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API."""
 
     max_instances: Optional[int]
-    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100."""
+    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
 
     min_instances: Optional[int]
     """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1."""
@@ -5019,6 +4795,14 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. The specification of a Reasoning Engine deployment.""",
     )
+    effective_identity: Optional[str] = Field(
+        default=None,
+        description="""Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)""",
+    )
+    identity_type: Optional[IdentityType] = Field(
+        default=None,
+        description="""Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
     package_spec: Optional[ReasoningEngineSpecPackageSpec] = Field(
         default=None,
         description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified.""",
@@ -5045,6 +4829,12 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
     deployment_spec: Optional[ReasoningEngineSpecDeploymentSpecDict]
     """Optional. The specification of a Reasoning Engine deployment."""
 
+    effective_identity: Optional[str]
+    """Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)"""
+
+    identity_type: Optional[IdentityType]
+    """Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
     package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
     """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified."""
 
@@ -5056,56 +4846,6 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
-    """Configuration for how to generate memories."""
-
-    model: Optional[str] = Field(
-        default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for how to generate memories."""
-
-    model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigGenerationConfig,
-    ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict,
-]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
-    _common.BaseModel
-):
-    """Configuration for how to perform similarity search on memories."""
-
-    embedding_model: Optional[str] = Field(
-        default=None,
-        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for how to perform similarity search on memories."""
-
-    embedding_model: Optional[str]
-    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
-    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
-]
 
 
 class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
@@ -5386,6 +5126,56 @@ MemoryBankCustomizationConfigOrDict = Union[
 ]
 
 
+class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
+    """Configuration for how to generate memories."""
+
+    model: Optional[str] = Field(
+        default=None,
+        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for how to generate memories."""
+
+    model: Optional[str]
+    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigGenerationConfig,
+    ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
+    _common.BaseModel
+):
+    """Configuration for how to perform similarity search on memories."""
+
+    embedding_model: Optional[str] = Field(
+        default=None,
+        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for how to perform similarity search on memories."""
+
+    embedding_model: Optional[str]
+    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
+    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
+]
+
+
 class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
     _common.BaseModel
 ):
@@ -5469,6 +5259,10 @@ ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
 class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     """Specification for a Memory Bank."""
 
+    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
+        default=None,
+        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
+    )
     generation_config: Optional[
         ReasoningEngineContextSpecMemoryBankConfigGenerationConfig
     ] = Field(
@@ -5480,10 +5274,6 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     ] = Field(
         default=None,
         description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
-    )
-    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
-        default=None,
-        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
     )
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfig] = Field(
         default=None,
@@ -5498,6 +5288,9 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
     """Specification for a Memory Bank."""
 
+    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
+    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
+
     generation_config: Optional[
         ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict
     ]
@@ -5507,9 +5300,6 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
         ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
     ]
     """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
-
-    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
-    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
 
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
     """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
@@ -5654,6 +5444,19 @@ class CreateAgentEngineConfig(_common.BaseModel):
       the source package.
       """,
     )
+    agent_framework: Optional[
+        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+    ] = Field(
+        default=None,
+        description="""The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "google-adk", "langchain", "langgraph",
+      "ag2", "llama-index", "custom".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will
+        default to "custom".""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -5751,6 +5554,18 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       If not specified, agent engine will find and use the `requirements.txt` in
       the source package.
       """
+
+    agent_framework: Optional[
+        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+    ]
+    """The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "google-adk", "langchain", "langgraph",
+      "ag2", "llama-index", "custom".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will
+        default to "custom"."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -6355,6 +6170,19 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       the source package.
       """,
     )
+    agent_framework: Optional[
+        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+    ] = Field(
+        default=None,
+        description="""The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "google-adk", "langchain", "langgraph",
+      "ag2", "llama-index", "custom".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will
+        default to "custom".""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -6457,6 +6285,18 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       If not specified, agent engine will find and use the `requirements.txt` in
       the source package.
       """
+
+    agent_framework: Optional[
+        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+    ]
+    """The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "google-adk", "langchain", "langgraph",
+      "ag2", "llama-index", "custom".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will
+        default to "custom"."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -6633,7 +6473,7 @@ class Memory(_common.BaseModel):
 
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
     )
     ttl: Optional[str] = Field(
         default=None,
@@ -6686,7 +6526,7 @@ class MemoryDict(TypedDict, total=False):
     """A memory."""
 
     expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
 
     ttl: Optional[str]
     """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
@@ -8151,14 +7991,6 @@ class SandboxEnvironmentSpecCodeExecutionEnvironment(_common.BaseModel):
         default=None,
         description="""The coding language supported in this environment.""",
     )
-    dependencies: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. The additional dependencies to install in the code execution environment. For example, "pandas==2.2.3".""",
-    )
-    env: Optional[list[EnvVar]] = Field(
-        default=None,
-        description="""Optional. The environment variables to set in the code execution environment.""",
-    )
     machine_config: Optional[MachineConfig] = Field(
         default=None,
         description="""The machine config of the code execution environment.""",
@@ -8170,12 +8002,6 @@ class SandboxEnvironmentSpecCodeExecutionEnvironmentDict(TypedDict, total=False)
 
     code_language: Optional[Language]
     """The coding language supported in this environment."""
-
-    dependencies: Optional[list[str]]
-    """Optional. The additional dependencies to install in the code execution environment. For example, "pandas==2.2.3"."""
-
-    env: Optional[list[EnvVarDict]]
-    """Optional. The environment variables to set in the code execution environment."""
 
     machine_config: Optional[MachineConfig]
     """The machine config of the code execution environment."""
@@ -8365,10 +8191,6 @@ class SandboxEnvironment(_common.BaseModel):
         default=None,
         description="""Required. The display name of the SandboxEnvironment.""",
     )
-    metadata: Optional[Any] = Field(
-        default=None,
-        description="""Output only. Additional information about the SandboxEnvironment.""",
-    )
     name: Optional[str] = Field(
         default=None, description="""Identifier. The name of the SandboxEnvironment."""
     )
@@ -8379,6 +8201,10 @@ class SandboxEnvironment(_common.BaseModel):
     state: Optional[State] = Field(
         default=None,
         description="""Output only. The runtime state of the SandboxEnvironment.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the sandbox environment. The expiration time is computed: now + TTL.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
@@ -8402,9 +8228,6 @@ class SandboxEnvironmentDict(TypedDict, total=False):
     display_name: Optional[str]
     """Required. The display name of the SandboxEnvironment."""
 
-    metadata: Optional[Any]
-    """Output only. Additional information about the SandboxEnvironment."""
-
     name: Optional[str]
     """Identifier. The name of the SandboxEnvironment."""
 
@@ -8413,6 +8236,9 @@ class SandboxEnvironmentDict(TypedDict, total=False):
 
     state: Optional[State]
     """Output only. The runtime state of the SandboxEnvironment."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for the sandbox environment. The expiration time is computed: now + TTL."""
 
     update_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironment was most recently updated."""
@@ -8580,10 +8406,6 @@ MetadataOrDict = Union[Metadata, MetadataDict]
 class Chunk(_common.BaseModel):
     """A chunk of data."""
 
-    mime_type: Optional[str] = Field(
-        default=None,
-        description="""Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list.""",
-    )
     data: Optional[bytes] = Field(
         default=None, description="""Required. The data in the chunk."""
     )
@@ -8591,19 +8413,23 @@ class Chunk(_common.BaseModel):
         default=None,
         description="""Optional. Metadata that is associated with the data in the payload.""",
     )
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list.""",
+    )
 
 
 class ChunkDict(TypedDict, total=False):
     """A chunk of data."""
-
-    mime_type: Optional[str]
-    """Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list."""
 
     data: Optional[bytes]
     """Required. The data in the chunk."""
 
     metadata: Optional[MetadataDict]
     """Optional. Metadata that is associated with the data in the payload."""
+
+    mime_type: Optional[str]
+    """Required. Mime type of the chunk data. See https://www.iana.org/assignments/media-types/media-types.xhtml for the full list."""
 
 
 ChunkOrDict = Union[Chunk, ChunkDict]
@@ -12081,26 +11907,6 @@ class PromptOptimizerConfigDict(TypedDict, total=False):
 PromptOptimizerConfigOrDict = Union[PromptOptimizerConfig, PromptOptimizerConfigDict]
 
 
-class OptimizerMethodPlaceholder(_common.BaseModel):
-    """Placeholder class to generate OptimizerMethod enum in common.py."""
-
-    method: Optional[PromptOptimizerMethod] = Field(
-        default=None, description="""The method for optimizing multiple prompts."""
-    )
-
-
-class OptimizerMethodPlaceholderDict(TypedDict, total=False):
-    """Placeholder class to generate OptimizerMethod enum in common.py."""
-
-    method: Optional[PromptOptimizerMethod]
-    """The method for optimizing multiple prompts."""
-
-
-OptimizerMethodPlaceholderOrDict = Union[
-    OptimizerMethodPlaceholder, OptimizerMethodPlaceholderDict
-]
-
-
 class ApplicableGuideline(_common.BaseModel):
     """Applicable guideline for the optimize_prompt method."""
 
@@ -12633,7 +12439,7 @@ class EvalCaseMetricResult(_common.BaseModel):
     explanation: Optional[str] = Field(
         default=None, description="""Explanation of the metric."""
     )
-    rubric_verdicts: Optional[list[RubricVerdict]] = Field(
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
         default=None,
         description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
     )
@@ -12657,7 +12463,7 @@ class EvalCaseMetricResultDict(TypedDict, total=False):
     explanation: Optional[str]
     """Explanation of the metric."""
 
-    rubric_verdicts: Optional[list[RubricVerdictDict]]
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
     """The details of all the rubrics and their verdicts for rubric-based metrics."""
 
     raw_output: Optional[list[str]]
@@ -12733,34 +12539,6 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
 EvaluationRunInferenceConfigOrDict = Union[
     EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
 ]
-
-
-class SessionInput(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str] = Field(default=None, description="""The user id.""")
-    state: Optional[dict[str, str]] = Field(
-        default=None, description="""The state of the session."""
-    )
-
-
-class SessionInputDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str]
-    """The user id."""
-
-    state: Optional[dict[str, str]]
-    """The state of the session."""
-
-
-SessionInputOrDict = Union[SessionInput, SessionInputDict]
 
 
 class WinRateStats(_common.BaseModel):
@@ -12975,7 +12753,7 @@ class RubricGroup(_common.BaseModel):
       Example: "Instruction Following V1", "Content Quality - Summarization
       Task".""",
     )
-    rubrics: Optional[list[Rubric]] = Field(
+    rubrics: Optional[list[evals_types.Rubric]] = Field(
         default=None, description="""Rubrics that are part of this group."""
     )
 
@@ -12992,7 +12770,7 @@ class RubricGroupDict(TypedDict, total=False):
       Example: "Instruction Following V1", "Content Quality - Summarization
       Task"."""
 
-    rubrics: Optional[list[RubricDict]]
+    rubrics: Optional[list[evals_types.Rubric]]
     """Rubrics that are part of this group."""
 
 
@@ -13050,6 +12828,37 @@ class AgentEngine(_common.BaseModel):
         if not isinstance(self.api_resource, ReasoningEngine):
             raise ValueError("api_resource is not initialized.")
         self.api_client.delete(name=self.api_resource.name, force=force, config=config)  # type: ignore[union-attr]
+
+
+RubricContentProperty = evals_types.RubricContentProperty
+RubricContentPropertyDict = evals_types.RubricContentPropertyDict
+RubricContentPropertyDictOrDict = evals_types.RubricContentPropertyOrDict
+
+RubricContent = evals_types.RubricContent
+RubricContentDict = evals_types.RubricContentDict
+RubricContentDictOrDict = evals_types.RubricContentOrDict
+
+Rubric = evals_types.Rubric
+RubricDict = evals_types.RubricDict
+RubricDictOrDict = evals_types.RubricOrDict
+
+RubricVerdict = evals_types.RubricVerdict
+RubricVerdictDict = evals_types.RubricVerdictDict
+RubricVerdictDictOrDict = evals_types.RubricVerdictOrDict
+
+CandidateResult = evals_types.CandidateResult
+CandidateResultDict = evals_types.CandidateResultDict
+CandidateResultDictOrDict = evals_types.CandidateResultOrDict
+
+Event = evals_types.Event
+EventDict = evals_types.EventDict
+EventDictOrDict = evals_types.EventOrDict
+
+Message = evals_types.Message
+MessageDict = evals_types.MessageDict
+MessageDictOrDict = evals_types.MessageOrDict
+
+Importance = evals_types.Importance
 
 
 class AgentEngineDict(TypedDict, total=False):
@@ -13120,6 +12929,9 @@ class AgentEngineConfig(_common.BaseModel):
         description="""The service account to be used for the Agent Engine.
 
       If not specified, the default Reasoning Engine P6SA service agent will be used.""",
+    )
+    identity_type: Optional[IdentityType] = Field(
+        default=None, description="""The identity type to use for the Agent Engine."""
     )
     context_spec: Optional[ReasoningEngineContextSpec] = Field(
         default=None,
@@ -13212,6 +13024,19 @@ class AgentEngineConfig(_common.BaseModel):
       the source package.
       """,
     )
+    agent_framework: Optional[
+        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+    ] = Field(
+        default=None,
+        description="""The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "google-adk", "langchain", "langgraph",
+      "ag2", "llama-index", "custom".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will
+        default to "custom".""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -13259,6 +13084,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
     """The service account to be used for the Agent Engine.
 
       If not specified, the default Reasoning Engine P6SA service agent will be used."""
+
+    identity_type: Optional[IdentityType]
+    """The identity type to use for the Agent Engine."""
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
     """The context spec to be used for the Agent Engine."""
@@ -13338,6 +13166,18 @@ class AgentEngineConfigDict(TypedDict, total=False):
       If not specified, agent engine will find and use the `requirements.txt` in
       the source package.
       """
+
+    agent_framework: Optional[
+        Literal["google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"]
+    ]
+    """The agent framework to be used for the Agent Engine.
+      The OSS agent framework used to develop the agent.
+      Currently supported values: "google-adk", "langchain", "langgraph",
+      "ag2", "llama-index", "custom".
+      If not specified:
+      - If `agent` is specified, the agent framework will be auto-detected.
+      - If `source_packages` is specified, the agent framework will
+        default to "custom"."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
