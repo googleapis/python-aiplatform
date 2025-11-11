@@ -6,6 +6,8 @@ Vertex AI SDK
     :show-inheritance:
     :inherited-members:
 
+    .. autoattribute:: types
+
 .. autoclass:: vertexai.Client
     :members:
     :undoc-members:
@@ -33,6 +35,11 @@ Vertex AI SDK
     :show-inheritance:
 
 .. automodule:: vertexai._genai.prompts
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: vertexai._genai.types
     :members:
     :undoc-members:
     :show-inheritance:
