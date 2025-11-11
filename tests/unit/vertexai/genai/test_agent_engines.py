@@ -458,6 +458,7 @@ _TEST_AGENT_ENGINE_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
 )
 _TEST_AGENT_ENGINE_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STANDARD_API_MODE
 _TEST_PYTHON_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}"
+_TEST_PYTHON_VERSION_OVERRIDE = "3.11"
 _TEST_AGENT_ENGINE_FRAMEWORK = _agent_engines_utils._DEFAULT_AGENT_FRAMEWORK
 _TEST_AGENT_ENGINE_CLASS_METHOD_1 = {
     "description": "Runs the engine.",
@@ -969,12 +970,13 @@ class TestAgentEngineHelpers:
             resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
             container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
             encryption_spec=_TEST_AGENT_ENGINE_ENCRYPTION_SPEC,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
         assert config["spec"]["agent_framework"] == "custom"
         assert config["spec"]["package_spec"] == {
-            "python_version": _TEST_PYTHON_VERSION,
+            "python_version": _TEST_PYTHON_VERSION_OVERRIDE,
             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
             "dependency_files_gcs_uri": _TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -1037,6 +1039,7 @@ class TestAgentEngineHelpers:
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
                 agent_framework=_TEST_AGENT_FRAMEWORK,
                 identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
             )
             assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
             assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1044,7 +1047,7 @@ class TestAgentEngineHelpers:
             assert config["spec"]["source_code_spec"] == {
                 "inline_source": {"source_archive": "test_tarball"},
                 "python_spec": {
-                    "version": _TEST_PYTHON_VERSION,
+                    "version": _TEST_PYTHON_VERSION_OVERRIDE,
                     "entrypoint_module": "main",
                     "entrypoint_object": "app",
                     "requirements_file": requirements_file_path,
@@ -1073,12 +1076,13 @@ class TestAgentEngineHelpers:
             env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
             identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
         assert config["spec"]["agent_framework"] == "custom"
         assert config["spec"]["package_spec"] == {
-            "python_version": _TEST_PYTHON_VERSION,
+            "python_version": _TEST_PYTHON_VERSION_OVERRIDE,
             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
             "dependency_files_gcs_uri": _TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -1593,6 +1597,7 @@ class TestAgentEngine:
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1685,6 +1690,7 @@ class TestAgentEngine:
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1776,6 +1782,7 @@ class TestAgentEngine:
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1930,6 +1937,7 @@ class TestAgentEngine:
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2016,6 +2024,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=_TEST_AGENT_FRAMEWORK,
                 identity_type=None,
+                python_version=None,
             )
             request_mock.assert_called_with(
                 "post",

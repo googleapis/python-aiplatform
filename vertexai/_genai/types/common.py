@@ -5457,6 +5457,13 @@ class CreateAgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]] = Field(
+        default=None,
+        description="""The Python version to be used for the Agent Engine.
+      If not specified, it will use the current Python version of the environment.
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """,
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -5566,6 +5573,12 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
+
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]]
+    """The Python version to be used for the Agent Engine.
+      If not specified, it will use the current Python version of the environment.
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -6183,6 +6196,13 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]] = Field(
+        default=None,
+        description="""The Python version to be used for the Agent Engine.
+      If not specified, it will use the current Python version of the environment.
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """,
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -6297,6 +6317,12 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
+
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]]
+    """The Python version to be used for the Agent Engine.
+      If not specified, it will use the current Python version of the environment.
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -13037,6 +13063,13 @@ class AgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]] = Field(
+        default=None,
+        description="""The Python version to be used for the Agent Engine.
+      If not specified, it will use the current Python version of the environment.
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """,
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -13178,6 +13211,12 @@ class AgentEngineConfigDict(TypedDict, total=False):
       - If `agent` is specified, the agent framework will be auto-detected.
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
+
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]]
+    """The Python version to be used for the Agent Engine.
+      If not specified, it will use the current Python version of the environment.
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
