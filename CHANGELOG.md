@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.127.0](https://github.com/googleapis/python-aiplatform/compare/v1.126.1...v1.127.0) (2025-11-11)
+
+
+### Features
+
+* Reenable VertexAiSession for streaming_agent_run_with_events ([d3b12d5](https://github.com/googleapis/python-aiplatform/commit/d3b12d57d1e4f1a8db5f41f597c6cb0f33e8a369))
+
+
+### Bug Fixes
+
+* Forward reference resolution in Pydantic schema generation. ([0013865](https://github.com/googleapis/python-aiplatform/commit/0013865221a87255f18d7aa4fee7d62326355221))
+* GenAI Client(evals): Long traces do not scroll ([3a99664](https://github.com/googleapis/python-aiplatform/commit/3a996645bf28117dc92fb574959c06b58f8a17e8))
+
+
+### Documentation
+
+* Add vertexai.types module to generated docs ([fc83569](https://github.com/googleapis/python-aiplatform/commit/fc83569d65c7c77af3301a1140a2306eb2d47dfe))
+
 ## [1.126.1](https://github.com/googleapis/python-aiplatform/compare/v1.126.0...v1.126.1) (2025-11-06)
 
 
