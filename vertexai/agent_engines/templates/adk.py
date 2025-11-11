@@ -602,6 +602,9 @@ class AdkApp:
     ):
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
 
         session_state = None
         if request.authorizations:
@@ -620,7 +623,9 @@ class AdkApp:
         if request.events:
             for event in request.events:
                 await session_service.append_event(session, Event(**event))
+        _LOGGER.info("Before Saving artifacts: %s", request.artifacts)
         if request.artifacts:
+            _LOGGER.info("In Saving artifacts: %s", request.artifacts)
             for artifact in request.artifacts:
                 artifact = _Artifact(**artifact)
                 for version_data in sorted(
@@ -1073,8 +1078,12 @@ class AdkApp:
         import json
         from google.genai import types
         from google.genai.errors import ClientError
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
 
         request = _StreamRunRequest(**json.loads(request_json))
+        _LOGGER.info(f"request artifacts: {request.artifacts}")
         if not self._tmpl_attrs.get("in_memory_runner"):
             self.set_up()
         if not self._tmpl_attrs.get("runner"):
@@ -1140,6 +1149,7 @@ class AdkApp:
                 yield converted_event
         finally:
             if session and not request.session_id:
+                _LOGGER.info(f"Dumping session state: {session.state}")
                 app = self._tmpl_attrs.get("app")
                 await session_service.delete_session(
                     app_name=app.name if app else self._tmpl_attrs.get("app_name"),
