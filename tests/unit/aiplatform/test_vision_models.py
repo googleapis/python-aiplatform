@@ -23,7 +23,6 @@ import io
 import os
 import tempfile
 from typing import Any, Dict, Literal, Optional, Tuple
-import unittest
 from unittest import mock
 
 from google.cloud import aiplatform
@@ -773,7 +772,7 @@ class TestImageGenerationModels:
                     "reference_image_control_config_4"
                 ] == str(control_config)
 
-    @unittest.skip(reason="b/295946075 The service stopped supporting image sizes.")
+    @pytest.mark.skip(reason="b/295946075 The service stopped supporting image sizes.")
     def test_generate_images_requests_square_images_by_default(self):
         """Tests that the model class generates square image by default."""
         model = self._get_image_generation_model()
