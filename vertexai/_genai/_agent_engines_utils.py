@@ -590,6 +590,9 @@ def _is_pydantic_serializable(param: inspect.Parameter) -> bool:
     if param.annotation == inspect.Parameter.empty:
         return True
 
+    if "ForwardRef" in repr(param.annotation):
+        return True
+
     if isinstance(param.annotation, str):
         return False
 
@@ -641,7 +644,12 @@ def _generate_schema(
         name: (
             # 1. We infer the argument type here: use Any rather than None so
             # it will not try to auto-infer the type based on the default value.
-            (param.annotation if param.annotation != inspect.Parameter.empty else Any),
+            (
+                param.annotation
+                if param.annotation != inspect.Parameter.empty
+                and "ForwardRef" not in repr(param.annotation)
+                else Any
+            ),
             pydantic.Field(
                 # 2. We do not support default values for now.
                 # default=(
