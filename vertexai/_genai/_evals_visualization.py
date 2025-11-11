@@ -163,7 +163,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
             background-color: #F8F9FA;
             border: 1px solid #dadce0;
             border-radius: 4px;
-            overflow: hidden;
+            overflow: auto;
             margin: 0;
         }}
         .trace-event-row {{
