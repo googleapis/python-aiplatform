@@ -97,6 +97,9 @@ def _CreateAgentEngineConfig_to_vertex(
     if getv(from_object, ["agent_framework"]) is not None:
         setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
 
+    if getv(from_object, ["python_version"]) is not None:
+        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
+
     return to_object
 
 
@@ -290,6 +293,9 @@ def _UpdateAgentEngineConfig_to_vertex(
 
     if getv(from_object, ["agent_framework"]) is not None:
         setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
+
+    if getv(from_object, ["python_version"]) is not None:
+        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -931,6 +937,7 @@ class AgentEngines(_api_module.BaseModule):
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
             agent_framework=config.agent_framework,
+            python_version=config.python_version,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -996,6 +1003,7 @@ class AgentEngines(_api_module.BaseModule):
         entrypoint_object: Optional[str] = None,
         requirements_file: Optional[str] = None,
         agent_framework: Optional[str] = None,
+        python_version: Optional[str] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1027,7 +1035,10 @@ class AgentEngines(_api_module.BaseModule):
         if agent_framework == "google-adk":
             env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
 
-        sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        if python_version:
+            sys_version = python_version
+        else:
+            sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
         agent_engine_spec = None
         if agent is not None:
             if source_packages is not None:
@@ -1453,6 +1464,7 @@ class AgentEngines(_api_module.BaseModule):
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
             agent_framework=config.agent_framework,
+            python_version=config.python_version,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
