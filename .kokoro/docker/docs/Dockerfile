@@ -80,4 +80,6 @@ RUN wget -O /tmp/get-pip.py 'https://bootstrap.pypa.io/get-pip.py' \
 # Test pip
 RUN python3 -m pip
 
+RUN pip3 install uv
+
 CMD ["python3.9"]
