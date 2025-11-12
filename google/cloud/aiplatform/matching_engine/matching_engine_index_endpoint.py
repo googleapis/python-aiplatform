@@ -702,10 +702,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         psc_network: Optional[str] = None,
     ) -> str:
         """Helper method to get the ip address for a psc automated endpoint.
-        Returns:
+        Args:
             deployed_index_id (str):
-                    Optional. Required for private service access endpoint.
-                    The user specified ID of the DeployedIndex.
+                Optional. Required for private service access endpoint.
+                The user specified ID of the DeployedIndex.
             deployed_index (gca_matching_engine_index_endpoint.DeployedIndex):
                 Optional. Required for private service access endpoint.
                 The DeployedIndex resource.
@@ -721,6 +721,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 `private_service_connect_ip_address` field for this
                 MatchingEngineIndexEndpoint instance, if the ip address is
                 already known.
+
+        Returns:
+            str: The IP address for the PSC automated endpoint.
 
         Raises:
             RuntimeError: No valid ip found for deployed index with id
