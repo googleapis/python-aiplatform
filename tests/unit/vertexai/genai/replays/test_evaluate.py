@@ -86,6 +86,7 @@ def test_evaluation_byor(client):
         assert isinstance(summary, types.AggregatedMetricResult)
         assert summary.metric_name is not None
         assert summary.mean_score is not None
+        assert summary.pass_rate is not None
 
     assert evaluation_result.eval_case_results is not None
     assert len(evaluation_result.eval_case_results) > 0
