@@ -93,17 +93,22 @@ def _extract_text_from_content(
 def _default_aggregate_scores(
     metric_name: str,
     eval_case_metric_results: list[types.EvalCaseMetricResult],
+    calculate_pass_rate: bool = False,
 ) -> types.AggregatedMetricResult:
     """Default aggregation logic using mean and standard deviation."""
     scores = []
     num_error = 0
     num_valid = 0
+    num_passing = 0
 
     for result in eval_case_metric_results:
         if result.error_message is None and result.score is not None:
             try:
-                scores.append(float(result.score))
+                score = float(result.score)
+                scores.append(score)
                 num_valid += 1
+                if calculate_pass_rate and score == 1.0:
+                    num_passing += 1
             except (ValueError, TypeError):
                 logger.warning(
                     "Could not convert score '%s' to float for metric '%s' during"
@@ -117,11 +122,16 @@ def _default_aggregate_scores(
 
     mean_score = None
     stdev_score = None
+    pass_rate = None
+
     if num_valid > 0:
         try:
             mean_score = statistics.mean(scores)
         except statistics.StatisticsError as e:
             logger.warning("Could not calculate mean for %s: %s", metric_name, e)
+        if calculate_pass_rate:
+            pass_rate = num_passing / num_valid
+
     if num_valid > 1:
         try:
             stdev_score = statistics.stdev(scores)
@@ -135,6 +145,7 @@ def _default_aggregate_scores(
         num_cases_error=num_error,
         mean_score=mean_score,
         stdev_score=stdev_score,
+        pass_rate=pass_rate if calculate_pass_rate else None,
     )
 
 
@@ -1062,7 +1073,9 @@ class PredefinedMetricHandler(MetricHandler):
     ) -> types.AggregatedMetricResult:
         """Aggregates the metric results for a predefined metric."""
         logger.debug("Aggregating results for predefined metric: %s", self.metric.name)
-        return _default_aggregate_scores(self.metric.name, eval_case_metric_results)
+        return _default_aggregate_scores(
+            self.metric.name, eval_case_metric_results, calculate_pass_rate=True
+        )
 
 
 _METRIC_HANDLER_MAPPING = [

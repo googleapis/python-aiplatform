@@ -1201,6 +1201,10 @@ class AggregatedMetricResult(_common.BaseModel):
     stdev_score: Optional[float] = Field(
         default=None, description="""Standard deviation of the metric."""
     )
+    pass_rate: Optional[float] = Field(
+        default=None,
+        description="""Pass rate of the adaptive rubric metric. Calculated as the number of cases where all criteria passed divided by the total number of valid cases. A case is passing if it has a score of 1.0.""",
+    )
 
     # Allow extra fields to support custom aggregation stats.
     model_config = ConfigDict(extra="allow")
@@ -1226,6 +1230,9 @@ class AggregatedMetricResultDict(TypedDict, total=False):
 
     stdev_score: Optional[float]
     """Standard deviation of the metric."""
+
+    pass_rate: Optional[float]
+    """Pass rate of the adaptive rubric metric. Calculated as the number of cases where all criteria passed divided by the total number of valid cases. A case is passing if it has a score of 1.0."""
 
 
 AggregatedMetricResultOrDict = Union[AggregatedMetricResult, AggregatedMetricResultDict]
