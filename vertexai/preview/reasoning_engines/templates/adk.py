@@ -1012,7 +1012,7 @@ class AdkApp:
             # Run the agent.
             message_for_agent = types.Content(**request.message)
             try:
-                for event in runner.run_async(
+                for event in runner.run(
                     user_id=request.user_id,
                     session_id=session.id,
                     new_message=message_for_agent,
