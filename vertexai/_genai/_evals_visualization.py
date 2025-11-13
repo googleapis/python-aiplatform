@@ -254,7 +254,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
         <div id="details-section"></div>
     </div>
     <script>
-        const vizData = {eval_result_json};
+        var vizData_vertex_eval_sdk = {eval_result_json};
         function formatDictVals(obj) {{
             if (typeof obj === 'string') return obj;
             if (obj === undefined || obj === null) return '';
@@ -276,7 +276,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 return '';
             }}
 
-            const agentInfo = vizData.agent_info;
+            const agentInfo = vizData_vertex_eval_sdk.agent_info;
 
             // If we have agent info, render as trace
             if(agentInfo) {{
@@ -545,9 +545,9 @@ def _get_evaluation_html(eval_result_json: str) -> str:
                 container.innerHTML += card + '</details>';
             }});
         }}
-        renderSummary(vizData.summary_metrics);
-        renderAgentInfo(vizData.agent_info);
-        renderDetails(vizData.eval_case_results, vizData.metadata, vizData.agent_info);
+        renderSummary(vizData_vertex_eval_sdk.summary_metrics);
+        renderAgentInfo(vizData_vertex_eval_sdk.agent_info);
+        renderDetails(vizData_vertex_eval_sdk.eval_case_results, vizData_vertex_eval_sdk.metadata, vizData_vertex_eval_sdk.agent_info);
     </script>
 </body>
 </html>
@@ -616,7 +616,7 @@ def _get_comparison_html(eval_result_json: str) -> str:
         <div id="details-section"></div>
     </div>
     <script>
-        const vizData = {eval_result_json};
+        var vizData_vertex_eval_sdk = {eval_result_json};
         function renderSummary(summaryMetrics, metadata) {{
             const container = document.getElementById('summary-section');
             if (!summaryMetrics || summaryMetrics.length === 0) {{ container.innerHTML = '<h2>Summary Metrics</h2><p>No summary metrics.</p>'; return; }}
@@ -686,8 +686,8 @@ def _get_comparison_html(eval_result_json: str) -> str:
                 container.innerHTML += card + '</div></details>';
             }});
         }}
-        renderSummary(vizData.summary_metrics, vizData.metadata);
-        renderDetails(vizData.eval_case_results, vizData.metadata);
+        renderSummary(vizData_vertex_eval_sdk.summary_metrics, vizData_vertex_eval_sdk.metadata);
+        renderDetails(vizData_vertex_eval_sdk.eval_case_results, vizData_vertex_eval_sdk.metadata);
     </script>
 </body>
 </html>
@@ -746,8 +746,8 @@ def _get_inference_html(dataframe_json: str) -> str:
         <div id="results-table"></div>
     </div>
     <script>
-        const vizData = {dataframe_json};
-        const container = document.getElementById('results-table');
+        var vizData_vertex_eval_sdk = {dataframe_json};
+        var container_vertex_eval_sdk = document.getElementById('results-table');
 
         function renderRubrics(cellValue) {{
             let content = '';
@@ -803,20 +803,20 @@ def _get_inference_html(dataframe_json: str) -> str:
             return `<td>${{cellContent}}</td>`;
         }}
 
-        if (!vizData || vizData.length === 0) {{ container.innerHTML = "<p>No data.</p>"; }}
+        if (!vizData_vertex_eval_sdk || vizData_vertex_eval_sdk.length === 0) {{ container_vertex_eval_sdk.innerHTML = "<p>No data.</p>"; }}
         else {{
             let table = '<table><thead><tr>';
-            const headers = Object.keys(vizData[0] || {{}});
+            const headers = Object.keys(vizData_vertex_eval_sdk[0] || {{}});
             headers.forEach(h => table += `<th>${{h}}</th>`);
             table += '</tr></thead><tbody>';
-            vizData.forEach(row => {{
+            vizData_vertex_eval_sdk.forEach(row => {{
                 table += '<tr>';
                 headers.forEach(header => {{
                     table += renderCell(row[header], header);
                 }});
                 table += '</tr>';
             }});
-            container.innerHTML = table + '</tbody></table>';
+            container_vertex_eval_sdk.innerHTML = table + '</tbody></table>';
         }}
     </script>
 </body>
