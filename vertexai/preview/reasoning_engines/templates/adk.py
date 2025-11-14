@@ -1534,3 +1534,12 @@ class AdkApp:
         r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
         if "Telemetry API has not been used in project" in r.text:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+
+    def to_a2a(self, agent_card: "AgentCard"):
+        """Converts an existing ADK application to be compatible with A2A."""
+
+        from vertexai.preview.reasoning_engines.templates import a2a
+
+        return a2a.to_a2a(
+            agent_engine_app=self, agent_card=agent_card, user_id="123"
+        )
