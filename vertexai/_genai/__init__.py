@@ -16,7 +16,7 @@
 
 import importlib
 
-from .client import Client  # type: ignore[attr-defined]
+from .client import Client
 
 _evals = None
 

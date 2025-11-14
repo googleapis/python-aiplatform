@@ -941,7 +941,7 @@ class PredefinedMetricHandler(MetricHandler):
             )
 
         prompt_instance_data = None
-        if self.metric.name.startswith("multi_turn"):
+        if self.metric.name is not None and self.metric.name.startswith("multi_turn"):
             prompt_contents = []
             if eval_case.conversation_history:
                 for message in eval_case.conversation_history:
@@ -957,7 +957,7 @@ class PredefinedMetricHandler(MetricHandler):
                 eval_case.prompt
             )
 
-        other_data_map = {}
+        other_data_map: dict[str, Any] = {}
         if hasattr(eval_case, "context") and eval_case.context:
             if isinstance(eval_case.context, str):
                 other_data_map["context"] = types.evals.InstanceData(

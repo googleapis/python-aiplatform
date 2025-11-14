@@ -57,7 +57,7 @@ AGENT_MAX_WORKERS = 10
 
 def _get_agent_engine_instance(
     agent_name: str, api_client: BaseApiClient
-) -> types.AgentEngine:
+) -> Union[types.AgentEngine, Any]:
     """Gets or creates an agent engine instance for the current thread."""
     if not hasattr(_thread_local_data, "agent_engine_instances"):
         _thread_local_data.agent_engine_instances = {}
@@ -262,13 +262,13 @@ def _execute_inference_concurrently(
 
                 if agent_engine:
 
-                    def agent_run_wrapper(
+                    def agent_run_wrapper(  # type: ignore[no-untyped-def]
                         row_arg,
                         contents_arg,
                         agent_engine,
                         inference_fn_arg,
                         api_client_arg,
-                    ):
+                    ) -> Any:
                         if isinstance(agent_engine, str):
                             agent_engine_instance = _get_agent_engine_instance(
                                 agent_engine, api_client_arg
@@ -328,7 +328,9 @@ def _run_gemini_inference(
     model: str,
     prompt_dataset: pd.DataFrame,
     config: Optional[genai_types.GenerateContentConfig] = None,
-) -> list[Union[genai_types.GenerateContentResponse, dict[str, Any]]]:
+) -> list[
+    Union[genai_types.GenerateContentResponse, dict[str, Any], list[dict[str, Any]]]
+]:
     """Internal helper to run inference using Gemini model with concurrency."""
     return _execute_inference_concurrently(
         api_client=api_client,
@@ -559,7 +561,7 @@ def _run_inference_internal(
             )
 
         logger.info("Running inference via LiteLLM for model: %s", processed_model_id)
-        raw_responses = _run_litellm_inference(
+        raw_responses = _run_litellm_inference(  # type: ignore[assignment]
             model=processed_model_id, prompt_dataset=prompt_dataset
         )
         processed_llm_responses = []
@@ -1046,7 +1048,7 @@ def _resolve_metrics(
     return resolved_metrics_list
 
 
-def _execute_evaluation(
+def _execute_evaluation(  # type: ignore[no-untyped-def]
     *,
     api_client: Any,
     dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
@@ -1184,7 +1186,7 @@ def _run_agent_internal(
     processed_intermediate_events = []
     processed_responses = []
     for resp_item in raw_responses:
-        intermediate_events_row = []
+        intermediate_events_row: list[dict[str, Any]] = []
         response_row = None
         if isinstance(resp_item, list):
             try:
@@ -1250,7 +1252,9 @@ def _run_agent(
     api_client: BaseApiClient,
     agent_engine: Union[str, types.AgentEngine],
     prompt_dataset: pd.DataFrame,
-) -> list[dict[str, Any]]:
+) -> list[
+    Union[list[dict[str, Any]], dict[str, Any], genai_types.GenerateContentResponse]
+]:
     """Internal helper to run inference using Gemini model with concurrency."""
     return _execute_inference_concurrently(
         api_client=api_client,
@@ -1287,7 +1291,7 @@ def _execute_agent_run_with_retry(
             )
         user_id = session_inputs.user_id
         session_state = session_inputs.state
-        session = agent_engine.create_session(
+        session = agent_engine.create_session(  # type: ignore[attr-defined]
             user_id=user_id,
             state=session_state,
         )
@@ -1298,7 +1302,7 @@ def _execute_agent_run_with_retry(
     for attempt in range(max_retries):
         try:
             responses = []
-            for event in agent_engine.stream_query(
+            for event in agent_engine.stream_query(  # type: ignore[attr-defined]
                 user_id=user_id,
                 session_id=session["id"],
                 message=contents,
@@ -1377,7 +1381,7 @@ def _get_aggregated_metrics(
     ):
         return []
 
-    aggregated_metrics_dict = {}
+    aggregated_metrics_dict: dict[str, dict[str, Any]] = {}
     for name, value in results.summary_metrics.metrics.items():
         result = name.rsplit("/", 1)
         full_metric_name = result[0]
@@ -1410,7 +1414,10 @@ def _get_eval_case_result_from_eval_item(
 ) -> types.EvalCaseResult:
     """Transforms EvaluationItem to EvalCaseResult."""
     metric_results = {}
-    if eval_item.evaluation_response.candidate_results:
+    if (
+        eval_item.evaluation_response
+        and eval_item.evaluation_response.candidate_results
+    ):
         for candidate_result in eval_item.evaluation_response.candidate_results:
             metric_results[candidate_result.metric] = types.EvalCaseMetricResult(
                 metric_name=candidate_result.metric,
@@ -1434,23 +1441,26 @@ def _convert_request_to_dataset_row(
     request: types.EvaluationItemRequest,
 ) -> dict[str, Any]:
     """Converts an EvaluationItemRequest to a dictionary."""
-    dict_row = {}
+    dict_row: dict[str, Any] = {}
     dict_row[_evals_constant.PROMPT] = (
-        request.prompt.text if request.prompt.text else None
+        request.prompt.text if request.prompt and request.prompt.text else None
     )
     dict_row[_evals_constant.REFERENCE] = request.golden_response
     intermediate_events = []
     if request.candidate_responses:
         for candidate in request.candidate_responses:
-            dict_row[candidate.candidate] = candidate.text if candidate.text else None
-            if candidate.events:
-                for event in candidate.events:
-                    content_dict = {"parts": event.parts, "role": event.role}
-                    int_events_dict = {
-                        "event_id": candidate.candidate,
-                        "content": content_dict,
-                    }
-                    intermediate_events.append(int_events_dict)
+            if candidate.candidate is not None:
+                dict_row[candidate.candidate] = (
+                    candidate.text if candidate.text else None
+                )
+                if candidate.events:
+                    for event in candidate.events:
+                        content_dict = {"parts": event.parts, "role": event.role}
+                        int_events_dict = {
+                            "event_id": candidate.candidate,
+                            "content": content_dict,
+                        }
+                        intermediate_events.append(int_events_dict)
     dict_row[_evals_constant.INTERMEDIATE_EVENTS] = intermediate_events
     return dict_row
 
@@ -1529,12 +1539,18 @@ def _get_agent_info_from_inference_configs(
             "Multiple agents are not supported yet. Displaying the first agent."
         )
     agent_config = inference_configs[candidate_names[0]].agent_config
-    di = agent_config.developer_instruction
+    di = (
+        agent_config.developer_instruction
+        if agent_config and agent_config.developer_instruction
+        else None
+    )
     instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
     return types.evals.AgentInfo(
         name=candidate_names[0],
         instruction=instruction,
-        tool_declarations=agent_config.tools,
+        tool_declarations=(
+            agent_config.tools if agent_config and agent_config.tools else None
+        ),
     )
 
 
@@ -1576,7 +1592,7 @@ def _convert_evaluation_run_results(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> list[types.EvaluationItem]:
+) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
         return []
@@ -1601,7 +1617,7 @@ async def _convert_evaluation_run_results_async(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> list[types.EvaluationItem]:
+) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
         return []
@@ -1623,7 +1639,7 @@ async def _convert_evaluation_run_results_async(
     )
 
 
-def _object_to_dict(obj) -> dict[str, Any]:
+def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
     """Converts an object to a dictionary."""
     if not hasattr(obj, "__dict__"):
         return obj  # Not an object with attributes, return as is (e.g., int, str)
@@ -1650,7 +1666,7 @@ def _create_evaluation_set_from_dataframe(
     gcs_dest_prefix: str,
     eval_df: pd.DataFrame,
     candidate_name: Optional[str] = None,
-) -> types.EvaluationSet:
+) -> Union[types.EvaluationSet, Any]:
     """Converts a dataframe to an EvaluationSet."""
     eval_item_requests = []
     for _, row in eval_df.iterrows():

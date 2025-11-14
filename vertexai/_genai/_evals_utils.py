@@ -141,7 +141,7 @@ class LazyLoadedPrebuiltMetric:
         "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/{metric_name}/"
     )
 
-    def __init__(self, name: str, version: Optional[str] = None, **kwargs):
+    def __init__(self, name: str, version: Optional[str] = None, **kwargs):  # type: ignore[no-untyped-def]
         self.name = name.upper()
         self.version = version
         self.metric_kwargs = kwargs
@@ -339,7 +339,7 @@ class LazyLoadedPrebuiltMetric:
                 "Predefined Metric or loaded from GCS."
             ) from e
 
-    def __call__(
+    def __call__(  # type: ignore[no-untyped-def]
         self, version: Optional[str] = None, **kwargs
     ) -> "LazyLoadedPrebuiltMetric":
         """Allows setting a specific version and other metric attributes."""
@@ -362,7 +362,7 @@ class PrebuiltMetricLoader:
       text_quality_metric = types.RubricMetric.TEXT_QUALITY
     """
 
-    def __getattr__(
+    def __getattr__(  # type: ignore[no-untyped-def]
         self, name: str, version: Optional[str] = None, **kwargs
     ) -> LazyLoadedPrebuiltMetric:
         return LazyLoadedPrebuiltMetric(name=name, version=version, **kwargs)
