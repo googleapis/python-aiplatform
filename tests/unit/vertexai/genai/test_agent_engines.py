@@ -1062,6 +1062,58 @@ class TestAgentEngineHelpers:
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
 
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    @mock.patch.object(_agent_engines_utils, "_validate_packages_or_raise")
+    def test_create_agent_engine_config_with_source_packages_and_build_options(
+        self, mock_validate_packages, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "main.py")
+            with open(test_file_path, "w") as f:
+                f.write("app = None")
+            build_options = {"installation_scripts": ["installation_scripts/install.sh"]}
+            source_packages = [test_file_path, "installation_scripts/install.sh"]
+            mock_validate_packages.return_value = source_packages
+
+            self.client.agent_engines._create_config(
+                mode="create",
+                source_packages=source_packages,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                build_options=build_options,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            )
+            mock_validate_packages.assert_called_once_with(
+                packages=source_packages,
+                build_options=build_options,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_validate_packages_or_raise")
+    def test_create_agent_engine_config_with_build_options(
+        self, mock_validate_packages, mock_prepare
+    ):
+        build_options = {"installation_scripts": ["install.sh"]}
+        extra_packages = ["install.sh"]
+
+        self.client.agent_engines._create_config(
+            mode="create",
+            agent=self.test_agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            extra_packages=extra_packages,
+            build_options=build_options,
+        )
+
+        mock_validate_packages.assert_called_once_with(
+            packages=extra_packages,
+            build_options=build_options,
+        )
+
     @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_update_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
@@ -1598,6 +1650,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1691,6 +1744,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1783,6 +1837,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1938,6 +1993,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2025,6 +2081,7 @@ class TestAgentEngine:
                 agent_framework=_TEST_AGENT_FRAMEWORK,
                 identity_type=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
