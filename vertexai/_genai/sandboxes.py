@@ -40,6 +40,7 @@ logger.setLevel(logging.INFO)
 def _CreateAgentEngineSandboxConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -58,6 +59,7 @@ def _CreateAgentEngineSandboxConfig_to_vertex(
 def _CreateAgentEngineSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -71,7 +73,7 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
             to_object,
             ["config"],
             _CreateAgentEngineSandboxConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -81,6 +83,7 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
 def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -95,6 +98,7 @@ def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
 def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -112,6 +116,7 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
 def _GetAgentEngineSandboxOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
@@ -128,6 +133,7 @@ def _GetAgentEngineSandboxOperationParameters_to_vertex(
 def _GetAgentEngineSandboxRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -142,6 +148,7 @@ def _GetAgentEngineSandboxRequestParameters_to_vertex(
 def _ListAgentEngineSandboxesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -160,6 +167,7 @@ def _ListAgentEngineSandboxesConfig_to_vertex(
 def _ListAgentEngineSandboxesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -170,7 +178,7 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
             to_object,
             ["config"],
             _ListAgentEngineSandboxesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -201,7 +209,7 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -262,7 +270,7 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -319,7 +327,7 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -380,7 +388,7 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -445,7 +453,7 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -496,7 +504,7 @@ class Sandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -729,7 +737,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -792,7 +800,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -851,7 +859,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -914,7 +922,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -981,7 +989,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -1034,7 +1042,7 @@ class AsyncSandboxes(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
