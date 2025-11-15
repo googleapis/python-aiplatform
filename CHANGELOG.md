@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.128.0](https://github.com/googleapis/python-aiplatform/compare/v1.127.0...v1.128.0) (2025-11-15)
+
+
+### Features
+
+* GenAI Client(evals) - Add `pass_rate` to `AggregatedMetricResult` and calculate it for adaptive rubric metrics. ([1f1f67e](https://github.com/googleapis/python-aiplatform/commit/1f1f67e548b7616653f6d84954376b1d4e095ca0))
+* GenAI SDK client(multimodal) - Support Assemble feature on the multimodal datasets. ([2195411](https://github.com/googleapis/python-aiplatform/commit/21954110fa700f539c17ed6deca3ea0ac789019e))
+
+
+### Bug Fixes
+
+* Fix the change runner behavior back to sync function in streaming_agent_run_with_events ([e9d9c31](https://github.com/googleapis/python-aiplatform/commit/e9d9c31f8b386e21094fb98820aa263d5ee7224e))
+* GenAI Client(evals) - fix eval visualizations in Vertex Workbench ([c3abe51](https://github.com/googleapis/python-aiplatform/commit/c3abe512332fa9e0a9a23e269ff8998d99e3b703))
+
 ## [1.127.0](https://github.com/googleapis/python-aiplatform/compare/v1.126.1...v1.127.0) (2025-11-11)
 
 
