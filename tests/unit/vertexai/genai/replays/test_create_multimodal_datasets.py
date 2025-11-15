@@ -54,6 +54,9 @@ def test_create_dataset_from_bigquery(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-from-bigquery"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
 
 
 def test_create_dataset_from_bigquery_without_bq_prefix(client):
@@ -70,6 +73,9 @@ def test_create_dataset_from_bigquery_without_bq_prefix(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-from-bigquery"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
 
 
 pytestmark = pytest_helper.setup(
@@ -111,6 +117,9 @@ async def test_create_dataset_from_bigquery_async(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-from-bigquery"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
 
 
 @pytest.mark.asyncio
@@ -129,6 +138,9 @@ async def test_create_dataset_from_bigquery_async_with_timeout(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-from-bigquery"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
 
 
 @pytest.mark.asyncio
@@ -146,3 +158,6 @@ async def test_create_dataset_from_bigquery_async_without_bq_prefix(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-from-bigquery"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )

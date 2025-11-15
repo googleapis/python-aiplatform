@@ -22,6 +22,7 @@ import typing
 from . import agent_engines
 from . import evals
 from .common import _AppendAgentEngineSessionEventRequestParameters
+from .common import _AssembleDatasetParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
@@ -123,6 +124,12 @@ from .common import AppendAgentEngineSessionEventResponseOrDict
 from .common import ApplicableGuideline
 from .common import ApplicableGuidelineDict
 from .common import ApplicableGuidelineOrDict
+from .common import AssembleDataset
+from .common import AssembleDatasetConfig
+from .common import AssembleDatasetConfigDict
+from .common import AssembleDatasetConfigOrDict
+from .common import AssembleDatasetDict
+from .common import AssembleDatasetOrDict
 from .common import BigQueryRequestSet
 from .common import BigQueryRequestSetDict
 from .common import BigQueryRequestSetOrDict
@@ -366,6 +373,15 @@ from .common import ExecuteSandboxEnvironmentResponseOrDict
 from .common import GcsSource
 from .common import GcsSourceDict
 from .common import GcsSourceOrDict
+from .common import GeminiExample
+from .common import GeminiExampleDict
+from .common import GeminiExampleOrDict
+from .common import GeminiRequestReadConfig
+from .common import GeminiRequestReadConfigDict
+from .common import GeminiRequestReadConfigOrDict
+from .common import GeminiTemplateConfig
+from .common import GeminiTemplateConfigDict
+from .common import GeminiTemplateConfigOrDict
 from .common import GenerateAgentEngineMemoriesConfig
 from .common import GenerateAgentEngineMemoriesConfigDict
 from .common import GenerateAgentEngineMemoriesConfigOrDict
@@ -1587,6 +1603,21 @@ __all__ = [
     "ListAgentEngineSessionEventsResponse",
     "ListAgentEngineSessionEventsResponseDict",
     "ListAgentEngineSessionEventsResponseOrDict",
+    "AssembleDatasetConfig",
+    "AssembleDatasetConfigDict",
+    "AssembleDatasetConfigOrDict",
+    "GeminiExample",
+    "GeminiExampleDict",
+    "GeminiExampleOrDict",
+    "GeminiTemplateConfig",
+    "GeminiTemplateConfigDict",
+    "GeminiTemplateConfigOrDict",
+    "GeminiRequestReadConfig",
+    "GeminiRequestReadConfigDict",
+    "GeminiRequestReadConfigOrDict",
+    "MultimodalDatasetOperation",
+    "MultimodalDatasetOperationDict",
+    "MultimodalDatasetOperationOrDict",
     "CreateMultimodalDatasetConfig",
     "CreateMultimodalDatasetConfigDict",
     "CreateMultimodalDatasetConfigOrDict",
@@ -1602,9 +1633,6 @@ __all__ = [
     "MultimodalDataset",
     "MultimodalDatasetDict",
     "MultimodalDatasetOrDict",
-    "MultimodalDatasetOperation",
-    "MultimodalDatasetOperationDict",
-    "MultimodalDatasetOperationOrDict",
     "GetMultimodalDatasetOperationConfig",
     "GetMultimodalDatasetOperationConfigDict",
     "GetMultimodalDatasetOperationConfigOrDict",
@@ -1773,6 +1801,9 @@ __all__ = [
     "AgentEngineConfig",
     "AgentEngineConfigDict",
     "AgentEngineConfigOrDict",
+    "AssembleDataset",
+    "AssembleDatasetDict",
+    "AssembleDatasetOrDict",
     "Prompt",
     "PromptDict",
     "PromptOrDict",
@@ -1876,6 +1907,7 @@ __all__ = [
     "_UpdateAgentEngineSessionRequestParameters",
     "_AppendAgentEngineSessionEventRequestParameters",
     "_ListAgentEngineSessionEventsRequestParameters",
+    "_AssembleDatasetParameters",
     "_CreateMultimodalDatasetParameters",
     "_DeleteMultimodalDatasetRequestParameters",
     "_GetMultimodalDatasetParameters",

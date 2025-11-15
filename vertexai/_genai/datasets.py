@@ -35,6 +35,27 @@ from . import types
 logger = logging.getLogger("vertexai_genai.datasets")
 
 
+def _AssembleDatasetParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["gemini_request_read_config"]) is not None:
+        setv(
+            to_object,
+            ["geminiRequestReadConfig"],
+            getv(from_object, ["gemini_request_read_config"]),
+        )
+
+    return to_object
+
+
 def _CreateMultimodalDatasetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -173,6 +194,63 @@ def _UpdateMultimodalDatasetParameters_to_vertex(
 
 
 class Datasets(_api_module.BaseModule):
+
+    def _assemble_multimodal_dataset(
+        self,
+        *,
+        config: Optional[types.AssembleDatasetConfigOrDict] = None,
+        name: str,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Assembles a multimodal dataset resource.
+        """
+
+        parameter_model = types._AssembleDatasetParameters(
+            config=config,
+            name=name,
+            gemini_request_read_config=gemini_request_read_config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}:assemble".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}:assemble"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _create_multimodal_dataset(
         self,
@@ -517,23 +595,21 @@ class Datasets(_api_module.BaseModule):
         self,
         operation: types.MultimodalDatasetOperation,
         timeout_seconds: int,
-    ) -> types.MultimodalDataset:
-        """Waits for a multimodal dataset operation to complete.
+    ) -> dict[str, Any]:
+        """Waits for a multimodal or assemble dataset operation to complete.
 
         Args:
-          operation: The multimodal dataset operation to wait for.
+          operation: The multimodal or assemble dataset operation to wait for.
           timeout_seconds: The maximum time in seconds to wait for the operation
           to complete.
 
         Returns:
-          The name of the Multimodal Dataset resource from the operation result.
+            A dict containing the operation response.
 
         Raises:
           TimeoutError: If the operation does not complete within the timeout.
           ValueError: If the operation fails.
         """
-        multimodal_operation: Optional[types.MultimodalDatasetOperation] = None
-
         response_operation_name = operation.name
         dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
         operation_id = response_operation_name.split("/")[-1]
@@ -544,11 +620,11 @@ class Datasets(_api_module.BaseModule):
         max_wait_time_seconds = 60
 
         while (time.time() - start_time) < timeout_seconds:
-            multimodal_operation = self._get_multimodal_dataset_operation(
+            operation = self._get_multimodal_dataset_operation(
                 dataset_id=dataset_id,
                 operation_id=operation_id,
             )
-            if multimodal_operation.done:
+            if operation.done:
                 break
             time.sleep(sleep_duration_seconds)
             sleep_duration_seconds = min(
@@ -556,26 +632,15 @@ class Datasets(_api_module.BaseModule):
             )
         else:
             raise TimeoutError(
-                "Create multimodal dataset operation did not complete within the"
+                "The operation did not complete within the"
                 f" specified timeout of {timeout_seconds} seconds."
             )
-        if (
-            not multimodal_operation
-            or multimodal_operation.response is None
-            or multimodal_operation.response.name is None
-        ):
-            logger.error(
-                f"Error creating multimodal dataset resource for the operation {operation.name}."
-            )
-            raise ValueError("Error creating multimodal dataset resource.")
-        if (
-            hasattr(multimodal_operation, "error")
-            and multimodal_operation.error is not None
-        ):
-            raise ValueError(
-                f"Error creating multimodal dataset resource: {multimodal_operation.error}"
-            )
-        return multimodal_operation.response
+        if not operation or operation.response is None:
+            logger.error(f"Error running the operation {operation.response}.")
+            raise ValueError(f"Error running the operation {operation.response}.")
+        if hasattr(operation, "error") and operation.error is not None:
+            raise ValueError(f"Error running the operation {operation.error}")
+        return operation.response
 
     def create_from_bigquery(
         self,
@@ -614,10 +679,11 @@ class Datasets(_api_module.BaseModule):
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
             metadata=multimodal_dataset.metadata,
         )
-        return self._wait_for_operation(
+        response = self._wait_for_operation(
             operation=multimodal_dataset_operation,
             timeout_seconds=config.timeout,
         )
+        return _datasets_utils.create_from_response(types.MultimodalDataset, response)
 
     def update_multimodal_dataset(
         self,
@@ -715,8 +781,111 @@ class Datasets(_api_module.BaseModule):
 
         return self._delete_multimodal_dataset(config=config, name=name)
 
+    def assemble(
+        self,
+        *,
+        name: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssembleDatasetConfigOrDict] = None,
+    ) -> str:
+        """Assemble the dataset into a BigQuery table.
+
+        Waits for the assemble operation to complete before returning.
+
+        Args:
+          name:
+            Required. The name of the dataset to assemble. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+          template_config:
+            Optional. The template config to use to assemble the dataset. If
+            not provided, the template config attached to the dataset will be
+            used.
+          config:
+            Optional. A configuration for assembling the dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+            The URI of the bigquery table of the assembled dataset.
+        """
+        if isinstance(config, dict):
+            config = types.AssembleDatasetConfig(**config)
+        elif not config:
+            config = types.AssembleDatasetConfig()
+
+        operation = self._assemble_multimodal_dataset(
+            name=name,
+            gemini_request_read_config={
+                "template_config": template_config,
+            },
+            config=config,
+        )
+        response = self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        return response["bigqueryDestination"]
+
 
 class AsyncDatasets(_api_module.BaseModule):
+
+    async def _assemble_multimodal_dataset(
+        self,
+        *,
+        config: Optional[types.AssembleDatasetConfigOrDict] = None,
+        name: str,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
+    ) -> types.MultimodalDatasetOperation:
+        """
+        Assembles a multimodal dataset resource.
+        """
+
+        parameter_model = types._AssembleDatasetParameters(
+            config=config,
+            name=name,
+            gemini_request_read_config=gemini_request_read_config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "datasets/{name}:assemble".format_map(request_url_dict)
+            else:
+                path = "datasets/{name}:assemble"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.MultimodalDatasetOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _create_multimodal_dataset(
         self,
@@ -1073,7 +1242,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         operation: types.MultimodalDatasetOperation,
         timeout_seconds: int,
-    ) -> types.MultimodalDataset:
+    ) -> dict[str, Any]:
         """Waits for a multimodal dataset operation to complete.
 
         Args:
@@ -1082,14 +1251,12 @@ class AsyncDatasets(_api_module.BaseModule):
           to complete.
 
         Returns:
-          The name of the Multimodal Dataset resource from the operation result.
+            A dict containing the operation response.
 
         Raises:
           TimeoutError: If the operation does not complete within the timeout.
           ValueError: If the operation fails.
         """
-        multimodal_operation: Optional[types.MultimodalDatasetOperation] = None
-
         response_operation_name = operation.name
         dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
         operation_id = response_operation_name.split("/")[-1]
@@ -1100,11 +1267,11 @@ class AsyncDatasets(_api_module.BaseModule):
         max_wait_time_seconds = 60
 
         while (time.time() - start_time) < timeout_seconds:
-            multimodal_operation = await self._get_multimodal_dataset_operation(
+            operation = await self._get_multimodal_dataset_operation(
                 dataset_id=dataset_id,
                 operation_id=operation_id,
             )
-            if multimodal_operation.done:
+            if operation.done:
                 break
             await asyncio.sleep(sleep_duration_seconds)
             sleep_duration_seconds = min(
@@ -1112,26 +1279,15 @@ class AsyncDatasets(_api_module.BaseModule):
             )
         else:
             raise TimeoutError(
-                "Create multimodal dataset operation did not complete within the"
+                "The operation did not complete within the"
                 f" specified timeout of {timeout_seconds} seconds."
             )
-        if (
-            not multimodal_operation
-            or multimodal_operation.response is None
-            or multimodal_operation.response.name is None
-        ):
-            logger.error(
-                f"Error creating multimodal dataset resource for the operation {operation.name}."
-            )
-            raise ValueError("Error creating multimodal dataset resource.")
-        if (
-            hasattr(multimodal_operation, "error")
-            and multimodal_operation.error is not None
-        ):
-            raise ValueError(
-                f"Error creating multimodal dataset resource: {multimodal_operation.error}"
-            )
-        return multimodal_operation.response
+        if not operation or operation.response is None:
+            logger.error(f"Error running the operation {operation.response}.")
+            raise ValueError(f"Error running the operation {operation.response}.")
+        if hasattr(operation, "error") and operation.error is not None:
+            raise ValueError(f"Error running the operation {operation.error}")
+        return operation.response
 
     async def create_from_bigquery(
         self,
@@ -1170,10 +1326,11 @@ class AsyncDatasets(_api_module.BaseModule):
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
             metadata=multimodal_dataset.metadata,
         )
-        return await self._wait_for_operation(
+        response = await self._wait_for_operation(
             operation=multimodal_dataset_operation,
             timeout_seconds=config.timeout,
         )
+        return _datasets_utils.create_from_response(types.MultimodalDataset, response)
 
     async def update_multimodal_dataset(
         self,
@@ -1266,3 +1423,47 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.CreateMultimodalDatasetConfig()
 
         return await self._delete_multimodal_dataset(config=config, name=name)
+
+    async def assemble(
+        self,
+        *,
+        name: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssembleDatasetConfigOrDict] = None,
+    ) -> str:
+        """Assemble the dataset into a BigQuery table.
+
+        Waits for the assemble operation to complete before returning.
+
+        Args:
+          name:
+            Required. The name of the dataset to assemble. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+          template_config:
+            Optional. The template config to use to assemble the dataset. If
+            not provided, the template config attached to the dataset will be
+            used.
+          config:
+            Optional. A configuration for assembling the dataset. If not
+            provided, the default configuration will be used.
+
+        Returns:
+            The URI of the bigquery table of the assembled dataset.
+        """
+        if isinstance(config, dict):
+            config = types.AssembleDatasetConfig(**config)
+        elif not config:
+            config = types.AssembleDatasetConfig()
+
+        operation = await self._assemble_multimodal_dataset(
+            name=name,
+            gemini_request_read_config={
+                "template_config": template_config,
+            },
+            config=config,
+        )
+        response = await self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        return response["bigqueryDestination"]
