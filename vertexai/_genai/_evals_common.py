@@ -23,6 +23,7 @@ import logging
 import os
 import threading
 import time
+import uuid
 from typing import Any, Callable, Literal, Optional, Union
 
 from google.api_core import exceptions as api_exceptions
@@ -44,8 +45,17 @@ from . import types
 
 try:
     import litellm
-except ImportError:
+except (ImportError, AttributeError):
     litellm = None  # type: ignore[assignment]
+
+try:
+    from google.adk.agents import LlmAgent
+    from google.adk.runners import Runner
+    from google.adk.sessions import InMemorySessionService
+except (ImportError, AttributeError):
+    LlmAgent = None  # type: ignore[assignment]
+    Runner = None  # type: ignore[assignment]
+    InMemorySessionService = None  # type: ignore[assignment]
 
 
 logger = logging.getLogger(__name__)
@@ -215,6 +225,7 @@ def _execute_inference_concurrently(
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[..., Any]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+    agent: Optional[LlmAgent] = None,
 ) -> list[
     Union[genai_types.GenerateContentResponse, dict[str, Any], list[dict[str, Any]]]
 ]:
@@ -243,7 +254,7 @@ def _execute_inference_concurrently(
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
-    max_workers = AGENT_MAX_WORKERS if agent_engine else MAX_WORKERS
+    max_workers = AGENT_MAX_WORKERS if agent_engine or agent else MAX_WORKERS
     with tqdm(total=len(prompt_dataset), desc=progress_desc) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             for index, row in prompt_dataset.iterrows():
@@ -260,35 +271,46 @@ def _execute_inference_concurrently(
                     pbar.update(1)
                     continue
 
-                if agent_engine:
+                if agent_engine or agent:
 
                     def agent_run_wrapper(  # type: ignore[no-untyped-def]
                         row_arg,
                         contents_arg,
-                        agent_engine,
+                        agent_engine_arg,
+                        agent_arg,
                         inference_fn_arg,
                         api_client_arg,
                     ) -> Any:
-                        if isinstance(agent_engine, str):
-                            agent_engine_instance = _get_agent_engine_instance(
-                                agent_engine, api_client_arg
+                        if agent_engine_arg:
+                            if isinstance(agent_engine_arg, str):
+                                agent_engine_instance = _get_agent_engine_instance(
+                                    agent_engine_arg, api_client_arg
+                                )
+                            elif (
+                                hasattr(agent_engine_arg, "api_client")
+                                and type(agent_engine_arg).__name__ == "AgentEngine"
+                            ):
+                                agent_engine_instance = agent_engine_arg
+                            else:
+                                agent_engine_instance = agent_engine_arg
+                            return inference_fn_arg(
+                                row=row_arg,
+                                contents=contents_arg,
+                                agent_engine=agent_engine_instance,
                             )
-                        elif (
-                            hasattr(agent_engine, "api_client")
-                            and type(agent_engine).__name__ == "AgentEngine"
-                        ):
-                            agent_engine_instance = agent_engine
-                        return inference_fn_arg(
-                            row=row_arg,
-                            contents=contents_arg,
-                            agent_engine=agent_engine_instance,
-                        )
+                        elif agent_arg:
+                            return inference_fn_arg(
+                                row=row_arg,
+                                contents=contents_arg,
+                                agent=agent_arg,
+                            )
 
                     future = executor.submit(
                         agent_run_wrapper,
                         row,
                         contents,
                         agent_engine,
+                        agent,
                         inference_fn,
                         api_client,
                     )
@@ -711,6 +733,7 @@ def _execute_inference(
     src: Union[str, pd.DataFrame],
     model: Optional[Union[Callable[[Any], Any], str]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+    agent: Optional[LlmAgent] = None,
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
@@ -725,6 +748,7 @@ def _execute_inference(
           string representing a model.
         agent_engine: The agent engine to use for inference. Can be a resource
           name string or an `AgentEngine` instance.
+        agent: The local agent to use for inference. Can be an ADK agent instance.
         dest: The destination to save the inference results. Can be a string
           representing a file path or a GCS URI.
         config: The generation configuration for the model.
@@ -735,6 +759,12 @@ def _execute_inference(
     """
     if not api_client:
         raise ValueError("'api_client' instance must be provided.")
+
+    if sum(x is not None for x in [model, agent_engine, agent]) != 1:
+        raise ValueError(
+            "Exactly one of model, agent_engine, or agent must be provided."
+        )
+
     prompt_dataset = _load_dataframe(api_client, src)
     if prompt_template:
         logger.info("Applying prompt template...")
@@ -767,10 +797,14 @@ def _execute_inference(
             eval_dataset_df=results_df,
             candidate_name=candidate_name,
         )
-    elif agent_engine:
-        if not isinstance(agent_engine, str) and not (
-            hasattr(agent_engine, "api_client")
-            and type(agent_engine).__name__ == "AgentEngine"
+    elif agent_engine or agent:
+        if (
+            agent_engine
+            and not isinstance(agent_engine, str)
+            and not (
+                hasattr(agent_engine, "api_client")
+                and type(agent_engine).__name__ == "AgentEngine"
+            )
         ):
             raise TypeError(
                 f"Unsupported agent_engine type: {type(agent_engine)}. Expecting a"
@@ -793,6 +827,7 @@ def _execute_inference(
         results_df = _run_agent_internal(
             api_client=api_client,
             agent_engine=agent_engine,
+            agent=agent,
             prompt_dataset=prompt_dataset,
         )
         end_time = time.time()
@@ -802,7 +837,7 @@ def _execute_inference(
             eval_dataset_df=results_df,
         )
     else:
-        raise ValueError("Either model or agent_engine must be provided.")
+        raise ValueError("Either model, agent_engine or agent must be provided.")
 
     if dest:
         file_name = "inference_results.jsonl" if model else "agent_run_results.jsonl"
@@ -1174,14 +1209,36 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     return evaluation_result
 
 
+def _get_session_inputs(row: pd.Series) -> types.evals.SessionInput:
+    """Parses session inputs from a row."""
+    if isinstance(row["session_inputs"], str):
+        session_inputs = types.evals.SessionInput.model_validate(
+            json.loads(row["session_inputs"])
+        )
+    elif isinstance(row["session_inputs"], dict):
+        session_inputs = types.evals.SessionInput.model_validate(row["session_inputs"])
+    elif isinstance(row["session_inputs"], types.evals.SessionInput):
+        session_inputs = row["session_inputs"]
+    else:
+        raise TypeError(
+            f"Unsupported session_inputs type: {type(row['session_inputs'])}. "
+            "Expecting string or dict in types.evals.SessionInput format."
+        )
+    return session_inputs
+
+
 def _run_agent_internal(
     api_client: BaseApiClient,
-    agent_engine: Union[str, types.AgentEngine],
+    agent_engine: Optional[Union[str, types.AgentEngine]],
+    agent: Optional[LlmAgent],
     prompt_dataset: pd.DataFrame,
 ) -> pd.DataFrame:
     """Runs an agent."""
     raw_responses = _run_agent(
-        api_client=api_client, agent_engine=agent_engine, prompt_dataset=prompt_dataset
+        api_client=api_client,
+        agent_engine=agent_engine,
+        agent=agent,
+        prompt_dataset=prompt_dataset,
     )
     processed_intermediate_events = []
     processed_responses = []
@@ -1250,45 +1307,54 @@ def _run_agent_internal(
 
 def _run_agent(
     api_client: BaseApiClient,
-    agent_engine: Union[str, types.AgentEngine],
+    agent_engine: Optional[Union[str, types.AgentEngine]],
+    agent: Optional[Any],
     prompt_dataset: pd.DataFrame,
 ) -> list[
     Union[list[dict[str, Any]], dict[str, Any], genai_types.GenerateContentResponse]
 ]:
     """Internal helper to run inference using Gemini model with concurrency."""
-    return _execute_inference_concurrently(
-        api_client=api_client,
-        agent_engine=agent_engine,
-        prompt_dataset=prompt_dataset,
-        progress_desc="Agent Run",
-        gemini_config=None,
-        inference_fn=_execute_agent_run_with_retry,
+    if agent_engine:
+        return _execute_inference_concurrently(
+            api_client=api_client,
+            agent_engine=agent_engine,
+            prompt_dataset=prompt_dataset,
+            progress_desc="Agent Run",
+            gemini_config=None,
+            inference_fn=_execute_agent_run_with_retry,
+        )
+    elif agent:
+        return _execute_inference_concurrently(
+            api_client=api_client,
+            agent=agent,
+            prompt_dataset=prompt_dataset,
+            progress_desc="Local Agent Run",
+            gemini_config=None,
+            inference_fn=_execute_local_agent_run_with_retry,
+        )
+    else:
+        raise ValueError("Neither agent_engine nor agent is provided.")
+
+
+async def _create_session(
+    session_service: InMemorySessionService, user_id: str, session_id: str
+) -> None:
+    """Creates a session in the session service."""
+    await session_service.create_session(
+        app_name="local agent run", user_id=user_id, session_id=session_id
     )
 
 
 def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent_engine: types.AgentEngine,
+    agent_engine: Optional[types.AgentEngine] = None,
+    agent: Optional[Any] = None,
     max_retries: int = 3,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
-    """Executes agent run for a single prompt."""
+    """Executes agent run over agent engine for a single prompt."""
     try:
-        if isinstance(row["session_inputs"], str):
-            session_inputs = types.evals.SessionInput.model_validate(
-                json.loads(row["session_inputs"])
-            )
-        elif isinstance(row["session_inputs"], dict):
-            session_inputs = types.evals.SessionInput.model_validate(
-                row["session_inputs"]
-            )
-        elif isinstance(row["session_inputs"], types.evals.SessionInput):
-            session_inputs = row["session_inputs"]
-        else:
-            raise TypeError(
-                f"Unsupported session_inputs type: {type(row['session_inputs'])}. "
-                "Expecting string or dict in types.evals.SessionInput format."
-            )
+        session_inputs = _get_session_inputs(row)
         user_id = session_inputs.user_id
         session_state = session_inputs.state
         session = agent_engine.create_session(  # type: ignore[attr-defined]
@@ -1334,6 +1400,74 @@ def _execute_agent_run_with_retry(
                 return {"error": f"Failed after retries: {e}"}
             time.sleep(1)
     return {"error": f"Failed to get agent run results after {max_retries} retries"}
+
+
+def _execute_local_agent_run_with_retry(
+    row: pd.Series,
+    contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
+    agent: LlmAgent,
+    max_retries: int = 3,
+) -> Union[list[dict[str, Any]], dict[str, Any]]:
+    """Executes agent run locally for a single prompt."""
+    session_inputs = _get_session_inputs(row)
+    user_id = session_inputs.user_id
+    session_id = str(uuid.uuid4())
+    session_service = InMemorySessionService()
+    asyncio.run(_create_session(session_service, user_id, session_id))
+    agent_runner = Runner(
+        agent=agent, app_name="local agent run", session_service=session_service
+    )
+    try:
+        # Avoid printing out warning from agent_runner.run()
+        # WARNING:google_genai.types:Warning: there are non-text parts in the
+        # response: ['function_call'], returning concatenated text result from
+        # text parts. Check the full candidates.content.parts accessor to get
+        # the full model response.
+        local_logger = logging.getLogger("google_genai.types")
+        original_level = local_logger.getEffectiveLevel()
+        local_logger.setLevel(logging.ERROR)
+        for attempt in range(max_retries):
+            try:
+                responses = []
+                for event in agent_runner.run(
+                    user_id=user_id,
+                    session_id=session_id,
+                    new_message=genai_types.Content(
+                        role="user",
+                        parts=[genai_types.Part(text=contents)],
+                    ),
+                ):
+                    if event:
+                        event = event.model_dump()
+                    if event and "content" in event and "parts" in event["content"]:
+                        responses.append(event)
+                return responses
+            except api_exceptions.ResourceExhausted as e:
+                logger.warning(
+                    "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                    " seconds...",
+                    attempt + 1,
+                    max_retries,
+                    e,
+                    2**attempt,
+                )
+                if attempt == max_retries - 1:
+                    return {"error": f"Resource exhausted after retries: {e}"}
+                time.sleep(2**attempt)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                logger.error(
+                    "Unexpected error during generate_content on attempt %d/%d: %s",
+                    attempt + 1,
+                    max_retries,
+                    e,
+                )
+
+                if attempt == max_retries - 1:
+                    return {"error": f"Failed after retries: {e}"}
+                time.sleep(1)
+        return {"error": f"Failed to get agent run results after {max_retries} retries"}
+    finally:
+        local_logger.setLevel(original_level)
 
 
 def _convert_gcs_to_evaluation_item_result(
