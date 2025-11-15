@@ -658,3 +658,12 @@ class LanggraphAgent:
             "": ["query", "get_state", "update_state"],
             "stream": ["stream_query", "get_state_history"],
         }
+
+    def to_a2a(self, agent_card: "AgentCard"):
+        """Converts an existing Langraph application to be compatible with A2A."""
+
+        from vertexai.preview.reasoning_engines.templates import a2a
+
+        return a2a.to_a2a(
+            agent_engine_app=self, agent_card=agent_card
+        )
