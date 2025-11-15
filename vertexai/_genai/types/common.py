@@ -47,7 +47,7 @@ from typing_extensions import TypedDict
 from . import evals as evals_types
 
 
-def _camel_to_snake(camel_case_string: str) -> str:
+def camel_to_snake(camel_case_string: str) -> str:
     snake_case_string = re.sub(r"(?<!^)([A-Z])", r"_\1", camel_case_string)
     return snake_case_string.lower()
 
@@ -56,7 +56,7 @@ def _camel_key_to_snake(message: Any):
     """Converts all camelCase keys to snake_case in a dict or list."""
     if isinstance(message, dict):
         return {
-            _camel_to_snake(key): _camel_key_to_snake(value)
+            camel_to_snake(key): _camel_key_to_snake(value)
             for key, value in message.items()
         }
     elif isinstance(message, list):
@@ -9665,6 +9665,228 @@ ListAgentEngineSessionEventsResponseOrDict = Union[
 ]
 
 
+class AssembleDatasetConfig(_common.BaseModel):
+    """Config for assembling a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the assemble dataset request in seconds. If not
+      set, the default timeout is 90 seconds.""",
+    )
+
+
+class AssembleDatasetConfigDict(TypedDict, total=False):
+    """Config for assembling a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the assemble dataset request in seconds. If not
+      set, the default timeout is 90 seconds."""
+
+
+AssembleDatasetConfigOrDict = Union[AssembleDatasetConfig, AssembleDatasetConfigDict]
+
+
+class GeminiExample(_common.BaseModel):
+    """Represents a Gemini example."""
+
+    model: Optional[str] = Field(
+        default=None, description="""The model used to generate the Gemini example."""
+    )
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Contents of the Gemini example."""
+    )
+    system_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""System instruction for the Gemini example."""
+    )
+    cached_content: Optional[str] = Field(
+        default=None, description="""Cached content for the Gemini example."""
+    )
+    tools: Optional[genai_types.Tool] = Field(
+        default=None, description="""Tools for the Gemini example."""
+    )
+    tool_config: Optional[genai_types.ToolConfig] = Field(
+        default=None, description="""Tools for the Gemini example."""
+    )
+    safety_settings: Optional[genai_types.SafetySetting] = Field(
+        default=None, description="""Safety settings for the Gemini example."""
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the Gemini example."""
+    )
+    generation_config: Optional[genai_types.GenerationConfig] = Field(
+        default=None, description="""Generation config for the Gemini example."""
+    )
+
+
+class GeminiExampleDict(TypedDict, total=False):
+    """Represents a Gemini example."""
+
+    model: Optional[str]
+    """The model used to generate the Gemini example."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Contents of the Gemini example."""
+
+    system_instruction: Optional[genai_types.ContentDict]
+    """System instruction for the Gemini example."""
+
+    cached_content: Optional[str]
+    """Cached content for the Gemini example."""
+
+    tools: Optional[genai_types.ToolDict]
+    """Tools for the Gemini example."""
+
+    tool_config: Optional[genai_types.ToolConfigDict]
+    """Tools for the Gemini example."""
+
+    safety_settings: Optional[genai_types.SafetySettingDict]
+    """Safety settings for the Gemini example."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the Gemini example."""
+
+    generation_config: Optional[genai_types.GenerationConfigDict]
+    """Generation config for the Gemini example."""
+
+
+GeminiExampleOrDict = Union[GeminiExample, GeminiExampleDict]
+
+
+class GeminiTemplateConfig(_common.BaseModel):
+    """Represents a Gemini template config."""
+
+    gemini_example: Optional[GeminiExample] = Field(
+        default=None,
+        description="""Required. The template that will be used for assembling the request to use for downstream applications.""",
+    )
+    field_mapping: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Required. Map of template parameters to the columns in the dataset table.""",
+    )
+
+
+class GeminiTemplateConfigDict(TypedDict, total=False):
+    """Represents a Gemini template config."""
+
+    gemini_example: Optional[GeminiExampleDict]
+    """Required. The template that will be used for assembling the request to use for downstream applications."""
+
+    field_mapping: Optional[dict[str, str]]
+    """Required. Map of template parameters to the columns in the dataset table."""
+
+
+GeminiTemplateConfigOrDict = Union[GeminiTemplateConfig, GeminiTemplateConfigDict]
+
+
+class GeminiRequestReadConfig(_common.BaseModel):
+    """Represents the config for reading Gemini requests."""
+
+    template_config: Optional[GeminiTemplateConfig] = Field(
+        default=None, description="""Gemini request template with placeholders."""
+    )
+    assembled_request_column_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. Column name in the dataset table that contains already fully assembled Gemini requests.""",
+    )
+
+
+class GeminiRequestReadConfigDict(TypedDict, total=False):
+    """Represents the config for reading Gemini requests."""
+
+    template_config: Optional[GeminiTemplateConfigDict]
+    """Gemini request template with placeholders."""
+
+    assembled_request_column_name: Optional[str]
+    """Optional. Column name in the dataset table that contains already fully assembled Gemini requests."""
+
+
+GeminiRequestReadConfigOrDict = Union[
+    GeminiRequestReadConfig, GeminiRequestReadConfigDict
+]
+
+
+class _AssembleDatasetParameters(_common.BaseModel):
+    """Parameters for assembling a multimodal dataset resource."""
+
+    config: Optional[AssembleDatasetConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+    gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _AssembleDatasetParametersDict(TypedDict, total=False):
+    """Parameters for assembling a multimodal dataset resource."""
+
+    config: Optional[AssembleDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    gemini_request_read_config: Optional[GeminiRequestReadConfigDict]
+    """"""
+
+
+_AssembleDatasetParametersOrDict = Union[
+    _AssembleDatasetParameters, _AssembleDatasetParametersDict
+]
+
+
+class MultimodalDatasetOperation(_common.BaseModel):
+    """Represents the create dataset operation."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[dict[str, Any]] = Field(
+        default=None, description="""The result of the dataset operation."""
+    )
+
+
+class MultimodalDatasetOperationDict(TypedDict, total=False):
+    """Represents the create dataset operation."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[dict[str, Any]]
+    """The result of the dataset operation."""
+
+
+MultimodalDatasetOperationOrDict = Union[
+    MultimodalDatasetOperation, MultimodalDatasetOperationDict
+]
+
+
 class CreateMultimodalDatasetConfig(_common.BaseModel):
     """Config for creating a dataset resource to store multimodal dataset."""
 
@@ -9806,90 +10028,6 @@ _CreateMultimodalDatasetParametersOrDict = Union[
 ]
 
 
-class MultimodalDataset(_common.BaseModel):
-    """Represents a multimodal dataset."""
-
-    name: Optional[str] = Field(
-        default=None, description="""The ID of the multimodal dataset."""
-    )
-    display_name: Optional[str] = Field(
-        default=None, description="""The display name of the multimodal dataset."""
-    )
-    metadata: Optional[SchemaTablesDatasetMetadata] = Field(
-        default=None, description="""The metadata of the multimodal dataset."""
-    )
-    description: Optional[str] = Field(
-        default=None, description="""The description of the multimodal dataset."""
-    )
-
-
-class MultimodalDatasetDict(TypedDict, total=False):
-    """Represents a multimodal dataset."""
-
-    name: Optional[str]
-    """The ID of the multimodal dataset."""
-
-    display_name: Optional[str]
-    """The display name of the multimodal dataset."""
-
-    metadata: Optional[SchemaTablesDatasetMetadataDict]
-    """The metadata of the multimodal dataset."""
-
-    description: Optional[str]
-    """The description of the multimodal dataset."""
-
-
-MultimodalDatasetOrDict = Union[MultimodalDataset, MultimodalDatasetDict]
-
-
-class MultimodalDatasetOperation(_common.BaseModel):
-    """Represents the create dataset operation."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[MultimodalDataset] = Field(
-        default=None, description="""The result of the dataset operation."""
-    )
-
-
-class MultimodalDatasetOperationDict(TypedDict, total=False):
-    """Represents the create dataset operation."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[MultimodalDatasetDict]
-    """The result of the dataset operation."""
-
-
-MultimodalDatasetOperationOrDict = Union[
-    MultimodalDatasetOperation, MultimodalDatasetOperationDict
-]
-
-
 class _DeleteMultimodalDatasetRequestParameters(_common.BaseModel):
     """Parameters for deleting a multimodal dataset."""
 
@@ -9935,6 +10073,42 @@ class _GetMultimodalDatasetParametersDict(TypedDict, total=False):
 _GetMultimodalDatasetParametersOrDict = Union[
     _GetMultimodalDatasetParameters, _GetMultimodalDatasetParametersDict
 ]
+
+
+class MultimodalDataset(_common.BaseModel):
+    """Represents a multimodal dataset."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The ID of the multimodal dataset."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the multimodal dataset."""
+    )
+    metadata: Optional[SchemaTablesDatasetMetadata] = Field(
+        default=None, description="""The metadata of the multimodal dataset."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the multimodal dataset."""
+    )
+
+
+class MultimodalDatasetDict(TypedDict, total=False):
+    """Represents a multimodal dataset."""
+
+    name: Optional[str]
+    """The ID of the multimodal dataset."""
+
+    display_name: Optional[str]
+    """The display name of the multimodal dataset."""
+
+    metadata: Optional[SchemaTablesDatasetMetadataDict]
+    """The metadata of the multimodal dataset."""
+
+    description: Optional[str]
+    """The description of the multimodal dataset."""
+
+
+MultimodalDatasetOrDict = Union[MultimodalDataset, MultimodalDatasetDict]
 
 
 class GetMultimodalDatasetOperationConfig(_common.BaseModel):
@@ -13227,6 +13401,25 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
+
+
+class AssembleDataset(_common.BaseModel):
+    """Represents the assembled dataset."""
+
+    bigquery_destination: Optional[str] = Field(
+        default=None,
+        description="""The BigQuery destination of the assembled dataset.""",
+    )
+
+
+class AssembleDatasetDict(TypedDict, total=False):
+    """Represents the assembled dataset."""
+
+    bigquery_destination: Optional[str]
+    """The BigQuery destination of the assembled dataset."""
+
+
+AssembleDatasetOrDict = Union[AssembleDataset, AssembleDatasetDict]
 
 
 class Prompt(_common.BaseModel):
