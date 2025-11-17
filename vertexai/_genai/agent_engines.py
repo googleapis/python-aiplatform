@@ -703,7 +703,7 @@ class AgentEngines(_api_module.BaseModule):
     _sessions = None
 
     @property
-    def memories(self):
+    def memories(self) -> Any:
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -722,7 +722,7 @@ class AgentEngines(_api_module.BaseModule):
         "The Vertex SDK GenAI agent_engines.sandboxes module is experimental, "
         "and may change in future versions."
     )
-    def sandboxes(self):
+    def sandboxes(self) -> Any:
         if self._sandboxes is None:
             try:
                 # We need to lazy load the sandboxes module to handle the
@@ -737,7 +737,7 @@ class AgentEngines(_api_module.BaseModule):
         return self._sandboxes.Sandboxes(self._api_client)
 
     @property
-    def sessions(self):
+    def sessions(self) -> Any:
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -1039,7 +1039,7 @@ class AgentEngines(_api_module.BaseModule):
             sys_version = python_version
         else:
             sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-        agent_engine_spec = None
+        agent_engine_spec: Any = None
         if agent is not None:
             if source_packages is not None:
                 raise ValueError(
