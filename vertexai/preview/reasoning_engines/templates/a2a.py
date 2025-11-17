@@ -51,6 +51,8 @@ if TYPE_CHECKING:
 def create_agent_card(
     agent_name: Optional[str] = None,
     description: Optional[str] = None,
+    default_input_modes: Optional[List[str]] = None,
+    default_output_modes: Optional[List[str]] = None,
     skills: Optional[List["AgentSkill"]] = None,
     agent_card: Optional[Dict[str, Any]] = None,
 ) -> "AgentCard":
@@ -65,6 +67,8 @@ def create_agent_card(
     Args:
         agent_name (Optional[str]): The name of the agent.
         description (Optional[str]): A description of the agent.
+        default_input_modes (Optional[List[str]]): A list of default input modes.
+        default_output_modes (Optional[List[str]]): A list of default output modes.
         skills (Optional[List[AgentSkill]]): A list of AgentSkills.
         agent_card (Optional[Dict[str, Any]]): Agent Card as a dictionary.
 
@@ -88,8 +92,8 @@ def create_agent_card(
             description=description,
             url="http://localhost:9999/",
             version="1.0.0",
-            default_input_modes=["text"],
-            default_output_modes=["text"],
+            default_input_modes=default_input_modes or ["text/plain"],
+            default_output_modes=default_output_modes or ["application/json"],
             # Agent Engine does not support streaming yet
             capabilities=AgentCapabilities(streaming=False),
             skills=skills,
