@@ -1063,6 +1063,28 @@ class TestAgentEngineHelpers:
             )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_validate_extra_packages_or_raise")
+    def test_create_agent_engine_config_with_build_options(
+        self, mock_validate_extra_packages, mock_prepare
+    ):
+        build_options = {"installation_scripts": ["install.sh"]}
+        extra_packages = ["install.sh"]
+
+        self.client.agent_engines._create_config(
+            mode="create",
+            agent=self.test_agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            extra_packages=extra_packages,
+            build_options=build_options,
+        )
+
+        mock_validate_extra_packages.assert_called_once_with(
+            extra_packages=extra_packages,
+            build_options=build_options,
+        )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_update_agent_engine_config_full(self, mock_prepare):
         config = self.client.agent_engines._create_config(
             mode="update",
@@ -1598,6 +1620,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1691,6 +1714,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1783,6 +1807,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1938,6 +1963,7 @@ class TestAgentEngine:
                 requirements_file=None,
                 agent_framework=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2025,6 +2051,7 @@ class TestAgentEngine:
                 agent_framework=_TEST_AGENT_FRAMEWORK,
                 identity_type=None,
                 python_version=None,
+                build_options=None,
             )
             request_mock.assert_called_with(
                 "post",
