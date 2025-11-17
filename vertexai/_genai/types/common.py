@@ -2622,6 +2622,10 @@ class Metric(_common.BaseModel):
     judge_model: Optional[str] = Field(
         default=None, description="""The judge model for the metric."""
     )
+    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
+        default=None,
+        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
+    )
     judge_model_sampling_count: Optional[int] = Field(
         default=None, description="""The sampling count for the judge model."""
     )
@@ -2824,6 +2828,9 @@ class MetricDict(TypedDict, total=False):
 
     judge_model: Optional[str]
     """The judge model for the metric."""
+
+    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
+    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
 
     judge_model_sampling_count: Optional[int]
     """The sampling count for the judge model."""
