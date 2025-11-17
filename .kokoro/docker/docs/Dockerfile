@@ -20,6 +20,8 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV PATH /usr/local/bin:$PATH
 
 # Install dependencies.
+# REMOVED: 'apt-get autoremove -y' to prevents deleting libpcre2-8-0
+# REMOVED: 'libpcre' packages (not needed for Python 3.12 build)
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     apt-transport-https \
@@ -56,28 +58,29 @@ RUN apt-get update \
   && apt-get update \
   && apt-get -y install jq \
   && apt-get clean autoclean \
-  && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/* \
   && rm -f /var/cache/apt/archives/*.deb
 
-###################### Install python 3.9.13
+###################### Install python 3.12.0
 
-# Download python 3.9.13
-RUN wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz
+# Download python 3.12.0
+RUN wget https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tgz
 
 # Extract files
-RUN tar -xvf Python-3.9.13.tgz
+RUN tar -xvf Python-3.12.0.tgz
 
-# Install python 3.9.13
-RUN ./Python-3.9.13/configure --enable-optimizations
+# Install python 3.12.0
+# Note: --enable-optimizations triggers PGO, which runs tests and uses 'find'.
+# If this still fails, remove --enable-optimizations to skip the profile generation step.
+RUN ./Python-3.12.0/configure --enable-optimizations
 RUN make altinstall
 
 ###################### Install pip
 RUN wget -O /tmp/get-pip.py 'https://bootstrap.pypa.io/get-pip.py' \
-  && python3 /tmp/get-pip.py \
+  && python3.12 /tmp/get-pip.py \
   && rm /tmp/get-pip.py
 
 # Test pip
-RUN python3 -m pip
+RUN python3.12 -m pip
 
-CMD ["python3.9"]
+CMD ["python3.12"]
