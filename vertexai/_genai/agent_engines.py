@@ -1067,8 +1067,8 @@ class AgentEngines(_api_module.BaseModule):
                 agent=agent,
                 requirements=requirements,
             )
-            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
-                extra_packages=extra_packages,
+            extra_packages = _agent_engines_utils._validate_packages_or_raise(
+                packages=extra_packages,
                 build_options=build_options,
             )
             # Prepares the Agent Engine for creation/update in Vertex AI. This
@@ -1135,6 +1135,10 @@ class AgentEngines(_api_module.BaseModule):
             }
 
         if source_packages is not None:
+            source_packages = _agent_engines_utils._validate_packages_or_raise(
+                packages=source_packages,
+                build_options=build_options,
+            )
             update_masks.append("spec.source_code_spec.inline_source.source_archive")
             source_code_spec = {
                 "inline_source": {

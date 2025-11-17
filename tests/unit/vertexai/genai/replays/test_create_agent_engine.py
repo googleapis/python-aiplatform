@@ -115,9 +115,13 @@ def test_create_with_context_spec(client):
 def test_create_with_source_packages(
     client,
     mock_agent_engine_create_base64_encoded_tarball,
+    mock_agent_engine_create_path_exists,
 ):
     """Tests creating an agent engine with source packages."""
-    with mock_agent_engine_create_base64_encoded_tarball:
+    with (
+        mock_agent_engine_create_base64_encoded_tarball,
+        mock_agent_engine_create_path_exists,
+    ):
         agent_engine = client.agent_engines.create(
             config={
                 "display_name": "test-agent-engine-source-packages",

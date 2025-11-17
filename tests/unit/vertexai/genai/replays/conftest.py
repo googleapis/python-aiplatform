@@ -124,6 +124,13 @@ def replays_prefix():
 
 
 @pytest.fixture
+def mock_agent_engine_create_path_exists():
+    """Mocks os.path.exists to return True."""
+    with mock.patch("os.path.exists", return_value=True) as mock_exists:
+        yield mock_exists
+
+
+@pytest.fixture
 def mock_agent_engine_create_base64_encoded_tarball():
     """Mocks the _create_base64_encoded_tarball function."""
     with mock.patch.object(
