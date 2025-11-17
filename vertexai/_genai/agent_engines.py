@@ -938,6 +938,7 @@ class AgentEngines(_api_module.BaseModule):
             requirements_file=config.requirements_file,
             agent_framework=config.agent_framework,
             python_version=config.python_version,
+            build_options=config.build_options,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
@@ -1004,6 +1005,7 @@ class AgentEngines(_api_module.BaseModule):
         requirements_file: Optional[str] = None,
         agent_framework: Optional[str] = None,
         python_version: Optional[str] = None,
+        build_options: Optional[dict[str, list[str]]] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1067,6 +1069,7 @@ class AgentEngines(_api_module.BaseModule):
             )
             extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
                 extra_packages=extra_packages,
+                build_options=build_options,
             )
             # Prepares the Agent Engine for creation/update in Vertex AI. This
             # involves packaging and uploading the artifacts for agent_engine,
@@ -1465,6 +1468,7 @@ class AgentEngines(_api_module.BaseModule):
             requirements_file=config.requirements_file,
             agent_framework=config.agent_framework,
             python_version=config.python_version,
+            build_options=config.build_options,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(

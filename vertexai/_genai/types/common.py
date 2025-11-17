@@ -5471,6 +5471,17 @@ class CreateAgentEngineConfig(_common.BaseModel):
       Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
       """,
     )
+    build_options: Optional[dict[str, list[str]]] = Field(
+        default=None,
+        description="""The build options for the Agent Engine.
+      The following keys are supported:
+      - installation_scripts:
+          Optional. The paths to the installation scripts to be
+          executed in the Docker image.
+          The scripts must be located in the `installation_scripts`
+          subdirectory and the path must be added to `extra_packages`.
+      """,
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -5585,6 +5596,16 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
       Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """
+
+    build_options: Optional[dict[str, list[str]]]
+    """The build options for the Agent Engine.
+      The following keys are supported:
+      - installation_scripts:
+          Optional. The paths to the installation scripts to be
+          executed in the Docker image.
+          The scripts must be located in the `installation_scripts`
+          subdirectory and the path must be added to `extra_packages`.
       """
 
 
@@ -6210,6 +6231,17 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
       """,
     )
+    build_options: Optional[dict[str, list[str]]] = Field(
+        default=None,
+        description="""The build options for the Agent Engine.
+      The following keys are supported:
+      - installation_scripts:
+          Optional. The paths to the installation scripts to be
+          executed in the Docker image.
+          The scripts must be located in the `installation_scripts`
+          subdirectory and the path must be added to `extra_packages`.
+      """,
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -6329,6 +6361,16 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
       Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """
+
+    build_options: Optional[dict[str, list[str]]]
+    """The build options for the Agent Engine.
+      The following keys are supported:
+      - installation_scripts:
+          Optional. The paths to the installation scripts to be
+          executed in the Docker image.
+          The scripts must be located in the `installation_scripts`
+          subdirectory and the path must be added to `extra_packages`.
       """
 
     update_mask: Optional[str]
@@ -13251,6 +13293,17 @@ class AgentEngineConfig(_common.BaseModel):
       Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
       """,
     )
+    build_options: Optional[dict[str, list[str]]] = Field(
+        default=None,
+        description="""The build options for the Agent Engine.
+      The following keys are supported:
+      - installation_scripts:
+          Optional. The paths to the installation scripts to be
+          executed in the Docker image.
+          The scripts must be located in the `installation_scripts`
+          subdirectory and the path must be added to `extra_packages`.
+      """,
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -13397,6 +13450,16 @@ class AgentEngineConfigDict(TypedDict, total=False):
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
       Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      """
+
+    build_options: Optional[dict[str, list[str]]]
+    """The build options for the Agent Engine.
+      The following keys are supported:
+      - installation_scripts:
+          Optional. The paths to the installation scripts to be
+          executed in the Docker image.
+          The scripts must be located in the `installation_scripts`
+          subdirectory and the path must be added to `extra_packages`.
       """
 
 
