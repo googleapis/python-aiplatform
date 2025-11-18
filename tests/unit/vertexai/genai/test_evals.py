@@ -287,7 +287,7 @@ class TestEvalsRunInference:
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_string_model_success(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -330,7 +330,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_callable_model_sets_candidate_name(
         self, mock_eval_dataset_loader
     ):
@@ -349,7 +349,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "my_model_fn"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_lambda_model_candidate_name_is_none(
         self, mock_eval_dataset_loader
     ):
@@ -371,7 +371,7 @@ class TestEvalsRunInference:
         )
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_callable_model_success(self, mock_eval_dataset_loader):
         mock_df = pd.DataFrame({"prompt": ["test prompt"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
@@ -399,7 +399,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_prompt_template(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -446,7 +446,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_inference_with_gcs_destination(
         self, mock_gcs_utils, mock_eval_dataset_loader, mock_models
@@ -500,7 +500,7 @@ class TestEvalsRunInference:
         )
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("pandas.DataFrame.to_json")
     @mock.patch("os.makedirs")
     def test_inference_with_local_destination(
@@ -552,7 +552,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_from_request_column_save_to_local_dir(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -787,7 +787,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_row_level_config_overrides(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -972,7 +972,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_multimodal_content(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -1048,7 +1048,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.vertexai.Client")
     def test_run_inference_with_agent_engine_and_session_inputs_dict(
         self,
@@ -1136,7 +1136,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.vertexai.Client")
     def test_run_inference_with_agent_engine_and_session_inputs_literal_string(
         self,
@@ -1411,7 +1411,7 @@ class TestEvalsRunInference:
     @mock.patch.object(_evals_common, "_is_gemini_model")
     @mock.patch.object(_evals_common, "_is_litellm_model")
     @mock.patch.object(_evals_common, "_is_litellm_vertex_maas_model")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_litellm_parsing(
         self,
         mock_eval_dataset_loader,
@@ -4536,9 +4536,7 @@ class TestEvalsRunEvaluation:
             name="test_metric", prompt_template="Evaluate: {response}"
         )
 
-        with mock.patch.object(
-            _evals_metric_loaders, "EvalDatasetLoader"
-        ) as mock_loader_class:
+        with mock.patch.object(_evals_utils, "EvalDatasetLoader") as mock_loader_class:
             mock_loader_instance = mock_loader_class.return_value
             mock_loader_instance.load.return_value = mock_openai_raw_data
 
