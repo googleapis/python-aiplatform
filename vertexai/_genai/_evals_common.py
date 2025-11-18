@@ -37,6 +37,7 @@ from . import _evals_constant
 from . import _evals_data_converters
 from . import _evals_metric_handlers
 from . import _evals_metric_loaders
+from . import _evals_utils
 from . import _gcs_utils
 
 from . import evals
@@ -695,7 +696,7 @@ def _load_dataframe(
     """Loads and prepares the prompt dataset for inference."""
     logger.info("Loading prompt dataset from: %s", src)
     try:
-        loader = _evals_metric_loaders.EvalDatasetLoader(api_client=api_client)
+        loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
         dataset_list_of_dicts = loader.load(src)
         if not dataset_list_of_dicts:
             raise ValueError("Prompt dataset 'prompt_dataset' must not be empty.")
@@ -859,7 +860,7 @@ def _get_dataset_source(
 def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
-    loader: "_evals_metric_loaders.EvalDatasetLoader",
+    loader: "_evals_utils.EvalDatasetLoader",
     agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
@@ -1103,7 +1104,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         else:
             deduped_candidate_names.append(name)
 
-    loader = _evals_metric_loaders.EvalDatasetLoader(api_client=api_client)
+    loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
 
     agent_info = kwargs.get("agent_info", None)
     validated_agent_info = None
