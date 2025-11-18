@@ -1,0 +1,14 @@
+{
+    "name": "aiplatform",
+    "name_pretty": "AI Platform",
+    "product_documentation": "https://cloud.google.com/ai-platform",
+    "client_documentation": "https://cloud.google.com/python/docs/reference/aiplatform/latest",
+    "issue_tracker": "https://issuetracker.google.com/savedsearches/559744",
+    "release_level": "stable",
+    "language": "python",
+    "library_type": "GAPIC_COMBO",
+    "repo": "googleapis/python-aiplatform",
+    "distribution_name": "google-cloud-aiplatform",
+    "api_id": "aiplatform.googleapis.com",
+    "api_shortname": "aiplatform"
+}
