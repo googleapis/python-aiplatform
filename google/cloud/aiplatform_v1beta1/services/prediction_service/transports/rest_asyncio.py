@@ -131,6 +131,14 @@ class AsyncPredictionServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            async def pre_embed_content(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_embed_content(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             async def pre_explain(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -395,6 +403,56 @@ class AsyncPredictionServiceRestInterceptor:
         `post_direct_raw_predict` interceptor. The (possibly modified) response returned by
         `post_direct_raw_predict` will be passed to
         `post_direct_raw_predict_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_embed_content(
+        self,
+        request: prediction_service.EmbedContentRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.EmbedContentRequest, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Pre-rpc interceptor for embed_content
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the PredictionService server.
+        """
+        return request, metadata
+
+    async def post_embed_content(
+        self, response: prediction_service.EmbedContentResponse
+    ) -> prediction_service.EmbedContentResponse:
+        """Post-rpc interceptor for embed_content
+
+        DEPRECATED. Please use the `post_embed_content_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the PredictionService server but before
+        it is returned to user code. This `post_embed_content` interceptor runs
+        before the `post_embed_content_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_embed_content_with_metadata(
+        self,
+        response: prediction_service.EmbedContentResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        prediction_service.EmbedContentResponse, Sequence[Tuple[str, Union[str, bytes]]]
+    ]:
+        """Post-rpc interceptor for embed_content
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the PredictionService server but before it is returned to user code.
+
+        We recommend only using this `post_embed_content_with_metadata`
+        interceptor in new development instead of the `post_embed_content` interceptor.
+        When both interceptors are used, this `post_embed_content_with_metadata` interceptor runs after the
+        `post_embed_content` interceptor. The (possibly modified) response returned by
+        `post_embed_content` will be passed to
+        `post_embed_content_with_metadata`.
         """
         return response, metadata
 
@@ -1138,6 +1196,11 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
             ),
             self.chat_completions: self._wrap_method(
                 self.chat_completions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.embed_content: self._wrap_method(
+                self.embed_content,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -1893,6 +1956,173 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
                     extra={
                         "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
                         "rpcName": "DirectRawPredict",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
+    class _EmbedContent(
+        _BasePredictionServiceRestTransport._BaseEmbedContent,
+        AsyncPredictionServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncPredictionServiceRestTransport.EmbedContent")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: prediction_service.EmbedContentRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> prediction_service.EmbedContentResponse:
+            r"""Call the embed content method over HTTP.
+
+            Args:
+                request (~.prediction_service.EmbedContentRequest):
+                    The request object. Request message for
+                [PredictionService.EmbedContent][google.cloud.aiplatform.v1beta1.PredictionService.EmbedContent].
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.prediction_service.EmbedContentResponse:
+                    Response message for
+                [PredictionService.EmbedContent][google.cloud.aiplatform.v1beta1.PredictionService.EmbedContent].
+
+            """
+
+            http_options = (
+                _BasePredictionServiceRestTransport._BaseEmbedContent._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_embed_content(
+                request, metadata
+            )
+            transcoded_request = _BasePredictionServiceRestTransport._BaseEmbedContent._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BasePredictionServiceRestTransport._BaseEmbedContent._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BasePredictionServiceRestTransport._BaseEmbedContent._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.PredictionServiceClient.EmbedContent",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "EmbedContent",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = (
+                await AsyncPredictionServiceRestTransport._EmbedContent._get_response(
+                    self._host,
+                    metadata,
+                    query_params,
+                    self._session,
+                    timeout,
+                    transcoded_request,
+                    body,
+                )
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = prediction_service.EmbedContentResponse()
+            pb_resp = prediction_service.EmbedContentResponse.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_embed_content(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = await self._interceptor.post_embed_content_with_metadata(
+                resp, response_metadata
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = prediction_service.EmbedContentResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.PredictionServiceAsyncClient.embed_content",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.PredictionService",
+                        "rpcName": "EmbedContent",
                         "metadata": http_response["headers"],
                         "httpResponse": http_response,
                     },
@@ -3241,6 +3471,15 @@ class AsyncPredictionServiceRestTransport(_BasePredictionServiceRestTransport):
         prediction_service.DirectRawPredictResponse,
     ]:
         return self._DirectRawPredict(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def embed_content(
+        self,
+    ) -> Callable[
+        [prediction_service.EmbedContentRequest],
+        prediction_service.EmbedContentResponse,
+    ]:
+        return self._EmbedContent(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def explain(

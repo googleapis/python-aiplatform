@@ -223,6 +223,30 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
         return self._transport
 
     @staticmethod
+    def git_repository_link_path(
+        project: str,
+        location: str,
+        connection: str,
+        git_repository_link: str,
+    ) -> str:
+        """Returns a fully-qualified git_repository_link string."""
+        return "projects/{project}/locations/{location}/connections/{connection}/gitRepositoryLinks/{git_repository_link}".format(
+            project=project,
+            location=location,
+            connection=connection,
+            git_repository_link=git_repository_link,
+        )
+
+    @staticmethod
+    def parse_git_repository_link_path(path: str) -> Dict[str, str]:
+        """Parses a git_repository_link path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/connections/(?P<connection>.+?)/gitRepositoryLinks/(?P<git_repository_link>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def network_attachment_path(
         project: str,
         region: str,
