@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.128.0](https://github.com/googleapis/python-aiplatform/compare/v1.127.0...v1.128.0) (2025-11-18)
+
+
+### Features
+
+* GenAI Client(evals) - Add `pass_rate` to `AggregatedMetricResult` and calculate it for adaptive rubric metrics. ([1f1f67e](https://github.com/googleapis/python-aiplatform/commit/1f1f67e548b7616653f6d84954376b1d4e095ca0))
+* GenAI SDK client - Support `build options` in Agent Engine GCS Deployment. ([28499a9](https://github.com/googleapis/python-aiplatform/commit/28499a92466994232191e5aaf7745180abb4a640))
+* GenAI SDK client - Support `build options` in Agent Engine source-based Deployment. ([f7e718f](https://github.com/googleapis/python-aiplatform/commit/f7e718fbe82a82fc301a95105bc8a44d65abd652))
+* GenAI SDK client(multimodal) - Support Assemble feature on the multimodal datasets. ([2195411](https://github.com/googleapis/python-aiplatform/commit/21954110fa700f539c17ed6deca3ea0ac789019e))
+
+
+### Bug Fixes
+
+* Fix the change runner behavior back to sync function in streaming_agent_run_with_events ([e9d9c31](https://github.com/googleapis/python-aiplatform/commit/e9d9c31f8b386e21094fb98820aa263d5ee7224e))
+* GenAI Client(evals) - fix eval visualizations in Vertex Workbench ([c3abe51](https://github.com/googleapis/python-aiplatform/commit/c3abe512332fa9e0a9a23e269ff8998d99e3b703))
+* GenAI Client(evals) - Reformat codebase 1. Remove duplicated code in _evals_utils and _evals_metric_loader 2. Keep metric utils in _evals_metric_loader and data util in _evals_utils ([5f3c655](https://github.com/googleapis/python-aiplatform/commit/5f3c6558691010ee1211f548e8d7ffa254a8fad3))
+
 ## [1.127.0](https://github.com/googleapis/python-aiplatform/compare/v1.126.1...v1.127.0) (2025-11-11)
 
 
