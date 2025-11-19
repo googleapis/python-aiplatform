@@ -221,11 +221,11 @@ class FeatureOnlineStore(proto.Message):
         )
         enable_direct_bigtable_access: bool = proto.Field(
             proto.BOOL,
-            number=2,
+            number=3,
         )
         bigtable_metadata: "FeatureOnlineStore.Bigtable.BigtableMetadata" = proto.Field(
             proto.MESSAGE,
-            number=3,
+            number=4,
             message="FeatureOnlineStore.Bigtable.BigtableMetadata",
         )
 

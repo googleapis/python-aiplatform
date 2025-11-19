@@ -3058,6 +3058,7 @@ def test_list_events_non_empty_request_with_auto_populated_field():
         parent="parent_value",
         page_token="page_token_value",
         filter="filter_value",
+        order_by="order_by_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -3072,6 +3073,7 @@ def test_list_events_non_empty_request_with_auto_populated_field():
             parent="parent_value",
             page_token="page_token_value",
             filter="filter_value",
+            order_by="order_by_value",
         )
 
 
@@ -4925,6 +4927,7 @@ def test_list_events_rest_required_fields(
     assert not set(unset_fields) - set(
         (
             "filter",
+            "order_by",
             "page_size",
             "page_token",
         )
@@ -4987,6 +4990,7 @@ def test_list_events_rest_unset_required_fields():
         set(
             (
                 "filter",
+                "orderBy",
                 "pageSize",
                 "pageToken",
             )
@@ -6785,6 +6789,20 @@ def test_append_event_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "response": {},
+                        "parts": [
+                            {
+                                "inline_data": {
+                                    "mime_type": "mime_type_value",
+                                    "data": b"data_blob",
+                                    "display_name": "display_name_value",
+                                },
+                                "file_data": {
+                                    "mime_type": "mime_type_value",
+                                    "file_uri": "file_uri_value",
+                                    "display_name": "display_name_value",
+                                },
+                            }
+                        ],
                     },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
@@ -6802,7 +6820,6 @@ def test_append_event_rest_call_success(request_type):
             "skip_summarization": True,
             "state_delta": {},
             "artifact_delta": {},
-            "transfer_to_agent": True,
             "escalate": True,
             "requested_auth_configs": {},
             "transfer_agent": "transfer_agent_value",
@@ -8983,6 +9000,20 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "response": {},
+                        "parts": [
+                            {
+                                "inline_data": {
+                                    "mime_type": "mime_type_value",
+                                    "data": b"data_blob",
+                                    "display_name": "display_name_value",
+                                },
+                                "file_data": {
+                                    "mime_type": "mime_type_value",
+                                    "file_uri": "file_uri_value",
+                                    "display_name": "display_name_value",
+                                },
+                            }
+                        ],
                     },
                     "executable_code": {"language": 1, "code": "code_value"},
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
@@ -9000,7 +9031,6 @@ async def test_append_event_rest_asyncio_call_success(request_type):
             "skip_summarization": True,
             "state_delta": {},
             "artifact_delta": {},
-            "transfer_to_agent": True,
             "escalate": True,
             "requested_auth_configs": {},
             "transfer_agent": "transfer_agent_value",
