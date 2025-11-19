@@ -130,7 +130,7 @@ def lint(session):
     session.run("flake8", *LINT_PATHS)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def blacken(session):
     """Run black. Format code to uniform standard."""
     session.install(BLACK_VERSION)
