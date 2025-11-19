@@ -147,8 +147,6 @@ if has_generator_updates:
 
     python.py_samples(skip_readmes=True)
 
-    python.configure_previous_major_version_branches()
-
     # Update samples config to use `ucaip-sample-tests` project
     s.replace(
         ".kokoro/samples/python3.*/common.cfg",
