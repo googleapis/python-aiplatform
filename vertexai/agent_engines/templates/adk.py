@@ -610,8 +610,9 @@ class AdkApp:
                 auth = _Authorization(**auth)
                 session_state[auth_id] = auth.access_token
 
+        app = self._tmpl_attrs.get("app")
         session = await session_service.create_session(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
             user_id=request.user_id,
             state=session_state,
         )
@@ -628,7 +629,7 @@ class AdkApp:
                 ):
                     version_data = _ArtifactVersion(**version_data)
                     saved_version = await artifact_service.save_artifact(
-                        app_name=self._tmpl_attrs.get("app_name"),
+                        app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
                         session_id=session.id,
                         filename=artifact.file_name,
