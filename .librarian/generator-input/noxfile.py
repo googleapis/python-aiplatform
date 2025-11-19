@@ -30,9 +30,9 @@ nox.options.default_venv_backend = "uv"
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
 
-DEFAULT_PYTHON_VERSION = "3.10"
+DEFAULT_PYTHON_VERSION = "3.14"
 
 DOCS_DEPENDENCIES = (
     "sphinx==5.0.2",
@@ -130,7 +130,7 @@ def lint(session):
     session.run("flake8", *LINT_PATHS)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def blacken(session):
     """Run black. Format code to uniform standard."""
     session.install(BLACK_VERSION)

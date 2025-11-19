@@ -1,8 +1,8 @@
-image: us-central1-docker.pkg.dev/cloud-sdk-librarian-prod/images-prod/python-librarian-generator@sha256:e601da6e29c993e14c52867f2c088dfb841beae618d2a4f1e0f7970a888ab020
+image: us-central1-docker.pkg.dev/cloud-sdk-librarian-prod/images-prod/python-librarian-generator@sha256:8e2c32496077054105bd06c54a59d6a6694287bc053588e24debe6da6920ad91
 libraries:
   - id: google-cloud-aiplatform
     version: 3.59.0
-    last_generated_commit: cf0434f4bd20618db60ddd16a1e7db2c0dfb9158
+    last_generated_commit: a2662a003365647842c4c05fc3c2dd5718584aa2
     apis:
       - path: google/cloud/aiplatform/v1beta1
         service_config: aiplatform.yaml
@@ -12,36 +12,70 @@ libraries:
       - .
     preserve_regex: []
     remove_regex:
-      - ^google/cloud/aiplatform_v1/gapic_metadata.json
-      - ^google/cloud/aiplatform_v1/gapic_version.py
-      - ^google/cloud/aiplatform_v1/py.typed
-      - ^google/cloud/aiplatform_v1/services
-      - ^google/cloud/aiplatform_v1/types
-      - ^tests/unit/gapic
+      - ^google/cloud/aiplatform_v1
+      - ^google/cloud/aiplatform_v1beta1
+      - ^google/cloud/aiplatform/py.typed
+      - ^tests/unit/gapic/aiplatform_v1
+      - ^tests/unit/gapic/aiplatform_v1beta1
+      - ^tests/unit/gapic/__init__.py
       - ^tests/__init__.py
       - ^tests/unit/__init__.py
-      - ^.pre-commit-config.yaml
       - ^.repo-metadata.json
       - ^.trampolinerc
       - ^LICENSE
       - ^SECURITY.md
       - ^mypy.ini
       - ^noxfile.py
-      - ^owlbot.py
       - ^renovate.json
-      - ^samples/AUTHORING_GUIDE.md
-      - ^samples/CONTRIBUTING.md
-      - ^samples/generated_samples
-      - ^scripts/fixup_
       - ^setup.py
-      - ^testing/constraints-3.8
-      - ^testing/constraints-3.9
-      - ^testing/constraints-3.1
       - ^.flake8
-      - ^.github
-      - ^.kokoro
+      - ^.github/ISSUE_TEMPLATE
+      - ^.github/CONTRIBUTING.md
+      - ^.github/header-checker-lint.yml
+      - ^.github/snippet-bot.yml
+      - ^.github/release-trigger.yml
+      - ^.github/auto-approve.yml
+      - ^.kokoro/continuous/continuous.cfg
+      - ^.kokoro/presubmit/common.cfg
+      - ^.kokoro/samples/lint
+      - ^.kokoro/samples/python3.9/continuous.cfg
+      - ^.kokoro/samples/python3.9/periodic-head.cfg
+      - ^.kokoro/samples/python3.9/presubmit.cfg
+      - ^.kokoro/samples/python3.10/continuous.cfg
+      - ^.kokoro/samples/python3.10/periodic-head.cfg
+      - ^.kokoro/samples/python3.10/presubmit.cfg
+      - ^.kokoro/samples/python3.11/continuous.cfg
+      - ^.kokoro/samples/python3.11/periodic-head.cfg
+      - ^.kokoro/samples/python3.11/presubmit.cfg
+      - ^.kokoro/samples/python3.12/continuous.cfg
+      - ^.kokoro/samples/python3.12/periodic-head.cfg
+      - ^.kokoro/samples/python3.12/presubmit.cfg
+      - ^.kokoro/samples/python3.13/continuous.cfg
+      - ^.kokoro/samples/python3.13/periodic-head.cfg
+      - ^.kokoro/samples/python3.13/presubmit.cfg
+      - ^.kokoro/samples/python3.14/continuous.cfg
+      - ^.kokoro/samples/python3.14/periodic-head.cfg
+      - ^.kokoro/samples/python3.14/presubmit.cfg
+      - ^.kokoro/samples/python3.14/common.cfg
+      - ^.kokoro/samples/python3.14/periodic.cfg
+      - ^.kokoro/populate-secrets.sh
+      - ^.kokoro/test-samples-against-head.sh
+      - ^.kokoro/test-samples-impl.sh
+      - ^.kokoro/test-samples.sh
+      - ^.kokoro/trampoline_v2.sh
+      - ^.kokoro/trampoline.sh
       - ^MANIFEST.in
-      - ^docs
-      - ^google/cloud/aiplatform/py.typed
-      - ^google/cloud/aiplatform_v1/__init__.py
+      - ^docs/_static
+      - ^docs/aiplatform_v1
+      - ^docs/aiplatform_v1beta1
+      - ^docs/multiprocessing.rst
+      - ^docs/common.cfg
+      - ^docs/docs-presubmit.cfg
+      - ^docs/docs.cfg
+      - ^docs/summary_overview.md
+      - ^docs/_templates/layout.html
+      - ^samples/generated_samples/snippet_metadata_google.cloud.aiplatform.v1.json
+      - ^samples/generated_samples/snippet_metadata_google.cloud.aiplatform.v1beta1.json
+      - ^samples/generated_samples/aiplatform_v1beta1_generated_
+      - ^samples/generated_samples/aiplatform_v1_generated_
     tag_format: v{version}

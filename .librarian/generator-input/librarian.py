@@ -147,8 +147,6 @@ if has_generator_updates:
 
     python.py_samples(skip_readmes=True)
 
-    python.configure_previous_major_version_branches()
-
     # Update samples config to use `ucaip-sample-tests` project
     s.replace(
         ".kokoro/samples/python3.*/common.cfg",
@@ -168,4 +166,6 @@ if has_generator_updates:
         "python3",
     )
 
-    s.shell.run(["nox", "-s", "blacken"], hide_output=False)
+# Use a python runtime which is available in the owlbot post processor here
+# https://github.com/googleapis/synthtool/blob/master/docker/owlbot/python/Dockerfile
+s.shell.run(["nox", "-s", "blacken-3.14"], hide_output=False)
