@@ -607,6 +607,9 @@ class AdkApp:
     ):
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
 
         session_state = None
         if request.authorizations:
@@ -633,6 +636,11 @@ class AdkApp:
                     artifact.versions, key=lambda x: x["version"]
                 ):
                     version_data = _ArtifactVersion(**version_data)
+                    # _LOGGER.info(
+                    #     "Artifact '%s' type: %s",
+                    #     version_data.data,
+                    #     type(version_data.data)
+                    # )
                     saved_version = await artifact_service.save_artifact(
                         app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
