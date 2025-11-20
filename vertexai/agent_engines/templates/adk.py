@@ -135,8 +135,13 @@ def is_version_sufficient(version_to_check: str) -> bool:
 
 class _ArtifactVersion:
     def __init__(self, **kwargs):
+        from google.genai import types
+
         self.version: Optional[str] = kwargs.get("version")
-        self.data = kwargs.get("data")
+        data = kwargs.get("data")
+        self.data: Optional[types.Part] = (
+            types.Part.model_validate(data) if isinstance(data, dict) else data
+        )
 
     def dump(self) -> Dict[str, Any]:
         result = {}
