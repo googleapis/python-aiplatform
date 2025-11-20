@@ -5300,6 +5300,7 @@ def test_create_persistent_resource_rest_call_success(request_type):
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
@@ -6006,6 +6007,7 @@ def test_update_persistent_resource_rest_call_success(request_type):
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
@@ -7213,6 +7215,7 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
@@ -7983,6 +7986,7 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,

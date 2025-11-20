@@ -532,7 +532,7 @@ class FeatureView(proto.Message):
     )
     bigtable_metadata: BigtableMetadata = proto.Field(
         proto.MESSAGE,
-        number=21,
+        number=22,
         message=BigtableMetadata,
     )
 

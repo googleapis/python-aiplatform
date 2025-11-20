@@ -246,7 +246,7 @@ class DedicatedResources(proto.Message):
                 [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
             idle_scaledown_period (google.protobuf.duration_pb2.Duration):
                 Optional. Duration of no traffic before scaling to zero.
-                [MinValue=3600] (5 minutes) [MaxValue=28800] (8 hours)
+                [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
         """
 
         min_scaleup_period: duration_pb2.Duration = proto.Field(

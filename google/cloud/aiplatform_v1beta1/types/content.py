@@ -38,7 +38,10 @@ __protobuf__ = proto.module(
         "FileData",
         "VideoMetadata",
         "PrebuiltVoiceConfig",
+        "ReplicatedVoiceConfig",
         "VoiceConfig",
+        "SpeakerVoiceConfig",
+        "MultiSpeakerVoiceConfig",
         "SpeechConfig",
         "ImageConfig",
         "GenerationConfig",
@@ -363,15 +366,47 @@ class PrebuiltVoiceConfig(proto.Message):
     )
 
 
+class ReplicatedVoiceConfig(proto.Message):
+    r"""The configuration for the replicated voice to use.
+
+    Attributes:
+        mime_type (str):
+            Optional. The mimetype of the voice sample. Currently only
+            mime_type=audio/pcm is supported, which is raw mono 16-bit
+            signed little-endian pcm data, with 24k sampling rate.
+        voice_sample_audio (bytes):
+            Optional. The sample of the custom voice.
+    """
+
+    mime_type: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    voice_sample_audio: bytes = proto.Field(
+        proto.BYTES,
+        number=2,
+    )
+
+
 class VoiceConfig(proto.Message):
-    r"""The configuration for the voice to use.
+    r"""Configuration for a voice.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         prebuilt_voice_config (google.cloud.aiplatform_v1beta1.types.PrebuiltVoiceConfig):
-            The configuration for the prebuilt voice to
-            use.
+            The configuration for a prebuilt voice.
+
+            This field is a member of `oneof`_ ``voice_config``.
+        replicated_voice_config (google.cloud.aiplatform_v1beta1.types.ReplicatedVoiceConfig):
+            Optional. The configuration for a replicated
+            voice. This enables users to replicate a voice
+            from an audio sample.
 
             This field is a member of `oneof`_ ``voice_config``.
     """
@@ -382,20 +417,83 @@ class VoiceConfig(proto.Message):
         oneof="voice_config",
         message="PrebuiltVoiceConfig",
     )
+    replicated_voice_config: "ReplicatedVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="voice_config",
+        message="ReplicatedVoiceConfig",
+    )
+
+
+class SpeakerVoiceConfig(proto.Message):
+    r"""Configuration for a single speaker in a multi-speaker setup.
+
+    Attributes:
+        speaker (str):
+            Required. The name of the speaker. This
+            should be the same as the speaker name used in
+            the prompt.
+        voice_config (google.cloud.aiplatform_v1beta1.types.VoiceConfig):
+            Required. The configuration for the voice of
+            this speaker.
+    """
+
+    speaker: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    voice_config: "VoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="VoiceConfig",
+    )
+
+
+class MultiSpeakerVoiceConfig(proto.Message):
+    r"""Configuration for a multi-speaker text-to-speech request.
+
+    Attributes:
+        speaker_voice_configs (MutableSequence[google.cloud.aiplatform_v1beta1.types.SpeakerVoiceConfig]):
+            Required. A list of configurations for the
+            voices of the speakers. Exactly two speaker
+            voice configurations must be provided.
+    """
+
+    speaker_voice_configs: MutableSequence["SpeakerVoiceConfig"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="SpeakerVoiceConfig",
+    )
 
 
 class SpeechConfig(proto.Message):
-    r"""The speech generation config.
+    r"""Configuration for speech generation.
 
     Attributes:
         voice_config (google.cloud.aiplatform_v1beta1.types.VoiceConfig):
-            The configuration for the speaker to use.
+            The configuration for the voice to use.
+        language_code (str):
+            Optional. The language code (ISO 639-1) for
+            the speech synthesis.
+        multi_speaker_voice_config (google.cloud.aiplatform_v1beta1.types.MultiSpeakerVoiceConfig):
+            The configuration for a multi-speaker text-to-speech
+            request. This field is mutually exclusive with
+            ``voice_config``.
     """
 
     voice_config: "VoiceConfig" = proto.Field(
         proto.MESSAGE,
         number=1,
         message="VoiceConfig",
+    )
+    language_code: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    multi_speaker_voice_config: "MultiSpeakerVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="MultiSpeakerVoiceConfig",
     )
 
 

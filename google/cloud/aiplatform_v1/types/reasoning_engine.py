@@ -92,9 +92,9 @@ class ReasoningEngineSpec(proto.Message):
                 Optional. The Cloud Storage URI of the ``requirements.txt``
                 file
             python_version (str):
-                Optional. The Python version. Currently
-                support 3.8, 3.9, 3.10, 3.11. If not specified,
-                default value is 3.10.
+                Optional. The Python version. Supported
+                values are 3.9, 3.10, 3.11, 3.12, 3.13. If not
+                specified, the default value is 3.10.
         """
 
         pickle_object_gcs_uri: str = proto.Field(
@@ -207,12 +207,22 @@ class ReasoningEngineSpec(proto.Message):
     class SourceCodeSpec(proto.Message):
         r"""Specification for deploying from source code.
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
             inline_source (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.InlineSource):
                 Source code is provided directly in the
                 request.
+
+                This field is a member of `oneof`_ ``source``.
+            developer_connect_source (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource):
+                Source code is in a Git repository managed by
+                Developer Connect.
 
                 This field is a member of `oneof`_ ``source``.
             python_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.PythonSpec):
@@ -234,6 +244,57 @@ class ReasoningEngineSpec(proto.Message):
             source_archive: bytes = proto.Field(
                 proto.BYTES,
                 number=1,
+            )
+
+        class DeveloperConnectConfig(proto.Message):
+            r"""Specifies the configuration for fetching source code from a
+            Git repository that is managed by Developer Connect. This
+            includes the repository, revision, and directory to use.
+
+            Attributes:
+                git_repository_link (str):
+                    Required. The Developer Connect Git repository link,
+                    formatted as
+                    ``projects/*/locations/*/connections/*/gitRepositoryLink/*``.
+                dir_ (str):
+                    Required. Directory, relative to the source
+                    root, in which to run the build.
+                revision (str):
+                    Required. The revision to fetch from the Git
+                    repository such as a branch, a tag, a commit
+                    SHA, or any Git ref.
+            """
+
+            git_repository_link: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            dir_: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            revision: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+
+        class DeveloperConnectSource(proto.Message):
+            r"""Specifies source code to be fetched from a Git repository
+            managed through the Developer Connect service.
+
+            Attributes:
+                config (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig):
+                    Required. The Developer Connect configuration
+                    that defines the specific repository, revision,
+                    and directory to use as the source code root.
+            """
+
+            config: "ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig" = (
+                proto.Field(
+                    proto.MESSAGE,
+                    number=1,
+                    message="ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig",
+                )
             )
 
         class PythonSpec(proto.Message):
@@ -285,6 +346,14 @@ class ReasoningEngineSpec(proto.Message):
             number=1,
             oneof="source",
             message="ReasoningEngineSpec.SourceCodeSpec.InlineSource",
+        )
+        developer_connect_source: (
+            "ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource"
+        ) = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="source",
+            message="ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource",
         )
         python_spec: "ReasoningEngineSpec.SourceCodeSpec.PythonSpec" = proto.Field(
             proto.MESSAGE,
