@@ -9929,6 +9929,169 @@ MultimodalDatasetOperationOrDict = Union[
 ]
 
 
+class AssessDatasetConfig(_common.BaseModel):
+    """Config for assessing a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the assess dataset request in seconds. If not set,
+      the default timeout is 90 seconds.""",
+    )
+
+
+class AssessDatasetConfigDict(TypedDict, total=False):
+    """Config for assessing a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the assess dataset request in seconds. If not set,
+      the default timeout is 90 seconds."""
+
+
+AssessDatasetConfigOrDict = Union[AssessDatasetConfig, AssessDatasetConfigDict]
+
+
+class TuningResourceUsageAssessmentConfig(_common.BaseModel):
+    """Config for tuning resource usage assessment."""
+
+    model_name: Optional[str] = Field(default=None, description="""""")
+
+
+class TuningResourceUsageAssessmentConfigDict(TypedDict, total=False):
+    """Config for tuning resource usage assessment."""
+
+    model_name: Optional[str]
+    """"""
+
+
+TuningResourceUsageAssessmentConfigOrDict = Union[
+    TuningResourceUsageAssessmentConfig, TuningResourceUsageAssessmentConfigDict
+]
+
+
+class TuningValidationAssessmentConfig(_common.BaseModel):
+    """Config for tuning validation assessment."""
+
+    model_name: Optional[str] = Field(default=None, description="""""")
+    dataset_usage: Optional[str] = Field(default=None, description="""""")
+
+
+class TuningValidationAssessmentConfigDict(TypedDict, total=False):
+    """Config for tuning validation assessment."""
+
+    model_name: Optional[str]
+    """"""
+
+    dataset_usage: Optional[str]
+    """"""
+
+
+TuningValidationAssessmentConfigOrDict = Union[
+    TuningValidationAssessmentConfig, TuningValidationAssessmentConfigDict
+]
+
+
+class BatchPredictionResourceUsageAssessmentConfig(_common.BaseModel):
+    """Config for batch prediction resource usage assessment."""
+
+    model_name: Optional[str] = Field(default=None, description="""""")
+
+
+class BatchPredictionResourceUsageAssessmentConfigDict(TypedDict, total=False):
+    """Config for batch prediction resource usage assessment."""
+
+    model_name: Optional[str]
+    """"""
+
+
+BatchPredictionResourceUsageAssessmentConfigOrDict = Union[
+    BatchPredictionResourceUsageAssessmentConfig,
+    BatchPredictionResourceUsageAssessmentConfigDict,
+]
+
+
+class BatchPredictionValidationAssessmentConfig(_common.BaseModel):
+    """Config for batch prediction validation assessment."""
+
+    model_name: Optional[str] = Field(default=None, description="""""")
+
+
+class BatchPredictionValidationAssessmentConfigDict(TypedDict, total=False):
+    """Config for batch prediction validation assessment."""
+
+    model_name: Optional[str]
+    """"""
+
+
+BatchPredictionValidationAssessmentConfigOrDict = Union[
+    BatchPredictionValidationAssessmentConfig,
+    BatchPredictionValidationAssessmentConfigDict,
+]
+
+
+class _AssessDatasetParameters(_common.BaseModel):
+    """Parameters for assessing a multimodal dataset resource."""
+
+    config: Optional[AssessDatasetConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+    gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
+        default=None, description=""""""
+    )
+    tuning_resource_usage_assessment_config: Optional[
+        TuningResourceUsageAssessmentConfig
+    ] = Field(default=None, description="""""")
+    tuning_validation_assessment_config: Optional[TuningValidationAssessmentConfig] = (
+        Field(default=None, description="""""")
+    )
+    batch_prediction_resource_usage_assessment_config: Optional[
+        BatchPredictionResourceUsageAssessmentConfig
+    ] = Field(default=None, description="""""")
+    batch_prediction_validation_assessment_config: Optional[
+        BatchPredictionValidationAssessmentConfig
+    ] = Field(default=None, description="""""")
+
+
+class _AssessDatasetParametersDict(TypedDict, total=False):
+    """Parameters for assessing a multimodal dataset resource."""
+
+    config: Optional[AssessDatasetConfigDict]
+    """"""
+
+    name: Optional[str]
+    """"""
+
+    gemini_request_read_config: Optional[GeminiRequestReadConfigDict]
+    """"""
+
+    tuning_resource_usage_assessment_config: Optional[
+        TuningResourceUsageAssessmentConfigDict
+    ]
+    """"""
+
+    tuning_validation_assessment_config: Optional[TuningValidationAssessmentConfigDict]
+    """"""
+
+    batch_prediction_resource_usage_assessment_config: Optional[
+        BatchPredictionResourceUsageAssessmentConfigDict
+    ]
+    """"""
+
+    batch_prediction_validation_assessment_config: Optional[
+        BatchPredictionValidationAssessmentConfigDict
+    ]
+    """"""
+
+
+_AssessDatasetParametersOrDict = Union[
+    _AssessDatasetParameters, _AssessDatasetParametersDict
+]
+
+
 class CreateMultimodalDatasetConfig(_common.BaseModel):
     """Config for creating a dataset resource to store multimodal dataset."""
 
@@ -13483,6 +13646,80 @@ class AssembleDatasetDict(TypedDict, total=False):
 
 
 AssembleDatasetOrDict = Union[AssembleDataset, AssembleDatasetDict]
+
+
+class BatchPredictionResourceUsageAssessmentResult(_common.BaseModel):
+    """Result of batch prediction resource usage assessment."""
+
+    token_count: Optional[int] = Field(
+        default=None, description="""Number of tokens in the dataset."""
+    )
+    audio_token_count: Optional[int] = Field(
+        default=None, description="""Number of audio tokens in the dataset."""
+    )
+
+
+class BatchPredictionResourceUsageAssessmentResultDict(TypedDict, total=False):
+    """Result of batch prediction resource usage assessment."""
+
+    token_count: Optional[int]
+    """Number of tokens in the dataset."""
+
+    audio_token_count: Optional[int]
+    """Number of audio tokens in the dataset."""
+
+
+BatchPredictionResourceUsageAssessmentResultOrDict = Union[
+    BatchPredictionResourceUsageAssessmentResult,
+    BatchPredictionResourceUsageAssessmentResultDict,
+]
+
+
+class TuningResourceUsageAssessmentResult(_common.BaseModel):
+    """Result of tuning resource usage assessment."""
+
+    token_count: Optional[int] = Field(
+        default=None, description="""The number of tokens in the dataset."""
+    )
+    billable_character_count: Optional[int] = Field(
+        default=None,
+        description="""The number of billable characters in the dataset.""",
+    )
+
+
+class TuningResourceUsageAssessmentResultDict(TypedDict, total=False):
+    """Result of tuning resource usage assessment."""
+
+    token_count: Optional[int]
+    """The number of tokens in the dataset."""
+
+    billable_character_count: Optional[int]
+    """The number of billable characters in the dataset."""
+
+
+TuningResourceUsageAssessmentResultOrDict = Union[
+    TuningResourceUsageAssessmentResult, TuningResourceUsageAssessmentResultDict
+]
+
+
+class TuningValidationAssessmentResult(_common.BaseModel):
+    """The result of a tuning validation assessment."""
+
+    errors: Optional[list[str]] = Field(
+        default=None, description="""The list of errors found in the dataset."""
+    )
+
+
+class TuningValidationAssessmentResultDict(TypedDict, total=False):
+    """The result of a tuning validation assessment."""
+
+    errors: Optional[list[str]]
+    """The list of errors found in the dataset."""
+
+
+TuningValidationAssessmentResultOrDict = Union[
+    TuningValidationAssessmentResult, TuningValidationAssessmentResultDict
+]
 
 
 class Prompt(_common.BaseModel):
