@@ -801,6 +801,35 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             )
         return self._stubs["chat_completions"]
 
+    @property
+    def embed_content(
+        self,
+    ) -> Callable[
+        [prediction_service.EmbedContentRequest],
+        Awaitable[prediction_service.EmbedContentResponse],
+    ]:
+        r"""Return a callable for the embed content method over gRPC.
+
+        Embed content with multimodal inputs.
+
+        Returns:
+            Callable[[~.EmbedContentRequest],
+                    Awaitable[~.EmbedContentResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "embed_content" not in self._stubs:
+            self._stubs["embed_content"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.PredictionService/EmbedContent",
+                request_serializer=prediction_service.EmbedContentRequest.serialize,
+                response_deserializer=prediction_service.EmbedContentResponse.deserialize,
+            )
+        return self._stubs["embed_content"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -876,6 +905,11 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             ),
             self.chat_completions: self._wrap_method(
                 self.chat_completions,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.embed_content: self._wrap_method(
+                self.embed_content,
                 default_timeout=None,
                 client_info=client_info,
             ),

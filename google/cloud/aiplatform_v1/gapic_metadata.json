@@ -4091,6 +4091,11 @@
                 "direct_raw_predict"
               ]
             },
+            "EmbedContent": {
+              "methods": [
+                "embed_content"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -4161,6 +4166,11 @@
                 "direct_raw_predict"
               ]
             },
+            "EmbedContent": {
+              "methods": [
+                "embed_content"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -4229,6 +4239,11 @@
             "DirectRawPredict": {
               "methods": [
                 "direct_raw_predict"
+              ]
+            },
+            "EmbedContent": {
+              "methods": [
+                "embed_content"
               ]
             },
             "Explain": {
