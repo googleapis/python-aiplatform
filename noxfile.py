@@ -30,9 +30,9 @@ nox.options.default_venv_backend = "uv"
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = ["docs", "google", "tests", "noxfile.py", "setup.py"]
 
-DEFAULT_PYTHON_VERSION = "3.10"
+DEFAULT_PYTHON_VERSION = "3.14"
 
 DOCS_DEPENDENCIES = (
     "sphinx==5.0.2",
@@ -459,7 +459,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python="3.9")
 def docs(session):
     """Build the docs for this library."""
 
@@ -483,7 +483,7 @@ def docs(session):
     )
 
 
-@nox.session(python="3.10", venv_backend="virtualenv")
+@nox.session(python="3.10")
 def docfx(session):
     """Build the docfx yaml files for this library."""
 
@@ -519,7 +519,7 @@ def docfx(session):
     )
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python="3.9")
 def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
@@ -540,7 +540,7 @@ def gemini_docs(session):
     )
 
 
-@nox.session(python="3.10", venv_backend="virtualenv")
+@nox.session(python="3.10")
 def gemini_docfx(session):
     """Build the docfx yaml files for library related to Gemini."""
 

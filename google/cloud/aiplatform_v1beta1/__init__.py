@@ -133,13 +133,16 @@ from .types.content import ImageConfig
 from .types.content import LogprobsResult
 from .types.content import ModalityTokenCount
 from .types.content import ModelArmorConfig
+from .types.content import MultiSpeakerVoiceConfig
 from .types.content import Part
 from .types.content import PrebuiltVoiceConfig
+from .types.content import ReplicatedVoiceConfig
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import SpeakerVoiceConfig
 from .types.content import SpeechConfig
 from .types.content import UrlContextMetadata
 from .types.content import UrlMetadata
@@ -1039,6 +1042,8 @@ from .types.prediction_service import DirectPredictRequest
 from .types.prediction_service import DirectPredictResponse
 from .types.prediction_service import DirectRawPredictRequest
 from .types.prediction_service import DirectRawPredictResponse
+from .types.prediction_service import EmbedContentRequest
+from .types.prediction_service import EmbedContentResponse
 from .types.prediction_service import ExplainRequest
 from .types.prediction_service import ExplainResponse
 from .types.prediction_service import GenerateContentRequest
@@ -1184,6 +1189,9 @@ from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import FunctionResponseBlob
+from .types.tool import FunctionResponseFileData
+from .types.tool import FunctionResponsePart
 from .types.tool import GoogleMaps
 from .types.tool import GoogleSearchRetrieval
 from .types.tool import RagRetrievalConfig
@@ -1230,6 +1238,7 @@ from .types.types import Tensor
 from .types.ui_pipeline_spec import ArtifactTypeSchema
 from .types.ui_pipeline_spec import RuntimeArtifact
 from .types.unmanaged_container_model import UnmanagedContainerModel
+from .types.usage_metadata import UsageMetadata
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
@@ -1638,6 +1647,8 @@ __all__ = (
     "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
+    "EmbedContentRequest",
+    "EmbedContentResponse",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
@@ -1760,6 +1771,9 @@ __all__ = (
     "FunctionCallingConfig",
     "FunctionDeclaration",
     "FunctionResponse",
+    "FunctionResponseBlob",
+    "FunctionResponseFileData",
+    "FunctionResponsePart",
     "GcsDestination",
     "GcsSource",
     "GeminiExample",
@@ -2069,6 +2083,7 @@ __all__ = (
     "ModelServiceClient",
     "ModelSourceInfo",
     "ModelVersionCheckpoint",
+    "MultiSpeakerVoiceConfig",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
@@ -2238,6 +2253,7 @@ __all__ = (
     "RemoveDatapointsResponse",
     "RemoveExamplesRequest",
     "RemoveExamplesResponse",
+    "ReplicatedVoiceConfig",
     "ReservationAffinity",
     "ResourcePool",
     "ResourceRuntime",
@@ -2314,6 +2330,7 @@ __all__ = (
     "ShieldedVmConfig",
     "SlackSource",
     "SmoothGradConfig",
+    "SpeakerVoiceConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "SpeculativeDecodingSpec",
@@ -2530,6 +2547,7 @@ __all__ = (
     "UrlContext",
     "UrlContextMetadata",
     "UrlMetadata",
+    "UsageMetadata",
     "UserActionReference",
     "Value",
     "VeoHyperParameters",
