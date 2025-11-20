@@ -23,6 +23,7 @@ from . import agent_engines
 from . import evals
 from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AssembleDatasetParameters
+from .common import _AssessDatasetParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
@@ -130,6 +131,18 @@ from .common import AssembleDatasetConfigDict
 from .common import AssembleDatasetConfigOrDict
 from .common import AssembleDatasetDict
 from .common import AssembleDatasetOrDict
+from .common import AssessDatasetConfig
+from .common import AssessDatasetConfigDict
+from .common import AssessDatasetConfigOrDict
+from .common import BatchPredictionResourceUsageAssessmentConfig
+from .common import BatchPredictionResourceUsageAssessmentConfigDict
+from .common import BatchPredictionResourceUsageAssessmentConfigOrDict
+from .common import BatchPredictionResourceUsageAssessmentResult
+from .common import BatchPredictionResourceUsageAssessmentResultDict
+from .common import BatchPredictionResourceUsageAssessmentResultOrDict
+from .common import BatchPredictionValidationAssessmentConfig
+from .common import BatchPredictionValidationAssessmentConfigDict
+from .common import BatchPredictionValidationAssessmentConfigOrDict
 from .common import BigQueryRequestSet
 from .common import BigQueryRequestSetDict
 from .common import BigQueryRequestSetOrDict
@@ -955,6 +968,18 @@ from .common import ToolParameterKVMatchResultsOrDict
 from .common import ToolParameterKVMatchSpec
 from .common import ToolParameterKVMatchSpecDict
 from .common import ToolParameterKVMatchSpecOrDict
+from .common import TuningResourceUsageAssessmentConfig
+from .common import TuningResourceUsageAssessmentConfigDict
+from .common import TuningResourceUsageAssessmentConfigOrDict
+from .common import TuningResourceUsageAssessmentResult
+from .common import TuningResourceUsageAssessmentResultDict
+from .common import TuningResourceUsageAssessmentResultOrDict
+from .common import TuningValidationAssessmentConfig
+from .common import TuningValidationAssessmentConfigDict
+from .common import TuningValidationAssessmentConfigOrDict
+from .common import TuningValidationAssessmentResult
+from .common import TuningValidationAssessmentResultDict
+from .common import TuningValidationAssessmentResultOrDict
 from .common import Type
 from .common import UnifiedMetric
 from .common import UnifiedMetricDict
@@ -1618,6 +1643,21 @@ __all__ = [
     "MultimodalDatasetOperation",
     "MultimodalDatasetOperationDict",
     "MultimodalDatasetOperationOrDict",
+    "AssessDatasetConfig",
+    "AssessDatasetConfigDict",
+    "AssessDatasetConfigOrDict",
+    "TuningResourceUsageAssessmentConfig",
+    "TuningResourceUsageAssessmentConfigDict",
+    "TuningResourceUsageAssessmentConfigOrDict",
+    "TuningValidationAssessmentConfig",
+    "TuningValidationAssessmentConfigDict",
+    "TuningValidationAssessmentConfigOrDict",
+    "BatchPredictionResourceUsageAssessmentConfig",
+    "BatchPredictionResourceUsageAssessmentConfigDict",
+    "BatchPredictionResourceUsageAssessmentConfigOrDict",
+    "BatchPredictionValidationAssessmentConfig",
+    "BatchPredictionValidationAssessmentConfigDict",
+    "BatchPredictionValidationAssessmentConfigOrDict",
     "CreateMultimodalDatasetConfig",
     "CreateMultimodalDatasetConfigDict",
     "CreateMultimodalDatasetConfigOrDict",
@@ -1804,6 +1844,15 @@ __all__ = [
     "AssembleDataset",
     "AssembleDatasetDict",
     "AssembleDatasetOrDict",
+    "BatchPredictionResourceUsageAssessmentResult",
+    "BatchPredictionResourceUsageAssessmentResultDict",
+    "BatchPredictionResourceUsageAssessmentResultOrDict",
+    "TuningResourceUsageAssessmentResult",
+    "TuningResourceUsageAssessmentResultDict",
+    "TuningResourceUsageAssessmentResultOrDict",
+    "TuningValidationAssessmentResult",
+    "TuningValidationAssessmentResultDict",
+    "TuningValidationAssessmentResultOrDict",
     "Prompt",
     "PromptDict",
     "PromptOrDict",
@@ -1908,6 +1957,7 @@ __all__ = [
     "_AppendAgentEngineSessionEventRequestParameters",
     "_ListAgentEngineSessionEventsRequestParameters",
     "_AssembleDatasetParameters",
+    "_AssessDatasetParameters",
     "_CreateMultimodalDatasetParameters",
     "_DeleteMultimodalDatasetRequestParameters",
     "_GetMultimodalDatasetParameters",
