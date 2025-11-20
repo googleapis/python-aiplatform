@@ -61,9 +61,6 @@ def _CreateMultimodalDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["name"], getv(from_object, ["name"]))
 
@@ -84,6 +81,9 @@ def _CreateMultimodalDatasetParameters_to_vertex(
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
 
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
     return to_object
 
 
@@ -92,11 +92,11 @@ def _DeleteMultimodalDatasetRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -106,14 +106,14 @@ def _GetMultimodalDatasetOperationParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["dataset_id"]) is not None:
         setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
 
     if getv(from_object, ["operation_id"]) is not None:
         setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -123,11 +123,11 @@ def _GetMultimodalDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -172,9 +172,6 @@ def _UpdateMultimodalDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
@@ -189,6 +186,9 @@ def _UpdateMultimodalDatasetParameters_to_vertex(
 
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(to_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -255,26 +255,26 @@ class Datasets(_api_module.BaseModule):
     def _create_multimodal_dataset(
         self,
         *,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Creates a dataset resource to store multimodal datasets.
         """
 
         parameter_model = types._CreateMultimodalDatasetParameters(
-            config=config,
             name=name,
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=metadata,
             description=description,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -316,15 +316,15 @@ class Datasets(_api_module.BaseModule):
         return return_value
 
     def _delete_multimodal_dataset(
-        self, *, config: Optional[types.VertexBaseConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.VertexBaseConfigOrDict] = None
     ) -> types.MultimodalDatasetOperation:
         """
         Deletes a multimodal dataset resource.
         """
 
         parameter_model = types._DeleteMultimodalDatasetRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -370,16 +370,16 @@ class Datasets(_api_module.BaseModule):
     def _get_multimodal_dataset(
         self,
         *,
-        config: Optional[types.VertexBaseConfigOrDict] = None,
         name: Optional[str] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Gets a multimodal dataset resource.
         """
 
         parameter_model = types._GetMultimodalDatasetParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -423,18 +423,18 @@ class Datasets(_api_module.BaseModule):
     def _get_multimodal_dataset_operation(
         self,
         *,
-        config: Optional[types.GetMultimodalDatasetOperationConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         operation_id: Optional[str] = None,
+        config: Optional[types.GetMultimodalDatasetOperationConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Gets the operation from creating a multimodal dataset.
         """
 
         parameter_model = types._GetMultimodalDatasetOperationParameters(
-            config=config,
             dataset_id=dataset_id,
             operation_id=operation_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -533,24 +533,24 @@ class Datasets(_api_module.BaseModule):
     def _update_multimodal_dataset(
         self,
         *,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
         """
 
         parameter_model = types._UpdateMultimodalDatasetParameters(
-            config=config,
             name=name,
             display_name=display_name,
             metadata=metadata,
             description=description,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -940,26 +940,26 @@ class AsyncDatasets(_api_module.BaseModule):
     async def _create_multimodal_dataset(
         self,
         *,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Creates a dataset resource to store multimodal datasets.
         """
 
         parameter_model = types._CreateMultimodalDatasetParameters(
-            config=config,
             name=name,
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
             metadata=metadata,
             description=description,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1003,15 +1003,15 @@ class AsyncDatasets(_api_module.BaseModule):
         return return_value
 
     async def _delete_multimodal_dataset(
-        self, *, config: Optional[types.VertexBaseConfigOrDict] = None, name: str
+        self, *, name: str, config: Optional[types.VertexBaseConfigOrDict] = None
     ) -> types.MultimodalDatasetOperation:
         """
         Deletes a multimodal dataset resource.
         """
 
         parameter_model = types._DeleteMultimodalDatasetRequestParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1059,16 +1059,16 @@ class AsyncDatasets(_api_module.BaseModule):
     async def _get_multimodal_dataset(
         self,
         *,
-        config: Optional[types.VertexBaseConfigOrDict] = None,
         name: Optional[str] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Gets a multimodal dataset resource.
         """
 
         parameter_model = types._GetMultimodalDatasetParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1114,18 +1114,18 @@ class AsyncDatasets(_api_module.BaseModule):
     async def _get_multimodal_dataset_operation(
         self,
         *,
-        config: Optional[types.GetMultimodalDatasetOperationConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         operation_id: Optional[str] = None,
+        config: Optional[types.GetMultimodalDatasetOperationConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Gets the operation from creating a multimodal dataset.
         """
 
         parameter_model = types._GetMultimodalDatasetOperationParameters(
-            config=config,
             dataset_id=dataset_id,
             operation_id=operation_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1228,24 +1228,24 @@ class AsyncDatasets(_api_module.BaseModule):
     async def _update_multimodal_dataset(
         self,
         *,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
+        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
         """
 
         parameter_model = types._UpdateMultimodalDatasetParameters(
-            config=config,
             name=name,
             display_name=display_name,
             metadata=metadata,
             description=description,
             encryption_spec=encryption_spec,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
