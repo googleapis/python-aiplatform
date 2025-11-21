@@ -44,6 +44,11 @@ def _pydantic_serializer(obj: Any) -> Any:
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
+def _escape_json_for_html(json_str: str) -> str:
+    """Escapes characters for embedding JSON in a JS script tag to prevent XSS."""
+    return json_str.replace("<", "\\u003c").replace(">", "\\u003e")
+
+
 def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame]:
     """Prepares a DataFrame for JSON serialization by converting complex objects to strings."""
     if df is None:
@@ -80,6 +85,8 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
 
 def _get_evaluation_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for single evaluation visualization."""
+    # Escape characters for embedding JSON in JS script tag to prevent XSS.
+    eval_result_json = _escape_json_for_html(eval_result_json)
     return f"""
 <!DOCTYPE html>
 <html>
@@ -556,6 +563,8 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 
 def _get_comparison_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for a side-by-side eval comparison."""
+    # Escape characters for embedding JSON in JS script tag to prevent XSS.
+    eval_result_json = _escape_json_for_html(eval_result_json)
     return f"""
 <!DOCTYPE html>
 <html>
@@ -696,6 +705,8 @@ def _get_comparison_html(eval_result_json: str) -> str:
 
 def _get_inference_html(dataframe_json: str) -> str:
     """Returns a self-contained HTML for displaying inference results."""
+    # Escape characters for embedding JSON in JS script tag to prevent XSS.
+    dataframe_json = _escape_json_for_html(dataframe_json)
     return f"""
 <!DOCTYPE html>
 <html>
