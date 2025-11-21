@@ -1034,10 +1034,10 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
         default=None, description=""""""
     )
     labels: Optional[dict[str, str]] = Field(default=None, description="""""")
-    config: Optional[CreateEvaluationRunConfig] = Field(
+    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
         default=None, description=""""""
     )
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+    config: Optional[CreateEvaluationRunConfig] = Field(
         default=None, description=""""""
     )
 
@@ -1060,10 +1060,10 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     labels: Optional[dict[str, str]]
     """"""
 
-    config: Optional[CreateEvaluationRunConfigDict]
+    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
     """"""
 
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
+    config: Optional[CreateEvaluationRunConfigDict]
     """"""
 
 

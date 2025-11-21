@@ -81,11 +81,11 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["inference_configs"]) is not None:
         setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -472,10 +472,10 @@ class Evals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -487,8 +487,8 @@ class Evals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
-            config=config,
             inference_configs=inference_configs,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1627,10 +1627,10 @@ class AsyncEvals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1642,8 +1642,8 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
-            config=config,
             inference_configs=inference_configs,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
