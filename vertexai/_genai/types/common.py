@@ -8778,6 +8778,10 @@ class CreateAgentEngineSessionConfig(_common.BaseModel):
         default=None,
         description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
+    )
 
 
 class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
@@ -8802,6 +8806,9 @@ class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
 
     expire_time: Optional[datetime.datetime]
     """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+
+    labels: Optional[dict[str, str]]
+    """Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
 
 
 CreateAgentEngineSessionConfigOrDict = Union[
@@ -8846,31 +8853,35 @@ _CreateAgentEngineSessionRequestParametersOrDict = Union[
 class Session(_common.BaseModel):
     """A session."""
 
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when the session was created.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None, description="""Optional. The display name of the session."""
-    )
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None, description="""Optional. Input only. The TTL for this session."""
     )
     name: Optional[str] = Field(
         default=None,
         description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
     )
-    session_state: Optional[dict[str, Any]] = Field(
+    create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Session specific memory which stores key conversation points.""",
-    )
-    ttl: Optional[str] = Field(
-        default=None, description="""Optional. Input only. The TTL for this session."""
+        description="""Output only. Timestamp when the session was created.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp when the session was updated.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""Optional. The display name of the session."""
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Session specific memory which stores key conversation points.""",
     )
     user_id: Optional[str] = Field(
         default=None,
@@ -8881,26 +8892,29 @@ class Session(_common.BaseModel):
 class SessionDict(TypedDict, total=False):
     """A session."""
 
-    create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the session was created."""
-
-    display_name: Optional[str]
-    """Optional. The display name of the session."""
-
     expire_time: Optional[datetime.datetime]
     """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
-
-    session_state: Optional[dict[str, Any]]
-    """Optional. Session specific memory which stores key conversation points."""
 
     ttl: Optional[str]
     """Optional. Input only. The TTL for this session."""
 
+    name: Optional[str]
+    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the session was created."""
+
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when the session was updated."""
+
+    display_name: Optional[str]
+    """Optional. The display name of the session."""
+
+    labels: Optional[dict[str, str]]
+    """The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    session_state: Optional[dict[str, Any]]
+    """Optional. Session specific memory which stores key conversation points."""
 
     user_id: Optional[str]
     """Required. Immutable. String id provided by the user"""
@@ -9240,6 +9254,10 @@ class UpdateAgentEngineSessionConfig(_common.BaseModel):
         default=None,
         description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -9272,6 +9290,9 @@ class UpdateAgentEngineSessionConfigDict(TypedDict, total=False):
 
     expire_time: Optional[datetime.datetime]
     """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+
+    labels: Optional[dict[str, str]]
+    """Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
