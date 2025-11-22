@@ -41,7 +41,7 @@ from google.protobuf import struct_pb2
 
 
 _MODELS = [
-    "gemini-1.5-pro-002",
+    "gemini-2.5-pro",
 ]
 _CORPUS = [
     "udhr",
