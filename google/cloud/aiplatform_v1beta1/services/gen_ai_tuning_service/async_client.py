@@ -47,16 +47,12 @@ except AttributeError:  # pragma: NO COVER
 
 from google.api_core import operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.gen_ai_tuning_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.gen_ai_tuning_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import tuning_job
-from google.cloud.aiplatform_v1beta1.types import (
-    tuning_job as gca_tuning_job,
-)
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore

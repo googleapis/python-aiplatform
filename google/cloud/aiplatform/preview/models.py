@@ -42,6 +42,7 @@ from google.cloud.aiplatform.compat.types import (
     machine_resources_v1beta1 as gca_machine_resources_compat,
     model_v1 as gca_model_compat,
 )
+from google.protobuf import duration_pb2
 from google.protobuf import json_format
 
 _DEFAULT_MACHINE_TYPE = "n1-standard-2"
@@ -590,6 +591,9 @@ class Endpoint(aiplatform.Endpoint):
         traffic_percentage: Optional[int],
         deployment_resource_pool: Optional[DeploymentResourcePool],
         required_replica_count: Optional[int],
+        initial_replica_count: Optional[int],
+        min_scaleup_period: Optional[int],
+        idle_scaledown_period: Optional[int],
     ):
         """Helper method to validate deploy arguments.
 
@@ -641,6 +645,17 @@ class Endpoint(aiplatform.Endpoint):
                 set, the model deploy/mutate operation will succeed once
                 available_replica_count reaches required_replica_count, and the
                 rest of the replicas will be retried.
+            initial_replica_count (int):
+                Optional. The number of replicas to deploy the model with.
+                Only applicable for scale-to-zero deployments where
+                min_replica_count is 0.
+            min_scaleup_period (int):
+                Optional. For scale-to-zero deployments, minimum duration that
+                a deployment will be scaled up before traffic is
+                evaluated for potential scale-down.
+            idle_scaledown_period (int):
+                Optional. For scale-to-zero deployments, duration of no traffic
+                before scaling to zero.
 
         Raises:
             ValueError: if min/max replica or accelerator type are specified
@@ -650,11 +665,51 @@ class Endpoint(aiplatform.Endpoint):
               not sum to 100, or if the provided accelerator type is invalid.
         """
         if not deployment_resource_pool:
-            if not (min_replica_count and max_replica_count):
+            if min_replica_count is None or max_replica_count is None:
                 raise ValueError(
-                    "Minimum and maximum replica counts must not be "
+                    "Minimum and maximum replica counts must not be specified"
                     "if not using a shared resource pool."
                 )
+            # Validate STZ parameters
+            if min_replica_count != 0:
+                if initial_replica_count:
+                    raise ValueError(
+                        "Initial replica count cannot be set for non-STZ models."
+                    )
+                if min_scaleup_period:
+                    raise ValueError(
+                        "Min scaleup period cannot be set for non-STZ models."
+                    )
+                if idle_scaledown_period:
+                    raise ValueError(
+                        "Idle scaledown period cannot be set for non-STZ models."
+                    )
+            if min_replica_count == 0 and initial_replica_count:
+                if initial_replica_count < 0:
+                    raise ValueError("Initial replica count must be at least 0.")
+                if initial_replica_count > max_replica_count:
+                    raise ValueError(
+                        "Initial replica count cannot be "
+                        "greater than max replica count."
+                    )
+            if min_replica_count == 0 and min_scaleup_period:
+                if min_scaleup_period < 300:
+                    raise ValueError(
+                        "Min scaleup period cannot be less than 300 (5 minutes)."
+                    )
+                if min_scaleup_period > 28800:
+                    raise ValueError(
+                        "Min scaleup period cannot be greater than 28800 (8 hours)."
+                    )
+            if min_replica_count == 0 and idle_scaledown_period:
+                if idle_scaledown_period < 300:
+                    raise ValueError(
+                        "Idle scaledown period cannot be less than 300 (5 minutes)."
+                    )
+                if idle_scaledown_period > 28800:
+                    raise ValueError(
+                        "Idle scaledown period cannot be greater than 28800 (8 hours)."
+                    )
             return aiplatform.Endpoint._validate_deploy_args(
                 min_replica_count=min_replica_count,
                 max_replica_count=max_replica_count,
@@ -673,6 +728,9 @@ class Endpoint(aiplatform.Endpoint):
             and max_replica_count != 1
             or required_replica_count
             and required_replica_count != 0
+            or initial_replica_count
+            or min_scaleup_period
+            or idle_scaledown_period
         ):
             _LOGGER.warning(
                 "Ignoring explicitly specified replica counts, "
@@ -683,6 +741,11 @@ class Endpoint(aiplatform.Endpoint):
                 "Conflicting deployment parameters were given."
                 "deployment_resource_pool may not be specified at the same time"
                 "as accelerator_type."
+            )
+        if initial_replica_count or min_scaleup_period or idle_scaledown_period:
+            raise ValueError(
+                "Scale-to-zero parameters may not be specified at the same time"
+                "as deployment_resource_pool."
             )
         if traffic_split is None:
             if traffic_percentage > 100:
@@ -730,6 +793,9 @@ class Endpoint(aiplatform.Endpoint):
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
         max_runtime_duration: Optional[int] = None,
+        initial_replica_count: Optional[int] = None,
+        min_scaleup_period: Optional[int] = None,
+        idle_scaledown_period: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -844,6 +910,17 @@ class Endpoint(aiplatform.Endpoint):
                 for a maximum of 7 days or up to the max_runtime_duration specified,
                 whichever is shorter. After this period, the model will be
                 automatically undeployed. The value is in seconds.
+            initial_replica_count (int):
+                Optional. The number of replicas to deploy the model with.
+                Only applicable for scale-to-zero deployments where
+                min_replica_count is 0.
+            min_scaleup_period (int):
+                Optional. For scale-to-zero deployments, minimum duration that
+                a deployment will be scaled up before traffic is
+                evaluated for potential scale-down.
+            idle_scaledown_period (int):
+                Optional. For scale-to-zero deployments, duration of no traffic
+                before scaling to zero.
         """
         self._sync_gca_resource_if_skipped()
 
@@ -856,6 +933,9 @@ class Endpoint(aiplatform.Endpoint):
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=deployment_resource_pool,
             required_replica_count=required_replica_count,
+            initial_replica_count=initial_replica_count,
+            min_scaleup_period=min_scaleup_period,
+            idle_scaledown_period=idle_scaledown_period,
         )
 
         explanation_spec = _explanation_utils.create_and_validate_explanation_spec(
@@ -891,6 +971,9 @@ class Endpoint(aiplatform.Endpoint):
             rollout_options=rollout_options,
             multihost_gpu_node_count=multihost_gpu_node_count,
             max_runtime_duration=max_runtime_duration,
+            initial_replica_count=initial_replica_count,
+            min_scaleup_period=min_scaleup_period,
+            idle_scaledown_period=idle_scaledown_period,
         )
 
     @base.optional_sync()
@@ -923,6 +1006,9 @@ class Endpoint(aiplatform.Endpoint):
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
         max_runtime_duration: Optional[int] = None,
+        initial_replica_count: Optional[int] = None,
+        min_scaleup_period: Optional[int] = None,
+        idle_scaledown_period: Optional[int] = None,
     ) -> None:
         """Deploys a Model to the Endpoint.
 
@@ -1031,6 +1117,17 @@ class Endpoint(aiplatform.Endpoint):
                 for a maximum of 7 days or up to the max_runtime_duration specified,
                 whichever is shorter. After this period, the model will be
                 automatically undeployed. The value is in seconds.
+            initial_replica_count (int):
+                Optional. The number of replicas to deploy the model with.
+                Only applicable for scale-to-zero deployments where
+                min_replica_count is 0.
+            min_scaleup_period (int):
+                Optional. For scale-to-zero deployments, minimum duration that
+                a deployment will be scaled up before traffic is
+                evaluated for potential scale-down.
+            idle_scaledown_period (int):
+                Optional. For scale-to-zero deployments, duration of no traffic
+                before scaling to zero.
         """
         _LOGGER.log_action_start_against_resource(
             f"Deploying Model {model.resource_name} to", "", self
@@ -1067,6 +1164,9 @@ class Endpoint(aiplatform.Endpoint):
             rollout_options=rollout_options,
             multihost_gpu_node_count=multihost_gpu_node_count,
             max_runtime_duration=max_runtime_duration,
+            initial_replica_count=initial_replica_count,
+            min_scaleup_period=min_scaleup_period,
+            idle_scaledown_period=idle_scaledown_period,
         )
 
         _LOGGER.log_action_completed_against_resource("model", "deployed", self)
@@ -1106,6 +1206,9 @@ class Endpoint(aiplatform.Endpoint):
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
         max_runtime_duration: Optional[int] = None,
+        initial_replica_count: Optional[int] = None,
+        min_scaleup_period: Optional[int] = None,
+        idle_scaledown_period: Optional[int] = None,
     ) -> None:
         """Helper method to deploy model to endpoint.
 
@@ -1221,6 +1324,14 @@ class Endpoint(aiplatform.Endpoint):
                 for a maximum of 7 days or up to the max_runtime_duration specified,
                 whichever is shorter. After this period, the model will be
                 automatically undeployed. The value is in seconds.
+            initial_replica_count (int): Optional. The number of replicas to
+              deploy the model with. Only applicable for scale-to-zero
+              deployments where min_replica_count is 0.
+            min_scaleup_period (int): Optional. For scale-to-zero deployments,
+              minimum duration that a deployment will be scaled up before traffic
+              is evaluated for potential scale-down.
+            idle_scaledown_period (int): Optional. For scale-to-zero deployments,
+              duration of no traffic before scaling to zero.
 
         Raises:
             ValueError: If only `accelerator_type` or `accelerator_count` is
@@ -1306,6 +1417,24 @@ class Endpoint(aiplatform.Endpoint):
                     max_replica_count=max_replica_count,
                     required_replica_count=required_replica_count,
                 )
+
+                # If min_replica_count is 0, set Scale to Zero fields.
+                if dedicated_resources.min_replica_count == 0:
+                    # Set initial replica count
+                    dedicated_resources.initial_replica_count = initial_replica_count
+                    # Set scale to zero spec.
+                    stz_spec = (
+                        gca_machine_resources_compat.DedicatedResources.ScaleToZeroSpec()
+                    )
+                    if min_scaleup_period is not None:
+                        stz_spec.min_scaleup_period = duration_pb2.Duration(
+                            seconds=min_scaleup_period
+                        )
+                    if idle_scaledown_period is not None:
+                        stz_spec.idle_scaledown_period = duration_pb2.Duration(
+                            seconds=idle_scaledown_period
+                        )
+                    dedicated_resources.scale_to_zero_spec = stz_spec
 
                 prediction_utils.add_flex_start_to_dedicated_resources(
                     dedicated_resources, max_runtime_duration
@@ -1695,6 +1824,9 @@ class Model(aiplatform.Model):
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
         max_runtime_duration: Optional[int] = None,
+        initial_replica_count: Optional[int] = None,
+        min_scaleup_period: Optional[int] = None,
+        idle_scaledown_period: Optional[int] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -1830,6 +1962,14 @@ class Model(aiplatform.Model):
                 for a maximum of 7 days or up to the max_runtime_duration specified,
                 whichever is shorter. After this period, the model will be
                 automatically undeployed. The value is in seconds.
+            initial_replica_count (int): Optional. The number of replicas to
+              deploy the model with. Only applicable for scale-to-zero
+              deployments where min_replica_count is 0.
+            min_scaleup_period (int): Optional. For scale-to-zero deployments,
+              minimum duration that a deployment will be scaled up before traffic
+              is evaluated for potential scale-down.
+            idle_scaledown_period (int): Optional. For scale-to-zero deployments,
+              duration of no traffic before scaling to zero.
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
                 Endpoint with the deployed model.
@@ -1848,6 +1988,9 @@ class Model(aiplatform.Model):
             traffic_percentage=traffic_percentage,
             deployment_resource_pool=deployment_resource_pool,
             required_replica_count=required_replica_count,
+            initial_replica_count=initial_replica_count,
+            min_scaleup_period=min_scaleup_period,
+            idle_scaledown_period=idle_scaledown_period,
         )
 
         if isinstance(endpoint, models.PrivateEndpoint):
@@ -1876,7 +2019,10 @@ class Model(aiplatform.Model):
             service_account=service_account,
             explanation_spec=explanation_spec,
             metadata=metadata,
-            encryption_spec_key_name=encryption_spec_key_name
+            encryption_spec_key_name=encryption_spec_key_name,
+            initial_replica_count=initial_replica_count,
+            min_scaleup_period=min_scaleup_period,
+            idle_scaledown_period=idle_scaledown_period
             or initializer.global_config.encryption_spec_key_name,
             network=network,
             sync=sync,
@@ -1935,6 +2081,9 @@ class Model(aiplatform.Model):
         rollout_options: Optional[RolloutOptions] = None,
         multihost_gpu_node_count: Optional[int] = None,
         max_runtime_duration: Optional[int] = None,
+        initial_replica_count: Optional[int] = None,
+        min_scaleup_period: Optional[int] = None,
+        idle_scaledown_period: Optional[int] = None,
     ) -> Union[Endpoint, models.PrivateEndpoint]:
         """Deploys model to endpoint.
 
@@ -2061,6 +2210,17 @@ class Model(aiplatform.Model):
                 for a maximum of 7 days or up to the max_runtime_duration specified,
                 whichever is shorter. After this period, the model will be
                 automatically undeployed. The value is in seconds.
+            initial_replica_count (int):
+                Optional. The number of replicas to deploy the model with.
+                Only applicable for scale-to-zero deployments where
+                min_replica_count is 0.
+            min_scaleup_period (int):
+                Optional. For scale-to-zero deployments, minimum duration that
+                a deployment will be scaled up before traffic is
+                evaluated for potential scale-down.
+            idle_scaledown_period (int):
+                Optional. For scale-to-zero deployments, duration of no traffic
+                before scaling to zero.
         Returns:
             endpoint (Union[Endpoint, models.PrivateEndpoint]):
                 Endpoint with the deployed model.
@@ -2130,6 +2290,9 @@ class Model(aiplatform.Model):
             required_replica_count=required_replica_count,
             multihost_gpu_node_count=multihost_gpu_node_count,
             max_runtime_duration=max_runtime_duration,
+            initial_replica_count=initial_replica_count,
+            min_scaleup_period=min_scaleup_period,
+            idle_scaledown_period=idle_scaledown_period,
             **preview_kwargs,
         )
 

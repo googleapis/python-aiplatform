@@ -67,13 +67,13 @@ class ModelMonitoringJob(proto.Message):
         state (google.cloud.aiplatform_v1beta1.types.JobState):
             Output only. The state of the monitoring job.
 
-            -  When the job is still creating, the state will be
-               'JOB_STATE_PENDING'.
-            -  Once the job is successfully created, the state will be
-               'JOB_STATE_RUNNING'.
-            -  Once the job is finished, the state will be one of
-               'JOB_STATE_FAILED', 'JOB_STATE_SUCCEEDED',
-               'JOB_STATE_PARTIALLY_SUCCEEDED'.
+            - When the job is still creating, the state will be
+              'JOB_STATE_PENDING'.
+            - Once the job is successfully created, the state will be
+              'JOB_STATE_RUNNING'.
+            - Once the job is finished, the state will be one of
+              'JOB_STATE_FAILED', 'JOB_STATE_SUCCEEDED',
+              'JOB_STATE_PARTIALLY_SUCCEEDED'.
         schedule (str):
             Output only. Schedule resource name. It will
             only appear when this job is triggered by a

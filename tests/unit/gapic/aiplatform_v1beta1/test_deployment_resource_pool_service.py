@@ -83,9 +83,7 @@ from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
 from google.cloud.aiplatform_v1beta1.types import (
     deployment_resource_pool as gca_deployment_resource_pool,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    deployment_resource_pool_service,
-)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import endpoint
 from google.cloud.aiplatform_v1beta1.types import machine_resources
@@ -936,10 +934,9 @@ def test_deployment_resource_pool_service_client_get_mtls_endpoint_and_cert_sour
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -6127,6 +6124,7 @@ def test_update_deployment_resource_pool_rest_call_success(request_type):
             "min_replica_count": 1803,
             "max_replica_count": 1805,
             "required_replica_count": 2344,
+            "initial_replica_count": 2225,
             "autoscaling_metric_specs": [
                 {
                     "metric_name": "metric_name_value",
@@ -6136,6 +6134,10 @@ def test_update_deployment_resource_pool_rest_call_success(request_type):
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
+            "scale_to_zero_spec": {
+                "min_scaleup_period": {},
+                "idle_scaledown_period": {},
+            },
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
@@ -7948,6 +7950,7 @@ async def test_update_deployment_resource_pool_rest_asyncio_call_success(request
             "min_replica_count": 1803,
             "max_replica_count": 1805,
             "required_replica_count": 2344,
+            "initial_replica_count": 2225,
             "autoscaling_metric_specs": [
                 {
                     "metric_name": "metric_name_value",
@@ -7957,6 +7960,10 @@ async def test_update_deployment_resource_pool_rest_asyncio_call_success(request
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
+            "scale_to_zero_spec": {
+                "min_scaleup_period": {},
+                "idle_scaledown_period": {},
+            },
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",

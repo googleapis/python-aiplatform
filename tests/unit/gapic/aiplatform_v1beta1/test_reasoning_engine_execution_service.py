@@ -72,9 +72,7 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_execution_service
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_execution_service import (
     transports,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    reasoning_engine_execution_service,
-)
+from google.cloud.aiplatform_v1beta1.types import reasoning_engine_execution_service
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -928,10 +926,9 @@ def test_reasoning_engine_execution_service_client_get_mtls_endpoint_and_cert_so
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

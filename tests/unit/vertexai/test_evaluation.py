@@ -16,6 +16,7 @@
 #
 
 import re
+import sys
 import threading
 import time
 from unittest import mock
@@ -80,6 +81,7 @@ from vertexai.preview.evaluation.metrics import (
 from vertexai.preview.evaluation.metrics import (
     rubric_based_metric,
 )
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 import numpy as np
 import pandas as pd
 import pytest
@@ -797,8 +799,16 @@ def mock_experiment_tracker():
 
 @pytest.fixture
 def mock_storage_blob_from_string():
-    with mock.patch("google.cloud.storage.Blob.from_string") as mock_blob_from_string:
-        yield mock_blob_from_string
+    if hasattr(blob_from_uri.__globals__["storage"].Blob, "from_uri"):
+        with mock.patch.object(
+            blob_from_uri.__globals__["storage"].Blob, "from_uri"
+        ) as mock_blob_from_uri:
+            yield mock_blob_from_uri
+    else:
+        with mock.patch.object(
+            blob_from_uri.__globals__["storage"].Blob, "from_string"
+        ) as mock_blob_from_string:
+            yield mock_blob_from_string
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1061,6 +1071,9 @@ class TestEvaluation:
             "explanation",
         ]
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 13), reason="flaky race condition in python 3.13"
+    )
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_model_based_translation_metrics_without_model_inference(
         self, api_transport
@@ -1372,6 +1385,9 @@ class TestEvaluation:
             == 0.5
         )
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 13), reason="flaky race condition in python 3.13"
+    )
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_multiple_metrics(self, api_transport):
         aiplatform.init(
@@ -1499,6 +1515,9 @@ class TestEvaluation:
             {"row_count": 1, "mock_metric/mean": 1.0, "mock_metric/std": "NaN"}
         )
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 13), reason="flaky race condition in python 3.13"
+    )
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_rubric_based_instruction_following_metric(self, api_transport):
         aiplatform.init(
@@ -2547,11 +2566,11 @@ class TestEvaluationUtils:
             )
 
         mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/test-file-name/test-file-name.csv",
+            "gs://test-bucket/test-file-name/test-file-name.csv",
             client=mock.ANY,
         )
         mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/test-file-name/summary_metrics.json",
+            "gs://test-bucket/test-file-name/summary_metrics.json",
             client=mock.ANY,
         )
         mock_json_dump.assert_called_once_with(
@@ -2601,7 +2620,7 @@ class TestEvaluationUtils:
                 )
                 _ = test_eval_task.evaluate()
         mock_storage_blob_from_string.assert_any_call(
-            uri="gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/summary_metrics.json",
+            "gs://test-bucket/eval_results_2025-02-10-12-00-00-12345/summary_metrics.json",
             client=mock.ANY,
         )
 

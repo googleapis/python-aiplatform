@@ -39,9 +39,7 @@ import warnings
 
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import tuning_job
-from google.cloud.aiplatform_v1beta1.types import (
-    tuning_job as gca_tuning_job,
-)
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
 from google.protobuf import empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
@@ -633,9 +631,10 @@ class GenAiTuningServiceRestTransport(_BaseGenAiTuningServiceRestTransport):
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
 
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if ``channel`` is provided. This argument will be
+                removed in the next major version of this library.
             scopes (Optional(Sequence[str])): A list of scopes. This argument is
                 ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Callable[[], Tuple[bytes, bytes]]): Client

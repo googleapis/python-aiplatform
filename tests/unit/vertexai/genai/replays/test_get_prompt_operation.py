@@ -18,7 +18,7 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 
 
 def test_get_dataset_operation(client):
-    dataset_operation = client.prompt_management._get_dataset_operation(
+    dataset_operation = client.prompts._get_dataset_operation(
         dataset_id="6550997480673116160",
         operation_id="5108504762664353792",
     )
@@ -28,5 +28,5 @@ def test_get_dataset_operation(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="prompt_management._get_dataset_operation",
+    test_method="prompts._get_dataset_operation",
 )

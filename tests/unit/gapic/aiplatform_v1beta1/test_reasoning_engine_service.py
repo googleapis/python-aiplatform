@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
     ReasoningEngineServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
+from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import transports
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -916,10 +912,9 @@ def test_reasoning_engine_service_client_get_mtls_endpoint_and_cert_source(
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -4620,6 +4615,22 @@ def test_create_reasoning_engine_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "developer_connect_source": {
+                    "config": {
+                        "git_repository_link": "git_repository_link_value",
+                        "dir_": "dir__value",
+                        "revision": "revision_value",
+                    }
+                },
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -4676,6 +4687,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5164,6 +5176,22 @@ def test_update_reasoning_engine_rest_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "developer_connect_source": {
+                    "config": {
+                        "git_repository_link": "git_repository_link_value",
+                        "dir_": "dir__value",
+                        "revision": "revision_value",
+                    }
+                },
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -5220,6 +5248,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6330,6 +6359,22 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "developer_connect_source": {
+                    "config": {
+                        "git_repository_link": "git_repository_link_value",
+                        "dir_": "dir__value",
+                        "revision": "revision_value",
+                    }
+                },
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -6386,6 +6431,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6928,6 +6974,22 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
         "display_name": "display_name_value",
         "description": "description_value",
         "spec": {
+            "source_code_spec": {
+                "inline_source": {"source_archive": b"source_archive_blob"},
+                "developer_connect_source": {
+                    "config": {
+                        "git_repository_link": "git_repository_link_value",
+                        "dir_": "dir__value",
+                        "revision": "revision_value",
+                    }
+                },
+                "python_spec": {
+                    "version": "version_value",
+                    "entrypoint_module": "entrypoint_module_value",
+                    "entrypoint_object": "entrypoint_object_value",
+                    "requirements_file": "requirements_file_value",
+                },
+            },
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -6984,6 +7046,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
             }
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
+        "labels": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8734,10 +8797,41 @@ def test_parse_endpoint_path():
     assert expected == actual
 
 
-def test_network_attachment_path():
+def test_git_repository_link_path():
     project = "cuttlefish"
-    region = "mussel"
-    networkattachment = "winkle"
+    location = "mussel"
+    connection = "winkle"
+    git_repository_link = "nautilus"
+    expected = "projects/{project}/locations/{location}/connections/{connection}/gitRepositoryLinks/{git_repository_link}".format(
+        project=project,
+        location=location,
+        connection=connection,
+        git_repository_link=git_repository_link,
+    )
+    actual = ReasoningEngineServiceClient.git_repository_link_path(
+        project, location, connection, git_repository_link
+    )
+    assert expected == actual
+
+
+def test_parse_git_repository_link_path():
+    expected = {
+        "project": "scallop",
+        "location": "abalone",
+        "connection": "squid",
+        "git_repository_link": "clam",
+    }
+    path = ReasoningEngineServiceClient.git_repository_link_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = ReasoningEngineServiceClient.parse_git_repository_link_path(path)
+    assert expected == actual
+
+
+def test_network_attachment_path():
+    project = "whelk"
+    region = "octopus"
+    networkattachment = "oyster"
     expected = "projects/{project}/regions/{region}/networkAttachments/{networkattachment}".format(
         project=project,
         region=region,
@@ -8751,9 +8845,9 @@ def test_network_attachment_path():
 
 def test_parse_network_attachment_path():
     expected = {
-        "project": "nautilus",
-        "region": "scallop",
-        "networkattachment": "abalone",
+        "project": "nudibranch",
+        "region": "cuttlefish",
+        "networkattachment": "mussel",
     }
     path = ReasoningEngineServiceClient.network_attachment_path(**expected)
 
@@ -8763,9 +8857,9 @@ def test_parse_network_attachment_path():
 
 
 def test_reasoning_engine_path():
-    project = "squid"
-    location = "clam"
-    reasoning_engine = "whelk"
+    project = "winkle"
+    location = "nautilus"
+    reasoning_engine = "scallop"
     expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}".format(
         project=project,
         location=location,
@@ -8779,9 +8873,9 @@ def test_reasoning_engine_path():
 
 def test_parse_reasoning_engine_path():
     expected = {
-        "project": "octopus",
-        "location": "oyster",
-        "reasoning_engine": "nudibranch",
+        "project": "abalone",
+        "location": "squid",
+        "reasoning_engine": "clam",
     }
     path = ReasoningEngineServiceClient.reasoning_engine_path(**expected)
 
@@ -8791,7 +8885,7 @@ def test_parse_reasoning_engine_path():
 
 
 def test_common_billing_account_path():
-    billing_account = "cuttlefish"
+    billing_account = "whelk"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -8801,7 +8895,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "mussel",
+        "billing_account": "octopus",
     }
     path = ReasoningEngineServiceClient.common_billing_account_path(**expected)
 
@@ -8811,7 +8905,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "winkle"
+    folder = "oyster"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -8821,7 +8915,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nautilus",
+        "folder": "nudibranch",
     }
     path = ReasoningEngineServiceClient.common_folder_path(**expected)
 
@@ -8831,7 +8925,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "scallop"
+    organization = "cuttlefish"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -8841,7 +8935,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "abalone",
+        "organization": "mussel",
     }
     path = ReasoningEngineServiceClient.common_organization_path(**expected)
 
@@ -8851,7 +8945,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "squid"
+    project = "winkle"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -8861,7 +8955,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "clam",
+        "project": "nautilus",
     }
     path = ReasoningEngineServiceClient.common_project_path(**expected)
 
@@ -8871,8 +8965,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "whelk"
-    location = "octopus"
+    project = "scallop"
+    location = "abalone"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -8883,8 +8977,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "oyster",
-        "location": "nudibranch",
+        "project": "squid",
+        "location": "clam",
     }
     path = ReasoningEngineServiceClient.common_location_path(**expected)
 

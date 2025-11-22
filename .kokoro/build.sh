@@ -37,7 +37,7 @@ export PROJECT_ID=$(cat "${KOKORO_GFILE_DIR}/project-id.json")
 python3 -m pip uninstall --yes --quiet nox-automation
 
 # Install nox
-python3 -m pip install --upgrade --quiet nox
+python3 -m pip install --upgrade --quiet uv nox
 python3 -m nox --version
 
 # If this is a continuous build, send the test log to the FlakyBot.

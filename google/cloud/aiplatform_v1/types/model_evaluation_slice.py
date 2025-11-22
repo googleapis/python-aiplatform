@@ -75,13 +75,13 @@ class ModelEvaluationSlice(proto.Message):
                 Output only. The dimension of the slice. Well-known
                 dimensions are:
 
-                -  ``annotationSpec``: This slice is on the test data that
-                   has either ground truth or prediction with
-                   [AnnotationSpec.display_name][google.cloud.aiplatform.v1.AnnotationSpec.display_name]
-                   equals to
-                   [value][google.cloud.aiplatform.v1.ModelEvaluationSlice.Slice.value].
-                -  ``slice``: This slice is a user customized slice defined
-                   by its SliceSpec.
+                - ``annotationSpec``: This slice is on the test data that
+                  has either ground truth or prediction with
+                  [AnnotationSpec.display_name][google.cloud.aiplatform.v1.AnnotationSpec.display_name]
+                  equals to
+                  [value][google.cloud.aiplatform.v1.ModelEvaluationSlice.Slice.value].
+                - ``slice``: This slice is a user customized slice defined
+                  by its SliceSpec.
             value (str):
                 Output only. The value of the dimension in
                 this slice.

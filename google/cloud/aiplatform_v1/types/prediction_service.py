@@ -20,10 +20,11 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.api import httpbody_pb2  # type: ignore
-from google.cloud.aiplatform_v1.types import content
+from google.cloud.aiplatform_v1.types import content as gca_content
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import types
+from google.cloud.aiplatform_v1.types import usage_metadata as gca_usage_metadata
 from google.protobuf import struct_pb2  # type: ignore
 from google.protobuf import timestamp_pb2  # type: ignore
 
@@ -53,6 +54,8 @@ __protobuf__ = proto.module(
         "CountTokensResponse",
         "GenerateContentRequest",
         "GenerateContentResponse",
+        "EmbedContentRequest",
+        "EmbedContentResponse",
     },
 )
 
@@ -84,6 +87,10 @@ class PredictRequest(proto.Message):
             [Model's ][google.cloud.aiplatform.v1.DeployedModel.model]
             [PredictSchemata's][google.cloud.aiplatform.v1.Model.predict_schemata]
             [parameters_schema_uri][google.cloud.aiplatform.v1.PredictSchemata.parameters_schema_uri].
+        labels (MutableMapping[str, str]):
+            Optional. The user labels for Imagen billing
+            usage only. Only Imagen supports labels. For
+            other use cases, it will be ignored.
     """
 
     endpoint: str = proto.Field(
@@ -99,6 +106,11 @@ class PredictRequest(proto.Message):
         proto.MESSAGE,
         number=3,
         message=struct_pb2.Value,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=4,
     )
 
 
@@ -603,11 +615,11 @@ class ExplainRequest(proto.Message):
             of the DeployedModel. Can be used for explaining prediction
             results with different configurations, such as:
 
-            -  Explaining top-5 predictions results as opposed to top-1;
-            -  Increasing path count or step count of the attribution
-               methods to reduce approximate errors;
-            -  Using different baselines for explaining the prediction
-               results.
+            - Explaining top-5 predictions results as opposed to top-1;
+            - Increasing path count or step count of the attribution
+              methods to reduce approximate errors;
+            - Using different baselines for explaining the prediction
+              results.
         deployed_model_id (str):
             If specified, this ExplainRequest will be served by the
             chosen DeployedModel, overriding
@@ -730,27 +742,27 @@ class CountTokensRequest(proto.Message):
         number=2,
         message=struct_pb2.Value,
     )
-    contents: MutableSequence[content.Content] = proto.RepeatedField(
+    contents: MutableSequence[gca_content.Content] = proto.RepeatedField(
         proto.MESSAGE,
         number=4,
-        message=content.Content,
+        message=gca_content.Content,
     )
-    system_instruction: content.Content = proto.Field(
+    system_instruction: gca_content.Content = proto.Field(
         proto.MESSAGE,
         number=5,
         optional=True,
-        message=content.Content,
+        message=gca_content.Content,
     )
     tools: MutableSequence[tool.Tool] = proto.RepeatedField(
         proto.MESSAGE,
         number=6,
         message=tool.Tool,
     )
-    generation_config: content.GenerationConfig = proto.Field(
+    generation_config: gca_content.GenerationConfig = proto.Field(
         proto.MESSAGE,
         number=7,
         optional=True,
-        message=content.GenerationConfig,
+        message=gca_content.GenerationConfig,
     )
 
 
@@ -777,11 +789,11 @@ class CountTokensResponse(proto.Message):
         proto.INT32,
         number=2,
     )
-    prompt_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+    prompt_tokens_details: MutableSequence[gca_content.ModalityTokenCount] = (
         proto.RepeatedField(
             proto.MESSAGE,
             number=3,
-            message=content.ModalityTokenCount,
+            message=gca_content.ModalityTokenCount,
         )
     )
 
@@ -858,16 +870,16 @@ class GenerateContentRequest(proto.Message):
         proto.STRING,
         number=5,
     )
-    contents: MutableSequence[content.Content] = proto.RepeatedField(
+    contents: MutableSequence[gca_content.Content] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
-        message=content.Content,
+        message=gca_content.Content,
     )
-    system_instruction: content.Content = proto.Field(
+    system_instruction: gca_content.Content = proto.Field(
         proto.MESSAGE,
         number=8,
         optional=True,
-        message=content.Content,
+        message=gca_content.Content,
     )
     cached_content: str = proto.Field(
         proto.STRING,
@@ -888,20 +900,20 @@ class GenerateContentRequest(proto.Message):
         proto.STRING,
         number=10,
     )
-    safety_settings: MutableSequence[content.SafetySetting] = proto.RepeatedField(
+    safety_settings: MutableSequence[gca_content.SafetySetting] = proto.RepeatedField(
         proto.MESSAGE,
         number=3,
-        message=content.SafetySetting,
+        message=gca_content.SafetySetting,
     )
-    model_armor_config: content.ModelArmorConfig = proto.Field(
+    model_armor_config: gca_content.ModelArmorConfig = proto.Field(
         proto.MESSAGE,
         number=11,
-        message=content.ModelArmorConfig,
+        message=gca_content.ModelArmorConfig,
     )
-    generation_config: content.GenerationConfig = proto.Field(
+    generation_config: gca_content.GenerationConfig = proto.Field(
         proto.MESSAGE,
         number=4,
-        message=content.GenerationConfig,
+        message=gca_content.GenerationConfig,
     )
 
 
@@ -959,6 +971,8 @@ class GenerateContentResponse(proto.Message):
                     Candidates blocked due to prohibited content.
                 MODEL_ARMOR (5):
                     The user prompt was blocked by Model Armor.
+                JAILBREAK (6):
+                    The user prompt was blocked due to jailbreak.
             """
 
             BLOCKED_REASON_UNSPECIFIED = 0
@@ -967,6 +981,7 @@ class GenerateContentResponse(proto.Message):
             BLOCKLIST = 3
             PROHIBITED_CONTENT = 4
             MODEL_ARMOR = 5
+            JAILBREAK = 6
 
         block_reason: "GenerateContentResponse.PromptFeedback.BlockedReason" = (
             proto.Field(
@@ -975,10 +990,10 @@ class GenerateContentResponse(proto.Message):
                 enum="GenerateContentResponse.PromptFeedback.BlockedReason",
             )
         )
-        safety_ratings: MutableSequence[content.SafetyRating] = proto.RepeatedField(
+        safety_ratings: MutableSequence[gca_content.SafetyRating] = proto.RepeatedField(
             proto.MESSAGE,
             number=2,
-            message=content.SafetyRating,
+            message=gca_content.SafetyRating,
         )
         block_reason_message: str = proto.Field(
             proto.STRING,
@@ -1035,32 +1050,32 @@ class GenerateContentResponse(proto.Message):
             proto.INT32,
             number=5,
         )
-        prompt_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+        prompt_tokens_details: MutableSequence[gca_content.ModalityTokenCount] = (
             proto.RepeatedField(
                 proto.MESSAGE,
                 number=9,
-                message=content.ModalityTokenCount,
+                message=gca_content.ModalityTokenCount,
             )
         )
-        cache_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+        cache_tokens_details: MutableSequence[gca_content.ModalityTokenCount] = (
             proto.RepeatedField(
                 proto.MESSAGE,
                 number=10,
-                message=content.ModalityTokenCount,
+                message=gca_content.ModalityTokenCount,
             )
         )
-        candidates_tokens_details: MutableSequence[content.ModalityTokenCount] = (
+        candidates_tokens_details: MutableSequence[gca_content.ModalityTokenCount] = (
             proto.RepeatedField(
                 proto.MESSAGE,
                 number=11,
-                message=content.ModalityTokenCount,
+                message=gca_content.ModalityTokenCount,
             )
         )
 
-    candidates: MutableSequence[content.Candidate] = proto.RepeatedField(
+    candidates: MutableSequence[gca_content.Candidate] = proto.RepeatedField(
         proto.MESSAGE,
         number=2,
-        message=content.Candidate,
+        message=gca_content.Candidate,
     )
     model_version: str = proto.Field(
         proto.STRING,
@@ -1084,6 +1099,168 @@ class GenerateContentResponse(proto.Message):
         proto.MESSAGE,
         number=4,
         message=UsageMetadata,
+    )
+
+
+class EmbedContentRequest(proto.Message):
+    r"""Request message for
+    [PredictionService.EmbedContent][google.cloud.aiplatform.v1.PredictionService.EmbedContent].
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        model (str):
+            Required. The name of the publisher model requested to serve
+            the prediction. Format:
+            ``projects/{project}/locations/{location}/publishers/*/models/*``
+
+            This field is a member of `oneof`_ ``_model``.
+        content (google.cloud.aiplatform_v1.types.Content):
+            Required. Input content to be embedded.
+            Required.
+
+            This field is a member of `oneof`_ ``_content``.
+        title (str):
+            Optional. An optional title for the text.
+
+            This field is a member of `oneof`_ ``_title``.
+        task_type (google.cloud.aiplatform_v1.types.EmbedContentRequest.EmbeddingTaskType):
+            Optional. The task type of the embedding.
+
+            This field is a member of `oneof`_ ``_task_type``.
+        output_dimensionality (int):
+            Optional. Optional reduced dimension for the
+            output embedding. If set, excessive values in
+            the output embedding are truncated from the end.
+
+            This field is a member of `oneof`_ ``_output_dimensionality``.
+        auto_truncate (bool):
+            Optional. Whether to silently truncate the
+            input content if it's longer than the maximum
+            sequence length.
+
+            This field is a member of `oneof`_ ``_auto_truncate``.
+    """
+
+    class EmbeddingTaskType(proto.Enum):
+        r"""Represents a downstream task the embeddings will be used for.
+
+        Values:
+            UNSPECIFIED (0):
+                Unset value, which will default to one of the
+                other enum values.
+            RETRIEVAL_QUERY (2):
+                Specifies the given text is a query in a
+                search/retrieval setting.
+            RETRIEVAL_DOCUMENT (3):
+                Specifies the given text is a document from
+                the corpus being searched.
+            SEMANTIC_SIMILARITY (4):
+                Specifies the given text will be used for
+                STS.
+            CLASSIFICATION (5):
+                Specifies that the given text will be
+                classified.
+            CLUSTERING (6):
+                Specifies that the embeddings will be used
+                for clustering.
+            QUESTION_ANSWERING (7):
+                Specifies that the embeddings will be used
+                for question answering.
+            FACT_VERIFICATION (8):
+                Specifies that the embeddings will be used
+                for fact verification.
+            CODE_RETRIEVAL_QUERY (9):
+                Specifies that the embeddings will be used
+                for code retrieval.
+        """
+
+        UNSPECIFIED = 0
+        RETRIEVAL_QUERY = 2
+        RETRIEVAL_DOCUMENT = 3
+        SEMANTIC_SIMILARITY = 4
+        CLASSIFICATION = 5
+        CLUSTERING = 6
+        QUESTION_ANSWERING = 7
+        FACT_VERIFICATION = 8
+        CODE_RETRIEVAL_QUERY = 9
+
+    model: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+    content: gca_content.Content = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message=gca_content.Content,
+    )
+    title: str = proto.Field(
+        proto.STRING,
+        number=4,
+        optional=True,
+    )
+    task_type: EmbeddingTaskType = proto.Field(
+        proto.ENUM,
+        number=5,
+        optional=True,
+        enum=EmbeddingTaskType,
+    )
+    output_dimensionality: int = proto.Field(
+        proto.INT32,
+        number=6,
+        optional=True,
+    )
+    auto_truncate: bool = proto.Field(
+        proto.BOOL,
+        number=7,
+        optional=True,
+    )
+
+
+class EmbedContentResponse(proto.Message):
+    r"""Response message for
+    [PredictionService.EmbedContent][google.cloud.aiplatform.v1.PredictionService.EmbedContent].
+
+    Attributes:
+        embedding (google.cloud.aiplatform_v1.types.EmbedContentResponse.Embedding):
+            The embedding generated from the input
+            content.
+        usage_metadata (google.cloud.aiplatform_v1.types.UsageMetadata):
+            Metadata about the response(s).
+        truncated (bool):
+            Whether the input content was truncated
+            before generating the embedding.
+    """
+
+    class Embedding(proto.Message):
+        r"""A list of floats representing an embedding.
+
+        Attributes:
+            values (MutableSequence[float]):
+                Embedding vector values.
+        """
+
+        values: MutableSequence[float] = proto.RepeatedField(
+            proto.FLOAT,
+            number=1,
+        )
+
+    embedding: Embedding = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=Embedding,
+    )
+    usage_metadata: gca_usage_metadata.UsageMetadata = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=gca_usage_metadata.UsageMetadata,
+    )
+    truncated: bool = proto.Field(
+        proto.BOOL,
+        number=4,
     )
 
 

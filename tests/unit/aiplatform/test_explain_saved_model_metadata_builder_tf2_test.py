@@ -16,6 +16,11 @@
 #
 
 import pytest
+import sys
+
+if sys.version_info >= (3, 13):
+    pytest.skip("Tensorflow not available for Python 3.13+", allow_module_level=True)
+
 import tensorflow as tf
 import numpy as np
 

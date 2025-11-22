@@ -17,14 +17,19 @@
 
 import datetime
 import glob
+
+# Version detection and compatibility layer for google-cloud-storage v2/v3
+from importlib.metadata import version as get_version
 import logging
 import os
 import pathlib
 import tempfile
 from typing import Optional, TYPE_CHECKING
+import warnings
 
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
+from packaging.version import Version
 
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
@@ -33,6 +38,66 @@ if TYPE_CHECKING:
     import pandas
 
 _logger = logging.getLogger(__name__)
+
+
+# Detect google-cloud-storage version once at module load
+try:
+    _GCS_VERSION = Version(get_version("google-cloud-storage"))
+except Exception:
+    # Fallback if version detection fails (should not happen in normal use)
+    _GCS_VERSION = Version("2.0.0")
+
+_USE_FROM_URI = _GCS_VERSION >= Version("3.0.0")
+
+# Warn users on v2 about upcoming deprecation
+if _GCS_VERSION < Version("3.0.0"):
+    warnings.warn(
+        "Support for google-cloud-storage < 3.0.0 will be removed in a future"
+        " version of google-cloud-aiplatform. Please upgrade to"
+        " google-cloud-storage >= 3.0.0.",
+        FutureWarning,
+        stacklevel=2,
+    )
+
+
+def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
+    """Create a Blob from a GCS URI, compatible with v2 and v3.
+
+    This function provides compatibility across google-cloud-storage versions:
+    - v3.x: Uses Blob.from_uri()
+    - v2.x: Uses Blob.from_string() (deprecated in v3)
+
+    Args:
+        uri: GCS URI (e.g., 'gs://bucket/path/to/blob')
+        client: Storage client instance
+
+    Returns:
+        storage.Blob: Blob instance
+    """
+    if _USE_FROM_URI:
+        return storage.Blob.from_uri(uri, client=client)
+    else:
+        return storage.Blob.from_string(uri, client=client)
+
+
+def bucket_from_uri(uri: str, client: storage.Client) -> storage.Bucket:
+    """Create a Bucket from a GCS URI, compatible with v2 and v3.
+
+    This function provides compatibility across google-cloud-storage versions:
+    - v3.x: Uses Bucket.from_uri()
+    - v2.x: Uses Bucket.from_string() (deprecated in v3)
+
+    Args:
+        uri: GCS bucket URI (e.g., 'gs://bucket-name')
+        client: Storage client instance
+
+    Returns:
+        storage.Bucket: Bucket instance
+    """
+    if _USE_FROM_URI:
+        return storage.Bucket.from_uri(uri, client=client)
+    else:
+        return storage.Bucket.from_string(uri, client=client)
 
 
 def upload_to_gcs(
@@ -79,18 +144,18 @@ def upload_to_gcs(
             destination_file_uri = (
                 destination_uri.rstrip("/") + "/" + source_file_relative_posix_path
             )
-            _logger.debug(f'Uploading "{source_file_path}" to "{destination_file_uri}"')
-            destination_blob = storage.Blob.from_string(
+            _logger.debug(
+                'Uploading "%s" to "%s"', source_file_path, destination_file_uri
+            )
+            destination_blob = blob_from_uri(
                 destination_file_uri, client=storage_client
             )
             destination_blob.upload_from_filename(filename=source_file_path)
     else:
         source_file_path = source_path
         destination_file_uri = destination_uri
-        _logger.debug(f'Uploading "{source_file_path}" to "{destination_file_uri}"')
-        destination_blob = storage.Blob.from_string(
-            destination_file_uri, client=storage_client
-        )
+        _logger.debug('Uploading "%s" to "%s"', source_file_path, destination_file_uri)
+        destination_blob = blob_from_uri(destination_file_uri, client=storage_client)
         destination_blob.upload_from_filename(filename=source_file_path)
 
 
@@ -234,7 +299,7 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
         credentials=credentials,
     )
 
-    pipelines_bucket = storage.Bucket.from_string(
+    pipelines_bucket = bucket_from_uri(
         uri=output_artifacts_gcs_dir,
         client=storage_client,
     )
@@ -294,9 +359,9 @@ def download_file_from_gcs(
     credentials = credentials or initializer.global_config.credentials
 
     storage_client = storage.Client(project=project, credentials=credentials)
-    source_blob = storage.Blob.from_string(source_file_uri, client=storage_client)
+    source_blob = blob_from_uri(source_file_uri, client=storage_client)
 
-    _logger.debug(f'Downloading "{source_file_uri}" to "{destination_file_path}"')
+    _logger.debug('Downloading "%s" to "%s"', source_file_uri, destination_file_path)
 
     source_blob.download_to_filename(filename=destination_file_path)
 
@@ -354,13 +419,10 @@ def _upload_pandas_df_to_gcs(
     """Uploads the provided Pandas DataFrame to a GCS bucket.
 
     Args:
-        df (pandas.DataFrame):
-            Required. The Pandas DataFrame to upload.
-        upload_gcs_path (str):
-            Required. The GCS path to upload the data file.
-        file_format (str):
-            Required. The format to export the DataFrame to. Currently
-            only JSONL is supported.
+        df (pandas.DataFrame): Required. The Pandas DataFrame to upload.
+        upload_gcs_path (str): Required. The GCS path to upload the data file.
+        file_format (str): Required. The format to export the DataFrame to.
+          Currently only JSONL is supported.
 
     Raises:
         ValueError: When a file format other than JSONL is provided.
@@ -378,9 +440,9 @@ def _upload_pandas_df_to_gcs(
             project=initializer.global_config.project,
             credentials=initializer.global_config.credentials,
         )
-        storage.Blob.from_string(
-            uri=upload_gcs_path, client=storage_client
-        ).upload_from_filename(filename=local_dataset_path)
+        blob_from_uri(uri=upload_gcs_path, client=storage_client).upload_from_filename(
+            filename=local_dataset_path
+        )
 
 
 def validate_gcs_path(gcs_path: str) -> None:

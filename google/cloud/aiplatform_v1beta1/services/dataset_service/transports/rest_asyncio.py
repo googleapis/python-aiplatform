@@ -55,9 +55,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset
 from google.cloud.aiplatform_v1beta1.types import dataset as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import dataset_service
 from google.cloud.aiplatform_v1beta1.types import dataset_version
-from google.cloud.aiplatform_v1beta1.types import (
-    dataset_version as gca_dataset_version,
-)
+from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset_version
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -4668,11 +4666,10 @@ class AsyncDatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_restore_dataset_version(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_restore_dataset_version_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_restore_dataset_version_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

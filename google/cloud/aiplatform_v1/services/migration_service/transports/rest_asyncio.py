@@ -743,11 +743,10 @@ class AsyncMigrationServiceRestTransport(_BaseMigrationServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_batch_migrate_resources(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_batch_migrate_resources_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_batch_migrate_resources_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -910,11 +909,10 @@ class AsyncMigrationServiceRestTransport(_BaseMigrationServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_search_migratable_resources(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_search_migratable_resources_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_search_migratable_resources_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

@@ -112,12 +112,12 @@ class ModelMonitoringObjectiveSpec(proto.Message):
             categorical_metric_type (str):
                 Supported metrics type:
 
-                -  l_infinity
-                -  jensen_shannon_divergence
+                - l_infinity
+                - jensen_shannon_divergence
             numeric_metric_type (str):
                 Supported metrics type:
 
-                -  jensen_shannon_divergence
+                - jensen_shannon_divergence
             default_categorical_alert_condition (google.cloud.aiplatform_v1beta1.types.ModelMonitoringAlertCondition):
                 Default alert condition for all the
                 categorical features.
@@ -409,8 +409,8 @@ class ModelMonitoringInput(proto.Message):
                     BigQuery URI to a table, up to 2000 characters long. All the
                     columns in the table will be selected. Accepted forms:
 
-                    -  BigQuery path. For example:
-                       ``bq://projectId.bqDatasetId.bqTableId``.
+                    - BigQuery path. For example:
+                      ``bq://projectId.bqDatasetId.bqTableId``.
 
                     This field is a member of `oneof`_ ``connection``.
                 query (str):

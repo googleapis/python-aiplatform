@@ -14,8 +14,8 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import logging
 import os
-
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
@@ -38,7 +38,7 @@ def test_optimize(client):
 
     _raise_for_unset_env_vars()
 
-    config = types.PromptOptimizerVAPOConfig(
+    config = types.PromptOptimizerConfig(
         config_path=os.environ.get("VAPO_CONFIG_PATH"),
         wait_for_completion=True,
         service_account_project_number=os.environ.get(
@@ -47,7 +47,33 @@ def test_optimize(client):
         optimizer_job_display_name="optimizer_job_test",
     )
     job = client.prompt_optimizer.optimize(
-        method="vapo",
+        method=types.PromptOptimizerMethod.VAPO,
+        config=config,
+    )
+    assert isinstance(job, types.CustomJob)
+    assert job.state == genai_types.JobState.JOB_STATE_SUCCEEDED
+
+
+def test_optimize_nano(client):
+    """Tests the optimize request parameters method."""
+
+    _raise_for_unset_env_vars()
+
+    config_path = os.environ.get("VAPO_CONFIG_PATH")
+    root, ext = os.path.splitext(config_path)
+    nano_path = f"{root}_nano{ext}"
+
+    config = types.PromptOptimizerConfig(
+        config_path=nano_path,
+        wait_for_completion=True,
+        service_account_project_number=os.environ.get(
+            "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
+        ),
+        optimizer_job_display_name="optimizer_job_test",
+    )
+
+    job = client.prompt_optimizer.optimize(
+        method=types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO,
         config=config,
     )
     assert isinstance(job, types.CustomJob)
@@ -68,7 +94,7 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_optimize_async(client):
     _raise_for_unset_env_vars()
 
-    config = types.PromptOptimizerVAPOConfig(
+    config = types.PromptOptimizerConfig(
         config_path=os.environ.get("VAPO_CONFIG_PATH"),
         service_account_project_number=os.environ.get(
             "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
@@ -76,7 +102,29 @@ async def test_optimize_async(client):
         optimizer_job_display_name="optimizer_job_test",
     )
     job = await client.aio.prompt_optimizer.optimize(
-        method="vapo",
+        method=types.PromptOptimizerMethod.VAPO,
+        config=config,
+    )
+    assert isinstance(job, types.CustomJob)
+    assert job.state == genai_types.JobState.JOB_STATE_PENDING
+
+
+@pytest.mark.asyncio
+async def test_optimize_nano_async(client):
+    _raise_for_unset_env_vars()
+    config_path = os.environ.get("VAPO_CONFIG_PATH")
+    root, ext = os.path.splitext(config_path)
+    nano_path = f"{root}_nano{ext}"
+
+    config = types.PromptOptimizerConfig(
+        config_path=nano_path,
+        service_account_project_number=os.environ.get(
+            "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
+        ),
+        optimizer_job_display_name="optimizer_job_test",
+    )
+    job = await client.aio.prompt_optimizer.optimize(
+        method=types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO,
         config=config,
     )
     assert isinstance(job, types.CustomJob)
@@ -86,8 +134,9 @@ async def test_optimize_async(client):
 @pytest.mark.asyncio
 async def test_optimize_async_with_config_wait_for_completion(client, caplog):
     _raise_for_unset_env_vars()
+    caplog.set_level(logging.INFO)
 
-    config = types.PromptOptimizerVAPOConfig(
+    config = types.PromptOptimizerConfig(
         config_path=os.environ.get("VAPO_CONFIG_PATH"),
         service_account_project_number=os.environ.get(
             "VAPO_SERVICE_ACCOUNT_PROJECT_NUMBER"
@@ -96,7 +145,7 @@ async def test_optimize_async_with_config_wait_for_completion(client, caplog):
         wait_for_completion=True,
     )
     job = await client.aio.prompt_optimizer.optimize(
-        method="vapo",
+        method=types.PromptOptimizerMethod.VAPO,
         config=config,
     )
     assert isinstance(job, types.CustomJob)

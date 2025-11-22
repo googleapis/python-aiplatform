@@ -72,18 +72,12 @@ from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
     IndexEndpointServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import pagers
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import index_endpoint
-from google.cloud.aiplatform_v1beta1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1beta1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1beta1.types import index_endpoint_service
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -913,10 +907,9 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -6491,6 +6484,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -6501,6 +6495,10 @@ def test_create_index_endpoint_rest_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "enable_access_logging": True,
@@ -7086,6 +7084,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -7096,6 +7095,10 @@ def test_update_index_endpoint_rest_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "enable_access_logging": True,
@@ -7792,6 +7795,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             "min_replica_count": 1803,
             "max_replica_count": 1805,
             "required_replica_count": 2344,
+            "initial_replica_count": 2225,
             "autoscaling_metric_specs": [
                 {
                     "metric_name": "metric_name_value",
@@ -7801,6 +7805,10 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
+            "scale_to_zero_spec": {
+                "min_scaleup_period": {},
+                "idle_scaledown_period": {},
+            },
         },
         "enable_access_logging": True,
         "enable_datapoint_upsert_logging": True,
@@ -8905,6 +8913,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -8915,6 +8924,10 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "enable_access_logging": True,
@@ -9549,6 +9562,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                     "min_replica_count": 1803,
                     "max_replica_count": 1805,
                     "required_replica_count": 2344,
+                    "initial_replica_count": 2225,
                     "autoscaling_metric_specs": [
                         {
                             "metric_name": "metric_name_value",
@@ -9559,6 +9573,10 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                     "spot": True,
                     "flex_start": {
                         "max_runtime_duration": {"seconds": 751, "nanos": 543}
+                    },
+                    "scale_to_zero_spec": {
+                        "min_scaleup_period": {},
+                        "idle_scaledown_period": {},
                     },
                 },
                 "enable_access_logging": True,
@@ -10321,6 +10339,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             "min_replica_count": 1803,
             "max_replica_count": 1805,
             "required_replica_count": 2344,
+            "initial_replica_count": 2225,
             "autoscaling_metric_specs": [
                 {
                     "metric_name": "metric_name_value",
@@ -10330,6 +10349,10 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             ],
             "spot": True,
             "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
+            "scale_to_zero_spec": {
+                "min_scaleup_period": {},
+                "idle_scaledown_period": {},
+            },
         },
         "enable_access_logging": True,
         "enable_datapoint_upsert_logging": True,

@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    feature_group as gca_feature_group,
-)
+from google.cloud.aiplatform_v1.types import feature_group as gca_feature_group
 from google.cloud.aiplatform_v1.types import operation
 from google.protobuf import field_mask_pb2  # type: ignore
 
@@ -109,20 +107,20 @@ class ListFeatureGroupsRequest(proto.Message):
             Lists the FeatureGroups that match the filter expression.
             The following fields are supported:
 
-            -  ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
-               ``<=``, and ``>=`` comparisons. Values must be in RFC
-               3339 format.
-            -  ``labels``: Supports key-value equality and key presence.
+            - ``create_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``update_time``: Supports ``=``, ``!=``, ``<``, ``>``,
+              ``<=``, and ``>=`` comparisons. Values must be in RFC 3339
+              format.
+            - ``labels``: Supports key-value equality and key presence.
 
             Examples:
 
-            -  ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
-               FeatureGroups created or updated after 2020-01-01.
-            -  ``labels.env = "prod"`` FeatureGroups with label "env"
-               set to "prod".
+            - ``create_time > "2020-01-01" OR update_time > "2020-01-01"``
+              FeatureGroups created or updated after 2020-01-01.
+            - ``labels.env = "prod"`` FeatureGroups with label "env" set
+              to "prod".
         page_size (int):
             The maximum number of FeatureGroups to
             return. The service may return fewer than this
@@ -142,8 +140,8 @@ class ListFeatureGroupsRequest(proto.Message):
             ascending order. Use "desc" after a field name for
             descending. Supported Fields:
 
-            -  ``create_time``
-            -  ``update_time``
+            - ``create_time``
+            - ``update_time``
     """
 
     parent: str = proto.Field(
@@ -220,10 +218,10 @@ class UpdateFeatureGroupRequest(proto.Message):
 
             Updatable fields:
 
-            -  ``labels``
-            -  ``description``
-            -  ``big_query``
-            -  ``big_query.entity_id_columns``
+            - ``labels``
+            - ``description``
+            - ``big_query``
+            - ``big_query.entity_id_columns``
     """
 
     feature_group: gca_feature_group.FeatureGroup = proto.Field(

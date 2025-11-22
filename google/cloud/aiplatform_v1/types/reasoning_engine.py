@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import env_var
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import struct_pb2  # type: ignore
@@ -43,6 +41,11 @@ class ReasoningEngineSpec(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        source_code_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec):
+            Deploy from source code files with a defined
+            entrypoint.
+
+            This field is a member of `oneof`_ ``deployment_source``.
         service_account (str):
             Optional. The service account that the
             Reasoning Engine artifact runs as. It should
@@ -59,7 +62,8 @@ class ReasoningEngineSpec(proto.Message):
             Ignored when users directly specify a deployment image
             through ``deployment_spec.first_party_image_override``, but
             keeping the field_behavior to avoid introducing breaking
-            changes.
+            changes. The ``deployment_source`` field should not be set
+            if ``package_spec`` is specified.
         deployment_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.DeploymentSpec):
             Optional. The specification of a Reasoning
             Engine deployment.
@@ -74,8 +78,8 @@ class ReasoningEngineSpec(proto.Message):
     """
 
     class PackageSpec(proto.Message):
-        r"""User provided package spec like pickled object and package
-        requirements.
+        r"""User-provided package specification, containing pickled
+        object and package requirements.
 
         Attributes:
             pickle_object_gcs_uri (str):
@@ -88,9 +92,9 @@ class ReasoningEngineSpec(proto.Message):
                 Optional. The Cloud Storage URI of the ``requirements.txt``
                 file
             python_version (str):
-                Optional. The Python version. Currently
-                support 3.8, 3.9, 3.10, 3.11. If not specified,
-                default value is 3.10.
+                Optional. The Python version. Supported
+                values are 3.9, 3.10, 3.11, 3.12, 3.13. If not
+                specified, the default value is 3.10.
         """
 
         pickle_object_gcs_uri: str = proto.Field(
@@ -150,13 +154,13 @@ class ReasoningEngineSpec(proto.Message):
                 'memory' keys are supported. Defaults to {"cpu": "4",
                 "memory": "4Gi"}.
 
-                -  The only supported values for CPU are '1', '2', '4', '6'
-                   and '8'. For more information, go to
-                   https://cloud.google.com/run/docs/configuring/cpu.
-                -  The only supported values for memory are '1Gi', '2Gi',
-                   ... '32 Gi'.
-                -  For required cpu on different memory values, go to
-                   https://cloud.google.com/run/docs/configuring/memory-limits
+                - The only supported values for CPU are '1', '2', '4', '6'
+                  and '8'. For more information, go to
+                  https://cloud.google.com/run/docs/configuring/cpu.
+                - The only supported values for memory are '1Gi', '2Gi', ...
+                  '32 Gi'.
+                - For required cpu on different memory values, go to
+                  https://cloud.google.com/run/docs/configuring/memory-limits
             container_concurrency (int):
                 Optional. Concurrency for each container and agent server.
                 Recommended value: 2 \* cpu + 1. Defaults to 9.
@@ -200,6 +204,170 @@ class ReasoningEngineSpec(proto.Message):
             optional=True,
         )
 
+    class SourceCodeSpec(proto.Message):
+        r"""Specification for deploying from source code.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            inline_source (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.InlineSource):
+                Source code is provided directly in the
+                request.
+
+                This field is a member of `oneof`_ ``source``.
+            developer_connect_source (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource):
+                Source code is in a Git repository managed by
+                Developer Connect.
+
+                This field is a member of `oneof`_ ``source``.
+            python_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.PythonSpec):
+                Configuration for a Python application.
+
+                This field is a member of `oneof`_ ``language_spec``.
+        """
+
+        class InlineSource(proto.Message):
+            r"""Specifies source code provided as a byte stream.
+
+            Attributes:
+                source_archive (bytes):
+                    Required. Input only. The application source
+                    code archive, provided as a compressed tarball
+                    (.tar.gz) file.
+            """
+
+            source_archive: bytes = proto.Field(
+                proto.BYTES,
+                number=1,
+            )
+
+        class DeveloperConnectConfig(proto.Message):
+            r"""Specifies the configuration for fetching source code from a
+            Git repository that is managed by Developer Connect. This
+            includes the repository, revision, and directory to use.
+
+            Attributes:
+                git_repository_link (str):
+                    Required. The Developer Connect Git repository link,
+                    formatted as
+                    ``projects/*/locations/*/connections/*/gitRepositoryLink/*``.
+                dir_ (str):
+                    Required. Directory, relative to the source
+                    root, in which to run the build.
+                revision (str):
+                    Required. The revision to fetch from the Git
+                    repository such as a branch, a tag, a commit
+                    SHA, or any Git ref.
+            """
+
+            git_repository_link: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            dir_: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            revision: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+
+        class DeveloperConnectSource(proto.Message):
+            r"""Specifies source code to be fetched from a Git repository
+            managed through the Developer Connect service.
+
+            Attributes:
+                config (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig):
+                    Required. The Developer Connect configuration
+                    that defines the specific repository, revision,
+                    and directory to use as the source code root.
+            """
+
+            config: "ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig" = (
+                proto.Field(
+                    proto.MESSAGE,
+                    number=1,
+                    message="ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig",
+                )
+            )
+
+        class PythonSpec(proto.Message):
+            r"""Specification for running a Python application from source.
+
+            Attributes:
+                version (str):
+                    Optional. The version of Python to use.
+                    Support version includes 3.9, 3.10, 3.11, 3.12,
+                    3.13. If not specified, default value is 3.10.
+                entrypoint_module (str):
+                    Optional. The Python module to load as the
+                    entrypoint, specified as a fully qualified
+                    module name. For example: path.to.agent. If not
+                    specified, defaults to "agent".
+
+                    The project root will be added to Python
+                    sys.path, allowing imports to be specified
+                    relative to the root.
+                entrypoint_object (str):
+                    Optional. The name of the callable object within the
+                    ``entrypoint_module`` to use as the application If not
+                    specified, defaults to "root_agent".
+                requirements_file (str):
+                    Optional. The path to the requirements file,
+                    relative to the source root. If not specified,
+                    defaults to "requirements.txt".
+            """
+
+            version: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            entrypoint_module: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            entrypoint_object: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+            requirements_file: str = proto.Field(
+                proto.STRING,
+                number=4,
+            )
+
+        inline_source: "ReasoningEngineSpec.SourceCodeSpec.InlineSource" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="source",
+            message="ReasoningEngineSpec.SourceCodeSpec.InlineSource",
+        )
+        developer_connect_source: (
+            "ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource"
+        ) = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="source",
+            message="ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource",
+        )
+        python_spec: "ReasoningEngineSpec.SourceCodeSpec.PythonSpec" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="language_spec",
+            message="ReasoningEngineSpec.SourceCodeSpec.PythonSpec",
+        )
+
+    source_code_spec: SourceCodeSpec = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        oneof="deployment_source",
+        message=SourceCodeSpec,
+    )
     service_account: str = proto.Field(
         proto.STRING,
         number=1,
@@ -259,6 +427,8 @@ class ReasoningEngine(proto.Message):
             ReasoningEngine. If set, this ReasoningEngine
             and all sub-resources of this ReasoningEngine
             will be secured by this key.
+        labels (MutableMapping[str, str]):
+            Labels for the ReasoningEngine.
     """
 
     name: str = proto.Field(
@@ -296,6 +466,11 @@ class ReasoningEngine(proto.Message):
         proto.MESSAGE,
         number=11,
         message=gca_encryption_spec.EncryptionSpec,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=17,
     )
 
 

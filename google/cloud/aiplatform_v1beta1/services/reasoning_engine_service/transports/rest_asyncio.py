@@ -935,11 +935,10 @@ class AsyncReasoningEngineServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_create_reasoning_engine(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_create_reasoning_engine_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_create_reasoning_engine_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1098,11 +1097,10 @@ class AsyncReasoningEngineServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_delete_reasoning_engine(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_delete_reasoning_engine_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_delete_reasoning_engine_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -1589,11 +1587,10 @@ class AsyncReasoningEngineServiceRestTransport(
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_reasoning_engine(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_reasoning_engine_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_reasoning_engine_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

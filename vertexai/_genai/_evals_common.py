@@ -13,25 +13,33 @@
 # limitations under the License.
 #
 """Common utilities for evals."""
+import asyncio
+import base64
 import collections
 import concurrent.futures
 import datetime
 import json
 import logging
 import os
+import threading
 import time
 from typing import Any, Callable, Literal, Optional, Union
 
 from google.api_core import exceptions as api_exceptions
+import vertexai
 from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
 
+from . import _evals_constant
 from . import _evals_data_converters
 from . import _evals_metric_handlers
+from . import _evals_metric_loaders
 from . import _evals_utils
+from . import _gcs_utils
+
 from . import evals
 from . import types
 
@@ -42,8 +50,27 @@ except ImportError:
 
 
 logger = logging.getLogger(__name__)
+_thread_local_data = threading.local()
 
 MAX_WORKERS = 100
+AGENT_MAX_WORKERS = 10
+
+
+def _get_agent_engine_instance(
+    agent_name: str, api_client: BaseApiClient
+) -> Union[types.AgentEngine, Any]:
+    """Gets or creates an agent engine instance for the current thread."""
+    if not hasattr(_thread_local_data, "agent_engine_instances"):
+        _thread_local_data.agent_engine_instances = {}
+    if agent_name not in _thread_local_data.agent_engine_instances:
+        client = vertexai.Client(
+            project=api_client.project,
+            location=api_client.location,
+        )
+        _thread_local_data.agent_engine_instances[agent_name] = (
+            client.agent_engines.get(name=agent_name)
+        )
+    return _thread_local_data.agent_engine_instances[agent_name]
 
 
 def _generate_content_with_retry(
@@ -183,12 +210,15 @@ def _extract_contents_for_inference(
 
 def _execute_inference_concurrently(
     api_client: BaseApiClient,
-    model_or_fn: Union[str, Callable[[Any], Any]],
     prompt_dataset: pd.DataFrame,
     progress_desc: str,
+    model_or_fn: Optional[Union[str, Callable[[Any], Any]]] = None,
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
-    inference_fn: Optional[Callable[[Any, Any, Any, Any], Any]] = None,
-) -> list[Union[genai_types.GenerateContentResponse, dict[str, Any]]]:
+    inference_fn: Optional[Callable[..., Any]] = None,
+    agent_engine: Optional[Union[str, types.AgentEngine]] = None,
+) -> list[
+    Union[genai_types.GenerateContentResponse, dict[str, Any], list[dict[str, Any]]]
+]:
     """Internal helper to run inference with concurrency."""
     logger.info(
         "Generating responses for %d prompts using model or function: %s",
@@ -196,7 +226,12 @@ def _execute_inference_concurrently(
         model_or_fn,
     )
     responses: list[
-        Union[genai_types.GenerateContentResponse, dict[str, Any], None]
+        Union[
+            genai_types.GenerateContentResponse,
+            dict[str, Any],
+            list[dict[str, Any]],
+            None,
+        ]
     ] = [None] * len(prompt_dataset)
     tasks = []
 
@@ -209,8 +244,9 @@ def _execute_inference_concurrently(
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
+    max_workers = AGENT_MAX_WORKERS if agent_engine else MAX_WORKERS
     with tqdm(total=len(prompt_dataset), desc=progress_desc) as pbar:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             for index, row in prompt_dataset.iterrows():
                 request_dict_or_raw_text = row[primary_prompt_column]
                 try:
@@ -225,7 +261,39 @@ def _execute_inference_concurrently(
                     pbar.update(1)
                     continue
 
-                if isinstance(model_or_fn, str):
+                if agent_engine:
+
+                    def agent_run_wrapper(  # type: ignore[no-untyped-def]
+                        row_arg,
+                        contents_arg,
+                        agent_engine,
+                        inference_fn_arg,
+                        api_client_arg,
+                    ) -> Any:
+                        if isinstance(agent_engine, str):
+                            agent_engine_instance = _get_agent_engine_instance(
+                                agent_engine, api_client_arg
+                            )
+                        elif (
+                            hasattr(agent_engine, "api_client")
+                            and type(agent_engine).__name__ == "AgentEngine"
+                        ):
+                            agent_engine_instance = agent_engine
+                        return inference_fn_arg(
+                            row=row_arg,
+                            contents=contents_arg,
+                            agent_engine=agent_engine_instance,
+                        )
+
+                    future = executor.submit(
+                        agent_run_wrapper,
+                        row,
+                        contents,
+                        agent_engine,
+                        inference_fn,
+                        api_client,
+                    )
+                elif isinstance(model_or_fn, str):
                     generation_content_config = _build_generate_content_config(
                         request_dict_or_raw_text,
                         gemini_config,
@@ -261,7 +329,9 @@ def _run_gemini_inference(
     model: str,
     prompt_dataset: pd.DataFrame,
     config: Optional[genai_types.GenerateContentConfig] = None,
-) -> list[Union[genai_types.GenerateContentResponse, dict[str, Any]]]:
+) -> list[
+    Union[genai_types.GenerateContentResponse, dict[str, Any], list[dict[str, Any]]]
+]:
     """Internal helper to run inference using Gemini model with concurrency."""
     return _execute_inference_concurrently(
         api_client=api_client,
@@ -370,6 +440,14 @@ def _run_litellm_inference(
     return responses
 
 
+def _is_litellm_vertex_maas_model(model: str) -> bool:
+    """Checks if the model is a Vertex MAAS model to be handled by LiteLLM."""
+    return any(
+        model.startswith(prefix)
+        for prefix in _evals_constant.SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES
+    )
+
+
 def _is_litellm_model(model: str) -> bool:
     """Checks if the model name corresponds to a valid LiteLLM model name."""
     return model in litellm.utils.get_valid_models(model)
@@ -431,30 +509,6 @@ def _run_inference_internal(
                 }
                 processed_responses.append(json.dumps(error_payload))
         responses = processed_responses
-    elif isinstance(model, str):
-        if litellm is None:
-            raise ImportError(
-                "The 'litellm' library is required to use third-party models."
-                " Please install it using 'pip install"
-                " google-cloud-aiplatform[evaluation]'."
-            )
-        if _is_litellm_model(model):
-            logger.info("Running inference with LiteLLM for model: %s", model)
-            raw_responses = _run_litellm_inference(  # type: ignore[assignment]
-                model=model, prompt_dataset=prompt_dataset
-            )
-            responses = [json.dumps(resp) for resp in raw_responses]
-        else:
-            raise TypeError(
-                f"Unsupported string model name: {model}. Expecting a Gemini model"
-                " name (e.g., 'gemini-2.5-pro', 'projects/.../models/...') or a"
-                " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
-                " If using a third-party model via LiteLLM, ensure the"
-                " necessary environment variables are set (e.g., for OpenAI:"
-                " `os.environ['OPENAI_API_KEY'] = 'Your API Key'`). See"
-                " LiteLLM documentation for details:"
-                " https://docs.litellm.ai/docs/set_keys#environment-variables"
-            )
     elif callable(model):
         logger.info("Running inference with custom callable function.")
         custom_responses_raw = _run_custom_inference(
@@ -472,6 +526,102 @@ def _run_inference_internal(
                 except TypeError:
                     processed_custom_responses.append(str(resp_item))
         responses = processed_custom_responses
+    elif isinstance(model, str):
+        if litellm is None:
+            raise ImportError(
+                "The 'litellm' library is required to use this model."
+                " Please install it using 'pip install"
+                " google-cloud-aiplatform[evaluation]'."
+            )
+
+        processed_model_id = model
+        if model.startswith("vertex_ai/"):
+            # Already correctly prefixed for LiteLLM's Vertex AI provider
+            pass
+        elif _is_litellm_vertex_maas_model(model):
+            processed_model_id = f"vertex_ai/{model}"
+            logger.info(
+                "Detected Vertex AI Model Garden managed MaaS model. "
+                "Using LiteLLM ID: %s",
+                processed_model_id,
+            )
+        elif _is_litellm_model(model):
+            # Other LiteLLM supported model
+            logger.info("Running inference with LiteLLM for model: %s", model)
+        else:
+            # Unsupported model string
+            raise TypeError(
+                f"Unsupported string model name: {model}. Expecting a Gemini model"
+                " name (e.g., 'gemini-1.5-pro', 'projects/.../models/...') or a"
+                " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
+                " If using a third-party model via LiteLLM, ensure the"
+                " necessary environment variables are set (e.g., for OpenAI:"
+                " `os.environ['OPENAI_API_KEY'] = 'Your API Key'`). See"
+                " LiteLLM documentation for details:"
+                " https://docs.litellm.ai/docs/set_keys#environment-variables"
+            )
+
+        logger.info("Running inference via LiteLLM for model: %s", processed_model_id)
+        raw_responses = _run_litellm_inference(  # type: ignore[assignment]
+            model=processed_model_id, prompt_dataset=prompt_dataset
+        )
+        processed_llm_responses = []
+        for response_dict in raw_responses:
+            if not isinstance(response_dict, dict):
+                processed_llm_responses.append(
+                    json.dumps(
+                        {
+                            "error": "Invalid LiteLLM response format",
+                            "details": str(response_dict),
+                        }
+                    )
+                )
+                continue
+
+            if "error" in response_dict:
+                processed_llm_responses.append(json.dumps(response_dict))
+                continue
+
+            if (
+                "choices" in response_dict
+                and isinstance(response_dict["choices"], list)
+                and len(response_dict["choices"]) > 0
+            ):
+                first_choice = response_dict["choices"][0]
+                if "message" in first_choice and isinstance(
+                    first_choice["message"], dict
+                ):
+                    message = first_choice["message"]
+                    if "content" in message and isinstance(message["content"], str):
+                        processed_llm_responses.append(message["content"])
+                    else:
+                        processed_llm_responses.append(
+                            json.dumps(
+                                {
+                                    "error": "LiteLLM response missing 'content' in message",
+                                    "details": response_dict,
+                                }
+                            )
+                        )
+                else:
+                    processed_llm_responses.append(
+                        json.dumps(
+                            {
+                                "error": "LiteLLM response missing 'message' in first choice",
+                                "details": response_dict,
+                            }
+                        )
+                    )
+            else:
+                processed_llm_responses.append(
+                    json.dumps(
+                        {
+                            "error": "LiteLLM response missing 'choices'",
+                            "details": response_dict,
+                        }
+                    )
+                )
+        responses = processed_llm_responses
     else:
         raise TypeError(
             f"Unsupported model type: {type(model)}. Expecting string (model"
@@ -559,8 +709,9 @@ def _load_dataframe(
 def _execute_inference(
     *,
     api_client: BaseApiClient,
-    model: Union[Callable[[Any], Any], str],
     src: Union[str, pd.DataFrame],
+    model: Optional[Union[Callable[[Any], Any], str]] = None,
+    agent_engine: Optional[Union[str, types.AgentEngine]] = None,
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
@@ -569,10 +720,12 @@ def _execute_inference(
 
     Args:
         api_client: The API client.
-        model: The model to use for inference. Can be a callable function or a
-          string representing a model.
         src: The source of the dataset. Can be a string (path to a local file,
           a GCS path, or a BigQuery table) or a Pandas DataFrame.
+        model: The model to use for inference. Can be a callable function or a
+          string representing a model.
+        agent_engine: The agent engine to use for inference. Can be a resource
+          name string or an `AgentEngine` instance.
         dest: The destination to save the inference results. Can be a string
           representing a file path or a GCS URI.
         config: The generation configuration for the model.
@@ -581,11 +734,9 @@ def _execute_inference(
     Returns:
         A pandas DataFrame containing the inference results.
     """
-
     if not api_client:
         raise ValueError("'api_client' instance must be provided.")
     prompt_dataset = _load_dataframe(api_client, src)
-
     if prompt_template:
         logger.info("Applying prompt template...")
         if isinstance(prompt_template, str):
@@ -595,31 +746,68 @@ def _execute_inference(
 
         _apply_prompt_template(prompt_dataset, prompt_template)
 
-    start_time = time.time()
-    logger.debug("Starting inference process ...")
-    results_df = _run_inference_internal(
-        api_client=api_client,
-        model=model,
-        prompt_dataset=prompt_dataset,
-        config=config,
-    )
-    end_time = time.time()
-    logger.info("Inference completed in %.2f seconds.", end_time - start_time)
+    if model:
+        start_time = time.time()
+        logger.debug("Starting inference process ...")
+        results_df = _run_inference_internal(
+            api_client=api_client,
+            model=model,
+            prompt_dataset=prompt_dataset,
+            config=config,
+        )
+        end_time = time.time()
+        logger.info("Inference completed in %.2f seconds.", end_time - start_time)
 
-    candidate_name = None
-    if isinstance(model, str):
-        candidate_name = model
-    elif callable(model):
-        candidate_name = getattr(model, "__name__", None)
+        candidate_name = None
+        if isinstance(model, str):
+            candidate_name = model
+        elif callable(model):
+            candidate_name = getattr(model, "__name__", None)
 
-    evaluation_dataset = types.EvaluationDataset(
-        eval_dataset_df=results_df,
-        candidate_name=candidate_name,
-    )
+        evaluation_dataset = types.EvaluationDataset(
+            eval_dataset_df=results_df,
+            candidate_name=candidate_name,
+        )
+    elif agent_engine:
+        if not isinstance(agent_engine, str) and not (
+            hasattr(agent_engine, "api_client")
+            and type(agent_engine).__name__ == "AgentEngine"
+        ):
+            raise TypeError(
+                f"Unsupported agent_engine type: {type(agent_engine)}. Expecting a"
+                " string (agent engine resource name in"
+                " 'projects/{project_id}/locations/{location_id}/reasoningEngines/{reasoning_engine_id}' format)"
+                " or a types.AgentEngine instance."
+            )
+        if (
+            _evals_constant.INTERMEDIATE_EVENTS in prompt_dataset.columns
+            or _evals_constant.RESPONSE in prompt_dataset.columns
+        ):
+            raise ValueError(
+                "The eval dataset provided for agent run should not contain"
+                f" '{_evals_constant.INTERMEDIATE_EVENTS}' or"
+                f" '{_evals_constant.RESPONSE}' columns, as these columns will be"
+                " generated by the agent run."
+            )
+        start_time = time.time()
+        logger.debug("Starting Agent Run process ...")
+        results_df = _run_agent_internal(
+            api_client=api_client,
+            agent_engine=agent_engine,
+            prompt_dataset=prompt_dataset,
+        )
+        end_time = time.time()
+        logger.info("Agent Run completed in %.2f seconds.", end_time - start_time)
+
+        evaluation_dataset = types.EvaluationDataset(
+            eval_dataset_df=results_df,
+        )
+    else:
+        raise ValueError("Either model or agent_engine must be provided.")
 
     if dest:
-        file_name = "inference_results.jsonl"
-        is_gcs_path = dest.startswith(_evals_utils.GCS_PREFIX)
+        file_name = "inference_results.jsonl" if model else "agent_run_results.jsonl"
+        is_gcs_path = dest.startswith(_gcs_utils.GCS_PREFIX)
 
         if is_gcs_path:
             full_dest_path = os.path.join(dest, file_name)
@@ -627,10 +815,10 @@ def _execute_inference(
             os.makedirs(dest, exist_ok=True)
             full_dest_path = os.path.join(dest, file_name)
 
-        logger.info("Saving inference results to: %s", full_dest_path)
+        logger.info("Saving inference / agent run results to: %s", full_dest_path)
         try:
             if is_gcs_path:
-                _evals_utils.GcsUtils(api_client=api_client).upload_dataframe(
+                _gcs_utils.GcsUtils(api_client=api_client).upload_dataframe(
                     df=results_df,
                     gcs_destination_blob_path=full_dest_path,
                     file_type="jsonl",
@@ -673,6 +861,7 @@ def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: "_evals_utils.EvalDatasetLoader",
+    agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 
@@ -682,6 +871,7 @@ def _resolve_dataset_inputs(
       dataset_schema: The schema to use for the dataset(s). If None, it will be
         auto-detected.
       loader: An instance of EvalDatasetLoader to load data.
+      agent_info: The agent info of the agent under evaluation.
 
     Returns:
       A tuple containing:
@@ -734,7 +924,9 @@ def _resolve_dataset_inputs(
 
     processed_eval_dataset = (
         _evals_data_converters.merge_response_datasets_into_canonical_format(
-            raw_datasets=loaded_raw_datasets, schemas=schemas_for_merge
+            raw_datasets=loaded_raw_datasets,
+            schemas=schemas_for_merge,
+            agent_info=agent_info,
         )
     )
 
@@ -743,13 +935,82 @@ def _resolve_dataset_inputs(
     return processed_eval_dataset, num_response_candidates
 
 
+def _resolve_evaluation_run_metrics(
+    metrics: list[types.EvaluationRunMetric], api_client: Any
+) -> list[types.EvaluationRunMetric]:
+    """Resolves a list of evaluation run metric instances, loading RubricMetric if necessary."""
+    if not metrics:
+        return []
+    resolved_metrics_list = []
+    for metric_instance in metrics:
+        if isinstance(metric_instance, types.EvaluationRunMetric):
+            resolved_metrics_list.append(metric_instance)
+        elif isinstance(
+            metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
+        ):
+            try:
+                resolved_metric = metric_instance.resolve(api_client=api_client)
+                if resolved_metric.name:
+                    resolved_metrics_list.append(
+                        types.EvaluationRunMetric(
+                            metric=resolved_metric.name,
+                            metric_config=types.UnifiedMetric(
+                                predefined_metric_spec=types.PredefinedMetricSpec(
+                                    metric_spec_name=resolved_metric.name,
+                                )
+                            ),
+                        )
+                    )
+            except Exception as e:
+                logger.error(
+                    "Failed to resolve RubricMetric %s@%s: %s",
+                    metric_instance.name,
+                    metric_instance.version,
+                    e,
+                )
+                raise
+        else:
+            try:
+                metric_name_str = str(metric_instance)
+                lazy_metric_instance = getattr(
+                    _evals_metric_loaders.RubricMetric, metric_name_str.upper()
+                )
+                if isinstance(
+                    lazy_metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
+                ):
+                    resolved_metric = lazy_metric_instance.resolve(
+                        api_client=api_client
+                    )
+                    if resolved_metric.name:
+                        resolved_metrics_list.append(
+                            types.EvaluationRunMetric(
+                                metric=resolved_metric.name,
+                                metric_config=types.UnifiedMetric(
+                                    predefined_metric_spec=types.PredefinedMetricSpec(
+                                        metric_spec_name=resolved_metric.name,
+                                    )
+                                ),
+                            )
+                        )
+                else:
+                    raise TypeError(
+                        f"RubricMetric.{metric_name_str.upper()} cannot be resolved."
+                    )
+            except AttributeError as exc:
+                raise TypeError(
+                    "Unsupported metric type or invalid RubricMetric name:"
+                    f" {metric_instance}"
+                ) from exc
+    return resolved_metrics_list
+
+
 def _resolve_metrics(
     metrics: list[types.Metric], api_client: Any
 ) -> list[types.Metric]:
     """Resolves a list of metric instances, loading RubricMetric if necessary."""
     resolved_metrics_list = []
     for metric_instance in metrics:
-        if isinstance(metric_instance, _evals_utils.LazyLoadedPrebuiltMetric):
+        if isinstance(metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric):
             try:
                 resolved_metrics_list.append(
                     metric_instance.resolve(api_client=api_client)
@@ -768,10 +1029,10 @@ def _resolve_metrics(
             try:
                 metric_name_str = str(metric_instance)
                 lazy_metric_instance = getattr(
-                    _evals_utils.RubricMetric, metric_name_str.upper()
+                    _evals_metric_loaders.RubricMetric, metric_name_str.upper()
                 )
                 if isinstance(
-                    lazy_metric_instance, _evals_utils.LazyLoadedPrebuiltMetric
+                    lazy_metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
                 ):
                     resolved_metrics_list.append(
                         lazy_metric_instance.resolve(api_client=api_client)
@@ -788,13 +1049,14 @@ def _resolve_metrics(
     return resolved_metrics_list
 
 
-def _execute_evaluation(
+def _execute_evaluation(  # type: ignore[no-untyped-def]
     *,
     api_client: Any,
     dataset: Union[types.EvaluationDataset, list[types.EvaluationDataset]],
     metrics: list[types.Metric],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
+    **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
 
@@ -804,13 +1066,13 @@ def _execute_evaluation(
         metrics: The metrics to evaluate the dataset against.
         dataset_schema: The schema of the dataset.
         dest: The destination to save the evaluation results.
+        **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
         The evaluation result.
     """
 
     logger.info("Preparing dataset(s) and metrics...")
-
     if isinstance(dataset, types.EvaluationDataset):
         dataset_list = [dataset]
     elif isinstance(dataset, list):
@@ -843,8 +1105,24 @@ def _execute_evaluation(
             deduped_candidate_names.append(name)
 
     loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
+
+    agent_info = kwargs.get("agent_info", None)
+    validated_agent_info = None
+    if agent_info:
+        if isinstance(agent_info, dict):
+            validated_agent_info = types.evals.AgentInfo.model_validate(agent_info)
+        elif isinstance(agent_info, types.evals.AgentInfo):
+            validated_agent_info = agent_info
+        else:
+            raise TypeError(
+                f"agent_info values must be of type types.evals.AgentInfo or dict, but got {type(agent_info)}'"
+            )
+
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
-        dataset=dataset_list, dataset_schema=dataset_schema, loader=loader
+        dataset=dataset_list,
+        dataset_schema=dataset_schema,
+        loader=loader,
+        agent_info=validated_agent_info,
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)
@@ -865,6 +1143,7 @@ def _execute_evaluation(
     logger.info("Evaluation took: %f seconds", t2 - t1)
 
     evaluation_result.evaluation_dataset = dataset_list
+    evaluation_result.agent_info = validated_agent_info
 
     if not evaluation_result.metadata:
         evaluation_result.metadata = types.EvaluationRunMetadata()
@@ -879,7 +1158,7 @@ def _execute_evaluation(
     logger.info("Evaluation run completed.")
 
     if dest:
-        uploaded_path = _evals_utils.GcsUtils(
+        uploaded_path = _gcs_utils.GcsUtils(
             api_client=api_client
         ).upload_json_to_prefix(
             data=evaluation_result.model_dump(
@@ -894,3 +1173,557 @@ def _execute_evaluation(
             "Evaluation results uploaded successfully to GCS: %s", uploaded_path
         )
     return evaluation_result
+
+
+def _run_agent_internal(
+    api_client: BaseApiClient,
+    agent_engine: Union[str, types.AgentEngine],
+    prompt_dataset: pd.DataFrame,
+) -> pd.DataFrame:
+    """Runs an agent."""
+    raw_responses = _run_agent(
+        api_client=api_client, agent_engine=agent_engine, prompt_dataset=prompt_dataset
+    )
+    processed_intermediate_events = []
+    processed_responses = []
+    for resp_item in raw_responses:
+        intermediate_events_row: list[dict[str, Any]] = []
+        response_row = None
+        if isinstance(resp_item, list):
+            try:
+                response_row = resp_item[-1]["content"]["parts"][0]["text"]
+                for intermediate_event in resp_item[:-1]:
+                    intermediate_events_row.append(
+                        {
+                            "event_id": intermediate_event["id"],
+                            "content": intermediate_event["content"],
+                            "creation_timestamp": intermediate_event["timestamp"],
+                            "author": intermediate_event["author"],
+                        }
+                    )
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                error_payload = {
+                    "error": (
+                        f"Failed to parse agent run response {str(resp_item)} to "
+                        f"intermediate events and final response: {e}"
+                    ),
+                }
+                response_row = json.dumps(error_payload)
+        else:
+            error_payload = {
+                "error": "Unexpected response type from agent run",
+                "response_type": str(type(resp_item)),
+                "details": str(resp_item),
+            }
+            response_row = json.dumps(error_payload)
+
+        processed_intermediate_events.append(intermediate_events_row)
+        processed_responses.append(response_row)
+
+    if len(processed_responses) != len(prompt_dataset) or len(
+        processed_responses
+    ) != len(processed_intermediate_events):
+        raise RuntimeError(
+            "Critical prompt/response/intermediate_events count mismatch: %d prompts vs %d vs %d"
+            " responses. This indicates an issue in response collection."
+            % (
+                len(prompt_dataset),
+                len(processed_responses),
+                len(processed_intermediate_events),
+            )
+        )
+
+    results_df_responses_only = pd.DataFrame(
+        {
+            _evals_constant.INTERMEDIATE_EVENTS: processed_intermediate_events,
+            _evals_constant.RESPONSE: processed_responses,
+        }
+    )
+
+    prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
+    results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
+
+    results_df = pd.concat(
+        [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
+    )
+    return results_df
+
+
+def _run_agent(
+    api_client: BaseApiClient,
+    agent_engine: Union[str, types.AgentEngine],
+    prompt_dataset: pd.DataFrame,
+) -> list[
+    Union[list[dict[str, Any]], dict[str, Any], genai_types.GenerateContentResponse]
+]:
+    """Internal helper to run inference using Gemini model with concurrency."""
+    return _execute_inference_concurrently(
+        api_client=api_client,
+        agent_engine=agent_engine,
+        prompt_dataset=prompt_dataset,
+        progress_desc="Agent Run",
+        gemini_config=None,
+        inference_fn=_execute_agent_run_with_retry,
+    )
+
+
+def _execute_agent_run_with_retry(
+    row: pd.Series,
+    contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
+    agent_engine: types.AgentEngine,
+    max_retries: int = 3,
+) -> Union[list[dict[str, Any]], dict[str, Any]]:
+    """Executes agent run for a single prompt."""
+    try:
+        if isinstance(row["session_inputs"], str):
+            session_inputs = types.evals.SessionInput.model_validate(
+                json.loads(row["session_inputs"])
+            )
+        elif isinstance(row["session_inputs"], dict):
+            session_inputs = types.evals.SessionInput.model_validate(
+                row["session_inputs"]
+            )
+        elif isinstance(row["session_inputs"], types.evals.SessionInput):
+            session_inputs = row["session_inputs"]
+        else:
+            raise TypeError(
+                f"Unsupported session_inputs type: {type(row['session_inputs'])}. "
+                "Expecting string or dict in types.evals.SessionInput format."
+            )
+        user_id = session_inputs.user_id
+        session_state = session_inputs.state
+        session = agent_engine.create_session(  # type: ignore[attr-defined]
+            user_id=user_id,
+            state=session_state,
+        )
+    except KeyError as e:
+        return {"error": f"Failed to get all required agent engine inputs: {e}"}
+    except Exception as e:
+        return {"error": f"Failed to create a new session : {e}"}
+    for attempt in range(max_retries):
+        try:
+            responses = []
+            for event in agent_engine.stream_query(  # type: ignore[attr-defined]
+                user_id=user_id,
+                session_id=session["id"],
+                message=contents,
+            ):
+                if event and "content" in event and "parts" in event["content"]:
+                    responses.append(event)
+            return responses
+        except api_exceptions.ResourceExhausted as e:
+            logger.warning(
+                "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                " seconds...",
+                attempt + 1,
+                max_retries,
+                e,
+                2**attempt,
+            )
+            if attempt == max_retries - 1:
+                return {"error": f"Resource exhausted after retries: {e}"}
+            time.sleep(2**attempt)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(
+                "Unexpected error during generate_content on attempt %d/%d: %s",
+                attempt + 1,
+                max_retries,
+                e,
+            )
+
+            if attempt == max_retries - 1:
+                return {"error": f"Failed after retries: {e}"}
+            time.sleep(1)
+    return {"error": f"Failed to get agent run results after {max_retries} retries"}
+
+
+def _convert_gcs_to_evaluation_item_result(
+    api_client: BaseApiClient,
+    gcs_uri: str,
+) -> types.EvaluationItemResult:
+    """Converts a json file to an EvaluationItemResult."""
+    logger.info("Loading evaluation item result from GCS: %s", gcs_uri)
+    gcs_utils = _gcs_utils.GcsUtils(api_client=api_client)
+    try:
+        eval_item_data = json.loads(gcs_utils.read_file_contents(gcs_uri))
+        return types.EvaluationItemResult(**eval_item_data)
+    except Exception as e:
+        logger.error(
+            "Failed to load evaluation result from GCS: %s. Error: %s", gcs_uri, e
+        )
+    return types.EvaluationItemResult()
+
+
+def _convert_gcs_to_evaluation_item_request(
+    api_client: BaseApiClient,
+    gcs_uri: str,
+) -> types.EvaluationItemRequest:
+    """Converts a json file to an EvaluationItemRequest."""
+    logger.info("Loading evaluation item request from GCS: %s", gcs_uri)
+    gcs_utils = _gcs_utils.GcsUtils(api_client=api_client)
+    try:
+        eval_item_data = json.loads(gcs_utils.read_file_contents(gcs_uri))
+        return types.EvaluationItemRequest(**eval_item_data)
+    except Exception as e:
+        logger.error(
+            "Failed to load evaluation request from GCS: %s. Error: %s", gcs_uri, e
+        )
+    return types.EvaluationItemRequest()
+
+
+def _get_aggregated_metrics(
+    results: types.EvaluationRunResults,
+) -> list[types.AggregatedMetricResult]:
+    """Retrieves an EvaluationResult from the resource name."""
+    if (
+        not results
+        or not results.summary_metrics
+        or not results.summary_metrics.metrics
+    ):
+        return []
+
+    aggregated_metrics_dict: dict[str, dict[str, Any]] = {}
+    for name, value in results.summary_metrics.metrics.items():
+        result = name.rsplit("/", 1)
+        full_metric_name = result[0]
+        aggregated_metric_name = result[1]
+        if full_metric_name not in aggregated_metrics_dict:
+            aggregated_metrics_dict[full_metric_name] = {}
+            aggregated_metrics_dict[full_metric_name]["sub_metric_name"] = (
+                full_metric_name.split("/")[-1]
+            )
+        aggregated_metrics_dict[full_metric_name][aggregated_metric_name] = value
+
+    items_sorted = sorted(
+        aggregated_metrics_dict.items(),
+        key=lambda item: (item[1]["sub_metric_name"], item[0]),
+    )
+
+    return [
+        types.AggregatedMetricResult(
+            metric_name=name.split("/")[-1],
+            mean_score=values.get("AVERAGE"),
+            stdev_score=values.get("STANDARD_DEVIATION"),
+        )
+        for name, values in items_sorted
+    ]
+
+
+def _get_eval_case_result_from_eval_item(
+    index: int,
+    eval_item: types.EvaluationItem,
+) -> types.EvalCaseResult:
+    """Transforms EvaluationItem to EvalCaseResult."""
+    metric_results = {}
+    if (
+        eval_item.evaluation_response
+        and eval_item.evaluation_response.candidate_results
+    ):
+        for candidate_result in eval_item.evaluation_response.candidate_results:
+            metric_results[candidate_result.metric] = types.EvalCaseMetricResult(
+                metric_name=candidate_result.metric,
+                score=candidate_result.score,
+                explanation=candidate_result.explanation,
+                rubric_verdicts=candidate_result.rubric_verdicts,
+                error_message=(eval_item.error.message if eval_item.error else None),
+            )
+    return types.EvalCaseResult(
+        eval_case_index=index,
+        response_candidate_results=[
+            types.ResponseCandidateResult(
+                response_index=0,
+                metric_results=metric_results,
+            )
+        ],
+    )
+
+
+def _convert_request_to_dataset_row(
+    request: types.EvaluationItemRequest,
+) -> dict[str, Any]:
+    """Converts an EvaluationItemRequest to a dictionary."""
+    dict_row: dict[str, Any] = {}
+    dict_row[_evals_constant.PROMPT] = (
+        request.prompt.text if request.prompt and request.prompt.text else None
+    )
+    dict_row[_evals_constant.REFERENCE] = request.golden_response
+    intermediate_events = []
+    if request.candidate_responses:
+        for candidate in request.candidate_responses:
+            if candidate.candidate is not None:
+                dict_row[candidate.candidate] = (
+                    candidate.text if candidate.text else None
+                )
+                if candidate.events:
+                    for event in candidate.events:
+                        content_dict = {"parts": event.parts, "role": event.role}
+                        int_events_dict = {
+                            "event_id": candidate.candidate,
+                            "content": content_dict,
+                        }
+                        intermediate_events.append(int_events_dict)
+    dict_row[_evals_constant.INTERMEDIATE_EVENTS] = intermediate_events
+    return dict_row
+
+
+def _transform_dataframe(rows: list[dict[str, Any]]) -> list[types.EvaluationDataset]:
+    """Transforms rows to a list of EvaluationDatasets.
+
+    Args:
+      rows: A list of rows, each row is a dictionary of candidate name to response
+        text.
+    Returns:
+      A list of EvaluationDatasets, one for each candidate.
+    """
+    df = pd.DataFrame(rows)
+    candidates = [
+        col for col in df.columns if col not in _evals_constant.COMMON_DATASET_COLUMNS
+    ]
+
+    eval_dfs = [
+        types.EvaluationDataset(
+            candidate_name=candidate,
+            eval_dataset_df=df.rename(columns={candidate: _evals_constant.RESPONSE}),
+        )
+        for candidate in candidates
+    ]
+    return eval_dfs
+
+
+def _get_eval_cases_eval_dfs_from_eval_items(
+    eval_items: list[types.EvaluationItem],
+) -> tuple[list[types.EvalCaseResult], list[types.EvaluationDataset]]:
+    """Converts an EvaluationSet to a list of EvaluationCaseResults and EvaluationDatasets.
+
+    Args:
+      api_client: The API client.
+      evaluation_set_name: The name of the evaluation set.
+    Returns:
+      A tuple of two lists:
+        - eval_case_results: A list of EvalCaseResults, one for each evaluation
+          item.
+        - eval_dfs: A list of EvaluationDatasets, one for each candidate.
+    """
+    dataset_rows = []
+    eval_case_results = []
+    for index, eval_item in enumerate(eval_items):
+        if (
+            eval_item
+            and eval_item.evaluation_response
+            and eval_item.evaluation_response.request
+        ):
+            eval_case_results.append(
+                _get_eval_case_result_from_eval_item(index, eval_item)
+            )
+            dataset_rows.append(
+                _convert_request_to_dataset_row(eval_item.evaluation_response.request)
+            )
+    eval_dfs = _transform_dataframe(dataset_rows)
+    return eval_case_results, eval_dfs
+
+
+def _get_agent_info_from_inference_configs(
+    candidate_names: list[str],
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
+) -> Optional[types.evals.AgentInfo]:
+    """Retrieves an AgentInfo from the inference configs."""
+    # TODO(lakeyk): Support multiple agents.
+    if not (
+        inference_configs
+        and candidate_names
+        and candidate_names[0] in inference_configs
+        and inference_configs[candidate_names[0]].agent_config
+    ):
+        return None
+    if len(inference_configs.keys()) > 1:
+        logger.warning(
+            "Multiple agents are not supported yet. Displaying the first agent."
+        )
+    agent_config = inference_configs[candidate_names[0]].agent_config
+    di = (
+        agent_config.developer_instruction
+        if agent_config and agent_config.developer_instruction
+        else None
+    )
+    instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
+    return types.evals.AgentInfo(
+        name=candidate_names[0],
+        instruction=instruction,
+        tool_declarations=(
+            agent_config.tools if agent_config and agent_config.tools else None
+        ),
+    )
+
+
+def _get_eval_result_from_eval_items(
+    results: types.EvaluationRunResults,
+    eval_items: list[types.EvaluationItem],
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
+) -> types.EvaluationResult:
+    """Retrieves an EvaluationResult from the EvaluationRunResults.
+
+    This function is used to convert an EvaluationRunResults object used by the
+    Evaluation Management API to an EvaluationResult object. It is used to display
+    the evaluation results in the UI.
+
+    Args:
+      results: The EvaluationRunResults object.
+      eval_items: The list of EvaluationItems.
+    Returns:
+      An EvaluationResult object.
+    """
+    aggregated_metrics = _get_aggregated_metrics(results)
+    eval_case_results, eval_dfs = _get_eval_cases_eval_dfs_from_eval_items(eval_items)
+    candidate_names = [eval_df.candidate_name for eval_df in eval_dfs]
+    eval_result = types.EvaluationResult(
+        summary_metrics=aggregated_metrics,
+        eval_case_results=eval_case_results,
+        evaluation_dataset=eval_dfs,
+        metadata=types.EvaluationRunMetadata(
+            candidate_names=candidate_names,
+        ),
+        agent_info=_get_agent_info_from_inference_configs(
+            candidate_names, inference_configs
+        ),
+    )
+    return eval_result
+
+
+def _convert_evaluation_run_results(
+    api_client: BaseApiClient,
+    evaluation_run_results: types.EvaluationRunResults,
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
+) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
+    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+    if not evaluation_run_results or not evaluation_run_results.evaluation_set:
+        return []
+
+    evals_module = evals.Evals(api_client_=api_client)
+    eval_set = evals_module.get_evaluation_set(
+        name=evaluation_run_results.evaluation_set
+    )
+
+    eval_items = []
+    if eval_set and eval_set.evaluation_items:
+        eval_items = [
+            evals_module.get_evaluation_item(name=item_name)
+            for item_name in eval_set.evaluation_items
+        ]
+    return _get_eval_result_from_eval_items(
+        evaluation_run_results, eval_items, inference_configs
+    )
+
+
+async def _convert_evaluation_run_results_async(
+    api_client: BaseApiClient,
+    evaluation_run_results: types.EvaluationRunResults,
+    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
+) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
+    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+    if not evaluation_run_results or not evaluation_run_results.evaluation_set:
+        return []
+
+    evals_module = evals.AsyncEvals(api_client_=api_client)
+    eval_set = await evals_module.get_evaluation_set(
+        name=evaluation_run_results.evaluation_set
+    )
+
+    eval_items = []
+    if eval_set and eval_set.evaluation_items:
+        tasks = [
+            evals_module.get_evaluation_item(name=eval_item)
+            for eval_item in eval_set.evaluation_items
+        ]
+        eval_items = await asyncio.gather(*tasks)
+    return _get_eval_result_from_eval_items(
+        evaluation_run_results, eval_items, inference_configs
+    )
+
+
+def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
+    """Converts an object to a dictionary."""
+    if not hasattr(obj, "__dict__"):
+        return obj  # Not an object with attributes, return as is (e.g., int, str)
+
+    result: dict[str, Any] = {}
+    for key, value in obj.__dict__.items():
+        if value is None:
+            continue
+        if isinstance(value, (int, float, str, bool)):
+            result[key] = value
+        elif isinstance(value, (list, tuple)):
+            result[key] = [_object_to_dict(item) for item in value]
+        elif isinstance(value, bytes):
+            result[key] = base64.b64encode(value).decode("utf-8")
+        elif hasattr(value, "__dict__"):  # Nested object
+            result[key] = _object_to_dict(value)
+        else:
+            result[key] = value  # Handle other types like sets, etc.
+    return result
+
+
+def _create_evaluation_set_from_dataframe(
+    api_client: BaseApiClient,
+    gcs_dest_prefix: str,
+    eval_df: pd.DataFrame,
+    candidate_name: Optional[str] = None,
+) -> Union[types.EvaluationSet, Any]:
+    """Converts a dataframe to an EvaluationSet."""
+    eval_item_requests = []
+    for _, row in eval_df.iterrows():
+        intermediate_events = []
+        if (
+            _evals_constant.INTERMEDIATE_EVENTS in row
+            and isinstance(row[_evals_constant.INTERMEDIATE_EVENTS], list)
+            and len(row[_evals_constant.INTERMEDIATE_EVENTS]) > 0
+        ):
+            for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
+                if "content" in event:
+                    intermediate_events.append(event["content"])
+        eval_item_requests.append(
+            types.EvaluationItemRequest(
+                prompt=(
+                    types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
+                    if _evals_constant.PROMPT in row
+                    else None
+                ),
+                golden_response=(
+                    types.CandidateResponse(text=row[_evals_constant.REFERENCE])
+                    if _evals_constant.REFERENCE in row
+                    else None
+                ),
+                candidate_responses=[
+                    types.CandidateResponse(
+                        candidate=candidate_name or "Candidate 1",
+                        text=row.get(_evals_constant.RESPONSE, None),
+                        events=(
+                            intermediate_events
+                            if len(intermediate_events) > 0
+                            else None
+                        ),
+                    )
+                ],
+            )
+        )
+    logger.info("Writing evaluation item requests to GCS.")
+    gcs_utils = _gcs_utils.GcsUtils(api_client=api_client)
+    evals_module = evals.Evals(api_client_=api_client)
+    eval_items = []
+    for eval_item_request in eval_item_requests:
+        gcs_uri = gcs_utils.upload_json_to_prefix(
+            data=_object_to_dict(eval_item_request),
+            gcs_dest_prefix=gcs_dest_prefix,
+            filename_prefix="request",
+        )
+        eval_item = evals_module.create_evaluation_item(
+            evaluation_item_type=types.EvaluationItemType.REQUEST,
+            gcs_uri=gcs_uri,
+            display_name="sdk-generated-eval-item",
+        )
+        eval_items.append(eval_item.name)
+    logger.info("Creating evaluation set from GCS URIs")
+    evaluation_set = evals_module.create_evaluation_set(
+        evaluation_items=eval_items,
+    )
+
+    return evaluation_set

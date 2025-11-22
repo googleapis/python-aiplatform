@@ -19,6 +19,7 @@ import json
 import logging
 from typing import Any, Callable, Optional, Union
 from urllib.parse import urlencode
+import uuid
 
 from google.genai import _api_module
 from google.genai import _common
@@ -36,471 +37,72 @@ from . import types
 logger = logging.getLogger("vertexai_genai.evals")
 
 
-def _BleuInstance_to_vertex(
+def _CreateEvaluationItemParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _BleuInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
+    if getv(from_object, ["evaluation_item_type"]) is not None:
         setv(
             to_object,
-            ["instances"],
-            [
-                _BleuInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
+            ["evaluationItemType"],
+            getv(from_object, ["evaluation_item_type"]),
         )
 
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
+    if getv(from_object, ["gcs_uri"]) is not None:
+        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
 
-def _ExactMatchInstance_to_vertex(
+def _CreateEvaluationRunParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
 
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["data_source"]) is not None:
+        setv(to_object, ["dataSource"], getv(from_object, ["data_source"]))
+
+    if getv(from_object, ["evaluation_config"]) is not None:
+        setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["inference_configs"]) is not None:
+        setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
 
-def _ExactMatchSpec_to_vertex(
+def _CreateEvaluationSetParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluation_items"]) is not None:
+        setv(to_object, ["evaluationItems"], getv(from_object, ["evaluation_items"]))
 
-    return to_object
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
-
-def _ExactMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ExactMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ExactMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
-
-    return to_object
-
-
-def _RougeInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _RougeInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _RougeInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
-
-    return to_object
-
-
-def _PointwiseMetricInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["json_instance"]) is not None:
-        setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
-
-    if getv(from_object, ["content_map_instance"]) is not None:
-        setv(
-            to_object,
-            ["contentMapInstance"],
-            getv(from_object, ["content_map_instance"]),
-        )
-
-    return to_object
-
-
-def _PointwiseMetricInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instance"]) is not None:
-        setv(
-            to_object,
-            ["instance"],
-            _PointwiseMetricInstance_to_vertex(
-                getv(from_object, ["instance"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
-
-    return to_object
-
-
-def _PairwiseMetricInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["json_instance"]) is not None:
-        setv(to_object, ["jsonInstance"], getv(from_object, ["json_instance"]))
-
-    return to_object
-
-
-def _PairwiseMetricInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instance"]) is not None:
-        setv(
-            to_object,
-            ["instance"],
-            _PairwiseMetricInstance_to_vertex(
-                getv(from_object, ["instance"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(to_object, ["metricSpec"], getv(from_object, ["metric_spec"]))
-
-    return to_object
-
-
-def _ToolCallValidInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolCallValidSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _ToolCallValidInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolCallValidInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolCallValidSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
-
-    return to_object
-
-
-def _ToolNameMatchInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolNameMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _ToolNameMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolNameMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolNameMatchSpec_to_vertex(getv(from_object, ["metric_spec"]), to_object),
-        )
-
-    return to_object
-
-
-def _ToolParameterKeyMatchInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolParameterKeyMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    return to_object
-
-
-def _ToolParameterKeyMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolParameterKeyMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolParameterKeyMatchSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _ToolParameterKVMatchInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prediction"]) is not None:
-        setv(to_object, ["prediction"], getv(from_object, ["prediction"]))
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(to_object, ["reference"], getv(from_object, ["reference"]))
-
-    return to_object
-
-
-def _ToolParameterKVMatchSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["use_strict_string_match"]) is not None:
-        setv(
-            to_object,
-            ["useStrictStringMatch"],
-            getv(from_object, ["use_strict_string_match"]),
-        )
-
-    return to_object
-
-
-def _ToolParameterKVMatchInput_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["instances"]) is not None:
-        setv(
-            to_object,
-            ["instances"],
-            [
-                _ToolParameterKVMatchInstance_to_vertex(item, to_object)
-                for item in getv(from_object, ["instances"])
-            ],
-        )
-
-    if getv(from_object, ["metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["metricSpec"],
-            _ToolParameterKVMatchSpec_to_vertex(
-                getv(from_object, ["metric_spec"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _InstanceDataContents_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["contents"]) is not None:
-        setv(to_object, ["contents"], getv(from_object, ["contents"]))
-
-    return to_object
-
-
-def _InstanceData_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["text"]) is not None:
-        setv(to_object, ["text"], getv(from_object, ["text"]))
-
-    if getv(from_object, ["contents"]) is not None:
-        setv(
-            to_object,
-            ["contents"],
-            _InstanceDataContents_to_vertex(getv(from_object, ["contents"]), to_object),
-        )
-
-    return to_object
-
-
-def _MapInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["map_instance"]) is not None:
-        setv(to_object, ["mapInstance"], getv(from_object, ["map_instance"]))
-
-    return to_object
-
-
-def _EvaluationInstance_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prompt"]) is not None:
-        setv(
-            to_object,
-            ["prompt"],
-            _InstanceData_to_vertex(getv(from_object, ["prompt"]), to_object),
-        )
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _InstanceData_to_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    if getv(from_object, ["reference"]) is not None:
-        setv(
-            to_object,
-            ["reference"],
-            _InstanceData_to_vertex(getv(from_object, ["reference"]), to_object),
-        )
-
-    if getv(from_object, ["other_data"]) is not None:
-        setv(
-            to_object,
-            ["otherData"],
-            _MapInstance_to_vertex(getv(from_object, ["other_data"]), to_object),
-        )
-
-    if getv(from_object, ["rubric_groups"]) is not None:
-        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -511,100 +113,161 @@ def _EvaluateInstancesRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["bleu_input"]) is not None:
-        setv(
-            to_object,
-            ["bleuInput"],
-            _BleuInput_to_vertex(getv(from_object, ["bleu_input"]), to_object),
-        )
+        setv(to_object, ["bleuInput"], getv(from_object, ["bleu_input"]))
 
     if getv(from_object, ["exact_match_input"]) is not None:
-        setv(
-            to_object,
-            ["exactMatchInput"],
-            _ExactMatchInput_to_vertex(
-                getv(from_object, ["exact_match_input"]), to_object
-            ),
-        )
+        setv(to_object, ["exactMatchInput"], getv(from_object, ["exact_match_input"]))
 
     if getv(from_object, ["rouge_input"]) is not None:
-        setv(
-            to_object,
-            ["rougeInput"],
-            _RougeInput_to_vertex(getv(from_object, ["rouge_input"]), to_object),
-        )
+        setv(to_object, ["rougeInput"], getv(from_object, ["rouge_input"]))
 
     if getv(from_object, ["pointwise_metric_input"]) is not None:
         setv(
             to_object,
             ["pointwiseMetricInput"],
-            _PointwiseMetricInput_to_vertex(
-                getv(from_object, ["pointwise_metric_input"]), to_object
-            ),
+            getv(from_object, ["pointwise_metric_input"]),
         )
 
     if getv(from_object, ["pairwise_metric_input"]) is not None:
         setv(
             to_object,
             ["pairwiseMetricInput"],
-            _PairwiseMetricInput_to_vertex(
-                getv(from_object, ["pairwise_metric_input"]), to_object
-            ),
+            getv(from_object, ["pairwise_metric_input"]),
         )
 
     if getv(from_object, ["tool_call_valid_input"]) is not None:
         setv(
             to_object,
             ["toolCallValidInput"],
-            _ToolCallValidInput_to_vertex(
-                getv(from_object, ["tool_call_valid_input"]), to_object
-            ),
+            getv(from_object, ["tool_call_valid_input"]),
         )
 
     if getv(from_object, ["tool_name_match_input"]) is not None:
         setv(
             to_object,
             ["toolNameMatchInput"],
-            _ToolNameMatchInput_to_vertex(
-                getv(from_object, ["tool_name_match_input"]), to_object
-            ),
+            getv(from_object, ["tool_name_match_input"]),
         )
 
     if getv(from_object, ["tool_parameter_key_match_input"]) is not None:
         setv(
             to_object,
             ["toolParameterKeyMatchInput"],
-            _ToolParameterKeyMatchInput_to_vertex(
-                getv(from_object, ["tool_parameter_key_match_input"]), to_object
-            ),
+            getv(from_object, ["tool_parameter_key_match_input"]),
         )
 
     if getv(from_object, ["tool_parameter_kv_match_input"]) is not None:
         setv(
             to_object,
             ["toolParameterKvMatchInput"],
-            _ToolParameterKVMatchInput_to_vertex(
-                getv(from_object, ["tool_parameter_kv_match_input"]), to_object
-            ),
+            getv(from_object, ["tool_parameter_kv_match_input"]),
         )
 
     if getv(from_object, ["rubric_based_metric_input"]) is not None:
         setv(
             to_object,
             ["rubricBasedMetricInput"],
-            getv(from_object, ["rubric_based_metric_input"]),
+            _RubricBasedMetricInput_to_vertex(
+                getv(from_object, ["rubric_based_metric_input"]), to_object
+            ),
         )
 
     if getv(from_object, ["autorater_config"]) is not None:
         setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
 
     if getv(from_object, ["metrics"]) is not None:
-        setv(to_object, ["metrics"], t.t_metrics(getv(from_object, ["metrics"])))
-
-    if getv(from_object, ["instance"]) is not None:
         setv(
             to_object,
-            ["instance"],
-            _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
+            ["metrics"],
+            [item for item in t.t_metrics(getv(from_object, ["metrics"]))],
+        )
+
+    if getv(from_object, ["instance"]) is not None:
+        setv(to_object, ["instance"], getv(from_object, ["instance"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _EvaluationRun_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["completionTime"]) is not None:
+        setv(to_object, ["completion_time"], getv(from_object, ["completionTime"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["evaluationSetSnapshot"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_set_snapshot"],
+            getv(from_object, ["evaluationSetSnapshot"]),
+        )
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["dataSource"]) is not None:
+        setv(to_object, ["data_source"], getv(from_object, ["dataSource"]))
+
+    if getv(from_object, ["evaluationResults"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_run_results"],
+            getv(from_object, ["evaluationResults"]),
+        )
+
+    if getv(from_object, ["evaluationConfig"]) is not None:
+        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
+
+    if getv(from_object, ["inferenceConfigs"]) is not None:
+        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
+    return to_object
+
+
+def _GenerateInstanceRubricsRequest_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["contents"]) is not None:
+        setv(to_object, ["contents"], getv(from_object, ["contents"]))
+
+    if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
+        setv(
+            to_object,
+            ["predefinedRubricGenerationSpec"],
+            getv(from_object, ["predefined_rubric_generation_spec"]),
+        )
+
+    if getv(from_object, ["rubric_generation_spec"]) is not None:
+        setv(
+            to_object,
+            ["rubricGenerationSpec"],
+            _RubricGenerationSpec_to_vertex(
+                getv(from_object, ["rubric_generation_spec"]), to_object
+            ),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -613,19 +276,104 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     return to_object
 
 
-def _PredefinedMetricSpec_to_vertex(
+def _GetEvaluationItemParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric_spec_name"]) is not None:
-        setv(to_object, ["metricSpecName"], getv(from_object, ["metric_spec_name"]))
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
-    if getv(from_object, ["metric_spec_parameters"]) is not None:
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetEvaluationRunParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetEvaluationSetParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _RubricBasedMetricInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_spec"]) is not None:
         setv(
             to_object,
-            ["metricSpecParameters"],
-            getv(from_object, ["metric_spec_parameters"]),
+            ["metricSpec"],
+            _RubricBasedMetricSpec_to_vertex(
+                getv(from_object, ["metric_spec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["instance"]) is not None:
+        setv(to_object, ["instance"], getv(from_object, ["instance"]))
+
+    return to_object
+
+
+def _RubricBasedMetricSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_prompt_template"]) is not None:
+        setv(
+            to_object,
+            ["metricPromptTemplate"],
+            getv(from_object, ["metric_prompt_template"]),
+        )
+
+    if getv(from_object, ["judge_autorater_config"]) is not None:
+        setv(
+            to_object,
+            ["judgeAutoraterConfig"],
+            getv(from_object, ["judge_autorater_config"]),
+        )
+
+    if getv(from_object, ["inline_rubrics"]) is not None:
+        setv(
+            to_object,
+            ["inline_rubrics", "rubrics"],
+            getv(from_object, ["inline_rubrics"]),
+        )
+
+    if getv(from_object, ["rubric_group_key"]) is not None:
+        setv(to_object, ["rubricGroupKey"], getv(from_object, ["rubric_group_key"]))
+
+    if getv(from_object, ["rubric_generation_spec"]) is not None:
+        setv(
+            to_object,
+            ["rubricGenerationSpec"],
+            _RubricGenerationSpec_to_vertex(
+                getv(from_object, ["rubric_generation_spec"]), to_object
+            ),
         )
 
     return to_object
@@ -657,214 +405,187 @@ def _RubricGenerationSpec_to_vertex(
     return to_object
 
 
-def _GenerateInstanceRubricsRequest_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["contents"]) is not None:
-        setv(to_object, ["contents"], getv(from_object, ["contents"]))
-
-    if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["predefinedRubricGenerationSpec"],
-            _PredefinedMetricSpec_to_vertex(
-                getv(from_object, ["predefined_rubric_generation_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["rubric_generation_spec"]) is not None:
-        setv(
-            to_object,
-            ["rubricGenerationSpec"],
-            _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _MetricResult_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["score"]) is not None:
-        setv(to_object, ["score"], getv(from_object, ["score"]))
-
-    if getv(from_object, ["rubricVerdicts"]) is not None:
-        setv(to_object, ["rubric_verdicts"], getv(from_object, ["rubricVerdicts"]))
-
-    if getv(from_object, ["explanation"]) is not None:
-        setv(to_object, ["explanation"], getv(from_object, ["explanation"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
-def _EvaluateInstancesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-
-    if getv(from_object, ["rubricBasedMetricResult"]) is not None:
-        setv(
-            to_object,
-            ["rubric_based_metric_result"],
-            getv(from_object, ["rubricBasedMetricResult"]),
-        )
-
-    if getv(from_object, ["metricResults"]) is not None:
-        setv(
-            to_object,
-            ["metric_results"],
-            [
-                _MetricResult_from_vertex(item, to_object)
-                for item in getv(from_object, ["metricResults"])
-            ],
-        )
-
-    if getv(from_object, ["bleuResults"]) is not None:
-        setv(to_object, ["bleu_results"], getv(from_object, ["bleuResults"]))
-
-    if getv(from_object, ["cometResult"]) is not None:
-        setv(to_object, ["comet_result"], getv(from_object, ["cometResult"]))
-
-    if getv(from_object, ["exactMatchResults"]) is not None:
-        setv(
-            to_object, ["exact_match_results"], getv(from_object, ["exactMatchResults"])
-        )
-
-    if getv(from_object, ["metricxResult"]) is not None:
-        setv(to_object, ["metricx_result"], getv(from_object, ["metricxResult"]))
-
-    if getv(from_object, ["pairwiseMetricResult"]) is not None:
-        setv(
-            to_object,
-            ["pairwise_metric_result"],
-            getv(from_object, ["pairwiseMetricResult"]),
-        )
-
-    if getv(from_object, ["pointwiseMetricResult"]) is not None:
-        setv(
-            to_object,
-            ["pointwise_metric_result"],
-            getv(from_object, ["pointwiseMetricResult"]),
-        )
-
-    if getv(from_object, ["rougeResults"]) is not None:
-        setv(to_object, ["rouge_results"], getv(from_object, ["rougeResults"]))
-
-    if getv(from_object, ["toolCallValidResults"]) is not None:
-        setv(
-            to_object,
-            ["tool_call_valid_results"],
-            getv(from_object, ["toolCallValidResults"]),
-        )
-
-    if getv(from_object, ["toolNameMatchResults"]) is not None:
-        setv(
-            to_object,
-            ["tool_name_match_results"],
-            getv(from_object, ["toolNameMatchResults"]),
-        )
-
-    if getv(from_object, ["toolParameterKeyMatchResults"]) is not None:
-        setv(
-            to_object,
-            ["tool_parameter_key_match_results"],
-            getv(from_object, ["toolParameterKeyMatchResults"]),
-        )
-
-    if getv(from_object, ["toolParameterKvMatchResults"]) is not None:
-        setv(
-            to_object,
-            ["tool_parameter_kv_match_results"],
-            getv(from_object, ["toolParameterKvMatchResults"]),
-        )
-
-    return to_object
-
-
-def _RubricContentProperty_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    return to_object
-
-
-def _RubricContent_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["property"]) is not None:
-        setv(
-            to_object,
-            ["property"],
-            _RubricContentProperty_from_vertex(
-                getv(from_object, ["property"]), to_object
-            ),
-        )
-
-    return to_object
-
-
-def _Rubric_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["rubricId"]) is not None:
-        setv(to_object, ["rubric_id"], getv(from_object, ["rubricId"]))
-
-    if getv(from_object, ["content"]) is not None:
-        setv(
-            to_object,
-            ["content"],
-            _RubricContent_from_vertex(getv(from_object, ["content"]), to_object),
-        )
-
-    if getv(from_object, ["type"]) is not None:
-        setv(to_object, ["type"], getv(from_object, ["type"]))
-
-    if getv(from_object, ["importance"]) is not None:
-        setv(to_object, ["importance"], getv(from_object, ["importance"]))
-
-    return to_object
-
-
-def _GenerateInstanceRubricsResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["generatedRubrics"]) is not None:
-        setv(
-            to_object,
-            ["generated_rubrics"],
-            [
-                _Rubric_from_vertex(item, to_object)
-                for item in getv(from_object, ["generatedRubrics"])
-            ],
-        )
-
-    return to_object
-
-
 class Evals(_api_module.BaseModule):
+
+    def _create_evaluation_item(
+        self,
+        *,
+        evaluation_item_type: str,
+        gcs_uri: str,
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationItemConfigOrDict] = None,
+    ) -> types.EvaluationItem:
+        """
+        Creates an EvaluationItem.
+        """
+
+        parameter_model = types._CreateEvaluationItemParameters(
+            evaluation_item_type=evaluation_item_type,
+            gcs_uri=gcs_uri,
+            display_name=display_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationItems".format_map(request_url_dict)
+            else:
+                path = "evaluationItems"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationItem._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _create_evaluation_run(
+        self,
+        *,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSourceOrDict,
+        evaluation_config: types.EvaluationRunConfigOrDict,
+        labels: Optional[dict[str, str]] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Creates an EvaluationRun.
+        """
+
+        parameter_model = types._CreateEvaluationRunParameters(
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            labels=labels,
+            inference_configs=inference_configs,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _create_evaluation_set(
+        self,
+        *,
+        evaluation_items: list[str],
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+    ) -> types.EvaluationSet:
+        """
+        Creates an EvaluationSet.
+        """
+
+        parameter_model = types._CreateEvaluationSetParameters(
+            evaluation_items=evaluation_items,
+            display_name=display_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets".format_map(request_url_dict)
+            else:
+                path = "evaluationSets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationSet._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _evaluate_instances(
         self,
@@ -940,10 +661,7 @@ class Evals(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _EvaluateInstancesResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluateInstancesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1002,12 +720,162 @@ class Evals(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _GenerateInstanceRubricsResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateInstanceRubricsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_evaluation_run(
+        self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
+    ) -> types.EvaluationRun:
+        """
+        Retrieves an EvaluationRun from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationRunParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_evaluation_set(
+        self, *, name: str, config: Optional[types.GetEvaluationSetConfigOrDict] = None
+    ) -> types.EvaluationSet:
+        """
+        Retrieves an EvaluationSet from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationSetParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationSets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationSet._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_evaluation_item(
+        self, *, name: str, config: Optional[types.GetEvaluationItemConfigOrDict] = None
+    ) -> types.EvaluationItem:
+        """
+        Retrieves an EvaluationItem from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationItemParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationItems/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationItems/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationItem._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1040,24 +908,33 @@ class Evals(_api_module.BaseModule):
     def run_inference(
         self,
         *,
-        model: Union[str, Callable[[Any], Any]],
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
+        model: Optional[Union[str, Callable[[Any], Any]]] = None,
+        agent: Optional[Union[str, types.AgentEngine]] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation.
 
         Args:
-          model: The model to use for inference.
+          src: The source of the dataset. Can be a string (path to a local file,
+                a GCS path, or a BigQuery table), a Pandas DataFrame, or an
+                EvaluationDataset object. If an Evalu
+                ationDataset is provided,
+                it must have `eval_dataset_df` populated.
+          model: Optional type is experimental and may change in future versions.
+                The model to use for inference, optional for agent evaluations.
               - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
               - For third-party models via LiteLLM, use the format "provider/model_name"
                 (e.g., "openai/gpt-4o"). Ensure the necessary API key (e.g., OPENAI_API_KEY)
                 is set as an environment variable.
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
-          src: The source of the dataset. Can be a string (path to a local file,
-                a GCS path, or a BigQuery table), a Pandas DataFrame, or an
-                EvaluationDataset object. If an EvaluationDataset is provided,
-                it must have `eval_dataset_df` populated.
+          agent: This field is experimental and may change in future versions
+                The agent engine used to run agent, optional for non-agent evaluations.
+              - agent engine resource name in str type, with format
+                `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
+                run_inference will fetch the agent engine from the resource name.
+              - Or `types.AgentEngine` object.
           config: The optional configuration for the inference run. Must be a dict or
               `types.EvalRunInferenceConfig` type.
                 - dest: The destination path for storage of the inference results.
@@ -1082,6 +959,7 @@ class Evals(_api_module.BaseModule):
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
+            agent_engine=agent,
             src=src,
             dest=config.dest,
             config=config.generate_content_config,
@@ -1092,19 +970,26 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         dataset: Union[
-            types.EvaluationDatasetOrDict, list[types.EvaluationDatasetOrDict]
+            pd.DataFrame,
+            types.EvaluationDatasetOrDict,
+            list[types.EvaluationDatasetOrDict],
         ],
         metrics: list[types.MetricOrDict] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
+        **kwargs,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
         Args:
-          dataset: The dataset(s) to evaluate. Can be a single `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+          dataset: The dataset(s) to evaluate. Can be a pandas DataFrame, a single
+            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
           metrics: The list of metrics to use for evaluation.
-          config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
-            - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
+          config: Optional configuration for the evaluation. Can be a dictionary or a
+            `types.EvaluateMethodConfig` object.
+            - dataset_schema: Schema to use for the dataset. If not specified, the
+              dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
+          **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
         Returns:
           The evaluation result.
@@ -1113,6 +998,10 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig()
         if isinstance(config, dict):
             config = types.EvaluateMethodConfig.model_validate(config)
+
+        if isinstance(dataset, pd.DataFrame):
+            dataset = types.EvaluationDataset(eval_dataset_df=dataset)
+
         if isinstance(dataset, list):
             dataset = [
                 (
@@ -1128,12 +1017,19 @@ class Evals(_api_module.BaseModule):
         if metrics is None:
             metrics = [types.Metric(name="general_quality_v1")]
 
+        # TODO: Replace kwargs with agent_info after the experimental phase.
+        if kwargs:
+            logger.warning(
+                "`kwargs` attribute in `evaluate` method is experimental and may change in future versions."
+            )
+
         return _evals_common._execute_evaluation(
             api_client=self._api_client,
             dataset=dataset,
             metrics=metrics,
             dataset_schema=config.dataset_schema,
             dest=config.dest,
+            **kwargs,
         )
 
     def batch_evaluate(
@@ -1398,8 +1294,457 @@ class Evals(_api_module.BaseModule):
         )
         return types.EvaluationDataset(eval_dataset_df=prompts_with_rubrics)
 
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    def get_evaluation_run(
+        self,
+        *,
+        name: str,
+        include_evaluation_items: bool = False,
+        config: Optional[types.GetEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Retrieves an EvaluationRun from the resource name.
+        Args:
+          name: The resource name of the EvaluationRun. Format:
+            `projects/{project}/locations/{location}/evaluationRuns/{evaluation_run}`
+          include_evaluation_items: Whether to include the evaluation items in the
+            response.
+          config: The optional configuration for the evaluation run. Must be a dict or
+              `types.GetEvaluationRunConfigOrDict` type.
+
+        Returns:
+          The evaluation run.
+        Raises:
+          ValueError: If the name is empty or invalid.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        result = self._get_evaluation_run(name=name, config=config)
+        if include_evaluation_items:
+            result.evaluation_item_results = (
+                _evals_common._convert_evaluation_run_results(
+                    self._api_client,
+                    result.evaluation_run_results,
+                    result.inference_configs,
+                )
+            )
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_run(
+        self,
+        *,
+        dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
+        dest: str,
+        metrics: list[types.EvaluationRunMetricOrDict],
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        agent_info: Optional[types.evals.AgentInfoOrDict] = None,
+        labels: Optional[dict[str, str]] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Creates an EvaluationRun.
+
+        Args:
+          dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
+          dest: The GCS URI prefix to write the evaluation results to.
+          metrics: The list of metrics to evaluate.
+          name: The name of the evaluation run.
+          display_name: The display name of the evaluation run.
+          agent_info: The agent info to evaluate.
+          labels: The labels to apply to the evaluation run.
+          config: The configuration for the evaluation run.
+
+        Returns:
+            The created evaluation run.
+        """
+        if agent_info and isinstance(agent_info, dict):
+            agent_info = types.evals.AgentInfo.model_validate(agent_info)
+        if type(dataset).__name__ == "EvaluationDataset":
+            if dataset.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            if (
+                dataset.candidate_name
+                and agent_info.name
+                and dataset.candidate_name != agent_info.name
+            ):
+                logger.warning(
+                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+                )
+            elif dataset.candidate_name is None and agent_info:
+                dataset.candidate_name = agent_info.name
+            eval_set = _evals_common._create_evaluation_set_from_dataframe(
+                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+            )
+            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        output_config = genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
+        )
+        resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
+            metrics, self._api_client
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config, metrics=resolved_metrics
+        )
+        inference_configs = {}
+        if agent_info:
+            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
+                agent_config=types.EvaluationRunAgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[genai_types.Part(text=agent_info.instruction)]
+                    ),
+                    tools=agent_info.tool_declarations,
+                )
+            )
+            if agent_info.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
+        if not name:
+            name = f"evaluation_run_{uuid.uuid4()}"
+
+        return self._create_evaluation_run(  # type: ignore[no-any-return]
+            name=name,
+            display_name=display_name or name,
+            data_source=dataset,
+            evaluation_config=evaluation_config,
+            inference_configs=inference_configs,
+            labels=labels,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_set method is experimental, "
+        "and may change in future versions."
+    )
+    def get_evaluation_set(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetEvaluationSetConfigOrDict] = None,
+    ) -> types.EvaluationSet:
+        """Retrieves an EvaluationSet from the resource name.
+
+        Args:
+          name: The resource name of the EvaluationSet. Format:
+            `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}`
+          config: The optional configuration for the evaluation set. Must be a dict or
+              `types.GetEvaluationSetConfigOrDict` type.
+
+        Returns:
+          The evaluation set.
+        """
+
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        return self._get_evaluation_set(name=name, config=config)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_item method is experimental, "
+        "and may change in future versions."
+    )
+    def get_evaluation_item(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetEvaluationItemConfigOrDict] = None,
+    ) -> types.EvaluationItem:
+        """Retrieves an EvaluationItem from the resource name.
+
+        Args:
+          name: The resource name of the EvaluationItem. Format:
+            `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
+          config: The optional configuration for the evaluation item. Must be a dict or
+              `types.GetEvaluationItemConfigOrDict` type.
+
+        Returns:
+          The evaluation item.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        result = self._get_evaluation_item(name=name, config=config)
+        if (
+            result.gcs_uri
+            and result.evaluation_item_type == types.EvaluationItemType.RESULT
+        ):
+            result.evaluation_response = (
+                _evals_common._convert_gcs_to_evaluation_item_result(
+                    self._api_client, result.gcs_uri
+                )
+            )
+        elif (
+            result.gcs_uri
+            and result.evaluation_item_type == types.EvaluationItemType.REQUEST
+        ):
+            result.evaluation_request = (
+                _evals_common._convert_gcs_to_evaluation_item_request(
+                    self._api_client, result.gcs_uri
+                )
+            )
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_item module is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_item(
+        self,
+        *,
+        evaluation_item_type: types.EvaluationItemType,
+        gcs_uri: str,
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationItemConfigOrDict] = None,
+    ) -> types.EvaluationItem:
+        """Creates an EvaluationItem.
+
+        Args:
+          evaluation_item_type: The type of the evaluation item.
+          gcs_uri: The GCS URI of the evaluation item.
+          display_name: The display name of the evaluation item.
+          config: The optional configuration for the evaluation item. Must be a dict or
+              `types.CreateEvaluationItemConfigOrDict` type.
+
+        Returns:
+          The evaluation item.
+        """
+        return self._create_evaluation_item(  # type: ignore[no-any-return]
+            evaluation_item_type=evaluation_item_type,
+            gcs_uri=gcs_uri,
+            display_name=display_name,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_set module is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_set(
+        self,
+        *,
+        evaluation_items: list[str],
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+    ) -> types.EvaluationSet:
+        """Creates an EvaluationSet.
+
+        Args:
+          evaluation_items: The list of evaluation item names. Format:
+            `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
+          display_name: The display name of the evaluation set.
+          config: The optional configuration for the evaluation set. Must be a dict or
+              `types.CreateEvaluationSetConfigOrDict` type.
+
+        Returns:
+          The evaluation set.
+        """
+        return self._create_evaluation_set(  # type: ignore[no-any-return]
+            evaluation_items=evaluation_items,
+            display_name=display_name,
+            config=config,
+        )
+
 
 class AsyncEvals(_api_module.BaseModule):
+
+    async def _create_evaluation_item(
+        self,
+        *,
+        evaluation_item_type: str,
+        gcs_uri: str,
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationItemConfigOrDict] = None,
+    ) -> types.EvaluationItem:
+        """
+        Creates an EvaluationItem.
+        """
+
+        parameter_model = types._CreateEvaluationItemParameters(
+            evaluation_item_type=evaluation_item_type,
+            gcs_uri=gcs_uri,
+            display_name=display_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationItems".format_map(request_url_dict)
+            else:
+                path = "evaluationItems"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationItem._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _create_evaluation_run(
+        self,
+        *,
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        data_source: types.EvaluationRunDataSourceOrDict,
+        evaluation_config: types.EvaluationRunConfigOrDict,
+        labels: Optional[dict[str, str]] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """
+        Creates an EvaluationRun.
+        """
+
+        parameter_model = types._CreateEvaluationRunParameters(
+            name=name,
+            display_name=display_name,
+            data_source=data_source,
+            evaluation_config=evaluation_config,
+            labels=labels,
+            inference_configs=inference_configs,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _create_evaluation_set(
+        self,
+        *,
+        evaluation_items: list[str],
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+    ) -> types.EvaluationSet:
+        """
+        Creates an EvaluationSet.
+        """
+
+        parameter_model = types._CreateEvaluationSetParameters(
+            evaluation_items=evaluation_items,
+            display_name=display_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets".format_map(request_url_dict)
+            else:
+                path = "evaluationSets"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationSet._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _evaluate_instances(
         self,
@@ -1477,10 +1822,7 @@ class AsyncEvals(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _EvaluateInstancesResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluateInstancesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1541,12 +1883,168 @@ class AsyncEvals(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _GenerateInstanceRubricsResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateInstanceRubricsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_evaluation_run(
+        self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
+    ) -> types.EvaluationRun:
+        """
+        Retrieves an EvaluationRun from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationRunParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationRuns/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationRuns/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationRun_from_vertex(response_dict)
+
+        return_value = types.EvaluationRun._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_evaluation_set(
+        self, *, name: str, config: Optional[types.GetEvaluationSetConfigOrDict] = None
+    ) -> types.EvaluationSet:
+        """
+        Retrieves an EvaluationSet from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationSetParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationSets/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationSets/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationSet._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_evaluation_item(
+        self, *, name: str, config: Optional[types.GetEvaluationItemConfigOrDict] = None
+    ) -> types.EvaluationItem:
+        """
+        Retrieves an EvaluationItem from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationItemParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationItems/{name}".format_map(request_url_dict)
+            else:
+                path = "evaluationItems/{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.EvaluationItem._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1640,4 +2138,274 @@ class AsyncEvals(_api_module.BaseModule):
             **metric_config,
         )
 
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    async def get_evaluation_run(
+        self,
+        *,
+        name: str,
+        include_evaluation_items: bool = False,
+        config: Optional[types.GetEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Retrieves the EvaluationRun from the resource name.
+        Args:
+          name: The resource name of the EvaluationRun. Format:
+            `projects/{project}/locations/{location}/evaluationRuns/{evaluation_run}`
+          include_evaluation_items: Whether to include the evaluation items in the
+            response.
+          config: The optional configuration for the evaluation run. Must be a dict or
+              `types.GetEvaluationRunConfigOrDict` type.
+
+        Returns:
+          The evaluation run.
+        Raises:
+          ValueError: If the name is empty or invalid.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        result = await self._get_evaluation_run(name=name, config=config)
+        if include_evaluation_items:
+            result.evaluation_item_results = (
+                await _evals_common._convert_evaluation_run_results_async(
+                    self._api_client,
+                    result.evaluation_run_results,
+                    result.inference_configs,
+                )
+            )
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_run module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_run(
+        self,
+        *,
+        dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
+        dest: str,
+        metrics: list[types.EvaluationRunMetricOrDict],
+        name: Optional[str] = None,
+        display_name: Optional[str] = None,
+        agent_info: Optional[types.evals.AgentInfo] = None,
+        labels: Optional[dict[str, str]] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+    ) -> types.EvaluationRun:
+        """Creates an EvaluationRun.
+
+        Args:
+          dataset: The dataset to evaluate. Either an EvaluationRunDataSource or an EvaluationDataset.
+          dest: The GCS URI prefix to write the evaluation results to.
+          metrics: The list of metrics to evaluate.
+          name: The name of the evaluation run.
+          display_name: The display name of the evaluation run.
+          agent_info: The agent info to evaluate.
+          labels: The labels to apply to the evaluation run.
+          config: The configuration for the evaluation run.
+
+        Returns:
+            The created evaluation run.
+        """
+        if agent_info and isinstance(agent_info, dict):
+            agent_info = types.evals.AgentInfo.model_validate(agent_info)
+        if type(dataset).__name__ == "EvaluationDataset":
+            if dataset.eval_dataset_df is None:
+                raise ValueError(
+                    "EvaluationDataset must have eval_dataset_df populated."
+                )
+            if (
+                dataset.candidate_name
+                and agent_info.name
+                and dataset.candidate_name != agent_info.name
+            ):
+                logger.warning(
+                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+                )
+            elif dataset.candidate_name is None and agent_info:
+                dataset.candidate_name = agent_info.name
+            eval_set = _evals_common._create_evaluation_set_from_dataframe(
+                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+            )
+            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        output_config = genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
+        )
+        resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
+            metrics, self._api_client
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config, metrics=resolved_metrics
+        )
+        inference_configs = {}
+        if agent_info:
+            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
+                agent_config=types.EvaluationRunAgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[genai_types.Part(text=agent_info.instruction)]
+                    ),
+                    tools=agent_info.tool_declarations,
+                )
+            )
+            if agent_info.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
+        if not name:
+            name = f"evaluation_run_{uuid.uuid4()}"
+
+        result = await self._create_evaluation_run(  # type: ignore[no-any-return]
+            name=name,
+            display_name=display_name or name,
+            data_source=dataset,
+            evaluation_config=evaluation_config,
+            inference_configs=inference_configs,
+            labels=labels,
+            config=config,
+        )
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_set method is experimental, "
+        "and may change in future versions."
+    )
+    async def get_evaluation_set(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetEvaluationSetConfigOrDict] = None,
+    ) -> types.EvaluationSet:
+        """Retrieves an EvaluationSet from the resource name.
+
+        Args:
+          name: The resource name of the EvaluationSet. Format:
+            `projects/{project}/locations/{location}/evaluationSets/{evaluation_set}`
+          config: The optional configuration for the evaluation set. Must be a dict or
+              `types.GetEvaluationSetConfigOrDict` type.
+
+        Returns:
+          The evaluation set.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        result = await self._get_evaluation_set(name=name, config=config)
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_item method is experimental, "
+        "and may change in future versions."
+    )
+    async def get_evaluation_item(
+        self,
+        *,
+        name: str,
+        config: Optional[types.GetEvaluationItemConfigOrDict] = None,
+    ) -> types.EvaluationItem:
+        """Retrieves an EvaluationItem from the resource name.
+
+        Args:
+          name: The resource name of the EvaluationItem. Format:
+            `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
+          config: The optional configuration for the evaluation item. Must be a dict or
+              `types.GetEvaluationItemConfigOrDict` type.
+
+        Returns:
+          The evaluation item.
+        """
+        if not name:
+            raise ValueError("name cannot be empty.")
+        if name.startswith("projects/"):
+            name = name.split("/")[-1]
+        result = await self._get_evaluation_item(name=name, config=config)
+        if (
+            result.gcs_uri
+            and result.evaluation_item_type == types.EvaluationItemType.RESULT
+        ):
+            result.evaluation_response = (
+                _evals_common._convert_gcs_to_evaluation_item_result(
+                    self._api_client, result.gcs_uri
+                )
+            )
+        elif (
+            result.gcs_uri
+            and result.evaluation_item_type == types.EvaluationItemType.REQUEST
+        ):
+            result.evaluation_request = (
+                _evals_common._convert_gcs_to_evaluation_item_request(
+                    self._api_client, result.gcs_uri
+                )
+            )
+
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_item module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_item(
+        self,
+        *,
+        evaluation_item_type: types.EvaluationItemType,
+        gcs_uri: str,
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationItemConfigOrDict] = None,
+    ) -> types.EvaluationItem:
+        """Creates an EvaluationItem.
+
+        Args:
+          evaluation_item_type: The type of the evaluation item.
+          gcs_uri: The GCS URI of the evaluation item.
+          display_name: The display name of the evaluation item.
+          config: The optional configuration for the evaluation item. Must be a dict or
+              `types.CreateEvaluationItemConfigOrDict` type.
+
+        Returns:
+          The evaluation item.
+        """
+        result = await self._create_evaluation_item(  # type: ignore[no-any-return]
+            evaluation_item_type=evaluation_item_type,
+            gcs_uri=gcs_uri,
+            display_name=display_name,
+            config=config,
+        )
+        return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_set module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_set(
+        self,
+        *,
+        evaluation_items: list[str],
+        display_name: Optional[str] = None,
+        config: Optional[types.CreateEvaluationSetConfigOrDict] = None,
+    ) -> types.EvaluationSet:
+        """Creates an EvaluationSet.
+
+        Args:
+          evaluation_items: The list of evaluation item names. Format:
+            `projects/{project}/locations/{location}/evaluationItems/{evaluation_item}`
+          display_name: The display name of the evaluation set.
+          config: The optional configuration for the evaluation set. Must be a dict or
+              `types.CreateEvaluationSetConfigOrDict` type.
+
+        Returns:
+          The evaluation set.
+        """
+        result = await self._create_evaluation_set(  # type: ignore[no-any-return]
+            evaluation_items=evaluation_items,
+            display_name=display_name,
+            config=config,
+        )
         return result

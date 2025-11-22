@@ -73,15 +73,11 @@ from google.cloud.aiplatform_v1.services.index_endpoint_service import (
     IndexEndpointServiceClient,
 )
 from google.cloud.aiplatform_v1.services.index_endpoint_service import pagers
-from google.cloud.aiplatform_v1.services.index_endpoint_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.index_endpoint_service import transports
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import index_endpoint
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -910,10 +906,9 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -6476,6 +6471,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -6507,6 +6503,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -7061,6 +7058,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -7092,6 +7090,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -7757,6 +7756,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
                 "machine_type": "machine_type_value",
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
+                "gpu_partition_size": "gpu_partition_size_value",
                 "tpu_topology": "tpu_topology_value",
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
@@ -7785,6 +7785,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             "reserved_ip_ranges_value2",
         ],
         "deployment_group": "deployment_group_value",
+        "deployment_tier": 2,
         "psc_automation_configs": [
             {
                 "project_id": "project_id_value",
@@ -8863,6 +8864,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -8894,6 +8896,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -9497,6 +9500,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -9528,6 +9532,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
                     "reserved_ip_ranges_value2",
                 ],
                 "deployment_group": "deployment_group_value",
+                "deployment_tier": 2,
                 "psc_automation_configs": [
                     {
                         "project_id": "project_id_value",
@@ -10259,6 +10264,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
                 "machine_type": "machine_type_value",
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
+                "gpu_partition_size": "gpu_partition_size_value",
                 "tpu_topology": "tpu_topology_value",
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
@@ -10287,6 +10293,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             "reserved_ip_ranges_value2",
         ],
         "deployment_group": "deployment_group_value",
+        "deployment_tier": 2,
         "psc_automation_configs": [
             {
                 "project_id": "project_id_value",

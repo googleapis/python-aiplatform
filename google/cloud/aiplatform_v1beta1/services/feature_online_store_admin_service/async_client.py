@@ -55,13 +55,9 @@ from google.cloud.aiplatform_v1beta1.types import feature_online_store
 from google.cloud.aiplatform_v1beta1.types import (
     feature_online_store as gca_feature_online_store,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1beta1.types import feature_view
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_view as gca_feature_view,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1beta1.types import feature_view_sync
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.location import locations_pb2  # type: ignore
@@ -856,11 +852,11 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
 
                 Updatable fields:
 
-                -  ``labels``
-                -  ``description``
-                -  ``bigtable``
-                -  ``bigtable.auto_scaling``
-                -  ``bigtable.enable_multi_region_replica``
+                - ``labels``
+                - ``description``
+                - ``bigtable``
+                - ``bigtable.auto_scaling``
+                - ``bigtable.enable_multi_region_replica``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this
@@ -1592,15 +1588,15 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
 
                 Updatable fields:
 
-                -  ``labels``
-                -  ``service_agent_type``
-                -  ``big_query_source``
-                -  ``big_query_source.uri``
-                -  ``big_query_source.entity_id_columns``
-                -  ``feature_registry_source``
-                -  ``feature_registry_source.feature_groups``
-                -  ``sync_config``
-                -  ``sync_config.cron``
+                - ``labels``
+                - ``service_agent_type``
+                - ``big_query_source``
+                - ``big_query_source.uri``
+                - ``big_query_source.entity_id_columns``
+                - ``feature_registry_source``
+                - ``feature_registry_source.feature_groups``
+                - ``sync_config``
+                - ``sync_config.cron``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

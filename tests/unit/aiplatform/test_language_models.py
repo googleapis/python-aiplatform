@@ -1570,9 +1570,13 @@ def mock_load_yaml_and_json(job_spec):
 
 
 @pytest.fixture
-def mock_gcs_from_string():
-    with mock.patch.object(storage.Blob, "from_string") as mock_from_string:
-        yield mock_from_string
+def mock_gcs_from_source():
+    if hasattr(storage.Blob, "from_string"):
+        with mock.patch.object(storage.Blob, "from_string") as mock_from_source:
+            yield mock_from_source
+    else:
+        with mock.patch.object(storage.Blob, "from_uri") as mock_from_source:
+            yield mock_from_source
 
 
 @pytest.fixture
@@ -2405,7 +2409,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen_gecko,
         mock_deploy_tuned_embedding_model,
@@ -2522,7 +2526,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -2608,7 +2612,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -2700,7 +2704,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -2752,7 +2756,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -2799,7 +2803,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -2883,7 +2887,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -2931,7 +2935,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen,
         mock_get_tuned_model,
@@ -3050,7 +3054,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen_rlhf,
         mock_get_tuned_model,
@@ -3153,7 +3157,7 @@ class TestLanguageModels:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_request_urlopen_rlhf,
         mock_get_tuned_model,
@@ -5190,7 +5194,7 @@ class TestLanguageModelEvaluation:
         mock_pipeline_bucket_exists,
         job_spec,
         mock_load_yaml_and_json,
-        mock_gcs_from_string,
+        mock_gcs_from_source,
         mock_gcs_upload,
         mock_urllib_request_urlopen,
         mock_get_tuned_model,

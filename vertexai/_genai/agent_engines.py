@@ -36,57 +36,7 @@ from . import types
 
 logger = logging.getLogger("vertexai_genai.agentengines")
 
-
-def _ReasoningEngineSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["agent_framework"]) is not None:
-        setv(to_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
-
-    if getv(from_object, ["class_methods"]) is not None:
-        setv(to_object, ["classMethods"], getv(from_object, ["class_methods"]))
-
-    if getv(from_object, ["deployment_spec"]) is not None:
-        setv(to_object, ["deploymentSpec"], getv(from_object, ["deployment_spec"]))
-
-    if getv(from_object, ["package_spec"]) is not None:
-        setv(to_object, ["packageSpec"], getv(from_object, ["package_spec"]))
-
-    if getv(from_object, ["service_account"]) is not None:
-        setv(to_object, ["serviceAccount"], getv(from_object, ["service_account"]))
-
-    return to_object
-
-
-def _ReasoningEngineContextSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["memory_bank_config"]) is not None:
-        setv(to_object, ["memoryBankConfig"], getv(from_object, ["memory_bank_config"]))
-
-    return to_object
-
-
-def _PscInterfaceConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["dns_peering_configs"]) is not None:
-        setv(
-            to_object, ["dnsPeeringConfigs"], getv(from_object, ["dns_peering_configs"])
-        )
-
-    if getv(from_object, ["network_attachment"]) is not None:
-        setv(
-            to_object, ["networkAttachment"], getv(from_object, ["network_attachment"])
-        )
-
-    return to_object
+logger.setLevel(logging.INFO)
 
 
 def _CreateAgentEngineConfig_to_vertex(
@@ -102,32 +52,53 @@ def _CreateAgentEngineConfig_to_vertex(
         setv(parent_object, ["description"], getv(from_object, ["description"]))
 
     if getv(from_object, ["spec"]) is not None:
-        setv(
-            parent_object,
-            ["spec"],
-            _ReasoningEngineSpec_to_vertex(getv(from_object, ["spec"]), to_object),
-        )
+        setv(parent_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["context_spec"]) is not None:
-        setv(
-            parent_object,
-            ["contextSpec"],
-            _ReasoningEngineContextSpec_to_vertex(
-                getv(from_object, ["context_spec"]), to_object
-            ),
-        )
+        setv(parent_object, ["contextSpec"], getv(from_object, ["context_spec"]))
 
     if getv(from_object, ["psc_interface_config"]) is not None:
         setv(
             parent_object,
             ["pscInterfaceConfig"],
-            _PscInterfaceConfig_to_vertex(
-                getv(from_object, ["psc_interface_config"]), to_object
-            ),
+            getv(from_object, ["psc_interface_config"]),
         )
 
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["source_packages"]) is not None:
+        setv(parent_object, ["sourcePackages"], getv(from_object, ["source_packages"]))
+
+    if getv(from_object, ["entrypoint_module"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointModule"],
+            getv(from_object, ["entrypoint_module"]),
+        )
+
+    if getv(from_object, ["entrypoint_object"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointObject"],
+            getv(from_object, ["entrypoint_object"]),
+        )
+
+    if getv(from_object, ["requirements_file"]) is not None:
+        setv(
+            parent_object,
+            ["requirementsFile"],
+            getv(from_object, ["requirements_file"]),
+        )
+
+    if getv(from_object, ["agent_framework"]) is not None:
+        setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
+
+    if getv(from_object, ["python_version"]) is not None:
+        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
 
     return to_object
 
@@ -159,6 +130,22 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
 
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetAgentEngineOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -213,22 +200,6 @@ def _ListAgentEngineRequestParameters_to_vertex(
     return to_object
 
 
-def _GetAgentEngineOperationParameters_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["operation_name"]) is not None:
-        setv(
-            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
-        )
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
 def _QueryAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -278,32 +249,53 @@ def _UpdateAgentEngineConfig_to_vertex(
         setv(parent_object, ["description"], getv(from_object, ["description"]))
 
     if getv(from_object, ["spec"]) is not None:
-        setv(
-            parent_object,
-            ["spec"],
-            _ReasoningEngineSpec_to_vertex(getv(from_object, ["spec"]), to_object),
-        )
+        setv(parent_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["context_spec"]) is not None:
-        setv(
-            parent_object,
-            ["contextSpec"],
-            _ReasoningEngineContextSpec_to_vertex(
-                getv(from_object, ["context_spec"]), to_object
-            ),
-        )
+        setv(parent_object, ["contextSpec"], getv(from_object, ["context_spec"]))
 
     if getv(from_object, ["psc_interface_config"]) is not None:
         setv(
             parent_object,
             ["pscInterfaceConfig"],
-            _PscInterfaceConfig_to_vertex(
-                getv(from_object, ["psc_interface_config"]), to_object
-            ),
+            getv(from_object, ["psc_interface_config"]),
         )
 
     if getv(from_object, ["encryption_spec"]) is not None:
         setv(parent_object, ["encryptionSpec"], getv(from_object, ["encryption_spec"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["source_packages"]) is not None:
+        setv(parent_object, ["sourcePackages"], getv(from_object, ["source_packages"]))
+
+    if getv(from_object, ["entrypoint_module"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointModule"],
+            getv(from_object, ["entrypoint_module"]),
+        )
+
+    if getv(from_object, ["entrypoint_object"]) is not None:
+        setv(
+            parent_object,
+            ["entrypointObject"],
+            getv(from_object, ["entrypoint_object"]),
+        )
+
+    if getv(from_object, ["requirements_file"]) is not None:
+        setv(
+            parent_object,
+            ["requirementsFile"],
+            getv(from_object, ["requirements_file"]),
+        )
+
+    if getv(from_object, ["agent_framework"]) is not None:
+        setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
+
+    if getv(from_object, ["python_version"]) is not None:
+        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -329,123 +321,6 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
                 getv(from_object, ["config"]), to_object
             ),
         )
-
-    return to_object
-
-
-def _ReasoningEngine_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["encryptionSpec"]) is not None:
-        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
-
-    if getv(from_object, ["contextSpec"]) is not None:
-        setv(to_object, ["context_spec"], getv(from_object, ["contextSpec"]))
-
-    if getv(from_object, ["createTime"]) is not None:
-        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
-
-    if getv(from_object, ["description"]) is not None:
-        setv(to_object, ["description"], getv(from_object, ["description"]))
-
-    if getv(from_object, ["displayName"]) is not None:
-        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
-
-    if getv(from_object, ["etag"]) is not None:
-        setv(to_object, ["etag"], getv(from_object, ["etag"]))
-
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["spec"]) is not None:
-        setv(to_object, ["spec"], getv(from_object, ["spec"]))
-
-    if getv(from_object, ["updateTime"]) is not None:
-        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
-
-    return to_object
-
-
-def _AgentEngineOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    if getv(from_object, ["response"]) is not None:
-        setv(
-            to_object,
-            ["response"],
-            _ReasoningEngine_from_vertex(getv(from_object, ["response"]), to_object),
-        )
-
-    return to_object
-
-
-def _DeleteAgentEngineOperation_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["name"]) is not None:
-        setv(to_object, ["name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["metadata"]) is not None:
-        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
-
-    if getv(from_object, ["done"]) is not None:
-        setv(to_object, ["done"], getv(from_object, ["done"]))
-
-    if getv(from_object, ["error"]) is not None:
-        setv(to_object, ["error"], getv(from_object, ["error"]))
-
-    return to_object
-
-
-def _ListReasoningEnginesResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["sdkHttpResponse"]) is not None:
-        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
-
-    if getv(from_object, ["nextPageToken"]) is not None:
-        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
-
-    if getv(from_object, ["reasoningEngines"]) is not None:
-        setv(
-            to_object,
-            ["reasoning_engines"],
-            [
-                _ReasoningEngine_from_vertex(item, to_object)
-                for item in getv(from_object, ["reasoningEngines"])
-            ],
-        )
-
-    return to_object
-
-
-def _QueryReasoningEngineResponse_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["output"]) is not None:
-        setv(to_object, ["output"], getv(from_object, ["output"]))
 
     return to_object
 
@@ -494,10 +369,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -506,7 +378,7 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def delete(
+    def _delete(
         self,
         *,
         name: str,
@@ -567,10 +439,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("delete", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeleteAgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -620,10 +489,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ReasoningEngine_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ReasoningEngine._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -672,10 +538,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -724,10 +587,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("get", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -777,10 +637,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _QueryReasoningEngineResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.QueryReasoningEngineResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -832,10 +689,7 @@ class AgentEngines(_api_module.BaseModule):
 
         response = self._api_client.request("patch", path, request_dict, http_options)
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -849,7 +703,7 @@ class AgentEngines(_api_module.BaseModule):
     _sessions = None
 
     @property
-    def memories(self):
+    def memories(self) -> Any:
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -868,7 +722,7 @@ class AgentEngines(_api_module.BaseModule):
         "The Vertex SDK GenAI agent_engines.sandboxes module is experimental, "
         "and may change in future versions."
     )
-    def sandboxes(self):
+    def sandboxes(self) -> Any:
         if self._sandboxes is None:
             try:
                 # We need to lazy load the sandboxes module to handle the
@@ -883,7 +737,7 @@ class AgentEngines(_api_module.BaseModule):
         return self._sandboxes.Sandboxes(self._api_client)
 
     @property
-    def sessions(self):
+    def sessions(self) -> Any:
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -930,6 +784,34 @@ class AgentEngines(_api_module.BaseModule):
         if api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)
         return agent_engine
+
+    def delete(
+        self,
+        *,
+        name: str,
+        force: Optional[bool] = None,
+        config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineOperation:
+        """
+        Delete an Agent Engine resource.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+                or `reasoningEngines/{resource_id}`.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
+        """
+        logger.info(f"Deleting AgentEngine resource: {name}")
+        operation = self._delete(name=name, force=force, config=config)
+        logger.info(f"Started AgentEngine delete operation: {operation.name}")
+        return operation
 
     def create(
         self,
@@ -1031,6 +913,7 @@ class AgentEngines(_api_module.BaseModule):
         api_config = self._create_config(
             mode="create",
             agent=agent,
+            identity_type=config.identity_type,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
@@ -1046,16 +929,26 @@ class AgentEngines(_api_module.BaseModule):
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
             encryption_spec=config.encryption_spec,
+            agent_server_mode=config.agent_server_mode,
+            labels=config.labels,
+            class_methods=config.class_methods,
+            source_packages=config.source_packages,
+            entrypoint_module=config.entrypoint_module,
+            entrypoint_object=config.entrypoint_object,
+            requirements_file=config.requirements_file,
+            agent_framework=config.agent_framework,
+            python_version=config.python_version,
+            build_options=config.build_options,
         )
         operation = self._create(config=api_config)
         # TODO: Use a more specific link.
         logger.info(
             f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
         )
-        if agent is None:
-            poll_interval_seconds = 1  # Lightweight agent engine resource creation.
-        else:
+        if agent is not None or config.source_packages is not None:
             poll_interval_seconds = 10
+        else:
+            poll_interval_seconds = 1  # Lightweight agent engine resource creation.
         operation = _agent_engines_utils._await_operation(
             operation_name=operation.name,
             get_operation_fn=self._get_agent_operation,
@@ -1070,13 +963,13 @@ class AgentEngines(_api_module.BaseModule):
         if agent_engine.api_resource:
             logger.info("Agent Engine created. To use it in another session:")
             logger.info(
-                f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
+                f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
             raise RuntimeError(f"Failed to create Agent Engine: {operation.error}")
         else:
             logger.warning("The operation returned an empty response.")
-        if agent is not None:
+        if agent is not None or config.source_packages is not None:
             # If the user did not provide an agent_engine (e.g. lightweight
             # provisioning), it will not have any API methods registered.
             agent_engine = self._register_api_methods(agent_engine=agent_engine)
@@ -1087,6 +980,7 @@ class AgentEngines(_api_module.BaseModule):
         *,
         mode: str,
         agent: Any = None,
+        identity_type: Optional[types.IdentityType] = None,
         staging_bucket: Optional[str] = None,
         requirements: Optional[Union[str, Sequence[str]]] = None,
         display_name: Optional[str] = None,
@@ -1102,6 +996,16 @@ class AgentEngines(_api_module.BaseModule):
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecDict] = None,
+        labels: Optional[dict[str, str]] = None,
+        agent_server_mode: Optional[types.AgentServerMode] = None,
+        class_methods: Optional[Sequence[dict[str, Any]]] = None,
+        source_packages: Optional[Sequence[str]] = None,
+        entrypoint_module: Optional[str] = None,
+        entrypoint_object: Optional[str] = None,
+        requirements_file: Optional[str] = None,
+        agent_framework: Optional[str] = None,
+        python_version: Optional[str] = None,
+        build_options: Optional[dict[str, list[str]]] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1126,16 +1030,36 @@ class AgentEngines(_api_module.BaseModule):
         if encryption_spec is not None:
             update_masks.append("encryption_spec")
             config["encryption_spec"] = encryption_spec
+        if labels is not None:
+            update_masks.append("labels")
+            config["labels"] = labels
+
+        if agent_framework == "google-adk":
+            env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
+
+        if python_version:
+            sys_version = python_version
+        else:
+            sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        agent_engine_spec: Any = None
         if agent is not None:
+            if source_packages is not None:
+                raise ValueError(
+                    "If you have provided `source_packages` in `config`, please "
+                    "do not specify `agent` in `agent_engines.create()` or "
+                    "`agent_engines.update()`."
+                )
+
             project = self._api_client.project
             if project is None:
                 raise ValueError("project must be set using `vertexai.Client`.")
             location = self._api_client.location
             if location is None:
                 raise ValueError("location must be set using `vertexai.Client`.")
-            sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
             gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
             agent = _agent_engines_utils._validate_agent_or_raise(agent=agent)
+            if _agent_engines_utils._is_adk_agent(agent):
+                env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
             staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
                 staging_bucket=staging_bucket,
             )
@@ -1143,11 +1067,9 @@ class AgentEngines(_api_module.BaseModule):
                 agent=agent,
                 requirements=requirements,
             )
-            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
-                extra_packages=extra_packages,
-            )
-            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
-                extra_packages=extra_packages,
+            extra_packages = _agent_engines_utils._validate_packages_or_raise(
+                packages=extra_packages,
+                build_options=build_options,
             )
             # Prepares the Agent Engine for creation/update in Vertex AI. This
             # involves packaging and uploading the artifacts for agent_engine,
@@ -1185,9 +1107,90 @@ class AgentEngines(_api_module.BaseModule):
                     gcs_dir_name,
                     _agent_engines_utils._REQUIREMENTS_FILE,
                 )
+
+            update_masks.append("spec.class_methods")
+            class_methods_spec = []
+            if class_methods is not None:
+                class_methods_spec = (
+                    _agent_engines_utils._class_methods_to_class_methods_spec(
+                        class_methods=class_methods
+                    )
+                )
+            else:
+                class_methods_spec = (
+                    _agent_engines_utils._generate_class_methods_spec_or_raise(
+                        agent=agent,
+                        operations=_agent_engines_utils._get_registered_operations(
+                            agent=agent
+                        ),
+                    )
+                )
+
             agent_engine_spec: types.ReasoningEngineSpecDict = {
                 "package_spec": package_spec,
+                "class_methods": [
+                    _agent_engines_utils._to_dict(class_method_spec)
+                    for class_method_spec in class_methods_spec
+                ],
             }
+
+        if source_packages is not None:
+            source_packages = _agent_engines_utils._validate_packages_or_raise(
+                packages=source_packages,
+                build_options=build_options,
+            )
+            update_masks.append("spec.source_code_spec.inline_source.source_archive")
+            source_code_spec = {
+                "inline_source": {
+                    "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
+                        source_packages=source_packages
+                    )
+                }
+            }
+
+            update_masks.append("spec.source_code_spec.python_spec.version")
+            python_spec = {
+                "version": sys_version,
+            }
+            if not entrypoint_module:
+                raise ValueError(
+                    "entrypoint_module must be specified if source_packages is specified."
+                )
+            update_masks.append("spec.source_code_spec.python_spec.entrypoint_module")
+            python_spec["entrypoint_module"] = entrypoint_module
+            if not entrypoint_object:
+                raise ValueError(
+                    "entrypoint_object must be specified if source_packages is specified."
+                )
+            update_masks.append("spec.source_code_spec.python_spec.entrypoint_object")
+            python_spec["entrypoint_object"] = entrypoint_object
+            if requirements_file is not None:
+                update_masks.append(
+                    "spec.source_code_spec.python_spec.requirements_file"
+                )
+                python_spec["requirements_file"] = requirements_file
+            source_code_spec["python_spec"] = python_spec
+
+            if class_methods is None:
+                raise ValueError(
+                    "class_methods must be specified if source_packages is specified."
+                )
+            update_masks.append("spec.class_methods")
+            class_methods_spec = (
+                _agent_engines_utils._class_methods_to_class_methods_spec(
+                    class_methods=class_methods
+                )
+            )
+
+            agent_engine_spec: types.ReasoningEngineSpecDict = {
+                "source_code_spec": source_code_spec,
+                "class_methods": [
+                    _agent_engines_utils._to_dict(class_method_spec)
+                    for class_method_spec in class_methods_spec
+                ],
+            }
+
+        if agent_engine_spec is not None:
             if (
                 env_vars is not None
                 or psc_interface_config is not None
@@ -1209,35 +1212,40 @@ class AgentEngines(_api_module.BaseModule):
                 )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
-            if service_account is not None:
-                agent_engine_spec["service_account"] = service_account
-                update_masks.append("spec.service_account")
-            class_methods = _agent_engines_utils._generate_class_methods_spec_or_raise(
-                agent=agent,
-                operations=_agent_engines_utils._get_registered_operations(agent=agent),
-            )
-            agent_engine_spec["class_methods"] = [
-                _agent_engines_utils._to_dict(class_method)
-                for class_method in class_methods
-            ]
-            # Set the agent_server_mode to EXPERIMENTAL if the agent has a
-            # bidi_stream method.
-            for class_method in class_methods:
-                if class_method["api_mode"] == "bidi_stream":
-                    if not agent_engine_spec.get("deployment_spec"):
-                        agent_engine_spec["deployment_spec"] = (
-                            types.ReasoningEngineSpecDeploymentSpecDict()
-                        )
-                    agent_engine_spec["deployment_spec"][
-                        "agent_server_mode"
-                    ] = types.AgentServerMode.EXPERIMENTAL
-                    break
-            update_masks.append("spec.class_methods")
+
+            if agent_server_mode:
+                if not agent_engine_spec.get("deployment_spec"):
+                    agent_engine_spec["deployment_spec"] = (
+                        types.ReasoningEngineSpecDeploymentSpecDict()
+                    )
+                agent_engine_spec["deployment_spec"][
+                    "agent_server_mode"
+                ] = agent_server_mode
+
             agent_engine_spec["agent_framework"] = (
-                _agent_engines_utils._get_agent_framework(agent=agent)
+                _agent_engines_utils._get_agent_framework(
+                    agent_framework=agent_framework,
+                    agent=agent,
+                )
             )
             update_masks.append("spec.agent_framework")
+
+        if identity_type is not None or service_account is not None:
+            if agent_engine_spec is None:
+                agent_engine_spec = {}
+
+            if identity_type is not None:
+                agent_engine_spec["identity_type"] = identity_type
+                update_masks.append("spec.identity_type")
+            if service_account is not None:
+                # Clear the field in case of empty service_account.
+                if service_account:
+                    agent_engine_spec["service_account"] = service_account
+                update_masks.append("spec.service_account")
+
+        if agent_engine_spec is not None:
             config["spec"] = agent_engine_spec
+
         if update_masks and mode == "update":
             config["update_mask"] = ",".join(update_masks)
         return config
@@ -1441,6 +1449,7 @@ class AgentEngines(_api_module.BaseModule):
         api_config = self._create_config(
             mode="update",
             agent=agent,
+            identity_type=config.identity_type,
             staging_bucket=config.staging_bucket,
             requirements=config.requirements,
             display_name=config.display_name,
@@ -1455,6 +1464,15 @@ class AgentEngines(_api_module.BaseModule):
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
             container_concurrency=config.container_concurrency,
+            labels=config.labels,
+            class_methods=config.class_methods,
+            source_packages=config.source_packages,
+            entrypoint_module=config.entrypoint_module,
+            entrypoint_object=config.entrypoint_object,
+            requirements_file=config.requirements_file,
+            agent_framework=config.agent_framework,
+            python_version=config.python_version,
+            build_options=config.build_options,
         )
         operation = self._update(name=name, config=api_config)
         logger.info(
@@ -1472,7 +1490,7 @@ class AgentEngines(_api_module.BaseModule):
         if agent_engine.api_resource:
             logger.info("Agent Engine updated. To use it in another session:")
             logger.info(
-                f"agent_engine=client.agent_engines.get('{agent_engine.api_resource.name}')"
+                f"agent_engine=client.agent_engines.get(name='{agent_engine.api_resource.name}')"
             )
         elif operation.error:
             raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
@@ -1850,10 +1868,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1862,7 +1877,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    async def delete(
+    async def _delete(
         self,
         *,
         name: str,
@@ -1925,10 +1940,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "delete", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _DeleteAgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -1980,10 +1992,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ReasoningEngine_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ReasoningEngine._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2034,10 +2043,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2088,10 +2094,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "get", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2143,10 +2146,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "post", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _QueryReasoningEngineResponse_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.QueryReasoningEngineResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2200,10 +2200,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             "patch", path, request_dict, http_options
         )
 
-        response_dict = "" if not response.body else json.loads(response.body)
-
-        if self._api_client.vertexai:
-            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+        response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
@@ -2214,6 +2211,34 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
     _memories = None
     _sessions = None
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        force: Optional[bool] = None,
+        config: Optional[types.DeleteAgentEngineConfigOrDict] = None,
+    ) -> types.DeleteAgentEngineOperation:
+        """
+        Delete an Agent Engine resource.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to be deleted. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}`
+                or `reasoningEngines/{resource_id}`.
+            force (bool):
+                Optional. If set to True, child resources will also be deleted.
+                Otherwise, the request will fail with FAILED_PRECONDITION error when
+                the Agent Engine has undeleted child resources. Defaults to False.
+            config (DeleteAgentEngineConfig):
+                Optional. Additional configurations for deleting the Agent Engine.
+
+        """
+        logger.info(f"Deleting AgentEngine resource: {name}")
+        operation = await self._delete(name=name, force=force, config=config)
+        logger.info(f"Started AgentEngine delete operation: {operation.name}")
+        return operation
 
     @property
     def memories(self):

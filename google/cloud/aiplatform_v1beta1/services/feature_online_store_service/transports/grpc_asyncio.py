@@ -33,9 +33,7 @@ import grpc  # type: ignore
 import proto  # type: ignore
 from grpc.experimental import aio  # type: ignore
 
-from google.cloud.aiplatform_v1beta1.types import (
-    feature_online_store_service,
-)
+from google.cloud.aiplatform_v1beta1.types import feature_online_store_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
@@ -154,8 +152,9 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
                 credentials identify this application to the service. If
                 none are specified, the client will attempt to ascertain
                 the credentials from the environment.
-            credentials_file (Optional[str]): A file with credentials that can
-                be loaded with :func:`google.auth.load_credentials_from_file`.
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`. This argument will be
+                removed in the next major version of this library.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -206,9 +205,10 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
                 This argument is ignored if a ``channel`` instance is provided.
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
                 This argument is ignored if a ``channel`` instance is provided.
+                This argument will be removed in the next major version of this library.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -463,6 +463,39 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
             )
         return self._stubs["feature_view_direct_write"]
 
+    @property
+    def generate_fetch_access_token(
+        self,
+    ) -> Callable[
+        [feature_online_store_service.GenerateFetchAccessTokenRequest],
+        Awaitable[feature_online_store_service.GenerateFetchAccessTokenResponse],
+    ]:
+        r"""Return a callable for the generate fetch access token method over gRPC.
+
+        RPC to generate an access token for the given feature
+        view. FeatureViews under the same FeatureOnlineStore
+        share the same access token.
+
+        Returns:
+            Callable[[~.GenerateFetchAccessTokenRequest],
+                    Awaitable[~.GenerateFetchAccessTokenResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "generate_fetch_access_token" not in self._stubs:
+            self._stubs["generate_fetch_access_token"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.FeatureOnlineStoreService/GenerateFetchAccessToken",
+                    request_serializer=feature_online_store_service.GenerateFetchAccessTokenRequest.serialize,
+                    response_deserializer=feature_online_store_service.GenerateFetchAccessTokenResponse.deserialize,
+                )
+            )
+        return self._stubs["generate_fetch_access_token"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -483,6 +516,11 @@ class FeatureOnlineStoreServiceGrpcAsyncIOTransport(FeatureOnlineStoreServiceTra
             ),
             self.feature_view_direct_write: self._wrap_method(
                 self.feature_view_direct_write,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.generate_fetch_access_token: self._wrap_method(
+                self.generate_fetch_access_token,
                 default_timeout=None,
                 client_info=client_info,
             ),

@@ -24,10 +24,24 @@ Vertex AI SDK for Python
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
+Installation
+~~~~~~~~~~~~
+
+.. code-block:: console
+
+    pip install google-cloud-aiplatform
+
+
+With :code:`uv`:
+
+.. code-block:: console
+
+    uv pip install google-cloud-aiplatform
+
 Generative AI in the Vertex AI SDK
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To use Gen AI features from the Vertex AI SDK, you can instantiate a Gen AI client with the following:
+To use Gen AI features from the Vertex AI SDK, you can instantiate a Vertex SDK client with the following:
 
 .. code-block:: Python
 
@@ -38,7 +52,7 @@ To use Gen AI features from the Vertex AI SDK, you can instantiate a Gen AI clie
     # Replace with your project ID and location
     client = vertexai.Client(project='my-project', location='us-central1')
 
-See the examples below for guidance on how to use specific features supported by the Gen AI SDK client.
+See the examples below for guidance on how to use specific features supported by the Vertex SDK client.
 
 Gen AI Evaluation
 ^^^^^^^^^^^^^^^^^
@@ -83,6 +97,79 @@ Then run evaluation by providing the inference results and specifying the metric
         ]
     )
 
+Agent Engine with Agent Development Kit (ADK)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First, define a function that looks up the exchange rate:
+
+.. code-block:: Python
+
+    def get_exchange_rate(
+        currency_from: str = "USD",
+        currency_to: str = "EUR",
+        currency_date: str = "latest",
+    ):
+        """Retrieves the exchange rate between two currencies on a specified date.
+
+        Uses the Frankfurter API (https://api.frankfurter.app/) to obtain
+        exchange rate data.
+
+        Returns:
+            dict: A dictionary containing the exchange rate information.
+                Example: {"amount": 1.0, "base": "USD", "date": "2023-11-24",
+                    "rates": {"EUR": 0.95534}}
+        """
+        import requests
+        response = requests.get(
+            f"https://api.frankfurter.app/{currency_date}",
+            params={"from": currency_from, "to": currency_to},
+        )
+        return response.json()
+
+Next, define an ADK Agent:
+
+.. code-block:: Python
+
+    from google.adk.agents import Agent
+    from vertexai.agent_engines import AdkApp
+
+    app = AdkApp(agent=Agent(
+        model="gemini-2.0-flash",        # Required.
+        name='currency_exchange_agent',  # Required.
+        tools=[get_exchange_rate],       # Optional.
+    ))
+
+Test the agent locally using US dollars and Swedish Krona:
+
+.. code-block:: Python
+
+    async for event in app.async_stream_query(
+        user_id="user-id",
+        message="What is the exchange rate from US dollars to SEK today?",
+    ):
+        print(event)
+
+To deploy the agent to Agent Engine:
+
+.. code-block:: Python
+
+    remote_app = client.agent_engines.create(
+        agent=app,
+        config={
+            "requirements": ["google-cloud-aiplatform[agent_engines,adk]"],
+        },
+    )
+
+You can also run queries against the deployed agent:
+
+.. code-block:: Python
+
+    async for event in remote_app.async_stream_query(
+        user_id="user-id",
+        message="What is the exchange rate from US dollars to SEK today?",
+    ):
+        print(event)
+
 Prompt optimization
 ^^^^^^^^^^^^^^^^^^^
 
@@ -93,8 +180,9 @@ method.
 
     prompt = "Generate system instructions for a question-answering assistant"
     response = client.prompt_optimizer.optimize_prompt(prompt=prompt)
-
-    print(response.suggested_prompt)
+    print(response.raw_text_response)
+    if response.parsed_response:
+      print(response.parsed_response.suggested_prompt)
 
 To call the data-driven prompt optimization, call the `optimize` method.
 In this case however, we need to provide `vapo_config`. This config needs to
@@ -137,6 +225,72 @@ We can also call optimize method async.
 
     await client.aio.prompt_optimizer.optimize(method="vapo", config=vapo_config)
 
+Prompt Management
+^^^^^^^^^^^^^^^^^
+
+First define your prompt as a dictionary or types.Prompt object. Then call create_prompt.
+
+.. code-block:: Python
+
+    prompt = {
+        "prompt_data": {
+            "contents": [{"parts": [{"text": "Hello, {name}! How are you?"}]}],
+            "system_instruction": {"parts": [{"text": "Please answer in a short sentence."}]},
+            "variables": [
+                {"name": {"text": "Alice"}},
+            ],
+            "model": "gemini-2.5-flash",
+        },
+    }
+
+    prompt_resource = client.prompts.create(
+        prompt=prompt,
+    )
+
+Note that you can also use the types.Prompt object to define your prompt. Some of the types used to do this are from the Gen AI SDK.
+
+.. code-block:: Python
+
+    import types
+    from google.genai import types as genai_types
+
+    prompt = types.Prompt(
+        prompt_data=types.PromptData(
+          contents=[genai_types.Content(parts=[genai_types.Part(text="Hello, {name}! How are you?")])],
+          system_instruction=genai_types.Content(parts=[genai_types.Part(text="Please answer in a short sentence.")]),
+          variables=[
+            {"name": genai_types.Part(text="Alice")},
+          ],
+          model="gemini-2.5-flash",
+        ),
+    )
+
+Retrieve a prompt by calling get() with the prompt_id.
+
+.. code-block:: Python
+
+    retrieved_prompt = client.prompts.get(
+        prompt_id=prompt_resource.prompt_id,
+    )
+
+After creating or retrieving a prompt, you can call `generate_content()` with that prompt using the Gen AI SDK.
+
+The following uses a utility function available on Prompt objects to transform a Prompt object into a list of Content objects for use with `generate_content`. To run this you need to have the Gen AI SDK installed, which you can do via `pip install google-genai`.
+
+.. code-block:: Python
+
+    from google import genai
+    from google.genai import types as genai_types
+
+    # Create a Client in the Gen AI SDK
+    genai_client = genai.Client(vertexai=True, project="your-project", location="your-location")
+
+    # Call generate_content() with the prompt
+    response = genai_client.models.generate_content(
+        model=retrieved_prompt.prompt_data.model,
+        contents=retrieved_prompt.assemble_contents(),
+    )
+
 -----------------------------------------
 
 .. note::
@@ -161,41 +315,6 @@ In order to use this library, you first need to go through the following steps:
 .. _Enable billing for your project.: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
 .. _Enable the Vertex AI API.:  https://cloud.google.com/vertex-ai/docs/start/use-vertex-ai-python-sdk
 .. _Setup Authentication.: https://googleapis.dev/python/google-api-core/latest/auth.html
-
-Installation
-~~~~~~~~~~~~
-
-Install this library in a `virtualenv`_ using pip. `virtualenv`_ is a tool to
-create isolated Python environments. The basic problem it addresses is one of
-dependencies and versions, and indirectly permissions.
-
-With `virtualenv`_, it's possible to install this library without needing system
-install permissions, and without clashing with the installed system
-dependencies.
-
-.. _virtualenv: https://virtualenv.pypa.io/en/latest/
-
-
-Mac/Linux
-^^^^^^^^^
-
-.. code-block:: console
-
-    pip install virtualenv
-    virtualenv <your-env>
-    source <your-env>/bin/activate
-    <your-env>/bin/pip install google-cloud-aiplatform
-
-
-Windows
-^^^^^^^
-
-.. code-block:: console
-
-    pip install virtualenv
-    virtualenv <your-env>
-    <your-env>\Scripts\activate
-    <your-env>\Scripts\pip.exe install google-cloud-aiplatform
 
 
 Supported Python Versions

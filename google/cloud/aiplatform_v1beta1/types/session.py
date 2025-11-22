@@ -125,7 +125,7 @@ class SessionEvent(proto.Message):
     Attributes:
         name (str):
             Identifier. The resource name of the event.
-            Format:\ ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}``.
+            Format:``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}/events/{event}``.
         author (str):
             Required. The name of the agent that sent the
             event, or user.
@@ -274,9 +274,6 @@ class EventActions(proto.Message):
             Optional. Indicates that the event is
             updating an artifact. key is the filename, value
             is the version.
-        transfer_to_agent (bool):
-            Deprecated. If set, the event transfers to
-            the specified agent.
         escalate (bool):
             Optional. The agent is escalating to a higher
             level agent.
@@ -306,10 +303,6 @@ class EventActions(proto.Message):
         proto.STRING,
         proto.INT32,
         number=3,
-    )
-    transfer_to_agent: bool = proto.Field(
-        proto.BOOL,
-        number=5,
     )
     escalate: bool = proto.Field(
         proto.BOOL,

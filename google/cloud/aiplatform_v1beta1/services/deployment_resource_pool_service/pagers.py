@@ -38,9 +38,7 @@ except AttributeError:  # pragma: NO COVER
     OptionalAsyncRetry = Union[retries_async.AsyncRetry, object, None]  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool
-from google.cloud.aiplatform_v1beta1.types import (
-    deployment_resource_pool_service,
-)
+from google.cloud.aiplatform_v1beta1.types import deployment_resource_pool_service
 from google.cloud.aiplatform_v1beta1.types import endpoint
 
 

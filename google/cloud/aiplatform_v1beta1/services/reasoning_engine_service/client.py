@@ -63,9 +63,7 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine
@@ -244,6 +242,30 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
         """Parses a endpoint path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/endpoints/(?P<endpoint>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def git_repository_link_path(
+        project: str,
+        location: str,
+        connection: str,
+        git_repository_link: str,
+    ) -> str:
+        """Returns a fully-qualified git_repository_link string."""
+        return "projects/{project}/locations/{location}/connections/{connection}/gitRepositoryLinks/{git_repository_link}".format(
+            project=project,
+            location=location,
+            connection=connection,
+            git_repository_link=git_repository_link,
+        )
+
+    @staticmethod
+    def parse_git_repository_link_path(path: str) -> Dict[str, str]:
+        """Parses a git_repository_link path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/connections/(?P<connection>.+?)/gitRepositoryLinks/(?P<git_repository_link>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -682,11 +704,9 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = ReasoningEngineServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            ReasoningEngineServiceClient._read_environment_variables()
+        )
         self._client_cert_source = ReasoningEngineServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )

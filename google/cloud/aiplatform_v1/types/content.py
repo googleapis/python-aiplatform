@@ -37,6 +37,13 @@ __protobuf__ = proto.module(
         "Blob",
         "FileData",
         "VideoMetadata",
+        "PrebuiltVoiceConfig",
+        "ReplicatedVoiceConfig",
+        "VoiceConfig",
+        "SpeakerVoiceConfig",
+        "MultiSpeakerVoiceConfig",
+        "SpeechConfig",
+        "ImageConfig",
         "GenerationConfig",
         "SafetySetting",
         "SafetyRating",
@@ -76,6 +83,8 @@ class HarmCategory(proto.Enum):
         HARM_CATEGORY_CIVIC_INTEGRITY (5):
             Deprecated: Election filter is not longer
             supported. The harm category is civic integrity.
+        HARM_CATEGORY_JAILBREAK (6):
+            The harm category is for jailbreak prompts.
     """
 
     HARM_CATEGORY_UNSPECIFIED = 0
@@ -84,6 +93,7 @@ class HarmCategory(proto.Enum):
     HARM_CATEGORY_HARASSMENT = 3
     HARM_CATEGORY_SEXUALLY_EXPLICIT = 4
     HARM_CATEGORY_CIVIC_INTEGRITY = 5
+    HARM_CATEGORY_JAILBREAK = 6
 
 
 class Modality(proto.Enum):
@@ -337,6 +347,184 @@ class VideoMetadata(proto.Message):
     )
 
 
+class PrebuiltVoiceConfig(proto.Message):
+    r"""Configuration for a prebuilt voice.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        voice_name (str):
+            The name of the prebuilt voice to use.
+
+            This field is a member of `oneof`_ ``_voice_name``.
+    """
+
+    voice_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+
+
+class ReplicatedVoiceConfig(proto.Message):
+    r"""The configuration for the replicated voice to use.
+
+    Attributes:
+        mime_type (str):
+            Optional. The mimetype of the voice sample. Currently only
+            mime_type=audio/pcm is supported, which is raw mono 16-bit
+            signed little-endian pcm data, with 24k sampling rate.
+        voice_sample_audio (bytes):
+            Optional. The sample of the custom voice.
+    """
+
+    mime_type: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    voice_sample_audio: bytes = proto.Field(
+        proto.BYTES,
+        number=2,
+    )
+
+
+class VoiceConfig(proto.Message):
+    r"""Configuration for a voice.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        prebuilt_voice_config (google.cloud.aiplatform_v1.types.PrebuiltVoiceConfig):
+            The configuration for a prebuilt voice.
+
+            This field is a member of `oneof`_ ``voice_config``.
+        replicated_voice_config (google.cloud.aiplatform_v1.types.ReplicatedVoiceConfig):
+            Optional. The configuration for a replicated
+            voice. This enables users to replicate a voice
+            from an audio sample.
+
+            This field is a member of `oneof`_ ``voice_config``.
+    """
+
+    prebuilt_voice_config: "PrebuiltVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        oneof="voice_config",
+        message="PrebuiltVoiceConfig",
+    )
+    replicated_voice_config: "ReplicatedVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        oneof="voice_config",
+        message="ReplicatedVoiceConfig",
+    )
+
+
+class SpeakerVoiceConfig(proto.Message):
+    r"""Configuration for a single speaker in a multi-speaker setup.
+
+    Attributes:
+        speaker (str):
+            Required. The name of the speaker. This
+            should be the same as the speaker name used in
+            the prompt.
+        voice_config (google.cloud.aiplatform_v1.types.VoiceConfig):
+            Required. The configuration for the voice of
+            this speaker.
+    """
+
+    speaker: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    voice_config: "VoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="VoiceConfig",
+    )
+
+
+class MultiSpeakerVoiceConfig(proto.Message):
+    r"""Configuration for a multi-speaker text-to-speech request.
+
+    Attributes:
+        speaker_voice_configs (MutableSequence[google.cloud.aiplatform_v1.types.SpeakerVoiceConfig]):
+            Required. A list of configurations for the
+            voices of the speakers. Exactly two speaker
+            voice configurations must be provided.
+    """
+
+    speaker_voice_configs: MutableSequence["SpeakerVoiceConfig"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=2,
+        message="SpeakerVoiceConfig",
+    )
+
+
+class SpeechConfig(proto.Message):
+    r"""Configuration for speech generation.
+
+    Attributes:
+        voice_config (google.cloud.aiplatform_v1.types.VoiceConfig):
+            The configuration for the voice to use.
+        language_code (str):
+            Optional. The language code (ISO 639-1) for
+            the speech synthesis.
+        multi_speaker_voice_config (google.cloud.aiplatform_v1.types.MultiSpeakerVoiceConfig):
+            The configuration for a multi-speaker text-to-speech
+            request. This field is mutually exclusive with
+            ``voice_config``.
+    """
+
+    voice_config: "VoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="VoiceConfig",
+    )
+    language_code: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    multi_speaker_voice_config: "MultiSpeakerVoiceConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="MultiSpeakerVoiceConfig",
+    )
+
+
+class ImageConfig(proto.Message):
+    r"""Config for image generation features.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        aspect_ratio (str):
+            Optional. The desired aspect ratio for the
+            generated images. The following aspect ratios
+            are supported:
+
+            "1:1"
+            "2:3", "3:2"
+            "3:4", "4:3"
+            "4:5", "5:4"
+            "9:16", "16:9"
+            "21:9".
+
+            This field is a member of `oneof`_ ``_aspect_ratio``.
+    """
+
+    aspect_ratio: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+
+
 class GenerationConfig(proto.Message):
     r"""Generation config.
 
@@ -394,11 +582,11 @@ class GenerationConfig(proto.Message):
             Optional. Output response mimetype of the generated
             candidate text. Supported mimetype:
 
-            -  ``text/plain``: (default) Text output.
-            -  ``application/json``: JSON response in the candidates.
-               The model needs to be prompted to output the appropriate
-               response type, otherwise the behavior is undefined. This
-               is a preview feature.
+            - ``text/plain``: (default) Text output.
+            - ``application/json``: JSON response in the candidates. The
+              model needs to be prompted to output the appropriate
+              response type, otherwise the behavior is undefined. This
+              is a preview feature.
         response_schema (google.cloud.aiplatform_v1.types.Schema):
             Optional. The ``Schema`` object allows the definition of
             input and output data types. These types can be objects, but
@@ -422,26 +610,26 @@ class GenerationConfig(proto.Message):
             supported. Specifically, only the following properties are
             supported:
 
-            -  ``$id``
-            -  ``$defs``
-            -  ``$ref``
-            -  ``$anchor``
-            -  ``type``
-            -  ``format``
-            -  ``title``
-            -  ``description``
-            -  ``enum`` (for strings and numbers)
-            -  ``items``
-            -  ``prefixItems``
-            -  ``minItems``
-            -  ``maxItems``
-            -  ``minimum``
-            -  ``maximum``
-            -  ``anyOf``
-            -  ``oneOf`` (interpreted the same as ``anyOf``)
-            -  ``properties``
-            -  ``additionalProperties``
-            -  ``required``
+            - ``$id``
+            - ``$defs``
+            - ``$ref``
+            - ``$anchor``
+            - ``type``
+            - ``format``
+            - ``title``
+            - ``description``
+            - ``enum`` (for strings and numbers)
+            - ``items``
+            - ``prefixItems``
+            - ``minItems``
+            - ``maxItems``
+            - ``minimum``
+            - ``maximum``
+            - ``anyOf``
+            - ``oneOf`` (interpreted the same as ``anyOf``)
+            - ``properties``
+            - ``additionalProperties``
+            - ``required``
 
             The non-standard ``propertyOrdering`` property may also be
             set.
@@ -457,10 +645,19 @@ class GenerationConfig(proto.Message):
             Optional. Routing configuration.
 
             This field is a member of `oneof`_ ``_routing_config``.
+        speech_config (google.cloud.aiplatform_v1.types.SpeechConfig):
+            Optional. The speech generation config.
+
+            This field is a member of `oneof`_ ``_speech_config``.
         thinking_config (google.cloud.aiplatform_v1.types.GenerationConfig.ThinkingConfig):
             Optional. Config for thinking features.
             An error will be returned if this field is set
             for models that don't support thinking.
+        image_config (google.cloud.aiplatform_v1.types.ImageConfig):
+            Optional. Config for image generation
+            features.
+
+            This field is a member of `oneof`_ ``_image_config``.
     """
 
     class RoutingConfig(proto.Message):
@@ -668,10 +865,22 @@ class GenerationConfig(proto.Message):
         optional=True,
         message=RoutingConfig,
     )
+    speech_config: "SpeechConfig" = proto.Field(
+        proto.MESSAGE,
+        number=23,
+        optional=True,
+        message="SpeechConfig",
+    )
     thinking_config: ThinkingConfig = proto.Field(
         proto.MESSAGE,
         number=25,
         message=ThinkingConfig,
+    )
+    image_config: "ImageConfig" = proto.Field(
+        proto.MESSAGE,
+        number=30,
+        optional=True,
+        message="ImageConfig",
     )
 
 
@@ -1357,7 +1566,54 @@ class GroundingChunk(proto.Message):
                 Can be used to look up the Place.
 
                 This field is a member of `oneof`_ ``_place_id``.
+            place_answer_sources (google.cloud.aiplatform_v1.types.GroundingChunk.Maps.PlaceAnswerSources):
+                Sources used to generate the place answer.
+                This includes review snippets and photos that
+                were used to generate the answer, as well as
+                uris to flag content.
         """
+
+        class PlaceAnswerSources(proto.Message):
+            r"""
+
+            Attributes:
+                review_snippets (MutableSequence[google.cloud.aiplatform_v1.types.GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet]):
+                    Snippets of reviews that are used to generate
+                    the answer.
+            """
+
+            class ReviewSnippet(proto.Message):
+                r"""Encapsulates a review snippet.
+
+                Attributes:
+                    review_id (str):
+                        Id of the review referencing the place.
+                    google_maps_uri (str):
+                        A link to show the review on Google Maps.
+                    title (str):
+                        Title of the review.
+                """
+
+                review_id: str = proto.Field(
+                    proto.STRING,
+                    number=1,
+                )
+                google_maps_uri: str = proto.Field(
+                    proto.STRING,
+                    number=2,
+                )
+                title: str = proto.Field(
+                    proto.STRING,
+                    number=3,
+                )
+
+            review_snippets: MutableSequence[
+                "GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="GroundingChunk.Maps.PlaceAnswerSources.ReviewSnippet",
+            )
 
         uri: str = proto.Field(
             proto.STRING,
@@ -1378,6 +1634,11 @@ class GroundingChunk(proto.Message):
             proto.STRING,
             number=4,
             optional=True,
+        )
+        place_answer_sources: "GroundingChunk.Maps.PlaceAnswerSources" = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message="GroundingChunk.Maps.PlaceAnswerSources",
         )
 
     web: Web = proto.Field(
@@ -1470,7 +1731,36 @@ class GroundingMetadata(proto.Message):
             Google Maps grounding.
 
             This field is a member of `oneof`_ ``_google_maps_widget_context_token``.
+        source_flagging_uris (MutableSequence[google.cloud.aiplatform_v1.types.GroundingMetadata.SourceFlaggingUri]):
+            List of source flagging uris. This is
+            currently populated only for Google Maps
+            grounding.
     """
+
+    class SourceFlaggingUri(proto.Message):
+        r"""Source content flagging uri for a place or review. This is
+        currently populated only for Google Maps grounding.
+
+        Attributes:
+            source_id (str):
+                Id of the place or review.
+            flag_content_uri (str):
+                A link where users can flag a problem with
+                the source (place or review). (-- The link is
+                generated by Google and it does not contain
+                information from the user query. It may contain
+                information of the content it is flagging, which
+                can be used to identify places. --)
+        """
+
+        source_id: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+        flag_content_uri: str = proto.Field(
+            proto.STRING,
+            number=2,
+        )
 
     web_search_queries: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
@@ -1502,6 +1792,11 @@ class GroundingMetadata(proto.Message):
         proto.STRING,
         number=8,
         optional=True,
+    )
+    source_flagging_uris: MutableSequence[SourceFlaggingUri] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=SourceFlaggingUri,
     )
 
 

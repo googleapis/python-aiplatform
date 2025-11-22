@@ -588,6 +588,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                     SHARD_SIZE_SMALL
                     SHARD_SIZE_MEDIUM
                     SHARD_SIZE_LARGE
+                    SHARD_SIZE_SO_DYNAMIC
 
 
         Returns:
@@ -595,10 +596,15 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
 
         """
 
-        algorithm_config = matching_engine_index_config.TreeAhConfig(
-            leaf_node_embedding_count=leaf_node_embedding_count,
-            leaf_nodes_to_search_percent=leaf_nodes_to_search_percent,
-        )
+        algorithm_config = None
+        if (
+            leaf_node_embedding_count is not None
+            or leaf_nodes_to_search_percent is not None
+        ):
+            algorithm_config = matching_engine_index_config.TreeAhConfig(
+                leaf_node_embedding_count=leaf_node_embedding_count,
+                leaf_nodes_to_search_percent=leaf_nodes_to_search_percent,
+            )
 
         config = matching_engine_index_config.MatchingEngineIndexConfig(
             dimensions=dimensions,
@@ -740,6 +746,7 @@ class MatchingEngineIndex(base.VertexAiResourceNounWithFutureManager):
                     SHARD_SIZE_SMALL
                     SHARD_SIZE_MEDIUM
                     SHARD_SIZE_LARGE
+                    SHARD_SIZE_SO_DYNAMIC
 
         Returns:
             MatchingEngineIndex - Index resource object

@@ -72,9 +72,7 @@ from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import
 from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
     DeploymentResourcePoolServiceClient,
 )
-from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import pagers
 from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import (
     transports,
 )
@@ -933,10 +931,9 @@ def test_deployment_resource_pool_service_client_get_mtls_endpoint_and_cert_sour
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -6112,6 +6109,7 @@ def test_update_deployment_resource_pool_rest_call_success(request_type):
                 "machine_type": "machine_type_value",
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
+                "gpu_partition_size": "gpu_partition_size_value",
                 "tpu_topology": "tpu_topology_value",
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,
@@ -7926,6 +7924,7 @@ async def test_update_deployment_resource_pool_rest_asyncio_call_success(request
                 "machine_type": "machine_type_value",
                 "accelerator_type": 1,
                 "accelerator_count": 1805,
+                "gpu_partition_size": "gpu_partition_size_value",
                 "tpu_topology": "tpu_topology_value",
                 "reservation_affinity": {
                     "reservation_affinity_type": 1,

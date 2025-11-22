@@ -20,8 +20,10 @@ from concurrent import futures
 import json
 import logging
 import statistics
+import time
 from typing import Any, Callable, Optional, TypeVar, Union
 
+from google.genai import errors as genai_errors
 from google.genai import _common
 from google.genai import types as genai_types
 from tqdm import tqdm
@@ -34,6 +36,19 @@ from . import types
 
 
 logger = logging.getLogger(__name__)
+_MAX_RETRIES = 3
+
+
+def _has_tool_call(intermediate_events: Optional[list[types.evals.Event]]) -> bool:
+    """Checks if any event in intermediate_events has a function call."""
+    if not intermediate_events:
+        return False
+    for event in intermediate_events:
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if hasattr(part, "function_call") and part.function_call:
+                    return True
+    return False
 
 
 def _extract_text_from_content(
@@ -78,17 +93,22 @@ def _extract_text_from_content(
 def _default_aggregate_scores(
     metric_name: str,
     eval_case_metric_results: list[types.EvalCaseMetricResult],
+    calculate_pass_rate: bool = False,
 ) -> types.AggregatedMetricResult:
     """Default aggregation logic using mean and standard deviation."""
     scores = []
     num_error = 0
     num_valid = 0
+    num_passing = 0
 
     for result in eval_case_metric_results:
         if result.error_message is None and result.score is not None:
             try:
-                scores.append(float(result.score))
+                score = float(result.score)
+                scores.append(score)
                 num_valid += 1
+                if calculate_pass_rate and score == 1.0:
+                    num_passing += 1
             except (ValueError, TypeError):
                 logger.warning(
                     "Could not convert score '%s' to float for metric '%s' during"
@@ -102,11 +122,16 @@ def _default_aggregate_scores(
 
     mean_score = None
     stdev_score = None
+    pass_rate = None
+
     if num_valid > 0:
         try:
             mean_score = statistics.mean(scores)
         except statistics.StatisticsError as e:
             logger.warning("Could not calculate mean for %s: %s", metric_name, e)
+        if calculate_pass_rate:
+            pass_rate = num_passing / num_valid
+
     if num_valid > 1:
         try:
             stdev_score = statistics.stdev(scores)
@@ -120,6 +145,7 @@ def _default_aggregate_scores(
         num_cases_error=num_error,
         mean_score=mean_score,
         stdev_score=stdev_score,
+        pass_rate=pass_rate if calculate_pass_rate else None,
     )
 
 
@@ -462,15 +488,25 @@ class LLMMetricHandler(MetricHandler):
                 "must be a dictionary."
             )
 
-        rubrics_list = rubric_groups_data.get(self.metric.rubric_group_name, [])
+        rubric_group_from_data = rubric_groups_data.get(
+            self.metric.rubric_group_name, {}
+        )
+        if isinstance(rubric_group_from_data, dict):
+            rubrics_list = rubric_group_from_data.get("rubrics", [])
+        else:
+            rubrics_list = []
+
         if not isinstance(rubrics_list, list):
             logger.warning(
-                "Rubric group '%s' in 'rubric_groups' is not a list for case %s.",
+                "Rubrics for group '%s' in case %s is not a list: %s. "
+                "Skipping rubrics for this case.",
                 self.metric.rubric_group_name,
                 eval_case.eval_case_id,
+                rubrics_list,
             )
             rubrics_list = []
 
+        parsed_rubrics = [types.evals.Rubric(**r) for r in rubrics_list]
         rubric_enhanced_contents = {
             "prompt": (
                 [eval_case.prompt.model_dump(mode="json", exclude_none=True)]
@@ -481,8 +517,8 @@ class LLMMetricHandler(MetricHandler):
             "rubric_groups": {
                 self.metric.rubric_group_name: {
                     "rubrics": [
-                        r.model_dump(mode="json") if isinstance(r, types.Rubric) else r
-                        for r in rubrics_list
+                        r.model_dump(mode="json", exclude_none=True)
+                        for r in parsed_rubrics
                     ]
                 }
             },
@@ -525,7 +561,7 @@ class LLMMetricHandler(MetricHandler):
             elif isinstance(value, list) and value:
                 if isinstance(value[0], genai_types.Content):
                     content_list_to_serialize = value
-                elif isinstance(value[0], types.Message):
+                elif isinstance(value[0], types.evals.Message):
                     history_texts = []
                     for msg_obj in value:
                         msg_text = _extract_text_from_content(msg_obj.content)
@@ -827,12 +863,54 @@ class PredefinedMetricHandler(MetricHandler):
     @staticmethod
     def _content_to_instance_data(
         content: Optional[genai_types.Content],
-    ) -> Optional[types.InstanceData]:
+    ) -> Optional[types.evals.InstanceData]:
         """Converts a genai_types.Content object to a types.InstanceData object."""
         if not content:
             return None
-        return types.InstanceData(
-            contents=types.InstanceDataContents(contents=[content])
+        return types.evals.InstanceData(
+            contents=types.evals.InstanceDataContents(contents=[content])
+        )
+
+    @staticmethod
+    def _eval_case_to_agent_data(
+        eval_case: types.EvalCase,
+    ) -> Optional[types.evals.AgentData]:
+        """Converts an EvalCase object to an AgentData object."""
+        if not eval_case.agent_info and not eval_case.intermediate_events:
+            return None
+        tools = None
+        developer_instruction = None
+        agent_config = None
+        tool_declarations = []
+        event_contents = []
+
+        if eval_case.agent_info:
+            agent_info = eval_case.agent_info
+            if agent_info.instruction:
+                developer_instruction = types.evals.InstanceData(
+                    text=agent_info.instruction
+                )
+            if agent_info.tool_declarations:
+                tool_declarations = agent_info.tool_declarations
+            tools = types.evals.Tools(tool=tool_declarations)
+
+            if tools or developer_instruction:
+                agent_config = types.evals.AgentConfig(
+                    tools=tools,
+                    developer_instruction=developer_instruction,
+                )
+
+        if eval_case.intermediate_events:
+            event_contents = [
+                event.content
+                for event in eval_case.intermediate_events
+                if event.content
+            ]
+        events = types.evals.Events(event=event_contents)
+
+        return types.evals.AgentData(
+            agent_config=agent_config,
+            events=events,
         )
 
     def _build_request_payload(
@@ -848,19 +926,64 @@ class PredefinedMetricHandler(MetricHandler):
                 f"Response content missing for candidate {response_index}."
             )
 
+        if self.metric.name == "tool_use_quality_v1":
+            if not _has_tool_call(eval_case.intermediate_events):
+                logger.warning(
+                    "Metric 'tool_use_quality_v1' requires tool usage in "
+                    "'intermediate_events', but no tool usage was found for case %s.",
+                    eval_case.eval_case_id,
+                )
+
         reference_instance_data = None
         if eval_case.reference:
             reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
                 eval_case.reference.response
             )
 
+        prompt_instance_data = None
+        if self.metric.name is not None and self.metric.name.startswith("multi_turn"):
+            prompt_contents = []
+            if eval_case.conversation_history:
+                for message in eval_case.conversation_history:
+                    prompt_contents.append(message.content)
+            if eval_case.prompt:
+                prompt_contents.append(eval_case.prompt)
+
+            prompt_instance_data = types.evals.InstanceData(
+                contents=types.evals.InstanceDataContents(contents=prompt_contents)
+            )
+        else:
+            prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
+                eval_case.prompt
+            )
+
+        other_data_map: dict[str, Any] = {}
+        if hasattr(eval_case, "context") and eval_case.context:
+            if isinstance(eval_case.context, str):
+                other_data_map["context"] = types.evals.InstanceData(
+                    text=eval_case.context
+                )
+            elif isinstance(eval_case.context, genai_types.Content):
+                other_data_map["context"] = (
+                    PredefinedMetricHandler._content_to_instance_data(eval_case.context)
+                )
+            else:
+                logger.warning(
+                    f"Unsupported type for context: {type(eval_case.context)}"
+                )
         instance_payload = types.EvaluationInstance(
-            prompt=PredefinedMetricHandler._content_to_instance_data(eval_case.prompt),
+            prompt=prompt_instance_data,
             response=PredefinedMetricHandler._content_to_instance_data(
                 response_content
             ),
             reference=reference_instance_data,
             rubric_groups=eval_case.rubric_groups,
+            other_data=(
+                types.MapInstance(map_instance=other_data_map)
+                if other_data_map
+                else None
+            ),
+            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
 
         return {
@@ -875,10 +998,30 @@ class PredefinedMetricHandler(MetricHandler):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            api_response = self.module._evaluate_instances(
-                metrics=[self.metric],
-                instance=payload.get("instance"),
-            )
+            for attempt in range(_MAX_RETRIES):
+                try:
+                    api_response = self.module._evaluate_instances(
+                        metrics=[self.metric], instance=payload.get("instance")
+                    )
+                    break
+                except genai_errors.ClientError as e:
+                    if e.code == 429:
+                        logger.warning(
+                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                            " seconds...",
+                            attempt + 1,
+                            _MAX_RETRIES,
+                            e,
+                            2**attempt,
+                        )
+                        if attempt == _MAX_RETRIES - 1:
+                            return types.EvalCaseMetricResult(
+                                metric_name=metric_name,
+                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
+                            )
+                        time.sleep(2**attempt)
+                    else:
+                        raise e
 
             if (
                 api_response
@@ -886,8 +1029,9 @@ class PredefinedMetricHandler(MetricHandler):
                 and api_response.metric_results
             ):
                 result_data = api_response.metric_results[0]
+
                 error_message = None
-                if result_data.error:
+                if result_data.error and getattr(result_data.error, "code"):
                     error_message = f"Error in metric result: {result_data.error}"
                 return types.EvalCaseMetricResult(
                     metric_name=metric_name,
@@ -929,7 +1073,9 @@ class PredefinedMetricHandler(MetricHandler):
     ) -> types.AggregatedMetricResult:
         """Aggregates the metric results for a predefined metric."""
         logger.debug("Aggregating results for predefined metric: %s", self.metric.name)
-        return _default_aggregate_scores(self.metric.name, eval_case_metric_results)
+        return _default_aggregate_scores(
+            self.metric.name, eval_case_metric_results, calculate_pass_rate=True
+        )
 
 
 _METRIC_HANDLER_MAPPING = [

@@ -75,9 +75,7 @@ from google.cloud.aiplatform_v1.types import (
     tensorboard_experiment as gca_tensorboard_experiment,
 )
 from google.cloud.aiplatform_v1.types import tensorboard_run
-from google.cloud.aiplatform_v1.types import (
-    tensorboard_run as gca_tensorboard_run,
-)
+from google.cloud.aiplatform_v1.types import tensorboard_run as gca_tensorboard_run
 from google.cloud.aiplatform_v1.types import tensorboard_service
 from google.cloud.aiplatform_v1.types import tensorboard_time_series
 from google.cloud.aiplatform_v1.types import (
@@ -726,11 +724,9 @@ class TensorboardServiceClient(metaclass=TensorboardServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = TensorboardServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            TensorboardServiceClient._read_environment_variables()
+        )
         self._client_cert_source = TensorboardServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )

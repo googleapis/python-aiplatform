@@ -25,5 +25,38 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "multi_turn_text_quality_v1",
         "final_response_match_v2",
         "final_response_reference_free_v1",
+        "final_response_quality_v1",
+        "hallucination_v1",
+        "tool_use_quality_v1",
+        "gecko_text2image_v1",
+        "gecko_text2video_v1",
+    }
+)
+
+SUPPORTED_VERTEX_MAAS_MODEL_PREFIXES = frozenset(
+    {
+        "meta/",  # Meta/Llama
+        "deepseek-ai/",  # DeepSeek AI
+        "qwen/",  # Qwen
+        "openai/",  # OpenAI (GPT-OSS)
+        "claude-",  # Anthropic (Claude)
+        "mistral-",  # Mistral AI
+        "jamba-",  # AI21 (Jamba)
+    }
+)
+INTERMEDIATE_EVENTS = "intermediate_events"
+RESPONSE = "response"
+PROMPT = "prompt"
+REFERENCE = "reference"
+SESSION_INPUT = "session_inputs"
+CONTEXT = "context"
+
+COMMON_DATASET_COLUMNS = frozenset(
+    {
+        INTERMEDIATE_EVENTS,
+        PROMPT,
+        REFERENCE,
+        SESSION_INPUT,
+        CONTEXT,
     }
 )

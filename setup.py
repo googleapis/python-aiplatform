@@ -53,12 +53,12 @@ profiler_extra_require = [
 tensorboard_extra_require = profiler_extra_require
 
 metadata_extra_require = ["pandas >= 1.0.0", "numpy>=1.15.0"]
-xai_extra_require = ["tensorflow >=2.3.0, <3.0.0"]
+xai_extra_require = ["tensorflow >=2.3.0, <3.0.0; python_version<'3.13'"]
 lit_extra_require = [
-    "tensorflow >= 2.3.0, <3.0.0",
+    "tensorflow >= 2.3.0, <3.0.0; python_version<'3.13'",
     "pandas >= 1.0.0",
-    "lit-nlp == 0.4.0",
-    "explainable-ai-sdk >= 1.0.0",
+    "lit-nlp == 0.4.0; python_version<'3.14'",
+    "explainable-ai-sdk >= 1.0.0; python_version<'3.13'",
 ]
 featurestore_extra_require = [
     "google-cloud-bigquery-storage",
@@ -93,7 +93,10 @@ private_endpoints_extra_require = [
     "requests >= 2.28.1",
 ]
 
-autologging_extra_require = ["mlflow>=1.27.0,<=2.16.0"]
+autologging_extra_require = [
+    "mlflow>=1.27.0,<=2.16.0; python_version<'3.13'",
+    "mlflow>=1.27.0; python_version>='3.13'",
+]
 
 preview_extra_require = []
 
@@ -131,7 +134,7 @@ ray_testing_extra_require = ray_extra_require + [
     "ray[train]",
     # Framework version constraints copied from testing_extra_require
     "scikit-learn<1.6.0",
-    "tensorflow",
+    "tensorflow; python_version<'3.13'",
     "torch >= 2.0.0, < 2.1.0",
     "xgboost",
     "xgboost_ray",
@@ -140,17 +143,16 @@ ray_testing_extra_require = ray_extra_require + [
 adk_extra_require = [
     # 1.0.0 contains breaking changes, so we need to pin to 1.0.0.
     "google-adk >= 1.0.0, < 2.0.0",
-]
-
-a2a_extra_require = [
-    "a2a-sdk >= 0.3.4",
+    "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
 ]
 
 reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
     "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
+    "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
     "opentelemetry-exporter-gcp-trace < 2",
+    "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
 ]
@@ -161,7 +163,9 @@ agent_engines_extra_require = [
     "google-cloud-trace < 2",
     "google-cloud-logging < 4",
     "opentelemetry-sdk < 2",
+    "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
     "opentelemetry-exporter-gcp-trace < 2",
+    "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
 ]
@@ -174,7 +178,7 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm >= 1.72.4",
+    "litellm >= 1.72.4, != 1.77.2, != 1.77.3, != 1.77.4",
 ]
 
 langchain_extra_require = [
@@ -249,24 +253,28 @@ testing_extra_require = (
         # aiohttp is required for async rest tests (need google-auth[aiohttp],
         # but can't specify extras in constraints files)
         "aiohttp",
-        "bigframes; python_version>='3.10'",
+        "bigframes; python_version>='3.10' and python_version<'3.14'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
         "grpcio-testing",
+        "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",
-        "kfp >= 2.6.0, < 3.0.0",
+        "kfp >= 2.6.0, < 3.0.0; python_version<'3.13'",
         "pytest-asyncio",
+        "pytest-cov",
+        "mock",
         "pytest-xdist",
+        "Pillow",
         "scikit-learn<1.6.0; python_version<='3.10'",
         "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
         "tensorflow == 2.14.1; python_version<='3.11'",
-        "tensorflow == 2.19.0; python_version>'3.11'",
+        "tensorflow == 2.19.0; python_version>'3.11' and python_version<'3.13'",
         "protobuf <= 5.29.4",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
-        "torch >= 2.2.0; python_version>'3.11'",
+        "torch >= 2.2.0; python_version>'3.11' and python_version<'3.13'",
         "requests-toolbelt <= 1.0.0",
         "immutabledict",
         "xgboost",
@@ -303,11 +311,12 @@ setuptools.setup(
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
-        "google-cloud-storage >= 1.32.0, < 3.0.0",
+        "google-cloud-storage >= 1.32.0, < 4.0.0; python_version<'3.13'",
+        "google-cloud-storage >= 2.10.0, < 4.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
-        "google-genai >= 1.0.0, <2.0.0",
+        "google-genai >= 1.37.0, <2.0.0",
     )
     + genai_requires,
     extras_require={
@@ -329,7 +338,6 @@ setuptools.setup(
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
         "adk": adk_extra_require,
-        "a2a": a2a_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
         "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,
@@ -352,6 +360,8 @@ setuptools.setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Internet",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],

@@ -19,11 +19,11 @@ from . import types
 
 
 def _get_service_account(
-    config: types.PromptOptimizerVAPOConfigOrDict,
+    config: types.PromptOptimizerConfigOrDict,
 ) -> str:
     """Get the service account from the config for the custom job."""
     if isinstance(config, dict):
-        config = types.PromptOptimizerVAPOConfig.model_validate(config)
+        config = types.PromptOptimizerConfig.model_validate(config)
 
     if config.service_account and config.service_account_project_number:
         raise ValueError(
@@ -70,7 +70,7 @@ def _clean_and_parse_optimized_prompt(output_str: str):
         ) from e
 
 
-def _parse(output_str: str) -> types.OptimizeResponse:
+def _parse(output_str: str) -> types.ParsedResponse:
     """Parses the output string from the prompt optimizer endpoint."""
     parsed_out = _clean_and_parse_optimized_prompt(output_str)
-    return types.OptimizeResponse(**parsed_out)
+    return types.ParsedResponse(**parsed_out)

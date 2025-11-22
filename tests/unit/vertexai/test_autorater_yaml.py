@@ -148,6 +148,7 @@ def google_auth_mock():
 def mock_storage_blob():
     with mock.patch("google.cloud.storage.Blob") as mock_blob:
         mock_blob.from_string.return_value = mock_blob
+        mock_blob.from_uri.return_value = mock_blob
         yield mock_blob
 
 
@@ -474,9 +475,9 @@ class TestAutoraterYaml:
     def test_upload_string_to_gcs(self, mock_storage_blob):
         """Test upload evaluation results to GCS."""
         utils._upload_string_to_gcs(_TEST_GCS_PATH, _TEST_POINTWISE_YAML)
-        mock_storage_blob.from_string.assert_called_once_with(
-            uri=_TEST_GCS_PATH, client=mock.ANY
-        )
+        string_calls = mock_storage_blob.from_string.call_count  # gcs < 3.0.0
+        uri_calls = mock_storage_blob.from_uri.call_count  # gcs >= 3.0.0
+        assert uri_calls + string_calls == 1
         mock_storage_blob.upload_from_string.assert_called_once()
         data = mock_storage_blob.upload_from_string.call_args.args[0]
         assert data == _TEST_POINTWISE_YAML

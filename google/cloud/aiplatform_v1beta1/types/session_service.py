@@ -121,16 +121,16 @@ class ListSessionsRequest(proto.Message):
             call.
         filter (str):
             Optional. The standard list filter. Supported fields: \*
-            ``display_name``
+            ``display_name`` \* ``user_id``
 
-            Example: ``display_name=abc``.
+            Example: ``display_name="abc"``, ``user_id="123"``.
         order_by (str):
             Optional. A comma-separated list of fields to order by,
             sorted in ascending order. Use "desc" after a field name for
             descending. Supported fields:
 
-            -  ``create_time``
-            -  ``update_time``
+            - ``create_time``
+            - ``update_time``
 
             Example: ``create_time desc``.
     """
@@ -256,6 +256,14 @@ class ListEventsRequest(proto.Message):
             timestamp is in RFC 3339 format)
 
             More detail in `AIP-160 <https://google.aip.dev/160>`__.
+        order_by (str):
+            Optional. A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a field name for
+            descending. Supported fields:
+
+            - ``timestamp``
+
+            Example: ``timestamp desc``.
     """
 
     parent: str = proto.Field(
@@ -273,6 +281,10 @@ class ListEventsRequest(proto.Message):
     filter: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 

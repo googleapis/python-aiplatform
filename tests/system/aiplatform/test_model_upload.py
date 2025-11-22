@@ -23,6 +23,7 @@ from google.cloud import aiplatform
 from google.cloud import storage
 
 from tests.system.aiplatform import e2e_base
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 
 _XGBOOST_MODEL_URI = "gs://cloud-samples-data-us-central1/vertex-ai/google-cloud-aiplatform-ci-artifacts/models/iris_xgboost/model.bst"
@@ -42,9 +43,7 @@ class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
         )
 
         storage_client = storage.Client(project=e2e_base._PROJECT)
-        model_blob = storage.Blob.from_string(
-            uri=_XGBOOST_MODEL_URI, client=storage_client
-        )
+        model_blob = blob_from_uri(uri=_XGBOOST_MODEL_URI, client=storage_client)
         model_path = tempfile.mktemp() + ".my_model.xgb"
         model_blob.download_to_filename(filename=model_path)
 
@@ -53,9 +52,7 @@ class TestModelUploadAndUpdate(e2e_base.TestEndToEnd):
         )
         shared_state["resources"] = [model]
 
-        staging_bucket = storage.Blob.from_string(
-            uri=model.uri, client=storage_client
-        ).bucket
+        staging_bucket = blob_from_uri(uri=model.uri, client=storage_client).bucket
         # Checking that the bucket is auto-generated
         assert "-vertex-staging-" in staging_bucket.name
 

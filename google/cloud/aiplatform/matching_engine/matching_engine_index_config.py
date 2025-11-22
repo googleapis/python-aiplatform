@@ -120,7 +120,7 @@ class MatchingEngineIndexConfig:
         dimensions (int):
             Required. The number of dimensions of the input vectors.
         algorithm_config (AlgorithmConfig):
-            Required. The configuration with regard to the algorithms used for efficient search.
+            Optional. The configuration with regard to the algorithms used for efficient search.
         approximate_neighbors_count (int):
             Optional. The default number of neighbors to find via approximate search before exact reordering is
             performed. Exact reordering is a procedure where results returned by an
@@ -139,7 +139,7 @@ class MatchingEngineIndexConfig:
     """
 
     dimensions: int
-    algorithm_config: AlgorithmConfig
+    algorithm_config: Optional[AlgorithmConfig] = None
     approximate_neighbors_count: Optional[int] = None
     distance_measure_type: Optional[DistanceMeasureType] = None
     feature_norm_type: Optional[FeatureNormType] = None
@@ -153,10 +153,13 @@ class MatchingEngineIndexConfig:
         """
         res = {
             "dimensions": self.dimensions,
-            "algorithmConfig": self.algorithm_config.as_dict(),
             "approximateNeighborsCount": self.approximate_neighbors_count,
             "distanceMeasureType": self.distance_measure_type,
             "featureNormType": self.feature_norm_type,
             "shardSize": self.shard_size,
         }
+        if self.algorithm_config:
+            res["algorithmConfig"] = self.algorithm_config.as_dict()
+        else:
+            res["algorithmConfig"] = None
         return res

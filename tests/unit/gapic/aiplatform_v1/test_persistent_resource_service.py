@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1.services.persistent_resource_service import (
 from google.cloud.aiplatform_v1.services.persistent_resource_service import (
     PersistentResourceServiceClient,
 )
-from google.cloud.aiplatform_v1.services.persistent_resource_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1.services.persistent_resource_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.persistent_resource_service import pagers
+from google.cloud.aiplatform_v1.services.persistent_resource_service import transports
 from google.cloud.aiplatform_v1.types import accelerator_type
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
@@ -927,10 +923,9 @@ def test_persistent_resource_service_client_get_mtls_endpoint_and_cert_source(
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -5305,6 +5300,7 @@ def test_create_persistent_resource_rest_call_success(request_type):
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
@@ -6011,6 +6007,7 @@ def test_update_persistent_resource_rest_call_success(request_type):
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
@@ -7218,6 +7215,7 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,
@@ -7988,6 +7986,7 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
                     "machine_type": "machine_type_value",
                     "accelerator_type": 1,
                     "accelerator_count": 1805,
+                    "gpu_partition_size": "gpu_partition_size_value",
                     "tpu_topology": "tpu_topology_value",
                     "reservation_affinity": {
                         "reservation_affinity_type": 1,

@@ -602,11 +602,9 @@ class DataFoundryServiceClient(metaclass=DataFoundryServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = DataFoundryServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            DataFoundryServiceClient._read_environment_variables()
+        )
         self._client_cert_source = DataFoundryServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )

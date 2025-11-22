@@ -26,6 +26,7 @@ from google.cloud.aiplatform.models import ModelRegistry
 
 from tests.system.aiplatform import e2e_base
 from tests.system.aiplatform import test_model_upload
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 
 @pytest.mark.usefixtures("tear_down_resources")
@@ -42,7 +43,7 @@ class TestVersionManagement(e2e_base.TestEndToEnd):
         )
 
         storage_client = storage.Client(project=e2e_base._PROJECT)
-        model_blob = storage.Blob.from_string(
+        model_blob = blob_from_uri(
             uri=test_model_upload._XGBOOST_MODEL_URI, client=storage_client
         )
         model_path = tempfile.mktemp() + ".my_model.xgb"
@@ -60,9 +61,7 @@ class TestVersionManagement(e2e_base.TestEndToEnd):
         )
         shared_state["resources"] = [model]
 
-        staging_bucket = storage.Blob.from_string(
-            uri=model.uri, client=storage_client
-        ).bucket
+        staging_bucket = blob_from_uri(uri=model.uri, client=storage_client).bucket
         # Checking that the bucket is auto-generated
         assert "-vertex-staging-" in staging_bucket.name
 

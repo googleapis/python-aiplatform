@@ -33,6 +33,7 @@ from google.cloud.aiplatform.compat.services import (
 from google.cloud.aiplatform.compat.types import (
     pipeline_state as gca_pipeline_state,
 )
+from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 
 try:
     import pandas
@@ -496,9 +497,7 @@ def _get_metrics_from_gcs_uri(
         credentials=aiplatform_initializer.global_config.credentials
     )
 
-    metrics_json = storage.Blob.from_string(
-        uri=gcs_uri, client=storage_client
-    ).download_as_text()
+    metrics_json = blob_from_uri(uri=gcs_uri, client=storage_client).download_as_text()
 
     # Sliced classification metrics case, format data
     if "slicedMetrics" in metrics_json:

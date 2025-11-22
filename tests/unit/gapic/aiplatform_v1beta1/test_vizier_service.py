@@ -69,13 +69,9 @@ from google.auth.exceptions import MutualTLSChannelError
 from google.cloud.aiplatform_v1beta1.services.vizier_service import (
     VizierServiceAsyncClient,
 )
-from google.cloud.aiplatform_v1beta1.services.vizier_service import (
-    VizierServiceClient,
-)
+from google.cloud.aiplatform_v1beta1.services.vizier_service import VizierServiceClient
 from google.cloud.aiplatform_v1beta1.services.vizier_service import pagers
-from google.cloud.aiplatform_v1beta1.services.vizier_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.vizier_service import transports
 from google.cloud.aiplatform_v1beta1.types import study
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
 from google.cloud.aiplatform_v1beta1.types import vizier_service
@@ -852,10 +848,9 @@ def test_vizier_service_client_get_mtls_endpoint_and_cert_source(client_class):
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

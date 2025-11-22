@@ -28,9 +28,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 
 from google.cloud.aiplatform_v1.types import index_endpoint
-from google.cloud.aiplatform_v1.types import (
-    index_endpoint as gca_index_endpoint,
-)
+from google.cloud.aiplatform_v1.types import index_endpoint as gca_index_endpoint
 from google.cloud.aiplatform_v1.types import index_endpoint_service
 from google.longrunning import operations_pb2  # type: ignore
 

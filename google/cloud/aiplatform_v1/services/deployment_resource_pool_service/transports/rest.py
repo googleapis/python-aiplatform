@@ -733,9 +733,10 @@ class DeploymentResourcePoolServiceRestTransport(
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
 
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if ``channel`` is provided. This argument will be
+                removed in the next major version of this library.
             scopes (Optional(Sequence[str])): A list of scopes. This argument is
                 ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Callable[[], Tuple[bytes, bytes]]): Client
@@ -2864,11 +2865,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_create_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_create_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_create_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3020,11 +3020,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_delete_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_delete_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_delete_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3343,11 +3342,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_list_deployment_resource_pools(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_list_deployment_resource_pools_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_list_deployment_resource_pools_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3664,11 +3662,10 @@ class DeploymentResourcePoolServiceRestTransport(
 
             resp = self._interceptor.post_update_deployment_resource_pool(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_update_deployment_resource_pool_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_update_deployment_resource_pool_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

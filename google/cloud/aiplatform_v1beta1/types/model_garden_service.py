@@ -23,9 +23,8 @@ from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import machine_resources
 from google.cloud.aiplatform_v1beta1.types import model as gca_model
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.cloud.aiplatform_v1beta1.types import (
-    publisher_model as gca_publisher_model,
-)
+from google.cloud.aiplatform_v1beta1.types import publisher_model as gca_publisher_model
+from google.cloud.aiplatform_v1beta1.types import service_networking
 
 
 __protobuf__ = proto.module(
@@ -381,19 +380,25 @@ class DeployRequest(proto.Message):
                 {region}-aiplatform.googleapis.com. The limitations will be
                 removed soon.
             dedicated_endpoint_disabled (bool):
-                Optional. By default, if dedicated endpoint is enabled, the
-                endpoint will be exposed through a dedicated DNS
-                [Endpoint.dedicated_endpoint_dns]. Your request to the
-                dedicated DNS will be isolated from other users' traffic and
-                will have better performance and reliability. Note: Once you
-                enabled dedicated endpoint, you won't be able to send
-                request to the shared DNS
-                {region}-aiplatform.googleapis.com. The limitations will be
-                removed soon.
+                Optional. By default, if dedicated endpoint is enabled and
+                private service connect config is not set, the endpoint will
+                be exposed through a dedicated DNS
+                [Endpoint.dedicated_endpoint_dns]. If private service
+                connect config is set, the endpoint will be exposed through
+                private service connect. Your request to the dedicated DNS
+                will be isolated from other users' traffic and will have
+                better performance and reliability. Note: Once you enabled
+                dedicated endpoint, you won't be able to send request to the
+                shared DNS {region}-aiplatform.googleapis.com. The
+                limitations will be removed soon.
 
                 If this field is set to true, the dedicated endpoint will be
                 disabled and the deployed model will be exposed through the
                 shared DNS {region}-aiplatform.googleapis.com.
+            private_service_connect_config (google.cloud.aiplatform_v1beta1.types.PrivateServiceConnectConfig):
+                Optional. Configuration for private service
+                connect. If set, the endpoint will be exposed
+                through private service connect.
             endpoint_user_id (str):
                 Optional. Immutable. The ID to use for endpoint, which will
                 become the final component of the endpoint resource name. If
@@ -424,6 +429,13 @@ class DeployRequest(proto.Message):
         dedicated_endpoint_disabled: bool = proto.Field(
             proto.BOOL,
             number=4,
+        )
+        private_service_connect_config: (
+            service_networking.PrivateServiceConnectConfig
+        ) = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            message=service_networking.PrivateServiceConnectConfig,
         )
         endpoint_user_id: str = proto.Field(
             proto.STRING,

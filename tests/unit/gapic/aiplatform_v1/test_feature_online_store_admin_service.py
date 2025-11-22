@@ -83,9 +83,7 @@ from google.cloud.aiplatform_v1.types import feature_online_store
 from google.cloud.aiplatform_v1.types import (
     feature_online_store as gca_feature_online_store,
 )
-from google.cloud.aiplatform_v1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view as gca_feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
@@ -941,10 +939,9 @@ def test_feature_online_store_admin_service_client_get_mtls_endpoint_and_cert_so
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -10266,7 +10263,13 @@ def test_create_feature_online_store_rest_call_success(request_type):
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "name_value",
@@ -10816,7 +10819,13 @@ def test_update_feature_online_store_rest_call_success(request_type):
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3",
@@ -11235,6 +11244,7 @@ def test_create_feature_view_rest_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -11781,6 +11791,7 @@ def test_update_feature_view_rest_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -13518,7 +13529,13 @@ async def test_create_feature_online_store_rest_asyncio_call_success(request_typ
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "name_value",
@@ -14116,7 +14133,13 @@ async def test_update_feature_online_store_rest_asyncio_call_success(request_typ
                 "min_node_count": 1489,
                 "max_node_count": 1491,
                 "cpu_utilization_target": 2377,
-            }
+            },
+            "enable_direct_bigtable_access": True,
+            "bigtable_metadata": {
+                "tenant_project_id": "tenant_project_id_value",
+                "instance_id": "instance_id_value",
+                "table_id": "table_id_value",
+            },
         },
         "optimized": {},
         "name": "projects/sample1/locations/sample2/featureOnlineStores/sample3",
@@ -14567,6 +14590,7 @@ async def test_create_feature_view_rest_asyncio_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -15162,6 +15186,7 @@ async def test_update_feature_view_rest_asyncio_call_success(request_type):
         "service_account_email": "service_account_email_value",
         "satisfies_pzs": True,
         "satisfies_pzi": True,
+        "bigtable_metadata": {"read_app_profile": "read_app_profile_value"},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

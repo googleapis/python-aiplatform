@@ -18,19 +18,20 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
 
+import pytest
+
+
 TEST_PROMPT_DATASET_ID = "6550997480673116160"
 TEST_PROMPT_VERSION_ID = "2"
 
 
 def test_get_dataset(client):
-    dataset = client.prompt_management._get_dataset_resource(
-        name=TEST_PROMPT_DATASET_ID
-    )
+    dataset = client.prompts._get_dataset_resource(name=TEST_PROMPT_DATASET_ID)
     assert isinstance(dataset, types.Dataset)
 
 
 def test_get_prompt(client):
-    prompt = client.prompt_management.get(prompt_id=TEST_PROMPT_DATASET_ID)
+    prompt = client.prompts.get(prompt_id=TEST_PROMPT_DATASET_ID)
     assert isinstance(prompt, types.Prompt)
     assert isinstance(prompt.dataset, types.Dataset)
     assert prompt.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
@@ -45,11 +46,9 @@ def test_get_prompt(client):
 
 
 def test_get_prompt_version(client):
-    prompt = client.prompt_management.get(
+    prompt = client.prompts.get_version(
         prompt_id=TEST_PROMPT_DATASET_ID,
-        config=types.GetPromptConfig(
-            version_id=TEST_PROMPT_VERSION_ID,
-        ),
+        version_id=TEST_PROMPT_VERSION_ID,
     )
     assert isinstance(prompt, types.Prompt)
     assert isinstance(prompt.dataset, types.Dataset)
@@ -59,7 +58,7 @@ def test_get_prompt_version(client):
 
 
 def test_get_prompt_with_variables_and_assemble_contents(client):
-    prompt = client.prompt_management.get(
+    prompt = client.prompts.get(
         prompt_id="4505721135056289792",
     )
     assert isinstance(prompt.prompt_data, types.SchemaPromptSpecPromptMessage)
@@ -73,5 +72,38 @@ def test_get_prompt_with_variables_and_assemble_contents(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="prompt_management._get_dataset_resource",
+    test_method="prompts._get_dataset_resource",
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_get_prompt_async(client):
+    prompt = await client.aio.prompts.get(prompt_id=TEST_PROMPT_DATASET_ID)
+    assert isinstance(prompt, types.Prompt)
+    assert isinstance(prompt.dataset, types.Dataset)
+    assert prompt.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
+    assert (
+        prompt.prompt_data
+        == prompt.dataset.metadata.prompt_api_schema.multimodal_prompt.prompt_message
+    )
+    assert isinstance(prompt.prompt_data, types.SchemaPromptSpecPromptMessage)
+
+    contents = prompt.assemble_contents()
+    assert isinstance(contents[0], genai_types.Content)
+
+
+@pytest.mark.asyncio
+async def test_get_prompt_version_async(client):
+    prompt = await client.aio.prompts.get_version(
+        prompt_id=TEST_PROMPT_DATASET_ID, version_id=TEST_PROMPT_VERSION_ID
+    )
+    assert isinstance(prompt, types.Prompt)
+    assert isinstance(prompt.dataset, types.Dataset)
+    assert prompt.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
+    assert (
+        prompt.prompt_data
+        == prompt.dataset.metadata.prompt_api_schema.multimodal_prompt.prompt_message
+    )
+    assert isinstance(prompt.prompt_data, types.SchemaPromptSpecPromptMessage)

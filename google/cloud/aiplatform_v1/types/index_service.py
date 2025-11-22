@@ -272,8 +272,8 @@ class UpsertDatapointsRequest(proto.Message):
 
             Updatable fields:
 
-            -  Use ``all_restricts`` to update both restricts and
-               numeric_restricts.
+            - Use ``all_restricts`` to update both restricts and
+              numeric_restricts.
     """
 
     index: str = proto.Field(

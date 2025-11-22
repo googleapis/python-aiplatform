@@ -75,9 +75,7 @@ from google.cloud.aiplatform_v1.types import (
 )
 from google.cloud.aiplatform_v1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1.types import notebook_runtime
-from google.cloud.aiplatform_v1.types import (
-    notebook_runtime as gca_notebook_runtime,
-)
+from google.cloud.aiplatform_v1.types import notebook_runtime as gca_notebook_runtime
 from google.cloud.aiplatform_v1.types import notebook_runtime_template_ref
 from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import notebook_software_config
@@ -776,11 +774,9 @@ class NotebookServiceClient(metaclass=NotebookServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = NotebookServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            NotebookServiceClient._read_environment_variables()
+        )
         self._client_cert_source = NotebookServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -1520,7 +1516,7 @@ class NotebookServiceClient(metaclass=NotebookServiceClientMeta):
                 Input format: ``{paths: "${updated_filed}"}`` Updatable
                 fields:
 
-                -  ``encryption_spec.kms_key_name``
+                - ``encryption_spec.kms_key_name``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

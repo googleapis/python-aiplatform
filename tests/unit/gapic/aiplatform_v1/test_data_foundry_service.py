@@ -68,9 +68,7 @@ from google.cloud.aiplatform_v1.services.data_foundry_service import (
 from google.cloud.aiplatform_v1.services.data_foundry_service import (
     DataFoundryServiceClient,
 )
-from google.cloud.aiplatform_v1.services.data_foundry_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.data_foundry_service import transports
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import data_foundry_service
 from google.cloud.aiplatform_v1.types import tool
@@ -886,10 +884,9 @@ def test_data_foundry_service_client_get_mtls_endpoint_and_cert_source(client_cl
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 

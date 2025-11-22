@@ -28,9 +28,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 
 from google.cloud.aiplatform_v1.types import feature_online_store
-from google.cloud.aiplatform_v1.types import (
-    feature_online_store_admin_service,
-)
+from google.cloud.aiplatform_v1.types import feature_online_store_admin_service
 from google.cloud.aiplatform_v1.types import feature_view
 from google.cloud.aiplatform_v1.types import feature_view_sync
 from google.longrunning import operations_pb2  # type: ignore

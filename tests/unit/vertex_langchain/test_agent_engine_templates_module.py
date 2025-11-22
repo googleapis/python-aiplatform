@@ -59,6 +59,7 @@ class TestModuleAgent:
             agent_name=_TEST_AGENT_NAME,
             register_operations=_TEST_REGISTER_OPERATIONS,
             sys_paths=[_TEST_SYS_PATH],
+            agent_framework="my_framework",
         )
         agent.set_up()
         assert agent._tmpl_attrs.get("agent") is not None
@@ -67,6 +68,7 @@ class TestModuleAgent:
         assert agent._tmpl_attrs.get("agent") is not None
         assert agent_clone._tmpl_attrs.get("agent") is None
         assert agent_clone._tmpl_attrs.get("sys_paths") == [_TEST_SYS_PATH]
+        assert agent_clone.agent_framework == "my_framework"
         agent_clone.set_up()
         assert agent_clone._tmpl_attrs.get("agent") is not None
 

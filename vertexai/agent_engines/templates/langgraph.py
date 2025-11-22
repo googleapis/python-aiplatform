@@ -27,19 +27,11 @@ from typing import (
 
 if TYPE_CHECKING:
     try:
-        from langchain_core import runnables
-        from langchain_core import tools as lc_tools
         from langchain_core.language_models import base as lc_language_models
 
-        BaseTool = lc_tools.BaseTool
         BaseLanguageModel = lc_language_models.BaseLanguageModel
-        RunnableConfig = runnables.RunnableConfig
-        RunnableSerializable = runnables.RunnableSerializable
     except ImportError:
-        BaseTool = Any
         BaseLanguageModel = Any
-        RunnableConfig = Any
-        RunnableSerializable = Any
 
     try:
         from langchain_google_vertexai.functions_utils import _ToolsType
@@ -115,7 +107,7 @@ def _default_runnable_builder(
     checkpointer: Optional[Any] = None,
     model_tool_kwargs: Optional[Mapping[str, Any]] = None,
     runnable_kwargs: Optional[Mapping[str, Any]] = None,
-) -> "RunnableSerializable":
+):
     """Default callable for building a runnable.
 
     Args:
@@ -322,7 +314,7 @@ class LanggraphAgent:
         model_tool_kwargs: Optional[Mapping[str, Any]] = None,
         model_builder: Optional[Callable[..., "BaseLanguageModel"]] = None,
         runnable_kwargs: Optional[Mapping[str, Any]] = None,
-        runnable_builder: Optional[Callable[..., "RunnableSerializable"]] = None,
+        runnable_builder: Optional[Callable[..., Any]] = None,
         checkpointer_kwargs: Optional[Mapping[str, Any]] = None,
         checkpointer_builder: Optional[Callable[..., "BaseCheckpointSaver"]] = None,
         enable_tracing: bool = False,
@@ -419,7 +411,7 @@ class LanggraphAgent:
             model_tool_kwargs (Mapping[str, Any]):
                 Optional. Additional keyword arguments when binding tools to the
                 model using `model.bind_tools()`.
-            model_builder (Callable[..., "BaseLanguageModel"]):
+            model_builder (Callable[..., BaseLanguageModel]):
                 Optional. Callable that returns a new language model. Defaults
                 to a a callable that returns ChatVertexAI based on `model`,
                 `model_kwargs` and the parameters in `vertexai.init`.
@@ -428,7 +420,7 @@ class LanggraphAgent:
                 langchain.runnables.history.RunnableWithMessageHistory if
                 chat_history is specified. If chat_history is None, this will be
                 ignored.
-            runnable_builder (Callable[..., "RunnableSerializable"]):
+            runnable_builder (Callable[..., RunnableSerializable]):
                 Optional. Callable that returns a new runnable. This can be used
                 for customizing the orchestration logic of the Agent based on
                 the model returned by `model_builder` and the rest of the input
@@ -545,7 +537,7 @@ class LanggraphAgent:
         self,
         *,
         input: Union[str, Mapping[str, Any]],
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Queries the Agent with the given input and config.
@@ -578,7 +570,7 @@ class LanggraphAgent:
         self,
         *,
         input: Union[str, Mapping[str, Any]],
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs,
     ) -> Iterable[Any]:
         """Stream queries the Agent with the given input and config.
@@ -610,7 +602,7 @@ class LanggraphAgent:
 
     def get_state_history(
         self,
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Iterable[Any]:
         """Gets the state history of the Agent.
@@ -634,7 +626,7 @@ class LanggraphAgent:
 
     def get_state(
         self,
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Gets the current state of the Agent.
@@ -658,7 +650,7 @@ class LanggraphAgent:
 
     def update_state(
         self,
-        config: Optional["RunnableConfig"] = None,
+        config: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """Updates the state of the Agent.

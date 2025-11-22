@@ -39,9 +39,7 @@ from google.cloud.aiplatform_v1.types import execution
 from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import lineage_subgraph
 from google.cloud.aiplatform_v1.types import metadata_schema
-from google.cloud.aiplatform_v1.types import (
-    metadata_schema as gca_metadata_schema,
-)
+from google.cloud.aiplatform_v1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1.types import metadata_service
 from google.cloud.aiplatform_v1.types import metadata_store
 from google.cloud.location import locations_pb2  # type: ignore
@@ -168,9 +166,10 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
                 This argument is ignored if a ``channel`` instance is provided.
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
                 This argument is ignored if a ``channel`` instance is provided.
+                This argument will be removed in the next major version of this library.
             scopes (Optional(Sequence[str])): A list of scopes. This argument is
                 ignored if a ``channel`` instance is provided.
             channel (Optional[Union[grpc.Channel, Callable[..., grpc.Channel]]]):
@@ -304,9 +303,10 @@ class MetadataServiceGrpcTransport(MetadataServiceTransport):
                 credentials identify this application to the service. If
                 none are specified, the client will attempt to ascertain
                 the credentials from the environment.
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is mutually exclusive with credentials.
+                This argument is mutually exclusive with credentials.  This argument will be
+                removed in the next major version of this library.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.

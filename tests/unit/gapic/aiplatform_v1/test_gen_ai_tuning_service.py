@@ -73,9 +73,7 @@ from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import (
     GenAiTuningServiceClient,
 )
 from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import pagers
-from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import transports
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import genai_tuning_service
@@ -899,10 +897,9 @@ def test_gen_ai_tuning_service_client_get_mtls_endpoint_and_cert_source(client_c
                 "google.auth.transport.mtls.default_client_cert_source",
                 return_value=mock_client_cert_source,
             ):
-                (
-                    api_endpoint,
-                    cert_source,
-                ) = client_class.get_mtls_endpoint_and_cert_source()
+                api_endpoint, cert_source = (
+                    client_class.get_mtls_endpoint_and_cert_source()
+                )
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -4536,6 +4533,11 @@ def test_create_tuning_job_rest_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["tuning_job"] = {
         "base_model": "base_model_value",
+        "pre_tuned_model": {
+            "tuned_model_name": "tuned_model_name_value",
+            "checkpoint_id": "checkpoint_id_value",
+            "base_model": "base_model_value",
+        },
         "supervised_tuning_spec": {
             "training_dataset_uri": "training_dataset_uri_value",
             "validation_dataset_uri": "validation_dataset_uri_value",
@@ -4619,6 +4621,20 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "function_response": {
                                     "name": "name_value",
                                     "response": {},
+                                    "parts": [
+                                        {
+                                            "inline_data": {
+                                                "mime_type": "mime_type_value",
+                                                "data": b"data_blob",
+                                                "display_name": "display_name_value",
+                                            },
+                                            "file_data": {
+                                                "mime_type": "mime_type_value",
+                                                "file_uri": "file_uri_value",
+                                                "display_name": "display_name_value",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "executable_code": {
                                     "language": 1,
@@ -6137,6 +6153,11 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
     request_init = {"parent": "projects/sample1/locations/sample2"}
     request_init["tuning_job"] = {
         "base_model": "base_model_value",
+        "pre_tuned_model": {
+            "tuned_model_name": "tuned_model_name_value",
+            "checkpoint_id": "checkpoint_id_value",
+            "base_model": "base_model_value",
+        },
         "supervised_tuning_spec": {
             "training_dataset_uri": "training_dataset_uri_value",
             "validation_dataset_uri": "validation_dataset_uri_value",
@@ -6220,6 +6241,20 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "function_response": {
                                     "name": "name_value",
                                     "response": {},
+                                    "parts": [
+                                        {
+                                            "inline_data": {
+                                                "mime_type": "mime_type_value",
+                                                "data": b"data_blob",
+                                                "display_name": "display_name_value",
+                                            },
+                                            "file_data": {
+                                                "mime_type": "mime_type_value",
+                                                "file_uri": "file_uri_value",
+                                                "display_name": "display_name_value",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "executable_code": {
                                     "language": 1,

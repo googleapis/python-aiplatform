@@ -1710,11 +1710,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 _BaseEndpointServiceRestTransport._BaseFetchPublisherModelConfig._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_fetch_publisher_model_config(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_fetch_publisher_model_config(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseEndpointServiceRestTransport._BaseFetchPublisherModelConfig._get_transcoded_request(
                 http_options, request
@@ -1780,11 +1779,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_fetch_publisher_model_config(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_fetch_publisher_model_config_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_fetch_publisher_model_config_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2432,11 +2430,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_set_publisher_model_config(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_set_publisher_model_config_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_set_publisher_model_config_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -2860,11 +2857,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
                 _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = await self._interceptor.pre_update_endpoint_long_running(
-                request, metadata
+            request, metadata = (
+                await self._interceptor.pre_update_endpoint_long_running(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseEndpointServiceRestTransport._BaseUpdateEndpointLongRunning._get_transcoded_request(
                 http_options, request
@@ -2935,11 +2931,10 @@ class AsyncEndpointServiceRestTransport(_BaseEndpointServiceRestTransport):
             json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
             resp = await self._interceptor.post_update_endpoint_long_running(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = await self._interceptor.post_update_endpoint_long_running_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                await self._interceptor.post_update_endpoint_long_running_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

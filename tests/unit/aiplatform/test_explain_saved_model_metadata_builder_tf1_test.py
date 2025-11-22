@@ -16,6 +16,11 @@
 #
 
 import pytest
+import sys
+
+if sys.version_info >= (3, 13):
+    pytest.skip("Tensorflow not available for Python 3.13+", allow_module_level=True)
+
 import tensorflow.compat.v1 as tf
 
 from google.cloud.aiplatform import models
@@ -27,6 +32,7 @@ import constants as test_constants
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.skipif(tf is None, reason="Tensorflow not available for Python 3.13+")
 class SavedModelMetadataBuilderTF1Test(tf.test.TestCase):
     def _set_up(self):
         self.sess = tf.Session(graph=tf.Graph())

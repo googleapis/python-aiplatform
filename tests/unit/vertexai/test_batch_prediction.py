@@ -56,6 +56,16 @@ _TEST_CLAUDE_MODEL_NAME = "claude-3-opus"
 _TEST_CLAUDE_MODEL_RESOURCE_NAME = (
     f"publishers/anthropic/models/{_TEST_CLAUDE_MODEL_NAME}"
 )
+_TEST_GPT_MODEL_NAME = "gpt-oss-120b-maas"
+_TEST_GPT_MODEL_RESOURCE_NAME = f"publishers/openai/models/{_TEST_GPT_MODEL_NAME}"
+_TEST_QWEN_MODEL_NAME = "qwen3-235b-a22b-instruct-2507-maas"
+_TEST_QWEN_MODEL_RESOURCE_NAME = f"publishers/qwen/models/{_TEST_QWEN_MODEL_NAME}"
+_TEST_DEEPSEEK_MODEL_NAME = "deepseek-r1-0528-maas"
+_TEST_DEEPSEEK_MODEL_RESOURCE_NAME = (
+    f"publishers/deepseek-ai/models/{_TEST_DEEPSEEK_MODEL_NAME}"
+)
+_TEST_E5_MODEL_NAME = "multilingual-e5-small-maas"
+_TEST_E5_MODEL_RESOURCE_NAME = f"publishers/intfloat/models/{_TEST_E5_MODEL_NAME}"
 _TEST_SELF_HOSTED_GEMMA_MODEL_RESOURCE_NAME = (
     "publishers/google/models/gemma@gemma-2b-it"
 )
@@ -162,6 +172,74 @@ def get_batch_prediction_job_with_claude_model_mock():
             name=_TEST_BATCH_PREDICTION_JOB_NAME,
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_CLAUDE_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_gpt_model_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_GPT_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_qwen_model_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_QWEN_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_deepseek_model_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_DEEPSEEK_MODEL_RESOURCE_NAME,
+            state=_TEST_JOB_STATE_SUCCESS,
+            output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
+                gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
+            ),
+        )
+        yield get_job_mock
+
+
+@pytest.fixture
+def get_batch_prediction_job_with_e5_model_mock():
+    with mock.patch.object(
+        job_service_client.JobServiceClient, "get_batch_prediction_job"
+    ) as get_job_mock:
+        get_job_mock.return_value = gca_batch_prediction_job_compat.BatchPredictionJob(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME,
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_E5_MODEL_RESOURCE_NAME,
             state=_TEST_JOB_STATE_SUCCESS,
             output_info=gca_batch_prediction_job_compat.BatchPredictionJob.OutputInfo(
                 gcs_output_directory=_TEST_GCS_OUTPUT_PREFIX
@@ -312,6 +390,46 @@ class TestBatchPredictionJob:
         batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
 
         get_batch_prediction_job_with_claude_model_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
+        )
+
+    def test_init_batch_prediction_job_with_gpt_model(
+        self,
+        get_batch_prediction_job_with_gpt_model_mock,
+    ):
+        batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+        get_batch_prediction_job_with_gpt_model_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
+        )
+
+    def test_init_batch_prediction_job_with_qwen_model(
+        self,
+        get_batch_prediction_job_with_qwen_model_mock,
+    ):
+        batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+        get_batch_prediction_job_with_qwen_model_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
+        )
+
+    def test_init_batch_prediction_job_with_deepseek_model(
+        self,
+        get_batch_prediction_job_with_deepseek_model_mock,
+    ):
+        batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+        get_batch_prediction_job_with_deepseek_model_mock.assert_called_once_with(
+            name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
+        )
+
+    def test_init_batch_prediction_job_with_e5_model(
+        self,
+        get_batch_prediction_job_with_e5_model_mock,
+    ):
+        batch_prediction.BatchPredictionJob(_TEST_BATCH_PREDICTION_JOB_ID)
+
+        get_batch_prediction_job_with_e5_model_mock.assert_called_once_with(
             name=_TEST_BATCH_PREDICTION_JOB_NAME, retry=aiplatform_base._DEFAULT_RETRY
         )
 
@@ -557,6 +675,138 @@ class TestBatchPredictionJob:
         expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
             display_name=_TEST_DISPLAY_NAME,
             model=_TEST_CLAUDE_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
+    def test_submit_batch_prediction_job_with_gpt_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_GPT_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_GPT_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
+    def test_submit_batch_prediction_job_with_qwen_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_QWEN_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_QWEN_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
+    def test_submit_batch_prediction_job_with_deepseek_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_DEEPSEEK_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_DEEPSEEK_MODEL_RESOURCE_NAME,
+            input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
+                instances_format="bigquery",
+                bigquery_source=gca_io_compat.BigQuerySource(
+                    input_uri=_TEST_BQ_INPUT_URI
+                ),
+            ),
+            output_config=gca_batch_prediction_job_compat.BatchPredictionJob.OutputConfig(
+                bigquery_destination=gca_io_compat.BigQueryDestination(
+                    output_uri=_TEST_BQ_OUTPUT_PREFIX
+                ),
+                predictions_format="bigquery",
+            ),
+        )
+        create_batch_prediction_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            batch_prediction_job=expected_gapic_batch_prediction_job,
+            timeout=None,
+        )
+
+    def test_submit_batch_prediction_job_with_e5_model(
+        self,
+        create_batch_prediction_job_mock,
+    ):
+        job = batch_prediction.BatchPredictionJob.submit(
+            source_model=_TEST_E5_MODEL_RESOURCE_NAME,
+            input_dataset=_TEST_BQ_INPUT_URI,
+        )
+
+        assert job.gca_resource == _TEST_GAPIC_BATCH_PREDICTION_JOB
+
+        expected_gapic_batch_prediction_job = gca_batch_prediction_job_compat.BatchPredictionJob(
+            display_name=_TEST_DISPLAY_NAME,
+            model=_TEST_E5_MODEL_RESOURCE_NAME,
             input_config=gca_batch_prediction_job_compat.BatchPredictionJob.InputConfig(
                 instances_format="bigquery",
                 bigquery_source=gca_io_compat.BigQuerySource(

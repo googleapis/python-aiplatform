@@ -584,9 +584,10 @@ class TestMultimodalDataset:
         mock_bucket.blob.assert_called_once_with("test-file.jsonl")
         mock_blob.download_as_text.assert_called_once()
 
-        pandas.testing.assert_frame_equal(
-            session_mock.read_pandas.call_args[0][0],
-            pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
+        session_mock.read_json.assert_called_once()
+        assert (
+            session_mock.read_json.call_args[0][0].getvalue()
+            == '{"requests": ["json_line_1", "json_line_2"]}'
         )
         bq_client_mock.return_value.copy_table.assert_called_once_with(
             sources=mock.ANY,
@@ -636,9 +637,10 @@ class TestMultimodalDataset:
         mock_bucket.blob.assert_called_once_with("test-file.jsonl")
         mock_blob.download_as_text.assert_called_once()
 
-        pandas.testing.assert_frame_equal(
-            session_mock.read_pandas.call_args[0][0],
-            pandas.DataFrame({"requests": ["json_line_1", "json_line_2"]}),
+        session_mock.read_json.assert_called_once()
+        assert (
+            session_mock.read_json.call_args[0][0].getvalue()
+            == '{"requests": ["json_line_1", "json_line_2"]}'
         )
 
         # Assert that the default BQ dataset is created
@@ -748,6 +750,18 @@ class TestMultimodalDataset:
             update_mask=field_mask_pb2.FieldMask(paths=["metadata"]),
             timeout=None,
         )
+
+    @pytest.mark.usefixtures("get_dataset_mock")
+    def test_has_template_config(self, update_dataset_with_template_config_mock):
+        aiplatform.init(project=_TEST_PROJECT)
+        dataset = ummd.MultimodalDataset(dataset_name=_TEST_NAME)
+        template_config = ummd.GeminiTemplateConfig(
+            field_mapping={"question": "questionColumn"},
+        )
+        assert dataset.has_template_config() is False
+        # Attach a template config to the dataset.
+        dataset.attach_template_config(template_config=template_config)
+        assert dataset.has_template_config() is True
 
     @pytest.mark.usefixtures(
         "get_dataset_with_prompt_resource_mock", "prompts_get_mock"

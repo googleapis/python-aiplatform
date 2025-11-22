@@ -57,16 +57,12 @@ from google.cloud.aiplatform_v1beta1.types import notebook_execution_job
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_execution_job as gca_notebook_execution_job,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    notebook_idle_shutdown_config,
-)
+from google.cloud.aiplatform_v1beta1.types import notebook_idle_shutdown_config
 from google.cloud.aiplatform_v1beta1.types import notebook_runtime
 from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime as gca_notebook_runtime,
 )
-from google.cloud.aiplatform_v1beta1.types import (
-    notebook_runtime_template_ref,
-)
+from google.cloud.aiplatform_v1beta1.types import notebook_runtime_template_ref
 from google.cloud.aiplatform_v1beta1.types import notebook_service
 from google.cloud.aiplatform_v1beta1.types import notebook_software_config
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -958,7 +954,7 @@ class NotebookServiceAsyncClient:
                 Input format: ``{paths: "${updated_filed}"}`` Updatable
                 fields:
 
-                -  ``encryption_spec.kms_key_name``
+                - ``encryption_spec.kms_key_name``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

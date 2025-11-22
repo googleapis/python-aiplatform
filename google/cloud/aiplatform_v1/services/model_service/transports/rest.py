@@ -40,9 +40,7 @@ import warnings
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import model as gca_model
 from google.cloud.aiplatform_v1.types import model_evaluation
-from google.cloud.aiplatform_v1.types import (
-    model_evaluation as gca_model_evaluation,
-)
+from google.cloud.aiplatform_v1.types import model_evaluation as gca_model_evaluation
 from google.cloud.aiplatform_v1.types import model_evaluation_slice
 from google.cloud.aiplatform_v1.types import model_service
 from google.longrunning import operations_pb2  # type: ignore
@@ -1470,9 +1468,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
 
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
-                This argument is ignored if ``channel`` is provided.
+                This argument is ignored if ``channel`` is provided. This argument will be
+                removed in the next major version of this library.
             scopes (Optional(Sequence[str])): A list of scopes. This argument is
                 ignored if ``channel`` is provided.
             client_cert_source_for_mtls (Callable[[], Tuple[bytes, bytes]]): Client
@@ -3531,11 +3530,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_batch_import_evaluated_annotations(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_batch_import_evaluated_annotations(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseBatchImportEvaluatedAnnotations._get_transcoded_request(
                 http_options, request
@@ -3601,11 +3599,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
 
             resp = self._interceptor.post_batch_import_evaluated_annotations(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_batch_import_evaluated_annotations_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -3699,11 +3696,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                 _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_http_options()
             )
 
-            (
-                request,
-                metadata,
-            ) = self._interceptor.pre_batch_import_model_evaluation_slices(
-                request, metadata
+            request, metadata = (
+                self._interceptor.pre_batch_import_model_evaluation_slices(
+                    request, metadata
+                )
             )
             transcoded_request = _BaseModelServiceRestTransport._BaseBatchImportModelEvaluationSlices._get_transcoded_request(
                 http_options, request
@@ -3769,11 +3765,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
 
             resp = self._interceptor.post_batch_import_model_evaluation_slices(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_batch_import_model_evaluation_slices_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG
@@ -5628,11 +5623,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
 
             resp = self._interceptor.post_list_model_version_checkpoints(resp)
             response_metadata = [(k, str(v)) for k, v in response.headers.items()]
-            (
-                resp,
-                _,
-            ) = self._interceptor.post_list_model_version_checkpoints_with_metadata(
-                resp, response_metadata
+            resp, _ = (
+                self._interceptor.post_list_model_version_checkpoints_with_metadata(
+                    resp, response_metadata
+                )
             )
             if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
                 logging.DEBUG

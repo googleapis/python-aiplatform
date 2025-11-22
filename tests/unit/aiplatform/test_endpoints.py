@@ -2456,6 +2456,234 @@ class TestEndpoint:
         )
 
     @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_endpoint_raise_error_invalid_stz_config(self, sync):
+        test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = preview_models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=1,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                min_scaleup_period=300,
+                idle_scaledown_period=None,
+                initial_replica_count=None,
+            )
+        assert e.match(regexp=r"Min scaleup period cannot be set for non-STZ models.")
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=0,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                min_scaleup_period=200,
+                idle_scaledown_period=None,
+                initial_replica_count=None,
+            )
+        assert str(e.value) == (
+            "Min scaleup period cannot be less than 300 (5 minutes)."
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=0,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                min_scaleup_period=30000,
+                idle_scaledown_period=None,
+                initial_replica_count=None,
+            )
+        assert str(e.value) == (
+            "Min scaleup period cannot be greater than 28800 (8 hours)."
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=1,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                idle_scaledown_period=300,
+                min_scaleup_period=None,
+                initial_replica_count=None,
+            )
+        assert e.match(
+            regexp=r"Idle scaledown period cannot be set for non-STZ models."
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=0,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                min_scaleup_period=None,
+                idle_scaledown_period=200,
+                initial_replica_count=None,
+            )
+        assert str(e.value) == (
+            "Idle scaledown period cannot be less than 300 (5 minutes)."
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=0,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                min_scaleup_period=None,
+                idle_scaledown_period=30000,
+                initial_replica_count=None,
+            )
+        assert str(e.value) == (
+            "Idle scaledown period cannot be greater than 28800 (8 hours)."
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=1,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                initial_replica_count=1,
+                min_scaleup_period=None,
+                idle_scaledown_period=None,
+            )
+        assert e.match(
+            regexp=r"Initial replica count cannot be set for non-STZ models."
+        )
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=0,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                initial_replica_count=-1,
+                idle_scaledown_period=None,
+                min_scaleup_period=None,
+            )
+        assert e.match(regexp=r"Initial replica count must be at least 0.")
+
+        with pytest.raises(ValueError) as e:
+            test_endpoint._validate_deploy_args(
+                min_replica_count=0,
+                max_replica_count=1,
+                required_replica_count=1,
+                accelerator_type=_TEST_ACCELERATOR_TYPE,
+                deployed_model_display_name="test",
+                traffic_split={"0": 100},
+                traffic_percentage=100,
+                deployment_resource_pool=None,
+                idle_scaledown_period=None,
+                min_scaleup_period=None,
+                initial_replica_count=2,
+            )
+        assert e.match(
+            regexp=r"Initial replica count cannot be greater than max replica count."
+        )
+
+    @pytest.mark.usefixtures(
+        "get_endpoint_mock", "get_model_mock", "create_endpoint_mock"
+    )
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_endpoint_with_stz_config(self, deploy_model_mock_v1beta1, sync):
+        test_endpoint = preview_models.Endpoint(_TEST_ENDPOINT_NAME)
+        test_model = preview_models.Model(_TEST_ID)
+        test_model._gca_resource.supported_deployment_resources_types.append(
+            aiplatform.gapic.Model.DeploymentResourcesType.DEDICATED_RESOURCES
+        )
+        test_endpoint.deploy(
+            model=test_model,
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            sync=sync,
+            deploy_request_timeout=None,
+            min_replica_count=0,
+            max_replica_count=1,
+            initial_replica_count=1,
+            min_scaleup_period=300,
+            idle_scaledown_period=300,
+        )
+
+        if not sync:
+            test_endpoint.wait()
+
+        expected_machine_spec = gca_machine_resources_v1beta1.MachineSpec(
+            machine_type=_TEST_MACHINE_TYPE,
+            accelerator_type=_TEST_ACCELERATOR_TYPE,
+            accelerator_count=_TEST_ACCELERATOR_COUNT,
+        )
+        expected_dedicated_resources = gca_machine_resources_v1beta1.DedicatedResources(
+            machine_spec=expected_machine_spec,
+            min_replica_count=0,
+            max_replica_count=1,
+            initial_replica_count=1,
+            scale_to_zero_spec=gca_machine_resources_v1beta1.DedicatedResources.ScaleToZeroSpec(
+                min_scaleup_period=duration_pb2.Duration(seconds=300),
+                idle_scaledown_period=duration_pb2.Duration(seconds=300),
+            ),
+        )
+        expected_deployed_model = gca_endpoint_v1beta1.DeployedModel(
+            dedicated_resources=expected_dedicated_resources,
+            model=test_model.resource_name,
+            display_name=None,
+            service_account=_TEST_SERVICE_ACCOUNT,
+            faster_deployment_config=gca_endpoint_v1beta1.FasterDeploymentConfig(),
+            enable_container_logging=True,
+        )
+        deploy_model_mock_v1beta1.assert_called_once_with(
+            endpoint=test_endpoint.resource_name,
+            deployed_model=expected_deployed_model,
+            traffic_split={"0": 100},
+            metadata=(),
+            timeout=None,
+        )
+
+    @pytest.mark.usefixtures(
         "get_endpoint_mock", "get_model_mock", "preview_get_drp_mock"
     )
     @pytest.mark.parametrize("sync", [True, False])

@@ -18,6 +18,8 @@
 import importlib
 import logging
 
+from typing import Optional, TYPE_CHECKING
+from types import ModuleType
 
 from google.genai import _api_module
 from google.genai import _common
@@ -25,20 +27,25 @@ from google.genai._api_client import BaseApiClient
 
 logger = logging.getLogger("google_genai.live")
 
+if TYPE_CHECKING:
+    from vertexai._genai import (
+        live_agent_engines as live_agent_engines_module,
+    )
+
 
 class AsyncLive(_api_module.BaseModule):
     """[Preview] AsyncLive."""
 
     def __init__(self, api_client: BaseApiClient):
         super().__init__(api_client)
-        self._agent_engines = None
+        self._agent_engines: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
         "The Vertex SDK GenAI agent engines module is experimental, "
         "and may change in future versions."
     )
-    def agent_engines(self):
+    def agent_engines(self) -> "live_agent_engines_module.AsyncLiveAgentEngines":
         if self._agent_engines is None:
             try:
                 # We need to lazy load the live_agent_engines module to handle

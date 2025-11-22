@@ -35,6 +35,10 @@ _LOGGER = aiplatform_base.Logger(__name__)
 _GEMINI_MODEL_PATTERN = r"publishers/google/models/gemini"
 _LLAMA_MODEL_PATTERN = r"publishers/meta/models/llama"
 _CLAUDE_MODEL_PATTERN = r"publishers/anthropic/models/claude"
+_GPT_MODEL_PATTERN = r"publishers/openai/models/gpt"
+_QWEN_MODEL_PATTERN = r"publishers/qwen/models/qwen"
+_DEEPSEEK_MODEL_PATTERN = r"publishers/deepseek-ai/models/deepseek"
+_E5_MODEL_PATTERN = r"publishers/intfloat/models/multilingual"
 _GEMINI_TUNED_MODEL_PATTERN = r"^projects/[0-9]+?/locations/[0-9a-z-]+?/models/[0-9]+?$"
 
 
@@ -318,6 +322,10 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
             or model_name.startswith("publishers/google/models/")
             or model_name.startswith("publishers/meta/models/")
             or model_name.startswith("publishers/anthropic/models/")
+            or model_name.startswith("publishers/openai/models/")
+            or model_name.startswith("publishers/qwen/models/")
+            or model_name.startswith("publishers/deepseek-ai/models/")
+            or model_name.startswith("publishers/intfloat/models/")
             or re.search(_GEMINI_TUNED_MODEL_PATTERN, model_name)
         ):
             return model_name
@@ -346,6 +354,22 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
 
         if re.search(_CLAUDE_MODEL_PATTERN, model_name):
             # Model is a claude model.
+            return True
+
+        if re.search(_GPT_MODEL_PATTERN, model_name):
+            # Model is a GPT model.
+            return True
+
+        if re.search(_QWEN_MODEL_PATTERN, model_name):
+            # Model is a Qwen model.
+            return True
+
+        if re.search(_DEEPSEEK_MODEL_PATTERN, model_name):
+            # Model is a DeepSeek model.
+            return True
+
+        if re.search(_E5_MODEL_PATTERN, model_name):
+            # Model is an E5 model.
             return True
 
         if re.match(

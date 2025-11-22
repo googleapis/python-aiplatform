@@ -63,9 +63,7 @@ _LOGGER = std_logging.getLogger(__name__)
 
 from google.api_core import operation as gac_operation  # type: ignore
 from google.api_core import operation_async  # type: ignore
-from google.cloud.aiplatform_v1.services.vertex_rag_data_service import (
-    pagers,
-)
+from google.cloud.aiplatform_v1.services.vertex_rag_data_service import pagers
 from google.cloud.aiplatform_v1.types import encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation as gca_operation
@@ -744,11 +742,9 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = VertexRagDataServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            VertexRagDataServiceClient._read_environment_variables()
+        )
         self._client_cert_source = VertexRagDataServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )

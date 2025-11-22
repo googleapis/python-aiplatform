@@ -57,16 +57,16 @@ class SavedQuery(proto.Message):
         problem_type (str):
             Required. Problem type of the SavedQuery. Allowed values:
 
-            -  IMAGE_CLASSIFICATION_SINGLE_LABEL
-            -  IMAGE_CLASSIFICATION_MULTI_LABEL
-            -  IMAGE_BOUNDING_POLY
-            -  IMAGE_BOUNDING_BOX
-            -  TEXT_CLASSIFICATION_SINGLE_LABEL
-            -  TEXT_CLASSIFICATION_MULTI_LABEL
-            -  TEXT_EXTRACTION
-            -  TEXT_SENTIMENT
-            -  VIDEO_CLASSIFICATION
-            -  VIDEO_OBJECT_TRACKING
+            - IMAGE_CLASSIFICATION_SINGLE_LABEL
+            - IMAGE_CLASSIFICATION_MULTI_LABEL
+            - IMAGE_BOUNDING_POLY
+            - IMAGE_BOUNDING_BOX
+            - TEXT_CLASSIFICATION_SINGLE_LABEL
+            - TEXT_CLASSIFICATION_MULTI_LABEL
+            - TEXT_EXTRACTION
+            - TEXT_SENTIMENT
+            - VIDEO_CLASSIFICATION
+            - VIDEO_OBJECT_TRACKING
         annotation_spec_count (int):
             Output only. Number of AnnotationSpecs in the
             context of the SavedQuery.

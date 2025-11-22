@@ -103,6 +103,7 @@ _TEST_AUTH_CONFIG_ALLOWED_ISSUERS = [
     "service-account-name-1@project-id.iam.gserviceaccount.com",
     "service-account-name-2@project-id.iam.gserviceaccount.com",
 ]
+_TEST_DEPLOYMENT_TIER = "STORAGE"
 _TEST_SIGNED_JWT = "signed_jwt"
 _TEST_AUTHORIZATION_METADATA = (("authorization", f"Bearer: {_TEST_SIGNED_JWT}"),)
 
@@ -1319,6 +1320,47 @@ class TestMatchingEngineIndexEndpoint:
                     )
                     for test_psc_automation_config in _TEST_PSC_AUTOMATION_CONFIGS
                 ],
+            ),
+            metadata=_TEST_REQUEST_METADATA,
+            timeout=_TEST_TIMEOUT,
+        )
+
+    @pytest.mark.usefixtures("get_index_endpoint_mock", "get_index_mock")
+    @pytest.mark.parametrize("sync", [True, False])
+    def test_deploy_index_deployment_tier(self, deploy_index_mock, sync):
+        aiplatform.init(project=_TEST_PROJECT)
+
+        my_index_endpoint = aiplatform.MatchingEngineIndexEndpoint(
+            index_endpoint_name=_TEST_INDEX_ENDPOINT_ID
+        )
+
+        # Get index
+        my_index = aiplatform.MatchingEngineIndex(index_name=_TEST_INDEX_NAME)
+
+        my_index_endpoint = my_index_endpoint.deploy_index(
+            index=my_index,
+            deployed_index_id=_TEST_DEPLOYED_INDEX_ID,
+            display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+            deployment_tier=_TEST_DEPLOYMENT_TIER,
+            request_metadata=_TEST_REQUEST_METADATA,
+            sync=sync,
+            deploy_request_timeout=_TEST_TIMEOUT,
+        )
+
+        if not sync:
+            my_index_endpoint.wait()
+
+        deploy_index_mock.assert_called_once_with(
+            index_endpoint=my_index_endpoint.resource_name,
+            deployed_index=gca_index_endpoint.DeployedIndex(
+                id=_TEST_DEPLOYED_INDEX_ID,
+                index=my_index.resource_name,
+                display_name=_TEST_DEPLOYED_INDEX_DISPLAY_NAME,
+                automatic_resources={
+                    "min_replica_count": None,
+                    "max_replica_count": None,
+                },
+                deployment_tier=_TEST_DEPLOYMENT_TIER,
             ),
             metadata=_TEST_REQUEST_METADATA,
             timeout=_TEST_TIMEOUT,

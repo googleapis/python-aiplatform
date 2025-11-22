@@ -20,9 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import content
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import job_state
 from google.protobuf import timestamp_pb2  # type: ignore
 from google.rpc import status_pb2  # type: ignore
@@ -40,6 +38,7 @@ __protobuf__ = proto.module(
         "SupervisedTuningSpec",
         "TunedModelRef",
         "TunedModelCheckpoint",
+        "PreTunedModel",
     },
 )
 
@@ -47,12 +46,21 @@ __protobuf__ = proto.module(
 class TuningJob(proto.Message):
     r"""Represents a TuningJob that runs with Google owned models.
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         base_model (str):
             The base model that is being tuned. See `Supported
             models <https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/tuning#supported_models>`__.
+
+            This field is a member of `oneof`_ ``source_model``.
+        pre_tuned_model (google.cloud.aiplatform_v1.types.PreTunedModel):
+            The pre-tuned model for continuous tuning.
 
             This field is a member of `oneof`_ ``source_model``.
         supervised_tuning_spec (google.cloud.aiplatform_v1.types.SupervisedTuningSpec):
@@ -67,7 +75,10 @@ class TuningJob(proto.Message):
             Optional. The display name of the
             [TunedModel][google.cloud.aiplatform.v1.Model]. The name can
             be up to 128 characters long and can consist of any UTF-8
-            characters.
+            characters. For continuous tuning, tuned_model_display_name
+            will by default use the same display name as the pre-tuned
+            model. If a new display name is provided, the tuning job
+            will create a new model instead of a new version.
         description (str):
             Optional. The description of the
             [TuningJob][google.cloud.aiplatform.v1.TuningJob].
@@ -136,6 +147,12 @@ class TuningJob(proto.Message):
         proto.STRING,
         number=4,
         oneof="source_model",
+    )
+    pre_tuned_model: "PreTunedModel" = proto.Field(
+        proto.MESSAGE,
+        number=31,
+        oneof="source_model",
+        message="PreTunedModel",
     )
     supervised_tuning_spec: "SupervisedTuningSpec" = proto.Field(
         proto.MESSAGE,
@@ -222,7 +239,19 @@ class TunedModel(proto.Message):
     Attributes:
         model (str):
             Output only. The resource name of the TunedModel. Format:
-            ``projects/{project}/locations/{location}/models/{model}``.
+
+            ``projects/{project}/locations/{location}/models/{model}@{version_id}``
+
+            When tuning from a base model, the version ID will be 1.
+
+            For continuous tuning, if the provided
+            tuned_model_display_name is set and different from parent
+            model's display name, the tuned model will have a new parent
+            model with version 1. Otherwise the version id will be
+            incremented by 1 from the last version ID in the parent
+            model. E.g.,
+
+            ``projects/{project}/locations/{location}/models/{model}@{last_version_id + 1}``
         endpoint (str):
             Output only. A resource name of an Endpoint. Format:
             ``projects/{project}/locations/{location}/endpoints/{endpoint}``.
@@ -643,6 +672,44 @@ class TunedModelCheckpoint(proto.Message):
     endpoint: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+
+
+class PreTunedModel(proto.Message):
+    r"""A pre-tuned model for continuous tuning.
+
+    Attributes:
+        tuned_model_name (str):
+            The resource name of the Model. E.g., a model resource name
+            with a specified version id or alias:
+
+            ``projects/{project}/locations/{location}/models/{model}@{version_id}``
+
+            ``projects/{project}/locations/{location}/models/{model}@{alias}``
+
+            Or, omit the version id to use the default version:
+
+            ``projects/{project}/locations/{location}/models/{model}``
+        checkpoint_id (str):
+            Optional. The source checkpoint id. If not
+            specified, the default checkpoint will be used.
+        base_model (str):
+            Output only. The name of the base model this
+            [PreTunedModel][google.cloud.aiplatform.v1.PreTunedModel]
+            was tuned from.
+    """
+
+    tuned_model_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    base_model: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

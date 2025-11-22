@@ -73,21 +73,30 @@ _VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX = (
 )
 
 
-def create_rag_data_service_client():
+def create_rag_data_service_client(
+    api_path_override: Optional[str] = None,
+):
     return initializer.global_config.create_client(
         client_class=VertexRagDataClientWithOverride,
+        api_path_override=api_path_override,
     ).select_version("v1")
 
 
-def create_rag_data_service_async_client():
+def create_rag_data_service_async_client(
+    api_path_override: Optional[str] = None,
+):
     return initializer.global_config.create_client(
         client_class=VertexRagDataAsyncClientWithOverride,
+        api_path_override=api_path_override,
     ).select_version("v1")
 
 
-def create_rag_service_client():
+def create_rag_service_client(
+    api_path_override: Optional[str] = None,
+):
     return initializer.global_config.create_client(
         client_class=VertexRagClientWithOverride,
+        api_path_override=api_path_override,
     ).select_version("v1")
 
 

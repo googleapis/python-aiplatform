@@ -70,9 +70,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import completion_stats
 from google.cloud.aiplatform_v1beta1.types import custom_job
-from google.cloud.aiplatform_v1beta1.types import (
-    custom_job as gca_custom_job,
-)
+from google.cloud.aiplatform_v1beta1.types import custom_job as gca_custom_job
 from google.cloud.aiplatform_v1beta1.types import data_labeling_job
 from google.cloud.aiplatform_v1beta1.types import (
     data_labeling_job as gca_data_labeling_job,
@@ -87,12 +85,8 @@ from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_service
 from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.cloud.aiplatform_v1beta1.types import (
-    manual_batch_tuning_parameters,
-)
-from google.cloud.aiplatform_v1beta1.types import (
-    model_deployment_monitoring_job,
-)
+from google.cloud.aiplatform_v1beta1.types import manual_batch_tuning_parameters
+from google.cloud.aiplatform_v1beta1.types import model_deployment_monitoring_job
 from google.cloud.aiplatform_v1beta1.types import (
     model_deployment_monitoring_job as gca_model_deployment_monitoring_job,
 )
@@ -1040,11 +1034,9 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
         universe_domain_opt = getattr(self._client_options, "universe_domain", None)
 
-        (
-            self._use_client_cert,
-            self._use_mtls_endpoint,
-            self._universe_domain_env,
-        ) = JobServiceClient._read_environment_variables()
+        self._use_client_cert, self._use_mtls_endpoint, self._universe_domain_env = (
+            JobServiceClient._read_environment_variables()
+        )
         self._client_cert_source = JobServiceClient._get_client_cert_source(
             self._client_options.client_cert_source, self._use_client_cert
         )
@@ -5075,18 +5067,17 @@ class JobServiceClient(metaclass=JobServiceClientMeta):
 
                 Updatable fields:
 
-                -  ``display_name``
-                -  ``model_deployment_monitoring_schedule_config``
-                -  ``model_monitoring_alert_config``
-                -  ``logging_sampling_strategy``
-                -  ``labels``
-                -  ``log_ttl``
-                -  ``enable_monitoring_pipeline_logs`` . and
-                -  ``model_deployment_monitoring_objective_configs`` .
-                   or
-                -  ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
-                -  ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
-                -  ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
+                - ``display_name``
+                - ``model_deployment_monitoring_schedule_config``
+                - ``model_monitoring_alert_config``
+                - ``logging_sampling_strategy``
+                - ``labels``
+                - ``log_ttl``
+                - ``enable_monitoring_pipeline_logs`` . and
+                - ``model_deployment_monitoring_objective_configs`` . or
+                - ``model_deployment_monitoring_objective_configs.objective_config.training_dataset``
+                - ``model_deployment_monitoring_objective_configs.objective_config.training_prediction_skew_detection_config``
+                - ``model_deployment_monitoring_objective_configs.objective_config.prediction_drift_detection_config``
 
                 This corresponds to the ``update_mask`` field
                 on the ``request`` instance; if ``request`` is provided, this

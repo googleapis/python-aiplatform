@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    encryption_spec as gca_encryption_spec,
-)
+from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
 from google.protobuf import timestamp_pb2  # type: ignore
@@ -344,12 +342,30 @@ class DeployedIndex(proto.Message):
 
             Note: we only support up to 5 deployment groups(not
             including 'default').
+        deployment_tier (google.cloud.aiplatform_v1.types.DeployedIndex.DeploymentTier):
+            Optional. The deployment tier that the index is deployed to.
+            DEPLOYMENT_TIER_UNSPECIFIED will use a system-chosen default
+            tier.
         psc_automation_configs (MutableSequence[google.cloud.aiplatform_v1.types.PSCAutomationConfig]):
             Optional. If set for PSC deployed index, PSC connection will
             be automatically created after deployment is done and the
             endpoint information is populated in
             private_endpoints.psc_automated_endpoints.
     """
+
+    class DeploymentTier(proto.Enum):
+        r"""Tiers encapsulate serving time attributes like latency and
+        throughput.
+
+        Values:
+            DEPLOYMENT_TIER_UNSPECIFIED (0):
+                Default deployment tier.
+            STORAGE (2):
+                Optimized for costs.
+        """
+
+        DEPLOYMENT_TIER_UNSPECIFIED = 0
+        STORAGE = 2
 
     id: str = proto.Field(
         proto.STRING,
@@ -408,6 +424,11 @@ class DeployedIndex(proto.Message):
     deployment_group: str = proto.Field(
         proto.STRING,
         number=11,
+    )
+    deployment_tier: DeploymentTier = proto.Field(
+        proto.ENUM,
+        number=18,
+        enum=DeploymentTier,
     )
     psc_automation_configs: MutableSequence[service_networking.PSCAutomationConfig] = (
         proto.RepeatedField(

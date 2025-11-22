@@ -52,9 +52,7 @@ from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import model
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import pipeline_job
-from google.cloud.aiplatform_v1beta1.types import (
-    pipeline_job as gca_pipeline_job,
-)
+from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_job
 from google.cloud.aiplatform_v1beta1.types import pipeline_service
 from google.cloud.aiplatform_v1beta1.types import pipeline_state
 from google.cloud.aiplatform_v1beta1.types import service_networking

@@ -153,8 +153,9 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
                 credentials identify this application to the service. If
                 none are specified, the client will attempt to ascertain
                 the credentials from the environment.
-            credentials_file (Optional[str]): A file with credentials that can
-                be loaded with :func:`google.auth.load_credentials_from_file`.
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
+                be loaded with :func:`google.auth.load_credentials_from_file`. This argument will be
+                removed in the next major version of this library.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -205,9 +206,10 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
                 are specified, the client will attempt to ascertain the
                 credentials from the environment.
                 This argument is ignored if a ``channel`` instance is provided.
-            credentials_file (Optional[str]): A file with credentials that can
+            credentials_file (Optional[str]): Deprecated. A file with credentials that can
                 be loaded with :func:`google.auth.load_credentials_from_file`.
                 This argument is ignored if a ``channel`` instance is provided.
+                This argument will be removed in the next major version of this library.
             scopes (Optional[Sequence[str]]): A optional list of scopes needed for this
                 service. These are only used when credentials are not specified and
                 are passed to :func:`google.auth.default`.
@@ -374,13 +376,13 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
 
         The response includes the following HTTP headers:
 
-        -  ``X-Vertex-AI-Endpoint-Id``: ID of the
-           [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
-           this prediction.
+        - ``X-Vertex-AI-Endpoint-Id``: ID of the
+          [Endpoint][google.cloud.aiplatform.v1.Endpoint] that served
+          this prediction.
 
-        -  ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
-           [DeployedModel][google.cloud.aiplatform.v1.DeployedModel]
-           that served this prediction.
+        - ``X-Vertex-AI-Deployed-Model-Id``: ID of the Endpoint's
+          [DeployedModel][google.cloud.aiplatform.v1.DeployedModel] that
+          served this prediction.
 
         Returns:
             Callable[[~.RawPredictRequest],
@@ -741,6 +743,35 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             )
         return self._stubs["stream_generate_content"]
 
+    @property
+    def embed_content(
+        self,
+    ) -> Callable[
+        [prediction_service.EmbedContentRequest],
+        Awaitable[prediction_service.EmbedContentResponse],
+    ]:
+        r"""Return a callable for the embed content method over gRPC.
+
+        Embed content with multimodal inputs.
+
+        Returns:
+            Callable[[~.EmbedContentRequest],
+                    Awaitable[~.EmbedContentResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "embed_content" not in self._stubs:
+            self._stubs["embed_content"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1.PredictionService/EmbedContent",
+                request_serializer=prediction_service.EmbedContentRequest.serialize,
+                response_deserializer=prediction_service.EmbedContentResponse.deserialize,
+            )
+        return self._stubs["embed_content"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -806,6 +837,11 @@ class PredictionServiceGrpcAsyncIOTransport(PredictionServiceTransport):
             ),
             self.stream_generate_content: self._wrap_method(
                 self.stream_generate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.embed_content: self._wrap_method(
+                self.embed_content,
                 default_timeout=None,
                 client_info=client_info,
             ),

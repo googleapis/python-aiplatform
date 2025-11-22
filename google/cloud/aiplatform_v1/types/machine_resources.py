@@ -19,9 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.cloud.aiplatform_v1.types import (
-    accelerator_type as gca_accelerator_type,
-)
+from google.cloud.aiplatform_v1.types import accelerator_type as gca_accelerator_type
 from google.cloud.aiplatform_v1.types import (
     reservation_affinity as gca_reservation_affinity,
 )
@@ -72,6 +70,21 @@ class MachineSpec(proto.Message):
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
+        gpu_partition_size (str):
+            Optional. Immutable. The Nvidia GPU partition size.
+
+            When specified, the requested accelerators will be
+            partitioned into smaller GPU partitions. For example, if the
+            request is for 8 units of NVIDIA A100 GPUs, and
+            gpu_partition_size="1g.10gb", the service will create 8 \* 7
+            = 56 partitioned MIG instances.
+
+            The partition size must be a value supported by the
+            requested accelerator. Refer to `Nvidia GPU
+            Partitioning <https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions>`__
+            for the available partition sizes.
+
+            If set, the accelerator_count should be set to 1.
         tpu_topology (str):
             Immutable. The topology of the TPUs. Corresponds to the TPU
             topologies available from GKE. (Example: tpu_topology:
@@ -94,6 +107,10 @@ class MachineSpec(proto.Message):
     accelerator_count: int = proto.Field(
         proto.INT32,
         number=3,
+    )
+    gpu_partition_size: str = proto.Field(
+        proto.STRING,
+        number=7,
     )
     tpu_topology: str = proto.Field(
         proto.STRING,
@@ -399,9 +416,9 @@ class AutoscalingMetricSpec(proto.Message):
         metric_name (str):
             Required. The resource metric name. Supported metrics:
 
-            -  For Online Prediction:
-            -  ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
-            -  ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+            - For Online Prediction:
+            - ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
+            - ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
         target (int):
             The target resource utilization in percentage
             (1% - 100%) for the given metric; once the real

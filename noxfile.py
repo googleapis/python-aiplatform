@@ -25,8 +25,10 @@ import warnings
 
 import nox
 
+nox.options.default_venv_backend = "uv"
+
 FLAKE8_VERSION = "flake8==6.1.0"
-BLACK_VERSION = "black==25.1.0"
+BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
 LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 
@@ -51,10 +53,10 @@ DOCFX_DEPENDENCIES = (
     "recommonmark",
 )
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
-UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
-UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
-UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 PYTHON_TO_RAY_VERSIONS = {
     "3.10": ["2.9.3", "2.33.0", "2.42.0"],
     "3.11": ["2.42.0", "2.47.1"],
@@ -128,7 +130,7 @@ def lint(session):
     session.run("flake8", *LINT_PATHS)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def blacken(session):
     """Run black. Format code to uniform standard."""
     session.install(BLACK_VERSION)
@@ -161,7 +163,7 @@ def format(session):
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def lint_setup_py(session):
     """Verify that setup.py is valid (including RST check)."""
-    session.install("docutils", "pygments")
+    session.install("docutils", "pygments", "setuptools")
     session.run("python", "setup.py", "check", "--restructuredtext", "--strict")
 
 
@@ -457,7 +459,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9")
+@nox.session(python="3.9", venv_backend="virtualenv")
 def docs(session):
     """Build the docs for this library."""
 
@@ -481,7 +483,7 @@ def docs(session):
     )
 
 
-@nox.session(python="3.10")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def docfx(session):
     """Build the docfx yaml files for this library."""
 
@@ -517,7 +519,7 @@ def docfx(session):
     )
 
 
-@nox.session(python="3.9")
+@nox.session(python="3.9", venv_backend="virtualenv")
 def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
@@ -538,7 +540,7 @@ def gemini_docs(session):
     )
 
 
-@nox.session(python="3.10")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def gemini_docfx(session):
     """Build the docfx yaml files for library related to Gemini."""
 

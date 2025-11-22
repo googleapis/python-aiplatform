@@ -1,5 +1,430 @@
 # Changelog
 
+## [1.128.0](https://github.com/googleapis/python-aiplatform/compare/v1.127.0...v1.128.0) (2025-11-18)
+
+
+### Features
+
+* GenAI Client(evals) - Add `pass_rate` to `AggregatedMetricResult` and calculate it for adaptive rubric metrics. ([1f1f67e](https://github.com/googleapis/python-aiplatform/commit/1f1f67e548b7616653f6d84954376b1d4e095ca0))
+* GenAI SDK client - Support `build options` in Agent Engine GCS Deployment. ([28499a9](https://github.com/googleapis/python-aiplatform/commit/28499a92466994232191e5aaf7745180abb4a640))
+* GenAI SDK client - Support `build options` in Agent Engine source-based Deployment. ([f7e718f](https://github.com/googleapis/python-aiplatform/commit/f7e718fbe82a82fc301a95105bc8a44d65abd652))
+* GenAI SDK client(multimodal) - Support Assemble feature on the multimodal datasets. ([2195411](https://github.com/googleapis/python-aiplatform/commit/21954110fa700f539c17ed6deca3ea0ac789019e))
+
+
+### Bug Fixes
+
+* Fix the change runner behavior back to sync function in streaming_agent_run_with_events ([e9d9c31](https://github.com/googleapis/python-aiplatform/commit/e9d9c31f8b386e21094fb98820aa263d5ee7224e))
+* GenAI Client(evals) - fix eval visualizations in Vertex Workbench ([c3abe51](https://github.com/googleapis/python-aiplatform/commit/c3abe512332fa9e0a9a23e269ff8998d99e3b703))
+* GenAI Client(evals) - Reformat codebase 1. Remove duplicated code in _evals_utils and _evals_metric_loader 2. Keep metric utils in _evals_metric_loader and data util in _evals_utils ([5f3c655](https://github.com/googleapis/python-aiplatform/commit/5f3c6558691010ee1211f548e8d7ffa254a8fad3))
+
+## [1.127.0](https://github.com/googleapis/python-aiplatform/compare/v1.126.1...v1.127.0) (2025-11-11)
+
+
+### Features
+
+* Reenable VertexAiSession for streaming_agent_run_with_events ([d3b12d5](https://github.com/googleapis/python-aiplatform/commit/d3b12d57d1e4f1a8db5f41f597c6cb0f33e8a369))
+
+
+### Bug Fixes
+
+* Forward reference resolution in Pydantic schema generation. ([0013865](https://github.com/googleapis/python-aiplatform/commit/0013865221a87255f18d7aa4fee7d62326355221))
+* GenAI Client(evals): Long traces do not scroll ([3a99664](https://github.com/googleapis/python-aiplatform/commit/3a996645bf28117dc92fb574959c06b58f8a17e8))
+
+
+### Documentation
+
+* Add vertexai.types module to generated docs ([fc83569](https://github.com/googleapis/python-aiplatform/commit/fc83569d65c7c77af3301a1140a2306eb2d47dfe))
+
+## [1.126.1](https://github.com/googleapis/python-aiplatform/compare/v1.126.0...v1.126.1) (2025-11-06)
+
+
+### Bug Fixes
+
+* Add telemetry enablement env for agent engines deployed using module ([e64ff28](https://github.com/googleapis/python-aiplatform/commit/e64ff288e4ad0154cfdb09e3361598f9a0cd9f39))
+
+## [1.126.0](https://github.com/googleapis/python-aiplatform/compare/v1.125.0...v1.126.0) (2025-11-05)
+
+
+### Features
+
+* Default to "unspecified" for telemetry enablement ([3ca65cb](https://github.com/googleapis/python-aiplatform/commit/3ca65cbe3ff3bba573bbf36d54d3a7102c740209))
+* GenAI Client(evals) - Add loading agent info util function ([acb6cab](https://github.com/googleapis/python-aiplatform/commit/acb6cabb574e7c08f1c67090b7d7c73c4425f8f7))
+* GenAI Client(evals): Add warning message when tool usage is empty for tool_use_quality ([531d223](https://github.com/googleapis/python-aiplatform/commit/531d2235bd6c6a671d0ca11db11aff2201ee928b))
+
+
+### Bug Fixes
+
+* Populate missing auth_id for _init_session into adk session.state ([37fa3ce](https://github.com/googleapis/python-aiplatform/commit/37fa3ce353ffe34195828ba383a6575c0dbb955d))
+
+## [1.125.0](https://github.com/googleapis/python-aiplatform/compare/v1.124.0...v1.125.0) (2025-11-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Switch tracing APIs in preview AdkApp.
+* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API.
+
+### Features
+
+* Add reservation affinity support to preview BatchPredictionJob ([c8f38a0](https://github.com/googleapis/python-aiplatform/commit/c8f38a0a51c318a5065438067f85f31be5088af1))
+* Add support for Vertex Express Mode API key in AdkApp ([05834cb](https://github.com/googleapis/python-aiplatform/commit/05834cb43302cf2bfc34f25f400d075e44aa9df3))
+* Add the identity type option for the agent engine and add effective identity to the resource ([bf1851e](https://github.com/googleapis/python-aiplatform/commit/bf1851e59cb34e63b509a2a610e72691e1c4ca28))
+* Alow VertexAiSession for streaming_agent_run_with_events ([13faa27](https://github.com/googleapis/python-aiplatform/commit/13faa27376814f7b0a223ff9455c289a9af75288))
+* GenAI Client(evals) - Add retry to predefine metric ([9a46e67](https://github.com/googleapis/python-aiplatform/commit/9a46e67a8c341673b14bece88bc635b455314711))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Change dataset visualization table to fixed to prevent horizontal expansion. ([7a5a066](https://github.com/googleapis/python-aiplatform/commit/7a5a0667b915bb0ed1009ffc8034a8d29fb2d20e))
+* GenAI Client(evals) - Remove requirement for `agent_info.agent` in `create_evaluation_run` in Vertex AI GenAI SDK evals. ([d02a7da](https://github.com/googleapis/python-aiplatform/commit/d02a7da393a6bb8b1a9c462243b399b62911378c))
+* GenAI Client(evals) - Support direct pandas DataFrame dataset in evaluate() ([a917122](https://github.com/googleapis/python-aiplatform/commit/a9171221e3bafecdc75580c3f25347f1c3d18851))
+* Revert: Alow VertexAiSession for streaming_agent_run_with_events ([7c8c218](https://github.com/googleapis/python-aiplatform/commit/7c8c218f47a6fd919cae6869736d35e4206a123e))
+
+
+### Miscellaneous Chores
+
+* Release 1.125.0 ([d344858](https://github.com/googleapis/python-aiplatform/commit/d34485880bdefd21dccac4548656af1eaedb3727))
+* Switch `cloudtrace.googleapis.com` to `telemetry.googleapis.com` for tracing API. ([c81f912](https://github.com/googleapis/python-aiplatform/commit/c81f9124dce841a7cbc310c6c7652ad793c9a58f))
+* Switch tracing APIs in preview AdkApp. ([27ef56b](https://github.com/googleapis/python-aiplatform/commit/27ef56b8319ba793f6f00e7857fe0c20c2c8b61a))
+
+## [1.124.0](https://github.com/googleapis/python-aiplatform/compare/v1.123.0...v1.124.0) (2025-10-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing
+
+### Features
+
+* GenAI SDK client - Enabling new data driven prompt optimization for prompts from Android API by passing ([4216790](https://github.com/googleapis/python-aiplatform/commit/42167900de819d82afb7dde93238fb9926738867))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Apply sync function for agent run ([8a20349](https://github.com/googleapis/python-aiplatform/commit/8a2034900c6caa9349d00a0fcf0f5e7af762f9ef))
+* GenAI Client(evals) - Support EvaluationDataset output from run_inference as input `dataset` in `create_evaluation_run` in Vertex AI GenAI SDK evals ([741c6ad](https://github.com/googleapis/python-aiplatform/commit/741c6ad6bf860ec10653f86ad816a62465cdaaf5))
+* GenAI Client(evals) - Update send online eval service request default value and avoid None value ([09bf9a9](https://github.com/googleapis/python-aiplatform/commit/09bf9a99d70bacd67ae741bbebbfad71e8fed821))
+
+
+### Miscellaneous Chores
+
+* Release 1.124.0 ([35ac4c5](https://github.com/googleapis/python-aiplatform/commit/35ac4c5d042c350c1af25e37b55983c3866d831d))
+
+## [1.123.0](https://github.com/googleapis/python-aiplatform/compare/v1.122.0...v1.123.0) (2025-10-29)
+
+
+### Features
+
+* Add initial support for Python v3.14 ([4618729](https://github.com/googleapis/python-aiplatform/commit/4618729e9b41163cda3056a3fde497a0c0d7178f))
+* Add more attributes to OTel resource for ADK tracing ([5aaa60e](https://github.com/googleapis/python-aiplatform/commit/5aaa60e30a5695c2a5eb49283388fa36809e389e))
+* Add Python 3.13 Kokoro run config ([57d2709](https://github.com/googleapis/python-aiplatform/commit/57d270909b02132296692b4adc6dbc89ee8de9c6))
+* Add support for `app` input in AdkApp template ([10ca56f](https://github.com/googleapis/python-aiplatform/commit/10ca56f797f7c9cbfbe53e8830420135a58ac003))
+* Add support of google-cloud-storage v3 dependency ([85cbb75](https://github.com/googleapis/python-aiplatform/commit/85cbb7532d1e8337b1747bce53c765a9b94d067a))
+* Disable prompt/response content in ADK spans if telemetry env is set ([be5d1f5](https://github.com/googleapis/python-aiplatform/commit/be5d1f59121c5255e6061a518a5abe9e3e3c0a17))
+* GenAI Client(evals) - Add agent data to EvaluationRun `show` in Vertex AI GenAI SDK evals ([d62afc3](https://github.com/googleapis/python-aiplatform/commit/d62afc32db85a103c25878dd82a338feb86f53fe))
+* GenAI SDK client - add context management to AsyncClient ([8075e60](https://github.com/googleapis/python-aiplatform/commit/8075e6067a9ba924249155ec204488df97512ec8))
+* GenAI SDK client - Enabling zero-shot prompt optimization for prompts from Android API by passing optimization_target=vertexai.types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO in the config ([92d8b2a](https://github.com/googleapis/python-aiplatform/commit/92d8b2a1659cc40c89a651c3a1b93ae5af5a9bf1))
+* GenAI SDK client (Multimodal Dataset) - Create a multimodal dataset from Big Query. ([d4e211d](https://github.com/googleapis/python-aiplatform/commit/d4e211d00d3276aa6cb645deb27397467fc27c5b))
+* GenAI SDK client(memory): Add extracted memories to MemoryRevision resources ([2267d58](https://github.com/googleapis/python-aiplatform/commit/2267d58f6ad849dcd4f0a2cce12e4bb1a06781eb))
+* GenAI SDK client(memory): Add filter to RetrieveMemories ([2267d58](https://github.com/googleapis/python-aiplatform/commit/2267d58f6ad849dcd4f0a2cce12e4bb1a06781eb))
+* GenAI SDK client(memory): Add Memory Topic labels to Memory ([de941a6](https://github.com/googleapis/python-aiplatform/commit/de941a6fc3ca7885a0fc3e42b5ef7c44a783963b))
+* GenAI SDK client(multimodal) - Add get/update/list/delete to multimodal datasets. ([34996a2](https://github.com/googleapis/python-aiplatform/commit/34996a28de0495462aea9c7c2baf8b4249afb9df))
+* GenAI SDK client(multimodal) - Add public get/update/delete methods to multimodal datasets. ([6737a70](https://github.com/googleapis/python-aiplatform/commit/6737a705d8a14023a0dce2902d62f34afb1bb763))
+* Support Inline Source Deployment in Agent Engine ([9ae5f35](https://github.com/googleapis/python-aiplatform/commit/9ae5f356feef56d4ad652b9b6a705ce4f02079e7))
+
+
+### Bug Fixes
+
+* Allow both camelCase and snake_case in _StreamRunRequest ([6a6674d](https://github.com/googleapis/python-aiplatform/commit/6a6674d76bcd148ededfafd7d3f248d880c2b110))
+* Clone agent_framework attribute in ModuleAgent.clone() ([81f8c40](https://github.com/googleapis/python-aiplatform/commit/81f8c406bb979f3521067b2dea1544db0f4194f4))
+* GenAI Client(evals) - fix hallucination visualization ([a52da0b](https://github.com/googleapis/python-aiplatform/commit/a52da0b3d04c19e777ab8fff5d724c5cda8118f3))
+* GenAI Client(evals) - fix visualization ([67f9099](https://github.com/googleapis/python-aiplatform/commit/67f9099af92226fac603c4cbec944e66c4fc737f))
+* GenAI SDK client - Fix log showing how to get an Agent Engine. Positional arguments are not allowed. ([0fc74de](https://github.com/googleapis/python-aiplatform/commit/0fc74dea6d9e8826f29b7b9c1a10f348be911f6a))
+* Remove unnecessary pandas import from multimodal datasets preview module. ([5dd51a2](https://github.com/googleapis/python-aiplatform/commit/5dd51a2ea6fa115ab8d33970d22aefaab31dfcbd))
+
+
+### Documentation
+
+* Add docstring for classes and fields that are not supported in Gemini or Vertex API ([cd99635](https://github.com/googleapis/python-aiplatform/commit/cd99635cd5b85334dbdfddd0ef3cb7ec5c93846d))
+* Add docstring for enum classes that are not supported in Gemini or Vertex API ([db364ab](https://github.com/googleapis/python-aiplatform/commit/db364ab793cde5c25518bbaaa6df9a0f44ee9ac6))
+
+## [1.122.0](https://github.com/googleapis/python-aiplatform/compare/v1.121.0...v1.122.0) (2025-10-21)
+
+
+### Features
+
+* Add STZ support for Endpoint.deploy and Model.deploy (preview). ([7dd2629](https://github.com/googleapis/python-aiplatform/commit/7dd2629d826377560ad9ac3c0e24724e80c7e1bc))
+* Add support for Python v3.13 ([db286c4](https://github.com/googleapis/python-aiplatform/commit/db286c4c6035d690a6bc76f7f955223f0f10c610))
+* Add support for telemetry env enablement and logging setup in default instrumentor. ([a26171c](https://github.com/googleapis/python-aiplatform/commit/a26171cac0409794f1691d0d23735840250d8891))
+* Allow Memory Revisions to be disabled ([cf0948f](https://github.com/googleapis/python-aiplatform/commit/cf0948feeb403bd22006163a202a9833af7fbf5a))
+* Disable request/response content in custom ADK spans on Agent Engine in case there's no explicit consent ([dc5dcc7](https://github.com/googleapis/python-aiplatform/commit/dc5dcc769ff7b4d8772ecd119fa2fcbcd34c2115))
+* GenAI Client(evals) - Add `create_evaluation_set` and `create_evaluation_item` methods to Vertex AI GenAI SDK evals ([83553a9](https://github.com/googleapis/python-aiplatform/commit/83553a9467a0eb4040d92546977737f7b9eb2449))
+* GenAI Client(evals) - Add `evaluation_df` input support to `create_evaluation_run` method in Vertex AI GenAI SDK evals ([7a1262b](https://github.com/googleapis/python-aiplatform/commit/7a1262b27796ad205c3e71552b1381123eb72052))
+* GenAI Client(evals) - Add `inference_configs` to `create_evaluation_run` method in Vertex AI GenAI SDK evals ([5b5e6bd](https://github.com/googleapis/python-aiplatform/commit/5b5e6bdd73e66d1d7fe8e17ff1bb19027fed9404))
+* GenAI Client(evals) - Add `labels` to EvaluationRun in Vertex AI GenAI SDK evals ([67cf80b](https://github.com/googleapis/python-aiplatform/commit/67cf80b06b353a32eb9ce4082678d7fec7ec37e3))
+* GenAI Client(evals) - Add `metrics` to `create_evaluation_run` method in Vertex AI GenAI SDK evals ([ce35218](https://github.com/googleapis/python-aiplatform/commit/ce35218a96d393713b3d85e7ca14e2b54c05ce59))
+* GenAI Client(evals) - Add agent eval data converter evals ([cd61c86](https://github.com/googleapis/python-aiplatform/commit/cd61c86bcf1be7b07e287b06d2bc34492b2b3e17))
+* GenAI Client(evals) - Add Detailed View to `show` method for EvaluationRun for Vertex AI GenAI SDK evals ([dc16065](https://github.com/googleapis/python-aiplatform/commit/dc160653d22071bf41434da17ebf2bd9de687e56))
+* GenAI Client(evals) - Register hallucination and tool_usage_quality metrics for agent eval ([7ae013e](https://github.com/googleapis/python-aiplatform/commit/7ae013e1ce777717983de59105f782c82f5a0262))
+* GenAI Client(evals) - Update agent eval evaluation report dashboard ([e2aa3eb](https://github.com/googleapis/python-aiplatform/commit/e2aa3ebf5d26c91b6b5d250f49192fa0549916f4))
+* GenAI SDK client - Add TTL support for Agent Engine Code Execution ([9d139eb](https://github.com/googleapis/python-aiplatform/commit/9d139ebb32fc5aee0b3d4e8b88859bd1f2bffa36))
+* GenAI SDK client: Add async Memory and Memory Revisions methods ([55b7c23](https://github.com/googleapis/python-aiplatform/commit/55b7c23950a40731ecbb3918f6e4721c66b1e9d3))
+* GenAI SDK client(evals) - Add agent run in run_inference ([8b9ed04](https://github.com/googleapis/python-aiplatform/commit/8b9ed0445e86688a08853cee9a1e5287e399415c))
+* GenAI SDK client(evals) - Add predefined metrics for Gecko text-to-image and text-to-video evaluations ([b05e5b3](https://github.com/googleapis/python-aiplatform/commit/b05e5b335d960911631d60e3a1758f1bc60c4dd0))
+* GenAI SDK client(evals) - Update evaluate function to enable agent_info ([d13b230](https://github.com/googleapis/python-aiplatform/commit/d13b230e52d069ce180d0d57a692aed41db0c59e))
+* GenAI SDK client(evals) Send agent eval request to EvaluateInstance ([87ea594](https://github.com/googleapis/python-aiplatform/commit/87ea5943245854bdfa2857ccb7e77c3ed64f9aba))
+* Support TTL (per Memory Bank and per-request) for Memory Revisions ([cf0948f](https://github.com/googleapis/python-aiplatform/commit/cf0948feeb403bd22006163a202a9833af7fbf5a))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Support multiple metrics in Detailed View `show` method for EvaluationRun for Vertex AI GenAI SDK evals ([3ac82ea](https://github.com/googleapis/python-aiplatform/commit/3ac82ea8ff01e5fc1334b0a7c207c99104f06542))
+* GenAI SDK (prompts) - Fix bug where passing encryption_spec to prompts.create raised an error ([f0a4a00](https://github.com/googleapis/python-aiplatform/commit/f0a4a005d008843b2669314662fcd4b38d2ae5d0))
+
+## [1.121.0](https://github.com/googleapis/python-aiplatform/compare/v1.120.0...v1.121.0) (2025-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove deprecated transfer_to_agent parameter
+
+### Features
+
+* A new message `ScaleToZeroSpec` is added ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add additional proto fields and GenerateFetchAccessToken API ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add aspect_ratio and image_config for v1 version ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add aspect_ratio and image_config for v1beta1 version ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add async methods for Sessions and Session Events ([ac6e0b4](https://github.com/googleapis/python-aiplatform/commit/ac6e0b42ff947ab33e4a13e47f59707c7a2d2a8f))
+* Add JAILBREAK as a new Prompt block reason in PredictionService ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add JAILBREAK category to SafetySettings for prediction service ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add JAILBREAK category to SafetySettings for prediction service ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add labels field for Predict API for Imagen use case (v1beta and v1) ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add ListOperations partial success flag ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add ListOperations unreachable resources ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add matching engine deployment tier parameter and new shard size ([ffe9cde](https://github.com/googleapis/python-aiplatform/commit/ffe9cde28f33e432c8def7d03e2e9a30a26d4cbf))
+* Add resource attributes and GenAI instrumentation to default instrumentator in ADK VAE template ([f0dc877](https://github.com/googleapis/python-aiplatform/commit/f0dc877350863fe80e9a5d74529a34c6d95f0e3c))
+* Add support for Inline source based deployment ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add support for Inline source based deployment ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* Add support for Python 3.14 ([62ea30a](https://github.com/googleapis/python-aiplatform/commit/62ea30a448c25a4f7cc19a1ab66a9a39a034815c))
+* GenAI SDK client - Update input handling inside code execution sandbox ([9a452cc](https://github.com/googleapis/python-aiplatform/commit/9a452cc28d9564b85e9ff15d0b38db07b0ee50c8))
+* GenAI SDK client(evals) Update data model for agent evaluation ([4ca9fcc](https://github.com/googleapis/python-aiplatform/commit/4ca9fccfed52cda4661e308aa9915f1bd0ea8492))
+* Initial implementation of the SDK for Memory Revisions ([b91b63c](https://github.com/googleapis/python-aiplatform/commit/b91b63c6f66e6350e753bc8b21d65e9f31d3b8f8))
+* Support for explicitly providing `class_methods` in Agent Engine config. ([af8c898](https://github.com/googleapis/python-aiplatform/commit/af8c8989a04c1e95dda551cef44a61e58a6ba912))
+* Updated Observability GenAI data format converter for JSONL ([00e57de](https://github.com/googleapis/python-aiplatform/commit/00e57debaad83824200e8ebf038da9799a777407))
+
+
+### Bug Fixes
+
+* Adding google internal import rule for vertex service to adk app ([0d1240e](https://github.com/googleapis/python-aiplatform/commit/0d1240e43899a4ce5eafa19c6046380643e92755))
+
+
+### Miscellaneous Chores
+
+* Release 1.121.0 ([8b2eed8](https://github.com/googleapis/python-aiplatform/commit/8b2eed8625df335094d385b85f52a536dd8441b9))
+* Remove deprecated transfer_to_agent parameter ([71a7832](https://github.com/googleapis/python-aiplatform/commit/71a7832d13f33c8a9561f5de382e3ba66aefa184))
+
+## [1.120.0](https://github.com/googleapis/python-aiplatform/compare/v1.119.0...v1.120.0) (2025-10-08)
+
+
+### Features
+
+* Add ability to use existing sessions for streaming_agent_run_with_events calls. ([0a369ea](https://github.com/googleapis/python-aiplatform/commit/0a369eacaa4e21e8055ef7c2e0f4c6da3a9298f8))
+* Add DeploymentTier enum to DeployedIndex ([89a26c1](https://github.com/googleapis/python-aiplatform/commit/89a26c15b8a15c8698192dc283e5839729ad3e66))
+* Add labels field for Predict API for Imagen use case (v1beta) ([89a26c1](https://github.com/googleapis/python-aiplatform/commit/89a26c15b8a15c8698192dc283e5839729ad3e66))
+* Auto-generated CL for //google/cloud/aiplatform:aiplatform_v1_public_proto_gen ([89a26c1](https://github.com/googleapis/python-aiplatform/commit/89a26c15b8a15c8698192dc283e5839729ad3e66))
+* Expose PSC for CustomModel ([d02099c](https://github.com/googleapis/python-aiplatform/commit/d02099cf200f7e372ad0c38f98a5b8c92bcc581c))
+* GenAI Client(evals) - Add `get_evaluation_set` and `get_evaluation_item` methods to Vertex AI GenAI SDK evals ([7757886](https://github.com/googleapis/python-aiplatform/commit/77578867ff7c4e8a9c4618481821cded32b4b135))
+* GenAI Client(evals) - Add `show` method for EvaluationRun class in Vertex AI GenAI SDK evals ([0c932b9](https://github.com/googleapis/python-aiplatform/commit/0c932b99bafde099734cf136828583de23fbaeb6))
+* Migrate vertex ai session service to use agent engine sdk ([b72df1c](https://github.com/googleapis/python-aiplatform/commit/b72df1c3e418c4b87ecb92e1506e7f3fe8da3994))
+* Migrate vertex_ai_session_service to use Agent Engine SDK ([55b54a2](https://github.com/googleapis/python-aiplatform/commit/55b54a21005587338abdd66c7605f534294b0c94))
+* Migrate vertex_ai_session_service to use Agent Engine SDK ([03772e2](https://github.com/googleapis/python-aiplatform/commit/03772e2a87f2fc6c66a69220e004522cc6ba1f94))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Parse user defined rubrics correctly to LLM metric ([64b0665](https://github.com/googleapis/python-aiplatform/commit/64b0665169b045ccfd16e537af2e45a4dd7977e0))
+
+
+### Documentation
+
+* Fix Sessions SDK docstrings ([0077bde](https://github.com/googleapis/python-aiplatform/commit/0077bdebe62d0363c1faacd5f6e5562086dff080))
+
+## [1.119.0](https://github.com/googleapis/python-aiplatform/compare/v1.118.0...v1.119.0) (2025-10-03)
+
+
+### Features
+
+* GenAI Client(evals) - Add EvaluationResults to `get_evaluation_run` method response in Vertex AI GenAI SDK evals ([f07ecc3](https://github.com/googleapis/python-aiplatform/commit/f07ecc39086d756b4d61f2f091e02ddef6f2698a))
+* GenAI SDK client (prompt management): Release Prompts module to GA ([3394028](https://github.com/googleapis/python-aiplatform/commit/33940289ee5219125c94a7aba738dad7e53f5886))
+
+## [1.118.0](https://github.com/googleapis/python-aiplatform/compare/v1.117.0...v1.118.0) (2025-09-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* GenAI SDK client (prompt management) - Split create into two methods, create() and create_version()
+* GenAI SDK client (prompt management) - Split get into two methods, get() and get_version()
+* GenAI SDK client (prompt management) - Rename list methods to list() and list_versions()
+* GenAI SDK client (prompt management) - Rename delete methods to delete() and delete_version()
+* GenAI SDK client (prompt management) - Rename prompt_management module to prompts
+
+### Features
+
+* Add enable_widget option in Google Maps and additional grounding information ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add filter option for deploy configuration in Model Garden deploy SDK ([ac33e87](https://github.com/googleapis/python-aiplatform/commit/ac33e8790601b6da499ffef8afaaa12ea29fc280))
+* Add Model Garden deploy SDK select verified config guide. ([36a5bbc](https://github.com/googleapis/python-aiplatform/commit/36a5bbc4af268d371bcfe20d307a2ee9a635a3e5))
+* Add private_model_server_enabled to in Endpoint.proto ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add Validation mode in FunctionCallingConfig ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Add Validation mode in FunctionCallingConfig ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* GenAI Client(evals) - Add `create_evaluation_run` method to Vertex AI GenAI SDK evals ([7db9b4f](https://github.com/googleapis/python-aiplatform/commit/7db9b4f6f8440bbf87c0b23991a460b423d28641))
+* GenAI Client(evals) - Add `get_evaluation_run` method to Vertex AI GenAI SDK evals ([bbbadbc](https://github.com/googleapis/python-aiplatform/commit/bbbadbc8c896fbdabd0032f7683bab5fc5553f2e))
+* GenAI SDK client (prompt management) - Rename delete methods to delete() and delete_version() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Rename list methods to list() and list_versions() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Rename prompt_management module to prompts ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Split create into two methods, create() and create_version() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client (prompt management) - Split get into two methods, get() and get_version() ([d52ed42](https://github.com/googleapis/python-aiplatform/commit/d52ed42239f6ea636fd218e88f5464f7371d6b80))
+* GenAI SDK client(evals) Add data model for agent evaluation ([d3ef487](https://github.com/googleapis/python-aiplatform/commit/d3ef4872c0fb2e98567c58346eea8d5c0fa83bfb))
+* PSC support for custom weights deploy ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Tuning PreTunedModel API field ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+
+
+### Bug Fixes
+
+* Mitigate breaking change in GenAI SDK for ADK on AgentEngine ([9fa50aa](https://github.com/googleapis/python-aiplatform/commit/9fa50aa4895efd3e71e1ce347ab062e418983942))
+* Relax the type annotations to avoid issues with pydantic when deploying ([7a6a2f5](https://github.com/googleapis/python-aiplatform/commit/7a6a2f588b4d2a48f46a9d572fcdb82b1a6de954))
+* Remove the upperbound on google-genai for AgentEngine ([74726f3](https://github.com/googleapis/python-aiplatform/commit/74726f3b2600bf8a78f60b6bb386f51c89dddc40))
+
+
+### Documentation
+
+* A comment for field `dedicated_endpoint_disabled` in message `.google.cloud.aiplatform.v1beta1.DeployRequest` is changed ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Remove legacy internal lint directives ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Update the comment for ANY mode in FunctionCallingConfig. ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+* Update the comment for ANY mode in FunctionCallingConfig. ([0722687](https://github.com/googleapis/python-aiplatform/commit/0722687faeec9aed56222476a2c5300d6ddc0c37))
+
+
+### Miscellaneous Chores
+
+* Release 1.118.0 ([a67a795](https://github.com/googleapis/python-aiplatform/commit/a67a795974294111d6ff19dd70948055ccb8ae33))
+
+## [1.117.0](https://github.com/googleapis/python-aiplatform/compare/v1.116.0...v1.117.0) (2025-09-25)
+
+
+### Features
+
+* Expose user reservation for CustomModel ([f796e74](https://github.com/googleapis/python-aiplatform/commit/f796e747f0c2c106e6ab83d2b2af0169c882ff58))
+* Gen AI SDK client - add experimental restore_version method to Prompt Management ([820e0b6](https://github.com/googleapis/python-aiplatform/commit/820e0b68159e70c262fbfa823ae21a1172f58cee))
+
+
+### Documentation
+
+* Add generated docs for Gen AI Modules ([c3c2f7f](https://github.com/googleapis/python-aiplatform/commit/c3c2f7f4d7dddb2d2bc76557582f0958cd80c951))
+
+## [1.116.0](https://github.com/googleapis/python-aiplatform/compare/v1.115.0...v1.116.0) (2025-09-22)
+
+
+### Features
+
+* Add experimental async list_prompts and list_version methods to prompt management ([13a626b](https://github.com/googleapis/python-aiplatform/commit/13a626bb38f5e8f9ba5c0b7db41b41c46ecf4f58))
+* GenAI SDK client - add experimental async delete_prompt and delete_version method to Prompt Management ([45e616a](https://github.com/googleapis/python-aiplatform/commit/45e616a94f1b14646930cb9d598ac20776326038))
+* Update gapic utils to allows creating RAG clients with api_override ([9851905](https://github.com/googleapis/python-aiplatform/commit/98519056af7f3f95ac15c0b585b788a82ab548a7))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Add support for `context` in Grounding metric ([e75d91f](https://github.com/googleapis/python-aiplatform/commit/e75d91fc928358299ed4d6cd1a210a2448cbea4e))
+* Pass plugins to the Runner in ADK template. ([b43b7b4](https://github.com/googleapis/python-aiplatform/commit/b43b7b4f259cea295fe447fa0c751ff5c5a34c6a))
+
+
+### Documentation
+
+* Update AgentEngine with ADK template to the version in GA ([0d600fd](https://github.com/googleapis/python-aiplatform/commit/0d600fdf93a3e70e9a6b0d43913147b100f116ce))
+
+## [1.115.0](https://github.com/googleapis/python-aiplatform/compare/v1.114.0...v1.115.0) (2025-09-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `optimize_prompt` method no longer returns the parsed response directly. Code must be updated to access the `.raw_text_response` or `.parsed_response` attribute on the new return object.
+
+### Features
+
+* Add `has_template_config` to MultimodalDataset. ([97a6e71](https://github.com/googleapis/python-aiplatform/commit/97a6e719c410055fa82e5aebc88e3504e2a885a2))
+* GenAI SDK client - add experimental async create_version and get methods to prompt management ([d8de037](https://github.com/googleapis/python-aiplatform/commit/d8de03702ae77cabd4ea4edb5e8707426ea4f49f))
+* GenAI SDK client - Add experimental delete_prompt() and delete_version() methods to Prompt Management ([3f7f976](https://github.com/googleapis/python-aiplatform/commit/3f7f97633eb2994d75a99afcdc34ec58e820a98c))
+* GenAI SDK client - Modify optimize_prompt to return raw and parsed responses. ([415cf26](https://github.com/googleapis/python-aiplatform/commit/415cf26282283305afa9687ea055d59ad8784422))
+* GenAI SDK client -- add support for user defined labels for ReasoningEngine ([002b441](https://github.com/googleapis/python-aiplatform/commit/002b4416e41313a0148c5a69bee3459c14f1fb83))
+* Update list_deploy_options api for Vertex AI Model Garden custom model to support filtering by machines that user has quota for. ([540e9e0](https://github.com/googleapis/python-aiplatform/commit/540e9e02fc9c5ad937d8540b814d534bf7ff5315))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Improve LiteLLM model completion response parsing ([ff55a48](https://github.com/googleapis/python-aiplatform/commit/ff55a48c59f5c6a656df6aa167b09770c8878219))
+* Update definition of async_add_session_to_memory to not depend on Session ([dc9a5da](https://github.com/googleapis/python-aiplatform/commit/dc9a5da1505f5f75b7ffe06a68512aede6e2cad2))
+
+
+### Documentation
+
+* Add Agent Engine with ADK examples to README. ([c74305b](https://github.com/googleapis/python-aiplatform/commit/c74305bd1808cd08c41e4b8e87718c3e0e08209d))
+* Streamline installation section in README and add uv package installation command ([bf91a55](https://github.com/googleapis/python-aiplatform/commit/bf91a55e17d697aca40b0bde17ab1b4dbbfe9188))
+
+
+### Miscellaneous Chores
+
+* Release 1.115.0 ([bcf9ce0](https://github.com/googleapis/python-aiplatform/commit/bcf9ce008ce73d8245f52047a21bac7557c4a252))
+
+## [1.114.0](https://github.com/googleapis/python-aiplatform/compare/v1.113.0...v1.114.0) (2025-09-16)
+
+
+### Features
+
+* GenAI SDK client - Add experimental list_prompts() and list_versions() methods to Prompt Management ([18a5559](https://github.com/googleapis/python-aiplatform/commit/18a55590c5679b8ea7536c4c3c73566ba006bf36))
+
+
+### Bug Fixes
+
+* GenAI SDK client - Add agent_server_mode arg to AgentEngineConfig and pass it to API request if present. ([1f821fd](https://github.com/googleapis/python-aiplatform/commit/1f821fd5a79e3bad206ca1a725358890506e4383))
+
+## [1.113.0](https://github.com/googleapis/python-aiplatform/compare/v1.112.0...v1.113.0) (2025-09-12)
+
+
+### Features
+
+* GenAI - Added GPT, Qwen, and DeepSeek models support in GenAI batch prediction ([cdd73d2](https://github.com/googleapis/python-aiplatform/commit/cdd73d2a8428ab0c62619e631fe0efab6a32c972))
+* GenAI Client(evals) - Add support for Vertex Model Garden MaaS models. ([751cb18](https://github.com/googleapis/python-aiplatform/commit/751cb182245a16f075b66d7a3bdda082aa4bc83d))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Update data handling for adaptive rubric multi-turn evaluation metrics ([c511490](https://github.com/googleapis/python-aiplatform/commit/c51149083734fd773591d9ebcfb476e411613741))
+
+## [1.112.0](https://github.com/googleapis/python-aiplatform/compare/v1.111.0...v1.112.0) (2025-09-09)
+
+
+### Features
+
+* GenAI SDK client - Add A2A support in Agent Engine ([d500945](https://github.com/googleapis/python-aiplatform/commit/d5009458599c4e5eb1b9c4fea1346eafdaa778bc))
+* GenAI SDK client - Add Observability GenAI data format converter for evals ([0665566](https://github.com/googleapis/python-aiplatform/commit/0665566ac606b599177d4dca0643559df0540439))
+* GenAI SDK client - Add orderBy to ListMemories ([c6872f0](https://github.com/googleapis/python-aiplatform/commit/c6872f02fe8b45eb07cdd64c5d4bf9e3ac33226b))
+* GenAI SDK client - Add support for loading evaluation datasets from Observability GCS sources ([bfcccc9](https://github.com/googleapis/python-aiplatform/commit/bfcccc975c7720286908d609688e01c902b675c5))
+* GenAI SDK client - Add the service account option for the agent engine ([219c33f](https://github.com/googleapis/python-aiplatform/commit/219c33fd5fb628ec3945df91347e74710c1318b3))
+* Adding `gpu_partition_size` parameter to Model.deploy() method. ([966c236](https://github.com/googleapis/python-aiplatform/commit/966c236fef9bb800b8ce6a9235c6bb06b3203c66))
+* Change `gpu_partition_size` type hint to `str`. ([910016d](https://github.com/googleapis/python-aiplatform/commit/910016d71a7bc1eb380613e44b7ae2d7683d9769))
+* GenAI SDK client - Add `api_key` parameter to vertexai.Client ([a9ffc60](https://github.com/googleapis/python-aiplatform/commit/a9ffc6030dc58ed4acd269632033cbee23dd470a))
+* GenAI SDK client - Add experimental prompt_management module with create_version and get methods ([d5a14ba](https://github.com/googleapis/python-aiplatform/commit/d5a14ba462684a23afb7f15002fb603038562e7c))
+* GenAI SDK client - Add live/bidi agent deployment support for Agent Engine ([74e3f25](https://github.com/googleapis/python-aiplatform/commit/74e3f25e1b2e50935d0ef6a8bc06472921cae32d))
+* GenAI SDK client - Add sandbox code execution SDK support ([74e52d9](https://github.com/googleapis/python-aiplatform/commit/74e52d957035d5bc9d63bc0912b9785522930487))
+* GenAI SDK client - Remove experimental warning from agent_engines module ([42c3c9c](https://github.com/googleapis/python-aiplatform/commit/42c3c9c5546b7f02c07818934fcc804a882a9703))
+* GenAI SDK client - Support bidi stream query in agent engines and ADK template. ([456249e](https://github.com/googleapis/python-aiplatform/commit/456249efacd7cebf274f6f28316e475a6271dfa3))
+
+
+### Bug Fixes
+
+* Allow for inheritance of clone behavior in AdkApp ([e5ced93](https://github.com/googleapis/python-aiplatform/commit/e5ced937033f0b194ccad6acc65ea03869d1847b))
+* GenAI SDK client - Decrease polling interval for GenerateMemories and CreateSession (currently 10s) ([77a3933](https://github.com/googleapis/python-aiplatform/commit/77a39330473b9d04fdad6bf2ee87b5b5ce9cd696))
+* GenAI SDK client - Fix deepcopy for RubricGenerationConfig in RubricBasedMetric. ([e39f0bd](https://github.com/googleapis/python-aiplatform/commit/e39f0bd4afbf2cc9f32bffd2a801c2f48c1f9039))
+* GenAI SDK client - Handle empty GenerateMemories response (no memories generated) as valid response. ([99f0078](https://github.com/googleapis/python-aiplatform/commit/99f0078f0165bc33c8f001e310ea9b6823b00974))
+
 ## [1.111.0](https://github.com/googleapis/python-aiplatform/compare/v1.110.0...v1.111.0) (2025-08-27)
 
 
