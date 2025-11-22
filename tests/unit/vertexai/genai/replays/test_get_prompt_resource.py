@@ -51,9 +51,7 @@ def test_get_prompt_version(client):
         version_id=TEST_PROMPT_VERSION_ID,
     )
     assert isinstance(prompt, types.Prompt)
-    assert isinstance(prompt.dataset, types.Dataset)
     assert isinstance(prompt.dataset_version, types.DatasetVersion)
-    assert prompt.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
     assert prompt.dataset_version.name.endswith(TEST_PROMPT_VERSION_ID)
 
 
@@ -100,10 +98,8 @@ async def test_get_prompt_version_async(client):
         prompt_id=TEST_PROMPT_DATASET_ID, version_id=TEST_PROMPT_VERSION_ID
     )
     assert isinstance(prompt, types.Prompt)
-    assert isinstance(prompt.dataset, types.Dataset)
-    assert prompt.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
     assert (
         prompt.prompt_data
-        == prompt.dataset.metadata.prompt_api_schema.multimodal_prompt.prompt_message
+        == prompt.dataset_version.metadata.prompt_api_schema.multimodal_prompt.prompt_message
     )
     assert isinstance(prompt.prompt_data, types.SchemaPromptSpecPromptMessage)
