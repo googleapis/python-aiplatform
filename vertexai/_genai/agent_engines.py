@@ -1082,6 +1082,7 @@ class AgentEngines(_api_module.BaseModule):
                 staging_bucket=staging_bucket,
                 gcs_dir_name=gcs_dir_name,
                 extra_packages=extra_packages,
+                credentials=self._api_client._credentials,
             )
             # Update the package spec.
             update_masks.append("spec.package_spec.pickle_object_gcs_uri")

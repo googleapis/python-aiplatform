@@ -772,10 +772,11 @@ def _get_gcs_bucket(
     project: str,
     location: str,
     staging_bucket: str,
+    credentials: Optional[Any] = None,
 ) -> _StorageBucket:
     """Gets or creates the GCS bucket."""
     storage = _import_cloud_storage_or_raise()
-    storage_client = storage.Client(project=project)
+    storage_client = storage.Client(project=project, credentials=credentials)
     staging_bucket = staging_bucket.replace("gs://", "")
     try:
         gcs_bucket = storage_client.get_bucket(staging_bucket)
@@ -910,6 +911,7 @@ def _prepare(
     location: str,
     staging_bucket: str,
     gcs_dir_name: str,
+    credentials: Optional[Any] = None,
 ) -> None:
     """Prepares the agent engine for creation or updates in Vertex AI.
 
@@ -926,8 +928,9 @@ def _prepare(
         project (str): The project for the staging bucket.
         location (str): The location for the staging bucket.
         staging_bucket (str): The staging bucket name in the form "gs://...".
-        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
-            use for staging the artifacts needed.
+        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to use
+          for staging the artifacts needed.
+        credentials: The credentials to use for the storage client.
     """
     if agent is None:
         return
@@ -935,6 +938,7 @@ def _prepare(
         project=project,
         location=location,
         staging_bucket=staging_bucket,
+        credentials=credentials,
     )
     _upload_agent_engine(
         agent=agent,
