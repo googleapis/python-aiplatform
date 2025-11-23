@@ -1450,6 +1450,77 @@ class TestAgentEngineHelpers:
             finally:
                 os.chdir(origin_dir)
 
+    @mock.patch.object(_agent_engines_utils, "_upload_requirements")
+    @mock.patch.object(_agent_engines_utils, "_upload_extra_packages")
+    @mock.patch.object(_agent_engines_utils, "_upload_agent_engine")
+    @mock.patch.object(_agent_engines_utils, "_scan_requirements")
+    @mock.patch.object(_agent_engines_utils, "_get_gcs_bucket")
+    def test_prepare_with_creds(
+        self,
+        mock_get_gcs_bucket,
+        mock_scan_requirements,
+        mock_upload_agent_engine,
+        mock_upload_extra_packages,
+        mock_upload_requirements,
+    ):
+        mock_scan_requirements.return_value = {}
+        mock_creds = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+        mock_creds.universe_domain = "googleapis.com"
+        _agent_engines_utils._prepare(
+            agent=self.test_agent,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            credentials=mock_creds,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+            requirements=[],
+            extra_packages=[],
+        )
+        mock_upload_agent_engine.assert_called_once_with(
+            agent=self.test_agent,
+            gcs_bucket=mock.ANY,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+        )
+
+    @mock.patch.object(_agent_engines_utils, "_upload_requirements")
+    @mock.patch.object(_agent_engines_utils, "_upload_extra_packages")
+    @mock.patch.object(_agent_engines_utils, "_upload_agent_engine")
+    @mock.patch.object(_agent_engines_utils, "_scan_requirements")
+    @mock.patch("google.auth.default")
+    @mock.patch.object(_agent_engines_utils, "_get_gcs_bucket")
+    def test_prepare_without_creds(
+        self,
+        mock_get_gcs_bucket,
+        mock_auth_default,
+        mock_scan_requirements,
+        mock_upload_agent_engine,
+        mock_upload_extra_packages,
+        mock_upload_requirements,
+    ):
+        mock_scan_requirements.return_value = {}
+        mock_creds = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+        mock_auth_default.return_value = (mock_creds, _TEST_PROJECT)
+        _agent_engines_utils._prepare(
+            agent=self.test_agent,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+            requirements=[],
+            extra_packages=[],
+        )
+        mock_get_gcs_bucket.assert_called_once_with(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            credentials=None,
+        )
+        mock_upload_agent_engine.assert_called_once_with(
+            agent=self.test_agent,
+            gcs_bucket=mock.ANY,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngine:
@@ -2621,6 +2692,109 @@ class TestAgentEngine:
             want_operation_schema[_TEST_MODE_KEY_IN_SCHEMA] = api_mode
             want_operation_schemas.append(want_operation_schema)
         assert test_agent_engine.operation_schemas() == want_operation_schemas
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_agent_engine_with_creds(
+        self, mock_await_operation, mock_create, mock_prepare
+    ):
+        mock_operation = mock.Mock()
+        mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        self.client.agent_engines.create(
+            agent=self.test_agent,
+            config=_genai_types.AgentEngineConfig(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            ),
+        )
+        mock_args, mock_kwargs = mock_prepare.call_args
+        assert mock_kwargs["agent"] == self.test_agent
+        assert mock_kwargs["extra_packages"] == []
+        assert mock_kwargs["project"] == _TEST_PROJECT
+        assert mock_kwargs["location"] == _TEST_LOCATION
+        assert mock_kwargs["staging_bucket"] == _TEST_STAGING_BUCKET
+        assert mock_kwargs["credentials"] == _TEST_CREDENTIALS
+        assert mock_kwargs["gcs_dir_name"] == "agent_engine"
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch("google.auth.default")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_agent_engine_without_creds(
+        self, mock_await_operation, mock_auth_default, mock_create, mock_prepare
+    ):
+        mock_operation = mock.Mock()
+        mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        mock_creds = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+        mock_creds.quota_project_id = _TEST_PROJECT
+        mock_auth_default.return_value = (mock_creds, _TEST_PROJECT)
+        client = vertexai.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=mock_creds
+        )
+        client.agent_engines.create(
+            agent=self.test_agent,
+            config=_genai_types.AgentEngineConfig(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            ),
+        )
+        mock_args, mock_kwargs = mock_prepare.call_args
+        assert mock_kwargs["agent"] == self.test_agent
+        assert mock_kwargs["extra_packages"] == []
+        assert mock_kwargs["project"] == _TEST_PROJECT
+        assert mock_kwargs["location"] == _TEST_LOCATION
+        assert mock_kwargs["staging_bucket"] == _TEST_STAGING_BUCKET
+        assert mock_kwargs["credentials"] == mock_creds
+        assert mock_kwargs["gcs_dir_name"] == "agent_engine"
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_agent_engine_with_no_creds_in_client(
+        self, mock_await_operation, mock_create, mock_prepare
+    ):
+        mock_operation = mock.Mock()
+        mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        client = vertexai.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=None
+        )
+        client.agent_engines.create(
+            agent=self.test_agent,
+            config=_genai_types.AgentEngineConfig(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            ),
+        )
+        mock_args, mock_kwargs = mock_prepare.call_args
+        assert mock_kwargs["agent"] == self.test_agent
+        assert mock_kwargs["extra_packages"] == []
+        assert mock_kwargs["project"] == _TEST_PROJECT
+        assert mock_kwargs["location"] == _TEST_LOCATION
+        assert mock_kwargs["staging_bucket"] == _TEST_STAGING_BUCKET
+        assert mock_kwargs["credentials"] is None
+        assert mock_kwargs["gcs_dir_name"] == "agent_engine"
 
 
 @pytest.mark.usefixtures("google_auth_mock")
