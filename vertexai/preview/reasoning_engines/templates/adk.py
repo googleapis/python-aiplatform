@@ -350,6 +350,7 @@ def _default_instrumentor_builder(
         attributes={
             "gcp.project_id": project_id,
             "cloud.account.id": project_id,
+            "cloud.provider": "gcp",
             "cloud.platform": "gcp.agent_engine",
             "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
             "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",

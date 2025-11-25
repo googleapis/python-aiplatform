@@ -771,6 +771,7 @@ class TestAdkApp:
             "telemetry.sdk.version": "1.36.0",
             "gcp.project_id": "test-project",
             "cloud.account.id": "test-project",
+            "cloud.provider": "gcp",
             "cloud.platform": "gcp.agent_engine",
             "service.name": "test_agent_id",
             "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
