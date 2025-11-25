@@ -620,6 +620,10 @@ class LLMMetricHandler(MetricHandler):
         autorater_config = {}
         if self.metric.judge_model:
             autorater_config["autorater_model"] = self.metric.judge_model
+        if self.metric.judge_model_generation_config:
+            autorater_config["generation_config"] = (
+                self.metric.judge_model_generation_config
+            )
         if self.metric.judge_model_sampling_count:
             autorater_config["sampling_count"] = self.metric.judge_model_sampling_count  # type: ignore[assignment]
 
@@ -986,9 +990,24 @@ class PredefinedMetricHandler(MetricHandler):
             agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
 
-        return {
+        request_payload = {
             "instance": instance_payload,
         }
+
+        autorater_config = {}
+        if self.metric.judge_model:
+            autorater_config["autorater_model"] = self.metric.judge_model
+        if self.metric.judge_model_generation_config:
+            autorater_config["generation_config"] = (
+                self.metric.judge_model_generation_config
+            )
+        if self.metric.judge_model_sampling_count:
+            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count
+        if autorater_config:
+            request_payload["autorater_config"] = genai_types.AutoraterConfig(
+                **autorater_config
+            )
+        return request_payload
 
     @override
     def get_metric_result(
@@ -1001,7 +1020,9 @@ class PredefinedMetricHandler(MetricHandler):
             for attempt in range(_MAX_RETRIES):
                 try:
                     api_response = self.module._evaluate_instances(
-                        metrics=[self.metric], instance=payload.get("instance")
+                        metrics=[self.metric],
+                        instance=payload.get("instance"),
+                        autorater_config=payload.get("autorater_config"),
                     )
                     break
                 except genai_errors.ClientError as e:
