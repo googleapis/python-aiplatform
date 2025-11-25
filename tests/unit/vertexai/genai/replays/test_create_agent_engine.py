@@ -15,6 +15,7 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 import os
+import re
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
@@ -22,6 +23,10 @@ from vertexai._genai import types
 _TEST_CLASS_METHODS = [
     {"name": "query", "api_mode": ""},
 ]
+
+_AGENT_IDENTITY_REGEX = re.compile(
+    "agents.global.org-[0-9]+.system.id.goog/resources/aiplatform/projects/[0-9]+/locations/us-central1/reasoningEngines/[0-9a-zA-Z]+"
+)
 
 
 def test_create_config_lightweight(client):
@@ -144,6 +149,25 @@ def test_create_with_source_packages(
         )
         # Clean up resources.
         client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
+def test_create_with_identity_type(client):
+    """Tests creating an agent engine with identity type."""
+    agent_engine = client.agent_engines.create(
+        config={
+            "identity_type": types.IdentityType.AGENT_IDENTITY,
+            "http_options": {"api_version": "v1beta1"},
+        },
+    )
+    assert (
+        agent_engine.api_resource.spec.identity_type
+        == types.IdentityType.AGENT_IDENTITY
+    )
+    assert _AGENT_IDENTITY_REGEX.match(
+        agent_engine.api_resource.spec.effective_identity
+    )
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 pytestmark = pytest_helper.setup(
