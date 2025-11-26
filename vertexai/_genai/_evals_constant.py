@@ -50,6 +50,9 @@ PROMPT = "prompt"
 REFERENCE = "reference"
 SESSION_INPUT = "session_inputs"
 CONTEXT = "context"
+CONTENT = "content"
+PARTS = "parts"
+USER_AUTHOR = "user"
 
 COMMON_DATASET_COLUMNS = frozenset(
     {
@@ -58,5 +61,7 @@ COMMON_DATASET_COLUMNS = frozenset(
         REFERENCE,
         SESSION_INPUT,
         CONTEXT,
+        CONTENT,
+        PARTS,
     }
 )
