@@ -153,12 +153,6 @@ class TestEvals:
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     @pytest.mark.usefixtures("google_auth_mock")
-    def test_eval_run(self):
-        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with pytest.raises(NotImplementedError):
-            test_client.evals.run()
-
-    @pytest.mark.usefixtures("google_auth_mock")
     @mock.patch.object(client.Client, "_get_api_client")
     @mock.patch.object(evals.Evals, "batch_evaluate")
     def test_eval_batch_evaluate(self, mock_evaluate, mock_get_api_client):
