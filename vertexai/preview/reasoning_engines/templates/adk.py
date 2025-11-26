@@ -27,6 +27,7 @@ from typing import (
 import asyncio
 from collections.abc import Awaitable
 import queue
+import sys
 import threading
 
 
@@ -441,6 +442,7 @@ def _default_instrumentor_builder(
                     default_log_name=os.getenv(
                         "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
                     ),
+                    structured_json_file=sys.stdout,
                 ),
             )
         )
