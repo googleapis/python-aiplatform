@@ -882,13 +882,6 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def run(self) -> types.EvaluateInstancesResponse:
-        """Evaluates an instance of a model.
-
-        This should eventually call _evaluate_instances()
-        """
-        raise NotImplementedError()
-
     def evaluate_instances(
         self,
         *,
