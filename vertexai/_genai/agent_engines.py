@@ -903,6 +903,9 @@ class AgentEngines(_api_module.BaseModule):
         if context_spec is not None:
             # Conversion to a dict for _create_config
             context_spec = context_spec.model_dump()
+        developer_connect_source = config.developer_connect_source
+        if developer_connect_source is not None:
+            developer_connect_source = developer_connect_source.model_dump()
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -933,6 +936,7 @@ class AgentEngines(_api_module.BaseModule):
             labels=config.labels,
             class_methods=config.class_methods,
             source_packages=config.source_packages,
+            developer_connect_source=developer_connect_source,
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
@@ -1000,6 +1004,9 @@ class AgentEngines(_api_module.BaseModule):
         agent_server_mode: Optional[types.AgentServerMode] = None,
         class_methods: Optional[Sequence[dict[str, Any]]] = None,
         source_packages: Optional[Sequence[str]] = None,
+        developer_connect_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
+        ] = None,
         entrypoint_module: Optional[str] = None,
         entrypoint_object: Optional[str] = None,
         requirements_file: Optional[str] = None,
@@ -1046,6 +1053,12 @@ class AgentEngines(_api_module.BaseModule):
             if source_packages is not None:
                 raise ValueError(
                     "If you have provided `source_packages` in `config`, please "
+                    "do not specify `agent` in `agent_engines.create()` or "
+                    "`agent_engines.update()`."
+                )
+            if developer_connect_source is not None:
+                raise ValueError(
+                    "If you have provided `developer_connect_source` in `config`, please "
                     "do not specify `agent` in `agent_engines.create()` or "
                     "`agent_engines.update()`."
                 )
@@ -1149,6 +1162,11 @@ class AgentEngines(_api_module.BaseModule):
                 }
             }
 
+        if developer_connect_source is not None:
+            update_masks.append("spec.source_code_spec.developer_connect_source")
+            source_code_spec = {"developer_connect_source": developer_connect_source}
+
+        if source_packages is not None or developer_connect_source is not None:
             update_masks.append("spec.source_code_spec.python_spec.version")
             python_spec = {
                 "version": sys_version,
@@ -1190,7 +1208,6 @@ class AgentEngines(_api_module.BaseModule):
                     for class_method_spec in class_methods_spec
                 ],
             }
-
         if agent_engine_spec is not None:
             if (
                 env_vars is not None
@@ -1440,6 +1457,9 @@ class AgentEngines(_api_module.BaseModule):
         if context_spec is not None:
             # Conversion to a dict for _create_config
             context_spec = context_spec.model_dump()
+        developer_connect_source = config.developer_connect_source
+        if developer_connect_source is not None:
+            developer_connect_source = developer_connect_source.model_dump()
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -1468,6 +1488,7 @@ class AgentEngines(_api_module.BaseModule):
             labels=config.labels,
             class_methods=config.class_methods,
             source_packages=config.source_packages,
+            developer_connect_source=developer_connect_source,
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
