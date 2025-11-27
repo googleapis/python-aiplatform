@@ -4150,7 +4150,7 @@ class PrivateEndpoint(Endpoint):
             url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
             return self._authorized_session.post(
                 url=url,
-                body=body,
+                data=body,
                 headers=headers,
             )
 
