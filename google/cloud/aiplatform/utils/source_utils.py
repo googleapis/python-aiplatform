@@ -91,6 +91,7 @@ setup(
     packages=find_packages(),
     install_requires=({requirements}),
     include_package_data=True,
+    package_data={{'{name}':['*', '**/*']}},
     description='My training application.'
 )"""
 
