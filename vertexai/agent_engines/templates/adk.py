@@ -282,12 +282,18 @@ async def _force_flush_otel(tracing_enabled: bool, logging_enabled: bool):
 
 
 def _default_instrumentor_builder(
-    project_id: str,
+    project_id: Optional[str],
     *,
     enable_tracing: bool = False,
     enable_logging: bool = False,
 ):
     if not enable_tracing and not enable_logging:
+        return None
+
+    if project_id is None:
+        _warn(
+            "telemetry is only supported when project is specified, proceeding with no telemetry"
+        )
         return None
 
     import os
@@ -791,11 +797,11 @@ class AdkApp:
             )
 
         if custom_instrumentor and self._tracing_enabled():
-            self._tmpl_attrs["instrumentor"] = custom_instrumentor(project)
+            self._tmpl_attrs["instrumentor"] = custom_instrumentor(self.project_id())
 
         if not custom_instrumentor:
             self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
-                project,
+                self.project_id(),
                 enable_tracing=self._tracing_enabled(),
                 enable_logging=enable_logging,
             )
@@ -1607,3 +1613,11 @@ class AdkApp:
         r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
         if "Telemetry API has not been used in project" in r.text:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+
+    def project_id(self) -> Optional[str]:
+        if project := self._tmpl_attrs.get("project"):
+            from google.cloud.aiplatform.utils import resource_manager_utils
+
+            return resource_manager_utils.get_project_id(project)
+
+        return None
