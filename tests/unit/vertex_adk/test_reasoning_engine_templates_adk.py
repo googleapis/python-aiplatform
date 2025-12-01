@@ -45,6 +45,7 @@ except ImportError:
 
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT_ID = "test-project-id"
 _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
 _TEST_AGENT_NAME = "test_agent"
@@ -171,6 +172,15 @@ def adk_version_mock():
         "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version"
     ) as adk_version_mock:
         yield adk_version_mock
+
+
+@pytest.fixture
+def get_project_id_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.aiplatform.utils.resource_manager_utils.get_project_id"
+    ) as get_project_id_mock:
+        get_project_id_mock.return_value = _TEST_PROJECT_ID
+        yield get_project_id_mock
 
 
 class _MockRunner:
@@ -699,26 +709,28 @@ class TestAdkApp:
         monkeypatch: pytest.MonkeyPatch,
         trace_provider_mock: mock.Mock,
         otlp_span_exporter_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
     ):
         monkeypatch.setattr(
             "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
         )
         monkeypatch.setattr("os.getpid", lambda: 123123123)
         app = reasoning_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app._warn_if_telemetry_api_disabled = lambda: None
         app.set_up()
 
         expected_attributes = {
+            "cloud.account.id": _TEST_PROJECT_ID,
+            "cloud.platform": "gcp.agent_engine",
+            "cloud.region": "us-central1",
+            "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project-id/locations/us-central1/reasoningEngines/test_agent_id",
+            "gcp.project_id": _TEST_PROJECT_ID,
+            "service.instance.id": "12345678123456781234567812345678-123123123",
+            "service.name": "test_agent_id",
+            "some-attribute": "some-value",
             "telemetry.sdk.language": "python",
             "telemetry.sdk.name": "opentelemetry",
             "telemetry.sdk.version": "1.36.0",
-            "gcp.project_id": "test-project",
-            "cloud.account.id": "test-project",
-            "cloud.provider": "gcp",
-            "cloud.platform": "gcp.agent_engine",
-            "service.name": "test_agent_id",
-            "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
-            "service.instance.id": "12345678123456781234567812345678-123123123",
-            "cloud.region": "us-central1",
             "some-attribute": "some-value",
         }
 
@@ -727,6 +739,8 @@ class TestAdkApp:
             endpoint="https://telemetry.googleapis.com/v1/traces",
             headers=mock.ANY,
         )
+
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT)
 
         user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
         assert (
