@@ -81,17 +81,7 @@ def test_vertexai_import():
     new_modules_after_vertexai = modules_after_vertexai - modules_before_vertexai
 
     vertexai_module_name = vertexai.__name__  # == "vertexai"
-    assert sorted(new_modules_after_vertexai) == sorted(
-        [
-            vertexai_module_name,
-            f"{vertexai_module_name}.types",
-        ]
-    )
-
-    placeholder_vertexai_types_module = sys.modules[f"{vertexai_module_name}.types"]
-    assert isinstance(placeholder_vertexai_types_module, vertexai._LazyTypesLoader)
-
-    assert f"{vertexai_module_name}._genai.types" not in sys.modules
+    assert sorted(new_modules_after_vertexai) == [vertexai_module_name]
 
     assert vertexai_import_timedelta.total_seconds() < 0.005
     assert aip_import_timedelta.total_seconds() < 40
