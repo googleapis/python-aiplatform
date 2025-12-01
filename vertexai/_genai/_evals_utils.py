@@ -19,6 +19,7 @@ import logging
 import os
 from typing import Any, Optional, Union
 
+from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
