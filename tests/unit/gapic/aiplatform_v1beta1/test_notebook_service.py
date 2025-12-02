@@ -11950,6 +11950,7 @@ def test_create_notebook_runtime_template_rest_call_success(request_type):
                 "key": "key_value",
                 "values": ["values_value1", "values_value2"],
             },
+            "min_gpu_driver_version": "min_gpu_driver_version_value",
         },
         "data_persistent_disk_spec": {
             "disk_type": "disk_type_value",
@@ -12631,6 +12632,7 @@ def test_update_notebook_runtime_template_rest_call_success(request_type):
                 "key": "key_value",
                 "values": ["values_value1", "values_value2"],
             },
+            "min_gpu_driver_version": "min_gpu_driver_version_value",
         },
         "data_persistent_disk_spec": {
             "disk_type": "disk_type_value",
@@ -13848,6 +13850,7 @@ def test_create_notebook_execution_job_rest_call_success(request_type):
                     "key": "key_value",
                     "values": ["values_value1", "values_value2"],
                 },
+                "min_gpu_driver_version": "min_gpu_driver_version_value",
             },
             "persistent_disk_spec": {
                 "disk_type": "disk_type_value",
@@ -15528,6 +15531,7 @@ async def test_create_notebook_runtime_template_rest_asyncio_call_success(reques
                 "key": "key_value",
                 "values": ["values_value1", "values_value2"],
             },
+            "min_gpu_driver_version": "min_gpu_driver_version_value",
         },
         "data_persistent_disk_spec": {
             "disk_type": "disk_type_value",
@@ -16292,6 +16296,7 @@ async def test_update_notebook_runtime_template_rest_asyncio_call_success(reques
                 "key": "key_value",
                 "values": ["values_value1", "values_value2"],
             },
+            "min_gpu_driver_version": "min_gpu_driver_version_value",
         },
         "data_persistent_disk_spec": {
             "disk_type": "disk_type_value",
@@ -17655,6 +17660,7 @@ async def test_create_notebook_execution_job_rest_asyncio_call_success(request_t
                     "key": "key_value",
                     "values": ["values_value1", "values_value2"],
                 },
+                "min_gpu_driver_version": "min_gpu_driver_version_value",
             },
             "persistent_disk_spec": {
                 "disk_type": "disk_type_value",

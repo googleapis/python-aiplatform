@@ -100,6 +100,12 @@ class MachineSpec(proto.Message):
             Optional. Immutable. Configuration
             controlling how this resource pool consumes
             reservation.
+        min_gpu_driver_version (str):
+            Optional. Immutable. The minimum GPU driver
+            version that this machine requires. For example,
+            "535.104.06". If not specified, the default GPU
+            driver version will be used by the underlying
+            infrastructure.
     """
 
     machine_type: str = proto.Field(
@@ -131,6 +137,10 @@ class MachineSpec(proto.Message):
         proto.MESSAGE,
         number=5,
         message=gca_reservation_affinity.ReservationAffinity,
+    )
+    min_gpu_driver_version: str = proto.Field(
+        proto.STRING,
+        number=9,
     )
 
 
