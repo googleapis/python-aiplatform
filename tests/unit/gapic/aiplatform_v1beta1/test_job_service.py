@@ -24418,6 +24418,7 @@ def test_create_custom_job_rest_call_success(request_type):
                             "key": "key_value",
                             "values": ["values_value1", "values_value2"],
                         },
+                        "min_gpu_driver_version": "min_gpu_driver_version_value",
                     },
                     "replica_count": 1384,
                     "nfs_mounts": [
@@ -26092,6 +26093,7 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
                             "key": "key_value",
                             "values": ["values_value1", "values_value2"],
                         },
+                        "min_gpu_driver_version": "min_gpu_driver_version_value",
                     },
                     "replica_count": 1384,
                     "nfs_mounts": [
@@ -26980,6 +26982,7 @@ def test_create_nas_job_rest_call_success(request_type):
                                         "key": "key_value",
                                         "values": ["values_value1", "values_value2"],
                                     },
+                                    "min_gpu_driver_version": "min_gpu_driver_version_value",
                                 },
                                 "replica_count": 1384,
                                 "nfs_mounts": [
@@ -28123,6 +28126,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
                     "key": "key_value",
                     "values": ["values_value1", "values_value2"],
                 },
+                "min_gpu_driver_version": "min_gpu_driver_version_value",
             },
             "starting_replica_count": 2355,
             "max_replica_count": 1805,
@@ -31947,6 +31951,7 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
                             "key": "key_value",
                             "values": ["values_value1", "values_value2"],
                         },
+                        "min_gpu_driver_version": "min_gpu_driver_version_value",
                     },
                     "replica_count": 1384,
                     "nfs_mounts": [
@@ -33786,6 +33791,7 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
                             "key": "key_value",
                             "values": ["values_value1", "values_value2"],
                         },
+                        "min_gpu_driver_version": "min_gpu_driver_version_value",
                     },
                     "replica_count": 1384,
                     "nfs_mounts": [
@@ -34772,6 +34778,7 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
                                         "key": "key_value",
                                         "values": ["values_value1", "values_value2"],
                                     },
+                                    "min_gpu_driver_version": "min_gpu_driver_version_value",
                                 },
                                 "replica_count": 1384,
                                 "nfs_mounts": [
@@ -36036,6 +36043,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
                     "key": "key_value",
                     "values": ["values_value1", "values_value2"],
                 },
+                "min_gpu_driver_version": "min_gpu_driver_version_value",
             },
             "starting_replica_count": 2355,
             "max_replica_count": 1805,
