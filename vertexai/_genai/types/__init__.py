@@ -75,6 +75,7 @@ from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _OptimizeRequestParameters
+from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
@@ -103,6 +104,9 @@ from .common import AgentEngineOperation
 from .common import AgentEngineOperationDict
 from .common import AgentEngineOperationOrDict
 from .common import AgentEngineOrDict
+from .common import AgentEnginePurgeMemoriesOperation
+from .common import AgentEnginePurgeMemoriesOperationDict
+from .common import AgentEnginePurgeMemoriesOperationOrDict
 from .common import AgentEngineRollbackMemoryOperation
 from .common import AgentEngineRollbackMemoryOperationDict
 from .common import AgentEngineRollbackMemoryOperationOrDict
@@ -668,6 +672,12 @@ from .common import PromptVersionRefOrDict
 from .common import PscInterfaceConfig
 from .common import PscInterfaceConfigDict
 from .common import PscInterfaceConfigOrDict
+from .common import PurgeAgentEngineMemoriesConfig
+from .common import PurgeAgentEngineMemoriesConfigDict
+from .common import PurgeAgentEngineMemoriesConfigOrDict
+from .common import PurgeMemoriesResponse
+from .common import PurgeMemoriesResponseDict
+from .common import PurgeMemoriesResponseOrDict
 from .common import PythonPackageSpec
 from .common import PythonPackageSpecDict
 from .common import PythonPackageSpecOrDict
@@ -1517,6 +1527,15 @@ __all__ = [
     "UpdateAgentEngineMemoryConfig",
     "UpdateAgentEngineMemoryConfigDict",
     "UpdateAgentEngineMemoryConfigOrDict",
+    "PurgeAgentEngineMemoriesConfig",
+    "PurgeAgentEngineMemoriesConfigDict",
+    "PurgeAgentEngineMemoriesConfigOrDict",
+    "PurgeMemoriesResponse",
+    "PurgeMemoriesResponseDict",
+    "PurgeMemoriesResponseOrDict",
+    "AgentEnginePurgeMemoriesOperation",
+    "AgentEnginePurgeMemoriesOperationDict",
+    "AgentEnginePurgeMemoriesOperationOrDict",
     "GetAgentEngineMemoryRevisionConfig",
     "GetAgentEngineMemoryRevisionConfigDict",
     "GetAgentEngineMemoryRevisionConfigOrDict",
@@ -1940,6 +1959,7 @@ __all__ = [
     "_RetrieveAgentEngineMemoriesRequestParameters",
     "_RollbackAgentEngineMemoryRequestParameters",
     "_UpdateAgentEngineMemoryRequestParameters",
+    "_PurgeAgentEngineMemoriesRequestParameters",
     "_GetAgentEngineMemoryRevisionRequestParameters",
     "_ListAgentEngineMemoryRevisionsRequestParameters",
     "_CreateAgentEngineSandboxRequestParameters",
