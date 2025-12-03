@@ -1,5 +1,69 @@
 # Changelog
 
+## [1.129.0](https://github.com/googleapis/python-aiplatform/compare/v1.128.0...v1.129.0) (2025-12-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* An existing field `transfer_to_agent` is removed from message `.google.cloud.aiplatform.v1beta1.EventActions`
+* updating `bigtable_metadata` field name in `FeatureOnlineStore`
+* updating `enableDirectBigtableAccess` field name in FeatureOnlineStore`
+* updating `bigtable_metadata` field name in `FeatureView`
+
+### Features
+
+* Add `gpu_partition_size` in `machine_spec` v1 api ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add `ReplicatedVoiceConfig` to `VoiceConfig` to enable Gemini TTS voice replication ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add `ReplicatedVoiceConfig` to `VoiceConfig` to enable Gemini TTS voice replication ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add EmbedContent method v1 ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add EmbedContent method v1beta1 ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add FunctionResponsePart and excluded_predefined_functions in ComputerUse ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add FunctionResponsePart and excluded_predefined_functions in ComputerUse ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add new fields `SUCCESSFULLY_DEPLOYED` and `FAILED_TO_DEPLOY` to `DeploymentStage` ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add new fields `SUCCESSFULLY_DEPLOYED` and `FAILED_TO_DEPLOY` to `DeploymentStage` ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add order_by to list_events ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add support for developer connect based deployment ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Add support for developer connect based deployment ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Continuous Tuning ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Enable Vertex Model Garden Managed OSS Fine Tuning. ([26b7e51](https://github.com/googleapis/python-aiplatform/commit/26b7e51603e3e523f41277c697adc50962fb70f0))
+* GenAI Client(evals) - Add location override parameter to run_inference and evaluate methods ([b867043](https://github.com/googleapis/python-aiplatform/commit/b867043ca506e08c87f753f0c9b81ba007bfcec5))
+* GenAI Client(evals) - support setting autorater generation config for predefined rubric metrics ([9304f15](https://github.com/googleapis/python-aiplatform/commit/9304f156d89b1a36b0794692798ddd5dbda128a5))
+* GenAI SDK client(multimodal) - Support Assess Tuning Resource for multimodal dataset. ([bc26160](https://github.com/googleapis/python-aiplatform/commit/bc26160c89817a985770608912b565e40127da73))
+* GenAI SDK client(sessions): Add label to Sessions ([837c8ea](https://github.com/googleapis/python-aiplatform/commit/837c8ea05479ae43847d2e0f9e7d80385f43ba0e))
+
+
+### Bug Fixes
+
+* Add OTel cloud.provider attribute to AdkTemplate ([7d3bcdd](https://github.com/googleapis/python-aiplatform/commit/7d3bcddf790e747b261089bc3295b8af3c915959))
+* Add support for app in _init_session ([d9f6c58](https://github.com/googleapis/python-aiplatform/commit/d9f6c58a2315352b41cf763646243229a3fe5059))
+* An existing field `transfer_to_agent` is removed from message `.google.cloud.aiplatform.v1beta1.EventActions` ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Correlate traces with logs in Cloud Trace panel on `adk deploy agent_engine` ([9301551](https://github.com/googleapis/python-aiplatform/commit/9301551181d80b4ef199a6db5daf7fbe76e0fb7a))
+* Enable `from vertexai.types import TypeName` without needing to run `from vertexai import types` first ([46285bf](https://github.com/googleapis/python-aiplatform/commit/46285bf11623cfe6ac77011be11996388f67f1d0))
+* Enable `from vertexai.types import TypeName` without needing to run `from vertexai import types` first ([f4a6cbe](https://github.com/googleapis/python-aiplatform/commit/f4a6cbe6530a5a01b2c5fb95f388dfcc8e8e331f))
+* Gen AI SDK client - Fix bug in GCS bucket creation for new agent engines. ([8d4ce38](https://github.com/googleapis/python-aiplatform/commit/8d4ce38c3b02672e06458554c7fb3475d0d8c052))
+* GenAI SDK client(eval) - Reorder the params to put the Config param at the last place. ([e8b12cb](https://github.com/googleapis/python-aiplatform/commit/e8b12cbd591951fd9d8df9016d8855c73674a9f0))
+* Save artifact in init_session ([2a43e9b](https://github.com/googleapis/python-aiplatform/commit/2a43e9b4e945c6ce036b217fefd9cdbc8c40f2ff))
+* Update default input and output modes in create_agent_card ([7ca4226](https://github.com/googleapis/python-aiplatform/commit/7ca4226f9c1879e205658c4aaf81a7a072e6b008))
+* Updating `bigtable_metadata` field name in `FeatureOnlineStore` ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Updating `bigtable_metadata` field name in `FeatureView` ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Updating `enableDirectBigtableAccess` field name in FeatureOnlineStore` ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+
+
+### Documentation
+
+* A comment for field `filter` in message `.google.cloud.aiplatform.v1beta1.ListSessionsRequest` is changed ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* A comment for field `package_spec` in message `.google.cloud.aiplatform.v1.ReasoningEngineSpec` is changed ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* A comment for field `package_spec` in message `.google.cloud.aiplatform.v1beta1.ReasoningEngineSpec` is changed ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* A comment for message `ReasoningEngineSpec` is changed ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* A comment for message `ReasoningEngineSpec` is changed ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Fix idle_scaledown_period minimum from 3600 to 300 (5 minutes) ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+* Remove comments for a non public feature ([e0bc3d8](https://github.com/googleapis/python-aiplatform/commit/e0bc3d83be3f508a500b693d11c7185199a7f454))
+
+
+### Miscellaneous Chores
+
+* Release 1.129.0 ([89db338](https://github.com/googleapis/python-aiplatform/commit/89db338069024623b090fe20346df4c65f3a9f30))
+
 ## [1.128.0](https://github.com/googleapis/python-aiplatform/compare/v1.127.0...v1.128.0) (2025-11-18)
 
 
