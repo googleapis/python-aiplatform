@@ -35,6 +35,7 @@ __protobuf__ = proto.module(
         "DedicatedResources",
         "AutomaticResources",
         "BatchDedicatedResources",
+        "FullFineTunedResources",
         "ResourcesConsumed",
         "DiskSpec",
         "PersistentDiskSpec",
@@ -404,6 +405,66 @@ class BatchDedicatedResources(proto.Message):
     spot: bool = proto.Field(
         proto.BOOL,
         number=5,
+    )
+
+
+class FullFineTunedResources(proto.Message):
+    r"""Resources for an fft model.
+
+    Attributes:
+        deployment_type (google.cloud.aiplatform_v1beta1.types.FullFineTunedResources.DeploymentType):
+            Required. The kind of deployment.
+        model_inference_unit_count (int):
+            Optional. The number of model inference units to use for
+            this deployment. This can only be specified for
+            DEPLOYMENT_TYPE_PROD. The following table lists the number
+            of model inference units for different model types:
+
+            - Gemini 2.5 Flash
+
+              - Foundation FMIU: 25
+              - Expansion FMIU: 4
+
+            - Gemini 2.5 Pro
+
+              - Foundation FMIU: 32
+              - Expansion FMIU: 16
+
+            - Veo 3.0 (undistilled)
+
+              - Foundation FMIU: 63
+              - Expansion FMIU: 7
+
+            - Veo 3.0 (distilled)
+
+              - Foundation FMIU: 30
+              - Expansion FMIU: 10
+    """
+
+    class DeploymentType(proto.Enum):
+        r"""The type of deployment.
+
+        Values:
+            DEPLOYMENT_TYPE_UNSPECIFIED (0):
+                Unspecified deployment type.
+            DEPLOYMENT_TYPE_EVAL (1):
+                Eval deployment type.
+            DEPLOYMENT_TYPE_PROD (2):
+                Prod deployment type.
+        """
+
+        DEPLOYMENT_TYPE_UNSPECIFIED = 0
+        DEPLOYMENT_TYPE_EVAL = 1
+        DEPLOYMENT_TYPE_PROD = 2
+
+    deployment_type: DeploymentType = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=DeploymentType,
+    )
+    model_inference_unit_count: int = proto.Field(
+        proto.INT32,
+        number=2,
     )
 
 

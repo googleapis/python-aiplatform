@@ -8249,6 +8249,10 @@ def test_create_endpoint_rest_call_success(request_type):
                     "max_replica_count": 1805,
                 },
                 "shared_resources": "shared_resources_value",
+                "full_fine_tuned_resources": {
+                    "deployment_type": 1,
+                    "model_inference_unit_count": 2758,
+                },
                 "id": "id_value",
                 "model": "model_value",
                 "model_version_id": "model_version_id_value",
@@ -8903,6 +8907,10 @@ def test_update_endpoint_rest_call_success(request_type):
                     "max_replica_count": 1805,
                 },
                 "shared_resources": "shared_resources_value",
+                "full_fine_tuned_resources": {
+                    "deployment_type": 1,
+                    "model_inference_unit_count": 2758,
+                },
                 "id": "id_value",
                 "model": "model_value",
                 "model_version_id": "model_version_id_value",
@@ -11075,6 +11083,10 @@ async def test_create_endpoint_rest_asyncio_call_success(request_type):
                     "max_replica_count": 1805,
                 },
                 "shared_resources": "shared_resources_value",
+                "full_fine_tuned_resources": {
+                    "deployment_type": 1,
+                    "model_inference_unit_count": 2758,
+                },
                 "id": "id_value",
                 "model": "model_value",
                 "model_version_id": "model_version_id_value",
@@ -11786,6 +11798,10 @@ async def test_update_endpoint_rest_asyncio_call_success(request_type):
                     "max_replica_count": 1805,
                 },
                 "shared_resources": "shared_resources_value",
+                "full_fine_tuned_resources": {
+                    "deployment_type": 1,
+                    "model_inference_unit_count": 2758,
+                },
                 "id": "id_value",
                 "model": "model_value",
                 "model_version_id": "model_version_id_value",
