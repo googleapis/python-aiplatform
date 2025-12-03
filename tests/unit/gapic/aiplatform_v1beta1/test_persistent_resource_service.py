@@ -5320,6 +5320,7 @@ def test_create_persistent_resource_rest_call_success(request_type):
                         "key": "key_value",
                         "values": ["values_value1", "values_value2"],
                     },
+                    "min_gpu_driver_version": "min_gpu_driver_version_value",
                 },
                 "replica_count": 1384,
                 "disk_spec": {
@@ -6044,6 +6045,7 @@ def test_update_persistent_resource_rest_call_success(request_type):
                         "key": "key_value",
                         "values": ["values_value1", "values_value2"],
                     },
+                    "min_gpu_driver_version": "min_gpu_driver_version_value",
                 },
                 "replica_count": 1384,
                 "disk_spec": {
@@ -7265,6 +7267,7 @@ async def test_create_persistent_resource_rest_asyncio_call_success(request_type
                         "key": "key_value",
                         "values": ["values_value1", "values_value2"],
                     },
+                    "min_gpu_driver_version": "min_gpu_driver_version_value",
                 },
                 "replica_count": 1384,
                 "disk_spec": {
@@ -8053,6 +8056,7 @@ async def test_update_persistent_resource_rest_asyncio_call_success(request_type
                         "key": "key_value",
                         "values": ["values_value1", "values_value2"],
                     },
+                    "min_gpu_driver_version": "min_gpu_driver_version_value",
                 },
                 "replica_count": 1384,
                 "disk_spec": {

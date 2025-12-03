@@ -742,6 +742,7 @@ from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import FlexStart
+from .types.machine_resources import FullFineTunedResources
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
 from .types.machine_resources import PersistentDiskSpec
@@ -1767,6 +1768,7 @@ __all__ = (
     "FulfillmentInstance",
     "FulfillmentResult",
     "FulfillmentSpec",
+    "FullFineTunedResources",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
