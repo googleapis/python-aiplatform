@@ -214,6 +214,9 @@ from .common import CreatePromptConfigOrDict
 from .common import CreatePromptVersionConfig
 from .common import CreatePromptVersionConfigDict
 from .common import CreatePromptVersionConfigOrDict
+from .common import CustomCodeExecutionSpec
+from .common import CustomCodeExecutionSpecDict
+from .common import CustomCodeExecutionSpecOrDict
 from .common import CustomJob
 from .common import CustomJobDict
 from .common import CustomJobOrDict
@@ -1049,6 +1052,9 @@ __all__ = [
     "LLMBasedMetricSpec",
     "LLMBasedMetricSpecDict",
     "LLMBasedMetricSpecOrDict",
+    "CustomCodeExecutionSpec",
+    "CustomCodeExecutionSpecDict",
+    "CustomCodeExecutionSpecOrDict",
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
