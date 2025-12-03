@@ -1984,6 +1984,8 @@ def test_get_rag_corpus(request_type, transport: str = "grpc"):
             display_name="display_name_value",
             description="description_value",
             rag_files_count=1588,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
         response = client.get_rag_corpus(request)
 
@@ -1999,6 +2001,8 @@ def test_get_rag_corpus(request_type, transport: str = "grpc"):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.rag_files_count == 1588
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 def test_get_rag_corpus_non_empty_request_with_auto_populated_field():
@@ -2129,6 +2133,8 @@ async def test_get_rag_corpus_async(
                 display_name="display_name_value",
                 description="description_value",
                 rag_files_count=1588,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         response = await client.get_rag_corpus(request)
@@ -2145,6 +2151,8 @@ async def test_get_rag_corpus_async(
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.rag_files_count == 1588
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio
@@ -8641,6 +8649,8 @@ async def test_get_rag_corpus_empty_call_grpc_asyncio():
                 display_name="display_name_value",
                 description="description_value",
                 rag_files_count=1588,
+                satisfies_pzs=True,
+                satisfies_pzi=True,
             )
         )
         await client.get_rag_corpus(request=None)
@@ -8961,6 +8971,9 @@ def test_create_rag_corpus_rest_call_success(request_type):
                 "index_endpoint": "index_endpoint_value",
                 "index": "index_value",
             },
+            "rag_managed_vertex_vector_search": {
+                "collection_name": "collection_name_value"
+            },
             "api_auth": {
                 "api_key_config": {
                     "api_key_secret_version": "api_key_secret_version_value"
@@ -9002,6 +9015,8 @@ def test_create_rag_corpus_rest_call_success(request_type):
                 }
             },
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9220,6 +9235,9 @@ def test_update_rag_corpus_rest_call_success(request_type):
                 "index_endpoint": "index_endpoint_value",
                 "index": "index_value",
             },
+            "rag_managed_vertex_vector_search": {
+                "collection_name": "collection_name_value"
+            },
             "api_auth": {
                 "api_key_config": {
                     "api_key_secret_version": "api_key_secret_version_value"
@@ -9261,6 +9279,8 @@ def test_update_rag_corpus_rest_call_success(request_type):
                 }
             },
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9467,6 +9487,8 @@ def test_get_rag_corpus_rest_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             rag_files_count=1588,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -9487,6 +9509,8 @@ def test_get_rag_corpus_rest_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.rag_files_count == 1588
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -11804,6 +11828,9 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
                 "index_endpoint": "index_endpoint_value",
                 "index": "index_value",
             },
+            "rag_managed_vertex_vector_search": {
+                "collection_name": "collection_name_value"
+            },
             "api_auth": {
                 "api_key_config": {
                     "api_key_secret_version": "api_key_secret_version_value"
@@ -11845,6 +11872,8 @@ async def test_create_rag_corpus_rest_asyncio_call_success(request_type):
                 }
             },
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12079,6 +12108,9 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
                 "index_endpoint": "index_endpoint_value",
                 "index": "index_value",
             },
+            "rag_managed_vertex_vector_search": {
+                "collection_name": "collection_name_value"
+            },
             "api_auth": {
                 "api_key_config": {
                     "api_key_secret_version": "api_key_secret_version_value"
@@ -12120,6 +12152,8 @@ async def test_update_rag_corpus_rest_asyncio_call_success(request_type):
                 }
             },
         },
+        "satisfies_pzs": True,
+        "satisfies_pzi": True,
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -12342,6 +12376,8 @@ async def test_get_rag_corpus_rest_asyncio_call_success(request_type):
             display_name="display_name_value",
             description="description_value",
             rag_files_count=1588,
+            satisfies_pzs=True,
+            satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -12364,6 +12400,8 @@ async def test_get_rag_corpus_rest_asyncio_call_success(request_type):
     assert response.display_name == "display_name_value"
     assert response.description == "description_value"
     assert response.rag_files_count == 1588
+    assert response.satisfies_pzs is True
+    assert response.satisfies_pzi is True
 
 
 @pytest.mark.asyncio

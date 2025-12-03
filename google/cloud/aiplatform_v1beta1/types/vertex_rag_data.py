@@ -242,6 +242,11 @@ class RagVectorDbConfig(proto.Message):
             The config for the Vertex Vector Search.
 
             This field is a member of `oneof`_ ``vector_db``.
+        rag_managed_vertex_vector_search (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedVertexVectorSearch):
+            The config for the RAG-managed Vertex Vector
+            Search 2.0.
+
+            This field is a member of `oneof`_ ``vector_db``.
         api_auth (google.cloud.aiplatform_v1beta1.types.ApiAuth):
             Authentication config for the chosen Vector
             DB.
@@ -400,6 +405,22 @@ class RagVectorDbConfig(proto.Message):
             number=2,
         )
 
+    class RagManagedVertexVectorSearch(proto.Message):
+        r"""The config for the RAG-managed Vertex Vector Search 2.0.
+
+        Attributes:
+            collection_name (str):
+                Output only. The resource name of the Vector Search 2.0
+                Collection that RAG Created for the corpus. Only populated
+                after the corpus is successfully created. Format:
+                ``projects/{project}/locations/{location}/collections/{collection_id}``
+        """
+
+        collection_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     rag_managed_db: RagManagedDb = proto.Field(
         proto.MESSAGE,
         number=1,
@@ -429,6 +450,12 @@ class RagVectorDbConfig(proto.Message):
         number=6,
         oneof="vector_db",
         message=VertexVectorSearch,
+    )
+    rag_managed_vertex_vector_search: RagManagedVertexVectorSearch = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof="vector_db",
+        message=RagManagedVertexVectorSearch,
     )
     api_auth: gca_api_auth.ApiAuth = proto.Field(
         proto.MESSAGE,
@@ -588,8 +615,10 @@ class RagCorpus(proto.Message):
         corpus_status (google.cloud.aiplatform_v1beta1.types.CorpusStatus):
             Output only. RagCorpus state.
         rag_files_count (int):
-            Output only. Number of RagFiles in the
-            RagCorpus.
+            Output only. Number of RagFiles in the RagCorpus.
+
+            NOTE: This field is not populated in the response of
+            [VertexRagDataService.ListRagCorpora][google.cloud.aiplatform.v1beta1.VertexRagDataService.ListRagCorpora].
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Optional. Immutable. The CMEK key name used
             to encrypt at-rest data related to this Corpus.
@@ -599,6 +628,10 @@ class RagCorpus(proto.Message):
         corpus_type_config (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig):
             Optional. The corpus type config of the
             RagCorpus.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class CorpusTypeConfig(proto.Message):
@@ -715,6 +748,14 @@ class RagCorpus(proto.Message):
         number=13,
         message=CorpusTypeConfig,
     )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
+    )
 
 
 class RagFile(proto.Message):
@@ -782,8 +823,8 @@ class RagFile(proto.Message):
         file_status (google.cloud.aiplatform_v1beta1.types.FileStatus):
             Output only. State of the RagFile.
         user_metadata (str):
-            Output only. The metadata for metadata
-            search. The contents will be be in JSON format.
+            Output only. The metadata for metadata search. The
+            user_metadata Needs to be in JSON format.
     """
 
     class RagFileType(proto.Enum):
@@ -1166,16 +1207,16 @@ class RagFileMetadataConfig(proto.Message):
             Sample formats:
 
             - ``gs://bucket_name/my_directory/object_name/metadata_schema.json``
-            - ``gs://bucket_name/my_directory`` If providing a
+            - ``gs://bucket_name/my_directory`` If the user provides a
               directory, the metadata schema will be read from the files
               that ends with "metadata_schema.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_schema_source``.
         google_drive_metadata_schema_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
             Google Drive location. Supports importing individual files
-            as well as Google Drive folders. If providing a folder, the
-            metadata schema will be read from the files that ends with
-            "metadata_schema.json" in the directory.
+            as well as Google Drive folders. If the user provides a
+            folder, the metadata schema will be read from the files that
+            ends with "metadata_schema.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_schema_source``.
         inline_metadata_schema_source (str):
@@ -1189,7 +1230,7 @@ class RagFileMetadataConfig(proto.Message):
             Sample formats:
 
             - ``gs://bucket_name/my_directory/object_name/metadata.json``
-            - ``gs://bucket_name/my_directory`` If providing a
+            - ``gs://bucket_name/my_directory`` If the user provides a
               directory, the metadata will be read from the files that
               ends with "metadata.json" in the directory.
 
@@ -1197,9 +1238,9 @@ class RagFileMetadataConfig(proto.Message):
         google_drive_metadata_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
             Google Drive location. Supports importing
             individual files as well as Google Drive
-            folders. If providing a directory, the metadata
-            will be read from the files that ends with
-            "metadata.json" in the directory.
+            folders. If the user provides a directory, the
+            metadata will be read from the files that ends
+            with "metadata.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_source``.
         inline_metadata_source (str):
@@ -1501,13 +1542,13 @@ class RagManagedDbConfig(proto.Message):
 
     Attributes:
         enterprise (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Enterprise):
-            Deprecated: Please use ``Scaled`` tier instead. Sets the
-            RagManagedDb to the Enterprise tier. This is the default
-            tier if not explicitly chosen.
+            Sets the RagManagedDb to the Enterprise tier.
 
             This field is a member of `oneof`_ ``tier``.
         scaled (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Scaled):
             Sets the RagManagedDb to the Scaled tier.
+            This is the default tier if not explicitly
+            chosen.
 
             This field is a member of `oneof`_ ``tier``.
         basic (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Basic):
@@ -1522,10 +1563,9 @@ class RagManagedDbConfig(proto.Message):
     """
 
     class Enterprise(proto.Message):
-        r"""Deprecated: Please use ``Scaled`` tier instead. Enterprise tier
-        offers production grade performance along with autoscaling
-        functionality. It is suitable for customers with large amounts of
-        data or performance sensitive workloads.
+        r"""Enterprise tier offers production grade performance along
+        with autoscaling functionality. It is suitable for customers
+        with large amounts of data or performance sensitive workloads.
 
         """
 
