@@ -287,6 +287,26 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
     return to_object
 
 
+def _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(to_object, ["filter"], getv(from_object, ["filter"]))
+
+    if getv(from_object, ["force"]) is not None:
+        setv(to_object, ["force"], getv(from_object, ["force"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _RetrieveAgentEngineMemoriesConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -1019,6 +1039,65 @@ class Memories(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _purge(
+        self,
+        *,
+        name: str,
+        filter: str,
+        force: Optional[bool] = None,
+        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
+    ) -> types.AgentEnginePurgeMemoriesOperation:
+        """
+        Purges memories from an Agent Engine.
+        """
+
+        parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
+            name=name,
+            filter=filter,
+            force=force,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/memories:purge".format_map(request_url_dict)
+            else:
+                path = "{name}/memories:purge"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEnginePurgeMemoriesOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     _revisions = None
 
     @property
@@ -1265,11 +1344,56 @@ class Memories(_api_module.BaseModule):
         if config.wait_for_completion and not operation.done:
             operation = _agent_engines_utils._await_operation(
                 operation_name=operation.name,
-                get_operation_fn=self._get_rollback_memory_operation,
+                get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
             )
             if operation.error:
                 raise RuntimeError(f"Failed to rollback memory: {operation.error}")
+        return operation
+
+    def purge(
+        self,
+        *,
+        name: str,
+        filter: str,
+        force: bool = False,
+        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
+    ) -> types.AgentEnginePurgeMemoriesOperation:
+        """Purges memories from an Agent Engine.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to purge memories from.
+            filter (str):
+                Required. The standard list filter to determine which memories to purge.
+            force (bool):
+                Optional. Whether to force the purge operation. If false, the
+                operation will be staged but not executed.
+            config (PurgeAgentEngineMemoriesConfig):
+                Optional. The configuration for the purge operation.
+
+        Returns:
+            AgentEnginePurgeMemoriesOperation:
+                The operation for purging the memories.
+        """
+        if config is None:
+            config = types.PurgeAgentEngineMemoriesConfig()
+        elif isinstance(config, dict):
+            config = types.PurgeAgentEngineMemoriesConfig.model_validate(config)
+        operation = self._purge(
+            name=name,
+            filter=filter,
+            force=force,
+            config=config,
+        )
+        if config.wait_for_completion and not operation.done:
+            operation = _agent_engines_utils._await_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_memory_operation,
+                poll_interval_seconds=0.5,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to purge memories: {operation.error}")
         return operation
 
 
@@ -1885,6 +2009,67 @@ class AsyncMemories(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _purge(
+        self,
+        *,
+        name: str,
+        filter: str,
+        force: Optional[bool] = None,
+        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
+    ) -> types.AgentEnginePurgeMemoriesOperation:
+        """
+        Purges memories from an Agent Engine.
+        """
+
+        parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
+            name=name,
+            filter=filter,
+            force=force,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/memories:purge".format_map(request_url_dict)
+            else:
+                path = "{name}/memories:purge"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEnginePurgeMemoriesOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     _revisions = None
 
     @property
@@ -2131,9 +2316,54 @@ class AsyncMemories(_api_module.BaseModule):
         if config.wait_for_completion and not operation.done:
             operation = await _agent_engines_utils._await_async_operation(
                 operation_name=operation.name,
-                get_operation_fn=self._get_rollback_memory_operation,
+                get_operation_fn=self._get_memory_operation,
                 poll_interval_seconds=0.5,
             )
             if operation.error:
                 raise RuntimeError(f"Failed to rollback memory: {operation.error}")
+        return operation
+
+    async def purge(
+        self,
+        *,
+        name: str,
+        filter: str,
+        force: bool = False,
+        config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
+    ) -> types.AgentEnginePurgeMemoriesOperation:
+        """Purges memories from an Agent Engine.
+
+        Args:
+            name (str):
+                Required. The name of the Agent Engine to purge memories from.
+            filter (str):
+                Required. The standard list filter to determine which memories to purge.
+            force (bool):
+                Optional. Whether to force the purge operation. If false, the
+                operation will be staged but not executed.
+            config (PurgeAgentEngineMemoriesConfig):
+                Optional. The configuration for the purge operation.
+
+        Returns:
+            AgentEnginePurgeMemoriesOperation:
+                The operation for purging the memories.
+        """
+        if config is None:
+            config = types.PurgeAgentEngineMemoriesConfig()
+        elif isinstance(config, dict):
+            config = types.PurgeAgentEngineMemoriesConfig.model_validate(config)
+        operation = await self._purge(
+            name=name,
+            filter=filter,
+            force=force,
+            config=config,
+        )
+        if config.wait_for_completion and not operation.done:
+            operation = await _agent_engines_utils._await_async_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_memory_operation,
+                poll_interval_seconds=0.5,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to purge memories: {operation.error}")
         return operation

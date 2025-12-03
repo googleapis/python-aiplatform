@@ -7851,6 +7851,142 @@ _UpdateAgentEngineMemoryRequestParametersOrDict = Union[
 ]
 
 
+class PurgeAgentEngineMemoriesConfig(_common.BaseModel):
+    """Config for purging memories."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class PurgeAgentEngineMemoriesConfigDict(TypedDict, total=False):
+    """Config for purging memories."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+PurgeAgentEngineMemoriesConfigOrDict = Union[
+    PurgeAgentEngineMemoriesConfig, PurgeAgentEngineMemoriesConfigDict
+]
+
+
+class _PurgeAgentEngineMemoriesRequestParameters(_common.BaseModel):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine to purge memories from."""
+    )
+    filter: Optional[str] = Field(
+        default=None,
+        description="""The standard list filter to determine which memories to purge.
+      More detail in [AIP-160](https://google.aip.dev/160).""",
+    )
+    force: Optional[bool] = Field(
+        default=None,
+        description="""If true, the memories will actually be purged. If false, the purge request will be validated but not executed.""",
+    )
+    config: Optional[PurgeAgentEngineMemoriesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _PurgeAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str]
+    """Name of the Agent Engine to purge memories from."""
+
+    filter: Optional[str]
+    """The standard list filter to determine which memories to purge.
+      More detail in [AIP-160](https://google.aip.dev/160)."""
+
+    force: Optional[bool]
+    """If true, the memories will actually be purged. If false, the purge request will be validated but not executed."""
+
+    config: Optional[PurgeAgentEngineMemoriesConfigDict]
+    """"""
+
+
+_PurgeAgentEngineMemoriesRequestParametersOrDict = Union[
+    _PurgeAgentEngineMemoriesRequestParameters,
+    _PurgeAgentEngineMemoriesRequestParametersDict,
+]
+
+
+class PurgeMemoriesResponse(_common.BaseModel):
+    """The response for purging memories."""
+
+    purge_count: Optional[int] = Field(
+        default=None, description="""The number of memories that were purged."""
+    )
+
+
+class PurgeMemoriesResponseDict(TypedDict, total=False):
+    """The response for purging memories."""
+
+    purge_count: Optional[int]
+    """The number of memories that were purged."""
+
+
+PurgeMemoriesResponseOrDict = Union[PurgeMemoriesResponse, PurgeMemoriesResponseDict]
+
+
+class AgentEnginePurgeMemoriesOperation(_common.BaseModel):
+    """Operation that purges memories from an agent engine."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[PurgeMemoriesResponse] = Field(
+        default=None, description="""The response for purging memories."""
+    )
+
+
+class AgentEnginePurgeMemoriesOperationDict(TypedDict, total=False):
+    """Operation that purges memories from an agent engine."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[PurgeMemoriesResponseDict]
+    """The response for purging memories."""
+
+
+AgentEnginePurgeMemoriesOperationOrDict = Union[
+    AgentEnginePurgeMemoriesOperation, AgentEnginePurgeMemoriesOperationDict
+]
+
+
 class GetAgentEngineMemoryRevisionConfig(_common.BaseModel):
     """Config for getting an Agent Engine Memory Revision."""
 
