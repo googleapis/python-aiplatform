@@ -56,6 +56,26 @@ MAX_WORKERS = 100
 AGENT_MAX_WORKERS = 10
 
 
+def _get_api_client_with_location(
+    api_client: BaseApiClient, location: Optional[str]
+) -> BaseApiClient:
+    """Returns a new API client with the specified location."""
+    if not location or location == api_client.location:
+        return api_client
+
+    logger.info(
+        "Model endpoint location set to %s, overriding client location %s for this API call.",
+        location,
+        api_client.location,
+    )
+    return vertexai.Client(
+        project=api_client.project,
+        location=location,
+        credentials=api_client._credentials,
+        http_options=api_client._http_options,
+    )._api_client
+
+
 def _get_agent_engine_instance(
     agent_name: str, api_client: BaseApiClient
 ) -> Union[types.AgentEngine, Any]:
@@ -715,6 +735,7 @@ def _execute_inference(
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
+    location: Optional[str] = None,
 ) -> pd.DataFrame:
     """Executes inference on a given dataset using the specified model.
 
@@ -730,12 +751,18 @@ def _execute_inference(
           representing a file path or a GCS URI.
         config: The generation configuration for the model.
         prompt_template: The prompt template to use for inference.
+        location: The location to use for the inference. If not specified, the
+          location configured in the client will be used.
 
     Returns:
         A pandas DataFrame containing the inference results.
     """
     if not api_client:
         raise ValueError("'api_client' instance must be provided.")
+
+    if location:
+        api_client = _get_api_client_with_location(api_client, location)
+
     prompt_dataset = _load_dataframe(api_client, src)
     if prompt_template:
         logger.info("Applying prompt template...")
@@ -1056,6 +1083,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     metrics: list[types.Metric],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
+    location: Optional[str] = None,
     **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
@@ -1066,11 +1094,16 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         metrics: The metrics to evaluate the dataset against.
         dataset_schema: The schema of the dataset.
         dest: The destination to save the evaluation results.
+        location: The location to use for the evaluation. If not specified, the
+          location configured in the client will be used.
         **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
         The evaluation result.
     """
+
+    if location:
+        api_client = _get_api_client_with_location(api_client, location)
 
     logger.info("Preparing dataset(s) and metrics...")
     if isinstance(dataset, types.EvaluationDataset):
