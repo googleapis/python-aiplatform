@@ -316,6 +316,11 @@ class DeployedModel(proto.Message):
             ``projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}``
 
             This field is a member of `oneof`_ ``prediction_resources``.
+        full_fine_tuned_resources (google.cloud.aiplatform_v1beta1.types.FullFineTunedResources):
+            Optional. Resources for a full fine tuned
+            model.
+
+            This field is a member of `oneof`_ ``prediction_resources``.
         id (str):
             Immutable. The ID of the DeployedModel. If not provided upon
             deployment, Vertex AI will generate a value for this ID.
@@ -474,6 +479,12 @@ class DeployedModel(proto.Message):
         proto.STRING,
         number=17,
         oneof="prediction_resources",
+    )
+    full_fine_tuned_resources: machine_resources.FullFineTunedResources = proto.Field(
+        proto.MESSAGE,
+        number=36,
+        oneof="prediction_resources",
+        message=machine_resources.FullFineTunedResources,
     )
     id: str = proto.Field(
         proto.STRING,
