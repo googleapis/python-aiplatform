@@ -27,6 +27,7 @@ from typing import (
 import asyncio
 from collections.abc import Awaitable
 import queue
+import sys
 import threading
 import warnings
 
@@ -439,12 +440,13 @@ def _default_instrumentor_builder(
 
         logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
         logger_provider.add_log_record_processor(
-            opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
+            opentelemetry.sdk._logs.export.SimpleLogRecordProcessor(
                 opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
                     project_id=project_id,
                     default_log_name=os.getenv(
                         "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
                     ),
+                    structured_json_file=sys.stdout,
                 ),
             )
         )
