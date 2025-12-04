@@ -1521,6 +1521,89 @@ class TestAgentEngineHelpers:
             gcs_dir_name=_TEST_GCS_DIR_NAME,
         )
 
+    @pytest.mark.parametrize(
+        "operation_name,resource_name,expected_id,expected_exception,expected_message",
+        [
+            (
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}/operations/456",
+                "",
+                _TEST_RESOURCE_ID,
+                None,
+                None,
+            ),
+            (
+                "",
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}",
+                _TEST_RESOURCE_ID,
+                None,
+                None,
+            ),
+            (
+                "projects/123/locations/us-central1/reasoningEngines/other_id/operations/456",
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}",
+                _TEST_RESOURCE_ID,
+                None,
+                None,
+            ),
+            (
+                "",
+                "",
+                None,
+                ValueError,
+                "Resource name or operation name cannot be empty.",
+            ),
+            (
+                "invalid/operation/name",
+                "",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from operation name",
+            ),
+            (
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}",
+                "",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from operation name",
+            ),
+            (
+                "",
+                "invalid/resource/name",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from resource name",
+            ),
+            (
+                "",
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}/operations/456",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from resource name",
+            ),
+        ],
+    )
+    def test_get_reasoning_engine_id(
+        self,
+        operation_name,
+        resource_name,
+        expected_id,
+        expected_exception,
+        expected_message,
+    ):
+        if expected_exception:
+            with pytest.raises(expected_exception) as excinfo:
+                _agent_engines_utils._get_reasoning_engine_id(
+                    operation_name=operation_name, resource_name=resource_name
+                )
+            assert expected_message in str(excinfo.value)
+        else:
+            assert (
+                _agent_engines_utils._get_reasoning_engine_id(
+                    operation_name=operation_name, resource_name=resource_name
+                )
+                == expected_id
+            )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngine:
@@ -1570,7 +1653,18 @@ class TestAgentEngine:
     @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
-    def test_create_agent_engine(self, mock_await_operation, mock_prepare, caplog):
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_prepare,
+        caplog,
+    ):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -1620,8 +1714,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_lightweight(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1657,8 +1757,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_env_vars_dict(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1748,8 +1854,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_custom_service_account(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1842,8 +1954,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_experimental_mode(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1939,8 +2057,14 @@ class TestAgentEngine:
         return_value="test_tarball",
     )
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_source_packages(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_base64_encoded_tarball,
     ):
@@ -2001,8 +2125,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_class_methods(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -2088,8 +2218,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_agent_framework(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -2696,8 +2832,17 @@ class TestAgentEngine:
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_create")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_creds(
-        self, mock_await_operation, mock_create, mock_prepare
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_create,
+        mock_prepare,
     ):
         mock_operation = mock.Mock()
         mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
@@ -2728,8 +2873,18 @@ class TestAgentEngine:
     @mock.patch.object(agent_engines.AgentEngines, "_create")
     @mock.patch("google.auth.default")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_without_creds(
-        self, mock_await_operation, mock_auth_default, mock_create, mock_prepare
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_auth_default,
+        mock_create,
+        mock_prepare,
     ):
         mock_operation = mock.Mock()
         mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
@@ -2765,8 +2920,17 @@ class TestAgentEngine:
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(agent_engines.AgentEngines, "_create")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_no_creds_in_client(
-        self, mock_await_operation, mock_create, mock_prepare
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_create,
+        mock_prepare,
     ):
         mock_operation = mock.Mock()
         mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
@@ -2812,7 +2976,14 @@ class TestAgentEngineErrors:
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
-    def test_create_agent_engine_error(self, mock_await_operation, mock_prepare):
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine_error(
+        self, mock_get_reasoning_engine_id, mock_await_operation, mock_prepare
+    ):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             error=_TEST_AGENT_ENGINE_ERROR,
         )

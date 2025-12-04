@@ -941,9 +941,14 @@ class AgentEngines(_api_module.BaseModule):
             build_options=config.build_options,
         )
         operation = self._create(config=api_config)
-        # TODO: Use a more specific link.
+        reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
+            operation_name=operation.name
+        )
         logger.info(
-            f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+            "View progress and logs at https://console.cloud.google.com/logs/query?"
+            f"project={self._api_client.project}"
+            "&query=resource.type%3D%22aiplatform.googleapis.com%2FReasoningEngine%22%0A"
+            f"resource.labels.reasoning_engine_id%3D%22{reasoning_engine_id}%22."
         )
         if agent is not None or config.source_packages is not None:
             poll_interval_seconds = 10
@@ -1476,8 +1481,14 @@ class AgentEngines(_api_module.BaseModule):
             build_options=config.build_options,
         )
         operation = self._update(name=name, config=api_config)
+        reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
+            resource_name=name
+        )
         logger.info(
-            f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+            "View progress and logs at https://console.cloud.google.com/logs/query?"
+            f"project={self._api_client.project}"
+            "&query=resource.type%3D%22aiplatform.googleapis.com%2FReasoningEngine%22%0A"
+            f"resource.labels.reasoning_engine_id%3D%22{reasoning_engine_id}%22."
         )
         operation = _agent_engines_utils._await_operation(
             operation_name=operation.name,
