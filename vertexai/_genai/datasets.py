@@ -40,9 +40,6 @@ def _AssembleDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
@@ -53,6 +50,9 @@ def _AssembleDatasetParameters_to_vertex(
             getv(from_object, ["gemini_request_read_config"]),
         )
 
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
     return to_object
 
 
@@ -61,9 +61,6 @@ def _AssessDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
@@ -104,6 +101,9 @@ def _AssessDatasetParameters_to_vertex(
             ["batchPredictionValidationAssessmentConfig"],
             getv(from_object, ["batch_prediction_validation_assessment_config"]),
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -250,20 +250,20 @@ class Datasets(_api_module.BaseModule):
     def _assemble_multimodal_dataset(
         self,
         *,
-        config: Optional[types.AssembleDatasetConfigOrDict] = None,
         name: str,
         gemini_request_read_config: Optional[
             types.GeminiRequestReadConfigOrDict
         ] = None,
+        config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Assembles a multimodal dataset resource.
         """
 
         parameter_model = types._AssembleDatasetParameters(
-            config=config,
             name=name,
             gemini_request_read_config=gemini_request_read_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -307,7 +307,6 @@ class Datasets(_api_module.BaseModule):
     def _assess_multimodal_dataset(
         self,
         *,
-        config: Optional[types.AssessDatasetConfigOrDict] = None,
         name: str,
         gemini_request_read_config: Optional[
             types.GeminiRequestReadConfigOrDict
@@ -324,19 +323,20 @@ class Datasets(_api_module.BaseModule):
         batch_prediction_validation_assessment_config: Optional[
             types.BatchPredictionValidationAssessmentConfigOrDict
         ] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Assesses a multimodal dataset resource.
         """
 
         parameter_model = types._AssessDatasetParameters(
-            config=config,
             name=name,
             gemini_request_read_config=gemini_request_read_config,
             tuning_resource_usage_assessment_config=tuning_resource_usage_assessment_config,
             tuning_validation_assessment_config=tuning_validation_assessment_config,
             batch_prediction_resource_usage_assessment_config=batch_prediction_resource_usage_assessment_config,
             batch_prediction_validation_assessment_config=batch_prediction_validation_assessment_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1060,20 +1060,20 @@ class AsyncDatasets(_api_module.BaseModule):
     async def _assemble_multimodal_dataset(
         self,
         *,
-        config: Optional[types.AssembleDatasetConfigOrDict] = None,
         name: str,
         gemini_request_read_config: Optional[
             types.GeminiRequestReadConfigOrDict
         ] = None,
+        config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Assembles a multimodal dataset resource.
         """
 
         parameter_model = types._AssembleDatasetParameters(
-            config=config,
             name=name,
             gemini_request_read_config=gemini_request_read_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1119,7 +1119,6 @@ class AsyncDatasets(_api_module.BaseModule):
     async def _assess_multimodal_dataset(
         self,
         *,
-        config: Optional[types.AssessDatasetConfigOrDict] = None,
         name: str,
         gemini_request_read_config: Optional[
             types.GeminiRequestReadConfigOrDict
@@ -1136,19 +1135,20 @@ class AsyncDatasets(_api_module.BaseModule):
         batch_prediction_validation_assessment_config: Optional[
             types.BatchPredictionValidationAssessmentConfigOrDict
         ] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """
         Assesses a multimodal dataset resource.
         """
 
         parameter_model = types._AssessDatasetParameters(
-            config=config,
             name=name,
             gemini_request_read_config=gemini_request_read_config,
             tuning_resource_usage_assessment_config=tuning_resource_usage_assessment_config,
             tuning_validation_assessment_config=tuning_validation_assessment_config,
             batch_prediction_resource_usage_assessment_config=batch_prediction_resource_usage_assessment_config,
             batch_prediction_validation_assessment_config=batch_prediction_validation_assessment_config,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]

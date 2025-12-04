@@ -9871,33 +9871,6 @@ ListAgentEngineSessionEventsResponseOrDict = Union[
 ]
 
 
-class AssembleDatasetConfig(_common.BaseModel):
-    """Config for assembling a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    timeout: Optional[int] = Field(
-        default=90,
-        description="""The timeout for the assemble dataset request in seconds. If not
-      set, the default timeout is 90 seconds.""",
-    )
-
-
-class AssembleDatasetConfigDict(TypedDict, total=False):
-    """Config for assembling a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    timeout: Optional[int]
-    """The timeout for the assemble dataset request in seconds. If not
-      set, the default timeout is 90 seconds."""
-
-
-AssembleDatasetConfigOrDict = Union[AssembleDatasetConfig, AssembleDatasetConfigDict]
-
-
 class GeminiExample(_common.BaseModel):
     """Represents a Gemini example."""
 
@@ -10017,26 +9990,53 @@ GeminiRequestReadConfigOrDict = Union[
 ]
 
 
+class AssembleDatasetConfig(_common.BaseModel):
+    """Config for assembling a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the assemble dataset request in seconds. If not
+      set, the default timeout is 90 seconds.""",
+    )
+
+
+class AssembleDatasetConfigDict(TypedDict, total=False):
+    """Config for assembling a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the assemble dataset request in seconds. If not
+      set, the default timeout is 90 seconds."""
+
+
+AssembleDatasetConfigOrDict = Union[AssembleDatasetConfig, AssembleDatasetConfigDict]
+
+
 class _AssembleDatasetParameters(_common.BaseModel):
     """Parameters for assembling a multimodal dataset resource."""
 
-    config: Optional[AssembleDatasetConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
     gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
         default=None, description=""""""
     )
+    config: Optional[AssembleDatasetConfig] = Field(default=None, description="""""")
 
 
 class _AssembleDatasetParametersDict(TypedDict, total=False):
     """Parameters for assembling a multimodal dataset resource."""
 
-    config: Optional[AssembleDatasetConfigDict]
-    """"""
-
     name: Optional[str]
     """"""
 
     gemini_request_read_config: Optional[GeminiRequestReadConfigDict]
+    """"""
+
+    config: Optional[AssembleDatasetConfigDict]
     """"""
 
 
@@ -10091,33 +10091,6 @@ class MultimodalDatasetOperationDict(TypedDict, total=False):
 MultimodalDatasetOperationOrDict = Union[
     MultimodalDatasetOperation, MultimodalDatasetOperationDict
 ]
-
-
-class AssessDatasetConfig(_common.BaseModel):
-    """Config for assessing a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    timeout: Optional[int] = Field(
-        default=90,
-        description="""The timeout for the assess dataset request in seconds. If not set,
-      the default timeout is 90 seconds.""",
-    )
-
-
-class AssessDatasetConfigDict(TypedDict, total=False):
-    """Config for assessing a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    timeout: Optional[int]
-    """The timeout for the assess dataset request in seconds. If not set,
-      the default timeout is 90 seconds."""
-
-
-AssessDatasetConfigOrDict = Union[AssessDatasetConfig, AssessDatasetConfigDict]
 
 
 class TuningResourceUsageAssessmentConfig(_common.BaseModel):
@@ -10198,10 +10171,36 @@ BatchPredictionValidationAssessmentConfigOrDict = Union[
 ]
 
 
+class AssessDatasetConfig(_common.BaseModel):
+    """Config for assessing a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the assess dataset request in seconds. If not set,
+      the default timeout is 90 seconds.""",
+    )
+
+
+class AssessDatasetConfigDict(TypedDict, total=False):
+    """Config for assessing a multimodal dataset resource."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    timeout: Optional[int]
+    """The timeout for the assess dataset request in seconds. If not set,
+      the default timeout is 90 seconds."""
+
+
+AssessDatasetConfigOrDict = Union[AssessDatasetConfig, AssessDatasetConfigDict]
+
+
 class _AssessDatasetParameters(_common.BaseModel):
     """Parameters for assessing a multimodal dataset resource."""
 
-    config: Optional[AssessDatasetConfig] = Field(default=None, description="""""")
     name: Optional[str] = Field(default=None, description="""""")
     gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
         default=None, description=""""""
@@ -10218,13 +10217,11 @@ class _AssessDatasetParameters(_common.BaseModel):
     batch_prediction_validation_assessment_config: Optional[
         BatchPredictionValidationAssessmentConfig
     ] = Field(default=None, description="""""")
+    config: Optional[AssessDatasetConfig] = Field(default=None, description="""""")
 
 
 class _AssessDatasetParametersDict(TypedDict, total=False):
     """Parameters for assessing a multimodal dataset resource."""
-
-    config: Optional[AssessDatasetConfigDict]
-    """"""
 
     name: Optional[str]
     """"""
@@ -10248,6 +10245,9 @@ class _AssessDatasetParametersDict(TypedDict, total=False):
     batch_prediction_validation_assessment_config: Optional[
         BatchPredictionValidationAssessmentConfigDict
     ]
+    """"""
+
+    config: Optional[AssessDatasetConfigDict]
     """"""
 
 
