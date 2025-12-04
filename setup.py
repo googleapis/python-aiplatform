@@ -168,6 +168,7 @@ agent_engines_extra_require = [
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
+    "google-cloud-iam",
 ]
 
 evaluation_extra_require = [
