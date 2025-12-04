@@ -23,6 +23,7 @@ import io
 import json
 import logging
 import os
+import re
 import sys
 import tarfile
 import time
@@ -412,6 +413,39 @@ class GetAsyncOperationFunction(Protocol):
         self, *, operation_name: str, **kwargs: Any
     ) -> Awaitable[AgentEngineOperationUnion]:
         pass
+
+
+def _get_reasoning_engine_id(operation_name: str = "", resource_name: str = "") -> str:
+    """Returns reasoning engine ID from operation name or resource name."""
+    if not resource_name and not operation_name:
+        raise ValueError("Resource name or operation name cannot be empty.")
+
+    if resource_name:
+        match = re.match(
+            r"^projects/[^/]+/locations/[^/]+/reasoningEngines/([^/]+)$",
+            resource_name,
+        )
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError(
+                "Failed to parse reasoning engine ID from resource name: "
+                f"`{resource_name}`"
+            )
+
+    if not operation_name:
+        raise ValueError("Operation name cannot be empty.")
+
+    match = re.match(
+        r"^projects/[^/]+/locations/[^/]+/reasoningEngines/([^/]+)/operations/[^/]+$",
+        operation_name,
+    )
+    if match:
+        return match.group(1)
+    raise ValueError(
+        "Failed to parse reasoning engine ID from operation name: "
+        f"`{operation_name}`"
+    )
 
 
 async def _await_async_operation(
