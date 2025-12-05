@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.130.0](https://github.com/googleapis/python-aiplatform/compare/v1.129.0...v1.130.0) (2025-12-04)
+
+
+### Features
+
+* A new field `min_gpu_driver_version` is added to message `.google.cloud.aiplatform.v1beta1.MachineSpec` ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* Expose FullFineTunedResources for full fine tuned deployments ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* Expose zone when creating a FeatureOnlineStore ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* GenAI SDK client(memory): Add PurgeMemories ([95eb10f](https://github.com/googleapis/python-aiplatform/commit/95eb10f7a9572553f2f238e95252619b8a340736))
+* Introduce RagManagedVertexVectorSearch as a new vector db option ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+
+
+### Documentation
+
+* Update `ReplicatedVoiceConfig.mime_type` comment ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* Update `ReplicatedVoiceConfig.mime_type` comment ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+
 ## [1.129.0](https://github.com/googleapis/python-aiplatform/compare/v1.128.0...v1.129.0) (2025-12-03)
 
 
