@@ -276,6 +276,9 @@ class MatchNeighbor:
             self.sparse_embedding_dimensions = (
                 index_datapoint.sparse_embedding.dimensions
             )
+        # retrieve embedding metadata
+        if (index_datapoint.embedding_metadata is not None):
+            self.embedding_metadata = index_datapoint.embedding_metadata
         return self
 
     def from_embedding(self, embedding: match_service_pb2.Embedding) -> "MatchNeighbor":
