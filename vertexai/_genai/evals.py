@@ -33,6 +33,11 @@ from . import _evals_utils
 from . import _transformers as t
 from . import types
 
+try:
+    from google.adk.agents import LlmAgent
+except ImportError:
+    LlmAgent = None  # type: ignore[assignment]
+
 
 logger = logging.getLogger("vertexai_genai.evals")
 
@@ -903,7 +908,7 @@ class Evals(_api_module.BaseModule):
         *,
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
         model: Optional[Union[str, Callable[[Any], Any]]] = None,
-        agent: Optional[Union[str, types.AgentEngine]] = None,
+        agent: Optional[Union[str, types.AgentEngine, LlmAgent]] = None,
         location: Optional[str] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
@@ -924,11 +929,12 @@ class Evals(_api_module.BaseModule):
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
           agent: This field is experimental and may change in future versions
-                The agent engine used to run agent, optional for non-agent evaluations.
+                The agent engine used or local agent to run agent, optional for non-agent evaluations.
               - agent engine resource name in str type, with format
                 `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
                 run_inference will fetch the agent engine from the resource name.
               - Or `types.AgentEngine` object.
+              - Or ADK agent in LlMAgent type.
           location: The location to use for the inference. If not specified, the
                 location configured in the client will be used. If specified,
                 this will override the location set in `vertexai.Client` only
@@ -954,10 +960,19 @@ class Evals(_api_module.BaseModule):
                 )
             src = src.eval_dataset_df
 
+        agent_engine_instance = None
+        agent_instance = None
+        if agent:
+            if isinstance(agent, str) or isinstance(agent, types.AgentEngine):
+                agent_engine_instance = agent
+            else:
+                agent_instance = agent
+
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
-            agent_engine=agent,
+            agent_engine=agent_engine_instance,
+            agent=agent_instance,
             src=src,
             dest=config.dest,
             prompt_template=config.prompt_template,
