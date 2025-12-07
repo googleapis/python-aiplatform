@@ -1289,6 +1289,147 @@ class TestEvalsRunInference:
             "'intermediate_events' or 'response' columns"
         ) in str(excinfo.value)
 
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.InMemorySessionService")
+    @mock.patch("vertexai._genai._evals_common.Runner")
+    @mock.patch("vertexai._genai._evals_common.LlmAgent")
+    def test_run_inference_with_local_agent(
+        self,
+        mock_llm_agent,
+        mock_runner,
+        mock_session_service,
+        mock_eval_dataset_loader,
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt", "agent prompt 2"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    },
+                    {
+                        "user_id": "456",
+                        "state": {"b": "2"},
+                    },
+                ],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_instance = mock.Mock()
+        mock_llm_agent.return_value = mock_agent_instance
+        mock_session_service.return_value.create_session = mock.AsyncMock()
+        mock_runner_instance = mock_runner.return_value
+        stream_run_return_value_1 = [
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "1",
+                    "content": {"parts": [{"text": "intermediate1"}]},
+                    "timestamp": 123,
+                    "author": "model",
+                }
+            ),
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "2",
+                    "content": {"parts": [{"text": "agent response"}]},
+                    "timestamp": 124,
+                    "author": "model",
+                }
+            ),
+        ]
+        stream_run_return_value_2 = [
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "3",
+                    "content": {"parts": [{"text": "intermediate2"}]},
+                    "timestamp": 125,
+                    "author": "model",
+                }
+            ),
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "4",
+                    "content": {"parts": [{"text": "agent response 2"}]},
+                    "timestamp": 126,
+                    "author": "model",
+                }
+            ),
+        ]
+
+        async def async_iterator(items):
+            for item in items:
+                yield item
+
+        def run_async_side_effect(*args, **kwargs):
+            new_message = kwargs.get("new_message")
+            if new_message and new_message.parts[0].text == "agent prompt":
+                return async_iterator(stream_run_return_value_1)
+            return async_iterator(stream_run_return_value_2)
+
+        mock_runner_instance.run_async.side_effect = run_async_side_effect
+
+        inference_result = self.client.evals.run_inference(
+            agent=mock_agent_instance,
+            src=mock_df,
+        )
+
+        mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
+        assert mock_session_service.call_count == 2
+        mock_runner.assert_called_with(
+            agent=mock_agent_instance,
+            app_name="local agent run",
+            session_service=mock_session_service.return_value,
+        )
+        assert mock_runner.call_count == 2
+        assert mock_runner_instance.run_async.call_count == 2
+
+        expected_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt", "agent prompt 2"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    },
+                    {
+                        "user_id": "456",
+                        "state": {"b": "2"},
+                    },
+                ],
+                "intermediate_events": [
+                    [
+                        {
+                            "event_id": "1",
+                            "content": {"parts": [{"text": "intermediate1"}]},
+                            "creation_timestamp": 123,
+                            "author": "model",
+                        }
+                    ],
+                    [
+                        {
+                            "event_id": "3",
+                            "content": {"parts": [{"text": "intermediate2"}]},
+                            "creation_timestamp": 125,
+                            "author": "model",
+                        }
+                    ],
+                ],
+                "response": ["agent response", "agent response 2"],
+            }
+        )
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                drop=True
+            ),
+            expected_df.sort_values(by="prompt").reset_index(drop=True),
+        )
+        assert inference_result.candidate_name is None
+        assert inference_result.gcs_source is None
+
     def test_run_inference_with_litellm_string_prompt_format(
         self,
         mock_api_client_fixture,
@@ -1641,6 +1782,7 @@ class TestRunAgentInternal:
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
             agent_engine=mock_agent_engine,
+            agent=None,
             prompt_dataset=prompt_dataset,
         )
 
@@ -1671,6 +1813,7 @@ class TestRunAgentInternal:
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
             agent_engine=mock_agent_engine,
+            agent=None,
             prompt_dataset=prompt_dataset,
         )
 
@@ -1697,6 +1840,7 @@ class TestRunAgentInternal:
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
             agent_engine=mock_agent_engine,
+            agent=None,
             prompt_dataset=prompt_dataset,
         )
         assert "response" in result_df.columns
