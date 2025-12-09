@@ -62,6 +62,7 @@ from vertexai.preview.rag import (
     RagFile,
     RagManagedDb,
     RagManagedDbConfig,
+    RagManagedVertexVectorSearch,
     RagResource,
     RagRetrievalConfig,
     RagVectorDbConfig,
@@ -137,6 +138,12 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
 )
+TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_COLLECTION_NAME = (
+    "test-rag-managed-vertex-vector-search-collection"
+)
+TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG = RagManagedVertexVectorSearch(
+    collection_name=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_COLLECTION_NAME
+)
 TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
     "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
         TEST_PROJECT, TEST_REGION
@@ -200,6 +207,17 @@ TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
         ),
     ),
 )
+TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    rag_vector_db_config=GapicRagVectorDbConfig(
+        rag_managed_vertex_vector_search=GapicRagVectorDbConfig.RagManagedVertexVectorSearch(
+            collection_name=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_COLLECTION_NAME,
+        ),
+    ),
+)
+
 TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
@@ -301,6 +319,13 @@ TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     description=TEST_CORPUS_DISCRIPTION,
     vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
+TEST_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG,
+)
+
 TEST_PAGE_TOKEN = "test-page-token"
 # Backend Config
 TEST_GAPIC_RAG_CORPUS_BACKEND_CONFIG = GapicRagCorpus(

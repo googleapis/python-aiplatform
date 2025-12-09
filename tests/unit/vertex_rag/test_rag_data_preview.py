@@ -165,6 +165,23 @@ def create_rag_corpus_mock_pinecone():
 
 
 @pytest.fixture
+def create_rag_corpus_mock_rag_managed_vertex_vector_search():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_vertex_vector_search:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH
+        )
+        create_rag_corpus_mock_rag_managed_vertex_vector_search.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_vertex_vector_search
+
+
+@pytest.fixture
 def create_rag_corpus_mock_rag_managed_db():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -803,6 +820,18 @@ class TestRagDataManagement:
 
         rag_corpus_eq(
             rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_vertex_vector_search")
+    def test_create_corpus_rag_managed_vertex_vector_search_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH,
         )
 
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search_backend")

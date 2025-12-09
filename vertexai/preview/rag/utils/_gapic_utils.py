@@ -59,6 +59,7 @@ from vertexai.preview.rag.utils.resources import (
     RagFile,
     RagManagedDb,
     RagManagedDbConfig,
+    RagManagedVertexVectorSearch,
     RagVectorDbConfig,
     Basic,
     Enterprise,
@@ -176,6 +177,15 @@ def _check_vertex_vector_search(gapic_vector_db: GapicRagVectorDbConfig) -> bool
         return gapic_vector_db.vertex_vector_search.ByteSize() > 0
 
 
+def _check_rag_managed_vertex_vector_search(
+    gapic_vector_db: GapicRagVectorDbConfig,
+) -> bool:
+    try:
+        return gapic_vector_db.__contains__("rag_managed_vertex_vector_search")
+    except AttributeError:
+        return gapic_vector_db.rag_managed_vertex_vector_search.ByteSize() > 0
+
+
 def _check_rag_embedding_model_config(
     gapic_vector_db: GapicRagVectorDbConfig,
 ) -> bool:
@@ -240,6 +250,10 @@ def convert_gapic_to_vector_db(
             index_name=gapic_vector_db.pinecone.index_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
         )
+    elif _check_rag_managed_vertex_vector_search(gapic_vector_db):
+        return RagManagedVertexVectorSearch(
+            collection_name=gapic_vector_db.rag_managed_vertex_vector_search.collection_name,
+        )
     elif _check_vertex_vector_search(gapic_vector_db):
         return VertexVectorSearch(
             index_endpoint=gapic_vector_db.vertex_vector_search.index_endpoint,
@@ -298,6 +312,10 @@ def convert_gapic_to_backend_config(
         vector_config.vector_db = Pinecone(
             index_name=gapic_vector_db.pinecone.index_name,
             api_key=gapic_vector_db.api_auth.api_key_config.api_key_secret_version,
+        )
+    elif _check_rag_managed_vertex_vector_search(gapic_vector_db):
+        vector_config.vector_db = RagManagedVertexVectorSearch(
+            collection_name=gapic_vector_db.rag_managed_vertex_vector_search.collection_name,
         )
     elif _check_vertex_vector_search(gapic_vector_db):
         vector_config.vector_db = VertexVectorSearch(
@@ -904,9 +922,14 @@ def set_vector_db(
                 ),
             ),
         )
+    elif isinstance(vector_db, RagManagedVertexVectorSearch):
+        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
+            rag_managed_vertex_vector_search=GapicRagVectorDbConfig.RagManagedVertexVectorSearch(),
+        )
+
     else:
         raise TypeError(
-            "vector_db must be a Weaviate, VertexFeatureStore, VertexVectorSearch, RagManagedDb, or Pinecone."
+            "vector_db must be a Weaviate, VertexFeatureStore, VertexVectorSearch, RagManagedDb, Pinecone, or RagManagedVertexVectorSearch."
         )
 
 
@@ -973,10 +996,14 @@ def set_backend_config(
             rag_corpus.vector_db_config.api_auth.api_key_config.api_key_secret_version = (
                 api_key
             )
+        elif isinstance(vector_config, RagManagedVertexVectorSearch):
+            rag_corpus.vector_db_config.rag_managed_vertex_vector_search.CopyFrom(
+                GapicRagVectorDbConfig.RagManagedVertexVectorSearch()
+            )
         else:
             raise TypeError(
                 "backend_config must be a VertexFeatureStore,"
-                "RagManagedDb, or Pinecone."
+                "RagManagedDb, Pinecone, or RagManagedVertexVectorSearch."
             )
         if backend_config.rag_embedding_model_config:
             set_embedding_model_config(

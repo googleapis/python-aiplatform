@@ -56,6 +56,7 @@ from vertexai.preview.rag.utils.resources import (
     RagEngineConfig,
     RagFile,
     RagManagedDb,
+    RagManagedVertexVectorSearch,
     RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
@@ -79,6 +80,7 @@ def create_corpus(
             VertexVectorSearch,
             Pinecone,
             RagManagedDb,
+            RagManagedVertexVectorSearch,
         ]
     ] = None,
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None,
