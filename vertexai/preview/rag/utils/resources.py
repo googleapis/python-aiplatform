@@ -226,6 +226,20 @@ class Pinecone:
 
 
 @dataclasses.dataclass
+class RagManagedVertexVectorSearch:
+    """RagManagedVertexVectorSearch.
+
+    Attributes:
+        collection_name: The resource name of the Vector Search 2.0 Collection that
+            RAG Created for the corpus. Only populated after the corpus is successfully
+            created. Format:
+            ``projects/{project}/locations/{location}/collections/{collection_id}``
+    """
+
+    collection_name: Optional[str] = None
+
+
+@dataclasses.dataclass
 class VertexAiSearchConfig:
     """VertexAiSearchConfig.
 
@@ -246,12 +260,19 @@ class RagVectorDbConfig:
 
     Attributes:
         vector_db: Can be one of the following: Weaviate, VertexFeatureStore,
-            VertexVectorSearch, Pinecone, RagManagedDb.
+            VertexVectorSearch, Pinecone, RagManagedDb, RagManagedVertexVectorSearch.
         rag_embedding_model_config: The embedding model config of the Vector DB.
     """
 
     vector_db: Optional[
-        Union[Weaviate, VertexFeatureStore, VertexVectorSearch, Pinecone, RagManagedDb]
+        Union[
+            Weaviate,
+            VertexFeatureStore,
+            VertexVectorSearch,
+            Pinecone,
+            RagManagedDb,
+            RagManagedVertexVectorSearch,
+        ]
     ] = None
     rag_embedding_model_config: Optional[RagEmbeddingModelConfig] = None
 
