@@ -4617,6 +4617,17 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "function_call": {
                                     "name": "name_value",
                                     "args": {"fields": {}},
+                                    "partial_args": [
+                                        {
+                                            "null_value": 0,
+                                            "number_value": 0.1285,
+                                            "string_value": "string_value_value",
+                                            "bool_value": True,
+                                            "json_path": "json_path_value",
+                                            "will_continue": True,
+                                        }
+                                    ],
+                                    "will_continue": True,
                                 },
                                 "function_response": {
                                     "name": "name_value",
@@ -6237,6 +6248,17 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "function_call": {
                                     "name": "name_value",
                                     "args": {"fields": {}},
+                                    "partial_args": [
+                                        {
+                                            "null_value": 0,
+                                            "number_value": 0.1285,
+                                            "string_value": "string_value_value",
+                                            "bool_value": True,
+                                            "json_path": "json_path_value",
+                                            "will_continue": True,
+                                        }
+                                    ],
+                                    "will_continue": True,
                                 },
                                 "function_response": {
                                     "name": "name_value",
