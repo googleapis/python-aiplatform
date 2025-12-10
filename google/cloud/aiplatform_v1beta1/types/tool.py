@@ -266,7 +266,7 @@ class Tool(proto.Message):
     )
     url_context: "UrlContext" = proto.Field(
         proto.MESSAGE,
-        number=8,
+        number=10,
         message="UrlContext",
     )
     computer_use: ComputerUse = proto.Field(
