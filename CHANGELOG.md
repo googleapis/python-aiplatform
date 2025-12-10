@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.130.0](https://github.com/googleapis/python-aiplatform/compare/v1.129.0...v1.130.0) (2025-12-10)
+
+
+### Features
+
+* A new field `min_gpu_driver_version` is added to message `.google.cloud.aiplatform.v1beta1.MachineSpec` ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* Adding RagManagedVertexVectorSearch Vector DB option for RAG corpuses to SDK ([da79e21](https://github.com/googleapis/python-aiplatform/commit/da79e218cacfa39e00d57ada7f0ec2b12fa35a84))
+* Expose FullFineTunedResources for full fine tuned deployments ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* Expose zone when creating a FeatureOnlineStore ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* GenAI Client(evals) - Add support to local agent run for agent eval ([30e41d0](https://github.com/googleapis/python-aiplatform/commit/30e41d01f3fd0ef08da6ad6eb7f83df34476105e))
+* GenAI SDK client(memory): Add PurgeMemories ([95eb10f](https://github.com/googleapis/python-aiplatform/commit/95eb10f7a9572553f2f238e95252619b8a340736))
+* Introduce RagManagedVertexVectorSearch as a new vector db option ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+
+
+### Documentation
+
+* Update `ReplicatedVoiceConfig.mime_type` comment ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+* Update `ReplicatedVoiceConfig.mime_type` comment ([26dfdfe](https://github.com/googleapis/python-aiplatform/commit/26dfdfec208667cf25ecfd5649af3676586ff139))
+
 ## [1.129.0](https://github.com/googleapis/python-aiplatform/compare/v1.128.0...v1.129.0) (2025-12-03)
 
 
