@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.131.0](https://github.com/googleapis/python-aiplatform/compare/v1.130.0...v1.131.0) (2025-12-11)
+
+
+### Features
+
+* GenAI Client(evals) - Support CustomCodeExecution metric in Vertex Gen AI Eval Service ([4114728](https://github.com/googleapis/python-aiplatform/commit/4114728750b5b12f991a18df87c1f1a570d1b29d))
+* Updates the ADK template to direct structured JSON logs to standard output. ([a65ec29](https://github.com/googleapis/python-aiplatform/commit/a65ec297c5b8d99e4d2dfb49473c189197198f97))
+
+
+### Bug Fixes
+
+* Fix RagManagedVertexVectorSearch when using backend_config ([df0976e](https://github.com/googleapis/python-aiplatform/commit/df0976ed3195dc8313f4728bc5ecb29dda55d467))
+
 ## [1.130.0](https://github.com/googleapis/python-aiplatform/compare/v1.129.0...v1.130.0) (2025-12-10)
 
 
