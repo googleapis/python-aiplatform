@@ -685,10 +685,9 @@ class LLMMetricHandler(MetricHandler):
                 )
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(
-                "Error processing metric %s for case %s: %s",
+                "Error processing metric %s for case %s.",
                 metric_name,
                 eval_case.eval_case_id,
-                e,
                 exc_info=True,
             )
             return types.EvalCaseMetricResult(
@@ -1099,7 +1098,147 @@ class PredefinedMetricHandler(MetricHandler):
         )
 
 
+class CustomCodeExecutionMetricHandler(MetricHandler):
+    """Metric handler for custom code execution metrics."""
+
+    def __init__(self, module: "evals.Evals", metric: types.Metric):
+        super().__init__(module=module, metric=metric)
+
+        if not self.metric.remote_custom_function:
+            raise ValueError(
+                f"CustomCodeExecutionMetricHandler for '{self.metric.name}' needs "
+                " Metric.remote_custom_function to be set."
+            )
+
+    def _build_request_payload(
+        self, eval_case: types.EvalCase, response_index: int
+    ) -> dict[str, Any]:
+        """Builds the request parameters for evaluate instances request."""
+        if not eval_case.responses or response_index >= len(eval_case.responses):
+            raise IndexError(f"response_index {response_index} is out of bounds.")
+
+        response_content = eval_case.responses[response_index].response
+        if not response_content:
+            raise ValueError(
+                f"Response content missing for candidate {response_index}."
+            )
+
+        reference_instance_data = None
+        if eval_case.reference:
+            reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
+                eval_case.reference.response
+            )
+
+        prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
+            eval_case.prompt
+        )
+
+        instance_payload = types.EvaluationInstance(
+            prompt=prompt_instance_data,
+            response=PredefinedMetricHandler._content_to_instance_data(
+                response_content
+            ),
+            reference=reference_instance_data,
+        )
+
+        return {
+            "instance": instance_payload,
+        }
+
+    @override
+    def get_metric_result(
+        self, eval_case: types.EvalCase, response_index: int
+    ) -> types.EvalCaseMetricResult:
+        """Processes a single evaluation case for a specific custom code execution metric."""
+        metric_name = self.metric.name
+        try:
+            payload = self._build_request_payload(eval_case, response_index)
+            for attempt in range(_MAX_RETRIES):
+                try:
+                    api_response = self.module._evaluate_instances(
+                        metrics=[self.metric],
+                        instance=payload.get("instance"),
+                    )
+                    break
+                except genai_errors.ClientError as e:
+                    if e.code == 429:
+                        logger.warning(
+                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                            " seconds...",
+                            attempt + 1,
+                            _MAX_RETRIES,
+                            e,
+                            2**attempt,
+                        )
+                        if attempt == _MAX_RETRIES - 1:
+                            return types.EvalCaseMetricResult(
+                                metric_name=metric_name,
+                                error_message=f"Resource exhausted after {_MAX_RETRIES} retries: {e}",
+                            )
+                        time.sleep(2**attempt)
+                    else:
+                        raise e
+
+            if (
+                api_response
+                and hasattr(api_response, "metric_results")
+                and api_response.metric_results
+            ):
+                result_data = api_response.metric_results[0]
+
+                error_message = None
+                if result_data.error and getattr(result_data.error, "code"):
+                    error_message = f"Error in metric result: {result_data.error}"
+                return types.EvalCaseMetricResult(
+                    metric_name=metric_name,
+                    score=result_data.score,
+                    explanation=result_data.explanation,
+                    error_message=error_message,
+                )
+            else:
+                logger.error(
+                    "Metric results missing in API response for metric '%s'."
+                    " API response: %s",
+                    metric_name,
+                    (
+                        api_response.model_dump_json(exclude_none=True)
+                        if api_response
+                        else "None"
+                    ),
+                )
+                return types.EvalCaseMetricResult(
+                    metric_name=metric_name,
+                    error_message="Metric results missing in API response.",
+                )
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error(
+                "Error processing metric %s for case %s",
+                metric_name,
+                eval_case.eval_case_id,
+                exc_info=True,
+            )
+            return types.EvalCaseMetricResult(
+                metric_name=metric_name, error_message=str(e)
+            )
+
+    @override
+    def aggregate(
+        self, eval_case_metric_results: list[types.EvalCaseMetricResult]
+    ) -> types.AggregatedMetricResult:
+        """Aggregates the metric results for a custom code execution metric."""
+        logger.debug(
+            "Aggregating results for custom code execution metric: %s", self.metric.name
+        )
+        return _default_aggregate_scores(
+            self.metric.name, eval_case_metric_results, calculate_pass_rate=True
+        )
+
+
 _METRIC_HANDLER_MAPPING = [
+    (
+        lambda m: hasattr(m, "remote_custom_function") and m.remote_custom_function,
+        CustomCodeExecutionMetricHandler,
+    ),
     (
         lambda m: m.custom_function and isinstance(m.custom_function, Callable),
         CustomMetricHandler,
@@ -1125,6 +1264,7 @@ MetricHandlerType = TypeVar(
     TranslationMetricHandler,
     LLMMetricHandler,
     CustomMetricHandler,
+    CustomCodeExecutionMetricHandler,
     PredefinedMetricHandler,
 )
 
