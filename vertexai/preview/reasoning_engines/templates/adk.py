@@ -27,6 +27,7 @@ from typing import (
 import asyncio
 from collections.abc import Awaitable
 import queue
+import sys
 import threading
 
 
@@ -439,14 +440,25 @@ def _default_instrumentor_builder(
                 "opentelemetry-exporter-gcp-logging", needed_for_logging=True
             )
 
+        class _SimpleLogRecordProcessor(
+            opentelemetry.sdk._logs.export.SimpleLogRecordProcessor
+        ):
+            def force_flush(
+                self, timeout_millis: int = 30000
+            ) -> bool:  # pylint: disable=no-self-use
+                sys.stdout.flush()
+                sys.stderr.flush()
+                return True
+
         logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
         logger_provider.add_log_record_processor(
-            opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
+            _SimpleLogRecordProcessor(
                 opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
                     project_id=project_id,
                     default_log_name=os.getenv(
                         "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
                     ),
+                    structured_json_file=sys.stdout,
                 ),
             )
         )
