@@ -60,6 +60,13 @@ def t_metrics(
                 "metric_spec_name": metric_name,
                 "metric_spec_parameters": metric.metric_spec_parameters,
             }
+        # Custom Code Execution Metric
+        elif (
+            hasattr(metric, "remote_custom_function") and metric.remote_custom_function
+        ):
+            metric_payload_item["custom_code_execution_spec"] = {
+                "evaluation_function": metric.remote_custom_function
+            }
         # Pointwise metrics
         elif hasattr(metric, "prompt_template") and metric.prompt_template:
             pointwise_spec = {"metric_prompt_template": metric.prompt_template}

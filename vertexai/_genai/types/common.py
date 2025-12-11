@@ -905,6 +905,37 @@ class LLMBasedMetricSpecDict(TypedDict, total=False):
 LLMBasedMetricSpecOrDict = Union[LLMBasedMetricSpec, LLMBasedMetricSpecDict]
 
 
+class CustomCodeExecutionSpec(_common.BaseModel):
+    """Specificies a metric that is computed by running user-defined Python functions remotely."""
+
+    remote_custom_function: Optional[str] = Field(
+        default=None,
+        description="""A string representing a user-defined function for evaluation.
+  Expected user to define the following function, e.g.:
+    def evaluate(instance: dict[str, Any]) -> float:
+  Please include this function signature in the code snippet.
+  Instance is the evaluation instance, any fields populated in the instance
+  are available to the function as instance[field_name].""",
+    )
+
+
+class CustomCodeExecutionSpecDict(TypedDict, total=False):
+    """Specificies a metric that is computed by running user-defined Python functions remotely."""
+
+    remote_custom_function: Optional[str]
+    """A string representing a user-defined function for evaluation.
+  Expected user to define the following function, e.g.:
+    def evaluate(instance: dict[str, Any]) -> float:
+  Please include this function signature in the code snippet.
+  Instance is the evaluation instance, any fields populated in the instance
+  are available to the function as instance[field_name]."""
+
+
+CustomCodeExecutionSpecOrDict = Union[
+    CustomCodeExecutionSpec, CustomCodeExecutionSpecDict
+]
+
+
 class UnifiedMetric(_common.BaseModel):
     """The unified metric used for evaluation."""
 
@@ -919,6 +950,9 @@ class UnifiedMetric(_common.BaseModel):
     )
     llm_based_metric_spec: Optional[LLMBasedMetricSpec] = Field(
         default=None, description="""The spec for an LLM based metric."""
+    )
+    custom_code_execution_spec: Optional[CustomCodeExecutionSpec] = Field(
+        default=None, description="""The spec for a custom code execution metric."""
     )
     predefined_metric_spec: Optional[PredefinedMetricSpec] = Field(
         default=None, description="""The spec for a pre-defined metric."""
@@ -939,6 +973,9 @@ class UnifiedMetricDict(TypedDict, total=False):
 
     llm_based_metric_spec: Optional[LLMBasedMetricSpecDict]
     """The spec for an LLM based metric."""
+
+    custom_code_execution_spec: Optional[CustomCodeExecutionSpecDict]
+    """The spec for a custom code execution metric."""
 
     predefined_metric_spec: Optional[PredefinedMetricSpecDict]
     """The spec for a pre-defined metric."""
@@ -2616,6 +2653,10 @@ class Metric(_common.BaseModel):
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
+    remote_custom_function: Optional[str] = Field(
+        default=None,
+        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
+    )
     prompt_template: Optional[str] = Field(
         default=None, description="""The prompt template for the metric."""
     )
@@ -2822,6 +2863,9 @@ class MetricDict(TypedDict, total=False):
 
     custom_function: Optional[Callable[..., Any]]
     """The custom function that defines the end-to-end logic for metric computation."""
+
+    remote_custom_function: Optional[str]
+    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
 
     prompt_template: Optional[str]
     """The prompt template for the metric."""
