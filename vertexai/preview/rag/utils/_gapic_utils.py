@@ -997,7 +997,7 @@ def set_backend_config(
                 api_key
             )
         elif isinstance(vector_config, RagManagedVertexVectorSearch):
-            rag_corpus.vector_db_config.rag_managed_vertex_vector_search.CopyFrom(
+            rag_corpus.vector_db_config.rag_managed_vertex_vector_search = (
                 GapicRagVectorDbConfig.RagManagedVertexVectorSearch()
             )
         else:
