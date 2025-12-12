@@ -423,7 +423,6 @@ def system(session):
     if os.environ.get("GOOGLE_API_USE_CLIENT_CERTIFICATE", "false") == "true":
         session.install("pyopenssl")
 
-
     system_test_exists = os.path.exists(system_test_path)
     system_test_folder_exists = os.path.exists(system_test_folder_path)
     # Sanity check: only run tests if found.
