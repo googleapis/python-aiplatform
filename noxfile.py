@@ -134,8 +134,7 @@ def lint(session):
 @nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def blacken(session):
     """Run black. Format code to uniform standard."""
-    session.install(BLACK_VERSION)
-    session.run("uv", "pip", "list", "--format=freeze")
+    session.run("python", "-m", "pip", "freeze")
     session.run(
         "black",
         *LINT_PATHS,
@@ -474,7 +473,7 @@ def docs(session):
         *DOCS_DEPENDENCIES,
         "google-cloud-aiplatform[prediction]",
     )
-    session.run("uv", "pip", "list", "--format=freeze")
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -499,7 +498,7 @@ def docfx(session):
         *DOCFX_DEPENDENCIES,
         "google-cloud-aiplatform[prediction]",
     )
-    session.run("uv", "pip", "list", "--format=freeze")
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -533,7 +532,7 @@ def gemini_docs(session):
 
     session.install("-e", ".")
     session.install(*DOCS_DEPENDENCIES)
-    session.run("uv", "pip", "list", "--format=freeze")
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -555,7 +554,7 @@ def gemini_docfx(session):
 
     session.install("-e", ".")
     session.install(*DOCFX_DEPENDENCIES)
-    session.run("uv", "pip", "list", "--format=freeze")
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
