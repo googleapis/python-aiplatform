@@ -184,13 +184,7 @@ setup(
             shutil.copy(self.script_path, script_out_path)
 
         # Ensure setuptools is installed
-        install_setuptools_cmd = [
-            _get_python_executable(),
-            "-m",
-            "pip",
-            "install",
-            "setuptools",
-        ]
+        install_setuptools_cmd = ["uv", "pip", "install", "setuptools"]
         p_install = subprocess.Popen(
             args=install_setuptools_cmd,
             cwd=trainer_root_path,
