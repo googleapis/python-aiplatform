@@ -29,6 +29,7 @@ _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
     python_version="MOCK_PYTHON_VERSION",
     ray_version="MOCK_RAY_VERSION",
     ray_commit="MOCK_RAY_COMMIT",
+    protocol_version=0,
     _num_clients=1,
     _context_to_restore=None,
 )
