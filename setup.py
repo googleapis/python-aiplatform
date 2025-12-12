@@ -59,7 +59,7 @@ xai_extra_require = ["tensorflow >=2.3.0, <3.0.0; python_version<'3.13'"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0; python_version<'3.13'",
     "pandas >= 1.0.0",
-    "lit-nlp == 0.4.0",
+    "lit-nlp == 0.4.0; python_version<'3.14'",
     "explainable-ai-sdk >= 1.0.0; python_version<'3.13'",
 ]
 featurestore_extra_require = [
@@ -251,7 +251,7 @@ testing_extra_require = (
         # aiohttp is required for async rest tests (need google-auth[aiohttp],
         # but can't specify extras in constraints files)
         "aiohttp",
-        "bigframes; python_version>='3.10'",
+        "bigframes; python_version>='3.10' and python_version<'3.14'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
         "grpcio-testing",
@@ -262,6 +262,7 @@ testing_extra_require = (
         "pytest-cov",
         "mock",
         "pytest-xdist",
+        "Pillow",
         "scikit-learn<1.6.0; python_version<='3.10'",
         "scikit-learn; python_version>'3.10'",
         # Lazy import requires > 2.12.0
