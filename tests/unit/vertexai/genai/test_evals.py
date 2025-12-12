@@ -13,9 +13,11 @@
 # limitations under the License.
 #
 # pylint: disable=protected-access,bad-continuation,
+import base64
 import importlib
 import json
 import os
+import re
 import statistics
 import sys
 from unittest import mock
@@ -291,8 +293,11 @@ class TestEvalsVisualization:
 
         mock_display_module.HTML.assert_called_once()
         html_content = mock_display_module.HTML.call_args[0][0]
-        assert "my_function" in html_content
-        assert "this is model response" in html_content
+        match = re.search(r'atob\("([^"]+)"\)', html_content)
+        assert match
+        decoded_json = base64.b64decode(match.group(1)).decode("utf-8")
+        assert "my_function" in decoded_json
+        assert "this is model response" in decoded_json
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]
