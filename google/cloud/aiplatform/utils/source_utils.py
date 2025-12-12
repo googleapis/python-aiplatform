@@ -183,6 +183,22 @@ setup(
             # Copy script as module of python package.
             shutil.copy(self.script_path, script_out_path)
 
+        # Ensure setuptools is installed
+        install_setuptools_cmd = [_get_python_executable(), "-m", "pip", "install", "setuptools"]
+        p_install = subprocess.Popen(
+            args=install_setuptools_cmd,
+            cwd=trainer_root_path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        output, error = p_install.communicate()
+
+        if p_install.returncode != 0:
+            raise RuntimeError(
+                "Failed to install setuptools, code %d\n%s \n%s"
+                % (p_install.returncode, output.decode(), error.decode())
+            )
+
         # Run setup.py to create the source distribution.
         setup_cmd = [
             _get_python_executable()
