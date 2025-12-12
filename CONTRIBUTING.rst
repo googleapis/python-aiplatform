@@ -22,7 +22,7 @@ In order to add a feature:
   documentation.
 
 - The feature must work fully on the following CPython versions:
-  3.9, 3.10, 3.11, 3.12, 3.13 and 3.14 on both UNIX and Windows.
+  3.9, 3.10, 3.11, 3.12, 3.13, and 3.14 on both UNIX and Windows.
 
 - The feature must not add unnecessary dependencies (where
   "unnecessary" is of course subjective, but new dependencies should
@@ -225,13 +225,21 @@ We support:
 -  `Python 3.10`_
 -  `Python 3.11`_
 -  `Python 3.12`_
+<<<<<<< HEAD
 -  `Python 3.13`_
+=======
+-  `Python 3.14`_
+>>>>>>> 7ad08e858 (feat: Add Python 3.14 support)
 
 .. _Python 3.9: https://docs.python.org/3.9/
 .. _Python 3.10: https://docs.python.org/3.10/
 .. _Python 3.11: https://docs.python.org/3.11/
 .. _Python 3.12: https://docs.python.org/3.12/
+<<<<<<< HEAD
 .. _Python 3.13: https://docs.python.org/3.13/
+=======
+.. _Python 3.14: https://docs.python.org/3.14/
+>>>>>>> 7ad08e858 (feat: Add Python 3.14 support)
 
 
 Supported versions can be found in our ``noxfile.py`` `config`_.

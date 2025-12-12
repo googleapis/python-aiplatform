@@ -96,6 +96,7 @@ CURRENT_DIRECTORY = pathlib.Path(__file__).parent.absolute()
 
 # 'docfx' is excluded since it only needs to run in 'docs-presubmit'
 nox.options.sessions = [
+    "unit-3.14",
     "unit",
     "unit_ray",
     "unit_langchain",
