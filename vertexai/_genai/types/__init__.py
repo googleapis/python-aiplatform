@@ -730,6 +730,12 @@ from .common import ReasoningEngineSpecPackageSpec
 from .common import ReasoningEngineSpecPackageSpecDict
 from .common import ReasoningEngineSpecPackageSpecOrDict
 from .common import ReasoningEngineSpecSourceCodeSpec
+from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig
+from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
+from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict
+from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
+from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
+from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecDict
 from .common import ReasoningEngineSpecSourceCodeSpecInlineSource
 from .common import ReasoningEngineSpecSourceCodeSpecInlineSourceDict
@@ -1365,6 +1371,12 @@ __all__ = [
     "ReasoningEngineSpecPackageSpec",
     "ReasoningEngineSpecPackageSpecDict",
     "ReasoningEngineSpecPackageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict",
     "ReasoningEngineSpecSourceCodeSpecInlineSource",
     "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
     "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",

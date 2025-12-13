@@ -4747,6 +4747,74 @@ ReasoningEngineSpecPackageSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(_common.BaseModel):
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
+
+    This includes the repository, revision, and directory to use.
+    """
+
+    dir: Optional[str] = Field(
+        default=None,
+        description="""Required. Directory, relative to the source root, in which to run the build.""",
+    )
+    git_repository_link: Optional[str] = Field(
+        default=None,
+        description="""Required. The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`.""",
+    )
+    revision: Optional[str] = Field(
+        default=None,
+        description="""Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict(
+    TypedDict, total=False
+):
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
+
+    This includes the repository, revision, and directory to use.
+    """
+
+    dir: Optional[str]
+    """Required. Directory, relative to the source root, in which to run the build."""
+
+    git_repository_link: Optional[str]
+    """Required. The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`."""
+
+    revision: Optional[str]
+    """Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref."""
+
+
+ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig,
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(_common.BaseModel):
+    """Specifies source code to be fetched from a Git repository managed through the Developer Connect service."""
+
+    config: Optional[ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig] = Field(
+        default=None,
+        description="""Required. The Developer Connect configuration thats defines the specific repository, revision, and directory to use as the source code root.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict(
+    TypedDict, total=False
+):
+    """Specifies source code to be fetched from a Git repository managed through the Developer Connect service."""
+
+    config: Optional[ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict]
+    """Required. The Developer Connect configuration thats defines the specific repository, revision, and directory to use as the source code root."""
+
+
+ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource,
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict,
+]
+
+
 class ReasoningEngineSpecSourceCodeSpecInlineSource(_common.BaseModel):
     """Specifies source code provided as a byte stream."""
 
@@ -4815,6 +4883,12 @@ ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
 class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     """Specification for deploying from source code."""
 
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
+    ] = Field(
+        default=None,
+        description="""Source code is in a Git repository managed by Developer Connect.""",
+    )
     inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
         default=None, description="""Source code is provided directly in the request."""
     )
@@ -4825,6 +4899,11 @@ class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
 
 class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
     """Specification for deploying from source code."""
+
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
+    ]
+    """Source code is in a Git repository managed by Developer Connect."""
 
     inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
     """Source code is provided directly in the request."""
@@ -5484,6 +5563,12 @@ class CreateAgentEngineConfig(_common.BaseModel):
         - class_methods     (required)
       """,
     )
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig
+    ] = Field(
+        default=None,
+        description="""Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect. This includes the repository, revision, and directory to use.""",
+    )
     entrypoint_module: Optional[str] = Field(
         default=None,
         description="""The entrypoint module to be used for the Agent Engine
@@ -5615,6 +5700,11 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
         - requirements_file (optional)
         - class_methods     (required)
       """
+
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
+    ]
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect. This includes the repository, revision, and directory to use."""
 
     entrypoint_module: Optional[str]
     """The entrypoint module to be used for the Agent Engine
@@ -6244,6 +6334,12 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         - class_methods     (required)
       """,
     )
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig
+    ] = Field(
+        default=None,
+        description="""Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect. This includes the repository, revision, and directory to use.""",
+    )
     entrypoint_module: Optional[str] = Field(
         default=None,
         description="""The entrypoint module to be used for the Agent Engine
@@ -6380,6 +6476,11 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
         - requirements_file (optional)
         - class_methods     (required)
       """
+
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
+    ]
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect. This includes the repository, revision, and directory to use."""
 
     entrypoint_module: Optional[str]
     """The entrypoint module to be used for the Agent Engine
@@ -13626,6 +13727,12 @@ class AgentEngineConfig(_common.BaseModel):
         - class_methods     (required)
       """,
     )
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig
+    ] = Field(
+        default=None,
+        description="""Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect. This includes the repository, revision, and directory to use.""",
+    )
     entrypoint_module: Optional[str] = Field(
         default=None,
         description="""The entrypoint module to be used for the Agent Engine
@@ -13789,6 +13896,11 @@ class AgentEngineConfigDict(TypedDict, total=False):
         - requirements_file (optional)
         - class_methods     (required)
       """
+
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
+    ]
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect. This includes the repository, revision, and directory to use."""
 
     entrypoint_module: Optional[str]
     """The entrypoint module to be used for the Agent Engine
