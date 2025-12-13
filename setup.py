@@ -279,6 +279,8 @@ testing_extra_require = (
         "requests-toolbelt <= 1.0.0",
         "immutabledict",
         "xgboost",
+        "setuptools",
+        "pyyaml>=5.3.1,<7",
     ]
 )
 
