@@ -21,6 +21,7 @@ import vertexai
 from vertexai._genai import prompt_optimizer
 from vertexai._genai import types
 from google.genai import client
+import pandas as pd
 import pytest
 
 
@@ -92,6 +93,34 @@ class TestPromptOptimizer:
         mock_custom_optimize_prompt.assert_called_once()
 
     @mock.patch.object(prompt_optimizer.PromptOptimizer, "_custom_optimize_prompt")
+    def test_prompt_optimizer_optimize_few_shot(self, mock_custom_optimize_prompt):
+        """Test that prompt_optimizer.optimize method for few shot optimizer."""
+        df = pd.DataFrame(
+            {
+                "prompt": ["prompt1", "prompt2"],
+                "model_response": ["response1", "response2"],
+                "target_response": ["target1", "target2"],
+            }
+        )
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE,
+            examples_dataframe=df,
+        )
+        test_client.prompt_optimizer.optimize_prompt(
+            prompt="test_prompt",
+            config=test_config,
+        )
+        mock_custom_optimize_prompt.assert_called_once()
+        mock_kwargs = mock_custom_optimize_prompt.call_args.kwargs
+        assert (
+            mock_kwargs["config"].optimization_target == test_config.optimization_target
+        )
+        pd.testing.assert_frame_equal(
+            mock_kwargs["config"].examples_dataframe, test_config.examples_dataframe
+        )
+
+    @mock.patch.object(prompt_optimizer.PromptOptimizer, "_custom_optimize_prompt")
     def test_prompt_optimizer_optimize_prompt_with_optimization_target(
         self, mock_custom_optimize_prompt
     ):
@@ -128,6 +157,61 @@ class TestPromptOptimizer:
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         config = types.OptimizeConfig(
             optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO,
+        )
+        await test_client.aio.prompt_optimizer.optimize_prompt(
+            prompt="test_prompt",
+            config=config,
+        )
+        mock_custom_optimize_prompt.assert_called_once_with(
+            content=mock.ANY,
+            config=config,
+        )
+
+    @pytest.mark.asyncio
+    @mock.patch.object(prompt_optimizer.AsyncPromptOptimizer, "_custom_optimize_prompt")
+    async def test_async_prompt_optimizer_optimize_prompt_few_shot_target_response(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that async prompt_optimizer.optimize_prompt calls optimize_prompt with few shot target response."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        df = pd.DataFrame(
+            {
+                "prompt": ["prompt1", "prompt2"],
+                "model_response": ["response1", "response2"],
+                "target_response": ["target1", "target2"],
+            }
+        )
+        config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE,
+            examples_dataframe=df,
+        )
+        await test_client.aio.prompt_optimizer.optimize_prompt(
+            prompt="test_prompt",
+            config=config,
+        )
+        mock_custom_optimize_prompt.assert_called_once_with(
+            content=mock.ANY,
+            config=config,
+        )
+
+    @pytest.mark.asyncio
+    @mock.patch.object(prompt_optimizer.AsyncPromptOptimizer, "_custom_optimize_prompt")
+    async def test_async_prompt_optimizer_optimize_prompt_few_shot_rubrics(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that async prompt_optimizer.optimize_prompt calls optimize_prompt with few shot rubrics."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        df = pd.DataFrame(
+            {
+                "prompt": ["prompt1", "prompt2"],
+                "model_response": ["response1", "response2"],
+                "rubrics": ["rubric1", "rubric2"],
+                "rubrics_evaluations": ["[True, True]", "[True, False]"],
+            }
+        )
+        config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS,
+            examples_dataframe=df,
         )
         await test_client.aio.prompt_optimizer.optimize_prompt(
             prompt="test_prompt",

@@ -332,10 +332,16 @@ class EvaluationRunState(_common.CaseInSensitiveEnum):
 
 
 class OptimizeTarget(_common.CaseInSensitiveEnum):
-    """None"""
+    """Specifies the method for calling the optimize_prompt."""
 
     OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
     """The data driven prompt optimizer designer for prompts from Android core API."""
+    OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS = "OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS"
+    """The prompt optimizer based on user provided examples with rubrics."""
+    OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE = (
+        "OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE"
+    )
+    """The prompt optimizer based on user provided examples with target responses."""
 
 
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
@@ -3786,7 +3792,12 @@ class OptimizeConfig(_common.BaseModel):
         default=None, description="""Used to override HTTP request options."""
     )
     optimization_target: Optional[OptimizeTarget] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""The optimization target for the prompt optimizer. It must be one of the OptimizeTarget enum values: OPTIMIZATION_TARGET_GEMINI_NANO for the prompts from Android core API, OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS for the few-shot prompt optimizer with rubrics, OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE for the few-shot prompt optimizer with target responses.""",
+    )
+    examples_dataframe: Optional[pd.DataFrame] = Field(
+        default=None,
+        description="""The examples dataframe for the few-shot prompt optimizer. It must contain "prompt" and "model_response" columns. Depending on which optimization target is used, it also needs to contain "rubrics" and "rubrics_evaluations" or "target_response" columns.""",
     )
 
 
@@ -3797,7 +3808,10 @@ class OptimizeConfigDict(TypedDict, total=False):
     """Used to override HTTP request options."""
 
     optimization_target: Optional[OptimizeTarget]
-    """"""
+    """The optimization target for the prompt optimizer. It must be one of the OptimizeTarget enum values: OPTIMIZATION_TARGET_GEMINI_NANO for the prompts from Android core API, OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS for the few-shot prompt optimizer with rubrics, OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE for the few-shot prompt optimizer with target responses."""
+
+    examples_dataframe: Optional[pd.DataFrame]
+    """The examples dataframe for the few-shot prompt optimizer. It must contain "prompt" and "model_response" columns. Depending on which optimization target is used, it also needs to contain "rubrics" and "rubrics_evaluations" or "target_response" columns."""
 
 
 OptimizeConfigOrDict = Union[OptimizeConfig, OptimizeConfigDict]
