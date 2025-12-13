@@ -69,6 +69,7 @@ UNIT_TEST_STANDARD_DEPENDENCIES = [
     "pytest-asyncio",
     # Preventing: py.test: error: unrecognized arguments: -n=auto --dist=loadscope
     "pytest-xdist",
+    "pyyaml>=5.3.1,<7",
 ]
 UNIT_TEST_EXTERNAL_DEPENDENCIES = []
 UNIT_TEST_LOCAL_DEPENDENCIES = []
