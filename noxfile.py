@@ -97,6 +97,7 @@ CURRENT_DIRECTORY = pathlib.Path(__file__).parent.absolute()
 # 'docfx' is excluded since it only needs to run in 'docs-presubmit'
 nox.options.sessions = [
     "unit",
+    "unit_minimal",
     "unit_ray",
     "unit_langchain",
     "unit_ag2",
@@ -219,6 +220,7 @@ def default(session):
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
         "--ignore=tests/unit/architecture",
+        "--ignore=tests/unit/vertexai/test_generative_models.py",  # Exclude minimal tests
         os.path.join("tests", "unit"),
         *session.posargs,
     )
@@ -235,11 +237,7 @@ def default(session):
 
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
 def unit(session):
-    """Run the unit test suite."""
-    # First run the minimal GenAI tests
-    unit_genai_minimal_dependencies(session)
-
-    # Then run the default full test suite
+    """Run the default unit test suite."""
     default(session)
 
 
@@ -254,12 +252,16 @@ def unit_genai_minimal_dependencies(session):
     session.run(
         "py.test",
         "--quiet",
-        f"--junitxml=unit_{session.python}_sponge_log.xml",
-        # These tests require the PIL module
-        # "--ignore=TestGenerativeModels::test_image_mime_types",
+        f"--junitxml=unit_minimal_{session.python}_sponge_log.xml",
         os.path.join("tests", "unit", "vertexai", "test_generative_models.py"),
         *session.posargs,
     )
+
+
+@nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
+def unit_minimal(session):
+    """Run the minimal GenAI unit tests."""
+    unit_genai_minimal_dependencies(session)
 
 
 @nox.session(python=["3.10", "3.11"])
