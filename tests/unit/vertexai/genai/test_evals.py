@@ -13,9 +13,11 @@
 # limitations under the License.
 #
 # pylint: disable=protected-access,bad-continuation,
+import base64
 import importlib
 import json
 import os
+import re
 import statistics
 import sys
 from unittest import mock
@@ -291,8 +293,72 @@ class TestEvalsVisualization:
 
         mock_display_module.HTML.assert_called_once()
         html_content = mock_display_module.HTML.call_args[0][0]
-        assert "my_function" in html_content
-        assert "this is model response" in html_content
+        match = re.search(r'atob\("([^"]+)"\)', html_content)
+        assert match
+        decoded_json = base64.b64decode(match.group(1)).decode("utf-8")
+        assert "my_function" in decoded_json
+        assert "this is model response" in decoded_json
+
+        del sys.modules["IPython"]
+        del sys.modules["IPython.display"]
+
+    @mock.patch(
+        "vertexai._genai._evals_visualization._is_ipython_env",
+        return_value=True,
+    )
+    def test_display_evaluation_result_with_non_ascii_character(self, mock_is_ipython):
+        """Tests that non-ASCII characters are handled correctly."""
+        mock_display_module = mock.MagicMock()
+        mock_ipython_module = mock.MagicMock()
+        mock_ipython_module.display = mock_display_module
+        sys.modules["IPython"] = mock_ipython_module
+        sys.modules["IPython.display"] = mock_display_module
+
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt with emoji 😊",
+                    "response": "Test response with emoji 😊",
+                },
+            ]
+        )
+        eval_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        eval_result = vertexai_genai_types.EvaluationResult(
+            evaluation_dataset=[eval_dataset],
+            eval_case_results=[
+                vertexai_genai_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        vertexai_genai_types.ResponseCandidateResult(
+                            response_index=0, metric_results={}
+                        )
+                    ],
+                )
+            ],
+        )
+
+        _evals_visualization.display_evaluation_result(eval_result)
+
+        mock_display_module.HTML.assert_called_once()
+        html_content = mock_display_module.HTML.call_args[0][0]
+        # Verify that the new decoding logic is present in the HTML
+        assert "new TextDecoder().decode" in html_content
+
+        match = re.search(r'atob\("([^"]+)"\)', html_content)
+        assert match
+        decoded_json = base64.b64decode(match.group(1)).decode("utf-8")
+
+        # JSON serialization escapes non-ASCII characters (e.g. \uXXXX), so we
+        # parse it back to check for the actual characters.
+        parsed_json = json.loads(decoded_json)
+        assert "Test prompt with emoji 😊" in json.dumps(
+            parsed_json, ensure_ascii=False
+        )
+        assert "Test response with emoji 😊" in json.dumps(
+            parsed_json, ensure_ascii=False
+        )
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]
@@ -1290,7 +1356,7 @@ class TestEvalsRunInference:
         ) in str(excinfo.value)
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
-    @mock.patch("vertexai._genai._evals_common.InMemorySessionService")
+    @mock.patch("vertexai._genai._evals_common.InMemorySessionService")  # fmt: skip
     @mock.patch("vertexai._genai._evals_common.Runner")
     @mock.patch("vertexai._genai._evals_common.LlmAgent")
     def test_run_inference_with_local_agent(

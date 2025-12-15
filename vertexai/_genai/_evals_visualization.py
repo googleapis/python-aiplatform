@@ -14,8 +14,10 @@
 #
 """Visualization utilities for GenAI Evaluation SDK."""
 
+import base64
 import json
 import logging
+import textwrap
 from typing import Any, Optional
 
 import pandas as pd
@@ -78,9 +80,16 @@ def _preprocess_df_for_json(df: Optional[pd.DataFrame]) -> Optional[pd.DataFrame
     return df_copy
 
 
+def _encode_to_base64(data: str) -> str:
+    """Encodes a string to a web-safe Base64 string."""
+    return base64.b64encode(data.encode("utf-8")).decode("utf-8")
+
+
 def _get_evaluation_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for single evaluation visualization."""
-    return f"""
+    payload_b64 = _encode_to_base64(eval_result_json)
+    return textwrap.dedent(
+        f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -249,12 +258,11 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 <body>
     <div class="container">
         <h1>Evaluation Report</h1>
-        <div id="summary-section"></div>
-        <div id="agent-info-section"></div>
-        <div id="details-section"></div>
-    </div>
+        <    <div id="summary-section"></div>
+    <div id="agent-info-section"></div>
+    <div id="details-section"></div>
     <script>
-        var vizData_vertex_eval_sdk = {eval_result_json};
+        var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
         function formatDictVals(obj) {{
             if (typeof obj === 'string') return obj;
             if (obj === undefined || obj === null) return '';
@@ -552,11 +560,14 @@ def _get_evaluation_html(eval_result_json: str) -> str:
 </body>
 </html>
 """
+    )
 
 
 def _get_comparison_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for a side-by-side eval comparison."""
-    return f"""
+    payload_b64 = _encode_to_base64(eval_result_json)
+    return textwrap.dedent(
+        f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -612,11 +623,10 @@ def _get_comparison_html(eval_result_json: str) -> str:
 <body>
     <div class="container">
         <h1>Eval Comparison Report</h1>
-        <div id="summary-section"></div>
-        <div id="details-section"></div>
-    </div>
+        <    <div id="summary-section"></div>
+    <div id="details-section"></div>
     <script>
-        var vizData_vertex_eval_sdk = {eval_result_json};
+        var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
         function renderSummary(summaryMetrics, metadata) {{
             const container = document.getElementById('summary-section');
             if (!summaryMetrics || summaryMetrics.length === 0) {{ container.innerHTML = '<h2>Summary Metrics</h2><p>No summary metrics.</p>'; return; }}
@@ -692,11 +702,14 @@ def _get_comparison_html(eval_result_json: str) -> str:
 </body>
 </html>
 """
+    )
 
 
 def _get_inference_html(dataframe_json: str) -> str:
     """Returns a self-contained HTML for displaying inference results."""
-    return f"""
+    payload_b64 = _encode_to_base64(dataframe_json)
+    return textwrap.dedent(
+        f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -741,12 +754,12 @@ def _get_inference_html(dataframe_json: str) -> str:
     </style>
 </head>
 <body>
-    <div class="container">
+    <    <div class="container">
         <h1>Evaluation Dataset</h1>
         <div id="results-table"></div>
     </div>
     <script>
-        var vizData_vertex_eval_sdk = {dataframe_json};
+        var vizData_vertex_eval_sdk = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
         var container_vertex_eval_sdk = document.getElementById('results-table');
 
         function renderRubrics(cellValue) {{
@@ -822,6 +835,7 @@ def _get_inference_html(dataframe_json: str) -> str:
 </body>
 </html>
 """
+    )
 
 
 def _extract_text_and_raw_json(content: Any) -> dict[str, str]:
@@ -1086,12 +1100,14 @@ def _get_status_html(status: str, error_message: Optional[str] = None) -> str:
         </p>
         """
 
-    return f"""
+    return textwrap.dedent(
+        f"""
     <div>
         <p><b>Status:</b> {status}</p>
         {error_html}
     </div>
     """
+    )
 
 
 def display_evaluation_run_status(eval_run_obj: "types.EvaluationRun") -> None:
