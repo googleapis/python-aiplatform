@@ -16,7 +16,7 @@
 #
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union, Any, Mapping
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -208,6 +208,8 @@ class MatchNeighbor:
             For example, values [1,2,3] with dimensions [4,5,6] means value 1 is
             of the 4th dimension, value 2 is of the 4th dimension, and value 3 is
             of the 6th dimension.
+        embedding_metadata (Mapping[str, Any]):
+            Optional. The corresponding embedding metadata of the matching datapoint.
 
     """
 
@@ -220,6 +222,7 @@ class MatchNeighbor:
     numeric_restricts: Optional[List[NumericNamespace]] = None
     sparse_embedding_values: Optional[List[float]] = None
     sparse_embedding_dimensions: Optional[List[int]] = None
+    embedding_metadata: Optional[Mapping[str,Any]] = None
 
     def from_index_datapoint(
         self, index_datapoint: gca_index_v1beta1.IndexDatapoint
