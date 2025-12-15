@@ -317,8 +317,6 @@ setuptools.setup(
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "shapely < 3.0.0",
         "google-genai >= 1.37.0, <2.0.0",
-        "pyarrow >= 6.0.1, <= 14.0.2; python_version < '3.11'",
-        "pyarrow >= 15.0.0; python_version >= '3.11'",
     )
     + genai_requires,
     extras_require={
