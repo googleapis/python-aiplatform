@@ -419,6 +419,10 @@ def create_transformation_config(
 from vertexai.rag.utils.resources import RagVectorDbConfig
 
 def rag_corpus_eq(returned_corpus, expected_corpus):
+    if returned_corpus != expected_corpus:
+        print(f"Returned Corpus: {returned_corpus}")
+        print(f"Expected Corpus: {expected_corpus}")
+
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
 
