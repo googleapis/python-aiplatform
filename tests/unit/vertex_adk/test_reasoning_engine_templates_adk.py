@@ -78,6 +78,83 @@ _TEST_RUN_CONFIG = {
     "streaming_mode": "sse",
     "max_llm_calls": 500,
 }
+_TEST_SESSION_EVENTS = [
+    {
+        "author": "user",
+        "content": {
+            "parts": [
+                {
+                    "text": "What is the exchange rate from US dollars to "
+                    "Swedish krona on 2025-09-25?"
+                }
+            ],
+            "role": "user",
+        },
+        "id": "8967297909049524224",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.629513,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionCall": {
+                        "args": {
+                            "currency_date": "2025-09-25",
+                            "currency_from": "USD",
+                            "currency_to": "SEK",
+                        },
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                    }
+                }
+            ],
+            "role": "model",
+        },
+        "id": "3155402589927899136",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.723713,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionResponse": {
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                        "response": {
+                            "amount": 1,
+                            "base": "USD",
+                            "date": "2025-09-25",
+                            "rates": {"SEK": 9.4118},
+                        },
+                    }
+                }
+            ],
+            "role": "user",
+        },
+        "id": "1678221912150376448",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.764961,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "text": "The exchange rate from US dollars to Swedish "
+                    "krona on 2025-09-25 is 1 USD to 9.4118 SEK."
+                }
+            ],
+            "role": "model",
+        },
+        "id": "2470855446567583744",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.853299,
+    },
+]
 
 
 @pytest.fixture(scope="module")
@@ -391,6 +468,46 @@ class TestAdkApp:
         ):
             events.append(event)
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_empty_session_events(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=[],
+            message="test message",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_session_events(
+        self,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=_TEST_SESSION_EVENTS,
+            message="on the day after that?",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
 
     @pytest.mark.asyncio
     @mock.patch.dict(

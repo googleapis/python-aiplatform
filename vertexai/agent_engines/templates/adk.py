@@ -932,6 +932,7 @@ class AdkApp:
         message: Union[str, Dict[str, Any]],
         user_id: str,
         session_id: Optional[str] = None,
+        session_events: Optional[List[Dict[str, Any]]] = None,
         run_config: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncIterable[Dict[str, Any]]:
@@ -944,7 +945,11 @@ class AdkApp:
                 Required. The ID of the user.
             session_id (str):
                 Optional. The ID of the session. If not provided, a new
-                session will be created for the user.
+                session will be created for the user. If this is specified, then
+                `session_events` will be ignored.
+            session_events (Optional[List[Dict[str, Any]]]):
+                Optional. The session events to use for the query. This will be
+                used to initialize the session if `session_id` is not provided.
             run_config (Optional[Dict[str, Any]]):
                 Optional. The run config to use for the query. If you want to
                 pass in a `run_config` pydantic object, you can pass in a dict
@@ -955,6 +960,11 @@ class AdkApp:
 
         Yields:
             Event dictionaries asynchronously.
+
+        Raises:
+            TypeError: If message is not a string or a dictionary representing
+            a Content object.
+            ValueError: If both session_id and session_events are specified.
         """
         from vertexai.agent_engines import _utils
         from google.genai import types
@@ -971,9 +981,25 @@ class AdkApp:
 
         if not self._tmpl_attrs.get("runner"):
             self.set_up()
+        if session_id and session_events:
+            raise ValueError(
+                "Only one of session_id and session_events should be specified."
+            )
         if not session_id:
             session = await self.async_create_session(user_id=user_id)
             session_id = session.id
+            if session_events is not None:
+                # We allow for session_events to be an empty list.
+                from google.adk.events.event import Event
+
+                session_service = self._tmpl_attrs.get("session_service")
+                for event in session_events:
+                    if not isinstance(event, Event):
+                        event = Event.model_validate(event)
+                    await session_service.append_event(
+                        session=session,
+                        event=event,
+                    )
 
         run_config = _validate_run_config(run_config)
         if run_config:
