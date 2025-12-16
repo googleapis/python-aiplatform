@@ -429,7 +429,7 @@ class PromptOptimizer(_api_module.BaseModule):
 
         _OPTIMIZER_METHOD_TO_CONTAINER_URI = {
             types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0",
-            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/android-apo:preview_v1_0",
+            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_android_v1_0",
         }
         container_uri = _OPTIMIZER_METHOD_TO_CONTAINER_URI.get(method)
         if not container_uri:
@@ -809,7 +809,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
 
         _OPTIMIZER_METHOD_TO_CONTAINER_URI = {
             types.PromptOptimizerMethod.VAPO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_v1_0",
-            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/android-apo:preview_v1_0",
+            types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO: "us-docker.pkg.dev/vertex-ai/cair/vaipo:preview_android_v1_0",
         }
         container_uri = _OPTIMIZER_METHOD_TO_CONTAINER_URI.get(method)
         if not container_uri:
