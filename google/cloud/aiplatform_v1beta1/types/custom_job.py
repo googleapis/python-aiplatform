@@ -420,6 +420,8 @@ class WorkerPoolSpec(proto.Message):
             use for this worker pool.
         nfs_mounts (MutableSequence[google.cloud.aiplatform_v1beta1.types.NfsMount]):
             Optional. List of NFS mount spec.
+        lustre_mounts (MutableSequence[google.cloud.aiplatform_v1beta1.types.LustreMount]):
+            Optional. List of Lustre mounts.
         disk_spec (google.cloud.aiplatform_v1beta1.types.DiskSpec):
             Disk spec.
     """
@@ -449,6 +451,11 @@ class WorkerPoolSpec(proto.Message):
         proto.MESSAGE,
         number=4,
         message=machine_resources.NfsMount,
+    )
+    lustre_mounts: MutableSequence[machine_resources.LustreMount] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=machine_resources.LustreMount,
     )
     disk_spec: machine_resources.DiskSpec = proto.Field(
         proto.MESSAGE,
@@ -553,13 +560,13 @@ class Scheduling(proto.Message):
 
     Attributes:
         timeout (google.protobuf.duration_pb2.Duration):
-            The maximum job running time. The default is
-            7 days.
+            Optional. The maximum job running time. The
+            default is 7 days.
         restart_job_on_worker_restart (bool):
-            Restarts the entire CustomJob if a worker
-            gets restarted. This feature can be used by
-            distributed training jobs that are not resilient
-            to workers leaving and joining a job.
+            Optional. Restarts the entire CustomJob if a
+            worker gets restarted. This feature can be used
+            by distributed training jobs that are not
+            resilient to workers leaving and joining a job.
         strategy (google.cloud.aiplatform_v1beta1.types.Scheduling.Strategy):
             Optional. This determines which type of
             scheduling strategy to use.
