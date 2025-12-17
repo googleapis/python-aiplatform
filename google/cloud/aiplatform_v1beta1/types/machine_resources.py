@@ -40,6 +40,7 @@ __protobuf__ = proto.module(
         "DiskSpec",
         "PersistentDiskSpec",
         "NfsMount",
+        "LustreMount",
         "AutoscalingMetricSpec",
         "ShieldedVmConfig",
         "FlexStart",
@@ -566,6 +567,40 @@ class NfsMount(proto.Message):
     mount_point: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+
+
+class LustreMount(proto.Message):
+    r"""Represents a mount configuration for Lustre file system.
+
+    Attributes:
+        instance_ip (str):
+            Required. IP address of the Lustre instance.
+        volume_handle (str):
+            Required. The unique identifier of the Lustre
+            volume.
+        filesystem (str):
+            Required. The name of the Lustre filesystem.
+        mount_point (str):
+            Required. Destination mount path. The Lustre file system
+            will be mounted for the user under /mnt/lustre/<mount_point>
+    """
+
+    instance_ip: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    volume_handle: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    filesystem: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    mount_point: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
