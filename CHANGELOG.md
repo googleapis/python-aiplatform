@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.131.0](https://github.com/googleapis/python-aiplatform/compare/v1.130.0...v1.131.0) (2025-12-16)
+
+
+### Features
+
+* Allow list of events to be passed to AdkApp.async_stream_query ([dd8840a](https://github.com/googleapis/python-aiplatform/commit/dd8840a5012b2762f8b8971b6cea4302ac5c648d))
+* GenAI Client(evals) - Support CustomCodeExecution metric in Vertex Gen AI Eval Service ([4114728](https://github.com/googleapis/python-aiplatform/commit/4114728750b5b12f991a18df87c1f1a570d1b29d))
+* Updates the ADK template to direct structured JSON logs to standard output. ([a65ec29](https://github.com/googleapis/python-aiplatform/commit/a65ec297c5b8d99e4d2dfb49473c189197198f97))
+
+
+### Bug Fixes
+
+* Fix RagManagedVertexVectorSearch when using backend_config ([df0976e](https://github.com/googleapis/python-aiplatform/commit/df0976ed3195dc8313f4728bc5ecb29dda55d467))
+* GenAI Client(evals) - patch for vulnerability in visualization ([8a00d43](https://github.com/googleapis/python-aiplatform/commit/8a00d43dbd24e95dbab6ea32c63ce0a5a1849480))
+
 ## [1.130.0](https://github.com/googleapis/python-aiplatform/compare/v1.129.0...v1.130.0) (2025-12-10)
 
 
