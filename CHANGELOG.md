@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.132.0](https://github.com/googleapis/python-aiplatform/compare/v1.131.0...v1.132.0) (2025-12-17)
+
+
+### Features
+
+* Add Lustre support to the Vertex Training Custom Job API ([71747e8](https://github.com/googleapis/python-aiplatform/commit/71747e8cbb028f321fd9499bd77656b083909eb0))
+* Add Lustre support to the Vertex Training Custom Job API ([71747e8](https://github.com/googleapis/python-aiplatform/commit/71747e8cbb028f321fd9499bd77656b083909eb0))
+
+
+### Documentation
+
+* A comment for field `restart_job_on_worker_restart` in message `.google.cloud.aiplatform.v1beta1.Scheduling` is changed ([71747e8](https://github.com/googleapis/python-aiplatform/commit/71747e8cbb028f321fd9499bd77656b083909eb0))
+* A comment for field `timeout` in message `.google.cloud.aiplatform.v1beta1.Scheduling` is changed ([71747e8](https://github.com/googleapis/python-aiplatform/commit/71747e8cbb028f321fd9499bd77656b083909eb0))
+
 ## [1.131.0](https://github.com/googleapis/python-aiplatform/compare/v1.130.0...v1.131.0) (2025-12-16)
 
 
