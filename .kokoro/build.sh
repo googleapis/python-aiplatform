@@ -36,6 +36,9 @@ export PROJECT_ID=$(cat "${KOKORO_GFILE_DIR}/project-id.json")
 # Remove old nox
 python3 -m pip uninstall --yes --quiet nox-automation
 
+# Match the docker version to the one used by the test runner for CPR
+export DOCKER_API_VERSION=1.39
+
 # Install nox
 python3 -m pip install --upgrade --quiet uv nox
 python3 -m nox --version

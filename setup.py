@@ -80,7 +80,7 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0, <=0.114.0",
+    "fastapi >= 0.71.0, <=0.124.4",
     "httpx >=0.23.0, <=0.28.1",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
