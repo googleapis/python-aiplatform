@@ -1654,8 +1654,15 @@ class AdkApp:
 
     def project_id(self) -> Optional[str]:
         if project := self._tmpl_attrs.get("project"):
-            from google.cloud.aiplatform.utils import resource_manager_utils
+            try:
+                from google.cloud.aiplatform.utils import (
+                    resource_manager_utils,
+                )
+                from google.api_core import exceptions
 
-            return resource_manager_utils.get_project_id(project)
+                return resource_manager_utils.get_project_id(project)
+            # Fail open as temporary workaround for identity_type config parameter
+            except (exceptions.PermissionDenied, exceptions.Unauthenticated):
+                return project
 
         return None
