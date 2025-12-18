@@ -904,6 +904,11 @@ class TestAgentEngineHelpers:
             {"name": key, "value": value} for key, value in expected_env_vars.items()
         ]
 
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @pytest.mark.parametrize(
         "env_vars,expected_env_vars",
@@ -930,20 +935,25 @@ class TestAgentEngineHelpers:
     def test_agent_engine_adk_telemetry_enablement_through_source_packages(
         self,
         mock_prepare: mock.Mock,
+        mock_create_base64_encoded_tarball: mock.Mock,
         env_vars: dict[str, str],
         expected_env_vars: dict[str, str],
     ):
-        config = self.client.agent_engines._create_config(
-            mode="create",
-            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-            description=_TEST_AGENT_ENGINE_DESCRIPTION,
-            source_packages=[],
-            class_methods=[],
-            entrypoint_module=".",
-            entrypoint_object=".",
-            env_vars=env_vars,
-            agent_framework="google-adk",
-        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                source_packages=[test_file_path],
+                class_methods=[],
+                entrypoint_module=".",
+                entrypoint_object=".",
+                env_vars=env_vars,
+                agent_framework="google-adk",
+            )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
         assert config["spec"]["deployment_spec"]["env"] == [
@@ -1057,6 +1067,47 @@ class TestAgentEngineHelpers:
             mock_create_base64_encoded_tarball.assert_called_once_with(
                 source_packages=[test_file_path]
             )
+            assert (
+                config["spec"]["identity_type"]
+                == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+            )
+
+    def test_create_agent_engine_config_with_developer_connect_source(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+            developer_connect_source = {
+                "git_repository_link": "projects/test-project/locations/us-central1/connections/test-connection/gitRepositoryLinks/test-repo",
+                "revision": "main",
+                "dir": "agent",
+            }
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                developer_connect_source=developer_connect_source,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                requirements_file=requirements_file_path,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            )
+            assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+            assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+            assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
+            assert config["spec"]["source_code_spec"] == {
+                "developer_connect_source": {"config": developer_connect_source},
+                "python_spec": {
+                    "version": _TEST_PYTHON_VERSION_OVERRIDE,
+                    "entrypoint_module": "main",
+                    "entrypoint_object": "app",
+                    "requirements_file": requirements_file_path,
+                },
+            }
+            assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
             assert (
                 config["spec"]["identity_type"]
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
@@ -1824,6 +1875,7 @@ class TestAgentEngine:
                 labels=None,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -1924,6 +1976,7 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2023,6 +2076,7 @@ class TestAgentEngine:
                 agent_server_mode=_genai_types.AgentServerMode.EXPERIMENTAL,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2191,6 +2245,7 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
@@ -2284,6 +2339,7 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
