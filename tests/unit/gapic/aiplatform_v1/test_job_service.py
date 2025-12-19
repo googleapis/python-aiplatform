@@ -24609,6 +24609,14 @@ def test_create_custom_job_rest_call_success(request_type):
                             "mount_point": "mount_point_value",
                         }
                     ],
+                    "lustre_mounts": [
+                        {
+                            "instance_ip": "instance_ip_value",
+                            "volume_handle": "volume_handle_value",
+                            "filesystem": "filesystem_value",
+                            "mount_point": "mount_point_value",
+                        }
+                    ],
                     "disk_spec": {
                         "boot_disk_type": "boot_disk_type_value",
                         "boot_disk_size_gb": 1792,
@@ -26268,6 +26276,14 @@ def test_create_hyperparameter_tuning_job_rest_call_success(request_type):
                             "mount_point": "mount_point_value",
                         }
                     ],
+                    "lustre_mounts": [
+                        {
+                            "instance_ip": "instance_ip_value",
+                            "volume_handle": "volume_handle_value",
+                            "filesystem": "filesystem_value",
+                            "mount_point": "mount_point_value",
+                        }
+                    ],
                     "disk_spec": {
                         "boot_disk_type": "boot_disk_type_value",
                         "boot_disk_size_gb": 1792,
@@ -27152,6 +27168,14 @@ def test_create_nas_job_rest_call_success(request_type):
                                     {
                                         "server": "server_value",
                                         "path": "path_value",
+                                        "mount_point": "mount_point_value",
+                                    }
+                                ],
+                                "lustre_mounts": [
+                                    {
+                                        "instance_ip": "instance_ip_value",
+                                        "volume_handle": "volume_handle_value",
+                                        "filesystem": "filesystem_value",
                                         "mount_point": "mount_point_value",
                                     }
                                 ],
@@ -32047,6 +32071,14 @@ async def test_create_custom_job_rest_asyncio_call_success(request_type):
                             "mount_point": "mount_point_value",
                         }
                     ],
+                    "lustre_mounts": [
+                        {
+                            "instance_ip": "instance_ip_value",
+                            "volume_handle": "volume_handle_value",
+                            "filesystem": "filesystem_value",
+                            "mount_point": "mount_point_value",
+                        }
+                    ],
                     "disk_spec": {
                         "boot_disk_type": "boot_disk_type_value",
                         "boot_disk_size_gb": 1792,
@@ -33871,6 +33903,14 @@ async def test_create_hyperparameter_tuning_job_rest_asyncio_call_success(reques
                             "mount_point": "mount_point_value",
                         }
                     ],
+                    "lustre_mounts": [
+                        {
+                            "instance_ip": "instance_ip_value",
+                            "volume_handle": "volume_handle_value",
+                            "filesystem": "filesystem_value",
+                            "mount_point": "mount_point_value",
+                        }
+                    ],
                     "disk_spec": {
                         "boot_disk_type": "boot_disk_type_value",
                         "boot_disk_size_gb": 1792,
@@ -34853,6 +34893,14 @@ async def test_create_nas_job_rest_asyncio_call_success(request_type):
                                     {
                                         "server": "server_value",
                                         "path": "path_value",
+                                        "mount_point": "mount_point_value",
+                                    }
+                                ],
+                                "lustre_mounts": [
+                                    {
+                                        "instance_ip": "instance_ip_value",
+                                        "volume_handle": "volume_handle_value",
+                                        "filesystem": "filesystem_value",
                                         "mount_point": "mount_point_value",
                                     }
                                 ],

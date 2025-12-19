@@ -420,6 +420,8 @@ class WorkerPoolSpec(proto.Message):
             use for this worker pool.
         nfs_mounts (MutableSequence[google.cloud.aiplatform_v1.types.NfsMount]):
             Optional. List of NFS mount spec.
+        lustre_mounts (MutableSequence[google.cloud.aiplatform_v1.types.LustreMount]):
+            Optional. List of Lustre mounts.
         disk_spec (google.cloud.aiplatform_v1.types.DiskSpec):
             Disk spec.
     """
@@ -449,6 +451,11 @@ class WorkerPoolSpec(proto.Message):
         proto.MESSAGE,
         number=4,
         message=machine_resources.NfsMount,
+    )
+    lustre_mounts: MutableSequence[machine_resources.LustreMount] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=machine_resources.LustreMount,
     )
     disk_spec: machine_resources.DiskSpec = proto.Field(
         proto.MESSAGE,
