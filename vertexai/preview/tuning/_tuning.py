@@ -16,6 +16,7 @@
 """Classes to support Tuning."""
 
 from typing import Dict, List, Optional, Union
+import warnings
 
 from google.auth import credentials as auth_credentials
 
@@ -74,6 +75,11 @@ class SourceModel:
         custom_base_model: str = "",
     ):
         r"""Initializes SourceModel."""
+        warnings.warn(
+            "vertexai.preview.tuning.SourceModel is deprecated. Please use the `vertexai.tuning.SourceModel` instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self.base_model = base_model
         self.custom_base_model = custom_base_model
 
