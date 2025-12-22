@@ -45,6 +45,7 @@ from pydantic import (
 )
 from typing_extensions import TypedDict
 from . import evals as evals_types
+from . import prompt_optimizer as prompt_optimizer_types
 
 
 def camel_to_snake(camel_case_string: str) -> str:
@@ -332,10 +333,16 @@ class EvaluationRunState(_common.CaseInSensitiveEnum):
 
 
 class OptimizeTarget(_common.CaseInSensitiveEnum):
-    """None"""
+    """Specifies the method for calling the optimize_prompt."""
 
     OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
     """The data driven prompt optimizer designer for prompts from Android core API."""
+    OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS = "OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS"
+    """The prompt optimizer based on user provided examples with rubrics."""
+    OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE = (
+        "OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE"
+    )
+    """The prompt optimizer based on user provided examples with target responses."""
 
 
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
@@ -3786,7 +3793,12 @@ class OptimizeConfig(_common.BaseModel):
         default=None, description="""Used to override HTTP request options."""
     )
     optimization_target: Optional[OptimizeTarget] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""The optimization target for the prompt optimizer. It must be one of the OptimizeTarget enum values: OPTIMIZATION_TARGET_GEMINI_NANO for the prompts from Android core API, OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS for the few-shot prompt optimizer with rubrics, OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE for the few-shot prompt optimizer with target responses.""",
+    )
+    examples_dataframe: Optional[pd.DataFrame] = Field(
+        default=None,
+        description="""The examples dataframe for the few-shot prompt optimizer. It must contain "prompt" and "model_response" columns. Depending on which optimization target is used, it also needs to contain "rubrics" and "rubrics_evaluations" or "target_response" columns.""",
     )
 
 
@@ -3797,7 +3809,10 @@ class OptimizeConfigDict(TypedDict, total=False):
     """Used to override HTTP request options."""
 
     optimization_target: Optional[OptimizeTarget]
-    """"""
+    """The optimization target for the prompt optimizer. It must be one of the OptimizeTarget enum values: OPTIMIZATION_TARGET_GEMINI_NANO for the prompts from Android core API, OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS for the few-shot prompt optimizer with rubrics, OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE for the few-shot prompt optimizer with target responses."""
+
+    examples_dataframe: Optional[pd.DataFrame]
+    """The examples dataframe for the few-shot prompt optimizer. It must contain "prompt" and "model_response" columns. Depending on which optimization target is used, it also needs to contain "rubrics" and "rubrics_evaluations" or "target_response" columns."""
 
 
 OptimizeConfigOrDict = Union[OptimizeConfig, OptimizeConfigDict]
@@ -12628,69 +12643,13 @@ class PromptOptimizerConfigDict(TypedDict, total=False):
 PromptOptimizerConfigOrDict = Union[PromptOptimizerConfig, PromptOptimizerConfigDict]
 
 
-class ApplicableGuideline(_common.BaseModel):
-    """Applicable guideline for the optimize_prompt method."""
-
-    applicable_guideline: Optional[str] = Field(default=None, description="""""")
-    suggested_improvement: Optional[str] = Field(default=None, description="""""")
-    text_before_change: Optional[str] = Field(default=None, description="""""")
-    text_after_change: Optional[str] = Field(default=None, description="""""")
-
-
-class ApplicableGuidelineDict(TypedDict, total=False):
-    """Applicable guideline for the optimize_prompt method."""
-
-    applicable_guideline: Optional[str]
-    """"""
-
-    suggested_improvement: Optional[str]
-    """"""
-
-    text_before_change: Optional[str]
-    """"""
-
-    text_after_change: Optional[str]
-    """"""
-
-
-ApplicableGuidelineOrDict = Union[ApplicableGuideline, ApplicableGuidelineDict]
-
-
-class ParsedResponse(_common.BaseModel):
-    """Response for the optimize_prompt method."""
-
-    optimization_type: Optional[str] = Field(default=None, description="""""")
-    applicable_guidelines: Optional[list[ApplicableGuideline]] = Field(
-        default=None, description=""""""
-    )
-    original_prompt: Optional[str] = Field(default=None, description="""""")
-    suggested_prompt: Optional[str] = Field(default=None, description="""""")
-
-
-class ParsedResponseDict(TypedDict, total=False):
-    """Response for the optimize_prompt method."""
-
-    optimization_type: Optional[str]
-    """"""
-
-    applicable_guidelines: Optional[list[ApplicableGuidelineDict]]
-    """"""
-
-    original_prompt: Optional[str]
-    """"""
-
-    suggested_prompt: Optional[str]
-    """"""
-
-
-ParsedResponseOrDict = Union[ParsedResponse, ParsedResponseDict]
-
-
 class OptimizeResponse(_common.BaseModel):
     """Response for the optimize_prompt method."""
 
     raw_text_response: Optional[str] = Field(default=None, description="""""")
-    parsed_response: Optional[ParsedResponse] = Field(default=None, description="""""")
+    parsed_response: Optional["ParsedResponseUnion"] = Field(
+        default=None, description=""""""
+    )
 
 
 class OptimizeResponseDict(TypedDict, total=False):
@@ -12699,7 +12658,7 @@ class OptimizeResponseDict(TypedDict, total=False):
     raw_text_response: Optional[str]
     """"""
 
-    parsed_response: Optional[ParsedResponseDict]
+    parsed_response: Optional["ParsedResponseUnionDict"]
     """"""
 
 
@@ -14182,6 +14141,14 @@ class Prompt(_common.BaseModel):
 PromptData = SchemaPromptSpecPromptMessage
 PromptDataDict = SchemaPromptSpecPromptMessageDict
 PromptDataOrDict = Union[PromptData, PromptDataDict]
+
+ParsedResponseUnion = Union[
+    prompt_optimizer_types.ParsedResponse, prompt_optimizer_types.ParsedResponseFewShot
+]
+ParsedResponseUnionDict = Union[
+    prompt_optimizer_types.ParsedResponseDict,
+    prompt_optimizer_types.ParsedResponseFewShotDict,
+]
 
 
 class PromptDict(TypedDict, total=False):
