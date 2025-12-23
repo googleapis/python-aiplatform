@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.133.0](https://github.com/googleapis/python-aiplatform/compare/v1.132.0...v1.133.0) (2025-12-23)
+
+
+### Features
+
+* Deprecate tuning public preview SDK in favor of tuning SDK ([35d362c](https://github.com/googleapis/python-aiplatform/commit/35d362ce8f6c50498f781857e0d8cabd327284be))
+* GenAI SDK client - Enabling Few-shot Prompt Optimization by passing either "OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS" or "OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE" to the `optimize_prompt` method ([715cc5b](https://github.com/googleapis/python-aiplatform/commit/715cc5b71b996eecde2d97bad71a617274739dcc))
+* Support Developer Connect in AE ([04f1771](https://github.com/googleapis/python-aiplatform/commit/04f1771e16f54a0627ecac1266764ca77f833694))
+
+
+### Bug Fixes
+
+* Make project_number to project_id mapping fail-open. ([f1c8458](https://github.com/googleapis/python-aiplatform/commit/f1c8458dd5e4641cb03ff175f0837b6d6017c131))
+* Return embedding metadata if available ([d9c6eb1](https://github.com/googleapis/python-aiplatform/commit/d9c6eb199b6ccc1fae417463e1b374574f2ae2f8))
+
 ## [1.132.0](https://github.com/googleapis/python-aiplatform/compare/v1.131.0...v1.132.0) (2025-12-17)
 
 
