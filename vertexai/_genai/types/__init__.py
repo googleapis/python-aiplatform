@@ -21,6 +21,7 @@ import typing
 
 from . import agent_engines
 from . import evals
+from . import prompt_optimizer
 from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
@@ -126,9 +127,6 @@ from .common import AppendAgentEngineSessionEventConfigOrDict
 from .common import AppendAgentEngineSessionEventResponse
 from .common import AppendAgentEngineSessionEventResponseDict
 from .common import AppendAgentEngineSessionEventResponseOrDict
-from .common import ApplicableGuideline
-from .common import ApplicableGuidelineDict
-from .common import ApplicableGuidelineOrDict
 from .common import AssembleDataset
 from .common import AssembleDatasetConfig
 from .common import AssembleDatasetConfigDict
@@ -635,9 +633,7 @@ from .common import PairwiseMetricInstanceOrDict
 from .common import PairwiseMetricResult
 from .common import PairwiseMetricResultDict
 from .common import PairwiseMetricResultOrDict
-from .common import ParsedResponse
-from .common import ParsedResponseDict
-from .common import ParsedResponseOrDict
+from .common import ParsedResponseUnion
 from .common import PointwiseMetricInput
 from .common import PointwiseMetricInputDict
 from .common import PointwiseMetricInputOrDict
@@ -1824,12 +1820,6 @@ __all__ = [
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
-    "ApplicableGuideline",
-    "ApplicableGuidelineDict",
-    "ApplicableGuidelineOrDict",
-    "ParsedResponse",
-    "ParsedResponseDict",
-    "ParsedResponseOrDict",
     "OptimizeResponse",
     "OptimizeResponseDict",
     "OptimizeResponseOrDict",
@@ -1949,6 +1939,7 @@ __all__ = [
     "Message",
     "MessageDict",
     "Importance",
+    "ParsedResponseUnion",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
@@ -2015,6 +2006,7 @@ __all__ = [
     "_UpdateDatasetParameters",
     "evals",
     "agent_engines",
+    "prompt_optimizer",
     "PrebuiltMetric",
     "RubricMetric",
 ]
