@@ -520,6 +520,20 @@ def _validate_run_config(run_config: Optional[Dict[str, Any]]):
     raise TypeError("run_config must be a dictionary representing a RunConfig object.")
 
 
+def _warn_if_telemetry_api_disabled():
+    """Warn if telemetry API is disabled."""
+    try:
+        import google.auth.transport.requests
+        import google.auth
+    except (ImportError, AttributeError):
+        return
+    credentials, project = google.auth.default()
+    session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
+    r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+    if "Telemetry API has not been used in project" in r.text:
+        _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+
+
 class AdkApp:
     """An ADK Application."""
 
@@ -780,7 +794,7 @@ class AdkApp:
         custom_instrumentor = self._tmpl_attrs.get("instrumentor_builder")
 
         if self._tmpl_attrs.get("enable_tracing"):
-            self._warn_if_telemetry_api_disabled()
+            _warn_if_telemetry_api_disabled()
 
         if self._tmpl_attrs.get("enable_tracing") is False:
             _warn(
@@ -883,8 +897,17 @@ class AdkApp:
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
             except (ImportError, AttributeError):
-                # TODO(ysian): Handle this via _g3 import for google3.
-                pass
+                from google.adk.memory.vertex_ai_memory_bank_service_g3 import (
+                    VertexAiMemoryBankService,
+                )
+
+                # If the express mode api key is set, it will be read from the
+                # environment variable when initializing the memory service.
+                self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+                    project=project,
+                    location=location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
         else:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
@@ -1636,21 +1659,6 @@ class AdkApp:
             and enable_telemetry is True
             and is_version_sufficient("1.17.0")
         )
-
-    def _warn_if_telemetry_api_disabled(self):
-        """Warn if telemetry API is disabled."""
-        try:
-            import google.auth.transport.requests
-            import google.auth
-        except (ImportError, AttributeError):
-            return
-        credentials, project = google.auth.default()
-        session = google.auth.transport.requests.AuthorizedSession(
-            credentials=credentials
-        )
-        r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
-        if "Telemetry API has not been used in project" in r.text:
-            _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
     def project_id(self) -> Optional[str]:
         if project := self._tmpl_attrs.get("project"):

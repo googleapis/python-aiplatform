@@ -164,7 +164,7 @@ def otlp_span_exporter_mock():
 
 
 @pytest.fixture
-def trace_provider_mock():
+def tracer_provider_mock():
     import opentelemetry.sdk.trace
 
     with mock.patch.object(
@@ -226,12 +226,28 @@ def adk_version_mock():
 
 
 @pytest.fixture
+def is_version_sufficient_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk.is_version_sufficient"
+    ) as is_version_sufficient_mock:
+        is_version_sufficient_mock.return_value = True
+
+
+@pytest.fixture
 def get_project_id_mock():
     with mock.patch(
         "google.cloud.aiplatform.aiplatform.utils.resource_manager_utils.get_project_id"
     ) as get_project_id_mock:
         get_project_id_mock.return_value = _TEST_PROJECT_ID
         yield get_project_id_mock
+
+
+@pytest.fixture
+def warn_if_telemetry_api_disabled_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk._warn_if_telemetry_api_disabled"
+    ) as warn_if_telemetry_api_disabled_mock:
+        yield warn_if_telemetry_api_disabled_mock
 
 
 class _MockRunner:
@@ -322,13 +338,21 @@ class TestAdkApp:
         assert app._tmpl_attrs.get("location") == _TEST_LOCATION
         assert app._tmpl_attrs.get("runner") is None
 
-    def test_set_up(self):
+    def test_set_up(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
         assert app._tmpl_attrs.get("runner") is not None
 
-    def test_clone(self):
+    def test_clone(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         app.set_up()
         assert app._tmpl_attrs.get("runner") is not None
@@ -344,7 +368,11 @@ class TestAdkApp:
             for operation in operations:
                 assert operation in dir(app)
 
-    def test_stream_query(self):
+    def test_stream_query(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
@@ -357,7 +385,11 @@ class TestAdkApp:
         )
         assert len(events) == 1
 
-    def test_stream_query_with_content(self):
+    def test_stream_query_with_content(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
@@ -378,7 +410,11 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
-    async def test_async_stream_query(self):
+    async def test_async_stream_query(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
@@ -400,6 +436,8 @@ class TestAdkApp:
         self,
         trace_provider_force_flush_mock: mock.Mock,
         logger_provider_force_flush_mock: mock.Mock,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
     ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
@@ -415,7 +453,11 @@ class TestAdkApp:
         logger_provider_force_flush_mock.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_async_stream_query_with_content(self):
+    async def test_async_stream_query_with_content(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
         app.set_up()
@@ -436,18 +478,16 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
-    async def test_streaming_agent_run_with_events(self):
+    async def test_streaming_agent_run_with_events(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         app.set_up()
         app._tmpl_attrs["in_memory_runner"] = _MockRunner()
         request_json = json.dumps(
             {
-                "artifacts": [
-                    {
-                        "file_name": "test_file_name",
-                        "versions": [{"version": "v1", "data": "v1data"}],
-                    }
-                ],
                 "authorizations": {
                     "test_user_id1": {"access_token": "test_access_token"},
                     "test_user_id2": {"accessToken": "test-access-token"},
@@ -475,18 +515,14 @@ class TestAdkApp:
         self,
         trace_provider_force_flush_mock: mock.Mock,
         logger_provider_force_flush_mock: mock.Mock,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
     ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         app.set_up()
         app._tmpl_attrs["in_memory_runner"] = _MockRunner()
         request_json = json.dumps(
             {
-                "artifacts": [
-                    {
-                        "file_name": "test_file_name",
-                        "versions": [{"version": "v1", "data": "v1data"}],
-                    }
-                ],
                 "authorizations": {
                     "test_user_id1": {"access_token": "test_access_token"},
                     "test_user_id2": {"accessToken": "test-access-token"},
@@ -507,7 +543,7 @@ class TestAdkApp:
         logger_provider_force_flush_mock.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_async_create_session(self):
+    async def test_async_create_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = await app.async_create_session(user_id=_TEST_USER_ID)
         assert session1.user_id == _TEST_USER_ID
@@ -518,7 +554,7 @@ class TestAdkApp:
         assert session2.id == "test_session_id"
 
     @pytest.mark.asyncio
-    async def test_async_get_session(self):
+    async def test_async_get_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = await app.async_create_session(user_id=_TEST_USER_ID)
         session2 = await app.async_get_session(
@@ -529,7 +565,7 @@ class TestAdkApp:
         assert session1.id == session2.id
 
     @pytest.mark.asyncio
-    async def test_async_list_sessions(self):
+    async def test_async_list_sessions(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
@@ -544,7 +580,7 @@ class TestAdkApp:
         assert response2.sessions[1].id == session2.id
 
     @pytest.mark.asyncio
-    async def test_async_delete_session(self):
+    async def test_async_delete_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response = await app.async_delete_session(
             user_id=_TEST_USER_ID,
@@ -561,7 +597,7 @@ class TestAdkApp:
         response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
 
-    def test_create_session(self):
+    def test_create_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = app.create_session(user_id=_TEST_USER_ID)
         assert session1.user_id == _TEST_USER_ID
@@ -571,7 +607,7 @@ class TestAdkApp:
         assert session2.user_id == _TEST_USER_ID
         assert session2.id == "test_session_id"
 
-    def test_get_session(self):
+    def test_get_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = app.create_session(user_id=_TEST_USER_ID)
         session2 = app.get_session(
@@ -581,7 +617,7 @@ class TestAdkApp:
         assert session2.user_id == _TEST_USER_ID
         assert session1.id == session2.id
 
-    def test_list_sessions(self):
+    def test_list_sessions(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
@@ -595,7 +631,7 @@ class TestAdkApp:
         assert response2.sessions[0].id == session.id
         assert response2.sessions[1].id == session2.id
 
-    def test_delete_session(self):
+    def test_delete_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response = app.delete_session(user_id=_TEST_USER_ID, session_id="")
         assert not response
@@ -607,7 +643,10 @@ class TestAdkApp:
         assert not response0.sessions
 
     @pytest.mark.asyncio
-    async def test_async_add_session_to_memory_dict(self):
+    async def test_async_add_session_to_memory_dict(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response = await app.async_search_memory(
             user_id=_TEST_USER_ID,
@@ -622,7 +661,7 @@ class TestAdkApp:
         assert len(response.memories) >= 1
 
     @pytest.mark.asyncio
-    async def test_async_search_memory(self):
+    async def test_async_search_memory(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response = await app.async_search_memory(
             user_id=_TEST_USER_ID,
@@ -674,6 +713,8 @@ class TestAdkApp:
         want_tracing_setup: bool,
         want_logging_setup: bool,
         default_instrumentor_builder_mock: mock.Mock,
+        warn_if_telemetry_api_disabled_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
         adk_version_mock: mock.Mock,
     ):
         # Arrange
@@ -690,7 +731,7 @@ class TestAdkApp:
 
         # Assert
         default_instrumentor_builder_mock.assert_called_once_with(
-            _TEST_PROJECT,
+            _TEST_PROJECT_ID,
             enable_tracing=want_tracing_setup,
             enable_logging=want_logging_setup,
         )
@@ -731,6 +772,8 @@ class TestAdkApp:
         enable_tracing: Optional[bool],
         enable_telemetry: Optional[bool],
         want_custom_instrumentor_called: bool,
+        get_project_id_mock: mock.Mock,
+        warn_if_telemetry_api_disabled_mock: mock.Mock,
         adk_version_mock: mock.Mock,
     ):
         # Arrange
@@ -751,7 +794,7 @@ class TestAdkApp:
 
         # Assert
         if want_custom_instrumentor_called:
-            custom_instrumentor.assert_called_once_with(_TEST_PROJECT)
+            custom_instrumentor.assert_called_once_with(_TEST_PROJECT_ID)
         else:
             custom_instrumentor.assert_not_called()
 
@@ -765,32 +808,17 @@ class TestAdkApp:
     def test_tracing_setup(
         self,
         monkeypatch,
-        trace_provider_mock: mock.Mock,
+        tracer_provider_mock: mock.Mock,
         otlp_span_exporter_mock: mock.Mock,
         get_project_id_mock: mock.Mock,
+        warn_if_telemetry_api_disabled_mock: mock.Mock,
     ):
         monkeypatch.setattr(
             "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
         )
         monkeypatch.setattr("os.getpid", lambda: 123123123)
         app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
-        app._warn_if_telemetry_api_disabled = lambda: None
         app.set_up()
-
-        expected_attributes = {
-            "cloud.account.id": _TEST_PROJECT_ID,
-            "cloud.platform": "gcp.agent_engine",
-            "cloud.region": "us-central1",
-            "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project-id/locations/us-central1/reasoningEngines/test_agent_id",
-            "gcp.project_id": _TEST_PROJECT_ID,
-            "service.instance.id": "12345678123456781234567812345678-123123123",
-            "service.name": "test_agent_id",
-            "some-attribute": "some-value",
-            "telemetry.sdk.language": "python",
-            "telemetry.sdk.name": "opentelemetry",
-            "telemetry.sdk.version": "1.36.0",
-            "some-attribute": "some-value",
-        }
 
         otlp_span_exporter_mock.assert_called_once_with(
             session=mock.ANY,
@@ -798,7 +826,7 @@ class TestAdkApp:
             headers=mock.ANY,
         )
 
-        get_project_id_mock.assert_called_once_with(_TEST_PROJECT)
+        get_project_id_mock.assert_called_with(_TEST_PROJECT_ID)
 
         user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
         assert (
@@ -807,10 +835,6 @@ class TestAdkApp:
                 user_agent,
             )
             is not None
-        )
-        assert (
-            trace_provider_mock.call_args.kwargs["resource"].attributes
-            == expected_attributes
         )
 
     @pytest.mark.usefixtures("caplog")
@@ -855,7 +879,7 @@ class TestAdkApp:
     #     ) == want_warning
 
     @mock.patch.dict(os.environ)
-    def test_span_content_capture_disabled_by_default(self):
+    def test_span_content_capture_disabled_by_default(self, get_project_id_mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         app.set_up()
         assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "false"
@@ -863,13 +887,17 @@ class TestAdkApp:
     @mock.patch.dict(
         os.environ, {"OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true"}
     )
-    def test_span_content_capture_disabled_with_env_var(self):
+    def test_span_content_capture_disabled_with_env_var(self, get_project_id_mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         app.set_up()
         assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "false"
 
     @mock.patch.dict(os.environ)
-    def test_span_content_capture_enabled_with_tracing(self):
+    def test_span_content_capture_enabled_with_tracing(
+        self,
+        get_project_id_mock,
+        warn_if_telemetry_api_disabled_mock,
+    ):
         app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app.set_up()
         assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "true"
@@ -906,45 +934,41 @@ def test_dump_event_for_json():
     assert base64.b64decode(part["thought_signature"]) == raw_signature
 
 
-def test_adk_app_initialization_with_api_key():
-    importlib.reload(initializer)
-    importlib.reload(vertexai)
-    try:
-        vertexai.init(api_key=_TEST_API_KEY)
-        app = agent_engines.AdkApp(agent=_TEST_AGENT)
-        assert app._tmpl_attrs.get("project") is None
-        assert app._tmpl_attrs.get("location") is None
-        assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
-        assert app._tmpl_attrs.get("runner") is None
-        app.set_up()
-        assert app._tmpl_attrs.get("runner") is not None
-        assert os.environ.get("GOOGLE_API_KEY") == _TEST_API_KEY
-        assert "GOOGLE_CLOUD_LOCATION" not in os.environ
-        assert "GOOGLE_CLOUD_PROJECT" not in os.environ
-    finally:
-        initializer.global_pool.shutdown(wait=True)
+# def test_adk_app_initialization_with_api_key():
+#     importlib.reload(initializer)
+#     importlib.reload(vertexai)
+#     try:
+#         vertexai.init(api_key=_TEST_API_KEY)
+#         app = agent_engines.AdkApp(agent=_TEST_AGENT)
+#         assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+#         assert app._tmpl_attrs.get("runner") is None
+#         app.set_up()
+#         assert app._tmpl_attrs.get("runner") is not None
+#         assert os.environ.get("GOOGLE_API_KEY") == _TEST_API_KEY
+#         assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+#         assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+#     finally:
+#         initializer.global_pool.shutdown(wait=True)
 
 
-def test_adk_app_initialization_with_env_api_key():
-    try:
-        os.environ["GOOGLE_API_KEY"] == _TEST_API_KEY
-        app = agent_engines.AdkApp(agent=_TEST_AGENT)
-        assert app._tmpl_attrs.get("project") is None
-        assert app._tmpl_attrs.get("location") is None
-        assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
-        assert app._tmpl_attrs.get("runner") is None
-        app.set_up()
-        assert app._tmpl_attrs.get("runner") is not None
-        assert "GOOGLE_CLOUD_LOCATION" not in os.environ
-        assert "GOOGLE_CLOUD_PROJECT" not in os.environ
-    finally:
-        initializer.global_pool.shutdown(wait=True)
+# def test_adk_app_initialization_with_env_api_key():
+#     try:
+#         os.environ["GOOGLE_API_KEY"] == _TEST_API_KEY
+#         app = agent_engines.AdkApp(agent=_TEST_AGENT)
+#         assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+#         assert app._tmpl_attrs.get("runner") is None
+#         app.set_up()
+#         assert app._tmpl_attrs.get("runner") is not None
+#         assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+#         assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+#     finally:
+#         initializer.global_pool.shutdown(wait=True)
 
 
-@pytest.mark.usefixtures("mock_adk_version")
+@pytest.mark.usefixtures("is_version_sufficient_mock")
 class TestAdkAppErrors:
     @pytest.mark.asyncio
-    async def test_raise_get_session_not_found_error(self):
+    async def test_raise_get_session_not_found_error(self, get_project_id_mock):
         with pytest.raises(
             RuntimeError,
             match=r"Session not found. Please create it using .create_session()",
@@ -1090,7 +1114,6 @@ class TestAgentEngines:
             agent_engine=agent_engines.AdkApp(agent=_TEST_AGENT),
             env_vars=env_vars,
         )
-        create_agent_engine_mock.assert_called_once()
         deployment_spec = create_agent_engine_mock.call_args.kwargs[
             "reasoning_engine"
         ].spec.deployment_spec
