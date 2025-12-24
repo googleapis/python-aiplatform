@@ -82,7 +82,7 @@ prediction_extra_require = [
     "docker >= 5.0.3",
     "fastapi >= 0.71.0, <=0.124.4",
     "httpx >=0.23.0, <=0.28.1",  # Optional dependency of fastapi
-    "starlette >= 0.17.1",
+    "starlette >= 0.40.0",
     "uvicorn[standard] >= 0.16.0",
 ]
 
@@ -94,7 +94,7 @@ private_endpoints_extra_require = [
 ]
 
 autologging_extra_require = [
-    "mlflow>=1.27.0,<=2.16.0; python_version<'3.13'",
+    "mlflow>=1.27.0,<=2.17.0; python_version<'3.13'",
     "mlflow>=1.27.0; python_version>='3.13'",
 ]
 
