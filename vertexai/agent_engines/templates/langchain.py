@@ -370,7 +370,7 @@ class LangchainAgent:
         *,
         system_instruction: Optional[str] = None,
         prompt: Optional["RunnableSerializable"] = None,
-        tools: Optional[Sequence["_ToolLike"]] = None,
+        tools: Optional["_ToolLike"] = None,
         output_parser: Optional["RunnableSerializable"] = None,
         chat_history: Optional["GetSessionHistoryCallable"] = None,
         model_kwargs: Optional[Mapping[str, Any]] = None,
