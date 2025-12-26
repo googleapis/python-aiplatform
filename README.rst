@@ -24,6 +24,8 @@ Vertex AI SDK for Python
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
 
+# Trivial comment for CI baseline
+
 Installation
 ~~~~~~~~~~~~
 
