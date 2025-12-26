@@ -500,7 +500,7 @@ class PromptOptimizer(_api_module.BaseModule):
         self,
         *,
         prompt: str,
-        config: Optional[types.OptimizeConfig] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponse:
         """Makes an API request to _optimize_prompt and returns the parsed response.
 
@@ -517,15 +517,47 @@ class PromptOptimizer(_api_module.BaseModule):
             types.OptimizeConfig(
                 optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO
             )
+            For few-shot optimization, provide:
+
+            optim_target = types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS
+            or
+            optim_target = types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE
+            types.OptimizeConfig(
+                optimization_target=optim_target,
+                examples_dataframe=dataframe
+            )
+            OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS indicates that the few-shot
+              examples include specific scoring rubrics and their corresponding
+              evaluations.
+            OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE indicates that the few-shot
+              examples include a ground-truth target response.
         Returns:
           The parsed response from the API request.
         """
 
-        prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
+        if isinstance(config, dict):
+            config = types.OptimizeConfig(**config)
+
+        optimization_target: Optional[types.OptimizeTarget] = None
+        if config is not None:
+            optimization_target = config.optimization_target
+
+        final_prompt = prompt
+        if (
+            optimization_target
+            == types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS
+            or optimization_target
+            == types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE
+        ):
+            final_prompt = _prompt_optimizer_utils._get_few_shot_prompt(prompt, config)
+
         # TODO: b/435653980 - replace the custom method with a generated method.
+        config_for_api = config.model_copy() if config else None
         return self._custom_optimize_prompt(
-            content=prompt,
-            config=config,
+            content=genai_types.Content(
+                parts=[genai_types.Part(text=final_prompt)], role="user"
+            ),
+            config=config_for_api,
         )
 
     def _custom_optimize_prompt(
@@ -540,6 +572,10 @@ class PromptOptimizer(_api_module.BaseModule):
         Then gathers the response, concatenates into one string and returns
         the parsed response.
         """
+        if isinstance(config, dict):
+            config.pop("examples_dataframe", None)
+        elif config and hasattr(config, "examples_dataframe"):
+            del config.examples_dataframe
 
         parameter_model = types._OptimizeRequestParameters(
             content=content,
@@ -887,6 +923,10 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponse:
         """Optimize a single prompt."""
+        if isinstance(config, dict):
+            config.pop("examples_dataframe", None)
+        elif config and hasattr(config, "examples_dataframe"):
+            del config.examples_dataframe
 
         parameter_model = types._OptimizeRequestParameters(
             content=content,
@@ -953,7 +993,7 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
         self,
         *,
         prompt: str,
-        config: Optional[types.OptimizeConfig] = None,
+        config: Optional[types.OptimizeConfigOrDict] = None,
     ) -> types.OptimizeResponse:
         """Makes an async request to _optimize_prompt and returns an optimized prompt.
 
@@ -969,13 +1009,41 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
             types.OptimizeConfig(
                 optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO
             )
+            For few-shot optimization, provide:
+            optim_target = types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS # or types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE
+            types.OptimizeConfig(
+                optimization_target=optim_target,
+                examples_dataframe=dataframe
+            )
+            OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS indicates that the few-shot
+              examples include specific scoring rubrics and their corresponding
+              evaluations.
+            OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE indicates that the few-shot
+              examples include a ground-truth target response.
         Returns:
           The parsed response from the API request.
         """
+        if isinstance(config, dict):
+            config = types.OptimizeConfig(**config)
 
-        prompt = genai_types.Content(parts=[genai_types.Part(text=prompt)], role="user")
+        optimization_target: Optional[types.OptimizeTarget] = None
+        if config is not None:
+            optimization_target = config.optimization_target
+
+        final_prompt = prompt
+        if (
+            optimization_target
+            == types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS
+            or optimization_target
+            == types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE
+        ):
+            final_prompt = _prompt_optimizer_utils._get_few_shot_prompt(prompt, config)
+
         # TODO: b/435653980 - replace the custom method with a generated method.
+        config_for_api = config.model_copy() if config else None
         return await self._custom_optimize_prompt(
-            content=prompt,
-            config=config,
+            content=genai_types.Content(
+                parts=[genai_types.Part(text=final_prompt)], role="user"
+            ),
+            config=config_for_api,
         )
