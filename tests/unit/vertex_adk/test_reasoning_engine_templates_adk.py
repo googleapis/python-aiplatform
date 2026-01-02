@@ -17,6 +17,7 @@ import base64
 import importlib
 import json
 import os
+import re
 from unittest import mock
 from typing import Optional
 
@@ -44,6 +45,7 @@ except ImportError:
 
 _TEST_LOCATION = "us-central1"
 _TEST_PROJECT = "test-project"
+_TEST_PROJECT_ID = "test-project-id"
 _TEST_MODEL = "gemini-2.0-flash"
 _TEST_USER_ID = "test_user_id"
 _TEST_AGENT_NAME = "test_agent"
@@ -76,6 +78,83 @@ _TEST_RUN_CONFIG = {
     "streaming_mode": "sse",
     "max_llm_calls": 500,
 }
+_TEST_SESSION_EVENTS = [
+    {
+        "author": "user",
+        "content": {
+            "parts": [
+                {
+                    "text": "What is the exchange rate from US dollars to "
+                    "Swedish krona on 2025-09-25?"
+                }
+            ],
+            "role": "user",
+        },
+        "id": "8967297909049524224",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.629513,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionCall": {
+                        "args": {
+                            "currency_date": "2025-09-25",
+                            "currency_from": "USD",
+                            "currency_to": "SEK",
+                        },
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                    }
+                }
+            ],
+            "role": "model",
+        },
+        "id": "3155402589927899136",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.723713,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionResponse": {
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                        "response": {
+                            "amount": 1,
+                            "base": "USD",
+                            "date": "2025-09-25",
+                            "rates": {"SEK": 9.4118},
+                        },
+                    }
+                }
+            ],
+            "role": "user",
+        },
+        "id": "1678221912150376448",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.764961,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "text": "The exchange rate from US dollars to Swedish "
+                    "krona on 2025-09-25 is 1 USD to 9.4118 SEK."
+                }
+            ],
+            "role": "model",
+        },
+        "id": "2470855446567583744",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.853299,
+    },
+]
 
 
 @pytest.fixture(scope="module")
@@ -129,6 +208,34 @@ def trace_provider_mock():
 
 
 @pytest.fixture
+def trace_provider_force_flush_mock():
+    import opentelemetry.trace
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.trace, "get_tracer_provider"
+    ) as get_tracer_provider_mock:
+        get_tracer_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk.trace.TracerProvider()
+        )
+        yield get_tracer_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
+def logger_provider_force_flush_mock():
+    import opentelemetry._logs
+    import opentelemetry.sdk._logs
+
+    with mock.patch.object(
+        opentelemetry._logs, "get_logger_provider"
+    ) as get_logger_provider_mock:
+        get_logger_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk._logs.LoggerProvider()
+        )
+        yield get_logger_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
 def default_instrumentor_builder_mock():
     with mock.patch(
         "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk._default_instrumentor_builder"
@@ -142,6 +249,15 @@ def adk_version_mock():
         "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version"
     ) as adk_version_mock:
         yield adk_version_mock
+
+
+@pytest.fixture
+def get_project_id_mock():
+    with mock.patch(
+        "google.cloud.aiplatform.aiplatform.utils.resource_manager_utils.get_project_id"
+    ) as get_project_id_mock:
+        get_project_id_mock.return_value = _TEST_PROJECT_ID
+        yield get_project_id_mock
 
 
 class _MockRunner:
@@ -354,6 +470,71 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    async def test_async_stream_query_with_empty_session_events(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=[],
+            message="test message",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_session_events(
+        self,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=_TEST_SESSION_EVENTS,
+            message="on the day after that?",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"},
+    )
+    async def test_async_stream_query_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL), enable_tracing=True
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_async_stream_query_with_content(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
@@ -403,6 +584,46 @@ class TestAdkApp:
         )
         events = list(app.streaming_agent_run_with_events(request_json=request_json))
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY": "true"},
+    )
+    async def test_streaming_agent_run_with_events_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+    ):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+            enable_tracing=True,
+        )
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+        request_json = json.dumps(
+            {
+                "artifacts": [
+                    {
+                        "file_name": "test_file_name",
+                        "versions": [{"version": "v1", "data": "v1data"}],
+                    }
+                ],
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                    "test_user_id2": {"accessToken": "test-access-token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        list(app.streaming_agent_run_with_events(request_json=request_json))
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_async_bidi_stream_query(self):
@@ -605,33 +826,47 @@ class TestAdkApp:
         monkeypatch: pytest.MonkeyPatch,
         trace_provider_mock: mock.Mock,
         otlp_span_exporter_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
     ):
         monkeypatch.setattr(
             "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
         )
         monkeypatch.setattr("os.getpid", lambda: 123123123)
         app = reasoning_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app._warn_if_telemetry_api_disabled = lambda: None
         app.set_up()
 
         expected_attributes = {
+            "cloud.account.id": _TEST_PROJECT_ID,
+            "cloud.platform": "gcp.agent_engine",
+            "cloud.region": "us-central1",
+            "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project-id/locations/us-central1/reasoningEngines/test_agent_id",
+            "gcp.project_id": _TEST_PROJECT_ID,
+            "service.instance.id": "12345678123456781234567812345678-123123123",
+            "service.name": "test_agent_id",
+            "some-attribute": "some-value",
             "telemetry.sdk.language": "python",
             "telemetry.sdk.name": "opentelemetry",
             "telemetry.sdk.version": "1.36.0",
-            "gcp.project_id": "test-project",
-            "cloud.account.id": "test-project",
-            "cloud.platform": "gcp.agent_engine",
-            "service.name": "test_agent_id",
-            "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project/locations/us-central1/reasoningEngines/test_agent_id",
-            "service.instance.id": "12345678123456781234567812345678-123123123",
-            "cloud.region": "us-central1",
             "some-attribute": "some-value",
         }
 
         otlp_span_exporter_mock.assert_called_once_with(
             session=mock.ANY,
             endpoint="https://telemetry.googleapis.com/v1/traces",
+            headers=mock.ANY,
         )
 
+        get_project_id_mock.assert_called_once_with(_TEST_PROJECT)
+
+        user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
+        assert (
+            re.fullmatch(
+                r"Vertex-Agent-Engine\/[\d\.]+ OTel-OTLP-Exporter-Python\/[\d\.]+",
+                user_agent,
+            )
+            is not None
+        )
         assert (
             trace_provider_mock.call_args.kwargs["resource"].attributes
             == expected_attributes
@@ -687,6 +922,25 @@ class TestAdkApp:
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # app.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+    # @pytest.mark.parametrize(
+    #     "enable_tracing,want_warning",
+    #     [
+    #         (True, False),
+    #         (False, True),
+    #         (None, False),
+    #     ],
+    # )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
+    #     app = reasoning_engines.AdkApp(
+    #         agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
+    #         enable_tracing=enable_tracing
+    #     )
+    #     assert (
+    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+    #     ) == want_warning
 
 
 def test_dump_event_for_json():

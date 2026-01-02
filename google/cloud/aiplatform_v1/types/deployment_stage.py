@@ -55,6 +55,10 @@ class DeploymentStage(proto.Enum):
             steps.
         DEPLOYMENT_TERMINATED (10):
             The deployment has terminated.
+        SUCCESSFULLY_DEPLOYED (11):
+            The deployment has succeeded.
+        FAILED_TO_DEPLOY (12):
+            The deployment has failed.
     """
 
     DEPLOYMENT_STAGE_UNSPECIFIED = 0
@@ -66,6 +70,8 @@ class DeploymentStage(proto.Enum):
     STARTING_MODEL_SERVER = 3
     FINISHING_UP = 4
     DEPLOYMENT_TERMINATED = 10
+    SUCCESSFULLY_DEPLOYED = 11
+    FAILED_TO_DEPLOY = 12
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1114,16 +1114,16 @@ def _add_telemetry_enablement_env(*, env_vars: EnvVars) -> EnvVars:
     )
 
     if env_vars is None:
-        return {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+        return {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
     if isinstance(env_vars, dict):
         return (
             env_vars
             if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY in env_vars
-            else env_vars | {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+            else env_vars | {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
         )
     if isinstance(env_vars, list) or isinstance(env_vars, tuple):
         if GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY not in os.environ:
-            os.environ[GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY] = "true"
+            os.environ[GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY] = "unspecified"
 
         if isinstance(env_vars, list):
             return env_vars + [GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY]

@@ -146,6 +146,12 @@ class FeatureOnlineStore(proto.Message):
             bigtable_metadata (google.cloud.aiplatform_v1.types.FeatureOnlineStore.Bigtable.BigtableMetadata):
                 Output only. Metadata of the Bigtable
                 instance. Output only.
+            zone (str):
+                Optional. The zone where the underlying
+                Bigtable cluster for the primary Bigtable
+                instance will be provisioned. Only the zone must
+                be provided. For example, only "us-central1-a"
+                should be provided.
         """
 
         class AutoScaling(proto.Message):
@@ -216,12 +222,16 @@ class FeatureOnlineStore(proto.Message):
         )
         enable_direct_bigtable_access: bool = proto.Field(
             proto.BOOL,
-            number=2,
+            number=3,
         )
         bigtable_metadata: "FeatureOnlineStore.Bigtable.BigtableMetadata" = proto.Field(
             proto.MESSAGE,
-            number=3,
+            number=4,
             message="FeatureOnlineStore.Bigtable.BigtableMetadata",
+        )
+        zone: str = proto.Field(
+            proto.STRING,
+            number=5,
         )
 
     class Optimized(proto.Message):

@@ -80,7 +80,7 @@ vizier_extra_require = [
 
 prediction_extra_require = [
     "docker >= 5.0.3",
-    "fastapi >= 0.71.0, <=0.114.0",
+    "fastapi >= 0.71.0, <=0.124.4",
     "httpx >=0.23.0, <=0.28.1",  # Optional dependency of fastapi
     "starlette >= 0.17.1",
     "uvicorn[standard] >= 0.16.0",
@@ -150,6 +150,7 @@ reasoning_engine_extra_require = [
     "cloudpickle >= 3.0, < 4.0",
     "google-cloud-trace < 2",
     "opentelemetry-sdk < 2",
+    "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
     "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
@@ -162,6 +163,7 @@ agent_engines_extra_require = [
     "google-cloud-trace < 2",
     "google-cloud-logging < 4",
     "opentelemetry-sdk < 2",
+    "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
     "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
@@ -176,7 +178,7 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm >= 1.72.4, <= 1.76.3",
+    "litellm >= 1.72.4, != 1.77.2, != 1.77.3, != 1.77.4",
 ]
 
 langchain_extra_require = [
@@ -305,7 +307,7 @@ setuptools.setup(
             "google-api-core[grpc] >= 1.34.1,"
             " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
-        "google-auth >= 2.14.1, <3.0.0",
+        "google-auth >= 2.45.0, <3.0.0",
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",

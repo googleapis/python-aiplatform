@@ -23,10 +23,6 @@ from google.genai import types as genai_types
 
 
 def test_generate_and_rollback_memories(client):
-    # TODO(): Use prod endpoint once experiment is fully rolled out.
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
-    )
     agent_engine = client.agent_engines.create()
     assert not list(
         client.agent_engines.memories.list(
@@ -161,10 +157,6 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_generate_and_rollback_memories_async(client):
-    # TODO(): Use prod endpoint once revisions experiment is fully rolled out.
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
-    )
     agent_engine = client.agent_engines.create()
     await client.aio.agent_engines.memories.generate(
         name=agent_engine.api_resource.name,

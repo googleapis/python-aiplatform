@@ -76,7 +76,7 @@ def test_create_eval_run_data_source_evaluation_set(client):
             LLM_METRIC,
         ],
         agent_info=types.evals.AgentInfo(
-            agent="project/123/locations/us-central1/reasoningEngines/456",
+            agent_resource_name="project/123/locations/us-central1/reasoningEngines/456",
             name="agent-1",
             instruction="agent-1 instruction",
             tool_declarations=[tool],

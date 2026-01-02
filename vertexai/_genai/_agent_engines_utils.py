@@ -23,6 +23,7 @@ import io
 import json
 import logging
 import os
+import re
 import sys
 import tarfile
 import time
@@ -64,23 +65,23 @@ except AttributeError:
     _BUILTIN_MODULE_NAMES: Sequence[str] = []  # type: ignore[no-redef]
 
 try:
-    _PACKAGE_DISTRIBUTIONS: Mapping[
-        str, Sequence[str]
-    ] = importlib_metadata.packages_distributions()  # type: ignore[attr-defined]
+    _PACKAGE_DISTRIBUTIONS: Mapping[str, Sequence[str]] = (
+        importlib_metadata.packages_distributions()
+    )
 except AttributeError:
     _PACKAGE_DISTRIBUTIONS: Mapping[str, Sequence[str]] = {}  # type: ignore[no-redef]
 
 try:
     # sys.stdlib_module_names is available from Python 3.10 onwards.
-    _STDLIB_MODULE_NAMES: frozenset[str] = sys.stdlib_module_names  # type: ignore[attr-defined]
+    _STDLIB_MODULE_NAMES: frozenset[str] = sys.stdlib_module_names
 except AttributeError:
     _STDLIB_MODULE_NAMES: frozenset[str] = frozenset()  # type: ignore[no-redef]
 
 
 try:
-    from google.cloud import storage  # type: ignore[attr-defined]
+    from google.cloud import storage
 
-    _StorageBucket: type[Any] = storage.Bucket
+    _StorageBucket: type[Any] = storage.Bucket  # type: ignore[attr-defined]
 except (ImportError, AttributeError):
     _StorageBucket: type[Any] = Any  # type: ignore[no-redef]
 
@@ -90,7 +91,7 @@ try:
 
     _SpecifierSet: type[Any] = packaging.specifiers.SpecifierSet
 except (ImportError, AttributeError):
-    _SpecifierSet: type[Any] = Any
+    _SpecifierSet: type[Any] = Any  # type: ignore[no-redef]
 
 
 try:
@@ -125,9 +126,19 @@ _AGENT_FRAMEWORK_ATTR = "agent_framework"
 _ASYNC_API_MODE = "async"
 _ASYNC_STREAM_API_MODE = "async_stream"
 _BIDI_STREAM_API_MODE = "bidi_stream"
-_BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
+_BASE_MODULES = set(_BUILTIN_MODULE_NAMES).union(_STDLIB_MODULE_NAMES)
 _BLOB_FILENAME = "agent_engine.pkl"
 _DEFAULT_AGENT_FRAMEWORK = "custom"
+_SUPPORTED_AGENT_FRAMEWORKS = frozenset(
+    [
+        "google-adk",
+        "langchain",
+        "langgraph",
+        "ag2",
+        "llama-index",
+        "custom",
+    ]
+)
 _DEFAULT_ASYNC_METHOD_NAME = "async_query"
 _DEFAULT_ASYNC_METHOD_RETURN_TYPE = "Coroutine[Any]"
 _DEFAULT_ASYNC_STREAM_METHOD_NAME = "async_stream_query"
@@ -227,7 +238,9 @@ class BidiStreamQueryable(Protocol):
     """Protocol for Agent Engines that can stream requests and responses."""
 
     @abc.abstractmethod
-    async def bidi_stream_query(self, input_queue: asyncio.Queue) -> AsyncIterator[Any]:
+    async def bidi_stream_query(
+        self, input_queue: asyncio.Queue[Any]
+    ) -> AsyncIterator[Any]:
         """Stream requests and responses to serve the user queries."""
 
 
@@ -245,7 +258,7 @@ class OperationRegistrable(Protocol):
     """Protocol for agents that have registered operations."""
 
     @abc.abstractmethod
-    def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:
+    def register_operations(self, **kwargs) -> Dict[str, Sequence[str]]:  # type: ignore[no-untyped-def]
         """Register the user provided operations (modes and methods)."""
 
 
@@ -254,7 +267,7 @@ try:
 
     ADKAgent: type[Any] = BaseAgent
 except (ImportError, AttributeError):
-    ADKAgent: type[Any] = Any
+    ADKAgent: type[Any] = Any  # type: ignore[no-redef]
 
 _AgentEngineInterface = Union[
     ADKAgent,
@@ -389,15 +402,50 @@ AgentEngineOperationUnion = Union[
 
 
 class GetOperationFunction(Protocol):
-    def __call__(self, *, operation_name: str, **kwargs) -> AgentEngineOperationUnion:
+    def __call__(
+        self, *, operation_name: str, **kwargs: Any
+    ) -> AgentEngineOperationUnion:
         pass
 
 
 class GetAsyncOperationFunction(Protocol):
     async def __call__(
-        self, *, operation_name: str, **kwargs
+        self, *, operation_name: str, **kwargs: Any
     ) -> Awaitable[AgentEngineOperationUnion]:
         pass
+
+
+def _get_reasoning_engine_id(operation_name: str = "", resource_name: str = "") -> str:
+    """Returns reasoning engine ID from operation name or resource name."""
+    if not resource_name and not operation_name:
+        raise ValueError("Resource name or operation name cannot be empty.")
+
+    if resource_name:
+        match = re.match(
+            r"^projects/[^/]+/locations/[^/]+/reasoningEngines/([^/]+)$",
+            resource_name,
+        )
+        if match:
+            return match.group(1)
+        else:
+            raise ValueError(
+                "Failed to parse reasoning engine ID from resource name: "
+                f"`{resource_name}`"
+            )
+
+    if not operation_name:
+        raise ValueError("Operation name cannot be empty.")
+
+    match = re.match(
+        r"^projects/[^/]+/locations/[^/]+/reasoningEngines/([^/]+)/operations/[^/]+$",
+        operation_name,
+    )
+    if match:
+        return match.group(1)
+    raise ValueError(
+        "Failed to parse reasoning engine ID from operation name: "
+        f"`{operation_name}`"
+    )
 
 
 async def _await_async_operation(
@@ -580,6 +628,9 @@ def _is_pydantic_serializable(param: inspect.Parameter) -> bool:
     if param.annotation == inspect.Parameter.empty:
         return True
 
+    if "ForwardRef" in repr(param.annotation):
+        return True
+
     if isinstance(param.annotation, str):
         return False
 
@@ -631,7 +682,12 @@ def _generate_schema(
         name: (
             # 1. We infer the argument type here: use Any rather than None so
             # it will not try to auto-infer the type based on the default value.
-            (param.annotation if param.annotation != inspect.Parameter.empty else Any),
+            (
+                param.annotation
+                if param.annotation != inspect.Parameter.empty
+                and "ForwardRef" not in repr(param.annotation)
+                else Any
+            ),
             pydantic.Field(
                 # 2. We do not support default values for now.
                 # default=(
@@ -705,13 +761,43 @@ def _generate_schema(
     return schema
 
 
-def _get_agent_framework(*, agent: _AgentEngineInterface) -> str:
-    if (
-        hasattr(agent, _AGENT_FRAMEWORK_ATTR)
-        and getattr(agent, _AGENT_FRAMEWORK_ATTR) is not None
-        and isinstance(getattr(agent, _AGENT_FRAMEWORK_ATTR), str)
-    ):
-        return getattr(agent, _AGENT_FRAMEWORK_ATTR)
+def _get_agent_framework(
+    *,
+    agent_framework: Optional[str],
+    agent: _AgentEngineInterface,
+) -> Union[str, Any]:
+    """Gets the agent framework to use.
+
+    The agent framework is determined in the following order of priority:
+    1. The `agent_framework` passed to this function.
+    2. The `agent_framework` attribute on the `agent` object.
+    3. The default framework, "custom".
+
+    Args:
+        agent_framework (str):
+            The agent framework provided by the user.
+        agent (_AgentEngineInterface):
+            The agent engine instance.
+
+    Returns:
+        str: The name of the agent framework to use.
+    """
+    if agent_framework is not None and agent_framework in _SUPPORTED_AGENT_FRAMEWORKS:
+        logger.info(f"Using agent framework: {agent_framework}")
+        return agent_framework
+    if hasattr(agent, _AGENT_FRAMEWORK_ATTR):
+        agent_framework_attr = getattr(agent, _AGENT_FRAMEWORK_ATTR)
+        if (
+            agent_framework_attr is not None
+            and isinstance(agent_framework_attr, str)
+            and agent_framework_attr in _SUPPORTED_AGENT_FRAMEWORKS
+        ):
+            logger.info(f"Using agent framework: {agent_framework_attr}")
+            return agent_framework_attr
+    logger.info(
+        f"The provided agent framework {agent_framework} is not supported."
+        f" Defaulting to {_DEFAULT_AGENT_FRAMEWORK}."
+    )
     return _DEFAULT_AGENT_FRAMEWORK
 
 
@@ -720,10 +806,11 @@ def _get_gcs_bucket(
     project: str,
     location: str,
     staging_bucket: str,
+    credentials: Optional[Any] = None,
 ) -> _StorageBucket:
     """Gets or creates the GCS bucket."""
     storage = _import_cloud_storage_or_raise()
-    storage_client = storage.Client(project=project)
+    storage_client = storage.Client(project=project, credentials=credentials)
     staging_bucket = staging_bucket.replace("gs://", "")
     try:
         gcs_bucket = storage_client.get_bucket(staging_bucket)
@@ -772,13 +859,13 @@ def _import_cloudpickle_or_raise() -> types.ModuleType:
 def _import_cloud_storage_or_raise() -> types.ModuleType:
     """Tries to import the Cloud Storage module."""
     try:
-        from google.cloud import storage  # type: ignore[attr-defined]
+        from google.cloud import storage
     except ImportError as e:
         raise ImportError(
             "Cloud Storage is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
-    return storage  # type: ignore[no-any-return]
+    return storage
 
 
 def _import_packaging_requirements_or_raise() -> types.ModuleType:
@@ -790,7 +877,7 @@ def _import_packaging_requirements_or_raise() -> types.ModuleType:
             "packaging.requirements is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
-    return requirements  # type: ignore[no-any-return]
+    return requirements
 
 
 def _import_packaging_version_or_raise() -> types.ModuleType:
@@ -802,7 +889,7 @@ def _import_packaging_version_or_raise() -> types.ModuleType:
             "packaging.version is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
-    return version  # type: ignore[no-any-return]
+    return version
 
 
 def _import_pydantic_or_raise() -> types.ModuleType:
@@ -818,7 +905,7 @@ def _import_pydantic_or_raise() -> types.ModuleType:
             "pydantic is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
-    return pydantic  # type: ignore[no-any-return]
+    return pydantic
 
 
 def _parse_constraints(
@@ -858,6 +945,7 @@ def _prepare(
     location: str,
     staging_bucket: str,
     gcs_dir_name: str,
+    credentials: Optional[Any] = None,
 ) -> None:
     """Prepares the agent engine for creation or updates in Vertex AI.
 
@@ -874,8 +962,9 @@ def _prepare(
         project (str): The project for the staging bucket.
         location (str): The location for the staging bucket.
         staging_bucket (str): The staging bucket name in the form "gs://...".
-        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to
-            use for staging the artifacts needed.
+        gcs_dir_name (str): The GCS bucket directory under `staging_bucket` to use
+          for staging the artifacts needed.
+        credentials: The credentials to use for the storage client.
     """
     if agent is None:
         return
@@ -883,6 +972,7 @@ def _prepare(
         project=project,
         location=location,
         staging_bucket=staging_bucket,
+        credentials=credentials,
     )
     _upload_agent_engine(
         agent=agent,
@@ -974,7 +1064,7 @@ def _register_api_methods_or_raise(
         }
         if isinstance(wrap_operation_fn, dict) and api_mode in wrap_operation_fn:
             # Override the default function with user-specified function if it exists.
-            _wrap_operation = wrap_operation_fn[api_mode]  # type: ignore[assignment]
+            _wrap_operation = wrap_operation_fn[api_mode]
         elif api_mode in _wrap_operation_map:
             _wrap_operation = _wrap_operation_map[api_mode]  # type: ignore[assignment]
         else:
@@ -1186,42 +1276,40 @@ def _create_base64_encoded_tarball(
     return base64.b64encode(tarball_bytes).decode("utf-8")
 
 
-def _validate_extra_packages_or_raise(
+def _validate_packages_or_raise(
     *,
-    extra_packages: Sequence[str],
+    packages: Sequence[str],
     build_options: Optional[Dict[str, Sequence[str]]] = None,
 ) -> Sequence[str]:
-    """Tries to validates the extra packages."""
-    extra_packages = extra_packages or []
+    """Tries to validates the packages."""
+    packages = packages or []
     if build_options and _INSTALLATION_SUBDIR in build_options:
         _validate_installation_scripts_or_raise(
             script_paths=build_options[_INSTALLATION_SUBDIR],
-            extra_packages=extra_packages,
+            packages=packages,
         )
-    for extra_package in extra_packages:
-        if not os.path.exists(extra_package):
-            raise FileNotFoundError(
-                f"Extra package specified but not found: {extra_package=}"
-            )
-    return extra_packages
+    for package in packages:
+        if not os.path.exists(package):
+            raise FileNotFoundError(f"Package specified but not found: {package=}")
+    return packages
 
 
 def _validate_installation_scripts_or_raise(
     *,
     script_paths: Sequence[str],
-    extra_packages: Sequence[str],
+    packages: Sequence[str],
 ) -> None:
     """Validates the installation scripts' path explicitly provided by the user.
 
     Args:
         script_paths (Sequence[str]):
             Required. The paths to the installation scripts.
-        extra_packages (Sequence[str]):
-            Required. The extra packages to be updated.
+        packages (Sequence[str]):
+            Required. The user-provided packages.
 
     Raises:
         ValueError: If a user-defined script is not under the expected
-            subdirectory, or not in `extra_packages`, or if an extra package is
+            subdirectory, or not in `packages`, or if a package is
             in the installation scripts subdirectory, but is not specified as an
             installation script.
     """
@@ -1231,37 +1319,35 @@ def _validate_installation_scripts_or_raise(
                 f"User-defined installation script '{script_path}' is not in "
                 f"the expected '{_INSTALLATION_SUBDIR}' subdirectory. "
                 f"Ensure it is placed in '{_INSTALLATION_SUBDIR}' within your "
-                f"`extra_packages`."
+                f"'extra_packages' or 'source_packages'."
             )
             raise ValueError(
                 f"Required installation script '{script_path}' "
                 f"is not under '{_INSTALLATION_SUBDIR}'"
             )
 
-        if script_path not in extra_packages:
+        if script_path not in packages:
             logger.warning(
                 f"User-defined installation script '{script_path}' is not in "
-                f"extra_packages. Ensure it is added to `extra_packages`."
+                f"'extra_packages' or 'source_packages'. Ensure it is added to "
+                f"'extra_packages' or 'source_packages'."
             )
             raise ValueError(
                 f"User-defined installation script '{script_path}' "
-                f"does not exist in `extra_packages`"
+                f"does not exist in 'extra_packages' or 'source_packages'."
             )
 
-    for extra_package in extra_packages:
-        if (
-            extra_package.startswith(_INSTALLATION_SUBDIR)
-            and extra_package not in script_paths
-        ):
+    for package in packages:
+        if package.startswith(_INSTALLATION_SUBDIR) and package not in script_paths:
             logger.warning(
-                f"Extra package '{extra_package}' is in the installation "
+                f"Package '{package}' is in the installation "
                 "scripts subdirectory, but is not specified as an installation "
                 "script in `build_options`. "
                 "Ensure it is added to installation_scripts for "
                 "automatic execution."
             )
             raise ValueError(
-                f"Extra package '{extra_package}' is in the installation "
+                f"Package '{package}' is in the installation "
                 "scripts subdirectory, but is not specified as an installation "
                 "script in `build_options`."
             )
@@ -1483,7 +1569,7 @@ AgentEngineOperationUnion = Union[
 
 class GetOperationFunction(Protocol):
     def __call__(  # noqa: E704
-        self, *, operation_name: str, **kwargs
+        self, *, operation_name: str, **kwargs: Any
     ) -> AgentEngineOperationUnion: ...
 
 
@@ -1540,8 +1626,8 @@ def _wrap_async_query_operation(
     """
 
     async def _method(
-        self: genai_types.AgentEngine, **kwargs
-    ) -> Coroutine[Any, Any, Any]:  # type: ignore[no-untyped-def]
+        self: genai_types.AgentEngine, **kwargs: Any
+    ) -> Union[Coroutine[Any, Any, Any], Any]:
         if not self.api_async_client:
             raise ValueError("api_async_client is not initialized.")
         if not self.api_resource:
@@ -1633,7 +1719,7 @@ def _wrap_async_stream_query_operation(
     return _method
 
 
-def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list]:
+def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list[Any]]:
     """Wraps an Agent Engine method, creating a callable for A2A API.
 
     Args:
@@ -1679,7 +1765,7 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
         the A2A API.
     """
 
-    async def _method(self, **kwargs) -> Any:
+    async def _method(self, **kwargs) -> Any:  # type: ignore[no-untyped-def]
         """Wraps an Agent Engine method, creating a callable for A2A API."""
         if not self.api_client:
             raise ValueError("api_client is not initialized.")
@@ -1880,7 +1966,7 @@ def _add_telemetry_enablement_env(
     GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
         "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
     )
-    env_to_add = {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"}
+    env_to_add = {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}
 
     if env_vars is None:
         return env_to_add

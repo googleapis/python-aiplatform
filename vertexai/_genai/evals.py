@@ -33,6 +33,11 @@ from . import _evals_utils
 from . import _transformers as t
 from . import types
 
+try:
+    from google.adk.agents import LlmAgent
+except ImportError:
+    LlmAgent = None  # type: ignore[assignment]
+
 
 logger = logging.getLogger("vertexai_genai.evals")
 
@@ -76,16 +81,22 @@ def _CreateEvaluationRunParameters_to_vertex(
         setv(to_object, ["dataSource"], getv(from_object, ["data_source"]))
 
     if getv(from_object, ["evaluation_config"]) is not None:
-        setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
+        setv(
+            to_object,
+            ["evaluationConfig"],
+            _EvaluationRunConfig_to_vertex(
+                getv(from_object, ["evaluation_config"]), to_object
+            ),
+        )
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["inference_configs"]) is not None:
         setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -103,6 +114,36 @@ def _CreateEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _CustomCodeExecutionSpec_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluation_function"]) is not None:
+        setv(
+            to_object,
+            ["remote_custom_function"],
+            getv(from_object, ["evaluation_function"]),
+        )
+
+    return to_object
+
+
+def _CustomCodeExecutionSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["remote_custom_function"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_function"],
+            getv(from_object, ["remote_custom_function"]),
+        )
 
     return to_object
 
@@ -191,6 +232,90 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     return to_object
 
 
+def _EvaluationRunConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metrics"]) is not None:
+        setv(
+            to_object,
+            ["metrics"],
+            [
+                _EvaluationRunMetric_from_vertex(item, to_object)
+                for item in getv(from_object, ["metrics"])
+            ],
+        )
+
+    if getv(from_object, ["outputConfig"]) is not None:
+        setv(to_object, ["output_config"], getv(from_object, ["outputConfig"]))
+
+    if getv(from_object, ["autoraterConfig"]) is not None:
+        setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
+
+    return to_object
+
+
+def _EvaluationRunConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metrics"]) is not None:
+        setv(
+            to_object,
+            ["metrics"],
+            [
+                _EvaluationRunMetric_to_vertex(item, to_object)
+                for item in getv(from_object, ["metrics"])
+            ],
+        )
+
+    if getv(from_object, ["output_config"]) is not None:
+        setv(to_object, ["outputConfig"], getv(from_object, ["output_config"]))
+
+    if getv(from_object, ["autorater_config"]) is not None:
+        setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
+
+    return to_object
+
+
+def _EvaluationRunMetric_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric"]) is not None:
+        setv(to_object, ["metric"], getv(from_object, ["metric"]))
+
+    if getv(from_object, ["metricConfig"]) is not None:
+        setv(
+            to_object,
+            ["metric_config"],
+            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
+        )
+
+    return to_object
+
+
+def _EvaluationRunMetric_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric"]) is not None:
+        setv(to_object, ["metric"], getv(from_object, ["metric"]))
+
+    if getv(from_object, ["metric_config"]) is not None:
+        setv(
+            to_object,
+            ["metricConfig"],
+            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
+        )
+
+    return to_object
+
+
 def _EvaluationRun_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -235,7 +360,13 @@ def _EvaluationRun_from_vertex(
         )
 
     if getv(from_object, ["evaluationConfig"]) is not None:
-        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
+        setv(
+            to_object,
+            ["evaluation_config"],
+            _EvaluationRunConfig_from_vertex(
+                getv(from_object, ["evaluationConfig"]), to_object
+            ),
+        )
 
     if getv(from_object, ["inferenceConfigs"]) is not None:
         setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
@@ -361,7 +492,7 @@ def _RubricBasedMetricSpec_to_vertex(
         setv(
             to_object,
             ["inline_rubrics", "rubrics"],
-            [item for item in getv(from_object, ["inline_rubrics"])],
+            getv(from_object, ["inline_rubrics"]),
         )
 
     if getv(from_object, ["rubric_group_key"]) is not None:
@@ -400,6 +531,94 @@ def _RubricGenerationSpec_to_vertex(
             to_object,
             ["rubricTypeOntology"],
             getv(from_object, ["rubric_type_ontology"]),
+        )
+
+    return to_object
+
+
+def _UnifiedMetric_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["bleuSpec"]) is not None:
+        setv(to_object, ["bleu_spec"], getv(from_object, ["bleuSpec"]))
+
+    if getv(from_object, ["rougeSpec"]) is not None:
+        setv(to_object, ["rouge_spec"], getv(from_object, ["rougeSpec"]))
+
+    if getv(from_object, ["pointwiseMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["pointwise_metric_spec"],
+            getv(from_object, ["pointwiseMetricSpec"]),
+        )
+
+    if getv(from_object, ["llmBasedMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["llm_based_metric_spec"],
+            getv(from_object, ["llmBasedMetricSpec"]),
+        )
+
+    if getv(from_object, ["customCodeExecutionSpec"]) is not None:
+        setv(
+            to_object,
+            ["custom_code_execution_spec"],
+            _CustomCodeExecutionSpec_from_vertex(
+                getv(from_object, ["customCodeExecutionSpec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["predefinedMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["predefined_metric_spec"],
+            getv(from_object, ["predefinedMetricSpec"]),
+        )
+
+    return to_object
+
+
+def _UnifiedMetric_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["bleu_spec"]) is not None:
+        setv(to_object, ["bleuSpec"], getv(from_object, ["bleu_spec"]))
+
+    if getv(from_object, ["rouge_spec"]) is not None:
+        setv(to_object, ["rougeSpec"], getv(from_object, ["rouge_spec"]))
+
+    if getv(from_object, ["pointwise_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["pointwiseMetricSpec"],
+            getv(from_object, ["pointwise_metric_spec"]),
+        )
+
+    if getv(from_object, ["llm_based_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["llmBasedMetricSpec"],
+            getv(from_object, ["llm_based_metric_spec"]),
+        )
+
+    if getv(from_object, ["custom_code_execution_spec"]) is not None:
+        setv(
+            to_object,
+            ["customCodeExecutionSpec"],
+            _CustomCodeExecutionSpec_to_vertex(
+                getv(from_object, ["custom_code_execution_spec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["predefined_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["predefinedMetricSpec"],
+            getv(from_object, ["predefined_metric_spec"]),
         )
 
     return to_object
@@ -472,10 +691,10 @@ class Evals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -487,8 +706,8 @@ class Evals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
-            config=config,
             inference_configs=inference_configs,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -882,13 +1101,6 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def run(self) -> types.EvaluateInstancesResponse:
-        """Evaluates an instance of a model.
-
-        This should eventually call _evaluate_instances()
-        """
-        raise NotImplementedError()
-
     def evaluate_instances(
         self,
         *,
@@ -910,7 +1122,8 @@ class Evals(_api_module.BaseModule):
         *,
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
         model: Optional[Union[str, Callable[[Any], Any]]] = None,
-        agent: Optional[Union[str, types.AgentEngine]] = None,
+        agent: Optional[Union[str, types.AgentEngine, LlmAgent]] = None,
+        location: Optional[str] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation.
@@ -930,11 +1143,16 @@ class Evals(_api_module.BaseModule):
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
           agent: This field is experimental and may change in future versions
-                The agent engine used to run agent, optional for non-agent evaluations.
+                The agent engine used or local agent to run agent, optional for non-agent evaluations.
               - agent engine resource name in str type, with format
                 `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
                 run_inference will fetch the agent engine from the resource name.
               - Or `types.AgentEngine` object.
+              - Or ADK agent in LlMAgent type.
+          location: The location to use for the inference. If not specified, the
+                location configured in the client will be used. If specified,
+                this will override the location set in `vertexai.Client` only
+                for this API call.
           config: The optional configuration for the inference run. Must be a dict or
               `types.EvalRunInferenceConfig` type.
                 - dest: The destination path for storage of the inference results.
@@ -956,33 +1174,53 @@ class Evals(_api_module.BaseModule):
                 )
             src = src.eval_dataset_df
 
+        agent_engine_instance = None
+        agent_instance = None
+        if agent:
+            if isinstance(agent, str) or isinstance(agent, types.AgentEngine):
+                agent_engine_instance = agent
+            else:
+                agent_instance = agent
+
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
-            agent_engine=agent,
+            agent_engine=agent_engine_instance,
+            agent=agent_instance,
             src=src,
             dest=config.dest,
-            config=config.generate_content_config,
             prompt_template=config.prompt_template,
+            location=location,
+            config=config.generate_content_config,
         )
 
     def evaluate(
         self,
         *,
         dataset: Union[
-            types.EvaluationDatasetOrDict, list[types.EvaluationDatasetOrDict]
+            pd.DataFrame,
+            types.EvaluationDatasetOrDict,
+            list[types.EvaluationDatasetOrDict],
         ],
         metrics: list[types.MetricOrDict] = None,
+        location: Optional[str] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
         **kwargs,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
         Args:
-          dataset: The dataset(s) to evaluate. Can be a single `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
+          dataset: The dataset(s) to evaluate. Can be a pandas DataFrame, a single
+            `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
           metrics: The list of metrics to use for evaluation.
-          config: Optional configuration for the evaluation. Can be a dictionary or a `types.EvaluateMethodConfig` object.
-            - dataset_schema: Schema to use for the dataset. If not specified, the dataset schema will be inferred from the dataset automatically.
+          location: The location to use for the evaluation service. If not specified,
+             the location configured in the client will be used. If specified,
+             this will override the location set in `vertexai.Client` only for
+             this API call.
+          config: Optional configuration for the evaluation. Can be a dictionary or a
+            `types.EvaluateMethodConfig` object.
+            - dataset_schema: Schema to use for the dataset. If not specified, the
+              dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
@@ -993,6 +1231,10 @@ class Evals(_api_module.BaseModule):
             config = types.EvaluateMethodConfig()
         if isinstance(config, dict):
             config = types.EvaluateMethodConfig.model_validate(config)
+
+        if isinstance(dataset, pd.DataFrame):
+            dataset = types.EvaluationDataset(eval_dataset_df=dataset)
+
         if isinstance(dataset, list):
             dataset = [
                 (
@@ -1020,6 +1262,7 @@ class Evals(_api_module.BaseModule):
             metrics=metrics,
             dataset_schema=config.dataset_schema,
             dest=config.dest,
+            location=location,
             **kwargs,
         )
 
@@ -1388,15 +1631,6 @@ class Evals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            if isinstance(agent_info, dict):
-                agent_info = types.evals.AgentInfo.model_validate(agent_info)
-            if (
-                not agent_info.agent
-                or len(agent_info.agent.split("reasoningEngines/")) != 2
-            ):
-                raise ValueError(
-                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
-                )
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -1405,10 +1639,11 @@ class Evals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            labels = labels or {}
-            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                "reasoningEngines/"
-            )[-1]
+            if agent_info.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
@@ -1626,10 +1861,10 @@ class AsyncEvals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1641,8 +1876,8 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
-            config=config,
             inference_configs=inference_configs,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2243,15 +2478,6 @@ class AsyncEvals(_api_module.BaseModule):
         )
         inference_configs = {}
         if agent_info:
-            if isinstance(agent_info, dict):
-                agent_info = types.evals.AgentInfo.model_validate(agent_info)
-            if (
-                not agent_info.agent
-                or len(agent_info.agent.split("reasoningEngines/")) != 2
-            ):
-                raise ValueError(
-                    "agent_info.agent cannot be empty. Please provide a valid reasoning engine resource name in the format of projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}."
-                )
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -2260,10 +2486,11 @@ class AsyncEvals(_api_module.BaseModule):
                     tools=agent_info.tool_declarations,
                 )
             )
-            labels = labels or {}
-            labels["vertex-ai-evaluation-agent-engine-id"] = agent_info.agent.split(
-                "reasoningEngines/"
-            )[-1]
+            if agent_info.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 

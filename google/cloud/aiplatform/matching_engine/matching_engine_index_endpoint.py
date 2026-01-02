@@ -16,7 +16,7 @@
 #
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union, Any, Mapping
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -208,6 +208,8 @@ class MatchNeighbor:
             For example, values [1,2,3] with dimensions [4,5,6] means value 1 is
             of the 4th dimension, value 2 is of the 4th dimension, and value 3 is
             of the 6th dimension.
+        embedding_metadata (Mapping[str, Any]):
+            Optional. The corresponding embedding metadata of the matching datapoint.
 
     """
 
@@ -220,6 +222,7 @@ class MatchNeighbor:
     numeric_restricts: Optional[List[NumericNamespace]] = None
     sparse_embedding_values: Optional[List[float]] = None
     sparse_embedding_dimensions: Optional[List[int]] = None
+    embedding_metadata: Optional[Mapping[str, Any]] = None
 
     def from_index_datapoint(
         self, index_datapoint: gca_index_v1beta1.IndexDatapoint
@@ -276,6 +279,9 @@ class MatchNeighbor:
             self.sparse_embedding_dimensions = (
                 index_datapoint.sparse_embedding.dimensions
             )
+        # retrieve embedding metadata
+        if index_datapoint.embedding_metadata is not None:
+            self.embedding_metadata = index_datapoint.embedding_metadata
         return self
 
     def from_embedding(self, embedding: match_service_pb2.Embedding) -> "MatchNeighbor":
@@ -702,10 +708,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         psc_network: Optional[str] = None,
     ) -> str:
         """Helper method to get the ip address for a psc automated endpoint.
-        Returns:
+        Args:
             deployed_index_id (str):
-                    Optional. Required for private service access endpoint.
-                    The user specified ID of the DeployedIndex.
+                Optional. Required for private service access endpoint.
+                The user specified ID of the DeployedIndex.
             deployed_index (gca_matching_engine_index_endpoint.DeployedIndex):
                 Optional. Required for private service access endpoint.
                 The DeployedIndex resource.
@@ -721,6 +727,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 `private_service_connect_ip_address` field for this
                 MatchingEngineIndexEndpoint instance, if the ip address is
                 already known.
+
+        Returns:
+            str: The IP address for the PSC automated endpoint.
 
         Raises:
             RuntimeError: No valid ip found for deployed index with id

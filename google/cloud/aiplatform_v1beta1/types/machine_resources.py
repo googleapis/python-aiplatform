@@ -35,10 +35,12 @@ __protobuf__ = proto.module(
         "DedicatedResources",
         "AutomaticResources",
         "BatchDedicatedResources",
+        "FullFineTunedResources",
         "ResourcesConsumed",
         "DiskSpec",
         "PersistentDiskSpec",
         "NfsMount",
+        "LustreMount",
         "AutoscalingMetricSpec",
         "ShieldedVmConfig",
         "FlexStart",
@@ -100,6 +102,12 @@ class MachineSpec(proto.Message):
             Optional. Immutable. Configuration
             controlling how this resource pool consumes
             reservation.
+        min_gpu_driver_version (str):
+            Optional. Immutable. The minimum GPU driver
+            version that this machine requires. For example,
+            "535.104.06". If not specified, the default GPU
+            driver version will be used by the underlying
+            infrastructure.
     """
 
     machine_type: str = proto.Field(
@@ -131,6 +139,10 @@ class MachineSpec(proto.Message):
         proto.MESSAGE,
         number=5,
         message=gca_reservation_affinity.ReservationAffinity,
+    )
+    min_gpu_driver_version: str = proto.Field(
+        proto.STRING,
+        number=9,
     )
 
 
@@ -246,7 +258,7 @@ class DedicatedResources(proto.Message):
                 [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
             idle_scaledown_period (google.protobuf.duration_pb2.Duration):
                 Optional. Duration of no traffic before scaling to zero.
-                [MinValue=3600] (5 minutes) [MaxValue=28800] (8 hours)
+                [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)
         """
 
         min_scaleup_period: duration_pb2.Duration = proto.Field(
@@ -397,6 +409,66 @@ class BatchDedicatedResources(proto.Message):
     )
 
 
+class FullFineTunedResources(proto.Message):
+    r"""Resources for an fft model.
+
+    Attributes:
+        deployment_type (google.cloud.aiplatform_v1beta1.types.FullFineTunedResources.DeploymentType):
+            Required. The kind of deployment.
+        model_inference_unit_count (int):
+            Optional. The number of model inference units to use for
+            this deployment. This can only be specified for
+            DEPLOYMENT_TYPE_PROD. The following table lists the number
+            of model inference units for different model types:
+
+            - Gemini 2.5 Flash
+
+              - Foundation FMIU: 25
+              - Expansion FMIU: 4
+
+            - Gemini 2.5 Pro
+
+              - Foundation FMIU: 32
+              - Expansion FMIU: 16
+
+            - Veo 3.0 (undistilled)
+
+              - Foundation FMIU: 63
+              - Expansion FMIU: 7
+
+            - Veo 3.0 (distilled)
+
+              - Foundation FMIU: 30
+              - Expansion FMIU: 10
+    """
+
+    class DeploymentType(proto.Enum):
+        r"""The type of deployment.
+
+        Values:
+            DEPLOYMENT_TYPE_UNSPECIFIED (0):
+                Unspecified deployment type.
+            DEPLOYMENT_TYPE_EVAL (1):
+                Eval deployment type.
+            DEPLOYMENT_TYPE_PROD (2):
+                Prod deployment type.
+        """
+
+        DEPLOYMENT_TYPE_UNSPECIFIED = 0
+        DEPLOYMENT_TYPE_EVAL = 1
+        DEPLOYMENT_TYPE_PROD = 2
+
+    deployment_type: DeploymentType = proto.Field(
+        proto.ENUM,
+        number=1,
+        enum=DeploymentType,
+    )
+    model_inference_unit_count: int = proto.Field(
+        proto.INT32,
+        number=2,
+    )
+
+
 class ResourcesConsumed(proto.Message):
     r"""Statistics information about resource consumption.
 
@@ -495,6 +567,40 @@ class NfsMount(proto.Message):
     mount_point: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+
+
+class LustreMount(proto.Message):
+    r"""Represents a mount configuration for Lustre file system.
+
+    Attributes:
+        instance_ip (str):
+            Required. IP address of the Lustre instance.
+        volume_handle (str):
+            Required. The unique identifier of the Lustre
+            volume.
+        filesystem (str):
+            Required. The name of the Lustre filesystem.
+        mount_point (str):
+            Required. Destination mount path. The Lustre file system
+            will be mounted for the user under /mnt/lustre/<mount_point>
+    """
+
+    instance_ip: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    volume_handle: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    filesystem: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    mount_point: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 

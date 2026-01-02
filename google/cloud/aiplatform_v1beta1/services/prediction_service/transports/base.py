@@ -217,6 +217,11 @@ class PredictionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.embed_content: gapic_v1.method.wrap_method(
+                self.embed_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -446,6 +451,18 @@ class PredictionServiceTransport(abc.ABC):
     ) -> Callable[
         [prediction_service.ChatCompletionsRequest],
         Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def embed_content(
+        self,
+    ) -> Callable[
+        [prediction_service.EmbedContentRequest],
+        Union[
+            prediction_service.EmbedContentResponse,
+            Awaitable[prediction_service.EmbedContentResponse],
+        ],
     ]:
         raise NotImplementedError()
 

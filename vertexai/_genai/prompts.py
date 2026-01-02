@@ -42,9 +42,6 @@ def _CreateDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["name"], getv(from_object, ["name"]))
 
@@ -68,6 +65,9 @@ def _CreateDatasetParameters_to_vertex(
     if getv(from_object, ["model_reference"]) is not None:
         setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
 
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
     return to_object
 
 
@@ -76,9 +76,6 @@ def _CreateDatasetVersionParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["dataset_name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["dataset_name"]))
 
@@ -93,6 +90,9 @@ def _CreateDatasetVersionParameters_to_vertex(
 
     if getv(from_object, ["display_name"]) is not None:
         setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -133,14 +133,14 @@ def _GetDatasetOperationParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["dataset_id"]) is not None:
         setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
 
     if getv(from_object, ["operation_id"]) is not None:
         setv(to_object, ["_url", "operation_id"], getv(from_object, ["operation_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -150,11 +150,11 @@ def _GetDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -164,9 +164,6 @@ def _GetDatasetVersionParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["dataset_id"]) is not None:
         setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
 
@@ -177,6 +174,9 @@ def _GetDatasetVersionParameters_to_vertex(
             getv(from_object, ["dataset_version_id"]),
         )
 
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
     return to_object
 
 
@@ -185,18 +185,18 @@ def _ListDatasetVersionsRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
+    if getv(from_object, ["read_mask"]) is not None:
+        setv(to_object, ["_url", "read_mask"], getv(from_object, ["read_mask"]))
+
+    if getv(from_object, ["dataset_id"]) is not None:
+        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
+
     if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
             _ListPromptsConfig_to_vertex(getv(from_object, ["config"]), to_object),
         )
-
-    if getv(from_object, ["read_mask"]) is not None:
-        setv(to_object, ["_url", "read_mask"], getv(from_object, ["read_mask"]))
-
-    if getv(from_object, ["dataset_id"]) is not None:
-        setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
 
     return to_object
 
@@ -239,14 +239,14 @@ def _RestoreVersionRequestParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["dataset_id"]) is not None:
         setv(to_object, ["_url", "dataset_id"], getv(from_object, ["dataset_id"]))
 
     if getv(from_object, ["version_id"]) is not None:
         setv(to_object, ["_url", "version_id"], getv(from_object, ["version_id"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -256,9 +256,6 @@ def _UpdateDatasetParameters_to_vertex(
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["name"], getv(from_object, ["name"]))
 
@@ -280,6 +277,9 @@ def _UpdateDatasetParameters_to_vertex(
     if getv(from_object, ["model_reference"]) is not None:
         setv(to_object, ["modelReference"], getv(from_object, ["model_reference"]))
 
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
     return to_object
 
 
@@ -288,7 +288,6 @@ class Prompts(_api_module.BaseModule):
     def _create_dataset_resource(
         self,
         *,
-        config: Optional[types.CreateDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
@@ -296,13 +295,13 @@ class Prompts(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
+        config: Optional[types.CreateDatasetConfigOrDict] = None,
     ) -> types.DatasetOperation:
         """
         Creates a dataset resource to store prompts.
         """
 
         parameter_model = types._CreateDatasetParameters(
-            config=config,
             name=name,
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
@@ -310,6 +309,7 @@ class Prompts(_api_module.BaseModule):
             description=description,
             encryption_spec=encryption_spec,
             model_reference=model_reference,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -353,24 +353,24 @@ class Prompts(_api_module.BaseModule):
     def _create_dataset_version_resource(
         self,
         *,
-        config: Optional[types.CreateDatasetVersionConfigOrDict] = None,
         dataset_name: Optional[str] = None,
         metadata: Optional[types.SchemaTextPromptDatasetMetadataOrDict] = None,
         model_reference: Optional[str] = None,
         parent: Optional[str] = None,
         display_name: Optional[str] = None,
+        config: Optional[types.CreateDatasetVersionConfigOrDict] = None,
     ) -> types.DatasetOperation:
         """
         Creates a dataset version resource to store prompts.
         """
 
         parameter_model = types._CreateDatasetVersionParameters(
-            config=config,
             dataset_name=dataset_name,
             metadata=metadata,
             model_reference=model_reference,
             parent=parent,
             display_name=display_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -414,16 +414,16 @@ class Prompts(_api_module.BaseModule):
     def _get_dataset_resource(
         self,
         *,
-        config: Optional[types.VertexBaseConfigOrDict] = None,
         name: Optional[str] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.Dataset:
         """
         Gets a dataset resource to store prompts.
         """
 
         parameter_model = types._GetDatasetParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -467,18 +467,18 @@ class Prompts(_api_module.BaseModule):
     def _get_dataset_version_resource(
         self,
         *,
-        config: Optional[types.VertexBaseConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         dataset_version_id: Optional[str] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.DatasetVersion:
         """
         Gets a dataset version resource to store prompts.
         """
 
         parameter_model = types._GetDatasetVersionParameters(
-            config=config,
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -524,18 +524,18 @@ class Prompts(_api_module.BaseModule):
     def _get_dataset_operation(
         self,
         *,
-        config: Optional[types.GetDatasetOperationConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         operation_id: Optional[str] = None,
+        config: Optional[types.GetDatasetOperationConfigOrDict] = None,
     ) -> types.DatasetOperation:
         """
         Gets the operation from creating a dataset.
         """
 
         parameter_model = types._GetDatasetOperationParameters(
-            config=config,
             dataset_id=dataset_id,
             operation_id=operation_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -630,18 +630,18 @@ class Prompts(_api_module.BaseModule):
     def _list_versions(
         self,
         *,
-        config: Optional[types.ListPromptsConfigOrDict] = None,
         read_mask: Optional[str] = None,
         dataset_id: Optional[str] = None,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
     ) -> types.ListDatasetVersionsResponse:
         """
         Lists Agent Engines.
         """
 
         parameter_model = types._ListDatasetVersionsRequestParameters(
-            config=config,
             read_mask=read_mask,
             dataset_id=dataset_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -790,18 +790,18 @@ class Prompts(_api_module.BaseModule):
     def _restore_version(
         self,
         *,
-        config: Optional[types.RestoreVersionConfigOrDict] = None,
         dataset_id: str,
         version_id: str,
+        config: Optional[types.RestoreVersionConfigOrDict] = None,
     ) -> types.RestoreVersionOperation:
         """
         Restores the provided prompt version to the latest version.
         """
 
         parameter_model = types._RestoreVersionRequestParameters(
-            config=config,
             dataset_id=dataset_id,
             version_id=version_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -847,7 +847,6 @@ class Prompts(_api_module.BaseModule):
     def _update_dataset_resource(
         self,
         *,
-        config: Optional[types.UpdateDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         dataset_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -855,13 +854,13 @@ class Prompts(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
+        config: Optional[types.UpdateDatasetConfigOrDict] = None,
     ) -> types.Dataset:
         """
         Creates a dataset resource to store prompts.
         """
 
         parameter_model = types._UpdateDatasetParameters(
-            config=config,
             name=name,
             dataset_id=dataset_id,
             display_name=display_name,
@@ -869,6 +868,7 @@ class Prompts(_api_module.BaseModule):
             description=description,
             encryption_spec=encryption_spec,
             model_reference=model_reference,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1425,7 +1425,6 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _create_dataset_resource(
         self,
         *,
-        config: Optional[types.CreateDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         metadata_schema_uri: Optional[str] = None,
@@ -1433,13 +1432,13 @@ class AsyncPrompts(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
+        config: Optional[types.CreateDatasetConfigOrDict] = None,
     ) -> types.DatasetOperation:
         """
         Creates a dataset resource to store prompts.
         """
 
         parameter_model = types._CreateDatasetParameters(
-            config=config,
             name=name,
             display_name=display_name,
             metadata_schema_uri=metadata_schema_uri,
@@ -1447,6 +1446,7 @@ class AsyncPrompts(_api_module.BaseModule):
             description=description,
             encryption_spec=encryption_spec,
             model_reference=model_reference,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1492,24 +1492,24 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _create_dataset_version_resource(
         self,
         *,
-        config: Optional[types.CreateDatasetVersionConfigOrDict] = None,
         dataset_name: Optional[str] = None,
         metadata: Optional[types.SchemaTextPromptDatasetMetadataOrDict] = None,
         model_reference: Optional[str] = None,
         parent: Optional[str] = None,
         display_name: Optional[str] = None,
+        config: Optional[types.CreateDatasetVersionConfigOrDict] = None,
     ) -> types.DatasetOperation:
         """
         Creates a dataset version resource to store prompts.
         """
 
         parameter_model = types._CreateDatasetVersionParameters(
-            config=config,
             dataset_name=dataset_name,
             metadata=metadata,
             model_reference=model_reference,
             parent=parent,
             display_name=display_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1555,16 +1555,16 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _get_dataset_resource(
         self,
         *,
-        config: Optional[types.VertexBaseConfigOrDict] = None,
         name: Optional[str] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.Dataset:
         """
         Gets a dataset resource to store prompts.
         """
 
         parameter_model = types._GetDatasetParameters(
-            config=config,
             name=name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1610,18 +1610,18 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _get_dataset_version_resource(
         self,
         *,
-        config: Optional[types.VertexBaseConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         dataset_version_id: Optional[str] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.DatasetVersion:
         """
         Gets a dataset version resource to store prompts.
         """
 
         parameter_model = types._GetDatasetVersionParameters(
-            config=config,
             dataset_id=dataset_id,
             dataset_version_id=dataset_version_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1669,18 +1669,18 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _get_dataset_operation(
         self,
         *,
-        config: Optional[types.GetDatasetOperationConfigOrDict] = None,
         dataset_id: Optional[str] = None,
         operation_id: Optional[str] = None,
+        config: Optional[types.GetDatasetOperationConfigOrDict] = None,
     ) -> types.DatasetOperation:
         """
         Gets the operation from creating a dataset.
         """
 
         parameter_model = types._GetDatasetOperationParameters(
-            config=config,
             dataset_id=dataset_id,
             operation_id=operation_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1779,18 +1779,18 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _list_versions(
         self,
         *,
-        config: Optional[types.ListPromptsConfigOrDict] = None,
         read_mask: Optional[str] = None,
         dataset_id: Optional[str] = None,
+        config: Optional[types.ListPromptsConfigOrDict] = None,
     ) -> types.ListDatasetVersionsResponse:
         """
         Lists Agent Engines.
         """
 
         parameter_model = types._ListDatasetVersionsRequestParameters(
-            config=config,
             read_mask=read_mask,
             dataset_id=dataset_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1945,18 +1945,18 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _restore_version(
         self,
         *,
-        config: Optional[types.RestoreVersionConfigOrDict] = None,
         dataset_id: str,
         version_id: str,
+        config: Optional[types.RestoreVersionConfigOrDict] = None,
     ) -> types.RestoreVersionOperation:
         """
         Restores the provided prompt version to the latest version.
         """
 
         parameter_model = types._RestoreVersionRequestParameters(
-            config=config,
             dataset_id=dataset_id,
             version_id=version_id,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2004,7 +2004,6 @@ class AsyncPrompts(_api_module.BaseModule):
     async def _update_dataset_resource(
         self,
         *,
-        config: Optional[types.UpdateDatasetConfigOrDict] = None,
         name: Optional[str] = None,
         dataset_id: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -2012,13 +2011,13 @@ class AsyncPrompts(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
+        config: Optional[types.UpdateDatasetConfigOrDict] = None,
     ) -> types.Dataset:
         """
         Creates a dataset resource to store prompts.
         """
 
         parameter_model = types._UpdateDatasetParameters(
-            config=config,
             name=name,
             dataset_id=dataset_id,
             display_name=display_name,
@@ -2026,6 +2025,7 @@ class AsyncPrompts(_api_module.BaseModule):
             description=description,
             encryption_spec=encryption_spec,
             model_reference=model_reference,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]

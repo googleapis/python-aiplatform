@@ -130,7 +130,7 @@ def lint(session):
     session.run("flake8", *LINT_PATHS)
 
 
-@nox.session(python=DEFAULT_PYTHON_VERSION)
+@nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def blacken(session):
     """Run black. Format code to uniform standard."""
     session.install(BLACK_VERSION)
@@ -459,7 +459,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9")
+@nox.session(python="3.9", venv_backend="virtualenv")
 def docs(session):
     """Build the docs for this library."""
 
@@ -483,7 +483,7 @@ def docs(session):
     )
 
 
-@nox.session(python="3.10")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def docfx(session):
     """Build the docfx yaml files for this library."""
 
@@ -519,7 +519,7 @@ def docfx(session):
     )
 
 
-@nox.session(python="3.9")
+@nox.session(python="3.9", venv_backend="virtualenv")
 def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
@@ -540,7 +540,7 @@ def gemini_docs(session):
     )
 
 
-@nox.session(python="3.10")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def gemini_docfx(session):
     """Build the docfx yaml files for library related to Gemini."""
 

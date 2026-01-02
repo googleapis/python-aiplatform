@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# pylint: disable=protected-access,bad-continuation,
+import base64
 import importlib
 import json
 import os
+import re
 import statistics
 import sys
 from unittest import mock
@@ -33,6 +36,7 @@ from vertexai._genai import _observability_data_converter
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
 from google.genai import client
+from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
@@ -68,6 +72,7 @@ def mock_api_client_fixture():
     )
     mock_client._credentials.universe_domain = "googleapis.com"
     mock_client._evals_client = mock.Mock(spec=evals.Evals)
+    mock_client._http_options = None
     return mock_client
 
 
@@ -138,6 +143,46 @@ def mock_eval_dependencies(mock_api_client_fixture):
         }
 
 
+class TestGetApiClientWithLocation:
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_get_api_client_with_location_override(
+        self, mock_vertexai_client, mock_api_client_fixture
+    ):
+        mock_api_client_fixture.location = "us-central1"
+        new_location = "europe-west1"
+        _evals_common._get_api_client_with_location(
+            mock_api_client_fixture, new_location
+        )
+        mock_vertexai_client.assert_called_once_with(
+            project=mock_api_client_fixture.project,
+            location=new_location,
+            credentials=mock_api_client_fixture._credentials,
+            http_options=mock_api_client_fixture._http_options,
+        )
+
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_get_api_client_with_same_location(
+        self, mock_vertexai_client, mock_api_client_fixture
+    ):
+        mock_api_client_fixture.location = "us-central1"
+        new_location = "us-central1"
+        _evals_common._get_api_client_with_location(
+            mock_api_client_fixture, new_location
+        )
+        mock_vertexai_client.assert_not_called()
+
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_get_api_client_with_none_location(
+        self, mock_vertexai_client, mock_api_client_fixture
+    ):
+        mock_api_client_fixture.location = "us-central1"
+        new_location = None
+        _evals_common._get_api_client_with_location(
+            mock_api_client_fixture, new_location
+        )
+        mock_vertexai_client.assert_not_called()
+
+
 class TestEvals:
     """Unit tests for the GenAI client."""
 
@@ -150,12 +195,6 @@ class TestEvals:
             location=_TEST_LOCATION,
         )
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-
-    @pytest.mark.usefixtures("google_auth_mock")
-    def test_eval_run(self):
-        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        with pytest.raises(NotImplementedError):
-            test_client.evals.run()
 
     @pytest.mark.usefixtures("google_auth_mock")
     @mock.patch.object(client.Client, "_get_api_client")
@@ -254,8 +293,72 @@ class TestEvalsVisualization:
 
         mock_display_module.HTML.assert_called_once()
         html_content = mock_display_module.HTML.call_args[0][0]
-        assert "my_function" in html_content
-        assert "this is model response" in html_content
+        match = re.search(r'atob\("([^"]+)"\)', html_content)
+        assert match
+        decoded_json = base64.b64decode(match.group(1)).decode("utf-8")
+        assert "my_function" in decoded_json
+        assert "this is model response" in decoded_json
+
+        del sys.modules["IPython"]
+        del sys.modules["IPython.display"]
+
+    @mock.patch(
+        "vertexai._genai._evals_visualization._is_ipython_env",
+        return_value=True,
+    )
+    def test_display_evaluation_result_with_non_ascii_character(self, mock_is_ipython):
+        """Tests that non-ASCII characters are handled correctly."""
+        mock_display_module = mock.MagicMock()
+        mock_ipython_module = mock.MagicMock()
+        mock_ipython_module.display = mock_display_module
+        sys.modules["IPython"] = mock_ipython_module
+        sys.modules["IPython.display"] = mock_display_module
+
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt with emoji 😊",
+                    "response": "Test response with emoji 😊",
+                },
+            ]
+        )
+        eval_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        eval_result = vertexai_genai_types.EvaluationResult(
+            evaluation_dataset=[eval_dataset],
+            eval_case_results=[
+                vertexai_genai_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        vertexai_genai_types.ResponseCandidateResult(
+                            response_index=0, metric_results={}
+                        )
+                    ],
+                )
+            ],
+        )
+
+        _evals_visualization.display_evaluation_result(eval_result)
+
+        mock_display_module.HTML.assert_called_once()
+        html_content = mock_display_module.HTML.call_args[0][0]
+        # Verify that the new decoding logic is present in the HTML
+        assert "new TextDecoder().decode" in html_content
+
+        match = re.search(r'atob\("([^"]+)"\)', html_content)
+        assert match
+        decoded_json = base64.b64decode(match.group(1)).decode("utf-8")
+
+        # JSON serialization escapes non-ASCII characters (e.g. \uXXXX), so we
+        # parse it back to check for the actual characters.
+        parsed_json = json.loads(decoded_json)
+        assert "Test prompt with emoji 😊" in json.dumps(
+            parsed_json, ensure_ascii=False
+        )
+        assert "Test response with emoji 😊" in json.dumps(
+            parsed_json, ensure_ascii=False
+        )
 
         del sys.modules["IPython"]
         del sys.modules["IPython.display"]
@@ -286,7 +389,7 @@ class TestEvalsRunInference:
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_string_model_success(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -329,7 +432,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_callable_model_sets_candidate_name(
         self, mock_eval_dataset_loader
     ):
@@ -348,7 +451,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "my_model_fn"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_lambda_model_candidate_name_is_none(
         self, mock_eval_dataset_loader
     ):
@@ -370,7 +473,7 @@ class TestEvalsRunInference:
         )
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_callable_model_success(self, mock_eval_dataset_loader):
         mock_df = pd.DataFrame({"prompt": ["test prompt"]})
         mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
@@ -398,7 +501,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_prompt_template(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -445,7 +548,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch.object(_gcs_utils, "GcsUtils")
     def test_inference_with_gcs_destination(
         self, mock_gcs_utils, mock_eval_dataset_loader, mock_models
@@ -499,7 +602,7 @@ class TestEvalsRunInference:
         )
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("pandas.DataFrame.to_json")
     @mock.patch("os.makedirs")
     def test_inference_with_local_destination(
@@ -551,7 +654,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_from_request_column_save_to_local_dir(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -786,7 +889,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_row_level_config_overrides(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -971,7 +1074,7 @@ class TestEvalsRunInference:
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_multimodal_content(
         self, mock_eval_dataset_loader, mock_models
     ):
@@ -1047,7 +1150,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "gemini-pro"
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.vertexai.Client")
     def test_run_inference_with_agent_engine_and_session_inputs_dict(
         self,
@@ -1135,7 +1238,7 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name is None
         assert inference_result.gcs_source is None
 
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.vertexai.Client")
     def test_run_inference_with_agent_engine_and_session_inputs_literal_string(
         self,
@@ -1251,6 +1354,147 @@ class TestEvalsRunInference:
             "The eval dataset provided for agent run should not contain "
             "'intermediate_events' or 'response' columns"
         ) in str(excinfo.value)
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.InMemorySessionService")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.Runner")
+    @mock.patch("vertexai._genai._evals_common.LlmAgent")
+    def test_run_inference_with_local_agent(
+        self,
+        mock_llm_agent,
+        mock_runner,
+        mock_session_service,
+        mock_eval_dataset_loader,
+    ):
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt", "agent prompt 2"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    },
+                    {
+                        "user_id": "456",
+                        "state": {"b": "2"},
+                    },
+                ],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_agent_instance = mock.Mock()
+        mock_llm_agent.return_value = mock_agent_instance
+        mock_session_service.return_value.create_session = mock.AsyncMock()
+        mock_runner_instance = mock_runner.return_value
+        stream_run_return_value_1 = [
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "1",
+                    "content": {"parts": [{"text": "intermediate1"}]},
+                    "timestamp": 123,
+                    "author": "model",
+                }
+            ),
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "2",
+                    "content": {"parts": [{"text": "agent response"}]},
+                    "timestamp": 124,
+                    "author": "model",
+                }
+            ),
+        ]
+        stream_run_return_value_2 = [
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "3",
+                    "content": {"parts": [{"text": "intermediate2"}]},
+                    "timestamp": 125,
+                    "author": "model",
+                }
+            ),
+            mock.Mock(
+                model_dump=lambda: {
+                    "id": "4",
+                    "content": {"parts": [{"text": "agent response 2"}]},
+                    "timestamp": 126,
+                    "author": "model",
+                }
+            ),
+        ]
+
+        async def async_iterator(items):
+            for item in items:
+                yield item
+
+        def run_async_side_effect(*args, **kwargs):
+            new_message = kwargs.get("new_message")
+            if new_message and new_message.parts[0].text == "agent prompt":
+                return async_iterator(stream_run_return_value_1)
+            return async_iterator(stream_run_return_value_2)
+
+        mock_runner_instance.run_async.side_effect = run_async_side_effect
+
+        inference_result = self.client.evals.run_inference(
+            agent=mock_agent_instance,
+            src=mock_df,
+        )
+
+        mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
+        assert mock_session_service.call_count == 2
+        mock_runner.assert_called_with(
+            agent=mock_agent_instance,
+            app_name="local agent run",
+            session_service=mock_session_service.return_value,
+        )
+        assert mock_runner.call_count == 2
+        assert mock_runner_instance.run_async.call_count == 2
+
+        expected_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt", "agent prompt 2"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    },
+                    {
+                        "user_id": "456",
+                        "state": {"b": "2"},
+                    },
+                ],
+                "intermediate_events": [
+                    [
+                        {
+                            "event_id": "1",
+                            "content": {"parts": [{"text": "intermediate1"}]},
+                            "creation_timestamp": 123,
+                            "author": "model",
+                        }
+                    ],
+                    [
+                        {
+                            "event_id": "3",
+                            "content": {"parts": [{"text": "intermediate2"}]},
+                            "creation_timestamp": 125,
+                            "author": "model",
+                        }
+                    ],
+                ],
+                "response": ["agent response", "agent response 2"],
+            }
+        )
+        pd.testing.assert_frame_equal(
+            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                drop=True
+            ),
+            expected_df.sort_values(by="prompt").reset_index(drop=True),
+        )
+        assert inference_result.candidate_name is None
+        assert inference_result.gcs_source is None
 
     def test_run_inference_with_litellm_string_prompt_format(
         self,
@@ -1410,7 +1654,7 @@ class TestEvalsRunInference:
     @mock.patch.object(_evals_common, "_is_gemini_model")
     @mock.patch.object(_evals_common, "_is_litellm_model")
     @mock.patch.object(_evals_common, "_is_litellm_vertex_maas_model")
-    @mock.patch.object(_evals_metric_loaders, "EvalDatasetLoader")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_litellm_parsing(
         self,
         mock_eval_dataset_loader,
@@ -1515,6 +1759,64 @@ class TestEvalsRunInference:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestEvalsMetricHandlers:
+    """Unit tests for utility functions in _evals_metric_handlers."""
+
+    def test_has_tool_call_with_tool_call(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            )
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
+    def test_has_tool_call_no_tool_call(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(parts=[genai_types.Part(text="hello")]),
+            )
+        ]
+        assert not _evals_metric_handlers._has_tool_call(events)
+
+    def test_has_tool_call_empty_events(self):
+        assert not _evals_metric_handlers._has_tool_call([])
+
+    def test_has_tool_call_none_events(self):
+        assert not _evals_metric_handlers._has_tool_call(None)
+
+    def test_has_tool_call_mixed_events(self):
+        events = [
+            vertexai_genai_types.evals.Event(
+                event_id="1",
+                content=genai_types.Content(parts=[genai_types.Part(text="hello")]),
+            ),
+            vertexai_genai_types.evals.Event(
+                event_id="2",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            ),
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
+
+@pytest.mark.usefixtures("google_auth_mock")
 class TestRunAgentInternal:
     """Unit tests for the _run_agent_internal function."""
 
@@ -1546,6 +1848,7 @@ class TestRunAgentInternal:
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
             agent_engine=mock_agent_engine,
+            agent=None,
             prompt_dataset=prompt_dataset,
         )
 
@@ -1576,6 +1879,7 @@ class TestRunAgentInternal:
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
             agent_engine=mock_agent_engine,
+            agent=None,
             prompt_dataset=prompt_dataset,
         )
 
@@ -1602,6 +1906,7 @@ class TestRunAgentInternal:
         result_df = _evals_common._run_agent_internal(
             api_client=mock_api_client,
             agent_engine=mock_agent_engine,
+            agent=None,
             prompt_dataset=prompt_dataset,
         )
         assert "response" in result_df.columns
@@ -2314,7 +2619,7 @@ class TestFlattenEvalDataConverter:
                 "response": ["Hi"],
                 "intermediate_events": [
                     [
-                        vertexai_genai_types.Event(
+                        vertexai_genai_types.evals.Event(
                             event_id="event1",
                             content=genai_types.Content(
                                 parts=[genai_types.Part(text="intermediate event")]
@@ -2577,14 +2882,14 @@ class TestObservabilityDataConverter:
         )
 
         assert len(eval_case.conversation_history) == 2
-        assert eval_case.conversation_history[0] == vertexai_genai_types.Message(
+        assert eval_case.conversation_history[0] == vertexai_genai_types.evals.Message(
             content=genai_types.Content(
                 parts=[genai_types.Part(text="Hello")], role="user"
             ),
             turn_id="0",
             author="user",
         )
-        assert eval_case.conversation_history[1] == vertexai_genai_types.Message(
+        assert eval_case.conversation_history[1] == vertexai_genai_types.evals.Message(
             content=genai_types.Content(
                 parts=[genai_types.Part(text="Hi")], role="system"
             ),
@@ -2781,12 +3086,46 @@ class TestAgentInfo:
         assert agent_info.description == "description1"
         assert agent_info.tool_declarations == [tool]
 
+    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
+    def test_load_from_agent(self, mock_from_callable):
+        def my_search_tool(query: str) -> str:
+            """Searches for information."""
+            return f"search result for {query}"
+
+        mock_function_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_from_callable.return_value = mock_function_declaration
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [my_search_tool]
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+            agent_resource_name="projects/123/locations/abc/reasoningEngines/456",
+        )
+
+        assert agent_info.name == "mock_agent"
+        assert agent_info.instruction == "mock instruction"
+        assert agent_info.description == "mock description"
+        assert (
+            agent_info.agent_resource_name
+            == "projects/123/locations/abc/reasoningEngines/456"
+        )
+        assert len(agent_info.tool_declarations) == 1
+        assert isinstance(agent_info.tool_declarations[0], genai_types.Tool)
+        assert agent_info.tool_declarations[0].function_declarations == [
+            mock_function_declaration
+        ]
+        mock_from_callable.assert_called_once_with(callable=my_search_tool)
+
 
 class TestEvent:
     """Unit tests for the Event class."""
 
     def test_event_creation(self):
-        event = vertexai_genai_types.Event(
+        event = vertexai_genai_types.evals.Event(
             event_id="event1",
             content=genai_types.Content(
                 parts=[genai_types.Part(text="intermediate event")]
@@ -2820,7 +3159,7 @@ class TestEvalCase:
             tool_declarations=[tool],
         )
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -2846,7 +3185,7 @@ class TestSessionInput:
     """Unit tests for the SessionInput class."""
 
     def test_session_input_creation(self):
-        session_input = vertexai_genai_types.SessionInput(
+        session_input = vertexai_genai_types.evals.SessionInput(
             user_id="user1",
             state={"key": "value"},
         )
@@ -3692,7 +4031,7 @@ class TestPredefinedMetricHandler:
             tool_declarations=[tool],
         )
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -3722,7 +4061,7 @@ class TestPredefinedMetricHandler:
 
     def test_eval_case_to_agent_data_events_only(self):
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
@@ -3751,7 +4090,7 @@ class TestPredefinedMetricHandler:
 
     def test_eval_case_to_agent_data_empty_event_content(self):
         intermediate_events = [
-            vertexai_genai_types.Event(
+            vertexai_genai_types.evals.Event(
                 event_id="event1",
                 content=None,
             )
@@ -3855,6 +4194,39 @@ class TestPredefinedMetricHandler:
 
         assert agent_data.agent_config is None
 
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_tool_use_quality_metric_no_tool_call_logs_warning(
+        self, mock_warning, mock_api_client_fixture
+    ):
+        """Tests that PredefinedMetricHandler warns for tool_use_quality_v1 if no tool call."""
+        metric = vertexai_genai_types.Metric(name="tool_use_quality_v1")
+        handler = _evals_metric_handlers.PredefinedMetricHandler(
+            module=evals.Evals(api_client_=mock_api_client_fixture), metric=metric
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            eval_case_id="case-no-tool-call",
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            intermediate_events=[
+                vertexai_genai_types.evals.Event(
+                    event_id="event1",
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="intermediate event")]
+                    ),
+                )
+            ],
+        )
+        handler._build_request_payload(eval_case, response_index=0)
+        mock_warning.assert_called_once_with(
+            "Metric 'tool_use_quality_v1' requires tool usage in "
+            "'intermediate_events', but no tool usage was found for case %s.",
+            "case-no-tool-call",
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLLMMetricHandlerPayload:
@@ -3933,12 +4305,12 @@ class TestLLMMetricHandlerPayload:
                 )
             ],
             conversation_history=[
-                vertexai_genai_types.Message(
+                vertexai_genai_types.evals.Message(
                     content=genai_types.Content(
                         parts=[genai_types.Part(text="Turn 1 user")], role="user"
                     )
                 ),
-                vertexai_genai_types.Message(
+                vertexai_genai_types.evals.Message(
                     content=genai_types.Content(
                         parts=[genai_types.Part(text="Turn 1 model")], role="model"
                     )
@@ -4410,9 +4782,7 @@ class TestEvalsRunEvaluation:
             name="test_metric", prompt_template="Evaluate: {response}"
         )
 
-        with mock.patch.object(
-            _evals_metric_loaders, "EvalDatasetLoader"
-        ) as mock_loader_class:
+        with mock.patch.object(_evals_utils, "EvalDatasetLoader") as mock_loader_class:
             mock_loader_instance = mock_loader_class.return_value
             mock_loader_instance.load.return_value = mock_openai_raw_data
 
@@ -4860,6 +5230,110 @@ class TestEvalsRunEvaluation:
 
         assert result.metadata is not None
         assert result.metadata.creation_timestamp == mock_now
+
+    @mock.patch(
+        "vertexai._genai._evals_metric_handlers._evals_constant.SUPPORTED_PREDEFINED_METRICS",
+        frozenset(["summarization_quality"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("vertexai._genai.evals.Evals._evaluate_instances")  # fmt: skip
+    def test_predefined_metric_retry_on_resource_exhausted(
+        self,
+        mock_private_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        metric = vertexai_genai_types.Metric(name="summarization_quality")
+        metric_result = vertexai_genai_types.MetricResult(
+            score=0.9,
+            explanation="Mocked predefined explanation",
+            rubric_verdicts=[],
+            error=None,
+        )
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": ("Judge model resource exhausted. Please try again later."),
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        mock_private_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            vertexai_genai_types.EvaluateInstancesResponse(
+                metric_results=[metric_result]
+            ),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_private_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "summarization_quality"
+        assert summary_metric.mean_score == 0.9
+
+    @mock.patch(
+        "vertexai._genai._evals_metric_handlers._evals_constant.SUPPORTED_PREDEFINED_METRICS",
+        frozenset(["summarization_quality"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("vertexai._genai.evals.Evals._evaluate_instances")  # fmt: skip
+    def test_predefined_metric_retry_fail_on_resource_exhausted(
+        self,
+        mock_private_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        dataset_df = pd.DataFrame(
+            [{"prompt": "Test prompt", "response": "Test response"}]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": ("Judge model resource exhausted. Please try again later."),
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        metric = vertexai_genai_types.Metric(name="summarization_quality")
+        mock_private_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_private_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        assert len(result.summary_metrics) == 1
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "summarization_quality"
+        assert summary_metric.mean_score is None
+        assert summary_metric.num_cases_error == 1
+        assert (
+            "Judge model resource exhausted after 3 retries"
+        ) in result.eval_case_results[0].response_candidate_results[0].metric_results[
+            "summarization_quality"
+        ].error_message
 
 
 class TestEvaluationDataset:

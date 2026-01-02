@@ -15,8 +15,8 @@
 
 import asyncio
 import importlib
-from typing import Optional, Union, Any
-from types import TracebackType
+from typing import Optional, Union, TYPE_CHECKING
+from types import TracebackType, ModuleType
 
 import google.auth
 from google.cloud.aiplatform import version as aip_version
@@ -25,6 +25,18 @@ from google.genai import _common
 from google.genai import client as genai_client
 from google.genai import types
 from . import live
+
+if TYPE_CHECKING:
+    from vertexai._genai import (
+        agent_engines as agent_engines_module,
+    )
+    from vertexai._genai import datasets as datasets_module
+    from vertexai._genai import evals as evals_module
+    from vertexai._genai import (
+        prompt_optimizer as prompt_optimizer_module,
+    )
+    from vertexai._genai import prompts as prompts_module
+    from vertexai._genai import live as live_module
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
@@ -50,44 +62,44 @@ _api_client.append_library_version_headers = _add_tracking_headers
 class AsyncClient:
     """Async Gen AI Client for the Vertex SDK."""
 
-    def __init__(self, api_client: genai_client.BaseApiClient):
+    def __init__(self, api_client: genai_client.BaseApiClient):  # type: ignore[name-defined]
         self._api_client = api_client
         self._live = live.AsyncLive(self._api_client)
-        self._evals = None
-        self._agent_engines = None
-        self._prompt_optimizer = None
-        self._prompts = None
-        self._datasets = None
+        self._evals: Optional[ModuleType] = None
+        self._agent_engines: Optional[ModuleType] = None
+        self._prompt_optimizer: Optional[ModuleType] = None
+        self._prompts: Optional[ModuleType] = None
+        self._datasets: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
         "The Vertex SDK GenAI live module is experimental, and may change in future "
         "versions."
     )
-    def live(self) -> live.AsyncLive:
+    def live(self) -> "live_module.AsyncLive":
         return self._live
 
     @property
-    def evals(self) -> Any:
+    def evals(self) -> "evals_module.AsyncEvals":
         if self._evals is None:
             try:
                 # We need to lazy load the evals module to avoid ImportError when
                 # pandas/tqdm are not installed.
-                self._evals = importlib.import_module(".evals", __package__)  # type: ignore[assignment]
+                self._evals = importlib.import_module(".evals", __package__)
             except ImportError as e:
                 raise ImportError(
                     "The 'evals' module requires 'pandas' and 'tqdm'. "
                     "Please install them using pip install "
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
-        return self._evals.AsyncEvals(self._api_client)  # type: ignore[attr-defined]
+        return self._evals.AsyncEvals(self._api_client)
 
     @property
     @_common.experimental_warning(
         "The Vertex SDK GenAI prompt optimizer module is experimental, "
         "and may change in future versions."
     )
-    def prompt_optimizer(self):
+    def prompt_optimizer(self) -> "prompt_optimizer_module.AsyncPromptOptimizer":
         if self._prompt_optimizer is None:
             self._prompt_optimizer = importlib.import_module(
                 ".prompt_optimizer", __package__
@@ -95,7 +107,7 @@ class AsyncClient:
         return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
 
     @property
-    def agent_engines(self):
+    def agent_engines(self) -> "agent_engines_module.AsyncAgentEngines":
         if self._agent_engines is None:
             try:
                 # We need to lazy load the agent_engines module to handle the
@@ -113,7 +125,7 @@ class AsyncClient:
         return self._agent_engines.AsyncAgentEngines(self._api_client)
 
     @property
-    def prompts(self):
+    def prompts(self) -> "prompts_module.AsyncPrompts":
         if self._prompts is None:
             self._prompts = importlib.import_module(
                 ".prompts",
@@ -126,7 +138,7 @@ class AsyncClient:
         "The Vertex SDK GenAI async datasets module is experimental, "
         "and may change in future versions."
     )
-    def datasets(self):
+    def datasets(self) -> "datasets_module.AsyncDatasets":
         if self._datasets is None:
             self._datasets = importlib.import_module(
                 ".datasets",
@@ -224,33 +236,33 @@ class Client:
             http_options=http_options,
         )
         self._aio = AsyncClient(self._api_client)
-        self._evals = None
-        self._prompt_optimizer = None
-        self._agent_engines = None
-        self._prompts = None
-        self._datasets = None
+        self._evals: Optional[ModuleType] = None
+        self._prompt_optimizer: Optional[ModuleType] = None
+        self._agent_engines: Optional[ModuleType] = None
+        self._prompts: Optional[ModuleType] = None
+        self._datasets: Optional[ModuleType] = None
 
     @property
-    def evals(self) -> Any:
+    def evals(self) -> "evals_module.Evals":
         if self._evals is None:
             try:
                 # We need to lazy load the evals module to avoid ImportError when
                 # pandas/tqdm are not installed.
-                self._evals = importlib.import_module(".evals", __package__)  # type: ignore[assignment]
+                self._evals = importlib.import_module(".evals", __package__)
             except ImportError as e:
                 raise ImportError(
                     "The 'evals' module requires additional dependencies. "
                     "Please install them using pip install "
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
-        return self._evals.Evals(self._api_client)  # type: ignore[attr-defined]
+        return self._evals.Evals(self._api_client)
 
     @property
     @_common.experimental_warning(
         "The Vertex SDK GenAI prompt optimizer module is experimental, and may change in future "
         "versions."
     )
-    def prompt_optimizer(self):
+    def prompt_optimizer(self) -> "prompt_optimizer_module.PromptOptimizer":
         if self._prompt_optimizer is None:
             self._prompt_optimizer = importlib.import_module(
                 ".prompt_optimizer", __package__
@@ -258,7 +270,7 @@ class Client:
         return self._prompt_optimizer.PromptOptimizer(self._api_client)
 
     @property
-    def aio(self):
+    def aio(self) -> "AsyncClient":
         return self._aio
 
     # This is only used for replay tests
@@ -269,27 +281,28 @@ class Client:
         project: Optional[str] = None,
         location: Optional[str] = None,
         debug_config: Optional[genai_client.DebugConfig] = None,
-        http_options: Optional[genai_client.HttpOptions] = None,
-    ) -> Optional[genai_client.BaseApiClient]:
+        http_options: Optional[types.HttpOptions] = None,
+    ) -> Optional[genai_client.BaseApiClient]:  # type: ignore[name-defined]
         if debug_config and debug_config.client_mode in [
             "record",
             "replay",
             "auto",
         ]:
-            return genai_client.ReplayApiClient(
-                mode=debug_config.client_mode,  # type: ignore[arg-type]
-                replay_id=debug_config.replay_id,  # type: ignore[arg-type]
+            return genai_client.ReplayApiClient(  # type: ignore[attr-defined]
+                mode=debug_config.client_mode,
+                replay_id=debug_config.replay_id,
                 replays_directory=debug_config.replays_directory,
-                vertexai=True,  # type: ignore[arg-type]
+                vertexai=True,
                 api_key=api_key,
                 credentials=credentials,
                 project=project,
                 location=location,
                 http_options=http_options,
             )
+        return None
 
     @property
-    def agent_engines(self):
+    def agent_engines(self) -> "agent_engines_module.AgentEngines":
         if self._agent_engines is None:
             try:
                 # We need to lazy load the agent_engines module to handle the
@@ -307,7 +320,7 @@ class Client:
         return self._agent_engines.AgentEngines(self._api_client)
 
     @property
-    def prompts(self):
+    def prompts(self) -> "prompts_module.Prompts":
         if self._prompts is None:
             # Lazy loading the prompts module
             self._prompts = importlib.import_module(
@@ -321,7 +334,7 @@ class Client:
         "The Vertex SDK GenAI datasets module is experimental, "
         "and may change in future versions."
     )
-    def datasets(self):
+    def datasets(self) -> "datasets_module.Datasets":
         if self._datasets is None:
             self._datasets = importlib.import_module(
                 ".datasets",

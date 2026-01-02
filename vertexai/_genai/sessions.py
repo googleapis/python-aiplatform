@@ -55,6 +55,9 @@ def _CreateAgentEngineSessionConfig_to_vertex(
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
     return to_object
 
 
@@ -180,6 +183,9 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
 
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
