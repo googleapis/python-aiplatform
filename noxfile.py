@@ -628,7 +628,7 @@ def prerelease_deps(session):
     # Remaining dependencies
     other_deps = [
         "requests",
-        "google-auth",
+        "google-auth==2.36.0",
     ]
     session.install(*other_deps)
 

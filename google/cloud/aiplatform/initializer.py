@@ -719,10 +719,10 @@ def _set_async_rest_credentials(credentials: AsyncCredentials):
         raise ValueError(
             "Async REST transport requires async credentials of type"
             + f"{AsyncCredentials} which is only supported in "
-            + "google-auth >= 2.35.0.\n\n"
+            + "google-auth == 2.36.0.\n\n"
             + "Install the following dependencies:\n"
             + "pip install google-api-core[grpc, async_rest] >= 2.21.0\n"
-            + "pip install google-auth[aiohttp] >= 2.45.0\n\n"
+            + "pip install google-auth[aiohttp] == 2.36.0\n\n"
             + "Example usage:\n"
             + "from google.auth.aio.credentials import StaticCredentials\n"
             + "async_credentials = StaticCredentials(token=YOUR_TOKEN_HERE)\n"
