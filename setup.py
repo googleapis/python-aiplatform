@@ -315,7 +315,6 @@ setuptools.setup(
         "google-cloud-storage >= 2.10.0, < 4.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
-        "shapely < 3.0.0",
         "google-genai >= 1.37.0, <2.0.0",
     )
     + genai_requires,
