@@ -57,7 +57,7 @@ xai_extra_require = ["tensorflow >=2.3.0, <3.0.0; python_version<'3.13'"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0; python_version<'3.13'",
     "pandas >= 1.0.0",
-    "lit-nlp == 0.4.0; python_version<'3.14'",
+    "lit-nlp == 0.4.0; python_version<'3.13'",
     "explainable-ai-sdk >= 1.0.0; python_version<'3.13'",
 ]
 featurestore_extra_require = [
