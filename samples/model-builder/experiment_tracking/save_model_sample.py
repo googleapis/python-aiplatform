@@ -30,6 +30,7 @@ def save_model_sample(
         Union[list, dict, "pd.DataFrame", "np.ndarray"]  # noqa: F821
     ] = None,
     display_name: Optional[str] = None,
+    staging_bucket: Optional[str] = None,
 ) -> None:
     aiplatform.init(project=project, location=location)
 
@@ -39,6 +40,7 @@ def save_model_sample(
         uri=uri,
         input_example=input_example,
         display_name=display_name,
+        staging_bucket=staging_bucket,
     )
 
 
