@@ -229,7 +229,7 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
 
 
 class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """The managed topic."""
+    """The managed memory topic."""
 
     MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
     """Unspecified topic. This value should not be used."""
@@ -5000,94 +5000,6 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
 
-class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
-    """A custom memory topic defined by the developer."""
-
-    label: Optional[str] = Field(
-        default=None, description="""Required. The label of the topic."""
-    )
-    description: Optional[str] = Field(
-        default=None,
-        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
-    TypedDict, total=False
-):
-    """A custom memory topic defined by the developer."""
-
-    label: Optional[str]
-    """Required. The label of the topic."""
-
-    description: Optional[str]
-    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
-
-
-MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
-]
-
-
-class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
-    """A managed memory topic defined by the system."""
-
-    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Required. The managed topic."""
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
-    TypedDict, total=False
-):
-    """A managed memory topic defined by the system."""
-
-    managed_topic_enum: Optional[ManagedTopicEnum]
-    """Required. The managed topic."""
-
-
-MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
-]
-
-
-class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
-    """A topic of information that should be extracted from conversations and stored as memories."""
-
-    custom_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
-    ] = Field(
-        default=None, description="""A custom memory topic defined by the developer."""
-    )
-    managed_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
-    ] = Field(
-        default=None, description="""A managed memory topic defined by Memory Bank."""
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
-    """A topic of information that should be extracted from conversations and stored as memories."""
-
-    custom_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
-    ]
-    """A custom memory topic defined by the developer."""
-
-    managed_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
-    ]
-    """A managed memory topic defined by Memory Bank."""
-
-
-MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicDict,
-]
-
-
 class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
     _common.BaseModel
 ):
@@ -5239,38 +5151,133 @@ MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
 ]
 
 
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str] = Field(
+        default=None, description="""Required. The label of the topic."""
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str]
+    """Required. The label of the topic."""
+
+    description: Optional[str]
+    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Required. The managed topic."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum]
+    """Required. The managed topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
+    ] = Field(
+        default=None, description="""A custom memory topic defined by the developer."""
+    )
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
+    ] = Field(
+        default=None, description="""A managed memory topic defined by Memory Bank."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
+    ]
+    """A custom memory topic defined by the developer."""
+
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
+    ]
+    """A managed memory topic defined by Memory Bank."""
+
+
+MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicDict,
+]
+
+
 class MemoryBankCustomizationConfig(_common.BaseModel):
     """Configuration for organizing memories for a particular scope."""
 
-    scope_keys: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
-    )
-    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
-        default=None,
-        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
-    )
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExample]
     ] = Field(
         default=None,
         description="""Optional. Examples of how to generate memories for a particular scope.""",
     )
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
+        default=None,
+        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+    )
+    scope_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+    enable_third_person_memories: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+    )
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
     """Configuration for organizing memories for a particular scope."""
 
-    scope_keys: Optional[list[str]]
-    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
-
-    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
-    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
-
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
     ]
     """Optional. Examples of how to generate memories for a particular scope."""
+
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
+    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+
+    scope_keys: Optional[list[str]]
+    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+    enable_third_person_memories: Optional[bool]
+    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
 
 
 MemoryBankCustomizationConfigOrDict = Union[
