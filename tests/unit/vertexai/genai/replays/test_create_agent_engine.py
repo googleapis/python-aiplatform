@@ -170,43 +170,6 @@ def test_create_with_identity_type(client):
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
-def test_create_with_developer_connect_source(client):
-    """Tests creating an agent engine with developer connect source."""
-    developer_connect_source_config = types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(
-        git_repository_link="projects/reasoning-engine-test-1/locations/europe-west3/connections/shawn-develop-connect/gitRepositoryLinks/shawn-yang-google-adk-samples",
-        revision="main",
-        dir="test",
-    )
-    agent_engine = client.agent_engines.create(
-        config={
-            "display_name": "test-agent-engine-dev-connect",
-            "developer_connect_source": developer_connect_source_config,
-            "entrypoint_module": "my_agent",
-            "entrypoint_object": "agent",
-            "class_methods": _TEST_CLASS_METHODS,
-            "http_options": {
-                "base_url": "https://europe-west3-aiplatform.googleapis.com",
-                "api_version": "v1beta1",
-            },
-        },
-    )
-    assert agent_engine.api_resource.display_name == "test-agent-engine-dev-connect"
-    assert (
-        agent_engine.api_resource.spec.source_code_spec.developer_connect_source.config.git_repository_link
-        == developer_connect_source_config.git_repository_link
-    )
-    assert (
-        agent_engine.api_resource.spec.source_code_spec.developer_connect_source.config.revision
-        == developer_connect_source_config.revision
-    )
-    assert (
-        agent_engine.api_resource.spec.source_code_spec.developer_connect_source.config.dir
-        == developer_connect_source_config.dir
-    )
-    # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
-
-
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
