@@ -32,6 +32,7 @@ __protobuf__ = proto.module(
         "ToolUseExample",
         "FunctionDeclaration",
         "FunctionCall",
+        "PartialArg",
         "FunctionResponsePart",
         "FunctionResponseBlob",
         "FunctionResponseFileData",
@@ -484,12 +485,22 @@ class FunctionCall(proto.Message):
             the client to execute the ``function_call`` and return the
             response with the matching ``id``.
         name (str):
-            Required. The name of the function to call. Matches
+            Optional. The name of the function to call. Matches
             [FunctionDeclaration.name].
         args (google.protobuf.struct_pb2.Struct):
-            Optional. Required. The function parameters and values in
-            JSON object format. See [FunctionDeclaration.parameters] for
-            parameter details.
+            Optional. The function parameters and values in JSON object
+            format. See [FunctionDeclaration.parameters] for parameter
+            details.
+        partial_args (MutableSequence[google.cloud.aiplatform_v1beta1.types.PartialArg]):
+            Optional. The partial argument value of the
+            function call. If provided, represents the
+            arguments/fields that are streamed
+            incrementally.
+        will_continue (bool):
+            Optional. Whether this is the last part of
+            the FunctionCall. If true, another partial
+            message for the current FunctionCall is expected
+            to follow.
     """
 
     id: str = proto.Field(
@@ -504,6 +515,83 @@ class FunctionCall(proto.Message):
         proto.MESSAGE,
         number=2,
         message=struct_pb2.Struct,
+    )
+    partial_args: MutableSequence["PartialArg"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=4,
+        message="PartialArg",
+    )
+    will_continue: bool = proto.Field(
+        proto.BOOL,
+        number=5,
+    )
+
+
+class PartialArg(proto.Message):
+    r"""Partial argument value of the function call.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        null_value (google.protobuf.struct_pb2.NullValue):
+            Optional. Represents a null value.
+
+            This field is a member of `oneof`_ ``delta``.
+        number_value (float):
+            Optional. Represents a double value.
+
+            This field is a member of `oneof`_ ``delta``.
+        string_value (str):
+            Optional. Represents a string value.
+
+            This field is a member of `oneof`_ ``delta``.
+        bool_value (bool):
+            Optional. Represents a boolean value.
+
+            This field is a member of `oneof`_ ``delta``.
+        json_path (str):
+            Required. A JSON Path (RFC 9535) to the argument being
+            streamed. https://datatracker.ietf.org/doc/html/rfc9535.
+            e.g. "$.foo.bar[0].data".
+        will_continue (bool):
+            Optional. Whether this is not the last part of the same
+            json_path. If true, another PartialArg message for the
+            current json_path is expected to follow.
+    """
+
+    null_value: struct_pb2.NullValue = proto.Field(
+        proto.ENUM,
+        number=2,
+        oneof="delta",
+        enum=struct_pb2.NullValue,
+    )
+    number_value: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
+        oneof="delta",
+    )
+    string_value: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="delta",
+    )
+    bool_value: bool = proto.Field(
+        proto.BOOL,
+        number=5,
+        oneof="delta",
+    )
+    json_path: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    will_continue: bool = proto.Field(
+        proto.BOOL,
+        number=6,
     )
 
 
@@ -1115,6 +1203,11 @@ class FunctionCallingConfig(proto.Message):
             ANY. Function names should match [FunctionDeclaration.name].
             With mode set to ANY, model will predict a function call
             from the set of function names provided.
+        stream_function_call_arguments (bool):
+            Optional. When set to true, arguments of a single function
+            call will be streamed out in multiple
+            parts/contents/responses. Partial parameter results will be
+            returned in the [FunctionCall.partial_args] field.
     """
 
     class Mode(proto.Enum):
@@ -1164,6 +1257,10 @@ class FunctionCallingConfig(proto.Message):
     allowed_function_names: MutableSequence[str] = proto.RepeatedField(
         proto.STRING,
         number=2,
+    )
+    stream_function_call_arguments: bool = proto.Field(
+        proto.BOOL,
+        number=4,
     )
 
 
