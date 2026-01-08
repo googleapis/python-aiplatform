@@ -4815,6 +4815,17 @@ def test_create_cached_content_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -4968,6 +4979,7 @@ def test_create_cached_content_rest_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
+                "stream_function_call_arguments": True,
             },
             "retrieval_config": {
                 "lat_lng": {"latitude": 0.86, "longitude": 0.971},
@@ -5353,6 +5365,17 @@ def test_update_cached_content_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -5506,6 +5529,7 @@ def test_update_cached_content_rest_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
+                "stream_function_call_arguments": True,
             },
             "retrieval_config": {
                 "lat_lng": {"latitude": 0.86, "longitude": 0.971},
@@ -6753,6 +6777,17 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -6906,6 +6941,7 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
+                "stream_function_call_arguments": True,
             },
             "retrieval_config": {
                 "lat_lng": {"latitude": 0.86, "longitude": 0.971},
@@ -7327,6 +7363,17 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -7480,6 +7527,7 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "allowed_function_names_value1",
                     "allowed_function_names_value2",
                 ],
+                "stream_function_call_arguments": True,
             },
             "retrieval_config": {
                 "lat_lng": {"latitude": 0.86, "longitude": 0.971},
