@@ -1608,6 +1608,7 @@ class Evals(_api_module.BaseModule):
                 )
             if (
                 dataset.candidate_name
+                and agent_info
                 and agent_info.name
                 and dataset.candidate_name != agent_info.name
             ):
