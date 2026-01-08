@@ -1,25 +1,5 @@
 # Changelog
 
-## [1.133.0](https://github.com/googleapis/python-aiplatform/compare/v1.132.0...v1.133.0) (2026-01-08)
-
-
-### Features
-
-* Deprecate tuning public preview SDK in favor of tuning SDK ([35d362c](https://github.com/googleapis/python-aiplatform/commit/35d362ce8f6c50498f781857e0d8cabd327284be))
-* GenAI SDK client - Enabling Few-shot Prompt Optimization by passing either "OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS" or "OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE" to the `optimize_prompt` method ([715cc5b](https://github.com/googleapis/python-aiplatform/commit/715cc5b71b996eecde2d97bad71a617274739dcc))
-* GenAI SDK client(memory): Add enable_third_person_memories ([65717fa](https://github.com/googleapis/python-aiplatform/commit/65717fa0c3d9b8c3105638cf9c75ee415f36b6e0))
-* Support Developer Connect in AE ([04f1771](https://github.com/googleapis/python-aiplatform/commit/04f1771e16f54a0627ecac1266764ca77f833694))
-
-
-### Bug Fixes
-
-* GenAI client(evals) - Fix TypeError in _build_generate_content_config ([be2eaaa](https://github.com/googleapis/python-aiplatform/commit/be2eaaa30dbf13a86f6856771eeacd2a51a97806))
-* Make project_number to project_id mapping fail-open. ([f1c8458](https://github.com/googleapis/python-aiplatform/commit/f1c8458dd5e4641cb03ff175f0837b6d6017c131))
-* Replace asyncio.run with create_task in ADK async thread mains. ([8c876ef](https://github.com/googleapis/python-aiplatform/commit/8c876ef069d0fe6942790ede41e203196cd4a390))
-* Require uri or staging bucket configuration for saving model to Vertex Experiment. ([5448f06](https://github.com/googleapis/python-aiplatform/commit/5448f065fa30d77c2ee0868249ec0bea6a93a4c0))
-* Return embedding metadata if available ([d9c6eb1](https://github.com/googleapis/python-aiplatform/commit/d9c6eb199b6ccc1fae417463e1b374574f2ae2f8))
-* Update `examples_dataframe` type to `PandasDataFrame` in Prompt Optimizer. ([a2564cc](https://github.com/googleapis/python-aiplatform/commit/a2564cc3ea5c4860ee732f14cea9db2c10b52420))
-
 ## [1.132.0](https://github.com/googleapis/python-aiplatform/compare/v1.131.0...v1.132.0) (2025-12-17)
 
 
