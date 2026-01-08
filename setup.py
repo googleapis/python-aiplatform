@@ -141,9 +141,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    # 1.0.0 contains breaking changes, so we need to pin to 1.0.0.
     "google-adk >= 1.0.0, < 2.0.0",
-    "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
 ]
 
 reasoning_engine_extra_require = [
@@ -153,8 +151,10 @@ reasoning_engine_extra_require = [
     "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
     "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
+    "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
+    "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
 agent_engines_extra_require = [
