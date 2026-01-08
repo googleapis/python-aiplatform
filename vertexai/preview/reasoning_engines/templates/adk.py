@@ -1063,7 +1063,7 @@ class AdkApp:
 
         def _asyncio_thread_main():
             try:
-                asyncio.get_running_loop().create_task(_invoke_agent_async())
+                asyncio.run(_invoke_agent_async())
             except RuntimeError as e:
                 event_queue.put(e)
             finally:
@@ -1225,9 +1225,7 @@ class AdkApp:
 
         def _asyncio_thread_main():
             try:
-                result = asyncio.get_running_loop().create_task(
-                    _invoke_async_get_session()
-                )
+                result = asyncio.run(_invoke_async_get_session())
                 event_queue.put(result)
             except RuntimeError as e:
                 event_queue.put(e)
@@ -1281,7 +1279,7 @@ class AdkApp:
 
         def _asyncio_thread_main():
             try:
-                asyncio.get_running_loop().create_task(_invoke_async_list_sessions())
+                asyncio.run(_invoke_async_list_sessions())
             finally:
                 event_queue.put(None)
 
@@ -1351,9 +1349,7 @@ class AdkApp:
 
         def _asyncio_thread_main():
             try:
-                result = asyncio.get_running_loop().create_task(
-                    _invoke_async_create_session()
-                )
+                result = asyncio.run(_invoke_async_create_session())
                 event_queue.put(result)
             except RuntimeError as e:
                 event_queue.put(e)
@@ -1415,7 +1411,7 @@ class AdkApp:
 
         def _asyncio_thread_main():
             try:
-                asyncio.get_running_loop().create_task(_invoke_async_delete_session())
+                asyncio.run(_invoke_async_delete_session())
                 event_queue.put(None)
             except RuntimeError as e:
                 event_queue.put(e)
