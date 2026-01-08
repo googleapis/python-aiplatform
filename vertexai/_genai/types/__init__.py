@@ -174,6 +174,10 @@ from .common import ChunkOrDict
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
+from .common import ComputationBasedMetricSpec
+from .common import ComputationBasedMetricSpecDict
+from .common import ComputationBasedMetricSpecOrDict
+from .common import ComputationBasedMetricType
 from .common import ContainerSpec
 from .common import ContainerSpecDict
 from .common import ContainerSpecOrDict
@@ -1067,6 +1071,9 @@ __all__ = [
     "CustomCodeExecutionSpec",
     "CustomCodeExecutionSpecDict",
     "CustomCodeExecutionSpecOrDict",
+    "ComputationBasedMetricSpec",
+    "ComputationBasedMetricSpecDict",
+    "ComputationBasedMetricSpecOrDict",
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
@@ -1915,6 +1922,7 @@ __all__ = [
     "EvaluationItemType",
     "SamplingMethod",
     "RubricContentType",
+    "ComputationBasedMetricType",
     "EvaluationRunState",
     "OptimizeTarget",
     "GenerateMemoriesResponseGeneratedMemoryAction",
