@@ -168,6 +168,7 @@ agent_engines_extra_require = [
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
+    "google-cloud-iam",
 ]
 
 evaluation_extra_require = [
@@ -256,6 +257,7 @@ testing_extra_require = (
         "bigframes; python_version>='3.10' and python_version<'3.14'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
+        "google-cloud-iam",
         "grpcio-testing",
         "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",
