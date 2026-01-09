@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.134.0](https://github.com/googleapis/python-aiplatform/compare/v1.133.0...v1.134.0) (2026-01-09)
+
+
+### Features
+
+* GenAI SDK client - Support agent engine sandbox http request in genai sdk ([11c23a3](https://github.com/googleapis/python-aiplatform/commit/11c23a36a2a2e8a7ac6e9a4d6934943d9e8d1aa9))
+
 ## [1.133.0](https://github.com/googleapis/python-aiplatform/compare/v1.132.0...v1.133.0) (2026-01-08)
 
 
