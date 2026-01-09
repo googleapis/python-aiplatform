@@ -636,6 +636,7 @@ class AdkApp:
         self,
         session_service: "BaseSessionService",
         artifact_service: "BaseArtifactService",
+        memory_service: "BaseMemoryService",
         request: _StreamRunRequest,
     ):
         """Initializes the session, and returns the session id."""
@@ -1162,12 +1163,17 @@ class AdkApp:
             self.set_up()
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
+        if not self._tmpl_attrs.get("in_memory_memory_service"):
+            self.set_up()
+        if not self._tmpl_attrs.get("memory_service"):
+            self.set_up()
         app = self._tmpl_attrs.get("app")
 
         # Try to get the session, if it doesn't exist, create a new one.
         if request.session_id:
             session_service = self._tmpl_attrs.get("session_service")
             artifact_service = self._tmpl_attrs.get("artifact_service")
+            memory_service = self._tmpl_attrs.get("memory_service")
             runner = self._tmpl_attrs.get("runner")
             try:
                 session = await session_service.get_session(
@@ -1182,16 +1188,19 @@ class AdkApp:
                 session = await self._init_session(
                     session_service=session_service,
                     artifact_service=artifact_service,
+                    memory_service=memory_service,
                     request=request,
                 )
         else:
             # Not providing a session ID will create a new in-memory session.
             session_service = self._tmpl_attrs.get("in_memory_session_service")
             artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+            memory_service = self._tmpl_attrs.get("in_memory_memory_service")
             runner = self._tmpl_attrs.get("in_memory_runner")
             session = await self._init_session(
                 session_service=session_service,
                 artifact_service=artifact_service,
+                memory_service=memory_service,
                 request=request,
             )
         if not session:
