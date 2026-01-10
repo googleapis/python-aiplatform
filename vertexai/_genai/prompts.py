@@ -915,9 +915,11 @@ class Prompts(_api_module.BaseModule):
         prompt: types.PromptOrDict,
         config: Optional[types.CreatePromptConfigOrDict] = None,
     ) -> types.Prompt:
-        """Creates a new prompt in a Vertex Dataset resource.
+        """Creates a new prompt in a Vertex Dataset resource, and a prompt version represented by a Vertex DatasetVersion resource.
 
-        This method waits for prompt creation to be complete before returning.
+        The prompt version is a snapshot of the prompt metadata at the time of creation.
+
+        This method waits for prompt and prompt version creation to be complete before returning.
 
         Args:
           prompt: The prompt to create a version for.
@@ -971,67 +973,13 @@ class Prompts(_api_module.BaseModule):
             name=dataset_id,
         )
         prompt._dataset = dataset_resource
-        return prompt
 
-    def create_version(
-        self,
-        *,
-        prompt_id: str,
-        prompt: types.PromptOrDict,
-        config: Optional[types.CreatePromptVersionConfigOrDict] = None,
-    ) -> types.Prompt:
-        """Creates a new version of a prompt in the prompt resource associated with the provided prompt_id.
-
-        When creating new prompt version resources, this waits for
-        the create operation to complete before returning.
-
-        Args:
-          prompt_id: The ID of the prompt to create a version for.
-          prompt: The prompt to create a version for.
-          config: Optional configuration for creating the prompt version.
-
-        Returns:
-          A types.Prompt object representing the prompt with its associated
-          Dataset and Dataset Version resources.
-        """
-        if isinstance(prompt, dict):
-            prompt = types.Prompt(**prompt)
-        if isinstance(config, dict):
-            config = types.CreatePromptVersionConfig(**config)
-        elif not config:
-            config = types.CreatePromptVersionConfig()
-
-        _prompt_management_utils._raise_for_invalid_prompt(prompt)
-
-        if config and config.version_display_name:
-            version_name = config.version_display_name
-        else:
-            version_name = None
-
-        # Step 1: Get the dataset resource
-        dataset_resource = self._get_dataset_resource(name=prompt_id)
-
-        # Step 2: Update the dataset with the new prompt metadata
-        updated_dataset_resource = self._update_dataset_resource(
-            dataset_id=prompt_id,
-            display_name=dataset_resource.display_name,
-            metadata=_prompt_management_utils._create_dataset_metadata_from_prompt(
-                prompt,
-                variables=(
-                    prompt.prompt_data.variables
-                    if prompt.prompt_data and prompt.prompt_data.variables
-                    else None
-                ),
-            ),
-            model_reference=prompt.prompt_data.model,
-        )
-
-        # Step 3: Create the dataset version
+        # Step 3: Create a DatasetVersion for the prompt which will be a snapshot of the newly created Dataset
         create_dataset_version_operation = self._create_dataset_version_resource(
-            dataset_name=prompt_id,
+            dataset_name=dataset_id,
             display_name=(
-                version_name
-                if version_name
+                config.version_display_name
+                if config and config.version_display_name
                 else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
             ),
         )
@@ -1042,15 +990,48 @@ class Prompts(_api_module.BaseModule):
 
         # Step 4: Get the dataset version resource and return it with the prompt
         dataset_version_resource = self._get_dataset_version_resource(
-            dataset_id=prompt_id,
+            dataset_id=dataset_id,
             dataset_version_id=dataset_version_resource_name.split("/")[-1],
         )
-        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
-            dataset_version_resource
-        )
-        prompt._dataset = updated_dataset_resource
         prompt._dataset_version = dataset_version_resource
+
         return prompt
+
+    def create_version(
+        self,
+        *,
+        prompt_id: str,
+        prompt: types.PromptOrDict,
+        config: Optional[types.CreatePromptVersionConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Creates a new prompt in a Vertex Dataset resource, and a prompt version represented by a Vertex DatasetVersion resource.
+
+        The prompt version is a snapshot of the prompt metadata at the time of creation.
+
+        This method waits for prompt and prompt version creation to be complete before returning.
+
+        Args:
+          prompt_id: The ID of the prompt to create a version for.
+          prompt: The prompt to create a version for.
+          config: Optional configuration for creating the prompt version.
+
+        Returns:
+          A types.Prompt object representing the prompt with its associated
+          Dataset and Dataset Version resources.
+        """
+        if isinstance(config, dict):
+            config = types.CreatePromptVersionConfig(**config)
+        elif not config:
+            config = types.CreatePromptVersionConfig()
+
+        create_prompt_config = types.CreatePromptConfig(
+            version_display_name=config.version_display_name,
+        )
+
+        return self.create(
+            prompt=prompt,
+            config=create_prompt_config,
+        )
 
     def _wait_for_operation(
         self,
@@ -1157,18 +1138,17 @@ class Prompts(_api_module.BaseModule):
           config: Optional configuration for getting the prompt.
 
         Returns:
-            A types.Prompt object representing the prompt with its associated Dataset and Dataset Version resources.
+            A types.Prompt object representing the prompt with its associated Dataset Version resources.
         """
-
-        prompt_dataset_resource = self._get_dataset_resource(name=prompt_id)
-        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
-            prompt_dataset_resource,
-        )
-        prompt._dataset = prompt_dataset_resource
 
         prompt_version_resource = self._get_dataset_version_resource(
             dataset_id=prompt_id,
             dataset_version_id=version_id,
+        )
+
+        # Return a prompt object with prompt.prompt_data set to the contents of the DatasetVersion resource.
+        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            prompt_version_resource,
         )
         prompt._dataset_version = prompt_version_resource
 
@@ -1417,6 +1397,91 @@ class Prompts(_api_module.BaseModule):
             dataset_version_resource,
         )
         updated_prompt._dataset_version = dataset_version_resource
+        return updated_prompt
+
+    def update(
+        self,
+        *,
+        prompt_id: str,
+        prompt: types.PromptOrDict,
+        config: Optional[types.UpdatePromptConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Updates a prompt resource by creating a new prompt version.
+
+        The prompt version is a snapshot of the prompt metadata at the time it is updated.
+
+        This method waits for prompt version creation to be complete before returning.
+
+        Args:
+          prompt_id: The id of the Vertex Dataset resource to update.
+          prompt: A prompt object containing the updated prompt.
+          config: Optional configuration for updating the prompt.
+
+        Returns:
+          A types.Prompt object representing the updated prompt with its associated
+          Dataset and DatasetVersionresources.
+        """
+        if isinstance(prompt, dict):
+            prompt = types.Prompt(**prompt)
+        if isinstance(config, dict):
+            config = types.UpdatePromptConfig(**config)
+        elif not config:
+            config = types.UpdatePromptConfig()
+
+        _prompt_management_utils._raise_for_invalid_prompt(prompt)
+
+        prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
+            prompt,
+            variables=(
+                prompt.prompt_data.variables
+                if prompt.prompt_data and prompt.prompt_data.variables
+                else None
+            ),
+        )
+
+        # Step 1: Update the dataset resource for the prompt.
+        updated_dataset_resource = self._update_dataset_resource(
+            dataset_id=prompt_id,
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else None
+            ),
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+        )
+
+        # Step 2: Get the updated dataset resource. This will return the Dataset with all fields populated.
+        updated_dataset_resource = self._get_dataset_resource(
+            name=updated_dataset_resource.name.split("/")[-1],
+        )
+
+        updated_prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            updated_dataset_resource,
+        )
+        updated_prompt._dataset = updated_dataset_resource
+
+        # Step 3: Create a DatasetVersion for the prompt which will be a snapshot of the updated Dataset and wait for the operation to complete.
+        create_dataset_version_operation = self._create_dataset_version_resource(
+            dataset_name=updated_prompt.prompt_id,
+            display_name=(
+                config.version_display_name
+                if config and config.version_display_name
+                else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+        )
+        dataset_version_resource_name = self._wait_for_operation(
+            operation=create_dataset_version_operation,
+            timeout=config.timeout if config else 90,
+        )
+
+        # Step 4: Get the dataset version resource and return it with the prompt
+        dataset_version_resource = self._get_dataset_version_resource(
+            dataset_id=updated_prompt.prompt_id,
+            dataset_version_id=dataset_version_resource_name.split("/")[-1],
+        )
+        updated_prompt._dataset_version = dataset_version_resource
+
         return updated_prompt
 
 
@@ -2074,9 +2139,11 @@ class AsyncPrompts(_api_module.BaseModule):
         prompt: types.PromptOrDict,
         config: Optional[types.CreatePromptConfigOrDict] = None,
     ) -> types.Prompt:
-        """Creates a new prompt in a Vertex Dataset resource.
+        """Creates a new prompt in a Vertex Dataset resource, and a prompt version represented by a Vertex DatasetVersion resource.
 
-        This method waits for prompt creation to be complete before returning.
+        The prompt version is a snapshot of the prompt metadata at the time of creation.
+
+        This method waits for prompt and prompt version creation to be complete before returning.
 
         Args:
           prompt: The prompt to create.
@@ -2130,67 +2197,13 @@ class AsyncPrompts(_api_module.BaseModule):
             name=dataset_id,
         )
         prompt._dataset = dataset_resource
-        return prompt
 
-    async def create_version(
-        self,
-        *,
-        prompt_id: str,
-        prompt: types.PromptOrDict,
-        config: Optional[types.CreatePromptVersionConfigOrDict] = None,
-    ) -> types.Prompt:
-        """Creates a new version of a prompt in the prompt resource associated with the provided prompt_id.
-
-        When creating new prompt version resources, this waits for
-        the create operation to complete before returning.
-
-        Args:
-          prompt_id: The ID of the prompt to create a version for.
-          prompt: The prompt to create a version for.
-          config: Optional configuration for creating the prompt version.
-
-        Returns:
-          A types.Prompt object representing the prompt with its associated
-          Dataset and Dataset Version resources.
-        """
-        if isinstance(prompt, dict):
-            prompt = types.Prompt(**prompt)
-        if isinstance(config, dict):
-            config = types.CreatePromptVersionConfig(**config)
-        elif not config:
-            config = types.CreatePromptVersionConfig()
-
-        _prompt_management_utils._raise_for_invalid_prompt(prompt)
-
-        if config and config.version_display_name:
-            version_name = config.version_display_name
-        else:
-            version_name = None
-
-        # Step 1: Get the dataset resource
-        dataset_resource = await self._get_dataset_resource(name=prompt_id)
-
-        # Step 2: Update the dataset with the new prompt metadata
-        updated_dataset_resource = await self._update_dataset_resource(
-            dataset_id=prompt_id,
-            display_name=dataset_resource.display_name,
-            metadata=_prompt_management_utils._create_dataset_metadata_from_prompt(
-                prompt,
-                variables=(
-                    prompt.prompt_data.variables
-                    if prompt.prompt_data and prompt.prompt_data.variables
-                    else None
-                ),
-            ),
-            model_reference=prompt.prompt_data.model,
-        )
-
-        # Step 3: Create the dataset version
+        # Step 3: Create a DatasetVersion for the prompt which will be a snapshot of the newly created Dataset
         create_dataset_version_operation = await self._create_dataset_version_resource(
-            dataset_name=prompt_id,
+            dataset_name=dataset_id,
             display_name=(
-                version_name
-                if version_name
+                config.version_display_name
+                if config and config.version_display_name
                 else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
             ),
         )
@@ -2201,15 +2214,45 @@ class AsyncPrompts(_api_module.BaseModule):
 
         # Step 4: Get the dataset version resource and return it with the prompt
         dataset_version_resource = await self._get_dataset_version_resource(
-            dataset_id=prompt_id,
+            dataset_id=dataset_id,
             dataset_version_id=dataset_version_resource_name.split("/")[-1],
         )
-        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
-            dataset_version_resource
-        )
-        prompt._dataset = updated_dataset_resource
         prompt._dataset_version = dataset_version_resource
+
         return prompt
+
+    async def create_version(
+        self,
+        *,
+        prompt_id: str,
+        prompt: types.PromptOrDict,
+        config: Optional[types.CreatePromptVersionConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Creates a new prompt in a Vertex Dataset resource, and a prompt version represented by a Vertex DatasetVersion resource.
+
+        The prompt version is a snapshot of the prompt metadata at the time of creation.
+
+        This method waits for prompt and prompt version creation to be complete before returning.
+
+        Args:
+          prompt_id: The ID of the prompt to create a version for.
+          prompt: The prompt to create a version for.
+          config: Optional configuration for creating the prompt version.
+
+        Returns:
+          A types.Prompt object representing the prompt with its associated
+          Dataset and Dataset Version resources.
+        """
+        if isinstance(config, dict):
+            config = types.CreatePromptVersionConfig(**config)
+        elif not config:
+            config = types.CreatePromptVersionConfig()
+
+        create_prompt_config = types.CreatePromptConfig(
+            version_display_name=config.version_display_name,
+        )
+
+        return await self.create(prompt=prompt, config=create_prompt_config)
 
     async def _wait_for_operation(
         self,
@@ -2323,18 +2366,17 @@ class AsyncPrompts(_api_module.BaseModule):
           config: Optional configuration for getting the prompt.
 
         Returns:
-            A types.Prompt object representing the prompt with its associated Dataset and Dataset Version resources.
+            A types.Prompt object representing the prompt with its associated Dataset Version resources.
         """
-
-        prompt_dataset_resource = await self._get_dataset_resource(name=prompt_id)
-        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
-            prompt_dataset_resource,
-        )
-        prompt._dataset = prompt_dataset_resource
 
         prompt_version_resource = await self._get_dataset_version_resource(
             dataset_id=prompt_id,
             dataset_version_id=version_id,
+        )
+
+        # Return a prompt object with prompt.prompt_data set to the contents of the DatasetVersion resource.
+        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            prompt_version_resource,
         )
         prompt._dataset_version = prompt_version_resource
 
@@ -2581,4 +2623,89 @@ class AsyncPrompts(_api_module.BaseModule):
             dataset_version_resource,
         )
         updated_prompt._dataset_version = dataset_version_resource
+        return updated_prompt
+
+    async def update(
+        self,
+        *,
+        prompt_id: str,
+        prompt: types.PromptOrDict,
+        config: Optional[types.UpdatePromptConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Updates a prompt resource by creating a new prompt version.
+
+        The prompt version is a snapshot of the prompt metadata at the time it is updated.
+
+        This method waits for prompt version creation to be complete before returning.
+
+        Args:
+          prompt_id: The id of the Vertex Dataset resource to update.
+          prompt: A prompt object containing the updated prompt.
+          config: Optional configuration for updating the prompt.
+
+        Returns:
+          A types.Prompt object representing the updated prompt with its associated
+          Dataset and DatasetVersionresources.
+        """
+        if isinstance(prompt, dict):
+            prompt = types.Prompt(**prompt)
+        if isinstance(config, dict):
+            config = types.UpdatePromptConfig(**config)
+        elif not config:
+            config = types.UpdatePromptConfig()
+
+        _prompt_management_utils._raise_for_invalid_prompt(prompt)
+
+        prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
+            prompt,
+            variables=(
+                prompt.prompt_data.variables
+                if prompt.prompt_data and prompt.prompt_data.variables
+                else None
+            ),
+        )
+
+        # Step 1: Update the dataset resource for the prompt.
+        updated_dataset_resource = await self._update_dataset_resource(
+            dataset_id=prompt_id,
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else None
+            ),
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+        )
+
+        # Step 2: Get the updated dataset resource. This will return the Dataset with all fields populated.
+        updated_dataset_resource = await self._get_dataset_resource(
+            name=updated_dataset_resource.name.split("/")[-1],
+        )
+
+        updated_prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            updated_dataset_resource,
+        )
+        updated_prompt._dataset = updated_dataset_resource
+
+        # Step 3: Create a DatasetVersion for the prompt which will be a snapshot of the updated Dataset and wait for the operation to complete.
+        create_dataset_version_operation = await self._create_dataset_version_resource(
+            dataset_name=updated_prompt.prompt_id,
+            display_name=(
+                config.version_display_name
+                if config and config.version_display_name
+                else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+        )
+        dataset_version_resource_name = await self._wait_for_operation(
+            operation=create_dataset_version_operation,
+            timeout=config.timeout if config else 90,
+        )
+
+        # Step 4: Get the dataset version resource and return it with the prompt
+        dataset_version_resource = await self._get_dataset_version_resource(
+            dataset_id=updated_prompt.prompt_id,
+            dataset_version_id=dataset_version_resource_name.split("/")[-1],
+        )
+        updated_prompt._dataset_version = dataset_version_resource
+
         return updated_prompt
