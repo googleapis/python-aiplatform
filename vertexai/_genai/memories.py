@@ -77,6 +77,9 @@ def _AgentEngineMemoryConfig_to_vertex(
             parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
         )
 
+    if getv(from_object, ["metadata"]) is not None:
+        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+
     return to_object
 
 
@@ -151,6 +154,16 @@ def _GenerateAgentEngineMemoriesConfig_to_vertex(
             parent_object,
             ["disableMemoryRevisions"],
             getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["metadata_merge_strategy"]) is not None:
+        setv(
+            parent_object,
+            ["metadataMergeStrategy"],
+            getv(from_object, ["metadata_merge_strategy"]),
         )
 
     return to_object
@@ -316,6 +329,13 @@ def _RetrieveAgentEngineMemoriesConfig_to_vertex(
     if getv(from_object, ["filter"]) is not None:
         setv(parent_object, ["filter"], getv(from_object, ["filter"]))
 
+    if getv(from_object, ["filter_groups"]) is not None:
+        setv(
+            parent_object,
+            ["filterGroups"],
+            [item for item in getv(from_object, ["filter_groups"])],
+        )
+
     return to_object
 
 
@@ -412,6 +432,9 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
         setv(
             parent_object, ["topics"], [item for item in getv(from_object, ["topics"])]
         )
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
