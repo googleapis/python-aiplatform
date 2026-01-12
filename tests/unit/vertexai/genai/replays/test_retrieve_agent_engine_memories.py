@@ -14,6 +14,7 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import datetime
 import pytest
 
 
@@ -110,6 +111,55 @@ def test_retrieve_memories_with_simple_retrieval_params(client):
     )
     assert memories.page_size == 1
     assert memories.page[0].memory.fact == "memory_fact_2"
+
+    # Clean up resources.
+    agent_engine.delete(force=True)
+
+
+def test_retrieve_memories_with_metadata(client):
+    agent_engine = client.agent_engines.create()
+    metadata = {
+        "my_string_key": types.MemoryMetadataValue(string_value="my_string_value"),
+        "my_double_key": types.MemoryMetadataValue(double_value=123.456),
+        "my_boolean_key": types.MemoryMetadataValue(bool_value=True),
+        "my_timestamp_key": types.MemoryMetadataValue(
+            timestamp_value=datetime.datetime(
+                2027, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
+            )
+        ),
+    }
+    scope = {"user_id": "123"}
+    client.agent_engines.memories.create(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact_1",
+        scope=scope,
+    )
+    operation = client.agent_engines.memories.create(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact_2",
+        scope=scope,
+        config={"metadata": metadata},
+    )
+    memory_name2 = operation.response.name
+
+    results = client.agent_engines.memories.retrieve(
+        name=agent_engine.api_resource.name,
+        scope=scope,
+        config={
+            "filter_groups": [
+                {
+                    "filters": [
+                        {
+                            "key": "my_string_key",
+                            "value": {"string_value": "my_string_value"},
+                        }
+                    ]
+                }
+            ],
+        },
+    )
+    assert len(results) == 1
+    assert results[0].memory.name == memory_name2
 
     # Clean up resources.
     agent_engine.delete(force=True)
