@@ -1581,6 +1581,9 @@ class Evals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         agent_info: Optional[types.evals.AgentInfoOrDict] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
@@ -1593,12 +1596,21 @@ class Evals(_api_module.BaseModule):
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
           agent_info: The agent info to evaluate.
+          inference_configs: The candidate to inference config map for the evaluation run.
+              The key is the candidate name, and the value is the inference config.
+              If provided, agent_info must be None.
+              Example:
+              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
           config: The configuration for the evaluation run.
 
         Returns:
             The created evaluation run.
         """
+        if agent_info and inference_configs:
+            raise ValueError(
+                "At most one of agent_info or inference_configs can be provided."
+            )
         if agent_info and isinstance(agent_info, dict):
             agent_info = types.evals.AgentInfo.model_validate(agent_info)
         if type(dataset).__name__ == "EvaluationDataset":
@@ -1630,8 +1642,8 @@ class Evals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        inference_configs = {}
         if agent_info:
+            inference_configs = {}
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
@@ -2429,6 +2441,9 @@ class AsyncEvals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         agent_info: Optional[types.evals.AgentInfo] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
         labels: Optional[dict[str, str]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
@@ -2441,12 +2456,21 @@ class AsyncEvals(_api_module.BaseModule):
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
           agent_info: The agent info to evaluate.
+          inference_configs: The candidate to inference config map for the evaluation run.
+              The key is the candidate name, and the value is the inference config.
+              If provided, agent_info must be None.
+              Example:
+              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
           config: The configuration for the evaluation run.
 
         Returns:
             The created evaluation run.
         """
+        if agent_info and inference_configs:
+            raise ValueError(
+                "At most one of agent_info or inference_configs can be provided."
+            )
         if agent_info and isinstance(agent_info, dict):
             agent_info = types.evals.AgentInfo.model_validate(agent_info)
         if type(dataset).__name__ == "EvaluationDataset":
@@ -2477,8 +2501,8 @@ class AsyncEvals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        inference_configs = {}
         if agent_info:
+            inference_configs = {}
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
                     developer_instruction=genai_types.Content(
