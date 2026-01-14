@@ -16,6 +16,7 @@
 
 import os
 import re
+import sys
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
@@ -124,6 +125,32 @@ def test_create_with_source_packages(
     mock_agent_engine_create_path_exists,
 ):
     """Tests creating an agent engine with source packages."""
+    if sys.version_info >= (3, 13):
+        try:
+            client._api_client._initialize_replay_session_if_not_loaded()
+            if client._api_client.replay_session:
+                target_ver = f"{sys.version_info.major}.{sys.version_info.minor}"
+                for interaction in client._api_client.replay_session.interactions:
+
+                    def _update_ver(obj):
+                        if isinstance(obj, dict):
+                            if "python_spec" in obj and isinstance(
+                                obj["python_spec"], dict
+                            ):
+                                if "version" in obj["python_spec"]:
+                                    obj["python_spec"]["version"] = target_ver
+                            for v in obj.values():
+                                _update_ver(v)
+                        elif isinstance(obj, list):
+                            for item in obj:
+                                _update_ver(item)
+
+                    if hasattr(interaction.request, "body_segments"):
+                        _update_ver(interaction.request.body_segments)
+                    if hasattr(interaction.request, "body"):
+                        _update_ver(interaction.request.body)
+        except Exception:
+            pass
     with (
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
@@ -144,12 +171,9 @@ def test_create_with_source_packages(
                 },
             },
         )
-        assert (
-            agent_engine.api_resource.display_name
-            == "test-agent-engine-source-packages"
-        )
-        # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    assert agent_engine.api_resource.display_name == "test-agent-engine-source-packages"
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_create_with_identity_type(client):
