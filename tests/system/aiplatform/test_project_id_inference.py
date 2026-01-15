@@ -50,7 +50,7 @@ class TestProjectIDInference(e2e_base.TestEndToEnd):
                 "machine_spec": {"machine_type": "n1-standard-4"},
                 "replica_count": 1,
                 "container_spec": {
-                    "image_uri": "python:3.9",
+                    "image_uri": "python:3.10",
                     "command": [
                         "sh",
                         "-exc",

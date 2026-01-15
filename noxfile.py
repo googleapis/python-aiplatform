@@ -53,10 +53,10 @@ DOCFX_DEPENDENCIES = (
     "recommonmark",
 )
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 PYTHON_TO_RAY_VERSIONS = {
     "3.10": ["2.9.3", "2.33.0", "2.42.0"],
     "3.11": ["2.42.0", "2.47.1"],
@@ -459,7 +459,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def docs(session):
     """Build the docs for this library."""
 
@@ -519,7 +519,7 @@ def docfx(session):
     )
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
@@ -590,9 +590,7 @@ def prerelease_deps(session):
     # version, the first version we test with in the unit tests sessions has a
     # constraints file containing all dependencies and extras.
     with open(
-        CURRENT_DIRECTORY
-        / "testing"
-        / f"constraints-{UNIT_TEST_PYTHON_VERSIONS[0]}.txt",
+        CURRENT_DIRECTORY / "testing" / "constraints-3.10.txt",
         encoding="utf-8",
     ) as constraints_file:
         constraints_text = constraints_file.read()

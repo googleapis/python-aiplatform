@@ -1342,7 +1342,7 @@ else:  # pragma: NO COVER
                 + f"({_py_version_str}).  Google will not post any further "
                 + f"updates to {_package_label} supporting this Python version. "
                 + "Please upgrade to the latest Python version, or at "
-                + f"least to Python 3.9, and then update {_package_label}.",
+                + f"least to Python 3.10, and then update {_package_label}.",
                 FutureWarning,
             )
         if sys.version_info[:2] == (3, 9):

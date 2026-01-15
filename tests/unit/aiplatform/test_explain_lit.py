@@ -340,7 +340,7 @@ class TestExplainLit:
 
     @pytest.mark.skipif(
         sys.version_info < (3, 11),
-        reason=("temporarily skipped due to failures in python 3.9 and 3.10"),
+        reason=("temporarily skipped due to failures in python 3.10"),
     )
     @mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
     @pytest.mark.usefixtures(
@@ -622,7 +622,7 @@ class TestExplainLit:
 
     @pytest.mark.skipif(
         sys.version_info < (3, 11),
-        reason=("temporarily skipped due to failures in python 3.9 and 3.10"),
+        reason=("temporarily skipped due to failures in python 3.10"),
     )
     @pytest.mark.usefixtures("init_lit_widget_mock")
     @mock.patch.dict(os.environ, {"LIT_PROXY_URL": "auto"})
