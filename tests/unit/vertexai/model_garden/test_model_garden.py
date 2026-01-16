@@ -1406,6 +1406,30 @@ class TestModelGardenOpenModel:
             timeout=None,
         )
 
+    def test_deploy_with_psc_success(self, deploy_mock):
+        """Tests deploying a model with Private Service Connect."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.deploy(
+            enable_private_service_connect=True,
+            psc_project_allow_list=["project-1", "project-2"],
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                endpoint_config=types.DeployRequest.EndpointConfig(
+                    private_service_connect_config=types.PrivateServiceConnectConfig(
+                        enable_private_service_connect=True,
+                        project_allowlist=["project-1", "project-2"],
+                    )
+                ),
+            )
+        )
+
     def test_check_license_agreement_status_success(
         self, check_license_agreement_status_mock
     ):

@@ -22,7 +22,6 @@ import tempfile
 from typing import Any, Dict, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
-from google.cloud import storage
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import explain
@@ -371,6 +370,7 @@ def save_model(
     project: Optional[str] = None,
     location: Optional[str] = None,
     credentials: Optional[auth_credentials.Credentials] = None,
+    staging_bucket: Optional[str] = None,
 ) -> google_artifact_schema.ExperimentModel:
     """Saves a ML model into a MLMD artifact.
 
@@ -418,12 +418,18 @@ def save_model(
         credentials (auth_credentials.Credentials):
             Optional. Custom credentials used to create this Artifact. Overrides
             credentials set in aiplatform.init.
+        staging_bucket (str):
+            Optional. The staging bucket used to save the model. If not provided,
+            the staging bucket set in aiplatform.init will be used. A staging
+            bucket or uri is required for saving a model.
 
     Returns:
         An ExperimentModel instance.
 
     Raises:
         ValueError: if model type is not supported.
+        RuntimeError: If staging bucket was not set using aiplatform.init
+                and a staging bucket or uri was not passed in.
     """
     framework_name = framework_version = ""
     try:
@@ -476,24 +482,13 @@ def save_model(
     model_file = _FRAMEWORK_SPECS[framework_name]["model_file"]
 
     if not uri:
-        staging_bucket = initializer.global_config.staging_bucket
-        # TODO(b/264196887)
-        if not staging_bucket:
-            project = project or initializer.global_config.project
-            location = location or initializer.global_config.location
-            credentials = credentials or initializer.global_config.credentials
+        staging_bucket = staging_bucket or initializer.global_config.staging_bucket
 
-            staging_bucket_name = project + "-vertex-staging-" + location
-            client = storage.Client(project=project, credentials=credentials)
-            staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
-            if not staging_bucket.exists():
-                _LOGGER.info(f'Creating staging bucket "{staging_bucket_name}"')
-                staging_bucket = client.create_bucket(
-                    bucket_or_name=staging_bucket,
-                    project=project,
-                    location=location,
-                )
-            staging_bucket = f"gs://{staging_bucket_name}"
+        if not staging_bucket:
+            raise RuntimeError(
+                "staging_bucket should be passed to save_model constructor or "
+                "should be set using aiplatform.init(staging_bucket='gs://my-bucket')"
+            )
 
         unique_name = utils.timestamped_unique_name()
         uri = f"{staging_bucket}/{unique_name}-{framework_name}-model"

@@ -57,7 +57,7 @@ xai_extra_require = ["tensorflow >=2.3.0, <3.0.0; python_version<'3.13'"]
 lit_extra_require = [
     "tensorflow >= 2.3.0, <3.0.0; python_version<'3.13'",
     "pandas >= 1.0.0",
-    "lit-nlp == 0.4.0; python_version<'3.14'",
+    "lit-nlp == 0.4.0; python_version<'3.13'",
     "explainable-ai-sdk >= 1.0.0; python_version<'3.13'",
 ]
 featurestore_extra_require = [
@@ -141,9 +141,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    # 1.0.0 contains breaking changes, so we need to pin to 1.0.0.
     "google-adk >= 1.0.0, < 2.0.0",
-    "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
 ]
 
 reasoning_engine_extra_require = [
@@ -153,8 +151,10 @@ reasoning_engine_extra_require = [
     "opentelemetry-exporter-gcp-logging >= 1.11.0a0, < 2.0.0",
     "opentelemetry-exporter-gcp-trace < 2",
     "opentelemetry-exporter-otlp-proto-http < 2",
+    "opentelemetry-instrumentation-google-genai>=0.3b0, <1.0.0",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
+    "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
 agent_engines_extra_require = [
@@ -168,6 +168,7 @@ agent_engines_extra_require = [
     "opentelemetry-exporter-otlp-proto-http < 2",
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
+    "google-cloud-iam",
 ]
 
 evaluation_extra_require = [
@@ -256,6 +257,7 @@ testing_extra_require = (
         "bigframes; python_version>='3.10' and python_version<'3.14'",
         # google-api-core 2.x is required since kfp requires protobuf > 4
         "google-api-core >= 2.11, < 3.0.0",
+        "google-cloud-iam",
         "grpcio-testing",
         "grpcio-tools >= 1.63.0; python_version>='3.13'",
         "ipython",
@@ -307,7 +309,7 @@ setuptools.setup(
             "google-api-core[grpc] >= 1.34.1,"
             " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
-        "google-auth >= 2.45.0, <3.0.0",
+        "google-auth >= 2.47.0, <3.0.0",
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
@@ -315,8 +317,8 @@ setuptools.setup(
         "google-cloud-storage >= 2.10.0, < 4.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
-        "shapely < 3.0.0",
-        "google-genai >= 1.37.0, <2.0.0",
+        "google-genai >= 1.37.0, <2.0.0; python_version<'3.10'",
+        "google-genai >= 1.59.0, <2.0.0; python_version>='3.10'",
     )
     + genai_requires,
     extras_require={

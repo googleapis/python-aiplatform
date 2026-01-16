@@ -1196,6 +1196,7 @@ class ExperimentRun(
         project: Optional[str] = None,
         location: Optional[str] = None,
         credentials: Optional[auth_credentials.Credentials] = None,
+        staging_bucket: Optional[str] = None,
     ) -> google_artifact_schema.ExperimentModel:
         """Saves a ML model into a MLMD artifact and log it to this ExperimentRun.
 
@@ -1245,12 +1246,18 @@ class ExperimentRun(
             credentials (auth_credentials.Credentials):
                 Optional. Custom credentials used to create this Artifact. Overrides
                 credentials set in aiplatform.init.
+            staging_bucket (str):
+                Optional. The staging bucket used to save the model. If not provided,
+                the staging bucket set in aiplatform.init will be used. A staging
+                bucket or uri is required for saving a model.
 
         Returns:
             An ExperimentModel instance.
 
         Raises:
             ValueError: if model type is not supported.
+            RuntimeError: If staging bucket was not set using aiplatform.init
+                and a staging bucket or uri was not passed in.
         """
         experiment_model = _models.save_model(
             model=model,
@@ -1262,6 +1269,7 @@ class ExperimentRun(
             project=project,
             location=location,
             credentials=credentials,
+            staging_bucket=staging_bucket,
         )
 
         self._metadata_node.add_artifacts_and_executions(
