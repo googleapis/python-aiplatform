@@ -130,13 +130,6 @@ def _CustomCodeExecutionSpec_from_vertex(
             getv(from_object, ["evaluation_function"]),
         )
 
-    if getv(from_object, ["evaluationFunction"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_function"],
-            getv(from_object, ["evaluationFunction"]),
-        )
-
     return to_object
 
 
@@ -150,13 +143,6 @@ def _CustomCodeExecutionSpec_to_vertex(
             to_object,
             ["evaluation_function"],
             getv(from_object, ["remote_custom_function"]),
-        )
-
-    if getv(from_object, ["evaluation_function"]) is not None:
-        setv(
-            to_object,
-            ["evaluationFunction"],
-            getv(from_object, ["evaluation_function"]),
         )
 
     return to_object
