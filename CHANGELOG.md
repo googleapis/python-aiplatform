@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.134.0](https://github.com/googleapis/python-aiplatform/compare/v1.133.0...v1.134.0) (2026-01-18)
+
+
+### Features
+
+* Add metadata to memories ([f9fc79d](https://github.com/googleapis/python-aiplatform/commit/f9fc79dda6888538486f4fd6a44aa02fa1bcba75))
+* Expose PSC for OpenModel ([feeb54d](https://github.com/googleapis/python-aiplatform/commit/feeb54d7a227adfadfb7d45a425c16e260dcb16b))
+* GenAI Client(evals) - Add support for `inference_configs` in `create_evaluation_run`. ([33fe72a](https://github.com/googleapis/python-aiplatform/commit/33fe72a41de35f43c1ceb905ecf5652d5257b3ac))
+* GenAI SDK client - Support agent engine sandbox http request in genai sdk ([11c23a3](https://github.com/googleapis/python-aiplatform/commit/11c23a36a2a2e8a7ac6e9a4d6934943d9e8d1aa9))
+* Support metadata filtering for memory retrieval ([f9fc79d](https://github.com/googleapis/python-aiplatform/commit/f9fc79dda6888538486f4fd6a44aa02fa1bcba75))
+* Support metadata merge strategies for memory generation ([f9fc79d](https://github.com/googleapis/python-aiplatform/commit/f9fc79dda6888538486f4fd6a44aa02fa1bcba75))
+* Support Python 3.14 for reasoning engine. ([394cd1d](https://github.com/googleapis/python-aiplatform/commit/394cd1d5c29eeca46804fca90f6a9a43ab92206d))
+* Update data types from discovery doc. ([0c6fb66](https://github.com/googleapis/python-aiplatform/commit/0c6fb66ed5f641f60d5d1d14a51a5f4fcfa64aa1))
+* Update data types from discovery doc. ([a451fa3](https://github.com/googleapis/python-aiplatform/commit/a451fa374f670d2540f654866eb1091948efaf79))
+
+
+### Bug Fixes
+
+* Mistyping of langchain tools causing mypy errors ([0705a37](https://github.com/googleapis/python-aiplatform/commit/0705a378c6b81fa82a8e77c9c6026130209e57fb))
+* Test fix internal ([b1b900e](https://github.com/googleapis/python-aiplatform/commit/b1b900e953f9391b901cbdbe448a976d63fa3aca))
+
 ## [1.133.0](https://github.com/googleapis/python-aiplatform/compare/v1.132.0...v1.133.0) (2026-01-08)
 
 
