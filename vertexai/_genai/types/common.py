@@ -1197,6 +1197,53 @@ class EvaluationRunResultsDict(TypedDict, total=False):
 EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
 
 
+class EvalCaseMetricResult(_common.BaseModel):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str] = Field(
+        default=None, description="""Name of the metric."""
+    )
+    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
+    explanation: Optional[str] = Field(
+        default=None, description="""Explanation of the metric."""
+    )
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
+        default=None,
+        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
+    )
+    raw_output: Optional[list[str]] = Field(
+        default=None, description="""Raw output of the metric."""
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="""Error message for the metric."""
+    )
+
+
+class EvalCaseMetricResultDict(TypedDict, total=False):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str]
+    """Name of the metric."""
+
+    score: Optional[float]
+    """Score of the metric."""
+
+    explanation: Optional[str]
+    """Explanation of the metric."""
+
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
+    """The details of all the rubrics and their verdicts for rubric-based metrics."""
+
+    raw_output: Optional[list[str]]
+    """Raw output of the metric."""
+
+    error_message: Optional[str]
+    """Error message for the metric."""
+
+
+EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+
+
 class ResponseCandidateResult(_common.BaseModel):
     """Aggregated metric results for a single response candidate of an EvalCase."""
 
@@ -1204,7 +1251,7 @@ class ResponseCandidateResult(_common.BaseModel):
         default=None,
         description="""Index of the response candidate this result pertains to.""",
     )
-    metric_results: Optional[dict[str, "EvalCaseMetricResult"]] = Field(
+    metric_results: Optional[dict[str, EvalCaseMetricResult]] = Field(
         default=None,
         description="""A dictionary of metric results for this response candidate, keyed by metric name.""",
     )
@@ -1216,7 +1263,7 @@ class ResponseCandidateResultDict(TypedDict, total=False):
     response_index: Optional[int]
     """Index of the response candidate this result pertains to."""
 
-    metric_results: Optional[dict[str, "EvalCaseMetricResultDict"]]
+    metric_results: Optional[dict[str, EvalCaseMetricResultDict]]
     """A dictionary of metric results for this response candidate, keyed by metric name."""
 
 
@@ -1306,6 +1353,31 @@ class AggregatedMetricResultDict(TypedDict, total=False):
 
 
 AggregatedMetricResultOrDict = Union[AggregatedMetricResult, AggregatedMetricResultDict]
+
+
+class WinRateStats(_common.BaseModel):
+    """Statistics for win rates for a single metric."""
+
+    win_rates: Optional[list[float]] = Field(
+        default=None,
+        description="""Win rates for the metric, one for each candidate.""",
+    )
+    tie_rate: Optional[float] = Field(
+        default=None, description="""Tie rate for the metric."""
+    )
+
+
+class WinRateStatsDict(TypedDict, total=False):
+    """Statistics for win rates for a single metric."""
+
+    win_rates: Optional[list[float]]
+    """Win rates for the metric, one for each candidate."""
+
+    tie_rate: Optional[float]
+    """Tie rate for the metric."""
+
+
+WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
 
 
 class ResponseCandidate(_common.BaseModel):
@@ -1609,7 +1681,7 @@ class EvaluationResult(_common.BaseModel):
         default=None,
         description="""A list of summary-level evaluation results for each metric.""",
     )
-    win_rates: Optional[dict[str, "WinRateStats"]] = Field(
+    win_rates: Optional[dict[str, WinRateStats]] = Field(
         default=None,
         description="""A dictionary of win rates for each metric, only populated for multi-response evaluation runs.""",
     )
@@ -1646,7 +1718,7 @@ class EvaluationResultDict(TypedDict, total=False):
     summary_metrics: Optional[list[AggregatedMetricResultDict]]
     """A list of summary-level evaluation results for each metric."""
 
-    win_rates: Optional[dict[str, "WinRateStatsDict"]]
+    win_rates: Optional[dict[str, WinRateStatsDict]]
     """A dictionary of win rates for each metric, only populated for multi-response evaluation runs."""
 
     evaluation_dataset: Optional[list[EvaluationDatasetDict]]
@@ -1660,6 +1732,71 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
+
+
+class EvaluationRunAgentConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""The developer instruction for the agent."""
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The tools available to the agent."""
+    )
+
+
+class EvaluationRunAgentConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.ContentDict]
+    """The developer instruction for the agent."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The tools available to the agent."""
+
+
+EvaluationRunAgentConfigOrDict = Union[
+    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
+]
+
+
+class EvaluationRunInferenceConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfig] = Field(
+        default=None, description="""The agent config."""
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+    )
+
+
+class EvaluationRunInferenceConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfigDict]
+    """The agent config."""
+
+    model: Optional[str]
+    """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+
+EvaluationRunInferenceConfigOrDict = Union[
+    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
+]
 
 
 class EvaluationRun(_common.BaseModel):
@@ -1690,7 +1827,7 @@ class EvaluationRun(_common.BaseModel):
     evaluation_config: Optional[EvaluationRunConfig] = Field(
         default=None, description="""The evaluation config for the evaluation run."""
     )
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfig]] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. The inference configs for the evaluation run.""",
     )
@@ -1774,7 +1911,7 @@ class EvaluationRunDict(TypedDict, total=False):
     evaluation_config: Optional[EvaluationRunConfigDict]
     """The evaluation config for the evaluation run."""
 
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfigDict]]
     """This field is experimental and may change in future versions. The inference configs for the evaluation run."""
 
     labels: Optional[dict[str, str]]
@@ -6611,6 +6748,37 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 ]
 
 
+class MemoryMetadataValue(_common.BaseModel):
+    """The metadata values for memories."""
+
+    timestamp_value: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
+    )
+    double_value: Optional[float] = Field(default=None, description="""Double value.""")
+    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
+    string_value: Optional[str] = Field(default=None, description="""String value.""")
+
+
+class MemoryMetadataValueDict(TypedDict, total=False):
+    """The metadata values for memories."""
+
+    timestamp_value: Optional[datetime.datetime]
+    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
+
+    double_value: Optional[float]
+    """Double value."""
+
+    bool_value: Optional[bool]
+    """Boolean value."""
+
+    string_value: Optional[str]
+    """String value."""
+
+
+MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
+
+
 class AgentEngineMemoryConfig(_common.BaseModel):
     """Config for creating a Memory."""
 
@@ -6652,7 +6820,7 @@ class AgentEngineMemoryConfig(_common.BaseModel):
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None, description="""Optional. The topics of the memory."""
     )
-    metadata: Optional[dict[str, "MemoryMetadataValue"]] = Field(
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
         default=None,
         description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
@@ -6693,7 +6861,7 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
     topics: Optional[list[MemoryTopicIdDict]]
     """Optional. The topics of the memory."""
 
-    metadata: Optional[dict[str, "MemoryMetadataValueDict"]]
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
 
@@ -6806,7 +6974,7 @@ class Memory(_common.BaseModel):
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None, description="""Optional. The Topics of the Memory."""
     )
-    metadata: Optional[dict[str, "MemoryMetadataValue"]] = Field(
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
         default=None,
         description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
@@ -6854,7 +7022,7 @@ class MemoryDict(TypedDict, total=False):
     topics: Optional[list[MemoryTopicIdDict]]
     """Optional. The Topics of the Memory."""
 
-    metadata: Optional[dict[str, "MemoryMetadataValueDict"]]
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
 
@@ -7168,7 +7336,7 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
         default=None,
         description="""Optional. Input only. If true, no revisions will be created for this request.""",
     )
-    metadata: Optional[dict[str, "MemoryMetadataValue"]] = Field(
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
         default=None,
         description="""Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank.""",
     )
@@ -7207,7 +7375,7 @@ class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
     disable_memory_revisions: Optional[bool]
     """Optional. Input only. If true, no revisions will be created for this request."""
 
-    metadata: Optional[dict[str, "MemoryMetadataValueDict"]]
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank."""
 
     metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy]
@@ -7668,37 +7836,6 @@ RetrieveMemoriesRequestSimpleRetrievalParamsOrDict = Union[
     RetrieveMemoriesRequestSimpleRetrievalParams,
     RetrieveMemoriesRequestSimpleRetrievalParamsDict,
 ]
-
-
-class MemoryMetadataValue(_common.BaseModel):
-    """Memory metadata."""
-
-    timestamp_value: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
-    )
-    double_value: Optional[float] = Field(default=None, description="""Double value.""")
-    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
-    string_value: Optional[str] = Field(default=None, description="""String value.""")
-
-
-class MemoryMetadataValueDict(TypedDict, total=False):
-    """Memory metadata."""
-
-    timestamp_value: Optional[datetime.datetime]
-    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
-
-    double_value: Optional[float]
-    """Double value."""
-
-    bool_value: Optional[bool]
-    """Boolean value."""
-
-    string_value: Optional[str]
-    """String value."""
-
-
-MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
 
 
 class MemoryFilter(_common.BaseModel):
@@ -13301,143 +13438,6 @@ class ContentMapContentsDict(TypedDict, total=False):
 
 
 ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
-
-
-class EvalCaseMetricResult(_common.BaseModel):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str] = Field(
-        default=None, description="""Name of the metric."""
-    )
-    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
-    explanation: Optional[str] = Field(
-        default=None, description="""Explanation of the metric."""
-    )
-    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
-        default=None,
-        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
-    )
-    raw_output: Optional[list[str]] = Field(
-        default=None, description="""Raw output of the metric."""
-    )
-    error_message: Optional[str] = Field(
-        default=None, description="""Error message for the metric."""
-    )
-
-
-class EvalCaseMetricResultDict(TypedDict, total=False):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str]
-    """Name of the metric."""
-
-    score: Optional[float]
-    """Score of the metric."""
-
-    explanation: Optional[str]
-    """Explanation of the metric."""
-
-    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
-    """The details of all the rubrics and their verdicts for rubric-based metrics."""
-
-    raw_output: Optional[list[str]]
-    """Raw output of the metric."""
-
-    error_message: Optional[str]
-    """Error message for the metric."""
-
-
-EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
-
-
-class EvaluationRunAgentConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.Content] = Field(
-        default=None, description="""The developer instruction for the agent."""
-    )
-    tools: Optional[list[genai_types.Tool]] = Field(
-        default=None, description="""The tools available to the agent."""
-    )
-
-
-class EvaluationRunAgentConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.ContentDict]
-    """The developer instruction for the agent."""
-
-    tools: Optional[list[genai_types.ToolDict]]
-    """The tools available to the agent."""
-
-
-EvaluationRunAgentConfigOrDict = Union[
-    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
-]
-
-
-class EvaluationRunInferenceConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfig] = Field(
-        default=None, description="""The agent config."""
-    )
-    model: Optional[str] = Field(
-        default=None,
-        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
-    )
-
-
-class EvaluationRunInferenceConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfigDict]
-    """The agent config."""
-
-    model: Optional[str]
-    """The fully qualified name of the publisher model or endpoint to use for inference."""
-
-
-EvaluationRunInferenceConfigOrDict = Union[
-    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
-]
-
-
-class WinRateStats(_common.BaseModel):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]] = Field(
-        default=None,
-        description="""Win rates for the metric, one for each candidate.""",
-    )
-    tie_rate: Optional[float] = Field(
-        default=None, description="""Tie rate for the metric."""
-    )
-
-
-class WinRateStatsDict(TypedDict, total=False):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]]
-    """Win rates for the metric, one for each candidate."""
-
-    tie_rate: Optional[float]
-    """Tie rate for the metric."""
-
-
-WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
 
 
 class EvaluateMethodConfig(_common.BaseModel):
