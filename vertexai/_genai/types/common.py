@@ -324,6 +324,21 @@ class RubricContentType(_common.CaseInSensitiveEnum):
     """Generate rubrics in a unit test format."""
 
 
+class ComputationBasedMetricType(_common.CaseInSensitiveEnum):
+    """Represents the type of the computation based metric."""
+
+    COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED = (
+        "COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED"
+    )
+    """Computation based metric type is unspecified."""
+    EXACT_MATCH = "EXACT_MATCH"
+    """Exact match metric."""
+    BLEU = "BLEU"
+    """BLEU metric."""
+    ROUGE = "ROUGE"
+    """ROUGE metric."""
+
+
 class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Represents the state of an evaluation run."""
 
@@ -969,6 +984,33 @@ CustomCodeExecutionSpecOrDict = Union[
 ]
 
 
+class ComputationBasedMetricSpec(_common.BaseModel):
+    """Specification for a computation based metric."""
+
+    type: Optional[ComputationBasedMetricType] = Field(
+        default=None, description="""The type of the computation based metric."""
+    )
+    parameters: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}.""",
+    )
+
+
+class ComputationBasedMetricSpecDict(TypedDict, total=False):
+    """Specification for a computation based metric."""
+
+    type: Optional[ComputationBasedMetricType]
+    """The type of the computation based metric."""
+
+    parameters: Optional[dict[str, Any]]
+    """A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}."""
+
+
+ComputationBasedMetricSpecOrDict = Union[
+    ComputationBasedMetricSpec, ComputationBasedMetricSpecDict
+]
+
+
 class UnifiedMetric(_common.BaseModel):
     """The unified metric used for evaluation."""
 
@@ -989,6 +1031,9 @@ class UnifiedMetric(_common.BaseModel):
     )
     predefined_metric_spec: Optional[PredefinedMetricSpec] = Field(
         default=None, description="""The spec for a pre-defined metric."""
+    )
+    computation_based_metric_spec: Optional[ComputationBasedMetricSpec] = Field(
+        default=None, description="""The spec for a computation based metric."""
     )
 
 
@@ -1012,6 +1057,9 @@ class UnifiedMetricDict(TypedDict, total=False):
 
     predefined_metric_spec: Optional[PredefinedMetricSpecDict]
     """The spec for a pre-defined metric."""
+
+    computation_based_metric_spec: Optional[ComputationBasedMetricSpecDict]
+    """The spec for a computation based metric."""
 
 
 UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]

@@ -577,6 +577,13 @@ def _UnifiedMetric_from_vertex(
             getv(from_object, ["predefinedMetricSpec"]),
         )
 
+    if getv(from_object, ["computationBasedMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["computation_based_metric_spec"],
+            getv(from_object, ["computationBasedMetricSpec"]),
+        )
+
     return to_object
 
 
@@ -619,6 +626,13 @@ def _UnifiedMetric_to_vertex(
             to_object,
             ["predefinedMetricSpec"],
             getv(from_object, ["predefined_metric_spec"]),
+        )
+
+    if getv(from_object, ["computation_based_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["computationBasedMetricSpec"],
+            getv(from_object, ["computation_based_metric_spec"]),
         )
 
     return to_object
