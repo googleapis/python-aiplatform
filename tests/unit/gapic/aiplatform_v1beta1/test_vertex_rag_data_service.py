@@ -10756,6 +10756,8 @@ def test_update_rag_engine_config_rest_call_success(request_type):
             "scaled": {},
             "basic": {},
             "unprovisioned": {},
+            "serverless": {},
+            "spanner": {"scaled": {}, "basic": {}, "unprovisioned": {}},
         },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
@@ -13773,6 +13775,8 @@ async def test_update_rag_engine_config_rest_asyncio_call_success(request_type):
             "scaled": {},
             "basic": {},
             "unprovisioned": {},
+            "serverless": {},
+            "spanner": {"scaled": {}, "basic": {}, "unprovisioned": {}},
         },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
