@@ -46,6 +46,23 @@ LLM_METRIC = types.EvaluationRunMetric(
         )
     ),
 )
+EXACT_MATCH_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
+    metric="exact_match",
+    metric_config=types.UnifiedMetric(
+        computation_based_metric_spec=types.ComputationBasedMetricSpec(
+            type=types.ComputationBasedMetricType.EXACT_MATCH,
+        )
+    ),
+)
+BLEU_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
+    metric="exact_match_2",
+    metric_config=types.UnifiedMetric(
+        computation_based_metric_spec=types.ComputationBasedMetricSpec(
+            type=types.ComputationBasedMetricType.BLEU,
+            parameters={"use_effective_order": True},
+        )
+    ),
+)
 
 
 def test_create_eval_run_data_source_evaluation_set(client):
@@ -74,6 +91,8 @@ def test_create_eval_run_data_source_evaluation_set(client):
             GENERAL_QUALITY_METRIC,
             types.RubricMetric.FINAL_RESPONSE_QUALITY,
             LLM_METRIC,
+            EXACT_MATCH_COMPUTATION_BASED_METRIC,
+            BLEU_COMPUTATION_BASED_METRIC,
         ],
         agent_info=types.evals.AgentInfo(
             agent_resource_name="project/123/locations/us-central1/reasoningEngines/456",
@@ -94,7 +113,13 @@ def test_create_eval_run_data_source_evaluation_set(client):
         output_config=genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
         ),
-        metrics=[GENERAL_QUALITY_METRIC, FINAL_RESPONSE_QUALITY_METRIC, LLM_METRIC],
+        metrics=[
+            GENERAL_QUALITY_METRIC,
+            FINAL_RESPONSE_QUALITY_METRIC,
+            LLM_METRIC,
+            EXACT_MATCH_COMPUTATION_BASED_METRIC,
+            BLEU_COMPUTATION_BASED_METRIC,
+        ],
     )
     assert evaluation_run.inference_configs[
         "agent-1"
