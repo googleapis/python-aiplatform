@@ -21,15 +21,14 @@ service MatchService {
 }
 
 // Feature embedding vector for sparse index. An array of numbers whose values
-  // are located in the specified dimensions.
-  message SparseEmbedding {
+// are located in the specified dimensions.
+message SparseEmbedding {
+  // The list of embedding values of the sparse vector.
+  repeated float float_val = 1;
 
-    // The list of embedding values of the sparse vector.
-    repeated float float_val = 1;
-
-    // The list of indexes for the embedding values of the sparse vector.
-    repeated int64 dimension = 2;
-  }
+  // The list of indexes for the embedding values of the sparse vector.
+  repeated int64 dimension = 2;
+}
 
 // Parameters for a match query.
 message MatchRequest {
@@ -50,7 +49,6 @@ message MatchRequest {
 
   // Parameters for RRF algorithm that combines search results.
   message RRF {
-
     // Users can provide an alpha value to give more weight to sparse vs dense.
     // For example, if the alpha is 0, we don't return dense at all, if it's 1,
     // we don't return sparse at all.
@@ -70,7 +68,7 @@ message MatchRequest {
   // The list of restricts.
   repeated Namespace restricts = 4;
 
-  //The list of numeric restricts.
+  // The list of numeric restricts.
   repeated NumericNamespace numeric_restricts = 11;
 
   // Crowding is a constraint on a neighbor list produced by nearest neighbor
@@ -128,6 +126,9 @@ message Embedding {
   // to return per crowding attribute value
   // (per_crowding_attribute_num_neighbors) is configured per-query.
   int64 crowding_attribute = 4;
+
+  // The key-value map of additional metadata for the datapoint.
+  google.protobuf.Struct embedding_metadata = 7;
 }
 
 // Response of a match query.
@@ -238,7 +239,6 @@ message Namespace {
 // eligible for each matching query, overall query is an AND across namespaces.
 // This uses numeric comparisons.
 message NumericNamespace {
-
   // The string name of the namespace that this proto is specifying,
   // such as "size" or "cost".
   string name = 1;
