@@ -1367,6 +1367,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         enable_access_logging=False,
@@ -1467,6 +1470,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int):
+                Optional. Target DCGM metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int):
+                Optional. Target vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int):
+                Optional. Target vLLM metrics for number of inference requests
+                currently waiting in the queue.
             autoscaling_target_pubsub_num_undelivered_messages (int):
                 Optional. The target number of pubsub undelivered messages for autoscaling.
                 If set, the model will be scaled based on the pubsub queue size.
@@ -1555,6 +1565,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
@@ -1591,6 +1604,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         spot: bool = False,
@@ -1694,6 +1710,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int):
+                Optional. Target DCGM metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int):
+                Optional. Target vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int):
+                Optional. Target vLLM metrics for number of inference requests
+                currently waiting in the queue.
             autoscaling_target_pubsub_num_undelivered_messages (int):
                 Optional. The target number of pubsub undelivered messages for autoscaling.
                 If set, the model will be scaled based on the pubsub queue size.
@@ -1759,6 +1782,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
@@ -1802,6 +1828,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         spot: bool = False,
@@ -1911,6 +1940,13 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 A default value of 60 will be used if not specified.
             autoscaling_target_request_count_per_minute (int):
                 Optional. Target request count per minute per instance.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int):
+                Optional. Target DCGM metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int):
+                Optional. Target vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int):
+                Optional. Target vLLM metrics for number of inference requests
+                currently waiting in the queue.
             autoscaling_target_pubsub_num_undelivered_messages (int):
                 Optional. Target pubsub queue size per instance.
             autoscaling_pubsub_subscription_labels (Dict[str, str]):
@@ -2006,6 +2042,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
                 or autoscaling_target_request_count_per_minute
+                or autoscaling_target_dcgm_fi_dev_gpu_util
+                or autoscaling_target_vllm_gpu_cache_usage_perc
+                or autoscaling_target_vllm_num_requests_waiting
                 or autoscaling_target_pubsub_num_undelivered_messages
                 or autoscaling_pubsub_subscription_labels
             )
@@ -2017,6 +2056,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
                     "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_dcgm_fi_dev_gpu_util, "
+                    "autoscaling_target_vllm_gpu_cache_usage_perc, "
+                    "autoscaling_target_vllm_num_requests_waiting, "
                     "autoscaling_target_pubsub_num_undelivered_messages, "
                     "autoscaling_pubsub_subscription_labels parameters "
                     "may not be set when `deployment_resource_pool` is "
@@ -2078,6 +2120,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
                 or autoscaling_target_request_count_per_minute
+                or autoscaling_target_dcgm_fi_dev_gpu_util
+                or autoscaling_target_vllm_gpu_cache_usage_perc
+                or autoscaling_target_vllm_num_requests_waiting
                 or autoscaling_target_pubsub_num_undelivered_messages
                 or autoscaling_pubsub_subscription_labels
             )
@@ -2095,6 +2140,9 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
                     "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_dcgm_fi_dev_gpu_util, "
+                    "autoscaling_target_vllm_gpu_cache_usage_perc, "
+                    "autoscaling_target_vllm_num_requests_waiting, "
                     "autoscaling_target_pubsub_num_undelivered_messages, "
                     "autoscaling_pubsub_subscription_labels parameters "
                     "are ignored."
@@ -2150,6 +2198,48 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
                                 "request_count"
                             ),
                             target=autoscaling_target_request_count_per_minute,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if autoscaling_target_dcgm_fi_dev_gpu_util:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "prometheus.googleapis.com/"
+                                "vertex_dcgm_fi_dev_gpu_util"
+                            ),
+                            target=autoscaling_target_dcgm_fi_dev_gpu_util,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if autoscaling_target_vllm_gpu_cache_usage_perc:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "prometheus.googleapis.com/"
+                                "vertex_vllm_gpu_cache_usage_perc"
+                            ),
+                            target=autoscaling_target_vllm_gpu_cache_usage_perc,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if autoscaling_target_vllm_num_requests_waiting:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "prometheus.googleapis.com/"
+                                "vertex_vllm_num_requests_waiting"
+                            ),
+                            target=autoscaling_target_vllm_num_requests_waiting,
                         )
                     )
                     dedicated_resources.autoscaling_metric_specs.extend(
@@ -4492,6 +4582,9 @@ class PrivateEndpoint(Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
     ) -> None:
@@ -4673,6 +4766,9 @@ class PrivateEndpoint(Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
         )
@@ -5748,6 +5844,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         enable_access_logging=False,
@@ -5870,6 +5969,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int):
+                Optional. Target DCGM metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int):
+                Optional. Target vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int):
+                Optional. Target vLLM metrics for number of inference requests
+                currently waiting in the queue.
             autoscaling_target_pubsub_num_undelivered_messages (int):
                 Optional. The target number of pubsub undelivered messages for autoscaling.
                 If set, the model will be scaled based on the pubsub queue size.
@@ -5929,6 +6035,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int):
+                Optional. Target DCGM metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int):
+                Optional. Target vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int):
+                Optional. Target vLLM metrics for number of inference requests
+                currently waiting in the queue.
             autoscaling_target_pubsub_num_undelivered_messages (int):
                 Optional. The target number of pubsub undelivered messages for autoscaling.
                 If set, the model will be scaled based on the pubsub queue size.
@@ -6001,6 +6114,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
@@ -6047,6 +6163,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         spot: bool = False,
@@ -6171,6 +6290,13 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_request_count_per_minute (int):
                 Optional. The target number of requests per minute for autoscaling.
                 If set, the model will be scaled based on the number of requests it receives.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int):
+                Optional. Target DCGM metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int):
+                Optional. Target vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int):
+                Optional. Target vLLM metrics for number of inference requests
+                currently waiting in the queue.
             autoscaling_target_pubsub_num_undelivered_messages (int):
                 Optional. The target number of pubsub undelivered messages for autoscaling.
                 If set, the model will be scaled based on the pubsub queue size.
@@ -6267,6 +6393,9 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             spot=spot,
