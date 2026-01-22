@@ -351,7 +351,7 @@ setuptools.setup(
         "llama_index": llama_index_extra_require,
         "llama_index_testing": llama_index_testing_extra_require,
     },
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
