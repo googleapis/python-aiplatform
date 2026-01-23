@@ -1029,6 +1029,9 @@ from .common import UpdateDatasetConfigOrDict
 from .common import UpdateMultimodalDatasetConfig
 from .common import UpdateMultimodalDatasetConfigDict
 from .common import UpdateMultimodalDatasetConfigOrDict
+from .common import UpdatePromptConfig
+from .common import UpdatePromptConfigDict
+from .common import UpdatePromptConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
@@ -1922,6 +1925,9 @@ __all__ = [
     "GetPromptConfig",
     "GetPromptConfigDict",
     "GetPromptConfigOrDict",
+    "UpdatePromptConfig",
+    "UpdatePromptConfigDict",
+    "UpdatePromptConfigOrDict",
     "PromptRef",
     "PromptRefDict",
     "PromptRefOrDict",
