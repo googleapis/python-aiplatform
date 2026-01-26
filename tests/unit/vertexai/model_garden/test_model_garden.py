@@ -1355,6 +1355,44 @@ class TestModelGardenOpenModel:
             "google/gemma-2-2b",
         ]
 
+    def test_list_models(self, list_publisher_models_mock):
+        """Tests listing models."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        mg_models = model_garden.list_models()
+        list_publisher_models_mock.assert_called_with(
+            types.ListPublisherModelsRequest(
+                parent="publishers/*",
+                list_all_versions=True,
+                filter="is_hf_wildcard(false)",
+            )
+        )
+
+        assert mg_models == [
+            "google/paligemma@001",
+            "google/paligemma@002",
+            "google/paligemma@003",
+            "google/paligemma@004",
+        ]
+
+        hf_models = model_garden.list_models(list_hf_models=True)
+        list_publisher_models_mock.assert_called_with(
+            types.ListPublisherModelsRequest(
+                parent="publishers/*",
+                list_all_versions=True,
+                filter="is_hf_wildcard(true)",
+            )
+        )
+        assert hf_models == [
+            "google/gemma-2-2b",
+            "google/gemma-2-2b",
+            "google/gemma-2-2b",
+            "google/gemma-2-2b",
+        ]
+
     def test_batch_prediction_success(self, batch_prediction_mock):
         aiplatform.init(
             project=_TEST_PROJECT,
