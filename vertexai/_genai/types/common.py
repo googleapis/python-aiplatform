@@ -45,7 +45,7 @@ from pydantic import (
 )
 from typing_extensions import TypedDict
 from . import evals as evals_types
-from . import prompt_optimizer as prompt_optimizer_types
+from . import prompts as prompts_types
 
 
 def camel_to_snake(camel_case_string: str) -> str:
@@ -403,6 +403,15 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
 
 
 class PromptOptimizerMethod(_common.CaseInSensitiveEnum):
+    """The method for data driven prompt optimization."""
+
+    VAPO = "VAPO"
+    """The default data driven Vertex AI Prompt Optimizer."""
+    OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
+    """The data driven prompt optimizer designer for prompts from Android core API."""
+
+
+class OptimizationMethod(_common.CaseInSensitiveEnum):
     """The method for data driven prompt optimization."""
 
     VAPO = "VAPO"
@@ -14387,11 +14396,10 @@ PromptDataDict = SchemaPromptSpecPromptMessageDict
 PromptDataOrDict = Union[PromptData, PromptDataDict]
 
 ParsedResponseUnion = Union[
-    prompt_optimizer_types.ParsedResponse, prompt_optimizer_types.ParsedResponseFewShot
+    prompts_types.ParsedResponse, prompts_types.ParsedResponseFewShot
 ]
 ParsedResponseUnionDict = Union[
-    prompt_optimizer_types.ParsedResponseDict,
-    prompt_optimizer_types.ParsedResponseFewShotDict,
+    prompts_types.ParsedResponseDict, prompts_types.ParsedResponseFewShotDict
 ]
 
 
@@ -14558,3 +14566,50 @@ class PromptVersionRefDict(TypedDict, total=False):
 
 
 PromptVersionRefOrDict = Union[PromptVersionRef, PromptVersionRefDict]
+
+
+class OptimizeJobConfig(_common.BaseModel):
+    """VAPO Prompt Optimizer Config."""
+
+    config_path: Optional[str] = Field(
+        default=None,
+        description="""The gcs path to the config file, e.g. gs://bucket/config.json.""",
+    )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""The service account to use for the custom job. Cannot be provided at the same time as service_account_project_number.""",
+    )
+    service_account_project_number: Optional[Union[int, str]] = Field(
+        default=None,
+        description="""The project number used to construct the default service account:{service_account_project_number}-compute@developer.gserviceaccount.comCannot be provided at the same time as "service_account".""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the job tocomplete. Ignored for async jobs.""",
+    )
+    optimizer_job_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name of the optimization job. If not provided, a display name in the format of "vapo-optimizer-{timestamp}" will be used.""",
+    )
+
+
+class OptimizeJobConfigDict(TypedDict, total=False):
+    """VAPO Prompt Optimizer Config."""
+
+    config_path: Optional[str]
+    """The gcs path to the config file, e.g. gs://bucket/config.json."""
+
+    service_account: Optional[str]
+    """The service account to use for the custom job. Cannot be provided at the same time as service_account_project_number."""
+
+    service_account_project_number: Optional[Union[int, str]]
+    """The project number used to construct the default service account:{service_account_project_number}-compute@developer.gserviceaccount.comCannot be provided at the same time as "service_account"."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the job tocomplete. Ignored for async jobs."""
+
+    optimizer_job_display_name: Optional[str]
+    """The display name of the optimization job. If not provided, a display name in the format of "vapo-optimizer-{timestamp}" will be used."""
+
+
+OptimizeJobConfigOrDict = Union[OptimizeJobConfig, OptimizeJobConfigDict]
