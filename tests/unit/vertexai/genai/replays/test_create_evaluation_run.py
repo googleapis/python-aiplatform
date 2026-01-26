@@ -20,11 +20,11 @@ from google.genai import types as genai_types
 import pytest
 
 GCS_DEST = "gs://lakeyk-limited-bucket/eval_run_output"
-UNIVERSAL_AR_METRIC = types.EvaluationRunMetric(
-    metric="universal_ar_v1",
+GENERAL_QUALITY_METRIC = types.EvaluationRunMetric(
+    metric="general_quality_v1",
     metric_config=types.UnifiedMetric(
         predefined_metric_spec=types.PredefinedMetricSpec(
-            metric_spec_name="universal_ar_v1",
+            metric_spec_name="general_quality_v1",
         )
     ),
 )
@@ -43,6 +43,23 @@ LLM_METRIC = types.EvaluationRunMetric(
             metric_prompt_template=(
                 "\nEvaluate the fluency of the response. Provide a score from 1-5."
             )
+        )
+    ),
+)
+EXACT_MATCH_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
+    metric="exact_match",
+    metric_config=types.UnifiedMetric(
+        computation_based_metric_spec=types.ComputationBasedMetricSpec(
+            type=types.ComputationBasedMetricType.EXACT_MATCH,
+        )
+    ),
+)
+BLEU_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
+    metric="exact_match_2",
+    metric_config=types.UnifiedMetric(
+        computation_based_metric_spec=types.ComputationBasedMetricSpec(
+            type=types.ComputationBasedMetricType.BLEU,
+            parameters={"use_effective_order": True},
         )
     ),
 )
@@ -71,9 +88,11 @@ def test_create_eval_run_data_source_evaluation_set(client):
         ),
         dest=GCS_DEST,
         metrics=[
-            UNIVERSAL_AR_METRIC,
+            GENERAL_QUALITY_METRIC,
             types.RubricMetric.FINAL_RESPONSE_QUALITY,
             LLM_METRIC,
+            EXACT_MATCH_COMPUTATION_BASED_METRIC,
+            BLEU_COMPUTATION_BASED_METRIC,
         ],
         agent_info=types.evals.AgentInfo(
             agent_resource_name="project/123/locations/us-central1/reasoningEngines/456",
@@ -94,7 +113,13 @@ def test_create_eval_run_data_source_evaluation_set(client):
         output_config=genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
         ),
-        metrics=[UNIVERSAL_AR_METRIC, FINAL_RESPONSE_QUALITY_METRIC, LLM_METRIC],
+        metrics=[
+            GENERAL_QUALITY_METRIC,
+            FINAL_RESPONSE_QUALITY_METRIC,
+            LLM_METRIC,
+            EXACT_MATCH_COMPUTATION_BASED_METRIC,
+            BLEU_COMPUTATION_BASED_METRIC,
+        ],
     )
     assert evaluation_run.inference_configs[
         "agent-1"
@@ -131,7 +156,7 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
         ),
         labels={"label1": "value1"},
         dest=GCS_DEST,
-        metrics=[UNIVERSAL_AR_METRIC],
+        metrics=[GENERAL_QUALITY_METRIC],
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test5"
@@ -152,9 +177,46 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
         output_config=genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
         ),
-        metrics=[UNIVERSAL_AR_METRIC],
+        metrics=[GENERAL_QUALITY_METRIC],
     )
     assert evaluation_run.inference_configs is None
+    assert evaluation_run.labels == {
+        "label1": "value1",
+    }
+    assert evaluation_run.error is None
+
+
+def test_create_eval_run_with_inference_configs(client):
+    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with inference_configs."""
+    client._api_client._http_options.api_version = "v1beta1"
+    inference_config = types.EvaluationRunInferenceConfig(
+        model="projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+    )
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_inference_config",
+        display_name="test_inference_config",
+        dataset=types.EvaluationRunDataSource(
+            evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+        ),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        inference_configs={"model_1": inference_config},
+        labels={"label1": "value1"},
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_inference_config"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+    assert evaluation_run.data_source.evaluation_set == (
+        "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+        ),
+        metrics=[GENERAL_QUALITY_METRIC],
+    )
+    assert evaluation_run.inference_configs["model_1"] == inference_config
     assert evaluation_run.labels == {
         "label1": "value1",
     }
@@ -217,7 +279,7 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
 #             eval_dataset_df=input_df,
 #         ),
 #         dest=GCS_DEST,
-#         metrics=[UNIVERSAL_AR_METRIC],
+#         metrics=[GENERAL_QUALITY_METRIC],
 #     )
 #     assert isinstance(evaluation_run, types.EvaluationRun)
 #     assert evaluation_run.display_name == "test6"
@@ -278,7 +340,7 @@ async def test_create_eval_run_async(client):
             )
         ),
         dest=GCS_DEST,
-        metrics=[UNIVERSAL_AR_METRIC],
+        metrics=[GENERAL_QUALITY_METRIC],
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.display_name == "test8"
@@ -295,12 +357,50 @@ async def test_create_eval_run_async(client):
         output_config=genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
         ),
-        metrics=[UNIVERSAL_AR_METRIC],
+        metrics=[GENERAL_QUALITY_METRIC],
     )
     assert evaluation_run.error is None
     assert evaluation_run.inference_configs is None
     assert evaluation_run.error is None
     assert evaluation_run.labels is None
+    assert evaluation_run.error is None
+
+
+@pytest.mark.asyncio
+async def test_create_eval_run_async_with_inference_configs(client):
+    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with inference_configs asynchronously."""
+    client._api_client._http_options.api_version = "v1beta1"
+    inference_config = types.EvaluationRunInferenceConfig(
+        model="projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+    )
+    evaluation_run = await client.aio.evals.create_evaluation_run(
+        name="test_inference_config_async",
+        display_name="test_inference_config_async",
+        dataset=types.EvaluationRunDataSource(
+            evaluation_set="projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+        ),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        inference_configs={"model_1": inference_config},
+        labels={"label1": "value1"},
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_inference_config_async"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+    assert evaluation_run.data_source.evaluation_set == (
+        "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+        ),
+        metrics=[GENERAL_QUALITY_METRIC],
+    )
+    assert evaluation_run.inference_configs["model_1"] == inference_config
+    assert evaluation_run.labels == {
+        "label1": "value1",
+    }
     assert evaluation_run.error is None
 
 

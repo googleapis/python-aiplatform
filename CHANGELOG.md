@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.134.0](https://github.com/googleapis/python-aiplatform/compare/v1.133.0...v1.134.0) (2026-01-18)
+
+
+### Features
+
+* Add metadata to memories ([f9fc79d](https://github.com/googleapis/python-aiplatform/commit/f9fc79dda6888538486f4fd6a44aa02fa1bcba75))
+* Expose PSC for OpenModel ([feeb54d](https://github.com/googleapis/python-aiplatform/commit/feeb54d7a227adfadfb7d45a425c16e260dcb16b))
+* GenAI Client(evals) - Add support for `inference_configs` in `create_evaluation_run`. ([33fe72a](https://github.com/googleapis/python-aiplatform/commit/33fe72a41de35f43c1ceb905ecf5652d5257b3ac))
+* GenAI SDK client - Support agent engine sandbox http request in genai sdk ([11c23a3](https://github.com/googleapis/python-aiplatform/commit/11c23a36a2a2e8a7ac6e9a4d6934943d9e8d1aa9))
+* Support metadata filtering for memory retrieval ([f9fc79d](https://github.com/googleapis/python-aiplatform/commit/f9fc79dda6888538486f4fd6a44aa02fa1bcba75))
+* Support metadata merge strategies for memory generation ([f9fc79d](https://github.com/googleapis/python-aiplatform/commit/f9fc79dda6888538486f4fd6a44aa02fa1bcba75))
+* Support Python 3.14 for reasoning engine. ([394cd1d](https://github.com/googleapis/python-aiplatform/commit/394cd1d5c29eeca46804fca90f6a9a43ab92206d))
+* Update data types from discovery doc. ([0c6fb66](https://github.com/googleapis/python-aiplatform/commit/0c6fb66ed5f641f60d5d1d14a51a5f4fcfa64aa1))
+* Update data types from discovery doc. ([a451fa3](https://github.com/googleapis/python-aiplatform/commit/a451fa374f670d2540f654866eb1091948efaf79))
+
+
+### Bug Fixes
+
+* Mistyping of langchain tools causing mypy errors ([0705a37](https://github.com/googleapis/python-aiplatform/commit/0705a378c6b81fa82a8e77c9c6026130209e57fb))
+* Test fix internal ([b1b900e](https://github.com/googleapis/python-aiplatform/commit/b1b900e953f9391b901cbdbe448a976d63fa3aca))
+
+## [1.133.0](https://github.com/googleapis/python-aiplatform/compare/v1.132.0...v1.133.0) (2026-01-08)
+
+
+### Features
+
+* Deprecate tuning public preview SDK in favor of tuning SDK ([35d362c](https://github.com/googleapis/python-aiplatform/commit/35d362ce8f6c50498f781857e0d8cabd327284be))
+* GenAI SDK client - Enabling Few-shot Prompt Optimization by passing either "OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS" or "OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE" to the `optimize_prompt` method ([715cc5b](https://github.com/googleapis/python-aiplatform/commit/715cc5b71b996eecde2d97bad71a617274739dcc))
+* GenAI SDK client(memory): Add enable_third_person_memories ([65717fa](https://github.com/googleapis/python-aiplatform/commit/65717fa0c3d9b8c3105638cf9c75ee415f36b6e0))
+* Support Developer Connect in AE ([04f1771](https://github.com/googleapis/python-aiplatform/commit/04f1771e16f54a0627ecac1266764ca77f833694))
+
+
+### Bug Fixes
+
+* Add None check for agent_info in evals.py ([c8c0f0f](https://github.com/googleapis/python-aiplatform/commit/c8c0f0f7eb67696c2e91902af7e6dca20cea2040))
+* GenAI client(evals) - Fix TypeError in _build_generate_content_config ([be2eaaa](https://github.com/googleapis/python-aiplatform/commit/be2eaaa30dbf13a86f6856771eeacd2a51a97806))
+* Make project_number to project_id mapping fail-open. ([f1c8458](https://github.com/googleapis/python-aiplatform/commit/f1c8458dd5e4641cb03ff175f0837b6d6017c131))
+* Replace asyncio.run with create_task in ADK async thread mains. ([83f4076](https://github.com/googleapis/python-aiplatform/commit/83f4076706d808dcc0e1784219856846540e10da))
+* Replace asyncio.run with create_task in ADK async thread mains. ([8c876ef](https://github.com/googleapis/python-aiplatform/commit/8c876ef069d0fe6942790ede41e203196cd4a390))
+* Require uri or staging bucket configuration for saving model to Vertex Experiment. ([5448f06](https://github.com/googleapis/python-aiplatform/commit/5448f065fa30d77c2ee0868249ec0bea6a93a4c0))
+* Return embedding metadata if available ([d9c6eb1](https://github.com/googleapis/python-aiplatform/commit/d9c6eb199b6ccc1fae417463e1b374574f2ae2f8))
+* Update `examples_dataframe` type to `PandasDataFrame` in Prompt Optimizer. ([a2564cc](https://github.com/googleapis/python-aiplatform/commit/a2564cc3ea5c4860ee732f14cea9db2c10b52420))
+
 ## [1.132.0](https://github.com/googleapis/python-aiplatform/compare/v1.131.0...v1.132.0) (2025-12-17)
 
 

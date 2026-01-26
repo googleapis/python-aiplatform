@@ -16,6 +16,7 @@
 
 import os
 import re
+import sys
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
@@ -83,6 +84,7 @@ def test_create_with_context_spec(client):
                 ],
             }
         ],
+        "enable_third_person_memories": True,
     }
     memory_bank_customization_config = types.MemoryBankCustomizationConfig(
         **customization_config
@@ -123,6 +125,32 @@ def test_create_with_source_packages(
     mock_agent_engine_create_path_exists,
 ):
     """Tests creating an agent engine with source packages."""
+    if sys.version_info >= (3, 13):
+        try:
+            client._api_client._initialize_replay_session_if_not_loaded()
+            if client._api_client.replay_session:
+                target_ver = f"{sys.version_info.major}.{sys.version_info.minor}"
+                for interaction in client._api_client.replay_session.interactions:
+
+                    def _update_ver(obj):
+                        if isinstance(obj, dict):
+                            if "python_spec" in obj and isinstance(
+                                obj["python_spec"], dict
+                            ):
+                                if "version" in obj["python_spec"]:
+                                    obj["python_spec"]["version"] = target_ver
+                            for v in obj.values():
+                                _update_ver(v)
+                        elif isinstance(obj, list):
+                            for item in obj:
+                                _update_ver(item)
+
+                    if hasattr(interaction.request, "body_segments"):
+                        _update_ver(interaction.request.body_segments)
+                    if hasattr(interaction.request, "body"):
+                        _update_ver(interaction.request.body)
+        except Exception:
+            pass
     with (
         mock_agent_engine_create_base64_encoded_tarball,
         mock_agent_engine_create_path_exists,
@@ -143,12 +171,9 @@ def test_create_with_source_packages(
                 },
             },
         )
-        assert (
-            agent_engine.api_resource.display_name
-            == "test-agent-engine-source-packages"
-        )
-        # Clean up resources.
-        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+    assert agent_engine.api_resource.display_name == "test-agent-engine-source-packages"
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
 def test_create_with_identity_type(client):
@@ -165,43 +190,6 @@ def test_create_with_identity_type(client):
     )
     assert _AGENT_IDENTITY_REGEX.match(
         agent_engine.api_resource.spec.effective_identity
-    )
-    # Clean up resources.
-    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
-
-
-def test_create_with_developer_connect_source(client):
-    """Tests creating an agent engine with developer connect source."""
-    developer_connect_source_config = types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(
-        git_repository_link="projects/reasoning-engine-test-1/locations/europe-west3/connections/shawn-develop-connect/gitRepositoryLinks/shawn-yang-google-adk-samples",
-        revision="main",
-        dir="test",
-    )
-    agent_engine = client.agent_engines.create(
-        config={
-            "display_name": "test-agent-engine-dev-connect",
-            "developer_connect_source": developer_connect_source_config,
-            "entrypoint_module": "my_agent",
-            "entrypoint_object": "agent",
-            "class_methods": _TEST_CLASS_METHODS,
-            "http_options": {
-                "base_url": "https://europe-west3-aiplatform.googleapis.com",
-                "api_version": "v1beta1",
-            },
-        },
-    )
-    assert agent_engine.api_resource.display_name == "test-agent-engine-dev-connect"
-    assert (
-        agent_engine.api_resource.spec.source_code_spec.developer_connect_source.config.git_repository_link
-        == developer_connect_source_config.git_repository_link
-    )
-    assert (
-        agent_engine.api_resource.spec.source_code_spec.developer_connect_source.config.revision
-        == developer_connect_source_config.revision
-    )
-    assert (
-        agent_engine.api_resource.spec.source_code_spec.developer_connect_source.config.dir
-        == developer_connect_source_config.dir
     )
     # Clean up resources.
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)

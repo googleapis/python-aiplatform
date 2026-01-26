@@ -174,6 +174,10 @@ from .common import ChunkOrDict
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
+from .common import ComputationBasedMetricSpec
+from .common import ComputationBasedMetricSpecDict
+from .common import ComputationBasedMetricSpecOrDict
+from .common import ComputationBasedMetricType
 from .common import ContainerSpec
 from .common import ContainerSpecDict
 from .common import ContainerSpecOrDict
@@ -578,7 +582,17 @@ from .common import MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDi
 from .common import MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict
 from .common import MemoryBankCustomizationConfigMemoryTopicOrDict
 from .common import MemoryBankCustomizationConfigOrDict
+from .common import MemoryConjunctionFilter
+from .common import MemoryConjunctionFilterDict
+from .common import MemoryConjunctionFilterOrDict
 from .common import MemoryDict
+from .common import MemoryFilter
+from .common import MemoryFilterDict
+from .common import MemoryFilterOrDict
+from .common import MemoryMetadataMergeStrategy
+from .common import MemoryMetadataValue
+from .common import MemoryMetadataValueDict
+from .common import MemoryMetadataValueOrDict
 from .common import MemoryOrDict
 from .common import MemoryRevision
 from .common import MemoryRevisionDict
@@ -613,6 +627,7 @@ from .common import NfsMountOrDict
 from .common import ObservabilityEvalCase
 from .common import ObservabilityEvalCaseDict
 from .common import ObservabilityEvalCaseOrDict
+from .common import Operator
 from .common import OptimizeConfig
 from .common import OptimizeConfigDict
 from .common import OptimizeConfigOrDict
@@ -1067,6 +1082,9 @@ __all__ = [
     "CustomCodeExecutionSpec",
     "CustomCodeExecutionSpecDict",
     "CustomCodeExecutionSpecOrDict",
+    "ComputationBasedMetricSpec",
+    "ComputationBasedMetricSpecDict",
+    "ComputationBasedMetricSpecOrDict",
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
@@ -1085,6 +1103,9 @@ __all__ = [
     "EvaluationRunResults",
     "EvaluationRunResultsDict",
     "EvaluationRunResultsOrDict",
+    "EvalCaseMetricResult",
+    "EvalCaseMetricResultDict",
+    "EvalCaseMetricResultOrDict",
     "ResponseCandidateResult",
     "ResponseCandidateResultDict",
     "ResponseCandidateResultOrDict",
@@ -1094,6 +1115,9 @@ __all__ = [
     "AggregatedMetricResult",
     "AggregatedMetricResultDict",
     "AggregatedMetricResultOrDict",
+    "WinRateStats",
+    "WinRateStatsDict",
+    "WinRateStatsOrDict",
     "ResponseCandidate",
     "ResponseCandidateDict",
     "ResponseCandidateOrDict",
@@ -1115,6 +1139,12 @@ __all__ = [
     "EvaluationResult",
     "EvaluationResultDict",
     "EvaluationResultOrDict",
+    "EvaluationRunAgentConfig",
+    "EvaluationRunAgentConfigDict",
+    "EvaluationRunAgentConfigOrDict",
+    "EvaluationRunInferenceConfig",
+    "EvaluationRunInferenceConfigDict",
+    "EvaluationRunInferenceConfigOrDict",
     "EvaluationRun",
     "EvaluationRunDict",
     "EvaluationRunOrDict",
@@ -1385,15 +1415,6 @@ __all__ = [
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
-    "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic",
-    "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict",
-    "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict",
-    "MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic",
-    "MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict",
-    "MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict",
-    "MemoryBankCustomizationConfigMemoryTopic",
-    "MemoryBankCustomizationConfigMemoryTopicDict",
-    "MemoryBankCustomizationConfigMemoryTopicOrDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict",
@@ -1409,6 +1430,15 @@ __all__ = [
     "MemoryBankCustomizationConfigGenerateMemoriesExample",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict",
+    "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic",
+    "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict",
+    "MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict",
+    "MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic",
+    "MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict",
+    "MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict",
+    "MemoryBankCustomizationConfigMemoryTopic",
+    "MemoryBankCustomizationConfigMemoryTopicDict",
+    "MemoryBankCustomizationConfigMemoryTopicOrDict",
     "MemoryBankCustomizationConfig",
     "MemoryBankCustomizationConfigDict",
     "MemoryBankCustomizationConfigOrDict",
@@ -1466,6 +1496,9 @@ __all__ = [
     "UpdateAgentEngineConfig",
     "UpdateAgentEngineConfigDict",
     "UpdateAgentEngineConfigOrDict",
+    "MemoryMetadataValue",
+    "MemoryMetadataValueDict",
+    "MemoryMetadataValueOrDict",
     "AgentEngineMemoryConfig",
     "AgentEngineMemoryConfigDict",
     "AgentEngineMemoryConfigOrDict",
@@ -1523,6 +1556,12 @@ __all__ = [
     "RetrieveMemoriesRequestSimpleRetrievalParams",
     "RetrieveMemoriesRequestSimpleRetrievalParamsDict",
     "RetrieveMemoriesRequestSimpleRetrievalParamsOrDict",
+    "MemoryFilter",
+    "MemoryFilterDict",
+    "MemoryFilterOrDict",
+    "MemoryConjunctionFilter",
+    "MemoryConjunctionFilterDict",
+    "MemoryConjunctionFilterOrDict",
     "RetrieveAgentEngineMemoriesConfig",
     "RetrieveAgentEngineMemoriesConfigDict",
     "RetrieveAgentEngineMemoriesConfigOrDict",
@@ -1832,18 +1871,6 @@ __all__ = [
     "ContentMapContents",
     "ContentMapContentsDict",
     "ContentMapContentsOrDict",
-    "EvalCaseMetricResult",
-    "EvalCaseMetricResultDict",
-    "EvalCaseMetricResultOrDict",
-    "EvaluationRunAgentConfig",
-    "EvaluationRunAgentConfigDict",
-    "EvaluationRunAgentConfigOrDict",
-    "EvaluationRunInferenceConfig",
-    "EvaluationRunInferenceConfigDict",
-    "EvaluationRunInferenceConfigOrDict",
-    "WinRateStats",
-    "WinRateStatsDict",
-    "WinRateStatsOrDict",
     "EvaluateMethodConfig",
     "EvaluateMethodConfigDict",
     "EvaluateMethodConfigOrDict",
@@ -1909,14 +1936,17 @@ __all__ = [
     "IdentityType",
     "AgentServerMode",
     "ManagedTopicEnum",
+    "Operator",
     "Language",
     "MachineConfig",
     "State",
     "EvaluationItemType",
     "SamplingMethod",
     "RubricContentType",
+    "ComputationBasedMetricType",
     "EvaluationRunState",
     "OptimizeTarget",
+    "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "PromptOptimizerMethod",
     "PromptData",

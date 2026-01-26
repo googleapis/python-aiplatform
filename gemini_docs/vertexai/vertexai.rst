@@ -24,11 +24,6 @@ Vertex AI SDK
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: vertexai._genai.agent_engines
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 .. automodule:: vertexai._genai.prompt_optimizer
     :members:
     :undoc-members:
@@ -38,6 +33,60 @@ Vertex AI SDK
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. automodule:: vertexai._genai.agent_engines
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+    .. autoclass:: vertexai._genai.agent_engines.AgentEngines
+        :members:
+        .. autoattribute:: memories
+        .. autoattribute:: sessions
+        .. autoattribute:: sandboxes
+
+    Sessions
+    --------
+    .. automodule:: vertexai._genai.sessions
+        :members:
+        :undoc-members:
+        :show-inheritance:
+
+        .. autoclass:: vertexai._genai.sessions.Sessions
+            :members:
+            .. autoattribute:: events
+
+        Events
+        ~~~~~~
+        .. automodule:: vertexai._genai.session_events
+            :members:
+            :undoc-members:
+            :show-inheritance:
+
+    Memories
+    --------
+    .. automodule:: vertexai._genai.memories
+        :members:
+        :undoc-members:
+        :show-inheritance:
+
+        .. autoclass:: vertexai._genai.memories.Memories
+            :members:
+            .. autoattribute:: revisions
+
+        Revisions
+        ~~~~~~~~~
+        .. automodule:: vertexai._genai.memory_revisions
+            :members:
+            :undoc-members:
+            :show-inheritance:
+
+    Sandboxes
+    --------
+    .. automodule:: vertexai._genai.sandboxes
+        :members:
+        :undoc-members:
+        :show-inheritance:
 
 .. automodule:: vertexai._genai.types
     :members:

@@ -783,6 +783,9 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -871,8 +874,14 @@ class Endpoint(aiplatform.Endpoint):
               specified. A default value of 60 will be used if not specified.
             autoscaling_target_request_count_per_minute (int): Target request
               count per minute per instance.
-            autoscaling_target_pubsub_num_undelivered_messages (int): Target
-              number of pubsub undelivered messages per instance.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int): Target DCGM metrics for
+              GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int): Target vLLM metrics
+                for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int): Target vLLM metrics
+              for number of inference requests currently waiting in the queue.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Target number
+              of pubsub undelivered messages per instance.
             autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
               Monitored resource labels as key value pairs for metric filtering
               for pubsub_num_undelivered_messages.
@@ -961,6 +970,9 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
@@ -996,6 +1008,9 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1078,8 +1093,14 @@ class Endpoint(aiplatform.Endpoint):
               specified. A default value of 60 will be used if not specified.
             autoscaling_target_request_count_per_minute (int): Target request
               count per minute per instance.
-            autoscaling_target_pubsub_num_undelivered_messages (int): Target
-              number of pubsub undelivered messages per instance.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int): Target DCGM metrics for
+              GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int): Target vLLM metrics
+              for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int): Target vLLM metrics
+              for number of inference requests currently waiting in the queue.
+            autoscaling_target_pubsub_num_undelivered_messages (int): Target number
+              of pubsub undelivered messages per instance.
             autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
               Monitored resource labels as key value pairs for metric filtering
               for pubsub_num_undelivered_messages.
@@ -1154,6 +1175,9 @@ class Endpoint(aiplatform.Endpoint):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
@@ -1196,6 +1220,9 @@ class Endpoint(aiplatform.Endpoint):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1285,6 +1312,13 @@ class Endpoint(aiplatform.Endpoint):
               not specified.
             autoscaling_target_request_count_per_minute (int): Optional. Target
               request count per minute per instance.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int): Optional. Target DCGM
+              metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int): Optional. Target
+              vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int): Optional. Target
+              vLLM metrics for number of inference requests currently waiting in the
+              queue.
             autoscaling_target_pubsub_num_undelivered_messages (int): Optional.
               Target number of pubsub undelivered messages per instance.
             autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
@@ -1385,6 +1419,9 @@ class Endpoint(aiplatform.Endpoint):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_request_count_per_minute
                 or autoscaling_target_cpu_utilization
+                or autoscaling_target_dcgm_fi_dev_gpu_util
+                or autoscaling_target_vllm_gpu_cache_usage_perc
+                or autoscaling_target_vllm_num_requests_waiting
                 or autoscaling_target_pubsub_num_undelivered_messages
                 or autoscaling_pubsub_subscription_labels
             )
@@ -1402,6 +1439,9 @@ class Endpoint(aiplatform.Endpoint):
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
                     "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_dcgm_fi_dev_gpu_util, "
+                    "autoscaling_target_vllm_gpu_cache_usage_perc, "
+                    "autoscaling_target_vllm_num_requests_waiting, "
                     "autoscaling_target_pubsub_num_undelivered_messages, "
                     "autoscaling_pubsub_subscription_labels parameters "
                     "are ignored."
@@ -1482,11 +1522,51 @@ class Endpoint(aiplatform.Endpoint):
                         [autoscaling_metric_spec]
                     )
 
+                if autoscaling_target_dcgm_fi_dev_gpu_util:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "prometheus.googleapis.com/vertex_dcgm_fi_dev_gpu_util"
+                            ),
+                            target=autoscaling_target_dcgm_fi_dev_gpu_util,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if autoscaling_target_vllm_gpu_cache_usage_perc:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "prometheus.googleapis.com/"
+                                "vertex_vllm_gpu_cache_usage_perc"
+                            ),
+                            target=autoscaling_target_vllm_gpu_cache_usage_perc,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
+                if autoscaling_target_vllm_num_requests_waiting:
+                    autoscaling_metric_spec = (
+                        gca_machine_resources_compat.AutoscalingMetricSpec(
+                            metric_name=(
+                                "prometheus.googleapis.com/"
+                                "vertex_vllm_num_requests_waiting"
+                            ),
+                            target=autoscaling_target_vllm_num_requests_waiting,
+                        )
+                    )
+                    dedicated_resources.autoscaling_metric_specs.extend(
+                        [autoscaling_metric_spec]
+                    )
+
                 if autoscaling_target_pubsub_num_undelivered_messages:
                     autoscaling_metric_spec = gca_machine_resources_compat.AutoscalingMetricSpec(
                         metric_name=(
-                            "pubsub.googleapis.com/subscription/"
-                            "num_undelivered_messages"
+                            "pubsub.googleapis.com/subscription/num_undelivered_messages"
                         ),
                         target=autoscaling_target_pubsub_num_undelivered_messages,
                         monitored_resource_labels=autoscaling_pubsub_subscription_labels,
@@ -1542,6 +1622,9 @@ class Endpoint(aiplatform.Endpoint):
                 or autoscaling_target_accelerator_duty_cycle
                 or autoscaling_target_cpu_utilization
                 or autoscaling_target_request_count_per_minute
+                or autoscaling_target_dcgm_fi_dev_gpu_util
+                or autoscaling_target_vllm_gpu_cache_usage_perc
+                or autoscaling_target_vllm_num_requests_waiting
                 or autoscaling_target_pubsub_num_undelivered_messages
                 or autoscaling_pubsub_subscription_labels
             )
@@ -1553,6 +1636,9 @@ class Endpoint(aiplatform.Endpoint):
                     "autoscaling_target_accelerator_duty_cycle, "
                     "autoscaling_target_cpu_utilization, "
                     "autoscaling_target_request_count_per_minute, "
+                    "autoscaling_target_dcgm_fi_dev_gpu_util, "
+                    "autoscaling_target_vllm_gpu_cache_usage_perc, "
+                    "autoscaling_target_vllm_num_requests_waiting, "
                     "autoscaling_target_pubsub_num_undelivered_messages, "
                     "autoscaling_pubsub_subscription_labels parameters "
                     "may not be set when `deployment_resource_pool` is "
@@ -1814,6 +1900,9 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -1923,6 +2012,13 @@ class Model(aiplatform.Model):
               not specified.
             autoscaling_target_request_count_per_minute (int): Optional. Target
               request count per minute per instance.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int): Optional. Target DCGM
+              metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int): Optional. Target
+              vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int): Optional. Target
+              vLLM metrics for number of inference requests currently waiting in the
+              queue.
             autoscaling_target_pubsub_num_undelivered_messages (int): Optional. Target
               number of pubsub undelivered messages per instance.
             autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
@@ -2030,6 +2126,9 @@ class Model(aiplatform.Model):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,
@@ -2071,6 +2170,9 @@ class Model(aiplatform.Model):
         autoscaling_target_cpu_utilization: Optional[int] = None,
         autoscaling_target_accelerator_duty_cycle: Optional[int] = None,
         autoscaling_target_request_count_per_minute: Optional[int] = None,
+        autoscaling_target_dcgm_fi_dev_gpu_util: Optional[int] = None,
+        autoscaling_target_vllm_gpu_cache_usage_perc: Optional[int] = None,
+        autoscaling_target_vllm_num_requests_waiting: Optional[int] = None,
         autoscaling_target_pubsub_num_undelivered_messages: Optional[int] = None,
         autoscaling_pubsub_subscription_labels: Optional[Dict[str, str]] = None,
         deployment_resource_pool: Optional[DeploymentResourcePool] = None,
@@ -2172,6 +2274,13 @@ class Model(aiplatform.Model):
               not specified.
             autoscaling_target_request_count_per_minute (int): Optional. Target
               request count per minute per instance.
+            autoscaling_target_dcgm_fi_dev_gpu_util (int): Optional. Target DCGM
+              metrics for GPU utilization.
+            autoscaling_target_vllm_gpu_cache_usage_perc (int): Optional. Target
+              vLLM metrics for GPU KV cache usage percentage.
+            autoscaling_target_vllm_num_requests_waiting (int): Optional. Target
+              vLLM metrics for number of inference requests currently waiting in the
+              queue.
             autoscaling_target_pubsub_num_undelivered_messages (int): Optional. Target
               number of pubsub undelivered messages per instance.
             autoscaling_pubsub_subscription_labels (Dict[str, str]): Optional.
@@ -2281,6 +2390,9 @@ class Model(aiplatform.Model):
             autoscaling_target_cpu_utilization=autoscaling_target_cpu_utilization,
             autoscaling_target_accelerator_duty_cycle=autoscaling_target_accelerator_duty_cycle,
             autoscaling_target_request_count_per_minute=autoscaling_target_request_count_per_minute,
+            autoscaling_target_dcgm_fi_dev_gpu_util=autoscaling_target_dcgm_fi_dev_gpu_util,
+            autoscaling_target_vllm_gpu_cache_usage_perc=autoscaling_target_vllm_gpu_cache_usage_perc,
+            autoscaling_target_vllm_num_requests_waiting=autoscaling_target_vllm_num_requests_waiting,
             autoscaling_target_pubsub_num_undelivered_messages=autoscaling_target_pubsub_num_undelivered_messages,
             autoscaling_pubsub_subscription_labels=autoscaling_pubsub_subscription_labels,
             deployment_resource_pool=deployment_resource_pool,

@@ -416,6 +416,8 @@ class OpenModel:
         serving_container_health_probe_exec: Optional[Sequence[str]] = None,
         serving_container_health_probe_period_seconds: Optional[int] = None,
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
+        enable_private_service_connect: bool = False,
+        psc_project_allow_list: Optional[Sequence[str]] = None,
     ) -> aiplatform.Endpoint:
         """Deploys an Open Model to an endpoint.
 
@@ -550,6 +552,10 @@ class OpenModel:
             serving_container_health_probe_timeout_seconds (int): Optional. Number
               of seconds after which the health probe times out. Defaults to 1
               second. Minimum value is 1.
+            enable_private_service_connect (bool): Whether to enable private service
+            connect.
+            psc_project_allow_list (Sequence[str]): The list of projects that are
+            allowed to access the endpoint over private service connect.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -616,6 +622,14 @@ class OpenModel:
         if dedicated_endpoint_disabled:
             request.endpoint_config.dedicated_endpoint_disabled = (
                 dedicated_endpoint_disabled
+            )
+
+        if enable_private_service_connect and psc_project_allow_list:
+            request.endpoint_config.private_service_connect_config = (
+                types.PrivateServiceConnectConfig(
+                    enable_private_service_connect=enable_private_service_connect,
+                    project_allowlist=psc_project_allow_list,
+                )
             )
 
         if fast_tryout_enabled:

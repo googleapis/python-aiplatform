@@ -229,7 +229,7 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
 
 
 class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """The managed topic."""
+    """The managed memory topic."""
 
     MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
     """Unspecified topic. This value should not be used."""
@@ -241,6 +241,19 @@ class ManagedTopicEnum(_common.CaseInSensitiveEnum):
     """Important milestones or conclusions within the dialogue."""
     EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
     """Information that the user explicitly requested to remember or forget."""
+
+
+class Operator(_common.CaseInSensitiveEnum):
+    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+
+    OPERATOR_UNSPECIFIED = "OPERATOR_UNSPECIFIED"
+    """Unspecified operator. Defaults to EQUAL."""
+    EQUAL = "EQUAL"
+    """Equal to."""
+    GREATER_THAN = "GREATER_THAN"
+    """Greater than."""
+    LESS_THAN = "LESS_THAN"
+    """Less than."""
 
 
 class Language(_common.CaseInSensitiveEnum):
@@ -311,6 +324,21 @@ class RubricContentType(_common.CaseInSensitiveEnum):
     """Generate rubrics in a unit test format."""
 
 
+class ComputationBasedMetricType(_common.CaseInSensitiveEnum):
+    """Represents the type of the computation based metric."""
+
+    COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED = (
+        "COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED"
+    )
+    """Computation based metric type is unspecified."""
+    EXACT_MATCH = "EXACT_MATCH"
+    """Exact match metric."""
+    BLEU = "BLEU"
+    """BLEU metric."""
+    ROUGE = "ROUGE"
+    """ROUGE metric."""
+
+
 class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Represents the state of an evaluation run."""
 
@@ -343,6 +371,19 @@ class OptimizeTarget(_common.CaseInSensitiveEnum):
         "OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE"
     )
     """The prompt optimizer based on user provided examples with target responses."""
+
+
+class MemoryMetadataMergeStrategy(_common.CaseInSensitiveEnum):
+    """The strategy to use when applying metadata to existing memories during consolidation."""
+
+    METADATA_MERGE_STRATEGY_UNSPECIFIED = "METADATA_MERGE_STRATEGY_UNSPECIFIED"
+    """The metadata merge strategy is unspecified."""
+    OVERWRITE = "OVERWRITE"
+    """Replace the metadata of the updated memories with the new metadata."""
+    MERGE = "MERGE"
+    """Append new metadata to the existing metadata. If there are duplicate keys, the existing values will be overwritten."""
+    REQUIRE_EXACT_MATCH = "REQUIRE_EXACT_MATCH"
+    """Restrict consolidation to memories that have exactly the same metadata as the request. If a memory doesn't have the same metadata, it is not eligible for consolidation."""
 
 
 class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum):
@@ -943,6 +984,33 @@ CustomCodeExecutionSpecOrDict = Union[
 ]
 
 
+class ComputationBasedMetricSpec(_common.BaseModel):
+    """Specification for a computation based metric."""
+
+    type: Optional[ComputationBasedMetricType] = Field(
+        default=None, description="""The type of the computation based metric."""
+    )
+    parameters: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}.""",
+    )
+
+
+class ComputationBasedMetricSpecDict(TypedDict, total=False):
+    """Specification for a computation based metric."""
+
+    type: Optional[ComputationBasedMetricType]
+    """The type of the computation based metric."""
+
+    parameters: Optional[dict[str, Any]]
+    """A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}."""
+
+
+ComputationBasedMetricSpecOrDict = Union[
+    ComputationBasedMetricSpec, ComputationBasedMetricSpecDict
+]
+
+
 class UnifiedMetric(_common.BaseModel):
     """The unified metric used for evaluation."""
 
@@ -963,6 +1031,9 @@ class UnifiedMetric(_common.BaseModel):
     )
     predefined_metric_spec: Optional[PredefinedMetricSpec] = Field(
         default=None, description="""The spec for a pre-defined metric."""
+    )
+    computation_based_metric_spec: Optional[ComputationBasedMetricSpec] = Field(
+        default=None, description="""The spec for a computation based metric."""
     )
 
 
@@ -986,6 +1057,9 @@ class UnifiedMetricDict(TypedDict, total=False):
 
     predefined_metric_spec: Optional[PredefinedMetricSpecDict]
     """The spec for a pre-defined metric."""
+
+    computation_based_metric_spec: Optional[ComputationBasedMetricSpecDict]
+    """The spec for a computation based metric."""
 
 
 UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]
@@ -1171,6 +1245,53 @@ class EvaluationRunResultsDict(TypedDict, total=False):
 EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
 
 
+class EvalCaseMetricResult(_common.BaseModel):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str] = Field(
+        default=None, description="""Name of the metric."""
+    )
+    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
+    explanation: Optional[str] = Field(
+        default=None, description="""Explanation of the metric."""
+    )
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
+        default=None,
+        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
+    )
+    raw_output: Optional[list[str]] = Field(
+        default=None, description="""Raw output of the metric."""
+    )
+    error_message: Optional[str] = Field(
+        default=None, description="""Error message for the metric."""
+    )
+
+
+class EvalCaseMetricResultDict(TypedDict, total=False):
+    """Evaluation result for a single evaluation case for a single metric."""
+
+    metric_name: Optional[str]
+    """Name of the metric."""
+
+    score: Optional[float]
+    """Score of the metric."""
+
+    explanation: Optional[str]
+    """Explanation of the metric."""
+
+    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
+    """The details of all the rubrics and their verdicts for rubric-based metrics."""
+
+    raw_output: Optional[list[str]]
+    """Raw output of the metric."""
+
+    error_message: Optional[str]
+    """Error message for the metric."""
+
+
+EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
+
+
 class ResponseCandidateResult(_common.BaseModel):
     """Aggregated metric results for a single response candidate of an EvalCase."""
 
@@ -1178,7 +1299,7 @@ class ResponseCandidateResult(_common.BaseModel):
         default=None,
         description="""Index of the response candidate this result pertains to.""",
     )
-    metric_results: Optional[dict[str, "EvalCaseMetricResult"]] = Field(
+    metric_results: Optional[dict[str, EvalCaseMetricResult]] = Field(
         default=None,
         description="""A dictionary of metric results for this response candidate, keyed by metric name.""",
     )
@@ -1190,7 +1311,7 @@ class ResponseCandidateResultDict(TypedDict, total=False):
     response_index: Optional[int]
     """Index of the response candidate this result pertains to."""
 
-    metric_results: Optional[dict[str, "EvalCaseMetricResultDict"]]
+    metric_results: Optional[dict[str, EvalCaseMetricResultDict]]
     """A dictionary of metric results for this response candidate, keyed by metric name."""
 
 
@@ -1280,6 +1401,31 @@ class AggregatedMetricResultDict(TypedDict, total=False):
 
 
 AggregatedMetricResultOrDict = Union[AggregatedMetricResult, AggregatedMetricResultDict]
+
+
+class WinRateStats(_common.BaseModel):
+    """Statistics for win rates for a single metric."""
+
+    win_rates: Optional[list[float]] = Field(
+        default=None,
+        description="""Win rates for the metric, one for each candidate.""",
+    )
+    tie_rate: Optional[float] = Field(
+        default=None, description="""Tie rate for the metric."""
+    )
+
+
+class WinRateStatsDict(TypedDict, total=False):
+    """Statistics for win rates for a single metric."""
+
+    win_rates: Optional[list[float]]
+    """Win rates for the metric, one for each candidate."""
+
+    tie_rate: Optional[float]
+    """Tie rate for the metric."""
+
+
+WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
 
 
 class ResponseCandidate(_common.BaseModel):
@@ -1583,7 +1729,7 @@ class EvaluationResult(_common.BaseModel):
         default=None,
         description="""A list of summary-level evaluation results for each metric.""",
     )
-    win_rates: Optional[dict[str, "WinRateStats"]] = Field(
+    win_rates: Optional[dict[str, WinRateStats]] = Field(
         default=None,
         description="""A dictionary of win rates for each metric, only populated for multi-response evaluation runs.""",
     )
@@ -1620,7 +1766,7 @@ class EvaluationResultDict(TypedDict, total=False):
     summary_metrics: Optional[list[AggregatedMetricResultDict]]
     """A list of summary-level evaluation results for each metric."""
 
-    win_rates: Optional[dict[str, "WinRateStatsDict"]]
+    win_rates: Optional[dict[str, WinRateStatsDict]]
     """A dictionary of win rates for each metric, only populated for multi-response evaluation runs."""
 
     evaluation_dataset: Optional[list[EvaluationDatasetDict]]
@@ -1634,6 +1780,71 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
+
+
+class EvaluationRunAgentConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""The developer instruction for the agent."""
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The tools available to the agent."""
+    )
+
+
+class EvaluationRunAgentConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.ContentDict]
+    """The developer instruction for the agent."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The tools available to the agent."""
+
+
+EvaluationRunAgentConfigOrDict = Union[
+    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
+]
+
+
+class EvaluationRunInferenceConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfig] = Field(
+        default=None, description="""The agent config."""
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+    )
+
+
+class EvaluationRunInferenceConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfigDict]
+    """The agent config."""
+
+    model: Optional[str]
+    """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+
+EvaluationRunInferenceConfigOrDict = Union[
+    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
+]
 
 
 class EvaluationRun(_common.BaseModel):
@@ -1664,7 +1875,7 @@ class EvaluationRun(_common.BaseModel):
     evaluation_config: Optional[EvaluationRunConfig] = Field(
         default=None, description="""The evaluation config for the evaluation run."""
     )
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfig]] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. The inference configs for the evaluation run.""",
     )
@@ -1748,7 +1959,7 @@ class EvaluationRunDict(TypedDict, total=False):
     evaluation_config: Optional[EvaluationRunConfigDict]
     """The evaluation config for the evaluation run."""
 
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfigDict]]
     """This field is experimental and may change in future versions. The inference configs for the evaluation run."""
 
     labels: Optional[dict[str, str]]
@@ -3796,7 +4007,7 @@ class OptimizeConfig(_common.BaseModel):
         default=None,
         description="""The optimization target for the prompt optimizer. It must be one of the OptimizeTarget enum values: OPTIMIZATION_TARGET_GEMINI_NANO for the prompts from Android core API, OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS for the few-shot prompt optimizer with rubrics, OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE for the few-shot prompt optimizer with target responses.""",
     )
-    examples_dataframe: Optional[pd.DataFrame] = Field(
+    examples_dataframe: Optional[PandasDataFrame] = Field(
         default=None,
         description="""The examples dataframe for the few-shot prompt optimizer. It must contain "prompt" and "model_response" columns. Depending on which optimization target is used, it also needs to contain "rubrics" and "rubrics_evaluations" or "target_response" columns.""",
     )
@@ -3811,7 +4022,7 @@ class OptimizeConfigDict(TypedDict, total=False):
     optimization_target: Optional[OptimizeTarget]
     """The optimization target for the prompt optimizer. It must be one of the OptimizeTarget enum values: OPTIMIZATION_TARGET_GEMINI_NANO for the prompts from Android core API, OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS for the few-shot prompt optimizer with rubrics, OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE for the few-shot prompt optimizer with target responses."""
 
-    examples_dataframe: Optional[pd.DataFrame]
+    examples_dataframe: Optional[PandasDataFrame]
     """The examples dataframe for the few-shot prompt optimizer. It must contain "prompt" and "model_response" columns. Depending on which optimization target is used, it also needs to contain "rubrics" and "rubrics_evaluations" or "target_response" columns."""
 
 
@@ -5000,94 +5211,6 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
 
-class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
-    """A custom memory topic defined by the developer."""
-
-    label: Optional[str] = Field(
-        default=None, description="""Required. The label of the topic."""
-    )
-    description: Optional[str] = Field(
-        default=None,
-        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
-    TypedDict, total=False
-):
-    """A custom memory topic defined by the developer."""
-
-    label: Optional[str]
-    """Required. The label of the topic."""
-
-    description: Optional[str]
-    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
-
-
-MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
-]
-
-
-class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
-    """A managed memory topic defined by the system."""
-
-    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Required. The managed topic."""
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
-    TypedDict, total=False
-):
-    """A managed memory topic defined by the system."""
-
-    managed_topic_enum: Optional[ManagedTopicEnum]
-    """Required. The managed topic."""
-
-
-MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
-]
-
-
-class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
-    """A topic of information that should be extracted from conversations and stored as memories."""
-
-    custom_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
-    ] = Field(
-        default=None, description="""A custom memory topic defined by the developer."""
-    )
-    managed_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
-    ] = Field(
-        default=None, description="""A managed memory topic defined by Memory Bank."""
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
-    """A topic of information that should be extracted from conversations and stored as memories."""
-
-    custom_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
-    ]
-    """A custom memory topic defined by the developer."""
-
-    managed_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
-    ]
-    """A managed memory topic defined by Memory Bank."""
-
-
-MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicDict,
-]
-
-
 class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
     _common.BaseModel
 ):
@@ -5239,38 +5362,133 @@ MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
 ]
 
 
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str] = Field(
+        default=None, description="""Required. The label of the topic."""
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str]
+    """Required. The label of the topic."""
+
+    description: Optional[str]
+    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Required. The managed topic."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum]
+    """Required. The managed topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
+    ] = Field(
+        default=None, description="""A custom memory topic defined by the developer."""
+    )
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
+    ] = Field(
+        default=None, description="""A managed memory topic defined by Memory Bank."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
+    ]
+    """A custom memory topic defined by the developer."""
+
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
+    ]
+    """A managed memory topic defined by Memory Bank."""
+
+
+MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicDict,
+]
+
+
 class MemoryBankCustomizationConfig(_common.BaseModel):
     """Configuration for organizing memories for a particular scope."""
 
-    scope_keys: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
-    )
-    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
-        default=None,
-        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
-    )
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExample]
     ] = Field(
         default=None,
         description="""Optional. Examples of how to generate memories for a particular scope.""",
     )
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
+        default=None,
+        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+    )
+    scope_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+    enable_third_person_memories: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+    )
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
     """Configuration for organizing memories for a particular scope."""
 
-    scope_keys: Optional[list[str]]
-    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
-
-    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
-    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
-
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
     ]
     """Optional. Examples of how to generate memories for a particular scope."""
+
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
+    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+
+    scope_keys: Optional[list[str]]
+    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+    enable_third_person_memories: Optional[bool]
+    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
 
 
 MemoryBankCustomizationConfigOrDict = Union[
@@ -5615,12 +5833,14 @@ class CreateAgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]] = Field(
-        default=None,
-        description="""The Python version to be used for the Agent Engine.
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]] = (
+        Field(
+            default=None,
+            description="""The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
       """,
+        )
     )
     build_options: Optional[dict[str, list[str]]] = Field(
         default=None,
@@ -5748,10 +5968,10 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
 
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]]
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]]
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
       """
 
     build_options: Optional[dict[str, list[str]]]
@@ -6386,12 +6606,14 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]] = Field(
-        default=None,
-        description="""The Python version to be used for the Agent Engine.
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]] = (
+        Field(
+            default=None,
+            description="""The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
       """,
+        )
     )
     build_options: Optional[dict[str, list[str]]] = Field(
         default=None,
@@ -6524,10 +6746,10 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
 
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]]
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]]
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
       """
 
     build_options: Optional[dict[str, list[str]]]
@@ -6574,6 +6796,37 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 ]
 
 
+class MemoryMetadataValue(_common.BaseModel):
+    """The metadata values for memories."""
+
+    timestamp_value: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
+    )
+    double_value: Optional[float] = Field(default=None, description="""Double value.""")
+    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
+    string_value: Optional[str] = Field(default=None, description="""String value.""")
+
+
+class MemoryMetadataValueDict(TypedDict, total=False):
+    """The metadata values for memories."""
+
+    timestamp_value: Optional[datetime.datetime]
+    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
+
+    double_value: Optional[float]
+    """Double value."""
+
+    bool_value: Optional[bool]
+    """Boolean value."""
+
+    string_value: Optional[str]
+    """String value."""
+
+
+MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
+
+
 class AgentEngineMemoryConfig(_common.BaseModel):
     """Config for creating a Memory."""
 
@@ -6615,6 +6868,10 @@ class AgentEngineMemoryConfig(_common.BaseModel):
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None, description="""Optional. The topics of the memory."""
     )
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+        default=None,
+        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -6651,6 +6908,9 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     topics: Optional[list[MemoryTopicIdDict]]
     """Optional. The topics of the memory."""
+
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
+    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -6762,6 +7022,10 @@ class Memory(_common.BaseModel):
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None, description="""Optional. The Topics of the Memory."""
     )
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+        default=None,
+        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+    )
 
 
 class MemoryDict(TypedDict, total=False):
@@ -6805,6 +7069,9 @@ class MemoryDict(TypedDict, total=False):
 
     topics: Optional[list[MemoryTopicIdDict]]
     """Optional. The Topics of the Memory."""
+
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
+    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -7117,6 +7384,14 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
         default=None,
         description="""Optional. Input only. If true, no revisions will be created for this request.""",
     )
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+        default=None,
+        description="""Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank.""",
+    )
+    metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy] = Field(
+        default=None,
+        description="""Optional. The strategy to use when applying metadata to existing memories.""",
+    )
 
 
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -7147,6 +7422,12 @@ class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
 
     disable_memory_revisions: Optional[bool]
     """Optional. Input only. If true, no revisions will be created for this request."""
+
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
+    """Optional. User-provided metadata for the generated memories. This is not generated by Memory Bank."""
+
+    metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy]
+    """Optional. The strategy to use when applying metadata to existing memories."""
 
 
 GenerateAgentEngineMemoriesConfigOrDict = Union[
@@ -7605,6 +7886,64 @@ RetrieveMemoriesRequestSimpleRetrievalParamsOrDict = Union[
 ]
 
 
+class MemoryFilter(_common.BaseModel):
+    """Filter to apply when retrieving memories."""
+
+    op: Optional[Operator] = Field(
+        default=None,
+        description="""Operator to apply to the filter. If not set, then EQUAL will be used.""",
+    )
+    negate: Optional[bool] = Field(
+        default=None, description="""If true, the filter will be negated."""
+    )
+    key: Optional[str] = Field(
+        default=None,
+        description="""Key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
+    )
+    value: Optional[MemoryMetadataValue] = Field(
+        default=None, description="""Value to compare to."""
+    )
+
+
+class MemoryFilterDict(TypedDict, total=False):
+    """Filter to apply when retrieving memories."""
+
+    op: Optional[Operator]
+    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+
+    negate: Optional[bool]
+    """If true, the filter will be negated."""
+
+    key: Optional[str]
+    """Key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
+
+    value: Optional[MemoryMetadataValueDict]
+    """Value to compare to."""
+
+
+MemoryFilterOrDict = Union[MemoryFilter, MemoryFilterDict]
+
+
+class MemoryConjunctionFilter(_common.BaseModel):
+    """The conjunction filter for memories."""
+
+    filters: Optional[list[MemoryFilter]] = Field(
+        default=None, description="""Filters that will combined using AND logic."""
+    )
+
+
+class MemoryConjunctionFilterDict(TypedDict, total=False):
+    """The conjunction filter for memories."""
+
+    filters: Optional[list[MemoryFilterDict]]
+    """Filters that will combined using AND logic."""
+
+
+MemoryConjunctionFilterOrDict = Union[
+    MemoryConjunctionFilter, MemoryConjunctionFilterDict
+]
+
+
 class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
     """Config for retrieving memories."""
 
@@ -7620,6 +7959,23 @@ class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
        * `fact`
        * `create_time`
        * `update_time`
+      """,
+    )
+    filter_groups: Optional[list[MemoryConjunctionFilter]] = Field(
+        default=None,
+        description="""Metadata filters that will be applied to the retrieved memories'
+      `metadata` using OR logic. Filters are defined using disjunctive normal
+      form (OR of ANDs).
+
+      For example:
+      `filter_groups: [{filters: [{key: "author", value: {string_value: "agent
+      `123"}, op: EQUAL}]}, {filters: [{key: "label", value: {string_value:
+      "travel"}, op: EQUAL}, {key: "author", value: {string_value: "agent 321"},
+      op: EQUAL}]}]`
+
+      would be equivalent to the logical expression:
+      `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
+      metadata.author = "agent 321"))`.
       """,
     )
 
@@ -7638,6 +7994,22 @@ class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
        * `fact`
        * `create_time`
        * `update_time`
+      """
+
+    filter_groups: Optional[list[MemoryConjunctionFilterDict]]
+    """Metadata filters that will be applied to the retrieved memories'
+      `metadata` using OR logic. Filters are defined using disjunctive normal
+      form (OR of ANDs).
+
+      For example:
+      `filter_groups: [{filters: [{key: "author", value: {string_value: "agent
+      `123"}, op: EQUAL}]}, {filters: [{key: "label", value: {string_value:
+      "travel"}, op: EQUAL}, {key: "author", value: {string_value: "agent 321"},
+      op: EQUAL}]}]`
+
+      would be equivalent to the logical expression:
+      `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
+      metadata.author = "agent 321"))`.
       """
 
 
@@ -7906,6 +8278,10 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None, description="""Optional. The topics of the memory."""
     )
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+        default=None,
+        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -7947,6 +8323,9 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     topics: Optional[list[MemoryTopicIdDict]]
     """Optional. The topics of the memory."""
+
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
+    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -13109,143 +13488,6 @@ class ContentMapContentsDict(TypedDict, total=False):
 ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
 
 
-class EvalCaseMetricResult(_common.BaseModel):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str] = Field(
-        default=None, description="""Name of the metric."""
-    )
-    score: Optional[float] = Field(default=None, description="""Score of the metric.""")
-    explanation: Optional[str] = Field(
-        default=None, description="""Explanation of the metric."""
-    )
-    rubric_verdicts: Optional[list[evals_types.RubricVerdict]] = Field(
-        default=None,
-        description="""The details of all the rubrics and their verdicts for rubric-based metrics.""",
-    )
-    raw_output: Optional[list[str]] = Field(
-        default=None, description="""Raw output of the metric."""
-    )
-    error_message: Optional[str] = Field(
-        default=None, description="""Error message for the metric."""
-    )
-
-
-class EvalCaseMetricResultDict(TypedDict, total=False):
-    """Evaluation result for a single evaluation case for a single metric."""
-
-    metric_name: Optional[str]
-    """Name of the metric."""
-
-    score: Optional[float]
-    """Score of the metric."""
-
-    explanation: Optional[str]
-    """Explanation of the metric."""
-
-    rubric_verdicts: Optional[list[evals_types.RubricVerdict]]
-    """The details of all the rubrics and their verdicts for rubric-based metrics."""
-
-    raw_output: Optional[list[str]]
-    """Raw output of the metric."""
-
-    error_message: Optional[str]
-    """Error message for the metric."""
-
-
-EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDict]
-
-
-class EvaluationRunAgentConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.Content] = Field(
-        default=None, description="""The developer instruction for the agent."""
-    )
-    tools: Optional[list[genai_types.Tool]] = Field(
-        default=None, description="""The tools available to the agent."""
-    )
-
-
-class EvaluationRunAgentConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.ContentDict]
-    """The developer instruction for the agent."""
-
-    tools: Optional[list[genai_types.ToolDict]]
-    """The tools available to the agent."""
-
-
-EvaluationRunAgentConfigOrDict = Union[
-    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
-]
-
-
-class EvaluationRunInferenceConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfig] = Field(
-        default=None, description="""The agent config."""
-    )
-    model: Optional[str] = Field(
-        default=None,
-        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
-    )
-
-
-class EvaluationRunInferenceConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfigDict]
-    """The agent config."""
-
-    model: Optional[str]
-    """The fully qualified name of the publisher model or endpoint to use for inference."""
-
-
-EvaluationRunInferenceConfigOrDict = Union[
-    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
-]
-
-
-class WinRateStats(_common.BaseModel):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]] = Field(
-        default=None,
-        description="""Win rates for the metric, one for each candidate.""",
-    )
-    tie_rate: Optional[float] = Field(
-        default=None, description="""Tie rate for the metric."""
-    )
-
-
-class WinRateStatsDict(TypedDict, total=False):
-    """Statistics for win rates for a single metric."""
-
-    win_rates: Optional[list[float]]
-    """Win rates for the metric, one for each candidate."""
-
-    tie_rate: Optional[float]
-    """Tie rate for the metric."""
-
-
-WinRateStatsOrDict = Union[WinRateStats, WinRateStatsDict]
-
-
 class EvaluateMethodConfig(_common.BaseModel):
     """Optional parameters for the evaluate method."""
 
@@ -13723,12 +13965,14 @@ class AgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]] = Field(
-        default=None,
-        description="""The Python version to be used for the Agent Engine.
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]] = (
+        Field(
+            default=None,
+            description="""The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
       """,
+        )
     )
     build_options: Optional[dict[str, list[str]]] = Field(
         default=None,
@@ -13888,10 +14132,10 @@ class AgentEngineConfigDict(TypedDict, total=False):
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
 
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13"]]
+    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]]
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13".
+      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
       """
 
     build_options: Optional[dict[str, list[str]]]
