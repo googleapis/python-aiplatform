@@ -53,7 +53,7 @@ from google.protobuf import field_mask_pb2
 
 
 _LOGGER = _utils.LOGGER
-_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14")
+_SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
 _BLOB_FILENAME = "agent_engine.pkl"
 _REQUIREMENTS_FILE = "requirements.txt"
@@ -1778,7 +1778,7 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
         factory = ClientFactory(config)
         client = factory.create(a2a_agent_card)
 
-        # kokoro job uses python 3.9, replaced match with if else.
+        # kokoro job uses python 3.10, replaced match with if else.
         if method_name == "on_message_send":
             response = client.send_message(Message(**kwargs))
             chunks = []
