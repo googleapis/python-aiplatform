@@ -2925,6 +2925,9 @@ class TestRubricGeneration:
             critique_metric=metric_prompt_template_examples.MetricPromptTemplateExamples.Pointwise.COHERENCE,
         )
         dataset_with_rubrics = rbm.generate_rubrics(_TEST_EVAL_DATASET_PROMPT_RESPONSE)
-        expected = _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS
+        expected = _EXPECTED_EVAL_DATASET_PROMPT_RESPONSE_WITH_RUBRICS.copy()
         expected["desc"] = ["test_desc", "test_desc", "test_desc"]
+        expected["desc"] = expected["desc"].astype(object)
+
+        assert dataset_with_rubrics.equals(expected)
         assert dataset_with_rubrics.equals(expected)
