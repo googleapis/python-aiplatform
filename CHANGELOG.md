@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.135.0](https://github.com/googleapis/python-aiplatform/compare/v1.134.0...v1.135.0) (2026-01-27)
+
+
+### Features
+
+* Add `ComputationBasedMetricSpec` to support metrics like EXACT_MATCH, BLEU, and ROUGE in EvaluationRun configurations. ([9d32dd5](https://github.com/googleapis/python-aiplatform/commit/9d32dd56d56825e60f45fa7d5f60aba365950367))
+* Add autoscaling_target_dcgm_fi_dev_gpu_util, autoscaling_target_vllm_gpu_cache_usage_perc, autoscaling_target_vllm_num_requests_waiting options in model deployment on Endpoint & Model classes. ([0179aa5](https://github.com/googleapis/python-aiplatform/commit/0179aa5fd18260ffa9723abb16b1ec2d36571dd2))
+* Add optimize and launch_optimization_job methods to prompts module ([044c3fa](https://github.com/googleapis/python-aiplatform/commit/044c3fa04d4e595d132a1f76f96dc0a9cec39863))
+* List all Model Garden models ([54260fd](https://github.com/googleapis/python-aiplatform/commit/54260fdece355f76ed14cb6f0a577dc6c63e2046))
+* RAG - Add Serverless and Spanner modes in preview. ([79da831](https://github.com/googleapis/python-aiplatform/commit/79da8316dfcd3d8200d4ec1d2dca624bfc6988a8))
+* Remove experimental warning from sandboxes and add specific warning for non-code execution sandboxes. ([7d31d13](https://github.com/googleapis/python-aiplatform/commit/7d31d137b351201b1e40c649da08f96e8be1094e))
+* Update the v1 service definition to add embedding_metadata. ([8f5bfc5](https://github.com/googleapis/python-aiplatform/commit/8f5bfc5476e150bc64cc43d46f6a4a2932c07df8))
+
+
+### Documentation
+
+* Update prompt optimizer code in readme to use methods from prompts module ([4636507](https://github.com/googleapis/python-aiplatform/commit/4636507b398e63512b9559256582c3fdda1ce2e3))
+
 ## [1.134.0](https://github.com/googleapis/python-aiplatform/compare/v1.133.0...v1.134.0) (2026-01-18)
 
 
