@@ -628,15 +628,37 @@ class Unprovisioned:
 
 
 @dataclasses.dataclass
+class Spanner:
+    """Switches RAG Engine to use Spanner/RagManagedDb as the backend.
+
+    Attributes:
+        tier: The tier of the RagManagedDb. The default tier is Basic.
+
+    NOTE: This is the default mode if not explicitly chosen.
+    """
+
+    tier: Optional[Union[Basic, Scaled, Unprovisioned]] = None
+
+
+@dataclasses.dataclass
+class Serverless:
+    """Switches RAG Engine to use serverless mode as the backend."""
+
+
+@dataclasses.dataclass
 class RagManagedDbConfig:
     """RagManagedDbConfig.
 
     The config of the RagManagedDb used by RagEngine.
 
     Attributes:
-        tier: The tier of the RagManagedDb. The default tier is Basic.
+        mode: The choice of backend for your RAG Engine. The default mode is
+              Spanner with Basic tier.
+        tier: The tier of the RagManagedDb. NOTE: This field is deprecated. Use
+              `mode` instead to set the tier under Spanner.
     """
 
+    mode: Optional[Union[Spanner, Serverless]] = None
     tier: Optional[Union[Enterprise, Basic, Scaled, Unprovisioned]] = None
 
 

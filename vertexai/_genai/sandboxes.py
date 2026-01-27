@@ -557,6 +557,17 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             AgentEngineSandboxOperation: The operation for creating the sandbox.
         """
+        if spec:
+            computer_use = False
+            if isinstance(spec, dict):
+                computer_use = spec.get("computer_use_environment") is not None
+            elif hasattr(spec, "computer_use_environment"):
+                computer_use = True
+
+            if computer_use:
+                logging.warning(
+                    "The computer_use_environment feature in the sandboxes module is experimental and may change in future versions."
+                )
         operation = self._create(
             name=name,
             spec=spec,

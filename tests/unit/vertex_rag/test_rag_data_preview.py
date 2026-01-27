@@ -493,6 +493,91 @@ def update_rag_engine_config_enterprise_mock():
 
 
 @pytest.fixture()
+def update_rag_engine_config_serverless_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_serverless_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS
+        )
+        update_rag_engine_config_serverless_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_serverless_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_basic_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_basic_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_BASIC
+        )
+        update_rag_engine_config_spanner_basic_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_basic_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_scaled_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_scaled_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED
+        )
+        update_rag_engine_config_spanner_scaled_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_scaled_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_no_tier_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_no_tier_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED
+        )
+        update_rag_engine_config_spanner_no_tier_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_no_tier_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_unprovisioned_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_unprovisioned_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED
+        )
+        update_rag_engine_config_spanner_unprovisioned_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_unprovisioned_mock
+
+
+@pytest.fixture()
 def update_rag_engine_config_scaled_mock():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -582,6 +667,54 @@ def get_rag_engine_enterprise_config_mock():
             test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE
         )
         yield get_rag_engine_enterprise_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_spanner_basic_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_spanner_basic_config_mock:
+        get_rag_engine_spanner_basic_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_BASIC
+        )
+        yield get_rag_engine_spanner_basic_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_spanner_scaled_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_spanner_scaled_config_mock:
+        get_rag_engine_spanner_scaled_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED
+        )
+        yield get_rag_engine_spanner_scaled_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_spanner_unprovisioned_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_spanner_unprovisioned_config_mock:
+        get_rag_engine_spanner_unprovisioned_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED
+        )
+        yield get_rag_engine_spanner_unprovisioned_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_serverless_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_serverless_config_mock:
+        get_rag_engine_serverless_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS
+        )
+        yield get_rag_engine_serverless_config_mock
 
 
 @pytest.fixture()
@@ -1765,6 +1898,73 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED,
         )
 
+    def test_update_rag_engine_config_spanner_basic_success(
+        self, update_rag_engine_config_spanner_basic_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC,
+        )
+        assert update_rag_engine_config_spanner_basic_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC,
+        )
+
+    def test_update_rag_engine_config_spanner_scaled_success(
+        self, update_rag_engine_config_spanner_scaled_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+        assert update_rag_engine_config_spanner_scaled_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+
+    def test_update_rag_engine_config_spanner_unprovisioned_success(
+        self, update_rag_engine_config_spanner_unprovisioned_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED,
+        )
+        assert update_rag_engine_config_spanner_unprovisioned_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED,
+        )
+
+    def test_update_rag_engine_config_spanner_no_tier_success(
+        self, update_rag_engine_config_spanner_no_tier_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_NO_TIER,
+        )
+        assert update_rag_engine_config_spanner_no_tier_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+
+    def test_update_rag_engine_config_serverless_success(
+        self, update_rag_engine_config_serverless_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
+        )
+        assert update_rag_engine_config_serverless_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
+        )
+
+    def test_update_rag_engine_config_with_mode_and_tier_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.update_rag_engine_config(
+                rag_engine_config=test_rag_constants_preview.TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER,
+            )
+        e.match("mode and tier both cannot be set at the same time")
+
     @pytest.mark.usefixtures("update_rag_engine_config_mock_exception")
     def test_update_rag_engine_config_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -1784,6 +1984,46 @@ class TestRagDataManagement:
         rag_engine_config_eq(
             rag_config,
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_serverless_config_mock")
+    def test_get_rag_engine_config_serverless_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_spanner_basic_config_mock")
+    def test_get_rag_engine_config_spanner_basic_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_spanner_scaled_config_mock")
+    def test_get_rag_engine_config_spanner_scaled_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_spanner_unprovisioned_config_mock")
+    def test_get_rag_engine_config_spanner_unprovisioned_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED,
         )
 
     @pytest.mark.usefixtures("get_rag_engine_basic_config_mock")

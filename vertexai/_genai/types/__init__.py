@@ -21,7 +21,7 @@ import typing
 
 from . import agent_engines
 from . import evals
-from . import prompt_optimizer
+from . import prompts
 from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
@@ -35,6 +35,7 @@ from .common import _CreateEvaluationItemParameters
 from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
 from .common import _CreateMultimodalDatasetParameters
+from .common import _CustomJobParameters
 from .common import _CustomJobParameters
 from .common import _DeleteAgentEngineMemoryRequestParameters
 from .common import _DeleteAgentEngineRequestParameters
@@ -58,6 +59,7 @@ from .common import _GetAgentEngineSandboxRequestParameters
 from .common import _GetAgentEngineSessionOperationParameters
 from .common import _GetAgentEngineSessionRequestParameters
 from .common import _GetCustomJobParameters
+from .common import _GetCustomJobParameters
 from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
@@ -75,6 +77,7 @@ from .common import _ListAgentEngineSessionsRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListMultimodalDatasetsRequestParameters
+from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
@@ -174,6 +177,10 @@ from .common import ChunkOrDict
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
+from .common import ComputationBasedMetricSpec
+from .common import ComputationBasedMetricSpecDict
+from .common import ComputationBasedMetricSpecOrDict
+from .common import ComputationBasedMetricType
 from .common import ContainerSpec
 from .common import ContainerSpecDict
 from .common import ContainerSpecOrDict
@@ -624,9 +631,13 @@ from .common import ObservabilityEvalCase
 from .common import ObservabilityEvalCaseDict
 from .common import ObservabilityEvalCaseOrDict
 from .common import Operator
+from .common import OptimizationMethod
 from .common import OptimizeConfig
 from .common import OptimizeConfigDict
 from .common import OptimizeConfigOrDict
+from .common import OptimizeJobConfig
+from .common import OptimizeJobConfigDict
+from .common import OptimizeJobConfigOrDict
 from .common import OptimizeResponse
 from .common import OptimizeResponseDict
 from .common import OptimizeResponseEndpoint
@@ -1078,6 +1089,9 @@ __all__ = [
     "CustomCodeExecutionSpec",
     "CustomCodeExecutionSpecDict",
     "CustomCodeExecutionSpecOrDict",
+    "ComputationBasedMetricSpec",
+    "ComputationBasedMetricSpecDict",
+    "ComputationBasedMetricSpecOrDict",
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
@@ -1096,6 +1110,9 @@ __all__ = [
     "EvaluationRunResults",
     "EvaluationRunResultsDict",
     "EvaluationRunResultsOrDict",
+    "EvalCaseMetricResult",
+    "EvalCaseMetricResultDict",
+    "EvalCaseMetricResultOrDict",
     "ResponseCandidateResult",
     "ResponseCandidateResultDict",
     "ResponseCandidateResultOrDict",
@@ -1105,6 +1122,9 @@ __all__ = [
     "AggregatedMetricResult",
     "AggregatedMetricResultDict",
     "AggregatedMetricResultOrDict",
+    "WinRateStats",
+    "WinRateStatsDict",
+    "WinRateStatsOrDict",
     "ResponseCandidate",
     "ResponseCandidateDict",
     "ResponseCandidateOrDict",
@@ -1126,6 +1146,12 @@ __all__ = [
     "EvaluationResult",
     "EvaluationResultDict",
     "EvaluationResultOrDict",
+    "EvaluationRunAgentConfig",
+    "EvaluationRunAgentConfigDict",
+    "EvaluationRunAgentConfigOrDict",
+    "EvaluationRunInferenceConfig",
+    "EvaluationRunInferenceConfigDict",
+    "EvaluationRunInferenceConfigOrDict",
     "EvaluationRun",
     "EvaluationRunDict",
     "EvaluationRunOrDict",
@@ -1477,6 +1503,9 @@ __all__ = [
     "UpdateAgentEngineConfig",
     "UpdateAgentEngineConfigDict",
     "UpdateAgentEngineConfigOrDict",
+    "MemoryMetadataValue",
+    "MemoryMetadataValueDict",
+    "MemoryMetadataValueOrDict",
     "AgentEngineMemoryConfig",
     "AgentEngineMemoryConfigDict",
     "AgentEngineMemoryConfigOrDict",
@@ -1534,9 +1563,6 @@ __all__ = [
     "RetrieveMemoriesRequestSimpleRetrievalParams",
     "RetrieveMemoriesRequestSimpleRetrievalParamsDict",
     "RetrieveMemoriesRequestSimpleRetrievalParamsOrDict",
-    "MemoryMetadataValue",
-    "MemoryMetadataValueDict",
-    "MemoryMetadataValueOrDict",
     "MemoryFilter",
     "MemoryFilterDict",
     "MemoryFilterOrDict",
@@ -1852,18 +1878,6 @@ __all__ = [
     "ContentMapContents",
     "ContentMapContentsDict",
     "ContentMapContentsOrDict",
-    "EvalCaseMetricResult",
-    "EvalCaseMetricResultDict",
-    "EvalCaseMetricResultOrDict",
-    "EvaluationRunAgentConfig",
-    "EvaluationRunAgentConfigDict",
-    "EvaluationRunAgentConfigOrDict",
-    "EvaluationRunInferenceConfig",
-    "EvaluationRunInferenceConfigDict",
-    "EvaluationRunInferenceConfigOrDict",
-    "WinRateStats",
-    "WinRateStatsDict",
-    "WinRateStatsOrDict",
     "EvaluateMethodConfig",
     "EvaluateMethodConfigDict",
     "EvaluateMethodConfigOrDict",
@@ -1921,6 +1935,9 @@ __all__ = [
     "PromptVersionRef",
     "PromptVersionRefDict",
     "PromptVersionRefOrDict",
+    "OptimizeJobConfig",
+    "OptimizeJobConfigDict",
+    "OptimizeJobConfigOrDict",
     "PairwiseChoice",
     "Strategy",
     "AcceleratorType",
@@ -1936,11 +1953,13 @@ __all__ = [
     "EvaluationItemType",
     "SamplingMethod",
     "RubricContentType",
+    "ComputationBasedMetricType",
     "EvaluationRunState",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "PromptOptimizerMethod",
+    "OptimizationMethod",
     "PromptData",
     "PromptDataDict",
     "PromptDataOrDict",
@@ -2026,9 +2045,12 @@ __all__ = [
     "_DeletePromptVersionRequestParameters",
     "_RestoreVersionRequestParameters",
     "_UpdateDatasetParameters",
+    "_CustomJobParameters",
+    "_GetCustomJobParameters",
+    "_OptimizeRequestParameters",
     "evals",
     "agent_engines",
-    "prompt_optimizer",
+    "prompts",
     "PrebuiltMetric",
     "RubricMetric",
 ]

@@ -62,6 +62,7 @@ def list_deployable_models(
         `{publisher}/{model}@{version}` or Hugging Face model ID in the format
         of `{organization}/{model}`.
     """
+
     filter_str = _NATIVE_MODEL_FILTER
     if list_hf_models:
         filter_str = " AND ".join([_HF_WILDCARD_FILTER, _VERIFIED_DEPLOYMENT_FILTER])
@@ -90,6 +91,50 @@ def list_deployable_models(
                     re.sub(r"publishers/(hf-|)|models/", "", model.name)
                     + ("" if list_hf_models else ("@" + model.version_id))
                 )
+    return output
+
+
+def list_models(
+    *, list_hf_models: bool = False, model_filter: Optional[str] = None
+) -> List[str]:
+    """Lists the models in Model Garden.
+
+    Args:
+        list_hf_models: Whether to list the Hugging Face models.
+        model_filter: Optional. A string to filter the models by.
+
+    Returns:
+        The names of the models in Model Garden in the format of
+        `{publisher}/{model}@{version}` or Hugging Face model ID in the format
+        of `{organization}/{model}`.
+    """
+    filter_str = _NATIVE_MODEL_FILTER
+    if list_hf_models:
+        filter_str = _HF_WILDCARD_FILTER
+    if model_filter:
+        filter_str = (
+            f'{filter_str} AND (model_user_id=~"(?i).*{model_filter}.*" OR'
+            f' display_name=~"(?i).*{model_filter}.*")'
+        )
+
+    request = types.ListPublisherModelsRequest(
+        parent="publishers/*",
+        list_all_versions=True,
+        filter=filter_str,
+    )
+    client = initializer.global_config.create_client(
+        client_class=_ModelGardenClientWithOverride,
+        credentials=initializer.global_config.credentials,
+        location_override="us-central1",
+    )
+    response = client.list_publisher_models(request)
+    output = []
+    for page in response.pages:
+        for model in page.publisher_models:
+            output.append(
+                re.sub(r"publishers/(hf-|)|models/", "", model.name)
+                + ("" if list_hf_models else ("@" + model.version_id))
+            )
     return output
 
 

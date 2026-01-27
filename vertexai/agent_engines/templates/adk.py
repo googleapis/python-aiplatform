@@ -318,8 +318,10 @@ def _default_instrumentor_builder(
         return None
 
     def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
-        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
-        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION", ""
+        )
+        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID")
         if all(v is not None for v in (location, agent_engine_id)):
             return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
         return None
@@ -359,7 +361,10 @@ def _default_instrumentor_builder(
             "cloud.platform": "gcp.agent_engine",
             "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
             "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
-            "cloud.region": os.getenv("GOOGLE_CLOUD_LOCATION", ""),
+            "cloud.region": (
+                os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "")
+                or os.getenv("GOOGLE_CLOUD_LOCATION", "")
+            ),
         }
         | (
             {"cloud.resource_id": cloud_resource_id}
@@ -772,11 +777,15 @@ class AdkApp:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
         if location:
-            os.environ["GOOGLE_CLOUD_LOCATION"] = location
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
         express_mode_api_key = self._tmpl_attrs.get("express_mode_api_key")
         if express_mode_api_key and not project:
             os.environ["GOOGLE_API_KEY"] = express_mode_api_key
             # Clear location and project env vars if express mode api key is provided.
+            os.environ.pop("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", None)
             os.environ.pop("GOOGLE_CLOUD_LOCATION", None)
             os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
             location = None

@@ -718,10 +718,6 @@ class AgentEngines(_api_module.BaseModule):
         return self._memories.Memories(self._api_client)
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sandboxes module is experimental, "
-        "and may change in future versions."
-    )
     def sandboxes(self) -> Any:
         if self._sandboxes is None:
             try:

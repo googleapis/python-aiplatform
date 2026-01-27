@@ -320,7 +320,9 @@ def _default_instrumentor_builder(
         return None
 
     def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
-        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION", ""
+        )
         agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
         if all(v is not None for v in (location, agent_engine_id)):
             return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
@@ -361,7 +363,10 @@ def _default_instrumentor_builder(
             "cloud.platform": "gcp.agent_engine",
             "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
             "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
-            "cloud.region": os.getenv("GOOGLE_CLOUD_LOCATION", ""),
+            "cloud.region": (
+                os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "")
+                or os.getenv("GOOGLE_CLOUD_LOCATION", "")
+            ),
         }
         | (
             {"cloud.resource_id": cloud_resource_id}
@@ -688,7 +693,11 @@ class AdkApp:
         project = self._tmpl_attrs.get("project")
         os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
-        os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        if location:
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
 
         # Disable content capture in custom ADK spans unless user enabled
         # tracing explicitly with the old flag

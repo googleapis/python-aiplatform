@@ -69,9 +69,7 @@ async def test_optimize_prompt_w_few_shot_optimization_target(client):
     assert response.raw_text_response
     assert isinstance(response.raw_text_response, str)
     if response.parsed_response:
-        assert isinstance(
-            response.parsed_response, types.prompt_optimizer.ParsedResponseFewShot
-        )
+        assert isinstance(response.parsed_response, types.prompts.ParsedResponseFewShot)
 
 
 @pytest.mark.asyncio
@@ -97,9 +95,7 @@ async def test_optimize_prompt_w_few_shot_optimization_rubrics(client):
     assert response.raw_text_response
     assert isinstance(response.raw_text_response, str)
     if response.parsed_response:
-        assert isinstance(
-            response.parsed_response, types.prompt_optimizer.ParsedResponseFewShot
-        )
+        assert isinstance(response.parsed_response, types.prompts.ParsedResponseFewShot)
 
 
 pytestmark = pytest_helper.setup(

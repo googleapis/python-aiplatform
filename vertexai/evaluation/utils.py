@@ -209,7 +209,7 @@ def _load_jsonl(filepath: str) -> "pd.DataFrame":
         )
     if filepath.startswith(_GCS_PREFIX):
         file_contents = _read_gcs_file_contents(filepath)
-        return pd.read_json(file_contents, lines=True)
+        return pd.read_json(io.StringIO(file_contents), lines=True)
     else:
         with open(filepath, "r") as f:
             return pd.read_json(f, lines=True)

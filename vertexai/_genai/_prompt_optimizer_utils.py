@@ -197,12 +197,12 @@ def _clean_and_parse_optimized_prompt(output_str: str):
 def _parse(
     output_str: str,
 ) -> Union[
-    types.prompt_optimizer.ParsedResponse,
-    types.prompt_optimizer.ParsedResponseFewShot,
+    types.prompts.ParsedResponse,
+    types.prompts.ParsedResponseFewShot,
 ]:
     """Parses the output string from the prompt optimizer endpoint."""
     parsed_out = _clean_and_parse_optimized_prompt(output_str)
     try:
-        return types.prompt_optimizer.ParsedResponse(**parsed_out)
+        return types.prompts.ParsedResponse(**parsed_out)
     except ValidationError:
-        return types.prompt_optimizer.ParsedResponseFewShot(**parsed_out)
+        return types.prompts.ParsedResponseFewShot(**parsed_out)
