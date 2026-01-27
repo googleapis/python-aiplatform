@@ -146,7 +146,7 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         return tf.io.gfile.isdir(self._profile_dir(run_name))
 
     def _profile_dir(self, run_name: str) -> str:
-        """Converts run name to full profile path.
+        """Converts run name to a full, validated profile path under `logdir`.
 
         Args:
             run_name (str):
@@ -155,9 +155,23 @@ class ProfileRequestSender(uploader_utils.RequestSender):
         Returns:
             Full path for run name.
         """
+        logger.debug("_profile_dir run_name: %s", run_name)
+        base = os.path.realpath(self._logdir)
         if run_name is None or run_name == uploader_utils.DEFAULT_PROFILE_RUN_NAME:
-            return os.path.join(self._logdir, self.PROFILE_PATH)
-        return os.path.join(self._logdir, run_name, self.PROFILE_PATH)
+            candidate = os.path.join(base, self.PROFILE_PATH)
+        else:
+            # Normalize and forbid absolute/traversal components in `run_name`.
+            if os.path.isabs(run_name):
+                raise ValueError("run_name must be a relative name")
+            # Collapse dot segments then strip leading separators
+            safe_name = os.path.normpath(run_name).lstrip("/\\")
+            if safe_name.startswith("..") or (".." + os.sep) in safe_name:
+                raise ValueError("run_name must not contain path traversal")
+            candidate = os.path.join(base, safe_name, self.PROFILE_PATH)
+        resolved = os.path.realpath(candidate)
+        if os.path.commonpath([base, resolved]) != base:
+            raise ValueError("profile path escapes logdir")
+        return resolved
 
     def send_request(self, run_name: str):
         """Accepts run_name and sends an RPC request if an event is detected.
