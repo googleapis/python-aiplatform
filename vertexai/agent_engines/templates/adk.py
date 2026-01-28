@@ -1158,18 +1158,19 @@ class AdkApp:
         from google.genai.errors import ClientError
 
         request = _StreamRunRequest(**json.loads(request_json))
-        if not self._tmpl_attrs.get("in_memory_runner"):
-            self.set_up()
-        if not self._tmpl_attrs.get("runner"):
-            self.set_up()
-        # Prepare the in-memory session.
-        if not self._tmpl_attrs.get("in_memory_artifact_service"):
-            self.set_up()
-        if not self._tmpl_attrs.get("artifact_service"):
-            self.set_up()
-        if not self._tmpl_attrs.get("in_memory_session_service"):
-            self.set_up()
-        if not self._tmpl_attrs.get("session_service"):
+        if not any(
+            self._tmpl_attrs.get(service)
+            for service in (
+                "in_memory_runner",
+                "runner",
+                "in_memory_artifact_service",
+                "artifact_service",
+                "in_memory_session_service",
+                "session_service",
+                "in_memory_memory_service",
+                "memory_service",
+            )
+        ):
             self.set_up()
         app = self._tmpl_attrs.get("app")
 

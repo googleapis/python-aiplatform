@@ -998,20 +998,20 @@ class AdkApp:
 
         async def _invoke_agent_async():
             request = _StreamRunRequest(**json.loads(request_json))
-            if not self._tmpl_attrs.get("in_memory_runner"):
+            if not any(
+                self._tmpl_attrs.get(service)
+                for service in (
+                    "in_memory_runner",
+                    "runner",
+                    "in_memory_artifact_service",
+                    "artifact_service",
+                    "in_memory_session_service",
+                    "session_service",
+                    "in_memory_memory_service",
+                    "memory_service",
+                )
+            ):
                 self.set_up()
-            if not self._tmpl_attrs.get("runner"):
-                self.set_up()
-            # Prepare the in-memory session.
-            if not self._tmpl_attrs.get("in_memory_artifact_service"):
-                self.set_up()
-            if not self._tmpl_attrs.get("artifact_service"):
-                self.set_up()
-            if not self._tmpl_attrs.get("in_memory_session_service"):
-                self.set_up()
-            if not self._tmpl_attrs.get("session_service"):
-                self.set_up()
-
             # Try to get the session, if it doesn't exist, create a new one.
             if request.session_id:
                 session_service = self._tmpl_attrs.get("session_service")
