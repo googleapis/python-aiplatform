@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.135.1](https://github.com/googleapis/python-aiplatform/compare/v1.135.0...v1.135.1) (2026-01-28)
+
+
+### Bug Fixes
+
+* Test fix internal ([1bbf7bb](https://github.com/googleapis/python-aiplatform/commit/1bbf7bbd0725a4150558c7cc2980203697f8dafa))
+
 ## [1.135.0](https://github.com/googleapis/python-aiplatform/compare/v1.134.0...v1.135.0) (2026-01-27)
 
 
