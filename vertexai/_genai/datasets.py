@@ -1054,6 +1054,55 @@ class Datasets(_api_module.BaseModule):
             response["tuningResourceUsageAssessmentResult"],
         )
 
+    def assess_tuning_validity(
+        self,
+        *,
+        dataset_name: str,
+        model_name: str,
+        dataset_usage: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
+    ) -> types.TuningValidationAssessmentResult:
+        if isinstance(config, dict):
+            config = types.AssessDatasetConfig(**config)
+        elif not config:
+            config = types.AssessDatasetConfig()
+
+        operation = self._assess_multimodal_dataset(
+            name=dataset_name,
+            tuning_validation_assessment_config=types.TuningValidationAssessmentConfig(
+                model_name=model_name,
+                dataset_usage=dataset_usage,
+            ),
+            gemini_request_read_config=types.GeminiRequestReadConfig(
+                template_config=template_config,
+            ),
+            config=config,
+        )
+        response = self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        return _datasets_utils.create_from_response(
+            types.TuningValidationAssessmentResult,
+            response["tuningValidationAssessmentResult"],
+        )
+
+        # request = self._build_assess_data_request(template_config)
+        # request.tuning_validation_assessment_config = (
+        #     types.TuningValidationAssessmentConfig(
+        #         model_name=model_name,
+        #         dataset_usage=dataset_usage,
+        #     )
+        # )
+        # assess_lro = self.api_client.assess_data(
+        #     request=request, timeout=assess_request_timeout
+        # )
+        # assessment_result = assess_lro.result(timeout=None)
+        # return TuningValidationAssessmentResult(
+        #     errors=assessment_result.tuning_validation_assessment_result.errors
+        # )
+
 
 class AsyncDatasets(_api_module.BaseModule):
 

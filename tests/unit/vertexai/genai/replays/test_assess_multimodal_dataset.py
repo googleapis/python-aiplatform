@@ -66,6 +66,25 @@ def test_assess_tuning_resources(client):
     assert isinstance(response, types.TuningResourceUsageAssessmentResult)
 
 
+def test_assess_tuning_validity(client):
+    response = client.datasets.assess_tuning_validity(
+        dataset_name=DATASET,
+        dataset_usage="SFT_VALIDATION",
+        model_name="gemini-2.5-flash-001",
+        template_config=types.GeminiTemplateConfig(
+            gemini_example=types.GeminiExample(
+                contents=[
+                    {
+                        "role": "user",
+                        "parts": [{"text": "What is the capital of {name}?"}],
+                    }
+                ],
+            ),
+        ),
+    )
+    assert isinstance(response, types.TuningValidationAssessmentResult)
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
