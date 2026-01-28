@@ -92,7 +92,7 @@ class AsyncClient:
                     "Please install them using pip install "
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
-        return self._evals.AsyncEvals(self._api_client)
+        return self._evals.AsyncEvals(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -104,7 +104,7 @@ class AsyncClient:
             self._prompt_optimizer = importlib.import_module(
                 ".prompt_optimizer", __package__
             )
-        return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)
+        return self._prompt_optimizer.AsyncPromptOptimizer(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def agent_engines(self) -> "agent_engines_module.AsyncAgentEngines":
@@ -122,7 +122,7 @@ class AsyncClient:
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._agent_engines.AsyncAgentEngines(self._api_client)
+        return self._agent_engines.AsyncAgentEngines(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def prompts(self) -> "prompts_module.AsyncPrompts":
@@ -131,7 +131,7 @@ class AsyncClient:
                 ".prompts",
                 __package__,
             )
-        return self._prompts.AsyncPrompts(self._api_client)
+        return self._prompts.AsyncPrompts(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -144,7 +144,7 @@ class AsyncClient:
                 ".datasets",
                 __package__,
             )
-        return self._datasets.AsyncDatasets(self._api_client)
+        return self._datasets.AsyncDatasets(self._api_client)  # type: ignore[no-any-return]
 
     async def aclose(self) -> None:
         """Closes the async client explicitly.
@@ -255,7 +255,7 @@ class Client:
                     "Please install them using pip install "
                     "google-cloud-aiplatform[evaluation]"
                 ) from e
-        return self._evals.Evals(self._api_client)
+        return self._evals.Evals(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -267,7 +267,7 @@ class Client:
             self._prompt_optimizer = importlib.import_module(
                 ".prompt_optimizer", __package__
             )
-        return self._prompt_optimizer.PromptOptimizer(self._api_client)
+        return self._prompt_optimizer.PromptOptimizer(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def aio(self) -> "AsyncClient":
@@ -317,7 +317,7 @@ class Client:
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._agent_engines.AgentEngines(self._api_client)
+        return self._agent_engines.AgentEngines(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def prompts(self) -> "prompts_module.Prompts":
@@ -327,7 +327,7 @@ class Client:
                 ".prompts",
                 __package__,
             )
-        return self._prompts.Prompts(self._api_client)
+        return self._prompts.Prompts(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -340,4 +340,4 @@ class Client:
                 ".datasets",
                 __package__,
             )
-        return self._datasets.Datasets(self._api_client)
+        return self._datasets.Datasets(self._api_client)  # type: ignore[no-any-return]

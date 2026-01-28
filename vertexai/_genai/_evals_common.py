@@ -48,16 +48,16 @@ from . import types
 try:
     import litellm
 except ImportError:
-    litellm = None  # type: ignore[assignment]
+    litellm = None
 
 try:
     from google.adk.agents import LlmAgent
     from google.adk.runners import Runner
     from google.adk.sessions import InMemorySessionService
 except ImportError:
-    LlmAgent = None  # type: ignore[assignment]
-    Runner = None  # type: ignore[assignment]
-    InMemorySessionService = None  # type: ignore[assignment]
+    LlmAgent = None
+    Runner = None
+    InMemorySessionService = None
 
 
 logger = logging.getLogger(__name__)

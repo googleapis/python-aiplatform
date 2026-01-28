@@ -81,7 +81,7 @@ except AttributeError:
 try:
     from google.cloud import storage
 
-    _StorageBucket: type[Any] = storage.Bucket  # type: ignore[attr-defined]
+    _StorageBucket: type[Any] = storage.Bucket
 except (ImportError, AttributeError):
     _StorageBucket: type[Any] = Any  # type: ignore[no-redef]
 

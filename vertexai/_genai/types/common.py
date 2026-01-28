@@ -43,7 +43,7 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from typing_extensions import TypedDict
+from typing_extensions import TypeAlias, TypedDict
 from . import evals as evals_types
 from . import prompts as prompts_types
 
@@ -53,7 +53,7 @@ def camel_to_snake(camel_case_string: str) -> str:
     return snake_case_string.lower()
 
 
-def _camel_key_to_snake(message: Any):
+def _camel_key_to_snake(message: Any) -> Any:
     """Converts all camelCase keys to snake_case in a dict or list."""
     if isinstance(message, dict):
         return {
@@ -69,7 +69,7 @@ def _camel_key_to_snake(message: Any):
 if typing.TYPE_CHECKING:
     import pandas as pd
 
-    PandasDataFrame = pd.DataFrame
+    PandasDataFrame: TypeAlias = pd.DataFrame
 else:
     try:
         import pandas as pd
@@ -839,7 +839,7 @@ class PredefinedMetricSpec(_common.BaseModel):
         description="""The name of a pre-defined metric, such as "instruction_following_v1" or
       "text_quality_v1".""",
     )
-    metric_spec_parameters: Optional[dict] = Field(
+    metric_spec_parameters: Optional[dict[str, Any]] = Field(
         default=None,
         description="""The parameters needed to run the pre-defined metric.""",
     )
@@ -852,7 +852,7 @@ class PredefinedMetricSpecDict(TypedDict, total=False):
     """The name of a pre-defined metric, such as "instruction_following_v1" or
       "text_quality_v1"."""
 
-    metric_spec_parameters: Optional[dict]
+    metric_spec_parameters: Optional[dict[str, Any]]
     """The parameters needed to run the pre-defined metric."""
 
 
@@ -1902,13 +1902,16 @@ class EvaluationRun(_common.BaseModel):
         """Converts a dictionary response into a EvaluationRun object."""
 
         snaked_response = _camel_key_to_snake(response)
+
+        evaluation_run_results = response.get("evaluation_run_results")
+
         if (
-            "evaluation_run_results" in response
-            and "summaryMetrics" in response["evaluation_run_results"]
+            isinstance(evaluation_run_results, dict)
+            and "summaryMetrics" in evaluation_run_results
         ):
-            snaked_response["evaluation_run_results"]["summary_metrics"] = response[
-                "evaluation_run_results"
-            ]["summaryMetrics"]
+            snaked_response["evaluation_run_results"]["summary_metrics"] = (
+                evaluation_run_results["summaryMetrics"]
+            )
         result = super()._from_response(response=snaked_response, kwargs=kwargs)
         return result
 
@@ -3037,7 +3040,7 @@ class LLMMetric(Metric):
         content_str: str
         if config_path.startswith("gs://"):
             try:
-                from google.cloud import storage
+                from google.cloud import storage  # type: ignore[attr-defined]
 
                 storage_client = storage.Client(
                     credentials=client._api_client._credentials if client else None
@@ -14263,11 +14266,11 @@ class Prompt(_common.BaseModel):
 
     @property
     def dataset(self) -> "Dataset":
-        return self._dataset
+        return self._dataset  # type: ignore[return-value]
 
     @property
     def dataset_version(self) -> "DatasetVersion":
-        return self._dataset_version
+        return self._dataset_version  # type: ignore[return-value]
 
     @property
     def prompt_id(self) -> Optional[str]:
@@ -14278,12 +14281,14 @@ class Prompt(_common.BaseModel):
             self._dataset_version and self._dataset_version.name
         ):
             return self._dataset_version.name.split("datasets/")[1].split("/")[0]
+        return None
 
     @property
     def version_id(self) -> Optional[str]:
         """Returns the ID associated with the prompt version resource."""
         if self._dataset_version and self._dataset_version.name:
             return self._dataset_version.name.split("/")[-1]
+        return None
 
     def assemble_contents(self) -> list[genai_types.Content]:
         """Transforms a Prompt object into a list with a single genai_types.Content object.
@@ -14337,6 +14342,8 @@ class Prompt(_common.BaseModel):
             )
 
         parts_to_process = self.prompt_data.contents[0].parts
+        if parts_to_process is None:
+            return []
         if not isinstance(parts_to_process, list):
             parts_to_process = [parts_to_process]
 

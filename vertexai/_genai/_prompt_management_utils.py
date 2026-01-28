@@ -99,24 +99,32 @@ def _create_prompt_from_dataset_metadata(
     api_schema = dataset.metadata.prompt_api_schema
     prompt = types.Prompt()
 
+    if api_schema is None:
+        return prompt
+
     if api_schema.multimodal_prompt:
 
         prompt_message = api_schema.multimodal_prompt.prompt_message
         prompt.prompt_data = prompt_message
 
-        executions = api_schema.executions
-        if executions:
-            prompt.prompt_data.variables = []
-            for execution in executions:
-                if execution.arguments:
-                    args = execution.arguments
-                    var_map = {}
-                    for key, val in args.items():
-                        part_list = val.part_list.parts
-                        if part_list and part_list[0].text:
-                            var_map[key] = part_list[0]
-                    if var_map:
-                        prompt.prompt_data.variables.append(var_map)
+        if api_schema.executions:
+            executions = api_schema.executions
+            if executions and prompt.prompt_data is not None:
+                prompt.prompt_data.variables = []
+                for execution in executions:
+                    if execution.arguments:
+                        args = execution.arguments
+                        var_map = {}
+                        for key, val in args.items():
+                            if (
+                                val.part_list is not None
+                                and val.part_list.parts is not None
+                            ):
+                                part_list = val.part_list.parts
+                                if part_list and part_list[0].text:
+                                    var_map[key] = part_list[0]
+                        if var_map and prompt.prompt_data.variables is not None:
+                            prompt.prompt_data.variables.append(var_map)
 
     return prompt
 

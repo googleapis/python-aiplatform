@@ -1674,7 +1674,7 @@ class Evals(_api_module.BaseModule):
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
-        return self._create_evaluation_run(  # type: ignore[no-any-return]
+        return self._create_evaluation_run(
             name=name,
             display_name=display_name or name,
             data_source=dataset,
@@ -1782,7 +1782,7 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        return self._create_evaluation_item(  # type: ignore[no-any-return]
+        return self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
@@ -1812,7 +1812,7 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation set.
         """
-        return self._create_evaluation_set(  # type: ignore[no-any-return]
+        return self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,

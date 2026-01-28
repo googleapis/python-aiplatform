@@ -48,14 +48,14 @@ class AsyncLiveAgentEngineSession:
 
         try:
             json_request = json.dumps({"bidi_stream_input": query_input})
-        except json.JSONEncoderError as exc:
+        except Exception as exc:
             raise ValueError(
                 "Failed to encode query input to JSON in live_agent_engines: "
                 f"{str(query_input)}"
             ) from exc
         await self._ws.send(json_request)
 
-    async def receive(self) -> Dict[str, Any]:
+    async def receive(self) -> Any:
         """Receive one response from the Agent.
 
         Returns:
@@ -138,16 +138,16 @@ class AsyncLiveAgentEngines(_api_module.BaseModule):
         if not agent_engine_resource_name.startswith("projects/"):
             agent_engine_resource_name = f"projects/{self._api_client.project}/locations/{self._api_client.location}/reasoningEngines/{agent_engine}"
         request_dict = {"setup": {"name": agent_engine_resource_name}}
-        if config.class_method:
+        if config is not None and config.class_method:
             request_dict["setup"]["class_method"] = config.class_method
-        if config.input:
-            request_dict["setup"]["input"] = config.input
+        if config is not None and config.input:
+            request_dict["setup"]["input"] = config.input  # type: ignore[assignment]
 
         request = json.dumps(request_dict)
 
         if not self._api_client._credentials:
             # Get bearer token through Application Default Credentials.
-            creds, _ = google.auth.default(  # type: ignore
+            creds, _ = google.auth.default(
                 scopes=["https://www.googleapis.com/auth/cloud-platform"]
             )
         else:
@@ -155,8 +155,8 @@ class AsyncLiveAgentEngines(_api_module.BaseModule):
         # creds.valid is False, and creds.token is None
         # Need to refresh credentials to populate those
         if not (creds.token and creds.valid):
-            auth_req = google.auth.transport.requests.Request()  # type: ignore
-            creds.refresh(auth_req)
+            auth_req = google.auth.transport.requests.Request()
+            creds.refresh(auth_req)  # type: ignore[no-untyped-call]
         bearer_token = creds.token
 
         original_headers = self._api_client._http_options.headers

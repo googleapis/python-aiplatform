@@ -1063,7 +1063,7 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
                 # Special handling for rubric_groups to keep it as a dict
                 if isinstance(cell_value, dict):
                     processed_row[col_name] = {
-                        k: [
+                        k: [  # type: ignore[misc]
                             (
                                 v_item.model_dump(mode="json")
                                 if hasattr(v_item, "model_dump")
@@ -1077,7 +1077,7 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
                     processed_row[col_name] = cell_value
             else:
                 if isinstance(cell_value, (dict, list)):
-                    processed_row[col_name] = json.dumps(
+                    processed_row[col_name] = json.dumps(  # type: ignore[assignment]
                         cell_value, ensure_ascii=False, default=_pydantic_serializer
                     )
                 else:

@@ -18,7 +18,7 @@ import json
 import logging
 from typing import Any, Union
 
-from google.cloud import storage
+from google.cloud import storage  # type: ignore[attr-defined]
 from google.cloud.aiplatform.utils.gcs_utils import blob_from_uri
 from google.genai._api_client import BaseApiClient
 import pandas as pd
@@ -36,7 +36,7 @@ class GcsUtils:
 
     def __init__(self, api_client: BaseApiClient):
         self.api_client = api_client
-        self.storage_client = storage.Client(  # type: ignore[attr-defined]
+        self.storage_client = storage.Client(
             project=self.api_client.project,
             credentials=self.api_client._credentials,
         )

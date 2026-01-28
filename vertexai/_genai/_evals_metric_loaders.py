@@ -44,7 +44,7 @@ class LazyLoadedPrebuiltMetric:
         "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/{metric_name}/"
     )
 
-    def __init__(self, name: str, version: Optional[str] = None, **kwargs):
+    def __init__(self, name: str, version: Optional[str] = None, **kwargs: Any):
         self.name = name.upper()
         self.version = version
         self.metric_kwargs = kwargs
@@ -248,7 +248,7 @@ class LazyLoadedPrebuiltMetric:
             ) from e
 
     def __call__(
-        self, version: Optional[str] = None, **kwargs
+        self, version: Optional[str] = None, **kwargs: Any
     ) -> "LazyLoadedPrebuiltMetric":
         """Allows setting a specific version and other metric attributes."""
         updated_kwargs = self.metric_kwargs.copy()
@@ -271,7 +271,7 @@ class PrebuiltMetricLoader:
     """
 
     def __getattr__(
-        self, name: str, version: Optional[str] = None, **kwargs
+        self, name: str, version: Optional[str] = None, **kwargs: Any
     ) -> LazyLoadedPrebuiltMetric:
         return LazyLoadedPrebuiltMetric(name=name, version=version, **kwargs)
 

@@ -16,6 +16,7 @@
 
 import json
 from typing import Any, Optional, Union
+from typing_extensions import TypeAlias
 
 from pydantic import ValidationError
 
@@ -24,10 +25,10 @@ from . import types
 try:
     import pandas as pd  # pylint: disable=g-import-not-at-top
 
-    PandasDataFrame = pd.DataFrame
+    PandasDataFrame: TypeAlias = pd.DataFrame
 except ImportError:
     pd = None
-    PandasDataFrame = Any
+    PandasDataFrame = Any  # type: ignore[misc]
 
 
 def _construct_input_prompt(
@@ -79,6 +80,12 @@ def _get_few_shot_prompt(
     config: types.OptimizeConfig,
 ) -> str:
     """Builds the few shot prompt."""
+
+    if config.examples_dataframe is None:
+        raise ValueError("The 'examples_dataframe' is required in the config.")
+
+    if "prompt" not in config.examples_dataframe.columns:
+        raise ValueError("'prompt' is required in the examples_dataframe.")
 
     if "prompt" not in config.examples_dataframe.columns:
         raise ValueError("'prompt' is required in the examples_dataframe.")
@@ -164,7 +171,7 @@ def _get_service_account(
         )
 
 
-def _clean_and_parse_optimized_prompt(output_str: str):
+def _clean_and_parse_optimized_prompt(output_str: str) -> Optional[Any]:
     """Cleans a string response returned from the prompt optimizer endpoint.
 
     Args:

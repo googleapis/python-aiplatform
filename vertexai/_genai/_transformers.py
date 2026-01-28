@@ -14,7 +14,7 @@
 #
 
 """Transformers module for Vertex addons."""
-from typing import Any  # type: ignore[attr-defined]
+from typing import Any
 
 from google.genai._common import get_value_by_path as getv
 
@@ -75,7 +75,7 @@ def t_metrics(
                 pointwise_spec["system_instruction"] = system_instruction
             return_raw_output = getv(metric, ["return_raw_output"])
             if return_raw_output:
-                pointwise_spec["custom_output_format_config"] = {  # type: ignore[assignment]
+                pointwise_spec["custom_output_format_config"] = {
                     "return_raw_output": return_raw_output
                 }
             metric_payload_item["pointwise_metric_spec"] = pointwise_spec
