@@ -5158,6 +5158,10 @@ ReasoningEngineSpecSourceCodeSpecOrDict = Union[
 class ReasoningEngineSpec(_common.BaseModel):
     """The specification of an agent engine."""
 
+    agent_card: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. The A2A Agent Card for the agent (if available). It follows the specification at https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-agent-card.""",
+    )
     agent_framework: Optional[str] = Field(
         default=None,
         description="""Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom".""",
@@ -5194,6 +5198,9 @@ class ReasoningEngineSpec(_common.BaseModel):
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
     """The specification of an agent engine."""
+
+    agent_card: Optional[dict[str, Any]]
+    """Optional. The A2A Agent Card for the agent (if available). It follows the specification at https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-agent-card."""
 
     agent_framework: Optional[str]
     """Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"."""
