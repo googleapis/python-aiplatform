@@ -1318,6 +1318,18 @@ class AgentEngines(_api_module.BaseModule):
                     agent=agent,
                 )
             )
+
+            if hasattr(agent, "agent_card"):
+                agent_card = getattr(agent, "agent_card")
+                if agent_card:
+                    try:
+                        agent_engine_spec["agent_card"] = agent_card.model_dump(
+                            exclude_none=True
+                        )
+                    except TypeError as e:
+                        raise ValueError(
+                            f"Failed to convert agent card to dict (serialization error): {e}"
+                        ) from e
             update_masks.append("spec.agent_framework")
 
         if identity_type is not None or service_account is not None:
