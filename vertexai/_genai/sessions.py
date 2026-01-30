@@ -19,6 +19,7 @@ import functools
 import importlib
 import json
 import logging
+import typing
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
@@ -30,6 +31,11 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import _agent_engines_utils
 from . import types
+
+if typing.TYPE_CHECKING:
+    from . import session_events as session_events_module
+
+    _ = session_events_module
 
 
 logger = logging.getLogger("vertexai_genai.sessions")
@@ -606,7 +612,7 @@ class Sessions(_api_module.BaseModule):
         "The Vertex SDK GenAI agent_engines.sessions.events module is "
         "experimental, and may change in future versions."
     )
-    def events(self):
+    def events(self) -> "session_events_module.SessionEvents":
         if self._events is None:
             try:
                 # We need to lazy load the sessions.events module to handle the
@@ -618,7 +624,7 @@ class Sessions(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._events.SessionEvents(self._api_client)
+        return self._events.SessionEvents(self._api_client)  # type: ignore[no-any-return]
 
     def create(
         self,
@@ -1092,7 +1098,7 @@ class AsyncSessions(_api_module.BaseModule):
         "The Vertex SDK GenAI agent_engines.sessions.events module is "
         "experimental, and may change in future versions."
     )
-    def events(self):
+    def events(self) -> "session_events_module.AsyncSessionEvents":
         if self._events is None:
             try:
                 # We need to lazy load the sessions.events module to handle the
@@ -1104,7 +1110,7 @@ class AsyncSessions(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._events.AsyncSessionEvents(self._api_client)
+        return self._events.AsyncSessionEvents(self._api_client)  # type: ignore[no-any-return]
 
     async def create(
         self,

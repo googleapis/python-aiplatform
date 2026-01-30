@@ -19,6 +19,7 @@ import datetime
 import importlib
 import json
 import logging
+import typing
 from typing import Any, AsyncIterator, Iterator, Optional, Sequence, Tuple, Union
 from urllib.parse import urlencode
 import warnings
@@ -32,6 +33,13 @@ from google.genai.pagers import Pager
 
 from . import _agent_engines_utils
 from . import types
+
+if typing.TYPE_CHECKING:
+    from . import sessions as sessions_module
+    from . import memories as memories_module
+
+    _ = sessions_module
+    __ = memories_module
 
 
 logger = logging.getLogger("vertexai_genai.agentengines")
@@ -703,7 +711,7 @@ class AgentEngines(_api_module.BaseModule):
     _sessions = None
 
     @property
-    def memories(self) -> Any:
+    def memories(self) -> "memories_module.Memories":
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -715,7 +723,7 @@ class AgentEngines(_api_module.BaseModule):
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._memories.Memories(self._api_client)
+        return self._memories.Memories(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def sandboxes(self) -> Any:
@@ -733,7 +741,7 @@ class AgentEngines(_api_module.BaseModule):
         return self._sandboxes.Sandboxes(self._api_client)
 
     @property
-    def sessions(self) -> Any:
+    def sessions(self) -> "sessions_module.Sessions":
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -745,7 +753,7 @@ class AgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._sessions.Sessions(self._api_client)
+        return self._sessions.Sessions(self._api_client)  # type: ignore[no-any-return]
 
     def _list_pager(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
@@ -987,7 +995,7 @@ class AgentEngines(_api_module.BaseModule):
             # If the user did not provide an agent_engine (e.g. lightweight
             # provisioning), it will not have any API methods registered.
             agent_engine = self._register_api_methods(agent_engine=agent_engine)
-        return agent_engine
+        return agent_engine  # type: ignore[no-any-return]
 
     def _set_source_code_spec(
         self,
@@ -1004,16 +1012,16 @@ class AgentEngines(_api_module.BaseModule):
         requirements_file: Optional[str] = None,
         sys_version: str,
         build_options: Optional[dict[str, list[str]]] = None,
-    ):
+    ) -> None:
         """Sets source_code_spec for agent engine inside the `spec`."""
-        source_code_spec = {}
+        source_code_spec = types.ReasoningEngineSpecSourceCodeSpecDict()
         if source_packages:
             source_packages = _agent_engines_utils._validate_packages_or_raise(
                 packages=source_packages,
                 build_options=build_options,
             )
             update_masks.append("spec.source_code_spec.inline_source.source_archive")
-            source_code_spec["inline_source"] = {
+            source_code_spec["inline_source"] = {  # type: ignore[typeddict-item]
                 "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
                     source_packages=source_packages
                 )
@@ -1027,10 +1035,9 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError(
                 "Please specify one of `source_packages` or `developer_connect_source`."
             )
-            return
 
         update_masks.append("spec.source_code_spec.python_spec.version")
-        python_spec = {
+        python_spec: types.ReasoningEngineSpecSourceCodeSpecPythonSpecDict = {
             "version": sys_version,
         }
         if not entrypoint_module:
@@ -1079,7 +1086,7 @@ class AgentEngines(_api_module.BaseModule):
         class_methods: Optional[Sequence[dict[str, Any]]] = None,
         sys_version: str,
         build_options: Optional[dict[str, list[str]]] = None,
-    ):
+    ) -> None:
         """Sets package spec for agent engine."""
         project = self._api_client.project
         if project is None:
@@ -1114,7 +1121,7 @@ class AgentEngines(_api_module.BaseModule):
         )
         # Update the package spec.
         update_masks.append("spec.package_spec.pickle_object_gcs_uri")
-        package_spec = {
+        package_spec: types.ReasoningEngineSpecPackageSpecDict = {
             "python_version": sys_version,
             "pickle_object_gcs_uri": "{}/{}/{}".format(
                 staging_bucket,
@@ -1441,10 +1448,10 @@ class AgentEngines(_api_module.BaseModule):
             _agent_engines_utils._register_api_methods_or_raise(
                 agent_engine=agent_engine,
                 wrap_operation_fn={
-                    "": _agent_engines_utils._wrap_query_operation,
-                    "async": _agent_engines_utils._wrap_async_query_operation,
-                    "stream": _agent_engines_utils._wrap_stream_query_operation,
-                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,
+                    "": _agent_engines_utils._wrap_query_operation,  # type: ignore[dict-item]
+                    "async": _agent_engines_utils._wrap_async_query_operation,  # type: ignore[dict-item]
+                    "stream": _agent_engines_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
+                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
                     "a2a_extension": _agent_engines_utils._wrap_a2a_operation,
                 },
             )
@@ -1610,7 +1617,7 @@ class AgentEngines(_api_module.BaseModule):
             raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
         if agent_engine.api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)
-        return agent_engine
+        return agent_engine  # type: ignore[no-any-return]
 
     def _stream_query(
         self, *, name: str, config: Optional[types.QueryAgentEngineConfigOrDict] = None
@@ -1910,7 +1917,7 @@ class AgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.sessions.events.append(
+        return self.sessions.events.append(  # type: ignore[no-any-return]
             name=name,
             author=author,
             invocation_id=invocation_id,
@@ -1933,7 +1940,7 @@ class AgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.sessions.events.list(name=name, config=config)
+        return self.sessions.events.list(name=name, config=config)  # type: ignore[no-any-return]
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
@@ -2355,7 +2362,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return operation
 
     @property
-    def memories(self):
+    def memories(self) -> "memories_module.AsyncMemories":
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -2367,10 +2374,10 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._memories.AsyncMemories(self._api_client)
+        return self._memories.AsyncMemories(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    def sessions(self):
+    def sessions(self) -> "sessions_module.AsyncSessions":
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -2382,7 +2389,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._sessions.AsyncSessions(self._api_client)
+        return self._sessions.AsyncSessions(self._api_client)  # type: ignore[no-any-return]
 
     async def append_session_event(
         self,
@@ -2402,7 +2409,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return await self.sessions.events.append(name=name, config=config)
+        return await self.sessions.events.append(name=name, config=config)  # type: ignore[no-any-return]
 
     async def delete_memory(
         self,

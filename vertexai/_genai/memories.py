@@ -19,6 +19,7 @@ import functools
 import importlib
 import json
 import logging
+import typing
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
@@ -30,6 +31,11 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import _agent_engines_utils
 from . import types
+
+if typing.TYPE_CHECKING:
+    from . import memory_revisions as memory_revisions_module
+
+    _ = memory_revisions_module
 
 
 logger = logging.getLogger("vertexai_genai.memories")
@@ -1124,7 +1130,7 @@ class Memories(_api_module.BaseModule):
     _revisions = None
 
     @property
-    def revisions(self):
+    def revisions(self) -> "memory_revisions_module.MemoryRevisions":
         if self._revisions is None:
             try:
                 # We need to lazy load the revisions module to handle the
@@ -1138,7 +1144,7 @@ class Memories(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._revisions.MemoryRevisions(self._api_client)
+        return self._revisions.MemoryRevisions(self._api_client)  # type: ignore[no-any-return]
 
     def create(
         self,
@@ -2096,7 +2102,7 @@ class AsyncMemories(_api_module.BaseModule):
     _revisions = None
 
     @property
-    def revisions(self):
+    def revisions(self) -> "memory_revisions_module.AsyncMemoryRevisions":
         if self._revisions is None:
             try:
                 # We need to lazy load the revisions module to handle the
@@ -2110,7 +2116,7 @@ class AsyncMemories(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._revisions.AsyncMemoryRevisions(self._api_client)
+        return self._revisions.AsyncMemoryRevisions(self._api_client)  # type: ignore[no-any-return]
 
     async def create(
         self,
