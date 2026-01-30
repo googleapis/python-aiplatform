@@ -619,12 +619,11 @@ class PromptOptimizer(_api_module.BaseModule):
                 response=response_dict, kwargs=parameter_model.model_dump()
             )
             self._api_client._verify_response(response_value)
-            if (
-                response_value.content is not None
-                and len(response_value.content.parts) > 0
-                and response_value.content.parts[0].text is not None
-            ):
-                return_value.append(response_value.content.parts[0].text)
+            content = response_value.content
+            if content is not None:
+                parts = content.parts
+                if parts and parts[0].text is not None:
+                    return_value.append(parts[0].text)
 
         output = "".join(return_value)
         final_response = types.OptimizeResponse(raw_text_response=output)
@@ -972,12 +971,11 @@ class AsyncPromptOptimizer(_api_module.BaseModule):
                 response=response_dict, kwargs=parameter_model.model_dump()
             )
             self._api_client._verify_response(response_value)
-            if (
-                response_value.content is not None
-                and len(response_value.content.parts) > 0
-                and response_value.content.parts[0].text is not None
-            ):
-                return_value.append(response_value.content.parts[0].text)
+            content = response_value.content
+            if content is not None:
+                parts = content.parts
+                if parts and parts[0].text is not None:
+                    return_value.append(parts[0].text)
 
         output = "".join(return_value)
         final_response = types.OptimizeResponse(raw_text_response=output)

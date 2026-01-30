@@ -998,7 +998,7 @@ class Datasets(_api_module.BaseModule):
             operation=operation,
             timeout_seconds=config.timeout,
         )
-        return response["bigqueryDestination"]
+        return response["bigqueryDestination"]  # type: ignore[no-any-return]
 
     def assess_tuning_resources(
         self,
@@ -1820,7 +1820,7 @@ class AsyncDatasets(_api_module.BaseModule):
             operation=operation,
             timeout_seconds=config.timeout,
         )
-        return response["bigqueryDestination"]
+        return response["bigqueryDestination"]  # type: ignore[no-any-return]
 
     async def assess_tuning_resources(
         self,
