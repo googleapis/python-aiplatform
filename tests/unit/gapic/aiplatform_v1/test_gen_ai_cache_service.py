@@ -4848,7 +4848,12 @@ def test_create_cached_content_rest_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "thought": True,
                     "thought_signature": b"thought_signature_blob",
-                    "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "video_metadata": {
+                        "start_offset": {},
+                        "end_offset": {},
+                        "fps": 0.329,
+                    },
+                    "media_resolution": {"level": 1},
                 }
             ],
         },
@@ -5393,7 +5398,12 @@ def test_update_cached_content_rest_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "thought": True,
                     "thought_signature": b"thought_signature_blob",
-                    "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "video_metadata": {
+                        "start_offset": {},
+                        "end_offset": {},
+                        "fps": 0.329,
+                    },
+                    "media_resolution": {"level": 1},
                 }
             ],
         },
@@ -6800,7 +6810,12 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "thought": True,
                     "thought_signature": b"thought_signature_blob",
-                    "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "video_metadata": {
+                        "start_offset": {},
+                        "end_offset": {},
+                        "fps": 0.329,
+                    },
+                    "media_resolution": {"level": 1},
                 }
             ],
         },
@@ -7381,7 +7396,12 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                     "code_execution_result": {"outcome": 1, "output": "output_value"},
                     "thought": True,
                     "thought_signature": b"thought_signature_blob",
-                    "video_metadata": {"start_offset": {}, "end_offset": {}},
+                    "video_metadata": {
+                        "start_offset": {},
+                        "end_offset": {},
+                        "fps": 0.329,
+                    },
+                    "media_resolution": {"level": 1},
                 }
             ],
         },

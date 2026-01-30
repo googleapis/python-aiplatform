@@ -220,7 +220,55 @@ class Part(proto.Message):
             or file_data.
 
             This field is a member of `oneof`_ ``metadata``.
+        media_resolution (google.cloud.aiplatform_v1.types.Part.MediaResolution):
+            per part media resolution.
+            Media resolution for the input media.
     """
+
+    class MediaResolution(proto.Message):
+        r"""per part media resolution.
+        Media resolution for the input media.
+
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            level (google.cloud.aiplatform_v1.types.Part.MediaResolution.Level):
+                The tokenization quality used for given
+                media.
+
+                This field is a member of `oneof`_ ``value``.
+        """
+
+        class Level(proto.Enum):
+            r"""The media resolution level.
+
+            Values:
+                MEDIA_RESOLUTION_UNSPECIFIED (0):
+                    Media resolution has not been set.
+                MEDIA_RESOLUTION_LOW (1):
+                    Media resolution set to low.
+                MEDIA_RESOLUTION_MEDIUM (2):
+                    Media resolution set to medium.
+                MEDIA_RESOLUTION_HIGH (3):
+                    Media resolution set to high.
+                MEDIA_RESOLUTION_ULTRA_HIGH (4):
+                    Media resolution set to ultra high. This is
+                    for image only.
+            """
+
+            MEDIA_RESOLUTION_UNSPECIFIED = 0
+            MEDIA_RESOLUTION_LOW = 1
+            MEDIA_RESOLUTION_MEDIUM = 2
+            MEDIA_RESOLUTION_HIGH = 3
+            MEDIA_RESOLUTION_ULTRA_HIGH = 4
+
+        level: "Part.MediaResolution.Level" = proto.Field(
+            proto.ENUM,
+            number=1,
+            oneof="value",
+            enum="Part.MediaResolution.Level",
+        )
 
     text: str = proto.Field(
         proto.STRING,
@@ -276,6 +324,11 @@ class Part(proto.Message):
         number=4,
         oneof="metadata",
         message="VideoMetadata",
+    )
+    media_resolution: MediaResolution = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=MediaResolution,
     )
 
 
@@ -333,6 +386,10 @@ class VideoMetadata(proto.Message):
             Optional. The start offset of the video.
         end_offset (google.protobuf.duration_pb2.Duration):
             Optional. The end offset of the video.
+        fps (float):
+            Optional. The frame rate of the video sent to the model. If
+            not specified, the default value is 1.0. The valid range is
+            (0.0, 24.0].
     """
 
     start_offset: duration_pb2.Duration = proto.Field(
@@ -344,6 +401,10 @@ class VideoMetadata(proto.Message):
         proto.MESSAGE,
         number=2,
         message=duration_pb2.Duration,
+    )
+    fps: float = proto.Field(
+        proto.DOUBLE,
+        number=3,
     )
 
 
@@ -505,6 +566,11 @@ class ImageConfig(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        image_output_options (google.cloud.aiplatform_v1.types.ImageConfig.ImageOutputOptions):
+            Optional. The image output format for
+            generated images.
+
+            This field is a member of `oneof`_ ``_image_output_options``.
         aspect_ratio (str):
             Optional. The desired aspect ratio for the
             generated images. The following aspect ratios
@@ -518,11 +584,92 @@ class ImageConfig(proto.Message):
             "21:9".
 
             This field is a member of `oneof`_ ``_aspect_ratio``.
+        person_generation (google.cloud.aiplatform_v1.types.ImageConfig.PersonGeneration):
+            Optional. Controls whether the model can
+            generate people.
+
+            This field is a member of `oneof`_ ``_person_generation``.
+        image_size (str):
+            Optional. Specifies the size of generated images. Supported
+            values are ``1K``, ``2K``, ``4K``. If not specified, the
+            model will use default value ``1K``.
+
+            This field is a member of `oneof`_ ``_image_size``.
     """
 
+    class PersonGeneration(proto.Enum):
+        r"""Enum for controlling the generation of people in images.
+
+        Values:
+            PERSON_GENERATION_UNSPECIFIED (0):
+                The default behavior is unspecified. The
+                model will decide whether to generate images of
+                people.
+            ALLOW_ALL (1):
+                Allows the model to generate images of
+                people, including adults and children.
+            ALLOW_ADULT (2):
+                Allows the model to generate images of
+                adults, but not children.
+            ALLOW_NONE (3):
+                Prevents the model from generating images of
+                people.
+        """
+
+        PERSON_GENERATION_UNSPECIFIED = 0
+        ALLOW_ALL = 1
+        ALLOW_ADULT = 2
+        ALLOW_NONE = 3
+
+    class ImageOutputOptions(proto.Message):
+        r"""The image output format for generated images.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            mime_type (str):
+                Optional. The image format that the output
+                should be saved as.
+
+                This field is a member of `oneof`_ ``_mime_type``.
+            compression_quality (int):
+                Optional. The compression quality of the
+                output image.
+
+                This field is a member of `oneof`_ ``_compression_quality``.
+        """
+
+        mime_type: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        compression_quality: int = proto.Field(
+            proto.INT32,
+            number=2,
+            optional=True,
+        )
+
+    image_output_options: ImageOutputOptions = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        optional=True,
+        message=ImageOutputOptions,
+    )
     aspect_ratio: str = proto.Field(
         proto.STRING,
         number=2,
+        optional=True,
+    )
+    person_generation: PersonGeneration = proto.Field(
+        proto.ENUM,
+        number=3,
+        optional=True,
+        enum=PersonGeneration,
+    )
+    image_size: str = proto.Field(
+        proto.STRING,
+        number=4,
         optional=True,
     )
 
@@ -647,6 +794,31 @@ class GenerationConfig(proto.Message):
             Optional. Routing configuration.
 
             This field is a member of `oneof`_ ``_routing_config``.
+        audio_timestamp (bool):
+            Optional. If enabled, audio timestamps will
+            be included in the request to the model. This
+            can be useful for synchronizing audio with other
+            modalities in the response.
+
+            This field is a member of `oneof`_ ``_audio_timestamp``.
+        response_modalities (MutableSequence[google.cloud.aiplatform_v1.types.GenerationConfig.Modality]):
+            Optional. The modalities of the response. The model will
+            generate a response that includes all the specified
+            modalities. For example, if this is set to
+            ``[TEXT, IMAGE]``, the response will include both text and
+            an image.
+        media_resolution (google.cloud.aiplatform_v1.types.GenerationConfig.MediaResolution):
+            Optional. The token resolution at which input
+            media content is sampled. This is used to
+            control the trade-off between the quality of the
+            response and the number of tokens used to
+            represent the media. A higher resolution allows
+            the model to perceive more detail, which can
+            lead to a more nuanced response, but it will
+            also use more tokens. This does not affect the
+            image dimensions sent to the model.
+
+            This field is a member of `oneof`_ ``_media_resolution``.
         speech_config (google.cloud.aiplatform_v1.types.SpeechConfig):
             Optional. The speech generation config.
 
@@ -661,6 +833,46 @@ class GenerationConfig(proto.Message):
 
             This field is a member of `oneof`_ ``_image_config``.
     """
+
+    class Modality(proto.Enum):
+        r"""The modalities of the response.
+
+        Values:
+            MODALITY_UNSPECIFIED (0):
+                Unspecified modality. Will be processed as
+                text.
+            TEXT (1):
+                Text modality.
+            IMAGE (2):
+                Image modality.
+            AUDIO (3):
+                Audio modality.
+        """
+
+        MODALITY_UNSPECIFIED = 0
+        TEXT = 1
+        IMAGE = 2
+        AUDIO = 3
+
+    class MediaResolution(proto.Enum):
+        r"""Media resolution for the input media.
+
+        Values:
+            MEDIA_RESOLUTION_UNSPECIFIED (0):
+                Media resolution has not been set.
+            MEDIA_RESOLUTION_LOW (1):
+                Media resolution set to low (64 tokens).
+            MEDIA_RESOLUTION_MEDIUM (2):
+                Media resolution set to medium (256 tokens).
+            MEDIA_RESOLUTION_HIGH (3):
+                Media resolution set to high (zoomed
+                reframing with 256 tokens).
+        """
+
+        MEDIA_RESOLUTION_UNSPECIFIED = 0
+        MEDIA_RESOLUTION_LOW = 1
+        MEDIA_RESOLUTION_MEDIUM = 2
+        MEDIA_RESOLUTION_HIGH = 3
 
     class RoutingConfig(proto.Message):
         r"""The configuration for routing the request to a specific
@@ -778,7 +990,34 @@ class GenerationConfig(proto.Message):
                 only applied when enable_thinking is true.
 
                 This field is a member of `oneof`_ ``_thinking_budget``.
+            thinking_level (google.cloud.aiplatform_v1.types.GenerationConfig.ThinkingConfig.ThinkingLevel):
+                Optional. The number of thoughts tokens that
+                the model should generate.
+
+                This field is a member of `oneof`_ ``_thinking_level``.
         """
+
+        class ThinkingLevel(proto.Enum):
+            r"""The thinking level for the model.
+
+            Values:
+                THINKING_LEVEL_UNSPECIFIED (0):
+                    Unspecified thinking level.
+                LOW (1):
+                    Low thinking level.
+                MEDIUM (2):
+                    Medium thinking level.
+                HIGH (3):
+                    High thinking level.
+                MINIMAL (4):
+                    MINIMAL thinking level.
+            """
+
+            THINKING_LEVEL_UNSPECIFIED = 0
+            LOW = 1
+            MEDIUM = 2
+            HIGH = 3
+            MINIMAL = 4
 
         include_thoughts: bool = proto.Field(
             proto.BOOL,
@@ -789,6 +1028,12 @@ class GenerationConfig(proto.Message):
             proto.INT32,
             number=3,
             optional=True,
+        )
+        thinking_level: "GenerationConfig.ThinkingConfig.ThinkingLevel" = proto.Field(
+            proto.ENUM,
+            number=4,
+            optional=True,
+            enum="GenerationConfig.ThinkingConfig.ThinkingLevel",
         )
 
     temperature: float = proto.Field(
@@ -866,6 +1111,22 @@ class GenerationConfig(proto.Message):
         number=17,
         optional=True,
         message=RoutingConfig,
+    )
+    audio_timestamp: bool = proto.Field(
+        proto.BOOL,
+        number=20,
+        optional=True,
+    )
+    response_modalities: MutableSequence[Modality] = proto.RepeatedField(
+        proto.ENUM,
+        number=21,
+        enum=Modality,
+    )
+    media_resolution: MediaResolution = proto.Field(
+        proto.ENUM,
+        number=22,
+        optional=True,
+        enum=MediaResolution,
     )
     speech_config: "SpeechConfig" = proto.Field(
         proto.MESSAGE,
