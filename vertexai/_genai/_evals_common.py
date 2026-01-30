@@ -71,7 +71,7 @@ USER_AUTHOR = _evals_constant.USER_AUTHOR
 
 
 @contextlib.contextmanager
-def _temp_logger_level(logger_name: str, level: int):
+def _temp_logger_level(logger_name: str, level: int) -> None:  # type: ignore[misc]
     """Temporarily sets the level of a logger."""
     logger_instance = logging.getLogger(logger_name)
     original_level = logger_instance.getEffectiveLevel()
@@ -95,7 +95,7 @@ def _get_api_client_with_location(
         location,
         api_client.location,
     )
-    return vertexai.Client(
+    return vertexai.Client(  # type: ignore[no-any-return]
         project=api_client.project,
         location=location,
         credentials=api_client._credentials,
@@ -1798,10 +1798,10 @@ def _convert_evaluation_run_results(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
+) -> Optional[types.EvaluationResult]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return []
+        return None
 
     evals_module = evals.Evals(api_client_=api_client)
     eval_set = evals_module.get_evaluation_set(
@@ -1823,10 +1823,10 @@ async def _convert_evaluation_run_results_async(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
+) -> Optional[types.EvaluationResult]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return []
+        return None
 
     evals_module = evals.AsyncEvals(api_client_=api_client)
     eval_set = await evals_module.get_evaluation_set(

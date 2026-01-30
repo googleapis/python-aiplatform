@@ -617,7 +617,7 @@ class LLMMetricHandler(MetricHandler):
 
     def _add_autorater_config(self, payload: dict[str, Any]) -> None:
         """Adds autorater config to the request payload if specified."""
-        autorater_config = {}
+        autorater_config: dict[str, Any] = {}
         if self.metric.judge_model:
             autorater_config["autorater_model"] = self.metric.judge_model
         if self.metric.judge_model_generation_config:
@@ -625,7 +625,7 @@ class LLMMetricHandler(MetricHandler):
                 self.metric.judge_model_generation_config
             )
         if self.metric.judge_model_sampling_count:
-            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count  # type: ignore[assignment]
+            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count
 
         if not autorater_config:
             return
@@ -989,11 +989,11 @@ class PredefinedMetricHandler(MetricHandler):
             agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
 
-        request_payload = {
+        request_payload: dict[str, Any] = {
             "instance": instance_payload,
         }
 
-        autorater_config = {}
+        autorater_config: dict[str, Any] = {}
         if self.metric.judge_model:
             autorater_config["autorater_model"] = self.metric.judge_model
         if self.metric.judge_model_generation_config:

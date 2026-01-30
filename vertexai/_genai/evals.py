@@ -36,7 +36,7 @@ from . import types
 try:
     from google.adk.agents import LlmAgent
 except ImportError:
-    LlmAgent = None  # type: ignore[assignment]
+    LlmAgent = None
 
 
 logger = logging.getLogger("vertexai_genai.evals")
@@ -1216,10 +1216,10 @@ class Evals(_api_module.BaseModule):
             types.EvaluationDatasetOrDict,
             list[types.EvaluationDatasetOrDict],
         ],
-        metrics: list[types.MetricOrDict] = None,
+        metrics: Optional[list[types.MetricOrDict]] = None,
         location: Optional[str] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
@@ -1625,24 +1625,28 @@ class Evals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        if agent_info and isinstance(agent_info, dict):
-            agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if type(dataset).__name__ == "EvaluationDataset":
+        agent_info_pydantic: types.evals.AgentInfo = types.evals.AgentInfo()
+        if agent_info:
+            if isinstance(agent_info, dict):
+                agent_info_pydantic = types.evals.AgentInfo.model_validate(agent_info)
+            else:
+                agent_info_pydantic = agent_info
+        if isinstance(dataset, types.EvaluationDataset):
             if dataset.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
                 )
-            if (
+            if agent_info_pydantic is not None and (
                 dataset.candidate_name
-                and agent_info
-                and agent_info.name
-                and dataset.candidate_name != agent_info.name
+                and agent_info_pydantic
+                and agent_info_pydantic.name
+                and dataset.candidate_name != agent_info_pydantic.name
             ):
                 logger.warning(
                     "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
                 )
-            elif dataset.candidate_name is None and agent_info:
-                dataset.candidate_name = agent_info.name
+            elif dataset.candidate_name is None and agent_info_pydantic:
+                dataset.candidate_name = agent_info_pydantic.name
             eval_set = _evals_common._create_evaluation_set_from_dataframe(
                 self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
             )
@@ -1656,20 +1660,26 @@ class Evals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        if agent_info:
+        if agent_info_pydantic and agent_info_pydantic.name is not None:
             inference_configs = {}
-            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info.instruction)]
-                    ),
-                    tools=agent_info.tool_declarations,
+            inference_configs[agent_info_pydantic.name] = (
+                types.EvaluationRunInferenceConfig(
+                    agent_config=types.EvaluationRunAgentConfig(
+                        developer_instruction=genai_types.Content(
+                            parts=[
+                                genai_types.Part(text=agent_info_pydantic.instruction)
+                            ]
+                        ),
+                        tools=agent_info_pydantic.tool_declarations,
+                    )
                 )
             )
-            if agent_info.agent_resource_name:
+            if agent_info_pydantic.agent_resource_name:
                 labels = labels or {}
                 labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
+                    agent_info_pydantic.agent_resource_name.split("reasoningEngines/")[
+                        -1
+                    ]
                 )
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
@@ -2487,12 +2497,12 @@ class AsyncEvals(_api_module.BaseModule):
             )
         if agent_info and isinstance(agent_info, dict):
             agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if type(dataset).__name__ == "EvaluationDataset":
+        if isinstance(dataset, types.EvaluationDataset):
             if dataset.eval_dataset_df is None:
                 raise ValueError(
                     "EvaluationDataset must have eval_dataset_df populated."
                 )
-            if (
+            if agent_info is not None and (
                 dataset.candidate_name
                 and agent_info.name
                 and dataset.candidate_name != agent_info.name
@@ -2515,7 +2525,7 @@ class AsyncEvals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        if agent_info:
+        if agent_info and agent_info.name is not None:
             inference_configs = {}
             inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
                 agent_config=types.EvaluationRunAgentConfig(
@@ -2533,7 +2543,7 @@ class AsyncEvals(_api_module.BaseModule):
         if not name:
             name = f"evaluation_run_{uuid.uuid4()}"
 
-        result = await self._create_evaluation_run(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_run(
             name=name,
             display_name=display_name or name,
             data_source=dataset,
@@ -2645,7 +2655,7 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        result = await self._create_evaluation_item(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
@@ -2676,7 +2686,7 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
           The evaluation set.
         """
-        result = await self._create_evaluation_set(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
