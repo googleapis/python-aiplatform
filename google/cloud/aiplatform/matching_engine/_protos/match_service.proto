@@ -3,6 +3,7 @@ syntax = "proto3";
 package google.cloud.aiplatform.container.v1;
 
 import "google/rpc/status.proto";
+import "google/protobuf/struct.proto";
 
 // MatchService is a Google managed service for efficient vector similarity
 // search at scale.
