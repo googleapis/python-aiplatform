@@ -6882,7 +6882,12 @@ def test_delete_rag_corpus_rest_required_fields(
         credentials=ga_credentials.AnonymousCredentials()
     ).delete_rag_corpus._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("force",))
+    assert not set(unset_fields) - set(
+        (
+            "force",
+            "force_delete",
+        )
+    )
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -6934,7 +6939,15 @@ def test_delete_rag_corpus_rest_unset_required_fields():
     )
 
     unset_fields = transport.delete_rag_corpus._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("force",)) & set(("name",)))
+    assert set(unset_fields) == (
+        set(
+            (
+                "force",
+                "forceDelete",
+            )
+        )
+        & set(("name",))
+    )
 
 
 def test_delete_rag_corpus_rest_flattened():
