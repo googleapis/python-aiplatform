@@ -646,6 +646,10 @@ class AdkApp:
         """Initializes the session, and returns the session id."""
         from google.adk.events.event import Event
 
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
+
         session_state = None
         if request.authorizations:
             session_state = {}
@@ -659,7 +663,9 @@ class AdkApp:
             user_id=request.user_id,
             state=session_state,
         )
+        _LOGGER.warning(f"session: {session}")
         if not session:
+            _LOGGER.error("Create session failed.")
             raise RuntimeError("Create session failed.")
         if request.events:
             for event in request.events:
@@ -1157,6 +1163,10 @@ class AdkApp:
         from google.genai import types
         from google.genai.errors import ClientError
 
+        from google.cloud.aiplatform import base
+
+        _LOGGER = base.Logger(__name__)
+
         request = _StreamRunRequest(**json.loads(request_json))
         if not any(
             self._tmpl_attrs.get(service)
@@ -1194,6 +1204,7 @@ class AdkApp:
                     artifact_service=artifact_service,
                     request=request,
                 )
+                _LOGGER.warning(f"Session not found, creating a new session. Session id: {session.id}")
         else:
             # Not providing a session ID will create a new in-memory session.
             session_service = self._tmpl_attrs.get("in_memory_session_service")
