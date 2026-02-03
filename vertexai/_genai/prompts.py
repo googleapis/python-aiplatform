@@ -1267,6 +1267,9 @@ class Prompts(_api_module.BaseModule):
 
         _prompt_management_utils._raise_for_invalid_prompt(prompt)
 
+        if prompt.prompt_data is None:
+            raise ValueError("Prompt data is required to create a prompt.")
+
         prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
             prompt,
             variables=(
@@ -1333,6 +1336,9 @@ class Prompts(_api_module.BaseModule):
             config = types.CreatePromptVersionConfig()
 
         _prompt_management_utils._raise_for_invalid_prompt(prompt)
+
+        if prompt.prompt_data is None:
+            raise ValueError("Prompt data is required to create a prompt.")
 
         if config and config.version_display_name:
             version_name = config.version_display_name
@@ -1405,6 +1411,9 @@ class Prompts(_api_module.BaseModule):
         prompt_dataset_operation: Optional[types.DatasetOperation] = None
 
         response_operation_name = operation.name
+        if response_operation_name is None:
+            raise ValueError("Invalid operation name.")
+
         dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
         operation_id = response_operation_name.split("/")[-1]
 
@@ -1430,7 +1439,7 @@ class Prompts(_api_module.BaseModule):
                 operation_id=operation_id,
             )
             done = (
-                prompt_dataset_operation.done
+                (prompt_dataset_operation.done or False)
                 if hasattr(prompt_dataset_operation, "done")
                 else False
             )
@@ -1447,7 +1456,7 @@ class Prompts(_api_module.BaseModule):
             raise ValueError(
                 f"Error creating prompt version resource: {prompt_dataset_operation.error}"
             )
-        return prompt_dataset_operation.response.get("name")
+        return prompt_dataset_operation.response.get("name")  # type: ignore[return-value]
 
     def get(
         self,
@@ -1565,6 +1574,8 @@ class Prompts(_api_module.BaseModule):
         elif not config:
             config = types.ListPromptsConfig()
         for dataset in self._list_prompts_pager(config=config):
+            if not dataset.name:
+                continue
             prompt_ref = types.PromptRef(
                 model=dataset.model_reference, prompt_id=dataset.name.split("/")[-1]
             )
@@ -1609,6 +1620,12 @@ class Prompts(_api_module.BaseModule):
         for dataset_version in self._list_versions_pager(
             config=config, prompt_id=prompt_id
         ):
+            if (
+                not dataset_version
+                or not dataset_version.model_reference
+                or not dataset_version.name
+            ):
+                continue
             prompt_version_ref = types.PromptVersionRef(
                 model=dataset_version.model_reference,
                 version_id=dataset_version.name.split("/")[-1],
@@ -1618,7 +1635,7 @@ class Prompts(_api_module.BaseModule):
 
     def _wait_for_project_operation(
         self,
-        operation: types.DatasetOperation,
+        operation: genai_types.ProjectOperation,
         timeout: int,
     ) -> None:
         """Waits for a dataset deletion operation to complete.
@@ -1652,10 +1669,12 @@ class Prompts(_api_module.BaseModule):
             time.sleep(sleep_duration)
             operations_module = operations.Operations(api_client_=self._api_client)
 
+            if operation.name is None:
+                raise ValueError("Invalid operation name.")
             operation = operations_module._get(
                 operation_id=operation.name.split("/")[-1],
             )
-            done = operation.done if hasattr(operation, "done") else False
+            done = (operation.done or False) if hasattr(operation, "done") else False
         if hasattr(operation, "error") and operation.error is not None:
             raise ValueError(f"Error in delete operation: {operation.error}")
 
@@ -1738,7 +1757,7 @@ class Prompts(_api_module.BaseModule):
         )
         self._wait_for_project_operation(
             operation=restore_prompt_operation,
-            timeout=config.timeout if config else 90,
+            timeout=90,
         )
         dataset_version_resource = self._get_dataset_version_resource(
             dataset_id=prompt_id,
@@ -2008,12 +2027,11 @@ class Prompts(_api_module.BaseModule):
                 response=response_dict, kwargs=parameter_model.model_dump()
             )
             self._api_client._verify_response(response_value)
-            if (
-                response_value.content is not None
-                and len(response_value.content.parts) > 0
-                and response_value.content.parts[0].text is not None
-            ):
-                return_value.append(response_value.content.parts[0].text)
+            content = response_value.content
+            if content is not None:
+                parts = content.parts
+                if parts and parts[0].text is not None:
+                    return_value.append(parts[0].text)
 
         output = "".join(return_value)
         final_response = types.OptimizeResponse(raw_text_response=output)
@@ -2869,6 +2887,9 @@ class AsyncPrompts(_api_module.BaseModule):
 
         _prompt_management_utils._raise_for_invalid_prompt(prompt)
 
+        if prompt.prompt_data is None:
+            raise ValueError("Prompt data is required to create a prompt.")
+
         prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
             prompt,
             variables=(
@@ -2935,6 +2956,9 @@ class AsyncPrompts(_api_module.BaseModule):
             config = types.CreatePromptVersionConfig()
 
         _prompt_management_utils._raise_for_invalid_prompt(prompt)
+
+        if prompt.prompt_data is None:
+            raise ValueError("Prompt data is required to create a prompt.")
 
         if config and config.version_display_name:
             version_name = config.version_display_name
@@ -3007,6 +3031,9 @@ class AsyncPrompts(_api_module.BaseModule):
         prompt_dataset_operation: Optional[types.DatasetOperation] = None
 
         response_operation_name = operation.name
+        if response_operation_name is None:
+            raise ValueError("Invalid operation name.")
+
         dataset_id = response_operation_name.split("/datasets/")[1].split("/")[0]
         operation_id = response_operation_name.split("/")[-1]
 
@@ -3032,7 +3059,7 @@ class AsyncPrompts(_api_module.BaseModule):
                 operation_id=operation_id,
             )
             done = (
-                prompt_dataset_operation.done
+                (prompt_dataset_operation.done or False)
                 if hasattr(prompt_dataset_operation, "done")
                 else False
             )
@@ -3049,7 +3076,7 @@ class AsyncPrompts(_api_module.BaseModule):
             raise ValueError(
                 f"Error creating prompt version resource: {prompt_dataset_operation.error}"
             )
-        return prompt_dataset_operation.response.get("name")
+        return prompt_dataset_operation.response.get("name")  # type: ignore[return-value]
 
     async def get(
         self,
@@ -3072,13 +3099,6 @@ class AsyncPrompts(_api_module.BaseModule):
             prompt_dataset_resource,
         )
         prompt._dataset = prompt_dataset_resource
-
-        if config and config.version_id:
-            prompt_version_resource = await self._get_dataset_version_resource(
-                dataset_id=prompt_id,
-                dataset_version_id=config.version_id,
-            )
-            prompt._dataset_version = prompt_version_resource
 
         return prompt
 
@@ -3116,7 +3136,7 @@ class AsyncPrompts(_api_module.BaseModule):
 
     async def _wait_for_project_operation(
         self,
-        operation: types.DatasetOperation,
+        operation: genai_types.ProjectOperation,
         timeout: int,
     ) -> None:
         """Waits for a dataset deletion operation to complete.
@@ -3150,10 +3170,12 @@ class AsyncPrompts(_api_module.BaseModule):
             await asyncio.sleep(sleep_duration)
             operations_module = operations.AsyncOperations(api_client_=self._api_client)
 
+            if operation.name is None:
+                raise ValueError("Invalid operation name.")
             operation = await operations_module._get(
                 operation_id=operation.name.split("/")[-1],
             )
-            done = operation.done if hasattr(operation, "done") else False
+            done = (operation.done or False) if hasattr(operation, "done") else False
         if hasattr(operation, "error") and operation.error is not None:
             raise ValueError(f"Error in delete operation: {operation.error}")
 
@@ -3345,7 +3367,7 @@ class AsyncPrompts(_api_module.BaseModule):
         )
         await self._wait_for_project_operation(
             operation=restore_prompt_operation,
-            timeout=config.timeout if config else 90,
+            timeout=90,
         )
         dataset_version_resource = await self._get_dataset_version_resource(
             dataset_id=prompt_id,
@@ -3524,12 +3546,11 @@ class AsyncPrompts(_api_module.BaseModule):
                 response=response_dict, kwargs=parameter_model.model_dump()
             )
             self._api_client._verify_response(response_value)
-            if (
-                response_value.content is not None
-                and len(response_value.content.parts) > 0
-                and response_value.content.parts[0].text is not None
-            ):
-                return_value.append(response_value.content.parts[0].text)
+            content = response_value.content
+            if content is not None:
+                parts = content.parts
+                if parts and parts[0].text is not None:
+                    return_value.append(parts[0].text)
 
         output = "".join(return_value)
         final_response = types.OptimizeResponse(raw_text_response=output)
