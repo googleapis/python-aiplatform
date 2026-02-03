@@ -6978,6 +6978,17 @@ def test_append_event_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -9189,6 +9200,17 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",

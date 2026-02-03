@@ -1206,6 +1206,7 @@ from .types.tool import FunctionResponseFileData
 from .types.tool import FunctionResponsePart
 from .types.tool import GoogleMaps
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import PartialArg
 from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
 from .types.tool import RetrievalConfig
@@ -2237,6 +2238,7 @@ __all__ = (
     "PairwiseSummarizationQualityResult",
     "PairwiseSummarizationQualitySpec",
     "Part",
+    "PartialArg",
     "PartnerModelTuningSpec",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
