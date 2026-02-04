@@ -4569,7 +4569,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 request (~.dataset_service.GetDatasetRequest):
                     The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
-                Next ID: 4
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -4720,7 +4719,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 request (~.dataset_service.GetDatasetVersionRequest):
                     The request object. Request message for
                 [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
-                Next ID: 4
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
