@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.136.0](https://github.com/googleapis/python-aiplatform/compare/v1.135.0...v1.136.0) (2026-02-04)
+
+
+### Features
+
+* Add `fps` to message `VideoMetadata` ([157381a](https://github.com/googleapis/python-aiplatform/commit/157381a3c402fdca0c226b4f4b3fa4a2b17a2cf9))
+* Add agent_card to agent engine spec ([d685d81](https://github.com/googleapis/python-aiplatform/commit/d685d8193eea8123f7de933213bd8487faf03f02))
+* Force-delete for RagCorpora, ignoring any external errors and ensuring deletion of the RagCorpus ([157381a](https://github.com/googleapis/python-aiplatform/commit/157381a3c402fdca0c226b4f4b3fa4a2b17a2cf9))
+* Update data types from discovery doc. ([a5748fd](https://github.com/googleapis/python-aiplatform/commit/a5748fd4f09239e437cdf11efb24d22746b35174))
+
+
+### Bug Fixes
+
+* Support custom credentials in RAG.upload_file ([66c4d85](https://github.com/googleapis/python-aiplatform/commit/66c4d85f51a9fb5ca0afc23cec9b20850e7f6f3e)), closes [#4986](https://github.com/googleapis/python-aiplatform/issues/4986)
+* Test fix internal ([1bbf7bb](https://github.com/googleapis/python-aiplatform/commit/1bbf7bbd0725a4150558c7cc2980203697f8dafa))
+
 ## [1.135.0](https://github.com/googleapis/python-aiplatform/compare/v1.134.0...v1.135.0) (2026-01-27)
 
 
