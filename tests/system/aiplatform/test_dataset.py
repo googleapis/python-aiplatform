@@ -19,6 +19,7 @@ import os
 import uuid
 import pytest
 import importlib
+import logging
 
 import pandas as pd
 import re
@@ -162,7 +163,12 @@ class TestDataset(e2e_base.TestEndToEnd):
 
         yield bucket
 
-        bucket.delete(force=True)
+        try:
+            blobs = list(bucket.list_blobs())
+            bucket.delete_blobs(blobs)
+            bucket.delete()
+        except Exception as e:
+            logging.exception(f"Failed to cleanup bucket {new_staging_bucket}: {e}")
 
     @pytest.fixture()
     def dataset_gapic_client(self):
