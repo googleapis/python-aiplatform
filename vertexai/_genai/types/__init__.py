@@ -29,6 +29,7 @@ from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
 from .common import _CreateAgentEngineSessionRequestParameters
+from .common import _CreateAgentEngineTaskRequestParameters
 from .common import _CreateDatasetParameters
 from .common import _CreateDatasetVersionParameters
 from .common import _CreateEvaluationItemParameters
@@ -58,6 +59,7 @@ from .common import _GetAgentEngineSandboxOperationParameters
 from .common import _GetAgentEngineSandboxRequestParameters
 from .common import _GetAgentEngineSessionOperationParameters
 from .common import _GetAgentEngineSessionRequestParameters
+from .common import _GetAgentEngineTaskRequestParameters
 from .common import _GetCustomJobParameters
 from .common import _GetCustomJobParameters
 from .common import _GetDatasetOperationParameters
@@ -77,6 +79,7 @@ from .common import _ListAgentEngineSessionsRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListMultimodalDatasetsRequestParameters
+from .common import _ListReasoningEngineTasksRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
@@ -89,6 +92,9 @@ from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
 from .common import _UpdateMultimodalDatasetParameters
+from .common import A2aTask
+from .common import A2aTaskDict
+from .common import A2aTaskOrDict
 from .common import AcceleratorType
 from .common import AgentEngine
 from .common import AgentEngineConfig
@@ -199,6 +205,9 @@ from .common import CreateAgentEngineSandboxConfigOrDict
 from .common import CreateAgentEngineSessionConfig
 from .common import CreateAgentEngineSessionConfigDict
 from .common import CreateAgentEngineSessionConfigOrDict
+from .common import CreateAgentEngineTaskConfig
+from .common import CreateAgentEngineTaskConfigDict
+from .common import CreateAgentEngineTaskConfigOrDict
 from .common import CreateDatasetConfig
 from .common import CreateDatasetConfigDict
 from .common import CreateDatasetConfigOrDict
@@ -453,6 +462,9 @@ from .common import GetAgentEngineSandboxConfigOrDict
 from .common import GetAgentEngineSessionConfig
 from .common import GetAgentEngineSessionConfigDict
 from .common import GetAgentEngineSessionConfigOrDict
+from .common import GetAgentEngineTaskConfig
+from .common import GetAgentEngineTaskConfigDict
+from .common import GetAgentEngineTaskConfigOrDict
 from .common import GetDatasetOperationConfig
 from .common import GetDatasetOperationConfigDict
 from .common import GetDatasetOperationConfigOrDict
@@ -529,6 +541,12 @@ from .common import ListReasoningEnginesResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
+from .common import ListReasoningEngineTasksConfig
+from .common import ListReasoningEngineTasksConfigDict
+from .common import ListReasoningEngineTasksConfigOrDict
+from .common import ListReasoningEngineTasksResponse
+from .common import ListReasoningEngineTasksResponseDict
+from .common import ListReasoningEngineTasksResponseOrDict
 from .common import LLMBasedMetricSpec
 from .common import LLMBasedMetricSpecDict
 from .common import LLMBasedMetricSpecOrDict
@@ -1047,6 +1065,21 @@ from .common import WorkerPoolSpecDict
 from .common import WorkerPoolSpecOrDict
 
 __all__ = [
+    "GetAgentEngineTaskConfig",
+    "GetAgentEngineTaskConfigDict",
+    "GetAgentEngineTaskConfigOrDict",
+    "A2aTask",
+    "A2aTaskDict",
+    "A2aTaskOrDict",
+    "ListReasoningEngineTasksConfig",
+    "ListReasoningEngineTasksConfigDict",
+    "ListReasoningEngineTasksConfigOrDict",
+    "ListReasoningEngineTasksResponse",
+    "ListReasoningEngineTasksResponseDict",
+    "ListReasoningEngineTasksResponseOrDict",
+    "CreateAgentEngineTaskConfig",
+    "CreateAgentEngineTaskConfigDict",
+    "CreateAgentEngineTaskConfigOrDict",
     "CreateEvaluationItemConfig",
     "CreateEvaluationItemConfigDict",
     "CreateEvaluationItemConfigOrDict",
@@ -1981,6 +2014,9 @@ __all__ = [
     "MessageDict",
     "Importance",
     "ParsedResponseUnion",
+    "_GetAgentEngineTaskRequestParameters",
+    "_ListReasoningEngineTasksRequestParameters",
+    "_CreateAgentEngineTaskRequestParameters",
     "_CreateEvaluationItemParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
