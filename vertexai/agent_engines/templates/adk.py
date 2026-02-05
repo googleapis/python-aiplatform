@@ -781,6 +781,10 @@ class AdkApp:
                 os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
             if "GOOGLE_CLOUD_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        agent_engine_location = os.environ.get(
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",  # the runtime env var (if set)
+            location,  # the location set in the AdkApp template
+        )
         express_mode_api_key = self._tmpl_attrs.get("express_mode_api_key")
         if express_mode_api_key and not project:
             os.environ["GOOGLE_API_KEY"] = express_mode_api_key
@@ -868,7 +872,7 @@ class AdkApp:
                 # environment variable when initializing the session service.
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
             except (ImportError, AttributeError):
@@ -880,7 +884,7 @@ class AdkApp:
                 # environment variable when initializing the session service.
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
 
@@ -902,7 +906,7 @@ class AdkApp:
                 # environment variable when initializing the memory service.
                 self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
             except (ImportError, AttributeError):
@@ -914,7 +918,7 @@ class AdkApp:
                 # environment variable when initializing the memory service.
                 self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
         else:
