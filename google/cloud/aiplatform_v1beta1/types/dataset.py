@@ -42,8 +42,9 @@ class Dataset(proto.Message):
 
     Attributes:
         name (str):
-            Output only. Identifier. The resource name of
-            the Dataset.
+            Output only. Identifier. The resource name of the Dataset.
+            Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
         display_name (str):
             Required. The user-defined name of the
             Dataset. The name can be up to 128 characters
