@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.136.1](https://github.com/googleapis/python-aiplatform/compare/v1.136.0...v1.136.1) (2026-02-06)
+
+
+### Bug Fixes
+
+* Use GOOGLE_CLOUD_AGENT_ENGINE_LOCATION env var for service locations. ([04aacbb](https://github.com/googleapis/python-aiplatform/commit/04aacbb76c0ce0280daf5a4cd4fd5496e8d3f5e1))
+
 ## [1.136.0](https://github.com/googleapis/python-aiplatform/compare/v1.135.0...v1.136.0) (2026-02-04)
 
 
