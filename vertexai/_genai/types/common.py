@@ -420,6 +420,249 @@ class OptimizationMethod(_common.CaseInSensitiveEnum):
     """The data driven prompt optimizer designer for prompts from Android core API."""
 
 
+class GetAgentEngineTaskConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineTaskConfigOrDict = Union[
+    GetAgentEngineTaskConfig, GetAgentEngineTaskConfigDict
+]
+
+
+class _GetAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine task."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine task."""
+    )
+    config: Optional[GetAgentEngineTaskConfig] = Field(default=None, description="""""")
+
+
+class _GetAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine task."""
+
+    name: Optional[str]
+    """Name of the agent engine task."""
+
+    config: Optional[GetAgentEngineTaskConfigDict]
+    """"""
+
+
+_GetAgentEngineTaskRequestParametersOrDict = Union[
+    _GetAgentEngineTaskRequestParameters, _GetAgentEngineTaskRequestParametersDict
+]
+
+
+class A2aTask(_common.BaseModel):
+    """A task."""
+
+    pass
+
+
+class A2aTaskDict(TypedDict, total=False):
+    """A task."""
+
+    pass
+
+
+A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
+
+
+class ListReasoningEngineTasksConfig(_common.BaseModel):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListReasoningEngineTasksConfigDict(TypedDict, total=False):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListReasoningEngineTasksConfigOrDict = Union[
+    ListReasoningEngineTasksConfig, ListReasoningEngineTasksConfigDict
+]
+
+
+class _ListReasoningEngineTasksRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListReasoningEngineTasksConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListReasoningEngineTasksRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListReasoningEngineTasksConfigDict]
+    """"""
+
+
+_ListReasoningEngineTasksRequestParametersOrDict = Union[
+    _ListReasoningEngineTasksRequestParameters,
+    _ListReasoningEngineTasksRequestParametersDict,
+]
+
+
+class ListReasoningEngineTasksResponse(_common.BaseModel):
+    """Response for listing agent engine tasks."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    tasks: Optional[list[A2aTask]] = Field(
+        default=None, description="""List of agent engine tasks."""
+    )
+
+
+class ListReasoningEngineTasksResponseDict(TypedDict, total=False):
+    """Response for listing agent engine tasks."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    tasks: Optional[list[A2aTaskDict]]
+    """List of agent engine tasks."""
+
+
+ListReasoningEngineTasksResponseOrDict = Union[
+    ListReasoningEngineTasksResponse, ListReasoningEngineTasksResponseDict
+]
+
+
+class CreateAgentEngineTaskConfig(_common.BaseModel):
+    """Config for creating a Session."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the task."""
+    )
+    session_state: Optional[dict[str, Any]] = Field(
+        default=None, description="""Task state which stores key conversation points."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this resource.
+
+      The expiration time is computed: now + TTL.""",
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input.""",
+    )
+
+
+class CreateAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for creating a Session."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The display name of the task."""
+
+    session_state: Optional[dict[str, Any]]
+    """Task state which stores key conversation points."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this resource.
+
+      The expiration time is computed: now + TTL."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output, regardless of what `expiration` was sent on input."""
+
+
+CreateAgentEngineTaskConfigOrDict = Union[
+    CreateAgentEngineTaskConfig, CreateAgentEngineTaskConfigDict
+]
+
+
+class _CreateAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Tasks."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to create the task under.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""The user ID of the task."""
+    )
+    config: Optional[CreateAgentEngineTaskConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Tasks."""
+
+    name: Optional[str]
+    """Name of the agent engine to create the task under."""
+
+    user_id: Optional[str]
+    """The user ID of the task."""
+
+    config: Optional[CreateAgentEngineTaskConfigDict]
+    """"""
+
+
+_CreateAgentEngineTaskRequestParametersOrDict = Union[
+    _CreateAgentEngineTaskRequestParameters, _CreateAgentEngineTaskRequestParametersDict
+]
+
+
 class CreateEvaluationItemConfig(_common.BaseModel):
     """Config to create an evaluation item."""
 
