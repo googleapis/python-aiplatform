@@ -200,6 +200,8 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
                         aiplatform.Endpoint,
                         aiplatform.Featurestore,
                         aiplatform.MatchingEngineIndexEndpoint,
+                        aiplatform.BatchPredictionJob,
+                        aiplatform.ModelDeploymentMonitoringJob,
                     ),
                 ):
                     # For endpoint, undeploy model then delete endpoint

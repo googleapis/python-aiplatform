@@ -77,11 +77,15 @@ my_script = {
 }
 
 
+@pytest.mark.usefixtures(
+    "prepare_bigquery_dataset",
+    "delete_bigquery_dataset",
+)
 class TestRayData(e2e_base.TestEndToEnd):
     _temp_prefix = "temp-ray-data"
 
     @pytest.mark.parametrize("cluster_ray_version", ["2.33", "2.42", "2.47"])
-    def test_ray_data(self, cluster_ray_version):
+    def test_ray_data(self, cluster_ray_version, shared_state):
         head_node_type = vertex_ray.Resources()
         worker_node_types = [
             vertex_ray.Resources(),
@@ -146,6 +150,14 @@ class TestRayData(e2e_base.TestEndToEnd):
                     print(job_id, "job logs:")
                     print(client.get_job_info(job_id).message)
                     raise RuntimeError("The Ray Job encountered an error and failed")
+
+        # Delete the bigquery dataset
+        version_suffix = cluster_ray_version.replace(".", "")
+        dataset_id = f"bugbashbq1.system_test_ray{version_suffix}_write"
+        bigquery_client = shared_state["bigquery_client"]
+        bigquery_client.delete_dataset(
+            dataset_id, delete_contents=True, not_found_ok=True
+        )
 
         vertex_ray.delete_ray_cluster(cluster_resource_name)
         # Ensure cluster was deleted
