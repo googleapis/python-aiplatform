@@ -1414,6 +1414,7 @@ def test_create_schedule(request_type, transport: str = "grpc"):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -1434,6 +1435,7 @@ def test_create_schedule(request_type, transport: str = "grpc"):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -1567,6 +1569,7 @@ async def test_create_schedule_async(
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -1587,6 +1590,7 @@ async def test_create_schedule_async(
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -2103,6 +2107,7 @@ def test_get_schedule(request_type, transport: str = "grpc"):
             started_run_count=1843,
             state=schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -2123,6 +2128,7 @@ def test_get_schedule(request_type, transport: str = "grpc"):
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -2256,6 +2262,7 @@ async def test_get_schedule_async(
                 started_run_count=1843,
                 state=schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -2276,6 +2283,7 @@ async def test_get_schedule_async(
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -3606,6 +3614,7 @@ def test_update_schedule(request_type, transport: str = "grpc"):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -3626,6 +3635,7 @@ def test_update_schedule(request_type, transport: str = "grpc"):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -3755,6 +3765,7 @@ async def test_update_schedule_async(
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -3775,6 +3786,7 @@ async def test_update_schedule_async(
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -5574,6 +5586,7 @@ async def test_create_schedule_empty_call_grpc_asyncio():
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -5633,6 +5646,7 @@ async def test_get_schedule_empty_call_grpc_asyncio():
                 started_run_count=1843,
                 state=schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -5740,6 +5754,7 @@ async def test_update_schedule_empty_call_grpc_asyncio():
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -6162,6 +6177,7 @@ def test_create_schedule_rest_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -6248,6 +6264,7 @@ def test_create_schedule_rest_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -6273,6 +6290,7 @@ def test_create_schedule_rest_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -6513,6 +6531,7 @@ def test_get_schedule_rest_call_success(request_type):
             started_run_count=1843,
             state=schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -6538,6 +6557,7 @@ def test_get_schedule_rest_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -7359,6 +7379,7 @@ def test_update_schedule_rest_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -7445,6 +7466,7 @@ def test_update_schedule_rest_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -7470,6 +7492,7 @@ def test_update_schedule_rest_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -8746,6 +8769,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -8832,6 +8856,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -8859,6 +8884,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -9135,6 +9161,7 @@ async def test_get_schedule_rest_asyncio_call_success(request_type):
             started_run_count=1843,
             state=schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -9162,6 +9189,7 @@ async def test_get_schedule_rest_asyncio_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -10055,6 +10083,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -10141,6 +10170,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -10168,6 +10198,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
