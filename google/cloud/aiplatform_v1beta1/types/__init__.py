@@ -704,6 +704,8 @@ from .io import (
     SharePointSources,
     SlackSource,
     TFRecordDestination,
+    VertexMultimodalDatasetDestination,
+    VertexMultimodalDatasetSource,
 )
 from .job_service import (
     CancelBatchPredictionJobRequest,
@@ -2048,6 +2050,8 @@ __all__ = (
     "SharePointSources",
     "SlackSource",
     "TFRecordDestination",
+    "VertexMultimodalDatasetDestination",
+    "VertexMultimodalDatasetSource",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
