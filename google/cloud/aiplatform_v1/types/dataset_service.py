@@ -112,7 +112,6 @@ class CreateDatasetOperationMetadata(proto.Message):
 class GetDatasetRequest(proto.Message):
     r"""Request message for
     [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
-    Next ID: 4
 
     Attributes:
         name (str):
@@ -489,7 +488,6 @@ class DeleteDatasetVersionRequest(proto.Message):
 class GetDatasetVersionRequest(proto.Message):
     r"""Request message for
     [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
-    Next ID: 4
 
     Attributes:
         name (str):
