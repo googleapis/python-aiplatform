@@ -116,7 +116,8 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         # Get the staging bucket used for testing and wipe it
         bucket = shared_state["bucket"]
-        bucket.delete(force=True)
+        bucket.delete_blobs(bucket.list_blobs())
+        bucket.delete()
 
     @pytest.fixture(scope="class")
     def prepare_bigquery_dataset(

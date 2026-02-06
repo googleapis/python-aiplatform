@@ -8,8 +8,6 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'vertexai/_genai/**'
 
 jobs:
   genai-mypy:
