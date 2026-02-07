@@ -2506,6 +2506,14 @@ class GenerationResponse:
             for raw_candidate in self._raw_response.candidates
         ]
 
+    @staticmethod
+    def _strip_code_fences(text: str) -> str:
+        """
+        Removes triple-backtick fenced blocks, including language tags.
+        """
+        fenced = re.match(r"```(?:\w+)?\n(.*)\n```", text, re.DOTALL)
+        return fenced.group(1).strip() if fenced else text.strip()
+
     # GenerationPart properties
     @property
     def text(self) -> str:
@@ -2521,7 +2529,16 @@ class GenerationResponse:
                 "Response:\n" + _dict_to_pretty_string(self.to_dict())
             )
         try:
-            return self.candidates[0].text
+            # Response's text is stored in content.parts[*].text
+            parts = self.candidates[0]._raw_candidate.content.parts
+            text = "".join(
+                part.text for part in parts if hasattr(part, "text") and part.text
+            )
+
+            if not text:
+                raise ValueError("Candidate has no text parts.")
+
+            return self._strip_code_fences(text)
         except (ValueError, AttributeError) as e:
             # Enrich the error message with the whole Response.
             # The Candidate object does not have full information.
