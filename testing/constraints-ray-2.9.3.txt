@@ -1,4 +1,6 @@
 ray==2.9.3
+numpy<2.0.0  # Ray 2.9.3 not compatible with NumPy 2.x
+pyarrow>=6.0.1,<=14.0.2
 # Below constraints are inherited from constraints-3.10.txt
 setuptools<70.0.0
 google-api-core
