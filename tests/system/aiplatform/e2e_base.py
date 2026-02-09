@@ -116,7 +116,7 @@ class TestEndToEnd(metaclass=abc.ABCMeta):
 
         # Get the staging bucket used for testing and wipe it
         bucket = shared_state["bucket"]
-        bucket.delete_blobs(bucket.list_blobs())
+        bucket.delete_blobs(list(bucket.list_blobs()))
         bucket.delete()
 
     @pytest.fixture(scope="class")
