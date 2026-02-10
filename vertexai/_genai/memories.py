@@ -20,7 +20,7 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, Iterator, Optional, Union
+from typing import Any, Iterator, List, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -316,6 +316,13 @@ def _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
 
     if getv(from_object, ["filter"]) is not None:
         setv(to_object, ["filter"], getv(from_object, ["filter"]))
+
+    if getv(from_object, ["filter_groups"]) is not None:
+        setv(
+            to_object,
+            ["filterGroups"],
+            [item for item in getv(from_object, ["filter_groups"])],
+        )
 
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
@@ -1072,7 +1079,8 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[list[types.MemoryConjunctionFilterOrDict]] = None,
         force: Optional[bool] = None,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -1083,6 +1091,7 @@ class Memories(_api_module.BaseModule):
         parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )
@@ -1384,7 +1393,8 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[List[types.MemoryConjunctionFilter]] = None,
         force: bool = False,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -1394,7 +1404,11 @@ class Memories(_api_module.BaseModule):
             name (str):
                 Required. The name of the Agent Engine to purge memories from.
             filter (str):
-                Required. The standard list filter to determine which memories to purge.
+                Optional. The standard list filter to determine which memories to purge.
+            filter_groups (list[MemoryConjunctionFilter]):
+                Optional. Metadata filters that will be applied to the memories'
+                `metadata` using OR logic. Filters are defined using disjunctive
+                normal form (OR of ANDs).
             force (bool):
                 Optional. Whether to force the purge operation. If false, the
                 operation will be staged but not executed.
@@ -1412,6 +1426,7 @@ class Memories(_api_module.BaseModule):
         operation = self._purge(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )
@@ -2042,7 +2057,8 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[list[types.MemoryConjunctionFilterOrDict]] = None,
         force: Optional[bool] = None,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -2053,6 +2069,7 @@ class AsyncMemories(_api_module.BaseModule):
         parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )
@@ -2356,7 +2373,8 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[List[types.MemoryConjunctionFilter]] = None,
         force: bool = False,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -2366,7 +2384,11 @@ class AsyncMemories(_api_module.BaseModule):
             name (str):
                 Required. The name of the Agent Engine to purge memories from.
             filter (str):
-                Required. The standard list filter to determine which memories to purge.
+                Optional. The standard list filter to determine which memories to purge.
+            filter_groups (list[MemoryConjunctionFilter]):
+                Optional. Metadata filters that will be applied to the memories'
+                `metadata` using OR logic. Filters are defined using disjunctive
+                normal form (OR of ANDs).
             force (bool):
                 Optional. Whether to force the purge operation. If false, the
                 operation will be staged but not executed.
@@ -2384,6 +2406,7 @@ class AsyncMemories(_api_module.BaseModule):
         operation = await self._purge(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )

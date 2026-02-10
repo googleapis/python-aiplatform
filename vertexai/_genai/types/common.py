@@ -8447,6 +8447,23 @@ class _PurgeAgentEngineMemoriesRequestParameters(_common.BaseModel):
         description="""The standard list filter to determine which memories to purge.
       More detail in [AIP-160](https://google.aip.dev/160).""",
     )
+    filter_groups: Optional[list[MemoryConjunctionFilter]] = Field(
+        default=None,
+        description="""Metadata filters that will be applied to the memories'
+      `metadata` using OR logic. Filters are defined using disjunctive normal
+      form (OR of ANDs).
+
+      For example:
+      `filter_groups: [{filters: [{key: "author", value: {string_value: "agent
+      `123"}, op: EQUAL}]}, {filters: [{key: "label", value: {string_value:
+      "travel"}, op: EQUAL}, {key: "author", value: {string_value: "agent 321"},
+      op: EQUAL}]}]`
+
+      would be equivalent to the logical expression:
+      `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
+      metadata.author = "agent 321"))`.
+      """,
+    )
     force: Optional[bool] = Field(
         default=None,
         description="""If true, the memories will actually be purged. If false, the purge request will be validated but not executed.""",
@@ -8465,6 +8482,22 @@ class _PurgeAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
     filter: Optional[str]
     """The standard list filter to determine which memories to purge.
       More detail in [AIP-160](https://google.aip.dev/160)."""
+
+    filter_groups: Optional[list[MemoryConjunctionFilterDict]]
+    """Metadata filters that will be applied to the memories'
+      `metadata` using OR logic. Filters are defined using disjunctive normal
+      form (OR of ANDs).
+
+      For example:
+      `filter_groups: [{filters: [{key: "author", value: {string_value: "agent
+      `123"}, op: EQUAL}]}, {filters: [{key: "label", value: {string_value:
+      "travel"}, op: EQUAL}, {key: "author", value: {string_value: "agent 321"},
+      op: EQUAL}]}]`
+
+      would be equivalent to the logical expression:
+      `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
+      metadata.author = "agent 321"))`.
+      """
 
     force: Optional[bool]
     """If true, the memories will actually be purged. If false, the purge request will be validated but not executed."""
