@@ -956,6 +956,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_framework=config.agent_framework,
             python_version=config.python_version,
             build_options=config.build_options,
+            image_spec=config.image_spec,
         )
         operation = self._create(config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -1012,6 +1013,9 @@ class AgentEngines(_api_module.BaseModule):
         requirements_file: Optional[str] = None,
         sys_version: str,
         build_options: Optional[dict[str, list[str]]] = None,
+        image_spec: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
+        ] = None,
     ) -> None:
         """Sets source_code_spec for agent engine inside the `spec`."""
         source_code_spec = types.ReasoningEngineSpecSourceCodeSpecDict()
@@ -1035,7 +1039,25 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError(
                 "Please specify one of `source_packages` or `developer_connect_source`."
             )
-
+        if class_methods is None:
+            raise ValueError(
+                "`class_methods` must be specified if `source_packages` or `developer_connect_source` is specified."
+            )
+        update_masks.append("spec.class_methods")
+        class_methods_spec_list = (
+            _agent_engines_utils._class_methods_to_class_methods_spec(
+                class_methods=class_methods
+            )
+        )
+        spec["class_methods"] = [
+            _agent_engines_utils._to_dict(class_method_spec)
+            for class_method_spec in class_methods_spec_list
+        ]
+        if image_spec is not None:
+            update_masks.append("spec.source_code_spec.image_spec")
+            source_code_spec["image_spec"] = image_spec
+            spec["source_code_spec"] = source_code_spec
+            return
         update_masks.append("spec.source_code_spec.python_spec.version")
         python_spec: types.ReasoningEngineSpecSourceCodeSpecPythonSpecDict = {
             "version": sys_version,
@@ -1057,21 +1079,6 @@ class AgentEngines(_api_module.BaseModule):
             python_spec["requirements_file"] = requirements_file
         source_code_spec["python_spec"] = python_spec
         spec["source_code_spec"] = source_code_spec
-
-        if class_methods is None:
-            raise ValueError(
-                "`class_methods` must be specified if `source_packages` or `developer_connect_source` is specified."
-            )
-        update_masks.append("spec.class_methods")
-        class_methods_spec_list = (
-            _agent_engines_utils._class_methods_to_class_methods_spec(
-                class_methods=class_methods
-            )
-        )
-        spec["class_methods"] = [
-            _agent_engines_utils._to_dict(class_method_spec)
-            for class_method_spec in class_methods_spec_list
-        ]
 
     def _set_package_spec(
         self,
@@ -1200,6 +1207,9 @@ class AgentEngines(_api_module.BaseModule):
         agent_framework: Optional[str] = None,
         python_version: Optional[str] = None,
         build_options: Optional[dict[str, list[str]]] = None,
+        image_spec: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
+        ] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1285,6 +1295,7 @@ class AgentEngines(_api_module.BaseModule):
                 requirements_file=requirements_file,
                 sys_version=sys_version,
                 build_options=build_options,
+                image_spec=image_spec,
             )
 
         if agent_engine_spec is not None:

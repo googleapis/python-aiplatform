@@ -5118,6 +5118,34 @@ ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
+    """The image spec for building an image (within a single build step).
+
+    It is based on the config file (i.e. Dockerfile) in the source directory.
+    """
+
+    build_args: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Build arguments to be used. They will be passed through --build-arg flags.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecImageSpecDict(TypedDict, total=False):
+    """The image spec for building an image (within a single build step).
+
+    It is based on the config file (i.e. Dockerfile) in the source directory.
+    """
+
+    build_args: Optional[dict[str, str]]
+    """Optional. Build arguments to be used. They will be passed through --build-arg flags."""
+
+
+ReasoningEngineSpecSourceCodeSpecImageSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecImageSpec,
+    ReasoningEngineSpecSourceCodeSpecImageSpecDict,
+]
+
+
 class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     """Specification for deploying from source code."""
 
@@ -5132,6 +5160,10 @@ class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     )
     python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpec] = Field(
         default=None, description="""Configuration for a Python application."""
+    )
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for building an image with custom config file.""",
     )
 
 
@@ -5148,6 +5180,9 @@ class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
 
     python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpecDict]
     """Configuration for a Python application."""
+
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
+    """Optional. Configuration for building an image with custom config file."""
 
 
 ReasoningEngineSpecSourceCodeSpecOrDict = Union[
@@ -14037,6 +14072,9 @@ class AgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
+        default=None, description="""The image spec for the Agent Engine."""
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -14199,6 +14237,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
+    """The image spec for the Agent Engine."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
