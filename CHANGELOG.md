@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.137.0](https://github.com/googleapis/python-aiplatform/compare/v1.136.0...v1.137.0) (2026-02-11)
+
+
+### Features
+
+* Add filter_groups to PurgeMemories for metadata-based filtering ([6907f89](https://github.com/googleapis/python-aiplatform/commit/6907f89be1fa40a29f779fa79b785513248e35d6))
+* Deprecate prompt_optimizer.optimize and prompt_optimizer.optimize_prompt in favor of prompts.launch_optimization_job and prompts.optimize ([ff811f5](https://github.com/googleapis/python-aiplatform/commit/ff811f5dc2bb82eec2a38c5fe6d69961e9bbe78b))
+
+
+### Bug Fixes
+
+* Use GOOGLE_CLOUD_AGENT_ENGINE_LOCATION env var for service locations. ([04aacbb](https://github.com/googleapis/python-aiplatform/commit/04aacbb76c0ce0280daf5a4cd4fd5496e8d3f5e1))
+
 ## [1.136.0](https://github.com/googleapis/python-aiplatform/compare/v1.135.0...v1.136.0) (2026-02-04)
 
 
