@@ -1116,6 +1116,70 @@ class Datasets(_api_module.BaseModule):
             response["tuningValidationAssessmentResult"],
         )
 
+    def assess_batch_prediction_resources(
+        self,
+        *,
+        dataset_name: str,
+        model_name: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
+    ) -> types.BatchPredictionResourceUsageAssessmentResult:
+        """Assess the batch prediction resources required for a given model.
+
+        Args:
+          dataset_name:
+            Required. The name of the dataset to assess the batch prediction
+            resources.
+          model_name:
+              Required. The name of the model to assess the batch prediction
+              resources.
+          template_config:
+              Optional. The template config used to assemble the dataset
+              before assessing the batch prediction resources. If not provided,
+              the template config attached to the dataset will be used. Required
+              if no template config is attached to the dataset.
+          template_config:
+              Optional. The template config used to assemble the dataset
+              before assessing the batch prediction resources. If not provided, the
+              template config attached to the dataset will be used. Required
+              if no template config is attached to the dataset.
+          config:
+              Optional. A configuration for assessing the batch prediction
+              resources. If not provided, the default configuration will be
+              used.
+
+        Returns:
+            A types.BatchPredictionResourceUsageAssessmentResult object
+            representing the batch prediction resource usage assessment result.
+            It contains the following keys:
+              - token_count: The number of tokens in the dataset.
+              - audio_token_count: The number of audio tokens in the dataset.
+
+        """
+        if isinstance(config, dict):
+            config = types.AssessDatasetConfig(**config)
+        elif not config:
+            config = types.AssessDatasetConfig()
+
+        operation = self._assess_multimodal_dataset(
+            name=dataset_name,
+            batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
+                model_name=model_name,
+            ),
+            gemini_request_read_config=types.GeminiRequestReadConfig(
+                template_config=template_config,
+            ),
+            config=config,
+        )
+        response = self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        result = response["batchPredictionResourceUsageAssessmentResult"]
+        return _datasets_utils.create_from_response(
+            types.BatchPredictionResourceUsageAssessmentResult, result
+        )
+
 
 class AsyncDatasets(_api_module.BaseModule):
 
@@ -1998,4 +2062,68 @@ class AsyncDatasets(_api_module.BaseModule):
         return _datasets_utils.create_from_response(
             types.TuningValidationAssessmentResult,
             response["tuningValidationAssessmentResult"],
+        )
+
+    async def assess_batch_prediction_resources(
+        self,
+        *,
+        dataset_name: str,
+        model_name: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
+    ) -> types.BatchPredictionResourceUsageAssessmentResult:
+        """Assess the batch prediction resources required for a given model.
+
+        Args:
+          dataset_name:
+            Required. The name of the dataset to assess the batch prediction
+            resources.
+          model_name:
+              Required. The name of the model to assess the batch prediction
+              resources.
+          template_config:
+              Optional. The template config used to assemble the dataset
+              before assessing the batch prediction resources. If not provided,
+              the template config attached to the dataset will be used. Required
+              if no template config is attached to the dataset.
+          template_config:
+              Optional. The template config used to assemble the dataset
+              before assessing the batch prediction resources. If not provided, the
+              template config attached to the dataset will be used. Required
+              if no template config is attached to the dataset.
+          config:
+              Optional. A configuration for assessing the batch prediction
+              resources. If not provided, the default configuration will be
+              used.
+
+        Returns:
+            A types.BatchPredictionResourceUsageAssessmentResult object
+            representing the batch prediction resource usage assessment result.
+            It contains the following keys:
+              - token_count: The number of tokens in the dataset.
+              - audio_token_count: The number of audio tokens in the dataset.
+
+        """
+        if isinstance(config, dict):
+            config = types.AssessDatasetConfig(**config)
+        elif not config:
+            config = types.AssessDatasetConfig()
+
+        operation = await self._assess_multimodal_dataset(
+            name=dataset_name,
+            batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
+                model_name=model_name,
+            ),
+            gemini_request_read_config=types.GeminiRequestReadConfig(
+                template_config=template_config,
+            ),
+            config=config,
+        )
+        response = await self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        result = response["batchPredictionResourceUsageAssessmentResult"]
+        return _datasets_utils.create_from_response(
+            types.BatchPredictionResourceUsageAssessmentResult, result
         )
