@@ -111,6 +111,28 @@ def test_assess_batch_prediction_resources(client):
     assert isinstance(response, types.BatchPredictionResourceUsageAssessmentResult)
 
 
+def test_assess_batch_prediction_validity(client):
+    response = client.datasets.assess_batch_prediction_validity(
+        dataset_name=DATASET,
+        model_name="gemini-2.5-flash-001",
+        template_config=types.GeminiTemplateConfig(
+            gemini_example=types.GeminiExample(
+                contents=[
+                    {
+                        "role": "user",
+                        "parts": [{"text": "What is the capital of {name}?"}],
+                    },
+                    {
+                        "role": "model",
+                        "parts": [{"text": "{capital}"}],
+                    },
+                ],
+            ),
+        ),
+    )
+    assert isinstance(response, types.BatchPredictionValidationAssessmentResult)
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -206,3 +228,26 @@ async def test_assess_batch_prediction_resources_async(client):
         ),
     )
     assert isinstance(response, types.BatchPredictionResourceUsageAssessmentResult)
+
+
+@pytest.mark.asyncio
+async def test_assess_batch_prediction_validity_async(client):
+    response = await client.aio.datasets.assess_batch_prediction_validity(
+        dataset_name=DATASET,
+        model_name="gemini-2.5-flash-001",
+        template_config=types.GeminiTemplateConfig(
+            gemini_example=types.GeminiExample(
+                contents=[
+                    {
+                        "role": "user",
+                        "parts": [{"text": "What is the capital of {name}?"}],
+                    },
+                    {
+                        "role": "model",
+                        "parts": [{"text": "{capital}"}],
+                    },
+                ],
+            ),
+        ),
+    )
+    assert isinstance(response, types.BatchPredictionValidationAssessmentResult)

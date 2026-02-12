@@ -1180,6 +1180,65 @@ class Datasets(_api_module.BaseModule):
             types.BatchPredictionResourceUsageAssessmentResult, result
         )
 
+    def assess_batch_prediction_validity(
+        self,
+        *,
+        dataset_name: str,
+        model_name: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
+    ) -> types.BatchPredictionValidationAssessmentResult:
+        """Assess if the assembled dataset is valid in terms of batch prediction
+          for a given model. Raises an error if the dataset is invalid, otherwise
+          returns None.
+
+        Args:
+          dataset_name:
+            Required. The name of the dataset to assess the batch prediction
+            validity for.
+          model_name:
+            Required. The name of the model to assess the batch prediction
+            validity for.
+          template_config:
+              Optional. The template config used to assemble the dataset
+              before assessing the batch prediction validity. If not provided, the
+              template config attached to the dataset will be used. Required
+              if no template config is attached to the dataset.
+          config:
+            Optional. A configuration for assessing the batch prediction validity.
+            If not provided, the default configuration will be used.
+
+        Returns:
+            A types.BatchPredictionValidationAssessmentResult object representing
+            the batch prediction validity assessment result.
+            It contains the following keys:
+              - errors: A list of errors that occurred during the batch prediction
+                validity assessment.
+        """
+        if isinstance(config, dict):
+            config = types.AssessDatasetConfig(**config)
+        elif not config:
+            config = types.AssessDatasetConfig()
+
+        operation = self._assess_multimodal_dataset(
+            name=dataset_name,
+            batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
+                model_name=model_name,
+            ),
+            gemini_request_read_config=types.GeminiRequestReadConfig(
+                template_config=template_config,
+            ),
+            config=config,
+        )
+        response = self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        result = response["batchPredictionValidationAssessmentResult"]
+        return _datasets_utils.create_from_response(
+            types.BatchPredictionValidationAssessmentResult, result
+        )
+
 
 class AsyncDatasets(_api_module.BaseModule):
 
@@ -2126,4 +2185,63 @@ class AsyncDatasets(_api_module.BaseModule):
         result = response["batchPredictionResourceUsageAssessmentResult"]
         return _datasets_utils.create_from_response(
             types.BatchPredictionResourceUsageAssessmentResult, result
+        )
+
+    async def assess_batch_prediction_validity(
+        self,
+        *,
+        dataset_name: str,
+        model_name: str,
+        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        config: Optional[types.AssessDatasetConfigOrDict] = None,
+    ) -> types.BatchPredictionValidationAssessmentResult:
+        """Assess if the assembled dataset is valid in terms of batch prediction
+          for a given model. Raises an error if the dataset is invalid, otherwise
+          returns None.
+
+        Args:
+          dataset_name:
+            Required. The name of the dataset to assess the batch prediction
+            validity for.
+          model_name:
+            Required. The name of the model to assess the batch prediction
+            validity for.
+          template_config:
+              Optional. The template config used to assemble the dataset
+              before assessing the batch prediction validity. If not provided, the
+              template config attached to the dataset will be used. Required
+              if no template config is attached to the dataset.
+          config:
+            Optional. A configuration for assessing the batch prediction validity.
+            If not provided, the default configuration will be used.
+
+        Returns:
+            A types.BatchPredictionValidationAssessmentResult object representing
+            the batch prediction validity assessment result.
+            It contains the following keys:
+              - errors: A list of errors that occurred during the batch prediction
+                validity assessment.
+        """
+        if isinstance(config, dict):
+            config = types.AssessDatasetConfig(**config)
+        elif not config:
+            config = types.AssessDatasetConfig()
+
+        operation = await self._assess_multimodal_dataset(
+            name=dataset_name,
+            batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
+                model_name=model_name,
+            ),
+            gemini_request_read_config=types.GeminiRequestReadConfig(
+                template_config=template_config,
+            ),
+            config=config,
+        )
+        response = await self._wait_for_operation(
+            operation=operation,
+            timeout_seconds=config.timeout,
+        )
+        result = response["batchPredictionValidationAssessmentResult"]
+        return _datasets_utils.create_from_response(
+            types.BatchPredictionValidationAssessmentResult, result
         )

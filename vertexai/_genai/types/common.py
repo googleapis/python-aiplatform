@@ -14250,6 +14250,27 @@ BatchPredictionResourceUsageAssessmentResultOrDict = Union[
 ]
 
 
+class BatchPredictionValidationAssessmentResult(_common.BaseModel):
+    """Result of batch prediction validation assessment."""
+
+    errors: Optional[list[str]] = Field(
+        default=None, description="""The list of errors found in the dataset."""
+    )
+
+
+class BatchPredictionValidationAssessmentResultDict(TypedDict, total=False):
+    """Result of batch prediction validation assessment."""
+
+    errors: Optional[list[str]]
+    """The list of errors found in the dataset."""
+
+
+BatchPredictionValidationAssessmentResultOrDict = Union[
+    BatchPredictionValidationAssessmentResult,
+    BatchPredictionValidationAssessmentResultDict,
+]
+
+
 class TuningResourceUsageAssessmentResult(_common.BaseModel):
     """Result of tuning resource usage assessment."""
 

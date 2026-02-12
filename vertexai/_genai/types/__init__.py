@@ -148,6 +148,9 @@ from .common import BatchPredictionResourceUsageAssessmentResultOrDict
 from .common import BatchPredictionValidationAssessmentConfig
 from .common import BatchPredictionValidationAssessmentConfigDict
 from .common import BatchPredictionValidationAssessmentConfigOrDict
+from .common import BatchPredictionValidationAssessmentResult
+from .common import BatchPredictionValidationAssessmentResultDict
+from .common import BatchPredictionValidationAssessmentResultOrDict
 from .common import BigQueryRequestSet
 from .common import BigQueryRequestSetDict
 from .common import BigQueryRequestSetOrDict
@@ -1908,6 +1911,9 @@ __all__ = [
     "BatchPredictionResourceUsageAssessmentResult",
     "BatchPredictionResourceUsageAssessmentResultDict",
     "BatchPredictionResourceUsageAssessmentResultOrDict",
+    "BatchPredictionValidationAssessmentResult",
+    "BatchPredictionValidationAssessmentResultDict",
+    "BatchPredictionValidationAssessmentResultOrDict",
     "TuningResourceUsageAssessmentResult",
     "TuningResourceUsageAssessmentResultDict",
     "TuningResourceUsageAssessmentResultOrDict",
