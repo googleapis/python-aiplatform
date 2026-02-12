@@ -180,10 +180,6 @@ from .common import ChunkOrDict
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
-from .common import ComputationBasedMetricSpec
-from .common import ComputationBasedMetricSpecDict
-from .common import ComputationBasedMetricSpecOrDict
-from .common import ComputationBasedMetricType
 from .common import ContainerSpec
 from .common import ContainerSpecDict
 from .common import ContainerSpecOrDict
@@ -226,9 +222,6 @@ from .common import CreatePromptConfigOrDict
 from .common import CreatePromptVersionConfig
 from .common import CreatePromptVersionConfigDict
 from .common import CreatePromptVersionConfigOrDict
-from .common import CustomCodeExecutionSpec
-from .common import CustomCodeExecutionSpecDict
-from .common import CustomCodeExecutionSpecOrDict
 from .common import CustomJob
 from .common import CustomJobDict
 from .common import CustomJobOrDict
@@ -532,9 +525,6 @@ from .common import ListReasoningEnginesResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
-from .common import LLMBasedMetricSpec
-from .common import LLMBasedMetricSpecDict
-from .common import LLMBasedMetricSpecOrDict
 from .common import LLMMetric
 from .common import LustreMount
 from .common import LustreMountDict
@@ -668,9 +658,6 @@ from .common import PointwiseMetricInstanceOrDict
 from .common import PointwiseMetricResult
 from .common import PointwiseMetricResultDict
 from .common import PointwiseMetricResultOrDict
-from .common import PredefinedMetricSpec
-from .common import PredefinedMetricSpecDict
-from .common import PredefinedMetricSpecOrDict
 from .common import Prompt
 from .common import PromptData
 from .common import PromptDataDict
@@ -1021,9 +1008,6 @@ from .common import TuningValidationAssessmentResult
 from .common import TuningValidationAssessmentResultDict
 from .common import TuningValidationAssessmentResultOrDict
 from .common import Type
-from .common import UnifiedMetric
-from .common import UnifiedMetricDict
-from .common import UnifiedMetricOrDict
 from .common import UpdateAgentEngineConfig
 from .common import UpdateAgentEngineConfigDict
 from .common import UpdateAgentEngineConfigOrDict
@@ -1080,24 +1064,6 @@ __all__ = [
     "EvaluationRunDataSource",
     "EvaluationRunDataSourceDict",
     "EvaluationRunDataSourceOrDict",
-    "PredefinedMetricSpec",
-    "PredefinedMetricSpecDict",
-    "PredefinedMetricSpecOrDict",
-    "RubricGenerationSpec",
-    "RubricGenerationSpecDict",
-    "RubricGenerationSpecOrDict",
-    "LLMBasedMetricSpec",
-    "LLMBasedMetricSpecDict",
-    "LLMBasedMetricSpecOrDict",
-    "CustomCodeExecutionSpec",
-    "CustomCodeExecutionSpecDict",
-    "CustomCodeExecutionSpecOrDict",
-    "ComputationBasedMetricSpec",
-    "ComputationBasedMetricSpecDict",
-    "ComputationBasedMetricSpecOrDict",
-    "UnifiedMetric",
-    "UnifiedMetricDict",
-    "UnifiedMetricOrDict",
     "EvaluationRunMetric",
     "EvaluationRunMetricDict",
     "EvaluationRunMetricOrDict",
@@ -1245,6 +1211,9 @@ __all__ = [
     "EvaluateInstancesConfig",
     "EvaluateInstancesConfigDict",
     "EvaluateInstancesConfigOrDict",
+    "RubricGenerationSpec",
+    "RubricGenerationSpecDict",
+    "RubricGenerationSpecOrDict",
     "RubricBasedMetricSpec",
     "RubricBasedMetricSpecDict",
     "RubricBasedMetricSpecOrDict",
@@ -1958,9 +1927,8 @@ __all__ = [
     "State",
     "EvaluationItemType",
     "SamplingMethod",
-    "RubricContentType",
-    "ComputationBasedMetricType",
     "EvaluationRunState",
+    "RubricContentType",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
