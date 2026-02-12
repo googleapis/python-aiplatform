@@ -125,6 +125,10 @@ class Schedule(proto.Message):
             the limit for starting the scheduled requests
             and not the execution of the operations/jobs
             created by the requests (if applicable).
+        max_concurrent_active_run_count (int):
+            Optional. Maximum number of active runs that can be executed
+            concurrently for this PipelineJobSchedule. Active runs are those
+            in a non-terminal state (e.g., RUNNING, PENDING, or QUEUED).
         allow_queueing (bool):
             Optional. Whether new scheduled runs can be queued when
             max_concurrent_runs limit is reached. If set to true, new
@@ -278,6 +282,10 @@ class Schedule(proto.Message):
     max_concurrent_run_count: int = proto.Field(
         proto.INT64,
         number=11,
+    )
+    max_concurrent_active_run_count: int = proto.Field(
+        proto.INT64,
+        number=21,
     )
     allow_queueing: bool = proto.Field(
         proto.BOOL,
