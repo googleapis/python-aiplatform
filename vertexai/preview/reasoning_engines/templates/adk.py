@@ -1017,6 +1017,7 @@ class AdkApp:
                 session_service = self._tmpl_attrs.get("session_service")
                 artifact_service = self._tmpl_attrs.get("artifact_service")
                 runner = self._tmpl_attrs.get("runner")
+                session = None
                 try:
                     session = await session_service.get_session(
                         app_name=self._tmpl_attrs.get("app_name"),
@@ -1024,7 +1025,11 @@ class AdkApp:
                         session_id=request.session_id,
                     )
                 except ClientError:
+                    pass
+                if not session:
                     #  Fall back to create session if the session is not found.
+                    #  Specifying session_id on creation is not supported,
+                    #  so session id will be regenerated.
                     session = await self._init_session(
                         session_service=session_service,
                         artifact_service=artifact_service,
