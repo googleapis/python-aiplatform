@@ -456,17 +456,36 @@ def _default_instrumentor_builder(
                 return True
 
         logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
-        logger_provider.add_log_record_processor(
-            _SimpleLogRecordProcessor(
-                opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
-                    project_id=project_id,
-                    default_log_name=os.getenv(
-                        "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+        # Use the legacy log processor when experimental semconv is enabled.
+        # Exporting JSON logs to stdout is bugged; Agent Engine fails to
+        # correctly parse the `gen_ai.client.inference.operation.details`
+        # messages.
+        # TODO: b/480102541 - Unify both branches once the regression is fixed.
+        if "gen_ai_latest_experimental" in os.getenv(
+            "OTEL_SEMCONV_STABILITY_OPT_IN", ""
+        ).split(","):
+            logger_provider.add_log_record_processor(
+                opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
                     ),
-                    structured_json_file=sys.stdout,
-                ),
+                )
             )
-        )
+        else:
+            logger_provider.add_log_record_processor(
+                _SimpleLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
+                        structured_json_file=sys.stdout,
+                    ),
+                )
+            )
         event_logger_provider = opentelemetry.sdk._events.EventLoggerProvider(
             logger_provider=logger_provider
         )
