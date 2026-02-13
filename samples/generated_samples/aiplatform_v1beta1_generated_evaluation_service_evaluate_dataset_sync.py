@@ -42,12 +42,16 @@ def sample_evaluate_dataset():
     dataset = aiplatform_v1beta1.EvaluationDataset()
     dataset.gcs_source.uris = ['uris_value1', 'uris_value2']
 
+    metrics = aiplatform_v1beta1.Metric()
+    metrics.predefined_metric_spec.metric_spec_name = "metric_spec_name_value"
+
     output_config = aiplatform_v1beta1.OutputConfig()
     output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
 
     request = aiplatform_v1beta1.EvaluateDatasetRequest(
         location="location_value",
         dataset=dataset,
+        metrics=metrics,
         output_config=output_config,
     )
 

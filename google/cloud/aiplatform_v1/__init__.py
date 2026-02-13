@@ -563,6 +563,8 @@ from .types.io import JiraSource
 from .types.io import SharePointSources
 from .types.io import SlackSource
 from .types.io import TFRecordDestination
+from .types.io import VertexMultimodalDatasetDestination
+from .types.io import VertexMultimodalDatasetSource
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
 from .types.job_service import CancelDataLabelingJobRequest
@@ -2198,6 +2200,8 @@ __all__ = (
     "Value",
     "VertexAISearch",
     "VertexAiSearchConfig",
+    "VertexMultimodalDatasetDestination",
+    "VertexMultimodalDatasetSource",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

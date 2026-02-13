@@ -115,6 +115,11 @@ class _BaseEvaluationServiceRestTransport(EvaluationServiceTransport):
                     "uri": "/v1beta1/{location=projects/*/locations/*}:evaluateDataset",
                     "body": "*",
                 },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1:evaluateDataset",
+                    "body": "*",
+                },
             ]
             return http_options
 
@@ -170,6 +175,11 @@ class _BaseEvaluationServiceRestTransport(EvaluationServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{location=projects/*/locations/*}:evaluateInstances",
+                    "body": "*",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1:evaluateInstances",
                     "body": "*",
                 },
             ]

@@ -31,9 +31,9 @@ from google.cloud.aiplatform_v1.types import (
 from google.cloud.aiplatform_v1.types import (
     unmanaged_container_model as gca_unmanaged_container_model,
 )
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -274,6 +274,11 @@ class BatchPredictionJob(proto.Message):
                 schema, and they will be ignored.
 
                 This field is a member of `oneof`_ ``source``.
+            vertex_multimodal_dataset_source (google.cloud.aiplatform_v1.types.VertexMultimodalDatasetSource):
+                A Vertex Managed Dataset. Currently, only
+                datasets of type Multimodal are supported.
+
+                This field is a member of `oneof`_ ``source``.
             instances_format (str):
                 Required. The format in which instances are given, must be
                 one of the
@@ -292,6 +297,14 @@ class BatchPredictionJob(proto.Message):
             number=3,
             oneof="source",
             message=io.BigQuerySource,
+        )
+        vertex_multimodal_dataset_source: io.VertexMultimodalDatasetSource = (
+            proto.Field(
+                proto.MESSAGE,
+                number=4,
+                oneof="source",
+                message=io.VertexMultimodalDatasetSource,
+            )
         )
         instances_format: str = proto.Field(
             proto.STRING,
@@ -490,6 +503,11 @@ class BatchPredictionJob(proto.Message):
                 STRUCT, and containing only ``code`` and ``message``.
 
                 This field is a member of `oneof`_ ``destination``.
+            vertex_multimodal_dataset_destination (google.cloud.aiplatform_v1.types.VertexMultimodalDatasetDestination):
+                The details for a Vertex Multimodal Dataset
+                that will be created for the output.
+
+                This field is a member of `oneof`_ ``destination``.
             predictions_format (str):
                 Required. The format in which Vertex AI gives the
                 predictions, must be one of the
@@ -508,6 +526,14 @@ class BatchPredictionJob(proto.Message):
             number=3,
             oneof="destination",
             message=io.BigQueryDestination,
+        )
+        vertex_multimodal_dataset_destination: io.VertexMultimodalDatasetDestination = (
+            proto.Field(
+                proto.MESSAGE,
+                number=6,
+                oneof="destination",
+                message=io.VertexMultimodalDatasetDestination,
+            )
         )
         predictions_format: str = proto.Field(
             proto.STRING,
@@ -538,6 +564,13 @@ class BatchPredictionJob(proto.Message):
                 prediction output is written.
 
                 This field is a member of `oneof`_ ``output_location``.
+            vertex_multimodal_dataset_name (str):
+                Output only. The resource name of the Vertex Managed Dataset
+                created, into which the prediction output is written.
+                Format:
+                ``projects/{project}/locations/{location}/datasets/{dataset}``
+
+                This field is a member of `oneof`_ ``output_location``.
             bigquery_output_table (str):
                 Output only. The name of the BigQuery table created, in
                 ``predictions_<timestamp>`` format, into which the
@@ -553,6 +586,11 @@ class BatchPredictionJob(proto.Message):
         bigquery_output_dataset: str = proto.Field(
             proto.STRING,
             number=2,
+            oneof="output_location",
+        )
+        vertex_multimodal_dataset_name: str = proto.Field(
+            proto.STRING,
+            number=5,
             oneof="output_location",
         )
         bigquery_output_table: str = proto.Field(

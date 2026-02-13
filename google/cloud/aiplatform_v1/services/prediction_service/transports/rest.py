@@ -36,8 +36,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
 
 
-from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import prediction_service
+import google.api.httpbody_pb2 as httpbody_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -2088,7 +2088,7 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2681,7 +2681,7 @@ class PredictionServiceRestTransport(_BasePredictionServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
