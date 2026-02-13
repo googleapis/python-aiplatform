@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -89,12 +89,13 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.any_pb2 as any_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -4780,6 +4781,23 @@ def test_create_tuning_job_rest_call_success(request_type):
             "evaluation_config": {
                 "metrics": [
                     {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                            },
+                            "additional_config": {},
+                        },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
@@ -4805,11 +4823,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
-                "autorater_config": {
-                    "sampling_count": 1507,
-                    "flip_enabled": True,
-                    "autorater_model": "autorater_model_value",
-                },
+                "autorater_config": {},
             },
             "tuning_mode": 1,
         },
@@ -4910,7 +4924,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "function_call": {
                                     "id": "id_value",
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
                                     "partial_args": [
                                         {
                                             "null_value": 0,
@@ -6556,6 +6570,23 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             "evaluation_config": {
                 "metrics": [
                     {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                            },
+                            "additional_config": {},
+                        },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
@@ -6581,11 +6612,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
-                "autorater_config": {
-                    "sampling_count": 1507,
-                    "flip_enabled": True,
-                    "autorater_model": "autorater_model_value",
-                },
+                "autorater_config": {},
             },
             "tuning_mode": 1,
         },
@@ -6686,7 +6713,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "function_call": {
                                     "id": "id_value",
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
                                     "partial_args": [
                                         {
                                             "null_value": 0,

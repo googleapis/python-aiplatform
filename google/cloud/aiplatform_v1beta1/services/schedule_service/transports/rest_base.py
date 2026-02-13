@@ -30,7 +30,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 from google.cloud.aiplatform_v1beta1.types import schedule
 from google.cloud.aiplatform_v1beta1.types import schedule as gca_schedule
 from google.cloud.aiplatform_v1beta1.types import schedule_service
-from google.protobuf import empty_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 

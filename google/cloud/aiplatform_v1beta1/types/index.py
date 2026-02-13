@@ -21,8 +21,8 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import deployed_index_ref
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
