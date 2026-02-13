@@ -758,6 +758,9 @@ from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecDict
+from .common import ReasoningEngineSpecSourceCodeSpecImageSpec
+from .common import ReasoningEngineSpecSourceCodeSpecImageSpecDict
+from .common import ReasoningEngineSpecSourceCodeSpecImageSpecOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecInlineSource
 from .common import ReasoningEngineSpecSourceCodeSpecInlineSourceDict
 from .common import ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict
@@ -1419,6 +1422,9 @@ __all__ = [
     "ReasoningEngineSpecSourceCodeSpecPythonSpec",
     "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
     "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpec",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
     "ReasoningEngineSpecSourceCodeSpec",
     "ReasoningEngineSpecSourceCodeSpecDict",
     "ReasoningEngineSpecSourceCodeSpecOrDict",

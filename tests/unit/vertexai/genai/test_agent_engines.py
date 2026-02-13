@@ -1118,6 +1118,39 @@ class TestAgentEngineHelpers:
         "_create_base64_encoded_tarball",
         return_value="test_tarball",
     )
+    def test_create_agent_engine_config_with_source_packages_and_image_spec_raises(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            with pytest.raises(ValueError) as excinfo:
+                self.client.agent_engines._create_config(
+                    mode="create",
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    source_packages=[test_file_path],
+                    entrypoint_module="main",
+                    entrypoint_object="app",
+                    requirements_file=requirements_file_path,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                    agent_framework=_TEST_AGENT_FRAMEWORK,
+                    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                    python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                    image_spec={},
+                )
+            assert "`image_spec` cannot be specified alongside" in str(excinfo.value)
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
     @mock.patch.object(_agent_engines_utils, "_validate_packages_or_raise")
     def test_create_agent_engine_config_with_source_packages_and_build_options(
         self, mock_validate_packages, mock_create_base64_encoded_tarball
@@ -1882,6 +1915,7 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1983,6 +2017,7 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2083,6 +2118,7 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2252,6 +2288,7 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2347,6 +2384,7 @@ class TestAgentEngine:
                 identity_type=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
