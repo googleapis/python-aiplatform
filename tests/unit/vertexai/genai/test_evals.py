@@ -4056,7 +4056,7 @@ class TestPredefinedMetricHandler:
         )
 
         assert agent_data.agent_config.developer_instruction.text == "instruction1"
-        assert agent_data.agent_config.tools.tool == [tool]
+        assert agent_data.agent_config.legacy_tools.tool == [tool]
         assert agent_data.events.event[0].parts[0].text == "intermediate event"
 
     def test_eval_case_to_agent_data_events_only(self):
@@ -4164,7 +4164,7 @@ class TestPredefinedMetricHandler:
         )
 
         assert agent_data.agent_config.developer_instruction.text == "instruction1"
-        assert not agent_data.agent_config.tools.tool
+        assert not agent_data.agent_config.legacy_tools.tool
 
     def test_eval_case_to_agent_data_agent_info_empty(self):
         intermediate_events = [

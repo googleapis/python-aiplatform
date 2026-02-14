@@ -1299,21 +1299,36 @@ def _run_agent_internal(
         agent=agent,
         prompt_dataset=prompt_dataset,
     )
+
+    agent_obj = agent_engine if agent_engine else agent
+
     processed_intermediate_events = []
     processed_responses = []
-    for resp_item in raw_responses:
+    processed_agent_data = []  # New column for AgentData
+
+    for i, resp_item in enumerate(raw_responses):
         intermediate_events_row: list[dict[str, Any]] = []
         response_row = None
+
+        # --- Legacy Logic: Intermediate Events & Response ---
         if isinstance(resp_item, list):
             try:
-                response_row = resp_item[-1]["content"]["parts"][0]["text"]
+                # Attempt to extract final response text
+                if resp_item and "content" in resp_item[-1]:
+                    # Basic extraction, assumes last message is model response
+                    final_content = resp_item[-1]["content"]
+                    if isinstance(final_content, dict) and "parts" in final_content:
+                        response_row = final_content["parts"][0].get("text", "")
+                    elif hasattr(final_content, "parts"):
+                        response_row = final_content.parts[0].text
+
                 for intermediate_event in resp_item[:-1]:
                     intermediate_events_row.append(
                         {
-                            "event_id": intermediate_event["id"],
-                            "content": intermediate_event["content"],
-                            "creation_timestamp": intermediate_event["timestamp"],
-                            "author": intermediate_event["author"],
+                            "event_id": intermediate_event.get("id"),
+                            "content": intermediate_event.get("content"),
+                            "creation_timestamp": intermediate_event.get("timestamp"),
+                            "author": intermediate_event.get("author"),
                         }
                     )
             except Exception as e:  # pylint: disable=broad-exception-caught
@@ -1335,6 +1350,33 @@ def _run_agent_internal(
         processed_intermediate_events.append(intermediate_events_row)
         processed_responses.append(response_row)
 
+        # --- New Logic: AgentData ---
+        agent_data_obj = None
+        try:
+            # 1. Get User Prompt for the current row
+            primary_prompt_column = (
+                "request" if "request" in prompt_dataset.columns else "prompt"
+            )
+            user_prompt_val = prompt_dataset.iloc[i][primary_prompt_column]
+
+            # 2. Construct Full Session History (User Prompt + Agent Events)
+            # Normalize user prompt into a message dict structure
+            user_event = {"role": "user", "content": user_prompt_val}
+
+            full_session_history = [user_event]
+            if isinstance(resp_item, list):
+                full_session_history.extend(resp_item)
+
+            # 3. Create AgentData using the new factory method
+            agent_data_obj = types.evals.AgentData.from_session(
+                agent_obj, full_session_history
+            )
+        except Exception as e:
+            logger.warning("Failed to adapt AgentData for row %d: %s", i, e)
+            # Proceed without AgentData; backend will fallback to legacy fields
+
+        processed_agent_data.append(agent_data_obj)
+
     if len(processed_responses) != len(prompt_dataset) or len(
         processed_responses
     ) != len(processed_intermediate_events):
@@ -1353,6 +1395,7 @@ def _run_agent_internal(
         {
             _evals_constant.INTERMEDIATE_EVENTS: processed_intermediate_events,
             _evals_constant.RESPONSE: processed_responses,
+            "agent_data": processed_agent_data,  # Populate agent_data
         }
     )
 

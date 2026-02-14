@@ -81,13 +81,19 @@ def test_rouge_metric(client):
 
 def test_pointwise_metric(client):
     """Tests the _evaluate_instances method with PointwiseMetricInput."""
-    instance_dict = {"prompt": "What is the capital of France?", "response": "Paris"}
+    instance_dict = {
+        "prompt": "What is the capital of France?",
+        "response": "Paris",
+    }
     json_instance = json.dumps(instance_dict)
 
     test_input = types.PointwiseMetricInput(
         instance=types.PointwiseMetricInstance(json_instance=json_instance),
         metric_spec=genai_types.PointwiseMetricSpec(
-            metric_prompt_template="Evaluate if the response '{response}' correctly answers the prompt '{prompt}'."
+            metric_prompt_template=(
+                "Evaluate if the response '{response}' correctly answers the"
+                " prompt '{prompt}'."
+            )
         ),
     )
     response = client.evals.evaluate_instances(
@@ -101,19 +107,20 @@ def test_pointwise_metric(client):
 
 def test_pointwise_metric_with_agent_data(client):
     """Tests the _evaluate_instances method with PointwiseMetricInput and agent_data."""
-    instance_dict = {"prompt": "What is the capital of France?", "response": "Paris"}
+    instance_dict = {
+        "prompt": "What is the capital of France?",
+        "response": "Paris",
+    }
     json_instance = json.dumps(instance_dict)
     agent_data = types.evals.AgentData(
         agent_config=types.evals.AgentConfig(
-            tools=types.evals.Tools(
-                tool=[
-                    genai_types.Tool(
-                        function_declarations=[
-                            genai_types.FunctionDeclaration(name="search")
-                        ]
-                    )
-                ]
-            ),
+            tools=[
+                genai_types.Tool(
+                    function_declarations=[
+                        genai_types.FunctionDeclaration(name="search")
+                    ]
+                )
+            ],
             developer_instruction=types.evals.InstanceData(text="instruction"),
         ),
         events=types.evals.Events(
@@ -129,7 +136,10 @@ def test_pointwise_metric_with_agent_data(client):
     test_input = types.PointwiseMetricInput(
         instance=types.PointwiseMetricInstance(json_instance=json_instance),
         metric_spec=genai_types.PointwiseMetricSpec(
-            metric_prompt_template="Evaluate if the response '{response}' correctly answers the prompt '{prompt}'."
+            metric_prompt_template=(
+                "Evaluate if the response '{response}' correctly answers the"
+                " prompt '{prompt}'."
+            )
         ),
     )
     response = client.evals.evaluate_instances(
@@ -189,7 +199,10 @@ def test_pairwise_metric_with_autorater(client):
     test_input = types.PairwiseMetricInput(
         instance=types.PairwiseMetricInstance(json_instance=json_instance),
         metric_spec=genai_types.PairwiseMetricSpec(
-            metric_prompt_template="Which response is a better summary? Baseline: '{baseline_response}' or Candidate: '{candidate_response}'"
+            metric_prompt_template=(
+                "Which response is a better summary? Baseline:"
+                " '{baseline_response}' or Candidate: '{candidate_response}'"
+            )
         ),
     )
     autorater_config = genai_types.AutoraterConfig(sampling_count=2)
@@ -240,7 +253,10 @@ def test_inference_with_prompt_template(client):
 
 def test_run_inference_with_agent(client):
     test_df = pd.DataFrame(
-        {"prompt": ["agent prompt"], "session_inputs": ['{"user_id": "user_123"}']}
+        {
+            "prompt": ["agent prompt"],
+            "session_inputs": ['{"user_id": "user_123"}'],
+        }
     )
     inference_result = client.evals.run_inference(
         agent="projects/977012026409/locations/us-central1/reasoningEngines/7188347537655332864",
