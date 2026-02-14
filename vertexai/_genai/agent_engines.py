@@ -1305,15 +1305,24 @@ class AgentEngines(_api_module.BaseModule):
                 image_spec=image_spec,
             )
 
+        is_deployment_spec_updated = (
+            env_vars is not None
+            or psc_interface_config is not None
+            or min_instances is not None
+            or max_instances is not None
+            or resource_limits is not None
+            or container_concurrency is not None
+        )
+        if agent_engine_spec is None and is_deployment_spec_updated:
+            raise ValueError(
+                "To update `env_vars`, `psc_interface_config`, `min_instances`, "
+                "`max_instances`, `resource_limits`, or `container_concurrency`, "
+                "you must also provide the `agent` variable or the source code "
+                "options (`source_packages` or `developer_connect_source`)."
+            )
+
         if agent_engine_spec is not None:
-            if (
-                env_vars is not None
-                or psc_interface_config is not None
-                or min_instances is not None
-                or max_instances is not None
-                or resource_limits is not None
-                or container_concurrency is not None
-            ):
+            if is_deployment_spec_updated:
                 (
                     deployment_spec,
                     deployment_update_masks,
