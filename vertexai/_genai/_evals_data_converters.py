@@ -202,24 +202,25 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
             system_instruction_data = item.pop("instruction", None)
             rubric_groups_data = item.pop("rubric_groups", None)
             intermediate_events_data = item.pop("intermediate_events", None)
+            agent_data_raw = item.pop("agent_data", None)
 
-            if not response_data:
+            if not response_data and not agent_data_raw:
                 raise ValueError(
                     "Response is required but missing for %s." % eval_case_id
                 )
-            if not prompt_data:
+            if not prompt_data and not agent_data_raw:
                 raise ValueError(
                     "Prompt is required but missing for %s." % eval_case_id
                 )
 
-            prompt: genai_types.Content
+            prompt: Optional[genai_types.Content] = None
             if isinstance(prompt_data, str):
                 prompt = genai_types.Content(parts=[genai_types.Part(text=prompt_data)])
             elif isinstance(prompt_data, dict):
                 prompt = genai_types.Content.model_validate(prompt_data)
             elif isinstance(prompt_data, genai_types.Content):
                 prompt = prompt_data
-            else:
+            elif not agent_data_raw:
                 raise ValueError(
                     "Invalid prompt type for case %s: %s" % (i, type(prompt_data))
                 )
@@ -265,7 +266,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                             type(content),
                         )
 
-            responses: list[types.ResponseCandidate]
+            responses: Optional[list[types.ResponseCandidate]] = None
             if isinstance(response_data, dict):
                 responses = [
                     types.ResponseCandidate(
@@ -282,7 +283,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                 ]
             elif isinstance(response_data, genai_types.Content):
                 responses = [types.ResponseCandidate(response=response_data)]
-            else:
+            elif not agent_data_raw:
                 raise ValueError(
                     "Invalid response type for case %s: %s" % (i, type(response_data))
                 )
@@ -411,6 +412,41 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                         i,
                     )
 
+            agent_data: Optional[types.evals.AgentData] = None
+            if agent_data_raw:
+                if isinstance(agent_data_raw, str):
+                    try:
+                        agent_data_dict = json.loads(agent_data_raw)
+                        agent_data = types.evals.AgentData.model_validate(
+                            agent_data_dict
+                        )
+                    except json.JSONDecodeError:
+                        logger.warning(
+                            "Could not decode agent_data JSON string for case %s.", i
+                        )
+                    except ValidationError as e:
+                        logger.warning(
+                            "Failed to validate agent_data for case %s: %s", i, e
+                        )
+                elif isinstance(agent_data_raw, dict):
+                    try:
+                        agent_data = types.evals.AgentData.model_validate(
+                            agent_data_raw
+                        )
+                    except ValidationError as e:
+                        logger.warning(
+                            "Failed to validate agent_data for case %s: %s", i, e
+                        )
+                elif isinstance(agent_data_raw, types.evals.AgentData):
+                    agent_data = agent_data_raw
+                else:
+                    logger.warning(
+                        "Invalid type for agent_data in case %s. Expected str, dict"
+                        " or types.evals.AgentData object. Got %s",
+                        i,
+                        type(agent_data_raw),
+                    )
+
             eval_case = types.EvalCase(
                 eval_case_id=eval_case_id,
                 prompt=prompt,
@@ -420,6 +456,7 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                 system_instruction=system_instruction,
                 rubric_groups=rubric_groups,
                 intermediate_events=intermediate_events,
+                agent_data=agent_data,
                 **item,  # Pass remaining columns as extra fields to EvalCase.
                 # They can be used for custom metric prompt templates.
             )
@@ -605,6 +642,9 @@ def auto_detect_dataset_schema(
                 if "role" in messages_list[0] and "content" in messages_list[0]:
                     return EvalDatasetSchema.OPENAI
 
+    if "agent_data" in keys:
+        return EvalDatasetSchema.FLATTEN
+
     if {"prompt", "response"}.issubset(keys) or {
         "response",
         "reference",
@@ -701,51 +741,40 @@ def _validate_case_consistency(
         )
 
 
-def merge_response_datasets_into_canonical_format(
-    raw_datasets: list[list[dict[str, Any]]],
-    schemas: list[str],
+def merge_evaluation_datasets(
+    datasets: list[types.EvaluationDataset],
     agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> types.EvaluationDataset:
-    """Merges multiple raw response datasets into a single EvaluationDataset.
+    """Merges multiple EvaluationDatasets into a single EvaluationDataset.
 
-    Assumes that each dataset in raw_datasets has responses corresponding
-    to the same set of prompts, in the same order. The prompt, reference,
-    system_instruction, and conversation_history are taken from the first dataset.
+    Assumes that each dataset has responses corresponding to the same set of
+    prompts, in the same order. The prompt, reference, system_instruction, and
+    conversation_history are taken from the first dataset.
     """
-    if not isinstance(raw_datasets, list):
-        raise TypeError(
-            "Input 'raw_datasets' must be a list, got %s." % type(raw_datasets)
-        )
-    if not raw_datasets or not all(isinstance(ds, list) for ds in raw_datasets):
-        raise ValueError(
-            "Input 'raw_datasets' cannot be empty and must be a list of lists."
-        )
-    if not schemas or len(schemas) != len(raw_datasets):
-        raise ValueError(
-            "A list of schemas must be provided, one for each raw dataset. "
-            "Got %s schemas for %s datasets." % (len(schemas), len(raw_datasets))
-        )
+    if not datasets:
+        raise ValueError("Input 'datasets' cannot be empty.")
 
-    num_expected_cases = len(raw_datasets[0])
+    num_expected_cases = 0
+    if datasets[0].eval_cases:
+        num_expected_cases = len(datasets[0].eval_cases)
+
     if num_expected_cases == 0:
         logger.warning(
             "The first dataset has no evaluation cases. Result will be empty."
         )
         return types.EvaluationDataset(eval_cases=[])
 
-    parsed_evaluation_datasets: list[types.EvaluationDataset] = []
-    for i, (raw_ds_entry, schema) in enumerate(zip(raw_datasets, schemas)):
-        if len(raw_ds_entry) != num_expected_cases:
+    for i, ds in enumerate(datasets):
+        current_len = len(ds.eval_cases) if ds.eval_cases else 0
+        if current_len != num_expected_cases:
             raise ValueError(
                 "All datasets must have the same number of evaluation cases. "
-                "Base dataset (0) has %s, but dataset %s (schema: %s) has %s."
-                % (num_expected_cases, i, schema, len(raw_ds_entry))
+                "Base dataset (0) has %s, but dataset %s has %s."
+                % (num_expected_cases, i, current_len)
             )
-        converter = get_dataset_converter(schema)
-        parsed_evaluation_datasets.append(converter.convert(raw_ds_entry))
 
     merged_eval_cases: list[types.EvalCase] = []
-    base_parsed_dataset = parsed_evaluation_datasets[0]
+    base_parsed_dataset = datasets[0]
 
     for case_idx in range(num_expected_cases):
         base_eval_case: types.EvalCase = (
@@ -781,9 +810,7 @@ def merge_response_datasets_into_canonical_format(
             },
             exclude_none=True,
         )
-        for dataset_idx_offset, current_parsed_ds in enumerate(
-            parsed_evaluation_datasets[1:], start=1
-        ):
+        for dataset_idx_offset, current_parsed_ds in enumerate(datasets[1:], start=1):
             current_ds_eval_case: types.EvalCase = (
                 current_parsed_ds.eval_cases[case_idx]
                 if current_parsed_ds.eval_cases
@@ -838,3 +865,36 @@ def merge_response_datasets_into_canonical_format(
         merged_eval_cases.append(merged_case)
 
     return types.EvaluationDataset(eval_cases=merged_eval_cases)
+
+
+def merge_response_datasets_into_canonical_format(
+    raw_datasets: list[list[dict[str, Any]]],
+    schemas: list[str],
+    agent_info: Optional[types.evals.AgentInfo] = None,
+) -> types.EvaluationDataset:
+    """Merges multiple raw response datasets into a single EvaluationDataset.
+
+    Assumes that each dataset in raw_datasets has responses corresponding
+    to the same set of prompts, in the same order. The prompt, reference,
+    system_instruction, and conversation_history are taken from the first dataset.
+    """
+    if not isinstance(raw_datasets, list):
+        raise TypeError(
+            "Input 'raw_datasets' must be a list, got %s." % type(raw_datasets)
+        )
+    if not raw_datasets or not all(isinstance(ds, list) for ds in raw_datasets):
+        raise ValueError(
+            "Input 'raw_datasets' cannot be empty and must be a list of lists."
+        )
+    if not schemas or len(schemas) != len(raw_datasets):
+        raise ValueError(
+            "A list of schemas must be provided, one for each raw dataset. "
+            "Got %s schemas for %s datasets." % (len(schemas), len(raw_datasets))
+        )
+
+    parsed_evaluation_datasets: list[types.EvaluationDataset] = []
+    for i, (raw_ds_entry, schema) in enumerate(zip(raw_datasets, schemas)):
+        converter = get_dataset_converter(schema)
+        parsed_evaluation_datasets.append(converter.convert(raw_ds_entry))
+
+    return merge_evaluation_datasets(parsed_evaluation_datasets, agent_info)

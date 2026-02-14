@@ -122,6 +122,10 @@ class AgentConfig(_common.BaseModel):
       This ID is used to refer to this agent, e.g., in AgentEvent.author, or in
       the `sub_agents` field. It must be unique within the `agents` map.""",
     )
+    agent_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The Agent Engine resource name, formatted as `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
+    )
     agent_type: Optional[str] = Field(
         default=None,
         description="""The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
@@ -160,6 +164,51 @@ class AgentConfig(_common.BaseModel):
         description="""A field containing instructions from the developer for the agent.""",
     )
 
+    @staticmethod
+    def _get_tool_declarations_from_agent(agent: Any) -> genai_types.ToolListUnion:
+        """Gets tool declarations from an agent.
+
+        Args:
+          agent: The agent to get the tool declarations from. Data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
+
+        Returns:
+          The tool declarations of the agent.
+        """
+        tool_declarations: genai_types.ToolListUnion = []
+        for tool in agent.tools:
+            tool_declarations.append(
+                {
+                    "function_declarations": [
+                        genai_types.FunctionDeclaration.from_callable_with_api_option(
+                            callable=tool
+                        )
+                    ]
+                }
+            )
+        return tool_declarations
+
+    @classmethod
+    def from_agent(
+        cls, agent: Any, agent_resource_name: Optional[str] = None
+    ) -> "AgentConfig":
+        """Creates an AgentConfig from an ADK agent object.
+
+        Args:
+          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
+          agent_resource_name: Optional. The agent engine resource name.
+
+        Returns:
+            An AgentConfig object populated with the agent's metadata.
+        """
+        return cls(  # pytype: disable=missing-parameter
+            agent_id=getattr(agent, "name", "agent_0") or "agent_0",
+            agent_resource_name=agent_resource_name,
+            agent_type=agent.__class__.__name__,
+            description=getattr(agent, "description", None),
+            instruction=getattr(agent, "instruction", None),
+            tools=AgentConfig._get_tool_declarations_from_agent(agent),
+        )
+
 
 class AgentConfigDict(TypedDict, total=False):
     """Represents configuration for an Agent."""
@@ -168,6 +217,9 @@ class AgentConfigDict(TypedDict, total=False):
     """Unique identifier of the agent.
       This ID is used to refer to this agent, e.g., in AgentEvent.author, or in
       the `sub_agents` field. It must be unique within the `agents` map."""
+
+    agent_resource_name: Optional[str]
+    """The Agent Engine resource name, formatted as `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
 
     agent_type: Optional[str]
     """The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
@@ -333,6 +385,98 @@ class AgentData(_common.BaseModel):
         default=None, description="""A JSON string containing a sequence of events."""
     )
     events: Optional[Events] = Field(default=None, description="""A list of events.""")
+
+    @classmethod
+    def from_session(cls, agent: Any, session_history: list[Any]) -> "AgentData":
+        """Creates an AgentData object from a session history.
+
+        Segments the flat list of session events into ConversationTurns. A new turn
+        is initiated by a User message.
+
+        Args:
+            agent: The agent instance used in the session.
+            session_history: A list of raw events/messages from the session.
+
+        Returns:
+            An AgentData object containing the segmented history and agent config.
+        """
+        agent_config = AgentConfig.from_agent(agent)
+        agent_id = agent_config.agent_id or "agent_0"
+        agents_map = {agent_id: agent_config}
+
+        turns: list[ConversationTurn] = []
+        current_turn_events: list[AgentEvent] = []
+
+        for event in session_history:
+            is_user = False
+            if isinstance(event, dict):
+                if event.get("role") == "user":
+                    is_user = True
+                elif (
+                    isinstance(event.get("content"), dict)
+                    and event["content"].get("role") == "user"
+                ):
+                    is_user = True
+            elif hasattr(event, "role") and event.role == "user":
+                is_user = True
+
+            if is_user and current_turn_events:
+                turns.append(
+                    ConversationTurn(  # pytype: disable=missing-parameter
+                        turn_index=len(turns),
+                        turn_id=f"turn_{len(turns)}",
+                        events=current_turn_events,
+                    )
+                )
+                current_turn_events = []
+
+            author = "user" if is_user else agent_id
+
+            content = None
+            if isinstance(event, dict):
+                if "content" in event:
+                    raw_content = event["content"]
+                    if isinstance(raw_content, genai_types.Content):
+                        content = raw_content
+                    elif isinstance(raw_content, dict):
+                        try:
+                            content = genai_types.Content.model_validate(raw_content)
+                        except Exception as e:
+                            raise ValueError(
+                                f"Failed to validate Content from dictionary in session history: {raw_content}"
+                            ) from e
+                    elif isinstance(raw_content, str):
+                        content = genai_types.Content(
+                            parts=[genai_types.Part(text=raw_content)]
+                        )
+                elif "parts" in event:
+                    try:
+                        content = genai_types.Content.model_validate(event)
+                    except Exception as e:
+                        raise ValueError(
+                            f"Failed to validate Content from event with 'parts': {event}"
+                        ) from e
+            elif hasattr(event, "content") and isinstance(
+                event.content, genai_types.Content
+            ):
+                content = event.content
+
+            agent_event = AgentEvent(  # pytype: disable=missing-parameter
+                author=author,
+                content=content,
+            )
+            current_turn_events.append(agent_event)
+
+        if current_turn_events:
+            turns.append(
+                ConversationTurn(  # pytype: disable=missing-parameter
+                    turn_index=len(turns),
+                    turn_id=f"turn_{len(turns)}",
+                    events=current_turn_events,
+                )
+            )
+
+        return cls(agents=agents_map, turns=turns)  # pytype: disable=missing-parameter
 
 
 class AgentDataDict(TypedDict, total=False):

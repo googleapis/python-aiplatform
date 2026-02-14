@@ -300,6 +300,18 @@ class PrebuiltMetricLoader:
         return self.__getattr__("MULTI_TURN_TEXT_QUALITY")
 
     @property
+    def MULTI_TURN_TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TOOL_USE_QUALITY", version="v1")
+
+    @property
+    def MULTI_TURN_TRAJECTORY_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TRAJECTORY_QUALITY", version="v1")
+
+    @property
+    def MULTI_TURN_TASK_SUCCESS(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TASK_SUCCESS", version="v1")
+
+    @property
     def FINAL_RESPONSE_MATCH(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("FINAL_RESPONSE_MATCH", version="v2")
 
