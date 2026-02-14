@@ -1,4 +1,5 @@
 ray==2.33.0
+numpy<2.0.0  # Ray 2.33.0 not compatible with NumPy 2.x
 # Below constraints are inherited from constraints-3.10.txt
 google-api-core
 proto-plus==1.22.3
