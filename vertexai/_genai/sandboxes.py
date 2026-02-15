@@ -540,6 +540,7 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
+        poll_interval_seconds: float = 0.1,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
         config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
     ) -> types.AgentEngineSandboxOperation:
@@ -582,7 +583,7 @@ class Sandboxes(_api_module.BaseModule):
                 operation = _agent_engines_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_sandbox_operation,
-                    poll_interval_seconds=0.1,
+                    poll_interval_seconds=poll_interval_seconds,
                 )
             # We need to make a call to get the sandbox because the operation
             # response might not contain the relevant fields.
