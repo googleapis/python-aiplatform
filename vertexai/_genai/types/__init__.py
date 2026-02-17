@@ -387,6 +387,9 @@ from .common import EvaluationRunMetric
 from .common import EvaluationRunMetricDict
 from .common import EvaluationRunMetricOrDict
 from .common import EvaluationRunOrDict
+from .common import EvaluationRunPromptTemplate
+from .common import EvaluationRunPromptTemplateDict
+from .common import EvaluationRunPromptTemplateOrDict
 from .common import EvaluationRunResults
 from .common import EvaluationRunResultsDict
 from .common import EvaluationRunResultsOrDict
@@ -1298,6 +1301,9 @@ __all__ = [
     "EvaluationRunMetric",
     "EvaluationRunMetricDict",
     "EvaluationRunMetricOrDict",
+    "EvaluationRunPromptTemplate",
+    "EvaluationRunPromptTemplateDict",
+    "EvaluationRunPromptTemplateOrDict",
     "EvaluationRunConfig",
     "EvaluationRunConfigDict",
     "EvaluationRunConfigOrDict",
