@@ -258,6 +258,78 @@ def _extract_contents_for_inference(
         return request_dict_or_raw_text
 
 
+def _resolve_dataset(
+    dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
+    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+) -> types.EvaluationRunDataSource:
+    """Resolves dataset for the evaluation run."""
+    if isinstance(dataset, types.EvaluationDataset):
+        candidate_name = _get_candidate_name(dataset, agent_info_pydantic)
+        eval_set = _create_evaluation_set_from_dataframe(
+            self._api_client, dest, dataset.eval_dataset_df, candidate_name
+        )
+        dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+    return dataset
+
+
+def _resolve_inference_configs(
+    inference_configs: Optional[
+        dict[str, types.EvaluationRunInferenceConfigOrDict]
+    ] = None,
+    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+) -> Optional[dict[str, types.EvaluationRunInferenceConfigOrDict]]:
+    """Resolves inference configs for the evaluation run."""
+    if agent_info_pydantic and agent_info_pydantic.name:
+        inference_configs = {}
+        inference_configs[agent_info_pydantic.name] = (
+            types.EvaluationRunInferenceConfig(
+                agent_config=types.EvaluationRunAgentConfig(
+                    developer_instruction=genai_types.Content(
+                        parts=[
+                            genai_types.Part(text=agent_info_pydantic.instruction)
+                        ]
+                    ),
+                    tools=agent_info_pydantic.tool_declarations,
+                )
+            )
+        )
+    return inference_configs
+
+
+def _add_evaluation_run_labels(
+    labels: Optional[dict[str, str]] = None,
+    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+):
+    """Adds labels to the evaluation run."""
+    labels = labels or {}
+    if agent_info_pydantic and agent_info_pydantic.agent_resource_name:
+        labels["vertex-ai-evaluation-agent-engine-id"] = (
+            agent_info_pydantic.agent_resource_name.split("reasoningEngines/")[
+                -1
+            ]
+        )
+    return labels
+
+
+def _get_candidate_name(
+    dataset: types.EvaluationDataset,
+    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+) -> Optional[str]:
+    """Internal helper to get candidate name."""
+    if agent_info_pydantic is not None and (
+        dataset.candidate_name
+        and agent_info_pydantic
+        and agent_info_pydantic.name
+        and dataset.candidate_name != agent_info_pydantic.name
+    ):
+        logger.warning(
+            "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+        )
+    elif dataset.candidate_name is None and agent_info_pydantic:
+        return agent_info_pydantic.name
+    return dataset.candidate_name or None
+
+
 def _execute_inference_concurrently(
     api_client: BaseApiClient,
     prompt_dataset: pd.DataFrame,
@@ -1858,6 +1930,9 @@ def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
             result[key] = value
         elif isinstance(value, (list, tuple)):
             result[key] = [_object_to_dict(item) for item in value]
+        # Add recursive handling for dictionaries
+        elif isinstance(value, dict):
+            result[key] = {k: _object_to_dict(v) for k, v in value.items()}
         elif isinstance(value, bytes):
             result[key] = base64.b64encode(value).decode("utf-8")
         elif hasattr(value, "__dict__"):  # Nested object
@@ -1871,9 +1946,15 @@ def _create_evaluation_set_from_dataframe(
     api_client: BaseApiClient,
     gcs_dest_prefix: str,
     eval_df: pd.DataFrame,
-    candidate_name: Optional[str] = None,
 ) -> Union[types.EvaluationSet, Any]:
     """Converts a dataframe to an EvaluationSet."""
+    if dataset.eval_dataset_df is None:
+        raise ValueError(
+            "EvaluationDataset must have eval_dataset_df populated."
+        )
+    candidate_name = _evals_common._get_candidate_name(
+        dataset, agent_info_pydantic
+    )
     eval_item_requests = []
     for _, row in eval_df.iterrows():
         intermediate_events = []
@@ -1885,13 +1966,31 @@ def _create_evaluation_set_from_dataframe(
             for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
                 if CONTENT in event:
                     intermediate_events.append(event[CONTENT])
+        if _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+            values = {}
+            if _evals_constant.CONTEXT in row:
+                values[_evals_constant.CONTEXT] = genai_types.Content(
+                    parts=[genai_types.Part(text=row[_evals_constant.CONTEXT])],
+                    role=_evals_constant.USER_AUTHOR,
+                )
+            if _evals_constant.HISTORY in row:
+                values[_evals_constant.HISTORY] = genai_types.Content(
+                    parts=[genai_types.Part(text=row[_evals_constant.HISTORY])],
+                    role=_evals_constant.USER_AUTHOR,
+                )
+            if _evals_constant.PROMPT in row:
+                values[_evals_constant.PROMPT] = genai_types.Content(
+                    parts=[genai_types.Part(text=row[_evals_constant.PROMPT])],
+                    role=_evals_constant.USER_AUTHOR,
+                )
+            prompt = types.EvaluationPrompt(
+                prompt_template_data=types.PromptTemplateData(values=values)
+            )
+        elif _evals_constant.PROMPT in row:
+            prompt = types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
         eval_item_requests.append(
             types.EvaluationItemRequest(
-                prompt=(
-                    types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
-                    if _evals_constant.PROMPT in row
-                    else None
-                ),
+                prompt=prompt if prompt else None,
                 golden_response=(
                     types.CandidateResponse(text=row[_evals_constant.REFERENCE])
                     if _evals_constant.REFERENCE in row
