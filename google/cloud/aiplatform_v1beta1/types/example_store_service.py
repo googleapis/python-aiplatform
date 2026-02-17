@@ -22,9 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import example as gca_example
 from google.cloud.aiplatform_v1beta1.types import example_store as gca_example_store
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

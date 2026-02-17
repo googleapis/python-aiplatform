@@ -22,6 +22,8 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import operation
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -40,6 +42,10 @@ __protobuf__ = proto.module(
         "AutoraterConfig",
         "EvaluateInstancesRequest",
         "EvaluateInstancesResponse",
+        "MetricResult",
+        "PredefinedMetricSpec",
+        "ComputationBasedMetricSpec",
+        "LLMBasedMetricSpec",
         "ExactMatchInput",
         "ExactMatchInstance",
         "ExactMatchSpec",
@@ -228,16 +234,16 @@ class EvaluateDatasetOperationMetadata(proto.Message):
 
 
 class EvaluateDatasetResponse(proto.Message):
-    r"""Response in LRO for EvaluationService.EvaluateDataset.
+    r"""The results from an evaluation run performed by the
+    EvaluationService.
 
     Attributes:
         aggregation_output (google.cloud.aiplatform_v1beta1.types.AggregationOutput):
             Output only. Aggregation statistics derived
-            from results of
-            EvaluationService.EvaluateDataset.
+            from results of EvaluationService.
         output_info (google.cloud.aiplatform_v1beta1.types.OutputInfo):
             Output only. Output info for
-            EvaluationService.EvaluateDataset.
+            EvaluationService.
     """
 
     aggregation_output: "AggregationOutput" = proto.Field(
@@ -253,9 +259,7 @@ class EvaluateDatasetResponse(proto.Message):
 
 
 class OutputInfo(proto.Message):
-    r"""Describes the info for output of
-    EvaluationService.EvaluateDataset.
-
+    r"""Describes the info for output of EvaluationService.
 
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
@@ -439,7 +443,7 @@ class OutputConfig(proto.Message):
 
 
 class Metric(proto.Message):
-    r"""The metric used for dataset level evaluation.
+    r"""The metric used for running evaluations.
 
     This message has `oneof`_ fields (mutually exclusive fields).
     For each oneof, at most one member field can be set at the same time.
@@ -449,6 +453,18 @@ class Metric(proto.Message):
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
+        predefined_metric_spec (google.cloud.aiplatform_v1beta1.types.PredefinedMetricSpec):
+            The spec for a pre-defined metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        computation_based_metric_spec (google.cloud.aiplatform_v1beta1.types.ComputationBasedMetricSpec):
+            Spec for a computation based metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
+        llm_based_metric_spec (google.cloud.aiplatform_v1beta1.types.LLMBasedMetricSpec):
+            Spec for an LLM based metric.
+
+            This field is a member of `oneof`_ ``metric_spec``.
         pointwise_metric_spec (google.cloud.aiplatform_v1beta1.types.PointwiseMetricSpec):
             Spec for pointwise metric.
 
@@ -474,8 +490,8 @@ class Metric(proto.Message):
     """
 
     class AggregationMetric(proto.Enum):
-        r"""The aggregation metrics supported by
-        EvaluationService.EvaluateDataset.
+        r"""The per-metric statistics on evaluation results supported by
+        ``EvaluationService.EvaluateDataset``.
 
         Values:
             AGGREGATION_METRIC_UNSPECIFIED (0):
@@ -523,6 +539,24 @@ class Metric(proto.Message):
         PERCENTILE_P95 = 9
         PERCENTILE_P99 = 10
 
+    predefined_metric_spec: "PredefinedMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof="metric_spec",
+        message="PredefinedMetricSpec",
+    )
+    computation_based_metric_spec: "ComputationBasedMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=9,
+        oneof="metric_spec",
+        message="ComputationBasedMetricSpec",
+    )
+    llm_based_metric_spec: "LLMBasedMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        oneof="metric_spec",
+        message="LLMBasedMetricSpec",
+    )
     pointwise_metric_spec: "PointwiseMetricSpec" = proto.Field(
         proto.MESSAGE,
         number=2,
@@ -1177,6 +1211,11 @@ class EvaluateInstancesResponse(proto.Message):
             metric.
 
             This field is a member of `oneof`_ ``evaluation_results``.
+        metric_results (MutableSequence[google.cloud.aiplatform_v1beta1.types.MetricResult]):
+            Metric results for each instance.
+            The order of the metric results is guaranteed to
+            be the same as the order of the instances in the
+            request.
     """
 
     exact_match_results: "ExactMatchResults" = proto.Field(
@@ -1382,6 +1421,206 @@ class EvaluateInstancesResponse(proto.Message):
         number=38,
         oneof="evaluation_results",
         message="RubricBasedInstructionFollowingResult",
+    )
+    metric_results: MutableSequence["MetricResult"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=43,
+        message="MetricResult",
+    )
+
+
+class MetricResult(proto.Message):
+    r"""Result for a single metric on a single instance.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        score (float):
+            Output only. The score for the metric.
+            Please refer to each metric's documentation for
+            the meaning of the score.
+
+            This field is a member of `oneof`_ ``_score``.
+        explanation (str):
+            Output only. The explanation for the metric
+            result.
+
+            This field is a member of `oneof`_ ``_explanation``.
+        error (google.rpc.status_pb2.Status):
+            Output only. The error status for the metric
+            result.
+
+            This field is a member of `oneof`_ ``_error``.
+    """
+
+    score: float = proto.Field(
+        proto.FLOAT,
+        number=1,
+        optional=True,
+    )
+    explanation: str = proto.Field(
+        proto.STRING,
+        number=3,
+        optional=True,
+    )
+    error: status_pb2.Status = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        optional=True,
+        message=status_pb2.Status,
+    )
+
+
+class PredefinedMetricSpec(proto.Message):
+    r"""The spec for a pre-defined metric.
+
+    Attributes:
+        metric_spec_name (str):
+            Required. The name of a pre-defined metric, such as
+            "instruction_following_v1" or "text_quality_v1".
+        metric_spec_parameters (google.protobuf.struct_pb2.Struct):
+            Optional. The parameters needed to run the
+            pre-defined metric.
+    """
+
+    metric_spec_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    metric_spec_parameters: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=struct_pb2.Struct,
+    )
+
+
+class ComputationBasedMetricSpec(proto.Message):
+    r"""Specification for a computation based metric.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        type_ (google.cloud.aiplatform_v1beta1.types.ComputationBasedMetricSpec.ComputationBasedMetricType):
+            Required. The type of the computation based
+            metric.
+
+            This field is a member of `oneof`_ ``_type``.
+        parameters (google.protobuf.struct_pb2.Struct):
+            Optional. A map of parameters for the metric, e.g.
+            {"rouge_type": "rougeL"}.
+
+            This field is a member of `oneof`_ ``_parameters``.
+    """
+
+    class ComputationBasedMetricType(proto.Enum):
+        r"""Types of computation based metrics.
+
+        Values:
+            COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED (0):
+                Unspecified computation based metric type.
+            EXACT_MATCH (1):
+                Exact match metric.
+            BLEU (2):
+                BLEU metric.
+            ROUGE (3):
+                ROUGE metric.
+        """
+
+        COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED = 0
+        EXACT_MATCH = 1
+        BLEU = 2
+        ROUGE = 3
+
+    type_: ComputationBasedMetricType = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=ComputationBasedMetricType,
+    )
+    parameters: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        optional=True,
+        message=struct_pb2.Struct,
+    )
+
+
+class LLMBasedMetricSpec(proto.Message):
+    r"""Specification for an LLM based metric.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        rubric_group_key (str):
+            Use a pre-defined group of rubrics associated with the
+            input. Refers to a key in the rubric_groups map of
+            EvaluationInstance.
+
+            This field is a member of `oneof`_ ``rubrics_source``.
+        predefined_rubric_generation_spec (google.cloud.aiplatform_v1beta1.types.PredefinedMetricSpec):
+            Dynamically generate rubrics using a
+            predefined spec.
+
+            This field is a member of `oneof`_ ``rubrics_source``.
+        metric_prompt_template (str):
+            Required. Template for the prompt sent to the
+            judge model.
+
+            This field is a member of `oneof`_ ``_metric_prompt_template``.
+        system_instruction (str):
+            Optional. System instructions for the judge
+            model.
+
+            This field is a member of `oneof`_ ``_system_instruction``.
+        judge_autorater_config (google.cloud.aiplatform_v1beta1.types.AutoraterConfig):
+            Optional. Optional configuration for the
+            judge LLM (Autorater).
+
+            This field is a member of `oneof`_ ``_judge_autorater_config``.
+        additional_config (google.protobuf.struct_pb2.Struct):
+            Optional. Optional additional configuration
+            for the metric.
+
+            This field is a member of `oneof`_ ``_additional_config``.
+    """
+
+    rubric_group_key: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="rubrics_source",
+    )
+    predefined_rubric_generation_spec: "PredefinedMetricSpec" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="rubrics_source",
+        message="PredefinedMetricSpec",
+    )
+    metric_prompt_template: str = proto.Field(
+        proto.STRING,
+        number=1,
+        optional=True,
+    )
+    system_instruction: str = proto.Field(
+        proto.STRING,
+        number=2,
+        optional=True,
+    )
+    judge_autorater_config: "AutoraterConfig" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        optional=True,
+        message="AutoraterConfig",
+    )
+    additional_config: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=7,
+        optional=True,
+        message=struct_pb2.Struct,
     )
 
 

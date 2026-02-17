@@ -23,7 +23,7 @@ from google.cloud.aiplatform_v1.types import (
     migratable_resource as gca_migratable_resource,
 )
 from google.cloud.aiplatform_v1.types import operation
-from google.rpc import status_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

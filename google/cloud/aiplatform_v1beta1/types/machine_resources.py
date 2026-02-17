@@ -25,7 +25,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 from google.cloud.aiplatform_v1beta1.types import (
     reservation_affinity as gca_reservation_affinity,
 )
-from google.protobuf import duration_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

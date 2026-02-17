@@ -292,6 +292,7 @@ from .types.evaluation_service import CometInput
 from .types.evaluation_service import CometInstance
 from .types.evaluation_service import CometResult
 from .types.evaluation_service import CometSpec
+from .types.evaluation_service import ComputationBasedMetricSpec
 from .types.evaluation_service import ContentMap
 from .types.evaluation_service import CustomOutput
 from .types.evaluation_service import CustomOutputFormatConfig
@@ -318,7 +319,9 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import LLMBasedMetricSpec
 from .types.evaluation_service import Metric
+from .types.evaluation_service import MetricResult
 from .types.evaluation_service import MetricxInput
 from .types.evaluation_service import MetricxInstance
 from .types.evaluation_service import MetricxResult
@@ -341,6 +344,7 @@ from .types.evaluation_service import PointwiseMetricInput
 from .types.evaluation_service import PointwiseMetricInstance
 from .types.evaluation_service import PointwiseMetricResult
 from .types.evaluation_service import PointwiseMetricSpec
+from .types.evaluation_service import PredefinedMetricSpec
 from .types.evaluation_service import QuestionAnsweringCorrectnessInput
 from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
 from .types.evaluation_service import QuestionAnsweringCorrectnessResult
@@ -697,6 +701,8 @@ from .types.io import JiraSource
 from .types.io import SharePointSources
 from .types.io import SlackSource
 from .types.io import TFRecordDestination
+from .types.io import VertexMultimodalDatasetDestination
+from .types.io import VertexMultimodalDatasetSource
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
 from .types.job_service import CancelDataLabelingJobRequest
@@ -1560,6 +1566,7 @@ __all__ = (
     "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
+    "ComputationBasedMetricSpec",
     "ComputeTokensRequest",
     "ComputeTokensResponse",
     "ContainerRegistryDestination",
@@ -2003,6 +2010,7 @@ __all__ = (
     "JiraSource",
     "JobServiceClient",
     "JobState",
+    "LLMBasedMetricSpec",
     "LargeModelReference",
     "LineageSubgraph",
     "ListAnnotationsRequest",
@@ -2146,6 +2154,7 @@ __all__ = (
     "MetadataServiceClient",
     "MetadataStore",
     "Metric",
+    "MetricResult",
     "MetricxInput",
     "MetricxInstance",
     "MetricxResult",
@@ -2262,6 +2271,7 @@ __all__ = (
     "PostStartupScriptConfig",
     "PreTunedModel",
     "PrebuiltVoiceConfig",
+    "PredefinedMetricSpec",
     "PredefinedSplit",
     "PredictLongRunningMetadata",
     "PredictLongRunningResponse",
@@ -2664,6 +2674,8 @@ __all__ = (
     "VeoTuningSpec",
     "VertexAISearch",
     "VertexAiSearchConfig",
+    "VertexMultimodalDatasetDestination",
+    "VertexMultimodalDatasetSource",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",
