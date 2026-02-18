@@ -2519,6 +2519,19 @@ class TestAgentEngine:
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_deployment_config_without_agent_raises(
+        self, mock_await_operation, mock_prepare
+    ):
+        with pytest.raises(ValueError, match="To update `env_vars`"):
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentEngineConfig(
+                    env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT
+                ),
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_env_vars(
         self, mock_await_operation, mock_prepare, caplog
     ):
