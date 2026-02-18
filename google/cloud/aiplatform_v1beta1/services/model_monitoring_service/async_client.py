@@ -166,7 +166,9 @@ class ModelMonitoringServiceAsyncClient:
         Returns:
             ModelMonitoringServiceAsyncClient: The constructed client.
         """
-        sa_info_func = ModelMonitoringServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            ModelMonitoringServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(ModelMonitoringServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -183,7 +185,9 @@ class ModelMonitoringServiceAsyncClient:
         Returns:
             ModelMonitoringServiceAsyncClient: The constructed client.
         """
-        sa_file_func = ModelMonitoringServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            ModelMonitoringServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             ModelMonitoringServiceAsyncClient, filename, *args, **kwargs
         )

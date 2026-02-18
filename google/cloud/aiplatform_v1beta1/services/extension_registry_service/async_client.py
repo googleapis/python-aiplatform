@@ -142,7 +142,9 @@ class ExtensionRegistryServiceAsyncClient:
         Returns:
             ExtensionRegistryServiceAsyncClient: The constructed client.
         """
-        sa_info_func = ExtensionRegistryServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            ExtensionRegistryServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(ExtensionRegistryServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -159,7 +161,9 @@ class ExtensionRegistryServiceAsyncClient:
         Returns:
             ExtensionRegistryServiceAsyncClient: The constructed client.
         """
-        sa_file_func = ExtensionRegistryServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            ExtensionRegistryServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             ExtensionRegistryServiceAsyncClient, filename, *args, **kwargs
         )

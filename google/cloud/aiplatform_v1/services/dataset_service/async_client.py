@@ -149,7 +149,9 @@ class DatasetServiceAsyncClient:
         Returns:
             DatasetServiceAsyncClient: The constructed client.
         """
-        sa_info_func = DatasetServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            DatasetServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(DatasetServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -166,7 +168,9 @@ class DatasetServiceAsyncClient:
         Returns:
             DatasetServiceAsyncClient: The constructed client.
         """
-        sa_file_func = DatasetServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            DatasetServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(DatasetServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

@@ -163,7 +163,9 @@ class NotebookServiceAsyncClient:
         Returns:
             NotebookServiceAsyncClient: The constructed client.
         """
-        sa_info_func = NotebookServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            NotebookServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(NotebookServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -180,7 +182,9 @@ class NotebookServiceAsyncClient:
         Returns:
             NotebookServiceAsyncClient: The constructed client.
         """
-        sa_file_func = NotebookServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            NotebookServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(NotebookServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

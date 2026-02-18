@@ -135,7 +135,9 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Returns:
             FeaturestoreOnlineServingServiceAsyncClient: The constructed client.
         """
-        sa_info_func = FeaturestoreOnlineServingServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            FeaturestoreOnlineServingServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(
             FeaturestoreOnlineServingServiceAsyncClient, info, *args, **kwargs
         )
@@ -154,7 +156,9 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Returns:
             FeaturestoreOnlineServingServiceAsyncClient: The constructed client.
         """
-        sa_file_func = FeaturestoreOnlineServingServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            FeaturestoreOnlineServingServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             FeaturestoreOnlineServingServiceAsyncClient, filename, *args, **kwargs
         )

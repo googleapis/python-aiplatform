@@ -133,7 +133,9 @@ class ExtensionExecutionServiceAsyncClient:
         Returns:
             ExtensionExecutionServiceAsyncClient: The constructed client.
         """
-        sa_info_func = ExtensionExecutionServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            ExtensionExecutionServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(ExtensionExecutionServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -150,7 +152,9 @@ class ExtensionExecutionServiceAsyncClient:
         Returns:
             ExtensionExecutionServiceAsyncClient: The constructed client.
         """
-        sa_file_func = ExtensionExecutionServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            ExtensionExecutionServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             ExtensionExecutionServiceAsyncClient, filename, *args, **kwargs
         )

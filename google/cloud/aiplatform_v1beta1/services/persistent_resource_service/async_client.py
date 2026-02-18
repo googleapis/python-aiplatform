@@ -164,7 +164,9 @@ class PersistentResourceServiceAsyncClient:
         Returns:
             PersistentResourceServiceAsyncClient: The constructed client.
         """
-        sa_info_func = PersistentResourceServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            PersistentResourceServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(PersistentResourceServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -181,7 +183,9 @@ class PersistentResourceServiceAsyncClient:
         Returns:
             PersistentResourceServiceAsyncClient: The constructed client.
         """
-        sa_file_func = PersistentResourceServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            PersistentResourceServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             PersistentResourceServiceAsyncClient, filename, *args, **kwargs
         )
