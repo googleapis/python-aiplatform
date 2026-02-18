@@ -158,7 +158,9 @@ class DeploymentResourcePoolServiceAsyncClient:
         Returns:
             DeploymentResourcePoolServiceAsyncClient: The constructed client.
         """
-        sa_info_func = DeploymentResourcePoolServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            DeploymentResourcePoolServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(
             DeploymentResourcePoolServiceAsyncClient, info, *args, **kwargs
         )
@@ -177,7 +179,9 @@ class DeploymentResourcePoolServiceAsyncClient:
         Returns:
             DeploymentResourcePoolServiceAsyncClient: The constructed client.
         """
-        sa_file_func = DeploymentResourcePoolServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            DeploymentResourcePoolServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             DeploymentResourcePoolServiceAsyncClient, filename, *args, **kwargs
         )

@@ -157,7 +157,9 @@ class FeatureRegistryServiceAsyncClient:
         Returns:
             FeatureRegistryServiceAsyncClient: The constructed client.
         """
-        sa_info_func = FeatureRegistryServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            FeatureRegistryServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(FeatureRegistryServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -174,7 +176,9 @@ class FeatureRegistryServiceAsyncClient:
         Returns:
             FeatureRegistryServiceAsyncClient: The constructed client.
         """
-        sa_file_func = FeatureRegistryServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            FeatureRegistryServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             FeatureRegistryServiceAsyncClient, filename, *args, **kwargs
         )

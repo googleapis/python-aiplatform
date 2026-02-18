@@ -145,7 +145,9 @@ class EndpointServiceAsyncClient:
         Returns:
             EndpointServiceAsyncClient: The constructed client.
         """
-        sa_info_func = EndpointServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            EndpointServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(EndpointServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -162,7 +164,9 @@ class EndpointServiceAsyncClient:
         Returns:
             EndpointServiceAsyncClient: The constructed client.
         """
-        sa_file_func = EndpointServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            EndpointServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(EndpointServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

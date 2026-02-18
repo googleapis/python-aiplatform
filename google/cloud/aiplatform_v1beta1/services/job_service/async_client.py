@@ -205,7 +205,9 @@ class JobServiceAsyncClient:
         Returns:
             JobServiceAsyncClient: The constructed client.
         """
-        sa_info_func = JobServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            JobServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(JobServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -222,7 +224,9 @@ class JobServiceAsyncClient:
         Returns:
             JobServiceAsyncClient: The constructed client.
         """
-        sa_file_func = JobServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            JobServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(JobServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

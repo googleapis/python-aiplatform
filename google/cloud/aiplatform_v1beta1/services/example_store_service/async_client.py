@@ -126,7 +126,9 @@ class ExampleStoreServiceAsyncClient:
         Returns:
             ExampleStoreServiceAsyncClient: The constructed client.
         """
-        sa_info_func = ExampleStoreServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            ExampleStoreServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(ExampleStoreServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -143,7 +145,9 @@ class ExampleStoreServiceAsyncClient:
         Returns:
             ExampleStoreServiceAsyncClient: The constructed client.
         """
-        sa_file_func = ExampleStoreServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            ExampleStoreServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(ExampleStoreServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

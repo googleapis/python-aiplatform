@@ -164,7 +164,9 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
         Returns:
             FeatureOnlineStoreAdminServiceAsyncClient: The constructed client.
         """
-        sa_info_func = FeatureOnlineStoreAdminServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            FeatureOnlineStoreAdminServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(
             FeatureOnlineStoreAdminServiceAsyncClient, info, *args, **kwargs
         )
@@ -183,7 +185,9 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
         Returns:
             FeatureOnlineStoreAdminServiceAsyncClient: The constructed client.
         """
-        sa_file_func = FeatureOnlineStoreAdminServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            FeatureOnlineStoreAdminServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             FeatureOnlineStoreAdminServiceAsyncClient, filename, *args, **kwargs
         )

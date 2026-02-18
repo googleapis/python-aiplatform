@@ -132,7 +132,9 @@ class ModelGardenServiceAsyncClient:
         Returns:
             ModelGardenServiceAsyncClient: The constructed client.
         """
-        sa_info_func = ModelGardenServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            ModelGardenServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(ModelGardenServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -149,7 +151,9 @@ class ModelGardenServiceAsyncClient:
         Returns:
             ModelGardenServiceAsyncClient: The constructed client.
         """
-        sa_file_func = ModelGardenServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            ModelGardenServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(ModelGardenServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

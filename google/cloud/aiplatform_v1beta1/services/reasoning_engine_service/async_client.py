@@ -148,7 +148,9 @@ class ReasoningEngineServiceAsyncClient:
         Returns:
             ReasoningEngineServiceAsyncClient: The constructed client.
         """
-        sa_info_func = ReasoningEngineServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            ReasoningEngineServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(ReasoningEngineServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -165,7 +167,9 @@ class ReasoningEngineServiceAsyncClient:
         Returns:
             ReasoningEngineServiceAsyncClient: The constructed client.
         """
-        sa_file_func = ReasoningEngineServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            ReasoningEngineServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(
             ReasoningEngineServiceAsyncClient, filename, *args, **kwargs
         )

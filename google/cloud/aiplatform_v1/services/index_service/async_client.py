@@ -130,7 +130,9 @@ class IndexServiceAsyncClient:
         Returns:
             IndexServiceAsyncClient: The constructed client.
         """
-        sa_info_func = IndexServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            IndexServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(IndexServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -147,7 +149,9 @@ class IndexServiceAsyncClient:
         Returns:
             IndexServiceAsyncClient: The constructed client.
         """
-        sa_file_func = IndexServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            IndexServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(IndexServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

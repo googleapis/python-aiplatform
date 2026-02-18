@@ -157,7 +157,9 @@ class TensorboardServiceAsyncClient:
         Returns:
             TensorboardServiceAsyncClient: The constructed client.
         """
-        sa_info_func = TensorboardServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            TensorboardServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(TensorboardServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -174,7 +176,9 @@ class TensorboardServiceAsyncClient:
         Returns:
             TensorboardServiceAsyncClient: The constructed client.
         """
-        sa_file_func = TensorboardServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            TensorboardServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(TensorboardServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file

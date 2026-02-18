@@ -135,7 +135,9 @@ class IndexEndpointServiceAsyncClient:
         Returns:
             IndexEndpointServiceAsyncClient: The constructed client.
         """
-        sa_info_func = IndexEndpointServiceClient.from_service_account_info.__func__  # type: ignore
+        sa_info_func = (
+            IndexEndpointServiceClient.from_service_account_info.__func__  # type: ignore
+        )
         return sa_info_func(IndexEndpointServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
@@ -152,7 +154,9 @@ class IndexEndpointServiceAsyncClient:
         Returns:
             IndexEndpointServiceAsyncClient: The constructed client.
         """
-        sa_file_func = IndexEndpointServiceClient.from_service_account_file.__func__  # type: ignore
+        sa_file_func = (
+            IndexEndpointServiceClient.from_service_account_file.__func__  # type: ignore
+        )
         return sa_file_func(IndexEndpointServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
