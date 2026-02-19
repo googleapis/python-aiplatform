@@ -37,9 +37,11 @@ from . import types
 if typing.TYPE_CHECKING:
     from . import sessions as sessions_module
     from . import memories as memories_module
+    from . import a2a_tasks as a2a_tasks_module
 
     _ = sessions_module
     __ = memories_module
+    ___ = a2a_tasks_module
 
 
 logger = logging.getLogger("vertexai_genai.agentengines")
@@ -706,9 +708,25 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _a2a_tasks = None
     _memories = None
     _sandboxes = None
     _sessions = None
+
+    @property
+    def a2a_tasks(self) -> "a2a_tasks_module.A2aTasks":
+        if self._a2a_tasks is None:
+            try:
+                # We need to lazy load the a2a_tasks module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._a2a_tasks = importlib.import_module(".a2a_tasks", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.a2a_tasks' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._a2a_tasks.A2aTasks(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def memories(self) -> "memories_module.Memories":
