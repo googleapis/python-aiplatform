@@ -223,7 +223,9 @@ def test_create_eval_run_with_inference_configs(client):
     assert evaluation_run.error is None
 
 
-# Test fails in replay mode because of UUID generation mismatch.
+# # Test fails in replay mode because of UUID generation mismatch.
+# import pandas as pd
+
 # def test_create_eval_run_data_source_evaluation_dataset(client):
 #     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with EvaluationDataset."""
 #     input_df = pd.DataFrame(
@@ -319,6 +321,75 @@ def test_create_eval_run_with_inference_configs(client):
 #     assert evaluation_run.error is None
 
 
+# def test_create_eval_run_data_source_evaluation_dataset_with_prompt_template_data(
+#     client,
+# ):
+#     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with EvaluationDataset and inference_configs."""
+#     input_df = pd.DataFrame(
+#         {
+#             "prompt": ["prompt1", "prompt2"],
+#             "reference": ["reference1", "reference2"],
+#             "response": ["response1", "response2"],
+#             "context": ["context1", "context2"],
+#             "conversation_history": ["history1", "history2"],
+#         }
+#     )
+#     evaluation_run = client.evals.create_evaluation_run(
+#         name="test9",
+#         display_name="test9",
+#         dataset=types.EvaluationDataset(
+#             candidate_name="candidate_1",
+#             eval_dataset_df=input_df,
+#         ),
+#         dest=GCS_DEST,
+#         metrics=[GENERAL_QUALITY_METRIC],
+#     )
+#     assert isinstance(evaluation_run, types.EvaluationRun)
+#     assert evaluation_run.display_name == "test9"
+#     assert evaluation_run.state == types.EvaluationRunState.PENDING
+#     assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+#     # Check evaluation set
+#     assert evaluation_run.data_source.evaluation_set
+#     eval_set = client.evals.get_evaluation_set(
+#         name=evaluation_run.data_source.evaluation_set
+#     )
+#     assert len(eval_set.evaluation_items) == 2
+#     # Check evaluation items
+#     for i, eval_item_name in enumerate(eval_set.evaluation_items):
+#         eval_item = client.evals.get_evaluation_item(name=eval_item_name)
+#         assert eval_item.evaluation_item_type == types.EvaluationItemType.REQUEST
+#         assert (
+#             eval_item.evaluation_request.prompt.prompt_template_data.values[
+#                 "prompt"
+#             ]
+#             == genai_types.Content(
+#                 parts=[genai_types.Part(text=input_df.iloc[i]["prompt"])],
+#                 role="user",
+#             )
+#         )
+#         assert (
+#             eval_item.evaluation_request.prompt.prompt_template_data.values[
+#                 "context"
+#             ]
+#             == genai_types.Content(
+#                 parts=[genai_types.Part(text=input_df.iloc[i]["context"])],
+#                 role="user",
+#             )
+#         )
+#         assert (
+#             eval_item.evaluation_request.prompt.prompt_template_data.values[
+#                 "conversation_history"
+#             ]
+#             == genai_types.Content(
+#                 parts=[genai_types.Part(text=input_df.iloc[i]["conversation_history"])],
+#                 role="user",
+#             )
+#         )
+#         assert (
+#             eval_item.evaluation_request.candidate_responses[0].text
+#             == input_df.iloc[i]["response"]
+#         )
+#     assert evaluation_run.error is None
 pytest_plugins = ("pytest_asyncio",)
 
 
