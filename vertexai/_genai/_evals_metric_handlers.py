@@ -879,6 +879,11 @@ class PredefinedMetricHandler(MetricHandler):
         eval_case: types.EvalCase,
     ) -> Optional[types.evals.AgentData]:
         """Converts an EvalCase object to an AgentData object."""
+        # --- NEW LOGIC: Use the structured agent_data if present ---
+        if getattr(eval_case, "agent_data", None):
+            return eval_case.agent_data
+
+        # --- LEGACY LOGIC: Fallback for older dataframes ---
         if not eval_case.agent_info and not eval_case.intermediate_events:
             return None
         tools = None
@@ -899,7 +904,7 @@ class PredefinedMetricHandler(MetricHandler):
 
             if tools or developer_instruction:
                 agent_config = types.evals.AgentConfig(
-                    tools=tools,
+                    legacy_tools=tools,
                     developer_instruction=developer_instruction,
                 )
 
