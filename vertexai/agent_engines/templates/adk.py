@@ -684,6 +684,18 @@ class AdkApp:
             for event in request.events:
                 await session_service.append_event(session, Event(**event))
         if request.artifacts:
+            await self._save_artifacts(session.id, artifact_service, request)
+        return session
+
+    async def _save_artifacts(
+        self,
+        session_id: str,
+        artifact_service: "BaseArtifactService",
+        request: _StreamRunRequest,
+    ):
+        """Saves the artifacts."""
+        app = self._tmpl_attrs.get("app")
+        if request.artifacts:
             for artifact in request.artifacts:
                 artifact = _Artifact(**artifact)
                 for version_data in sorted(
@@ -693,7 +705,7 @@ class AdkApp:
                     saved_version = await artifact_service.save_artifact(
                         app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
-                        session_id=session.id,
+                        session_id=session_id,
                         filename=artifact.file_name,
                         artifact=version_data.data,
                     )
@@ -707,7 +719,6 @@ class AdkApp:
                             saved_version,
                             version_data.version,
                         )
-        return session
 
     async def _convert_response_events(
         self,
@@ -1209,6 +1220,12 @@ class AdkApp:
                     user_id=request.user_id,
                     session_id=request.session_id,
                 )
+                if session:
+                    await self._save_artifacts(
+                        session_id=request.session_id,
+                        artifact_service=artifact_service,
+                        request=request,
+                    )
             except ClientError:
                 pass
             if not session:
