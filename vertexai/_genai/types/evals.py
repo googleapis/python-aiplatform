@@ -36,6 +36,331 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
+class Tools(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of tools for an agent.
+    """
+
+    tool: Optional[list[genai_types.Tool]] = Field(
+        default=None,
+        description="""List of tools: each tool can have multiple function declarations.""",
+    )
+
+
+class ToolsDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of tools for an agent.
+    """
+
+    tool: Optional[list[genai_types.ToolDict]]
+    """List of tools: each tool can have multiple function declarations."""
+
+
+ToolsOrDict = Union[Tools, ToolsDict]
+
+
+class InstanceDataContents(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    List of standard Content messages from Gemini API.
+    """
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Repeated contents."""
+    )
+
+
+class InstanceDataContentsDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    List of standard Content messages from Gemini API.
+    """
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Repeated contents."""
+
+
+InstanceDataContentsOrDict = Union[InstanceDataContents, InstanceDataContentsDict]
+
+
+class InstanceData(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    Instance data used to populate placeholders in a metric prompt template.
+    """
+
+    text: Optional[str] = Field(default=None, description="""Text data.""")
+    contents: Optional[InstanceDataContents] = Field(
+        default=None, description="""List of Gemini content data."""
+    )
+
+
+class InstanceDataDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    Instance data used to populate placeholders in a metric prompt template.
+    """
+
+    text: Optional[str]
+    """Text data."""
+
+    contents: Optional[InstanceDataContentsDict]
+    """List of Gemini content data."""
+
+
+InstanceDataOrDict = Union[InstanceData, InstanceDataDict]
+
+
+class AgentConfig(_common.BaseModel):
+    """Represents configuration for an Agent."""
+
+    agent_id: Optional[str] = Field(
+        default=None,
+        description="""Unique identifier of the agent.
+      This ID is used to refer to this agent, e.g., in AgentEvent.author, or in
+      the `sub_agents` field. It must be unique within the `agents` map.""",
+    )
+    agent_type: Optional[str] = Field(
+        default=None,
+        description="""The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
+      "ToolUseAgent"). Useful for the autorater to understand the expected
+      behavior of the agent.""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""A high-level description of the agent's role and responsibilities.
+      Critical for evaluating if the agent is routing tasks correctly.""",
+    )
+    instruction: Optional[str] = Field(
+        default=None,
+        description="""The instructions for the LLM model, guiding the agent's behavior.
+      Can be static or dynamic. Dynamic instructions can contain placeholders
+      like {variable_name} that will be resolved at runtime using the
+      `AgentEvent.state_delta` field.""",
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The list of tools available to this agent."""
+    )
+    sub_agents: Optional[list[str]] = Field(
+        default=None,
+        description="""The list of valid agent IDs that this agent can delegate to.
+      This defines the directed edges in the multi-agent system graph topology.""",
+    )
+    tools_text: Optional[str] = Field(
+        default=None,
+        description="""A JSON string containing a list of tools available to an agent.""",
+    )
+    legacy_tools: Optional[Tools] = Field(
+        default=None, description="""List of tools."""
+    )
+    developer_instruction: Optional[InstanceData] = Field(
+        default=None,
+        description="""A field containing instructions from the developer for the agent.""",
+    )
+
+
+class AgentConfigDict(TypedDict, total=False):
+    """Represents configuration for an Agent."""
+
+    agent_id: Optional[str]
+    """Unique identifier of the agent.
+      This ID is used to refer to this agent, e.g., in AgentEvent.author, or in
+      the `sub_agents` field. It must be unique within the `agents` map."""
+
+    agent_type: Optional[str]
+    """The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
+      "ToolUseAgent"). Useful for the autorater to understand the expected
+      behavior of the agent."""
+
+    description: Optional[str]
+    """A high-level description of the agent's role and responsibilities.
+      Critical for evaluating if the agent is routing tasks correctly."""
+
+    instruction: Optional[str]
+    """The instructions for the LLM model, guiding the agent's behavior.
+      Can be static or dynamic. Dynamic instructions can contain placeholders
+      like {variable_name} that will be resolved at runtime using the
+      `AgentEvent.state_delta` field."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The list of tools available to this agent."""
+
+    sub_agents: Optional[list[str]]
+    """The list of valid agent IDs that this agent can delegate to.
+      This defines the directed edges in the multi-agent system graph topology."""
+
+    tools_text: Optional[str]
+    """A JSON string containing a list of tools available to an agent."""
+
+    legacy_tools: Optional[ToolsDict]
+    """List of tools."""
+
+    developer_instruction: Optional[InstanceDataDict]
+    """A field containing instructions from the developer for the agent."""
+
+
+AgentConfigOrDict = Union[AgentConfig, AgentConfigDict]
+
+
+class AgentEvent(_common.BaseModel):
+    """A single event in the execution trace."""
+
+    author: Optional[str] = Field(
+        default=None,
+        description="""The ID of the agent or entity that generated this event.
+      Use "user" to denote events generated by the end-user.""",
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""The content of the event."""
+    )
+    event_time: Optional[datetime.datetime] = Field(
+        default=None, description="""The timestamp when the event occurred."""
+    )
+    state_delta: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The change in the session state caused by this event.
+      This is a key-value map of fields that were modified or added by the event.""",
+    )
+    active_tools: Optional[list[genai_types.Tool]] = Field(
+        default=None,
+        description="""The list of tools that were active/available to the agent at the
+      time of this event. This overrides the `AgentConfig.tools` if set.""",
+    )
+
+
+class AgentEventDict(TypedDict, total=False):
+    """A single event in the execution trace."""
+
+    author: Optional[str]
+    """The ID of the agent or entity that generated this event.
+      Use "user" to denote events generated by the end-user."""
+
+    content: Optional[genai_types.ContentDict]
+    """The content of the event."""
+
+    event_time: Optional[datetime.datetime]
+    """The timestamp when the event occurred."""
+
+    state_delta: Optional[dict[str, Any]]
+    """The change in the session state caused by this event.
+      This is a key-value map of fields that were modified or added by the event."""
+
+    active_tools: Optional[list[genai_types.ToolDict]]
+    """The list of tools that were active/available to the agent at the
+      time of this event. This overrides the `AgentConfig.tools` if set."""
+
+
+AgentEventOrDict = Union[AgentEvent, AgentEventDict]
+
+
+class ConversationTurn(_common.BaseModel):
+    """Represents a single turn/invocation in the conversation."""
+
+    turn_index: Optional[int] = Field(
+        default=None,
+        description="""The 0-based index of the turn in the conversation sequence.""",
+    )
+    turn_id: Optional[str] = Field(
+        default=None, description="""A unique identifier for the turn."""
+    )
+    events: Optional[list[AgentEvent]] = Field(
+        default=None,
+        description="""The list of events that occurred during this turn.""",
+    )
+
+
+class ConversationTurnDict(TypedDict, total=False):
+    """Represents a single turn/invocation in the conversation."""
+
+    turn_index: Optional[int]
+    """The 0-based index of the turn in the conversation sequence."""
+
+    turn_id: Optional[str]
+    """A unique identifier for the turn."""
+
+    events: Optional[list[AgentEventDict]]
+    """The list of events that occurred during this turn."""
+
+
+ConversationTurnOrDict = Union[ConversationTurn, ConversationTurnDict]
+
+
+class Events(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of events for an agent.
+    """
+
+    event: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""A list of events."""
+    )
+
+
+class EventsDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of events for an agent.
+    """
+
+    event: Optional[list[genai_types.ContentDict]]
+    """A list of events."""
+
+
+EventsOrDict = Union[Events, EventsDict]
+
+
+class AgentData(_common.BaseModel):
+    """Represents data specific to multi-turn agent evaluations."""
+
+    agents: Optional[dict[str, AgentConfig]] = Field(
+        default=None,
+        description="""A map containing the static configurations for each agent in the system.
+      Key: agent_id (matches the `author` field in events).
+      Value: The static configuration of the agent.""",
+    )
+    turns: Optional[list[ConversationTurn]] = Field(
+        default=None,
+        description="""A chronological list of conversation turns.
+      Each turn represents a logical execution cycle (e.g., User Input -> Agent
+      Response).""",
+    )
+    agent_config: Optional[AgentConfig] = Field(
+        default=None, description="""Agent configuration."""
+    )
+    events_text: Optional[str] = Field(
+        default=None, description="""A JSON string containing a sequence of events."""
+    )
+    events: Optional[Events] = Field(default=None, description="""A list of events.""")
+
+
+class AgentDataDict(TypedDict, total=False):
+    """Represents data specific to multi-turn agent evaluations."""
+
+    agents: Optional[dict[str, AgentConfigDict]]
+    """A map containing the static configurations for each agent in the system.
+      Key: agent_id (matches the `author` field in events).
+      Value: The static configuration of the agent."""
+
+    turns: Optional[list[ConversationTurnDict]]
+    """A chronological list of conversation turns.
+      Each turn represents a logical execution cycle (e.g., User Input -> Agent
+      Response)."""
+
+    agent_config: Optional[AgentConfigDict]
+    """Agent configuration."""
+
+    events_text: Optional[str]
+    """A JSON string containing a sequence of events."""
+
+    events: Optional[EventsDict]
+    """A list of events."""
+
+
+AgentDataOrDict = Union[AgentData, AgentDataDict]
+
+
 class AgentInfo(_common.BaseModel):
     """The agent info of an agent, used for agent eval."""
 
@@ -443,138 +768,3 @@ class SessionInputDict(TypedDict, total=False):
 
 
 SessionInputOrDict = Union[SessionInput, SessionInputDict]
-
-
-class Tools(_common.BaseModel):
-    """Represents a list of tools for an agent."""
-
-    tool: Optional[list[genai_types.Tool]] = Field(
-        default=None,
-        description="""List of tools: each tool can have multiple function declarations.""",
-    )
-
-
-class ToolsDict(TypedDict, total=False):
-    """Represents a list of tools for an agent."""
-
-    tool: Optional[list[genai_types.ToolDict]]
-    """List of tools: each tool can have multiple function declarations."""
-
-
-ToolsOrDict = Union[Tools, ToolsDict]
-
-
-class InstanceDataContents(_common.BaseModel):
-    """List of standard Content messages from Gemini API."""
-
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Repeated contents."""
-    )
-
-
-class InstanceDataContentsDict(TypedDict, total=False):
-    """List of standard Content messages from Gemini API."""
-
-    contents: Optional[list[genai_types.ContentDict]]
-    """Repeated contents."""
-
-
-InstanceDataContentsOrDict = Union[InstanceDataContents, InstanceDataContentsDict]
-
-
-class InstanceData(_common.BaseModel):
-    """Instance data used to populate placeholders in a metric prompt template."""
-
-    text: Optional[str] = Field(default=None, description="""Text data.""")
-    contents: Optional[InstanceDataContents] = Field(
-        default=None, description="""List of Gemini content data."""
-    )
-
-
-class InstanceDataDict(TypedDict, total=False):
-    """Instance data used to populate placeholders in a metric prompt template."""
-
-    text: Optional[str]
-    """Text data."""
-
-    contents: Optional[InstanceDataContentsDict]
-    """List of Gemini content data."""
-
-
-InstanceDataOrDict = Union[InstanceData, InstanceDataDict]
-
-
-class AgentConfig(_common.BaseModel):
-    """Configuration for an Agent."""
-
-    tools_text: Optional[str] = Field(
-        default=None,
-        description="""A JSON string containing a list of tools available to an agent.""",
-    )
-    tools: Optional[Tools] = Field(default=None, description="""List of tools.""")
-    developer_instruction: Optional[InstanceData] = Field(
-        default=None,
-        description="""A field containing instructions from the developer for the agent.""",
-    )
-
-
-class AgentConfigDict(TypedDict, total=False):
-    """Configuration for an Agent."""
-
-    tools_text: Optional[str]
-    """A JSON string containing a list of tools available to an agent."""
-
-    tools: Optional[ToolsDict]
-    """List of tools."""
-
-    developer_instruction: Optional[InstanceDataDict]
-    """A field containing instructions from the developer for the agent."""
-
-
-AgentConfigOrDict = Union[AgentConfig, AgentConfigDict]
-
-
-class Events(_common.BaseModel):
-    """Represents a list of events for an agent."""
-
-    event: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""A list of events."""
-    )
-
-
-class EventsDict(TypedDict, total=False):
-    """Represents a list of events for an agent."""
-
-    event: Optional[list[genai_types.ContentDict]]
-    """A list of events."""
-
-
-EventsOrDict = Union[Events, EventsDict]
-
-
-class AgentData(_common.BaseModel):
-    """Contains data specific to agent evaluations."""
-
-    agent_config: Optional[AgentConfig] = Field(
-        default=None, description="""Agent configuration."""
-    )
-    events_text: Optional[str] = Field(
-        default=None, description="""A JSON string containing a sequence of events."""
-    )
-    events: Optional[Events] = Field(default=None, description="""A list of events.""")
-
-
-class AgentDataDict(TypedDict, total=False):
-    """Contains data specific to agent evaluations."""
-
-    agent_config: Optional[AgentConfigDict]
-    """Agent configuration."""
-
-    events_text: Optional[str]
-    """A JSON string containing a sequence of events."""
-
-    events: Optional[EventsDict]
-    """A list of events."""
-
-
-AgentDataOrDict = Union[AgentData, AgentDataDict]

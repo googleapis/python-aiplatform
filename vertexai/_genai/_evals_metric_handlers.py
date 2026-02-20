@@ -899,7 +899,7 @@ class PredefinedMetricHandler(MetricHandler):
 
             if tools or developer_instruction:
                 agent_config = types.evals.AgentConfig(
-                    tools=tools,
+                    legacy_tools=tools,
                     developer_instruction=developer_instruction,
                 )
 

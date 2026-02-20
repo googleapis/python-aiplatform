@@ -1492,6 +1492,10 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
     )
+    agent_data: Optional[evals_types.AgentData] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The agent data of the agent under evaluation.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -1525,6 +1529,9 @@ class EvalCaseDict(TypedDict, total=False):
 
     agent_info: Optional[evals_types.AgentInfo]
     """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
+
+    agent_data: Optional[evals_types.AgentData]
+    """This field is experimental and may change in future versions. The agent data of the agent under evaluation."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
