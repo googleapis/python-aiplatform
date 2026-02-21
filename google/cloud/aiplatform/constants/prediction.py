@@ -70,6 +70,9 @@ XGBOOST_CONTAINER_URIS = [
 ]
 
 SKLEARN_CONTAINER_URIS = [
+    "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-6:latest",
+    "europe-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-6:latest",
+    "asia-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-6:latest",
     "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-5:latest",
     "europe-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-5:latest",
     "asia-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.1-5:latest",
