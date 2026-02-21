@@ -1042,6 +1042,12 @@ from .common import UpdateDatasetConfigOrDict
 from .common import UpdateMultimodalDatasetConfig
 from .common import UpdateMultimodalDatasetConfigDict
 from .common import UpdateMultimodalDatasetConfigOrDict
+from .common import UserScenario
+from .common import UserScenarioDict
+from .common import UserScenarioOrDict
+from .common import UserSimulatorConfig
+from .common import UserSimulatorConfigDict
+from .common import UserSimulatorConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
@@ -1059,6 +1065,9 @@ __all__ = [
     "PromptTemplateData",
     "PromptTemplateDataDict",
     "PromptTemplateDataOrDict",
+    "UserScenario",
+    "UserScenarioDict",
+    "UserScenarioOrDict",
     "EvaluationPrompt",
     "EvaluationPromptDict",
     "EvaluationPromptOrDict",
@@ -1155,6 +1164,9 @@ __all__ = [
     "EvaluationRunAgentConfig",
     "EvaluationRunAgentConfigDict",
     "EvaluationRunAgentConfigOrDict",
+    "UserSimulatorConfig",
+    "UserSimulatorConfigDict",
+    "UserSimulatorConfigOrDict",
     "EvaluationRunInferenceConfig",
     "EvaluationRunInferenceConfigDict",
     "EvaluationRunInferenceConfigOrDict",
