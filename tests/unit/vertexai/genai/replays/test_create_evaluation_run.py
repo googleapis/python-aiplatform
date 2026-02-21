@@ -22,24 +22,24 @@ import pytest
 GCS_DEST = "gs://lakeyk-limited-bucket/eval_run_output"
 GENERAL_QUALITY_METRIC = types.EvaluationRunMetric(
     metric="general_quality_v1",
-    metric_config=types.UnifiedMetric(
-        predefined_metric_spec=types.PredefinedMetricSpec(
+    metric_config=genai_types.UnifiedMetric(
+        predefined_metric_spec=genai_types.PredefinedMetricSpec(
             metric_spec_name="general_quality_v1",
         )
     ),
 )
 FINAL_RESPONSE_QUALITY_METRIC = types.EvaluationRunMetric(
     metric="final_response_quality_v1",
-    metric_config=types.UnifiedMetric(
-        predefined_metric_spec=types.PredefinedMetricSpec(
+    metric_config=genai_types.UnifiedMetric(
+        predefined_metric_spec=genai_types.PredefinedMetricSpec(
             metric_spec_name="final_response_quality_v1",
         )
     ),
 )
 LLM_METRIC = types.EvaluationRunMetric(
     metric="llm_metric",
-    metric_config=types.UnifiedMetric(
-        llm_based_metric_spec=types.LLMBasedMetricSpec(
+    metric_config=genai_types.UnifiedMetric(
+        llm_based_metric_spec=genai_types.LLMBasedMetricSpec(
             metric_prompt_template=(
                 "\nEvaluate the fluency of the response. Provide a score from 1-5."
             )
@@ -48,17 +48,17 @@ LLM_METRIC = types.EvaluationRunMetric(
 )
 EXACT_MATCH_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
     metric="exact_match",
-    metric_config=types.UnifiedMetric(
-        computation_based_metric_spec=types.ComputationBasedMetricSpec(
-            type=types.ComputationBasedMetricType.EXACT_MATCH,
+    metric_config=genai_types.UnifiedMetric(
+        computation_based_metric_spec=genai_types.ComputationBasedMetricSpec(
+            type=genai_types.ComputationBasedMetricType.EXACT_MATCH,
         )
     ),
 )
 BLEU_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
     metric="exact_match_2",
-    metric_config=types.UnifiedMetric(
-        computation_based_metric_spec=types.ComputationBasedMetricSpec(
-            type=types.ComputationBasedMetricType.BLEU,
+    metric_config=genai_types.UnifiedMetric(
+        computation_based_metric_spec=genai_types.ComputationBasedMetricSpec(
+            type=genai_types.ComputationBasedMetricType.BLEU,
             parameters={"use_effective_order": True},
         )
     ),
