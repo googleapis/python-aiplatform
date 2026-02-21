@@ -32,7 +32,7 @@ BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
 LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
 
-DEFAULT_PYTHON_VERSION = "3.10"
+DEFAULT_PYTHON_VERSION = "3.14"
 
 DOCS_DEPENDENCIES = (
     "sphinx==5.0.2",
@@ -69,6 +69,7 @@ UNIT_TEST_STANDARD_DEPENDENCIES = [
     "pytest-asyncio",
     # Preventing: py.test: error: unrecognized arguments: -n=auto --dist=loadscope
     "pytest-xdist",
+    "pyyaml>=5.3.1,<7",
 ]
 UNIT_TEST_EXTERNAL_DEPENDENCIES = []
 UNIT_TEST_LOCAL_DEPENDENCIES = []
@@ -78,7 +79,7 @@ UNIT_TEST_EXTRAS = [
 ]
 UNIT_TEST_EXTRAS_BY_PYTHON = {}
 
-SYSTEM_TEST_PYTHON_VERSIONS = ["3.10"]
+SYSTEM_TEST_PYTHON_VERSIONS = ["3.14"]
 SYSTEM_TEST_STANDARD_DEPENDENCIES = [
     "mock",
     "pytest",
@@ -121,6 +122,7 @@ def lint(session):
     serious code quality issues.
     """
     session.install(FLAKE8_VERSION, BLACK_VERSION)
+    session.run("uv", "pip", "list", "--format=freeze")
     session.run(
         "black",
         "--check",
@@ -133,7 +135,7 @@ def lint(session):
 @nox.session(python=DEFAULT_PYTHON_VERSION, venv_backend="virtualenv")
 def blacken(session):
     """Run black. Format code to uniform standard."""
-    session.install(BLACK_VERSION)
+    session.run("python", "-m", "pip", "freeze")
     session.run(
         "black",
         *LINT_PATHS,
@@ -147,6 +149,7 @@ def format(session):
     to format code to uniform standard.
     """
     session.install(BLACK_VERSION, ISORT_VERSION)
+    session.run("uv", "pip", "list", "--format=freeze")
     # Use the --fss option to sort imports using strict alphabetical order.
     # See https://pycqa.github.io/isort/docs/configuration/options.html#force-sort-within-sections
     session.run(
@@ -164,6 +167,7 @@ def format(session):
 def lint_setup_py(session):
     """Verify that setup.py is valid (including RST check)."""
     session.install("docutils", "pygments", "setuptools")
+    session.run("uv", "pip", "list", "--format=freeze")
     session.run("python", "setup.py", "check", "--restructuredtext", "--strict")
 
 
@@ -184,12 +188,6 @@ def install_unittest_dependencies(session, *constraints):
 
     if UNIT_TEST_EXTRAS_BY_PYTHON:
         extras = UNIT_TEST_EXTRAS_BY_PYTHON.get(session.python, [])
-    elif UNIT_TEST_EXTRAS:
-        extras = UNIT_TEST_EXTRAS
-    else:
-        extras = []
-
-    if extras:
         session.install("-e", f".[{','.join(extras)}]", *constraints)
     else:
         session.install("-e", ".", *constraints)
@@ -202,6 +200,7 @@ def default(session):
         CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
     )
     install_unittest_dependencies(session, "-c", constraints_path)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the unit tests.
     session.run(
@@ -249,6 +248,7 @@ def unit_genai_minimal_dependencies(session):
     standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
     session.install(*standard_deps)
     session.install("-e", ".")
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the unit tests.
     session.run(
@@ -277,6 +277,7 @@ def unit_ray(session, ray):
 
     # Install ray extras
     session.install("-e", ".[ray_testing]", "-c", constraints_path)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the unit tests.
     session.run(
@@ -303,6 +304,7 @@ def unit_langchain(session):
 
     # Install langchain extras
     session.install("-e", ".[langchain_testing]", "-c", constraints_path)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the unit tests.
     session.run(
@@ -329,6 +331,7 @@ def unit_ag2(session):
 
     # Install ag2 extras
     session.install("-e", ".[ag2_testing]", "-c", constraints_path)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the unit tests.
     session.run(
@@ -357,6 +360,7 @@ def unit_llama_index(session):
 
     # Install llama_index extras
     session.install("-e", ".[llama_index_testing]", "-c", constraints_path)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the unit tests.
     session.run(
@@ -426,6 +430,7 @@ def system(session):
         session.skip("System tests were not found")
 
     install_systemtest_dependencies(session, "-c", constraints_path)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Run py.test against the system tests.
     if system_test_exists:
@@ -454,6 +459,7 @@ def cover(session):
     test runs (not system test runs), and then erases coverage data.
     """
     session.install("coverage", "pytest-cov")
+    session.run("uv", "pip", "list", "--format=freeze")
     session.run("coverage", "report", "--show-missing", "--fail-under=85")
 
     session.run("coverage", "erase")
@@ -468,6 +474,7 @@ def docs(session):
         *DOCS_DEPENDENCIES,
         "google-cloud-aiplatform[prediction]",
     )
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -492,6 +499,7 @@ def docfx(session):
         *DOCFX_DEPENDENCIES,
         "google-cloud-aiplatform[prediction]",
     )
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -525,6 +533,7 @@ def gemini_docs(session):
 
     session.install("-e", ".")
     session.install(*DOCS_DEPENDENCIES)
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -546,6 +555,7 @@ def gemini_docfx(session):
 
     session.install("-e", ".")
     session.install(*DOCFX_DEPENDENCIES)
+    session.run("python", "-m", "pip", "freeze")
 
     shutil.rmtree(os.path.join("docs", "_build"), ignore_errors=True)
     session.run(
@@ -631,6 +641,7 @@ def prerelease_deps(session):
         "google-auth",
     ]
     session.install(*other_deps)
+    session.run("uv", "pip", "list", "--format=freeze")
 
     # Print out prerelease package versions
     session.run(
