@@ -1944,7 +1944,7 @@ class AgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.sessions.events.append(  # type: ignore[no-any-return]
+        return self.sessions.events.append(
             name=name,
             author=author,
             invocation_id=invocation_id,
@@ -1967,7 +1967,7 @@ class AgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.sessions.events.list(name=name, config=config)  # type: ignore[no-any-return]
+        return self.sessions.events.list(name=name, config=config)
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
@@ -2436,7 +2436,13 @@ class AsyncAgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return await self.sessions.events.append(name=name, config=config)  # type: ignore[no-any-return]
+        return await self.sessions.events.append(
+            name=name,
+            author=author,
+            invocation_id=invocation_id,
+            timestamp=timestamp,
+            config=config,
+        )
 
     async def delete_memory(
         self,

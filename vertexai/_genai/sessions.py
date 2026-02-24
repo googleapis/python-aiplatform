@@ -608,10 +608,6 @@ class Sessions(_api_module.BaseModule):
     _events = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sessions.events module is "
-        "experimental, and may change in future versions."
-    )
     def events(self) -> "session_events_module.SessionEvents":
         if self._events is None:
             try:
@@ -1094,10 +1090,6 @@ class AsyncSessions(_api_module.BaseModule):
     _events = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sessions.events module is "
-        "experimental, and may change in future versions."
-    )
     def events(self) -> "session_events_module.AsyncSessionEvents":
         if self._events is None:
             try:
