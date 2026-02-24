@@ -187,6 +187,16 @@ class _Schedule(
         return self._gca_resource.max_concurrent_run_count
 
     @property
+    def max_concurrent_active_run_count(self) -> int:
+        """Current Schedule max_concurrent_active_run_count.
+
+        Returns:
+            Schedule max_concurrent_active_run_count.
+        """
+        self._sync_gca_resource()
+        return self._gca_resource.max_concurrent_active_run_count
+
+    @property
     def allow_queueing(self) -> bool:
         """Whether current Schedule allows queueing.
 
