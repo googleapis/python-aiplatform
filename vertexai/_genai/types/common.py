@@ -1177,6 +1177,18 @@ class CreateAgentEngineTaskConfig(_common.BaseModel):
     context_id: Optional[str] = Field(
         default=None, description="""The context id of the task to create."""
     )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""The metadata of the task to create."""
+    )
+    state: Optional[A2aTaskState] = Field(
+        default=None, description="""The state of the task to create."""
+    )
+    status_details: Optional[TaskStatusDetails] = Field(
+        default=None, description="""The status details of the task to create."""
+    )
+    output: Optional[TaskOutput] = Field(
+        default=None, description="""The output of the task to create."""
+    )
 
 
 class CreateAgentEngineTaskConfigDict(TypedDict, total=False):
@@ -1187,6 +1199,18 @@ class CreateAgentEngineTaskConfigDict(TypedDict, total=False):
 
     context_id: Optional[str]
     """The context id of the task to create."""
+
+    metadata: Optional[dict[str, Any]]
+    """The metadata of the task to create."""
+
+    state: Optional[A2aTaskState]
+    """The state of the task to create."""
+
+    status_details: Optional[TaskStatusDetailsDict]
+    """The status details of the task to create."""
+
+    output: Optional[TaskOutputDict]
+    """The output of the task to create."""
 
 
 CreateAgentEngineTaskConfigOrDict = Union[
