@@ -398,6 +398,7 @@ from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
 from .common import ExecuteSandboxEnvironmentResponse
 from .common import ExecuteSandboxEnvironmentResponseDict
 from .common import ExecuteSandboxEnvironmentResponseOrDict
+from .common import Framework
 from .common import GcsSource
 from .common import GcsSourceDict
 from .common import GcsSourceOrDict
@@ -886,6 +887,12 @@ from .common import SchemaPromptInstancePromptExecutionOrDict
 from .common import SchemaPromptInstanceVariableValue
 from .common import SchemaPromptInstanceVariableValueDict
 from .common import SchemaPromptInstanceVariableValueOrDict
+from .common import SchemaPromptSpecAppBuilderData
+from .common import SchemaPromptSpecAppBuilderDataDict
+from .common import SchemaPromptSpecAppBuilderDataLinkedResource
+from .common import SchemaPromptSpecAppBuilderDataLinkedResourceDict
+from .common import SchemaPromptSpecAppBuilderDataLinkedResourceOrDict
+from .common import SchemaPromptSpecAppBuilderDataOrDict
 from .common import SchemaPromptSpecMultimodalPrompt
 from .common import SchemaPromptSpecMultimodalPromptDict
 from .common import SchemaPromptSpecMultimodalPromptOrDict
@@ -1422,9 +1429,6 @@ __all__ = [
     "ReasoningEngineSpecSourceCodeSpecPythonSpec",
     "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
     "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpecImageSpec",
-    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
     "ReasoningEngineSpecSourceCodeSpec",
     "ReasoningEngineSpecSourceCodeSpecDict",
     "ReasoningEngineSpecSourceCodeSpecOrDict",
@@ -1788,6 +1792,12 @@ __all__ = [
     "SchemaPromptSpecMultimodalPrompt",
     "SchemaPromptSpecMultimodalPromptDict",
     "SchemaPromptSpecMultimodalPromptOrDict",
+    "SchemaPromptSpecAppBuilderDataLinkedResource",
+    "SchemaPromptSpecAppBuilderDataLinkedResourceDict",
+    "SchemaPromptSpecAppBuilderDataLinkedResourceOrDict",
+    "SchemaPromptSpecAppBuilderData",
+    "SchemaPromptSpecAppBuilderDataDict",
+    "SchemaPromptSpecAppBuilderDataOrDict",
     "SchemaPromptSpecPartList",
     "SchemaPromptSpecPartListDict",
     "SchemaPromptSpecPartListOrDict",
@@ -1908,6 +1918,9 @@ __all__ = [
     "AgentEngine",
     "AgentEngineDict",
     "AgentEngineOrDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpec",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
     "AgentEngineConfig",
     "AgentEngineConfigDict",
     "AgentEngineConfigOrDict",
@@ -1950,6 +1963,7 @@ __all__ = [
     "OptimizeJobConfig",
     "OptimizeJobConfigDict",
     "OptimizeJobConfigOrDict",
+    "ComputationBasedMetricType",
     "PairwiseChoice",
     "Strategy",
     "AcceleratorType",
@@ -1962,10 +1976,10 @@ __all__ = [
     "Language",
     "MachineConfig",
     "State",
+    "Framework",
     "EvaluationItemType",
     "SamplingMethod",
     "RubricContentType",
-    "ComputationBasedMetricType",
     "EvaluationRunState",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
