@@ -501,6 +501,10 @@ class EvaluationPrompt(_common.BaseModel):
     prompt_template_data: Optional[PromptTemplateData] = Field(
         default=None, description="""Prompt template data."""
     )
+    user_scenario: Optional[evals_types.UserScenario] = Field(
+        default=None,
+        description="""User scenario to help simulate multi-turn agent run results.""",
+    )
 
 
 class EvaluationPromptDict(TypedDict, total=False):
@@ -514,6 +518,9 @@ class EvaluationPromptDict(TypedDict, total=False):
 
     prompt_template_data: Optional[PromptTemplateDataDict]
     """Prompt template data."""
+
+    user_scenario: Optional[evals_types.UserScenario]
+    """User scenario to help simulate multi-turn agent run results."""
 
 
 EvaluationPromptOrDict = Union[EvaluationPrompt, EvaluationPromptDict]
@@ -1843,6 +1850,12 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
         default=None,
         description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
     )
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None,
+        description="""Used for multi-turn agent run.
+      Contains configuration for a user simulator that
+      uses an LLM to generate messages on behalf of the user.""",
+    )
 
 
 class EvaluationRunInferenceConfigDict(TypedDict, total=False):
@@ -1856,6 +1869,11 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
 
     model: Optional[str]
     """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    """Used for multi-turn agent run.
+      Contains configuration for a user simulator that
+      uses an LLM to generate messages on behalf of the user."""
 
 
 EvaluationRunInferenceConfigOrDict = Union[
@@ -13546,6 +13564,11 @@ class EvalRunInferenceConfig(_common.BaseModel):
     generate_content_config: Optional[genai_types.GenerateContentConfig] = Field(
         default=None, description="""The config for the generate content call."""
     )
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None,
+        description="""Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
+      conversation plans, user simulation will be triggered.""",
+    )
 
 
 class EvalRunInferenceConfigDict(TypedDict, total=False):
@@ -13559,6 +13582,10 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 
     generate_content_config: Optional[genai_types.GenerateContentConfigDict]
     """The config for the generate content call."""
+
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    """Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
+      conversation plans, user simulation will be triggered."""
 
 
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
