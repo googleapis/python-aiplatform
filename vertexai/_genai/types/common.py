@@ -6198,13 +6198,13 @@ class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(_common.BaseModel)
     This includes the repository, revision, and directory to use.
     """
 
+    git_repository_link: Optional[str] = Field(
+        default=None,
+        description="""Required. The Developer Connect Git repository link, formatted as `projects/{project_id}/locations/{location_id}/connections/{connection_id}/gitRepositoryLink/{repository_link_id}`.""",
+    )
     dir: Optional[str] = Field(
         default=None,
         description="""Required. Directory, relative to the source root, in which to run the build.""",
-    )
-    git_repository_link: Optional[str] = Field(
-        default=None,
-        description="""Required. The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`.""",
     )
     revision: Optional[str] = Field(
         default=None,
@@ -6220,11 +6220,11 @@ class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict(
     This includes the repository, revision, and directory to use.
     """
 
+    git_repository_link: Optional[str]
+    """Required. The Developer Connect Git repository link, formatted as `projects/{project_id}/locations/{location_id}/connections/{connection_id}/gitRepositoryLink/{repository_link_id}`."""
+
     dir: Optional[str]
     """Required. Directory, relative to the source root, in which to run the build."""
-
-    git_repository_link: Optional[str]
-    """Required. The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`."""
 
     revision: Optional[str]
     """Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref."""
