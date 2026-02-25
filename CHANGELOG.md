@@ -1,13 +1,5 @@
 # Changelog
 
-## [1.139.0](https://github.com/googleapis/python-aiplatform/compare/v1.138.0...v1.139.0) (2026-02-24)
-
-
-### Features
-
-* Add `max_concurrent_active_run_count` support to Scheduled Pipelines client GA. ([a204e74](https://github.com/googleapis/python-aiplatform/commit/a204e742a5bf398cd65f47508c04500432d3d884))
-* GenAI Client(evals) - update SDK type definitions for Agent Data ([6ac28a5](https://github.com/googleapis/python-aiplatform/commit/6ac28a546218feb6c3cd1d29f36cd9e980eba778))
-
 ## [1.138.0](https://github.com/googleapis/python-aiplatform/compare/v1.137.0...v1.138.0) (2026-02-17)
 
 

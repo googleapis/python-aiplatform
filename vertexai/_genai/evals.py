@@ -1625,32 +1625,14 @@ class Evals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        agent_info_pydantic: types.evals.AgentInfo = types.evals.AgentInfo()
-        if agent_info:
-            if isinstance(agent_info, dict):
-                agent_info_pydantic = types.evals.AgentInfo.model_validate(agent_info)
-            else:
-                agent_info_pydantic = agent_info
-        if isinstance(dataset, types.EvaluationDataset):
-            if dataset.eval_dataset_df is None:
-                raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
-                )
-            if agent_info_pydantic is not None and (
-                dataset.candidate_name
-                and agent_info_pydantic
-                and agent_info_pydantic.name
-                and dataset.candidate_name != agent_info_pydantic.name
-            ):
-                logger.warning(
-                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-                )
-            elif dataset.candidate_name is None and agent_info_pydantic:
-                dataset.candidate_name = agent_info_pydantic.name
-            eval_set = _evals_common._create_evaluation_set_from_dataframe(
-                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
-            )
-            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        agent_info_pydantic = (
+            types.evals.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else (agent_info or types.evals.AgentInfo())
+        )
+        resolved_dataset = _evals_common._resolve_dataset(
+            self._api_client, dataset, dest, agent_info_pydantic
+        )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
@@ -1660,37 +1642,20 @@ class Evals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        if agent_info_pydantic and agent_info_pydantic.name is not None:
-            inference_configs = {}
-            inference_configs[agent_info_pydantic.name] = (
-                types.EvaluationRunInferenceConfig(
-                    agent_config=types.EvaluationRunAgentConfig(
-                        developer_instruction=genai_types.Content(
-                            parts=[
-                                genai_types.Part(text=agent_info_pydantic.instruction)
-                            ]
-                        ),
-                        tools=agent_info_pydantic.tool_declarations,
-                    )
-                )
-            )
-            if agent_info_pydantic.agent_resource_name:
-                labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info_pydantic.agent_resource_name.split("reasoningEngines/")[
-                        -1
-                    ]
-                )
-        if not name:
-            name = f"evaluation_run_{uuid.uuid4()}"
-
+        resolved_inference_configs = _evals_common._resolve_inference_configs(
+            inference_configs, agent_info_pydantic
+        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(
+            labels, agent_info_pydantic
+        )
+        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
         return self._create_evaluation_run(
-            name=name,
-            display_name=display_name or name,
-            data_source=dataset,
+            name=resolved_name,
+            display_name=display_name or resolved_name,
+            data_source=resolved_dataset,
             evaluation_config=evaluation_config,
-            inference_configs=inference_configs,
-            labels=labels,
+            inference_configs=resolved_inference_configs,
+            labels=resolved_labels,
             config=config,
         )
 
@@ -2495,27 +2460,14 @@ class AsyncEvals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        if agent_info and isinstance(agent_info, dict):
-            agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if isinstance(dataset, types.EvaluationDataset):
-            if dataset.eval_dataset_df is None:
-                raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
-                )
-            if agent_info is not None and (
-                dataset.candidate_name
-                and agent_info.name
-                and dataset.candidate_name != agent_info.name
-            ):
-                logger.warning(
-                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-                )
-            elif dataset.candidate_name is None and agent_info:
-                dataset.candidate_name = agent_info.name
-            eval_set = _evals_common._create_evaluation_set_from_dataframe(
-                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
-            )
-            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        agent_info_pydantic = (
+            types.evals.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else (agent_info or types.evals.AgentInfo())
+        )
+        resolved_dataset = _evals_common._resolve_dataset(
+            self._api_client, dataset, dest, agent_info_pydantic
+        )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
@@ -2525,31 +2477,21 @@ class AsyncEvals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        if agent_info and agent_info.name is not None:
-            inference_configs = {}
-            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info.instruction)]
-                    ),
-                    tools=agent_info.tool_declarations,
-                )
-            )
-            if agent_info.agent_resource_name:
-                labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
-                )
-        if not name:
-            name = f"evaluation_run_{uuid.uuid4()}"
+        resolved_inference_configs = _evals_common._resolve_inference_configs(
+            inference_configs, agent_info_pydantic
+        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(
+            labels, agent_info_pydantic
+        )
+        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
 
         result = await self._create_evaluation_run(
-            name=name,
-            display_name=display_name or name,
-            data_source=dataset,
+            name=resolved_name,
+            display_name=display_name or resolved_name,
+            data_source=resolved_dataset,
             evaluation_config=evaluation_config,
-            inference_configs=inference_configs,
-            labels=labels,
+            inference_configs=resolved_inference_configs,
+            labels=resolved_labels,
             config=config,
         )
 
