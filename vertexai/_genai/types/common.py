@@ -91,6 +91,78 @@ logger = logging.getLogger("vertexai_genai.types")
 MetricSubclass = TypeVar("MetricSubclass", bound="Metric")
 
 
+class A2aTaskState(_common.CaseInSensitiveEnum):
+    """Output only. The state of the task. The state of a new task is SUBMITTED by default. The state of a task can only be updated via AppendA2aTaskEvents API."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """Task state unspecified. Default value if not set."""
+    SUBMITTED = "SUBMITTED"
+    """Task is submitted and waiting to be processed."""
+    WORKING = "WORKING"
+    """Task is actively being processed."""
+    COMPLETED = "COMPLETED"
+    """Task is finished."""
+    CANCELLED = "CANCELLED"
+    """Task is cancelled."""
+    FAILED = "FAILED"
+    """Task has failed."""
+    REJECTED = "REJECTED"
+    """Task is rejected by the system."""
+    INPUT_REQUIRED = "INPUT_REQUIRED"
+    """Task requires input from the user."""
+    AUTH_REQUIRED = "AUTH_REQUIRED"
+    """Task requires auth (e.g. OAuth) from the user."""
+    PAUSED = "PAUSED"
+    """Task is paused."""
+
+
+class Outcome(_common.CaseInSensitiveEnum):
+    """Outcome of the code execution."""
+
+    OUTCOME_UNSPECIFIED = "OUTCOME_UNSPECIFIED"
+    """Unspecified status. This value should not be used."""
+    OUTCOME_OK = "OUTCOME_OK"
+    """Code execution completed successfully."""
+    OUTCOME_FAILED = "OUTCOME_FAILED"
+    """Code execution finished but with a failure. `stderr` should contain the reason."""
+    OUTCOME_DEADLINE_EXCEEDED = "OUTCOME_DEADLINE_EXCEEDED"
+    """Code execution ran for too long, and was cancelled. There may or may not be a partial output present."""
+
+
+class Language(_common.CaseInSensitiveEnum):
+    """Programming language of the `code`."""
+
+    LANGUAGE_UNSPECIFIED = "LANGUAGE_UNSPECIFIED"
+    """Unspecified language. This value should not be used."""
+    PYTHON = "PYTHON"
+    """Python >= 3.10, with numpy and simpy available."""
+
+
+class State(_common.CaseInSensitiveEnum):
+    """The new state of the task."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """Task state unspecified. Default value if not set."""
+    SUBMITTED = "SUBMITTED"
+    """Task is submitted and waiting to be processed."""
+    WORKING = "WORKING"
+    """Task is actively being processed."""
+    COMPLETED = "COMPLETED"
+    """Task is finished."""
+    CANCELLED = "CANCELLED"
+    """Task is cancelled."""
+    FAILED = "FAILED"
+    """Task has failed."""
+    REJECTED = "REJECTED"
+    """Task is rejected by the system."""
+    INPUT_REQUIRED = "INPUT_REQUIRED"
+    """Task requires input from the user."""
+    AUTH_REQUIRED = "AUTH_REQUIRED"
+    """Task requires auth (e.g. OAuth) from the user."""
+    PAUSED = "PAUSED"
+    """Task is paused."""
+
+
 class PairwiseChoice(_common.CaseInSensitiveEnum):
     """Output only. Pairwise metric choice."""
 
@@ -256,17 +328,6 @@ class Operator(_common.CaseInSensitiveEnum):
     """Less than."""
 
 
-class Language(_common.CaseInSensitiveEnum):
-    """The coding language supported in this environment."""
-
-    LANGUAGE_UNSPECIFIED = "LANGUAGE_UNSPECIFIED"
-    """The default value. This value is unused."""
-    LANGUAGE_PYTHON = "LANGUAGE_PYTHON"
-    """The coding language is Python."""
-    LANGUAGE_JAVASCRIPT = "LANGUAGE_JAVASCRIPT"
-    """The coding language is JavaScript."""
-
-
 class MachineConfig(_common.CaseInSensitiveEnum):
     """The machine config of the code execution environment."""
 
@@ -274,23 +335,6 @@ class MachineConfig(_common.CaseInSensitiveEnum):
     """The default value: milligcu 2000, memory 1.5Gib"""
     MACHINE_CONFIG_VCPU4_RAM4GIB = "MACHINE_CONFIG_VCPU4_RAM4GIB"
     """The default value: milligcu 4000, memory 4 Gib"""
-
-
-class State(_common.CaseInSensitiveEnum):
-    """Output only. The runtime state of the SandboxEnvironment."""
-
-    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
-    """The default value. This value is unused."""
-    STATE_PROVISIONING = "STATE_PROVISIONING"
-    """Runtime resources are being allocated for the sandbox environment."""
-    STATE_RUNNING = "STATE_RUNNING"
-    """Sandbox runtime is ready for serving."""
-    STATE_DEPROVISIONING = "STATE_DEPROVISIONING"
-    """Sandbox runtime is halted, performing tear down tasks."""
-    STATE_TERMINATED = "STATE_TERMINATED"
-    """Sandbox has terminated with underlying runtime failure."""
-    STATE_DELETED = "STATE_DELETED"
-    """Sandbox runtime has been deleted."""
 
 
 class EvaluationItemType(_common.CaseInSensitiveEnum):
@@ -418,6 +462,1144 @@ class OptimizationMethod(_common.CaseInSensitiveEnum):
     """The default data driven Vertex AI Prompt Optimizer."""
     OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
     """The data driven prompt optimizer designer for prompts from Android core API."""
+
+
+class GetAgentEngineTaskConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineTaskConfigOrDict = Union[
+    GetAgentEngineTaskConfig, GetAgentEngineTaskConfigDict
+]
+
+
+class _GetAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine task."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine task."""
+    )
+    config: Optional[GetAgentEngineTaskConfig] = Field(default=None, description="""""")
+
+
+class _GetAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine task."""
+
+    name: Optional[str]
+    """Name of the agent engine task."""
+
+    config: Optional[GetAgentEngineTaskConfigDict]
+    """"""
+
+
+_GetAgentEngineTaskRequestParametersOrDict = Union[
+    _GetAgentEngineTaskRequestParameters, _GetAgentEngineTaskRequestParametersDict
+]
+
+
+class CodeExecutionResult(_common.BaseModel):
+    """Result of executing the [ExecutableCode]. Only generated when using the [CodeExecution] tool, and always follows a `part` containing the [ExecutableCode]."""
+
+    outcome: Optional[Outcome] = Field(
+        default=None, description="""Required. Outcome of the code execution."""
+    )
+    output: Optional[str] = Field(
+        default=None,
+        description="""Optional. Contains stdout when code execution is successful, stderr or other description otherwise.""",
+    )
+
+
+class CodeExecutionResultDict(TypedDict, total=False):
+    """Result of executing the [ExecutableCode]. Only generated when using the [CodeExecution] tool, and always follows a `part` containing the [ExecutableCode]."""
+
+    outcome: Optional[Outcome]
+    """Required. Outcome of the code execution."""
+
+    output: Optional[str]
+    """Optional. Contains stdout when code execution is successful, stderr or other description otherwise."""
+
+
+CodeExecutionResultOrDict = Union[CodeExecutionResult, CodeExecutionResultDict]
+
+
+class ExecutableCode(_common.BaseModel):
+    """Code generated by the model that is meant to be executed, and the result returned to the model. Generated when using the [CodeExecution] tool, in which the code will be automatically executed, and a corresponding [CodeExecutionResult] will also be generated."""
+
+    code: Optional[str] = Field(
+        default=None, description="""Required. The code to be executed."""
+    )
+    language: Optional[Language] = Field(
+        default=None, description="""Required. Programming language of the `code`."""
+    )
+
+
+class ExecutableCodeDict(TypedDict, total=False):
+    """Code generated by the model that is meant to be executed, and the result returned to the model. Generated when using the [CodeExecution] tool, in which the code will be automatically executed, and a corresponding [CodeExecutionResult] will also be generated."""
+
+    code: Optional[str]
+    """Required. The code to be executed."""
+
+    language: Optional[Language]
+    """Required. Programming language of the `code`."""
+
+
+ExecutableCodeOrDict = Union[ExecutableCode, ExecutableCodeDict]
+
+
+class FileData(_common.BaseModel):
+    """URI based data."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
+    )
+    file_uri: Optional[str] = Field(default=None, description="""Required. URI.""")
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. The IANA standard MIME type of the source data.""",
+    )
+
+
+class FileDataDict(TypedDict, total=False):
+    """URI based data."""
+
+    display_name: Optional[str]
+    """Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
+
+    file_uri: Optional[str]
+    """Required. URI."""
+
+    mime_type: Optional[str]
+    """Required. The IANA standard MIME type of the source data."""
+
+
+FileDataOrDict = Union[FileData, FileDataDict]
+
+
+class PartialArg(_common.BaseModel):
+    """Partial argument value of the function call."""
+
+    null_value: Optional[Literal["NULL_VALUE"]] = Field(
+        default=None, description="""Optional. Represents a null value."""
+    )
+    number_value: Optional[float] = Field(
+        default=None, description="""Optional. Represents a double value."""
+    )
+    string_value: Optional[str] = Field(
+        default=None, description="""Optional. Represents a string value."""
+    )
+    bool_value: Optional[bool] = Field(
+        default=None, description="""Optional. Represents a boolean value."""
+    )
+    json_path: Optional[str] = Field(
+        default=None,
+        description="""Required. A JSON Path (RFC 9535) to the argument being streamed. https://datatracker.ietf.org/doc/html/rfc9535. e.g. "$.foo.bar[0].data".""",
+    )
+    will_continue: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether this is not the last part of the same json_path. If true, another PartialArg message for the current json_path is expected to follow.""",
+    )
+
+
+class PartialArgDict(TypedDict, total=False):
+    """Partial argument value of the function call."""
+
+    null_value: Optional[Literal["NULL_VALUE"]]
+    """Optional. Represents a null value."""
+
+    number_value: Optional[float]
+    """Optional. Represents a double value."""
+
+    string_value: Optional[str]
+    """Optional. Represents a string value."""
+
+    bool_value: Optional[bool]
+    """Optional. Represents a boolean value."""
+
+    json_path: Optional[str]
+    """Required. A JSON Path (RFC 9535) to the argument being streamed. https://datatracker.ietf.org/doc/html/rfc9535. e.g. "$.foo.bar[0].data"."""
+
+    will_continue: Optional[bool]
+    """Optional. Whether this is not the last part of the same json_path. If true, another PartialArg message for the current json_path is expected to follow."""
+
+
+PartialArgOrDict = Union[PartialArg, PartialArgDict]
+
+
+class FunctionCall(_common.BaseModel):
+    """A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing the parameters and their values."""
+
+    args: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. The function parameters and values in JSON object format. See [FunctionDeclaration.parameters] for parameter details.""",
+    )
+    id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the function to call. Matches [FunctionDeclaration.name].""",
+    )
+    partial_args: Optional[list[PartialArg]] = Field(
+        default=None,
+        description="""Optional. The partial argument value of the function call. If provided, represents the arguments/fields that are streamed incrementally.""",
+    )
+    will_continue: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether this is the last part of the FunctionCall. If true, another partial message for the current FunctionCall is expected to follow.""",
+    )
+
+
+class FunctionCallDict(TypedDict, total=False):
+    """A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing the parameters and their values."""
+
+    args: Optional[dict[str, Any]]
+    """Optional. The function parameters and values in JSON object format. See [FunctionDeclaration.parameters] for parameter details."""
+
+    id: Optional[str]
+    """Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`."""
+
+    name: Optional[str]
+    """Optional. The name of the function to call. Matches [FunctionDeclaration.name]."""
+
+    partial_args: Optional[list[PartialArgDict]]
+    """Optional. The partial argument value of the function call. If provided, represents the arguments/fields that are streamed incrementally."""
+
+    will_continue: Optional[bool]
+    """Optional. Whether this is the last part of the FunctionCall. If true, another partial message for the current FunctionCall is expected to follow."""
+
+
+FunctionCallOrDict = Union[FunctionCall, FunctionCallDict]
+
+
+class FunctionResponse(_common.BaseModel):
+    """The result output from a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function is used as context to the model. This should contain the result of a [FunctionCall] made based on model prediction."""
+
+    id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The id of the function call this response is for. Populated by the client to match the corresponding function call `id`.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The name of the function to call. Matches [FunctionDeclaration.name] and [FunctionCall.name].""",
+    )
+    response: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. The function response in JSON object format. Use "output" key to specify function output and "error" key to specify error details (if any). If "output" and "error" keys are not specified, then whole "response" is treated as function output.""",
+    )
+
+
+class FunctionResponseDict(TypedDict, total=False):
+    """The result output from a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function is used as context to the model. This should contain the result of a [FunctionCall] made based on model prediction."""
+
+    id: Optional[str]
+    """Optional. The id of the function call this response is for. Populated by the client to match the corresponding function call `id`."""
+
+    name: Optional[str]
+    """Required. The name of the function to call. Matches [FunctionDeclaration.name] and [FunctionCall.name]."""
+
+    response: Optional[dict[str, Any]]
+    """Required. The function response in JSON object format. Use "output" key to specify function output and "error" key to specify error details (if any). If "output" and "error" keys are not specified, then whole "response" is treated as function output."""
+
+
+FunctionResponseOrDict = Union[FunctionResponse, FunctionResponseDict]
+
+
+class Blob(_common.BaseModel):
+    """Content blob."""
+
+    data: Optional[bytes] = Field(default=None, description="""Required. Raw bytes.""")
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
+    )
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. The IANA standard MIME type of the source data.""",
+    )
+
+
+class BlobDict(TypedDict, total=False):
+    """Content blob."""
+
+    data: Optional[bytes]
+    """Required. Raw bytes."""
+
+    display_name: Optional[str]
+    """Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
+
+    mime_type: Optional[str]
+    """Required. The IANA standard MIME type of the source data."""
+
+
+BlobOrDict = Union[Blob, BlobDict]
+
+
+class VideoMetadata(_common.BaseModel):
+    """Metadata describes the input video content."""
+
+    end_offset: Optional[str] = Field(
+        default=None, description="""Optional. The end offset of the video."""
+    )
+    fps: Optional[float] = Field(
+        default=None,
+        description="""Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0].""",
+    )
+    start_offset: Optional[str] = Field(
+        default=None, description="""Optional. The start offset of the video."""
+    )
+
+
+class VideoMetadataDict(TypedDict, total=False):
+    """Metadata describes the input video content."""
+
+    end_offset: Optional[str]
+    """Optional. The end offset of the video."""
+
+    fps: Optional[float]
+    """Optional. The frame rate of the video sent to the model. If not specified, the default value will be 1.0. The fps range is (0.0, 24.0]."""
+
+    start_offset: Optional[str]
+    """Optional. The start offset of the video."""
+
+
+VideoMetadataOrDict = Union[VideoMetadata, VideoMetadataDict]
+
+
+class Part(_common.BaseModel):
+    """A datatype containing media that is part of a multi-part `Content` message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. A `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if `inline_data` or `file_data` field is filled with raw bytes."""
+
+    code_execution_result: Optional[CodeExecutionResult] = Field(
+        default=None,
+        description="""Optional. Result of executing the [ExecutableCode].""",
+    )
+    executable_code: Optional[ExecutableCode] = Field(
+        default=None,
+        description="""Optional. Code generated by the model that is meant to be executed.""",
+    )
+    file_data: Optional[FileData] = Field(
+        default=None, description="""Optional. URI based data."""
+    )
+    function_call: Optional[FunctionCall] = Field(
+        default=None,
+        description="""Optional. A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] with the parameters and their values.""",
+    )
+    function_response: Optional[FunctionResponse] = Field(
+        default=None,
+        description="""Optional. The result output of a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function call. It is used as context to the model.""",
+    )
+    inline_data: Optional[Blob] = Field(
+        default=None, description="""Optional. Inlined bytes data."""
+    )
+    text: Optional[str] = Field(
+        default=None, description="""Optional. Text part (can be code)."""
+    )
+    thought: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates if the part is thought from the model.""",
+    )
+    thought_signature: Optional[bytes] = Field(
+        default=None,
+        description="""Optional. An opaque signature for the thought so it can be reused in subsequent requests.""",
+    )
+    video_metadata: Optional[VideoMetadata] = Field(
+        default=None,
+        description="""Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data.""",
+    )
+
+
+class PartDict(TypedDict, total=False):
+    """A datatype containing media that is part of a multi-part `Content` message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. A `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if `inline_data` or `file_data` field is filled with raw bytes."""
+
+    code_execution_result: Optional[CodeExecutionResultDict]
+    """Optional. Result of executing the [ExecutableCode]."""
+
+    executable_code: Optional[ExecutableCodeDict]
+    """Optional. Code generated by the model that is meant to be executed."""
+
+    file_data: Optional[FileDataDict]
+    """Optional. URI based data."""
+
+    function_call: Optional[FunctionCallDict]
+    """Optional. A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] with the parameters and their values."""
+
+    function_response: Optional[FunctionResponseDict]
+    """Optional. The result output of a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function call. It is used as context to the model."""
+
+    inline_data: Optional[BlobDict]
+    """Optional. Inlined bytes data."""
+
+    text: Optional[str]
+    """Optional. Text part (can be code)."""
+
+    thought: Optional[bool]
+    """Optional. Indicates if the part is thought from the model."""
+
+    thought_signature: Optional[bytes]
+    """Optional. An opaque signature for the thought so it can be reused in subsequent requests."""
+
+    video_metadata: Optional[VideoMetadataDict]
+    """Optional. Video metadata. The metadata should only be specified while the video data is presented in inline_data or file_data."""
+
+
+PartOrDict = Union[Part, PartDict]
+
+
+class TaskArtifact(_common.BaseModel):
+    """Represents a single artifact produced by a task. sample: artifacts: { artifact_id: "image-12345" name: "Generated Sunset Image" description: "A beautiful sunset over the mountains, generated by the user's request." parts: { inline_data: { mime_type: "image/png" data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAA=" } } }"""
+
+    artifact_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique identifier of the artifact within the task. This id is provided by the creator of the artifact.""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Optional. A human readable description of the artifact.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The human-readable name of the artifact provided by the creator.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional metadata for the artifact. For A2A, the URIs of the extensions that were used to produce this artifact will be stored here.""",
+    )
+    parts: Optional[list[Part]] = Field(
+        default=None, description="""Required. The content of the artifact."""
+    )
+
+
+class TaskArtifactDict(TypedDict, total=False):
+    """Represents a single artifact produced by a task. sample: artifacts: { artifact_id: "image-12345" name: "Generated Sunset Image" description: "A beautiful sunset over the mountains, generated by the user's request." parts: { inline_data: { mime_type: "image/png" data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAA=" } } }"""
+
+    artifact_id: Optional[str]
+    """Required. The unique identifier of the artifact within the task. This id is provided by the creator of the artifact."""
+
+    description: Optional[str]
+    """Optional. A human readable description of the artifact."""
+
+    display_name: Optional[str]
+    """Optional. The human-readable name of the artifact provided by the creator."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional metadata for the artifact. For A2A, the URIs of the extensions that were used to produce this artifact will be stored here."""
+
+    parts: Optional[list[PartDict]]
+    """Required. The content of the artifact."""
+
+
+TaskArtifactOrDict = Union[TaskArtifact, TaskArtifactDict]
+
+
+class TaskOutput(_common.BaseModel):
+    """Represents the final output of a task."""
+
+    artifacts: Optional[list[TaskArtifact]] = Field(
+        default=None,
+        description="""Optional. A list of artifacts (files, data) produced by the task.""",
+    )
+
+
+class TaskOutputDict(TypedDict, total=False):
+    """Represents the final output of a task."""
+
+    artifacts: Optional[list[TaskArtifactDict]]
+    """Optional. A list of artifacts (files, data) produced by the task."""
+
+
+TaskOutputOrDict = Union[TaskOutput, TaskOutputDict]
+
+
+class TaskMessage(_common.BaseModel):
+    """Represents a single message in a conversation, compliant with the A2A specification."""
+
+    message_id: Optional[str] = Field(
+        default=None, description="""Required. The unique identifier of the message."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. A2A message may have extension_uris or reference_task_ids. They will be stored under metadata.""",
+    )
+    parts: Optional[list[Part]] = Field(
+        default=None, description="""Required. The parts of the message."""
+    )
+    role: Optional[str] = Field(
+        default=None,
+        description="""Required. The role of the sender of the message. e.g. "user", "agent".""",
+    )
+
+
+class TaskMessageDict(TypedDict, total=False):
+    """Represents a single message in a conversation, compliant with the A2A specification."""
+
+    message_id: Optional[str]
+    """Required. The unique identifier of the message."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. A2A message may have extension_uris or reference_task_ids. They will be stored under metadata."""
+
+    parts: Optional[list[PartDict]]
+    """Required. The parts of the message."""
+
+    role: Optional[str]
+    """Required. The role of the sender of the message. e.g. "user", "agent"."""
+
+
+TaskMessageOrDict = Union[TaskMessage, TaskMessageDict]
+
+
+class TaskStatusDetails(_common.BaseModel):
+    """Represents the additional status details of a task."""
+
+    task_message: Optional[TaskMessage] = Field(
+        default=None,
+        description="""Optional. The message associated with the single-turn interaction between the user and the agent or agent and agent.""",
+    )
+
+
+class TaskStatusDetailsDict(TypedDict, total=False):
+    """Represents the additional status details of a task."""
+
+    task_message: Optional[TaskMessageDict]
+    """Optional. The message associated with the single-turn interaction between the user and the agent or agent and agent."""
+
+
+TaskStatusDetailsOrDict = Union[TaskStatusDetails, TaskStatusDetailsDict]
+
+
+class A2aTask(_common.BaseModel):
+    """A task."""
+
+    context_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. A generic identifier for grouping related tasks (e.g., session_id, workflow_id).""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Output only. The creation timestamp of the task."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""Optional. Arbitrary, user-defined metadata."""
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`""",
+    )
+    next_event_sequence_number: Optional[int] = Field(
+        default=None,
+        description="""Output only. The next event sequence number to be appended to the task. This value starts at 1 and is guaranteed to be monotonically increasing.""",
+    )
+    output: Optional[TaskOutput] = Field(
+        default=None, description="""Optional. The final output of the task."""
+    )
+    state: Optional[A2aTaskState] = Field(
+        default=None,
+        description="""Output only. The state of the task. The state of a new task is SUBMITTED by default. The state of a task can only be updated via AppendA2aTaskEvents API.""",
+    )
+    status_details: Optional[TaskStatusDetails] = Field(
+        default=None, description="""Optional. The status details of the task."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The last update timestamp of the task.""",
+    )
+
+
+class A2aTaskDict(TypedDict, total=False):
+    """A task."""
+
+    context_id: Optional[str]
+    """Optional. A generic identifier for grouping related tasks (e.g., session_id, workflow_id)."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. The creation timestamp of the task."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Arbitrary, user-defined metadata."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`"""
+
+    next_event_sequence_number: Optional[int]
+    """Output only. The next event sequence number to be appended to the task. This value starts at 1 and is guaranteed to be monotonically increasing."""
+
+    output: Optional[TaskOutputDict]
+    """Optional. The final output of the task."""
+
+    state: Optional[A2aTaskState]
+    """Output only. The state of the task. The state of a new task is SUBMITTED by default. The state of a task can only be updated via AppendA2aTaskEvents API."""
+
+    status_details: Optional[TaskStatusDetailsDict]
+    """Optional. The status details of the task."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. The last update timestamp of the task."""
+
+
+A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
+
+
+class ListAgentEngineTasksConfig(_common.BaseModel):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`.""",
+    )
+
+
+class ListAgentEngineTasksConfigDict(TypedDict, total=False):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`."""
+
+
+ListAgentEngineTasksConfigOrDict = Union[
+    ListAgentEngineTasksConfig, ListAgentEngineTasksConfigDict
+]
+
+
+class _ListAgentEngineTasksRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListAgentEngineTasksConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineTasksRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListAgentEngineTasksConfigDict]
+    """"""
+
+
+_ListAgentEngineTasksRequestParametersOrDict = Union[
+    _ListAgentEngineTasksRequestParameters, _ListAgentEngineTasksRequestParametersDict
+]
+
+
+class ListAgentEngineTasksResponse(_common.BaseModel):
+    """Response for listing agent engine tasks."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    a2aTasks: Optional[list[A2aTask]] = Field(
+        default=None, description="""List of agent engine tasks."""
+    )
+
+
+class ListAgentEngineTasksResponseDict(TypedDict, total=False):
+    """Response for listing agent engine tasks."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    a2aTasks: Optional[list[A2aTaskDict]]
+    """List of agent engine tasks."""
+
+
+ListAgentEngineTasksResponseOrDict = Union[
+    ListAgentEngineTasksResponse, ListAgentEngineTasksResponseDict
+]
+
+
+class CreateAgentEngineTaskConfig(_common.BaseModel):
+    """Config for creating a Session."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    context_id: Optional[str] = Field(
+        default=None, description="""The context id of the task to create."""
+    )
+
+
+class CreateAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for creating a Session."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    context_id: Optional[str]
+    """The context id of the task to create."""
+
+
+CreateAgentEngineTaskConfigOrDict = Union[
+    CreateAgentEngineTaskConfig, CreateAgentEngineTaskConfigDict
+]
+
+
+class _CreateAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Tasks."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to create the task under.""",
+    )
+    a2a_task_id: Optional[str] = Field(
+        default=None, description="""The ID of the task."""
+    )
+    config: Optional[CreateAgentEngineTaskConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Tasks."""
+
+    name: Optional[str]
+    """Name of the agent engine to create the task under."""
+
+    a2a_task_id: Optional[str]
+    """The ID of the task."""
+
+    config: Optional[CreateAgentEngineTaskConfigDict]
+    """"""
+
+
+_CreateAgentEngineTaskRequestParametersOrDict = Union[
+    _CreateAgentEngineTaskRequestParameters, _CreateAgentEngineTaskRequestParametersDict
+]
+
+
+class TaskMetadataChange(_common.BaseModel):
+    """An event representing a change to the task's top-level metadata. example: metadata_change: { new_metadata: { "name": "My task", } update_mask: { paths: "name" } }"""
+
+    new_metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. The complete state of the metadata object *after* the change.""",
+    )
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""Optional. A field mask indicating which paths in the Struct were changed. If not set, all fields will be updated. go/aip-internal/cloud-standard/2412""",
+    )
+
+
+class TaskMetadataChangeDict(TypedDict, total=False):
+    """An event representing a change to the task's top-level metadata. example: metadata_change: { new_metadata: { "name": "My task", } update_mask: { paths: "name" } }"""
+
+    new_metadata: Optional[dict[str, Any]]
+    """Required. The complete state of the metadata object *after* the change."""
+
+    update_mask: Optional[str]
+    """Optional. A field mask indicating which paths in the Struct were changed. If not set, all fields will be updated. go/aip-internal/cloud-standard/2412"""
+
+
+TaskMetadataChangeOrDict = Union[TaskMetadataChange, TaskMetadataChangeDict]
+
+
+class TaskArtifactChange(_common.BaseModel):
+    """Describes changes to the artifact list."""
+
+    added_artifacts: Optional[list[TaskArtifact]] = Field(
+        default=None,
+        description="""Optional. A list of brand-new artifacts created in this event.""",
+    )
+    deleted_artifact_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A list of artifact IDs that were removed in this event.""",
+    )
+    updated_artifacts: Optional[list[TaskArtifact]] = Field(
+        default=None,
+        description="""Optional. A list of existing artifacts that were modified in this event.""",
+    )
+
+
+class TaskArtifactChangeDict(TypedDict, total=False):
+    """Describes changes to the artifact list."""
+
+    added_artifacts: Optional[list[TaskArtifactDict]]
+    """Optional. A list of brand-new artifacts created in this event."""
+
+    deleted_artifact_ids: Optional[list[str]]
+    """Optional. A list of artifact IDs that were removed in this event."""
+
+    updated_artifacts: Optional[list[TaskArtifactDict]]
+    """Optional. A list of existing artifacts that were modified in this event."""
+
+
+TaskArtifactChangeOrDict = Union[TaskArtifactChange, TaskArtifactChangeDict]
+
+
+class TaskOutputChange(_common.BaseModel):
+    """An event representing a change to the task's outputs."""
+
+    task_artifact_change: Optional[TaskArtifactChange] = Field(
+        default=None,
+        description="""Required. A granular change to the list of artifacts.""",
+    )
+
+
+class TaskOutputChangeDict(TypedDict, total=False):
+    """An event representing a change to the task's outputs."""
+
+    task_artifact_change: Optional[TaskArtifactChangeDict]
+    """Required. A granular change to the list of artifacts."""
+
+
+TaskOutputChangeOrDict = Union[TaskOutputChange, TaskOutputChangeDict]
+
+
+class TaskStateChange(_common.BaseModel):
+    """A message representing a change in a task's state."""
+
+    new_state: Optional[State] = Field(
+        default=None, description="""Required. The new state of the task."""
+    )
+
+
+class TaskStateChangeDict(TypedDict, total=False):
+    """A message representing a change in a task's state."""
+
+    new_state: Optional[State]
+    """Required. The new state of the task."""
+
+
+TaskStateChangeOrDict = Union[TaskStateChange, TaskStateChangeDict]
+
+
+class TaskStatusDetailsChange(_common.BaseModel):
+    """Represents a change to the task's status details."""
+
+    new_task_status: Optional[TaskStatusDetails] = Field(
+        default=None,
+        description="""Required. The complete state of the task's status *after* the change.""",
+    )
+
+
+class TaskStatusDetailsChangeDict(TypedDict, total=False):
+    """Represents a change to the task's status details."""
+
+    new_task_status: Optional[TaskStatusDetailsDict]
+    """Required. The complete state of the task's status *after* the change."""
+
+
+TaskStatusDetailsChangeOrDict = Union[
+    TaskStatusDetailsChange, TaskStatusDetailsChangeDict
+]
+
+
+class TaskEventData(_common.BaseModel):
+    """Data for a TaskEvent."""
+
+    metadata_change: Optional[TaskMetadataChange] = Field(
+        default=None, description="""Optional. A change to the task's metadata."""
+    )
+    output_change: Optional[TaskOutputChange] = Field(
+        default=None, description="""Optional. A change to the task's final outputs."""
+    )
+    state_change: Optional[TaskStateChange] = Field(
+        default=None, description="""Optional. A change in the task's state."""
+    )
+    status_details_change: Optional[TaskStatusDetailsChange] = Field(
+        default=None,
+        description="""Optional. A change to the framework-specific status details.""",
+    )
+
+
+class TaskEventDataDict(TypedDict, total=False):
+    """Data for a TaskEvent."""
+
+    metadata_change: Optional[TaskMetadataChangeDict]
+    """Optional. A change to the task's metadata."""
+
+    output_change: Optional[TaskOutputChangeDict]
+    """Optional. A change to the task's final outputs."""
+
+    state_change: Optional[TaskStateChangeDict]
+    """Optional. A change in the task's state."""
+
+    status_details_change: Optional[TaskStatusDetailsChangeDict]
+    """Optional. A change to the framework-specific status details."""
+
+
+TaskEventDataOrDict = Union[TaskEventData, TaskEventDataDict]
+
+
+class TaskEvent(_common.BaseModel):
+    """A task event."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Output only. The create time of the event."""
+    )
+    event_data: Optional[TaskEventData] = Field(
+        default=None, description="""Required. The delta associated with the event."""
+    )
+    event_sequence_number: Optional[int] = Field(
+        default=None,
+        description="""Required. The sequence number of the event. This is used to uniquely identify the event within the task and order events chronologically. This is a id generated by the SDK.""",
+    )
+
+
+class TaskEventDict(TypedDict, total=False):
+    """A task event."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. The create time of the event."""
+
+    event_data: Optional[TaskEventDataDict]
+    """Required. The delta associated with the event."""
+
+    event_sequence_number: Optional[int]
+    """Required. The sequence number of the event. This is used to uniquely identify the event within the task and order events chronologically. This is a id generated by the SDK."""
+
+
+TaskEventOrDict = Union[TaskEvent, TaskEventDict]
+
+
+class AppendAgentEngineTaskEventConfig(_common.BaseModel):
+    """Config for appending Agent Engine task events."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class AppendAgentEngineTaskEventConfigDict(TypedDict, total=False):
+    """Config for appending Agent Engine task events."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+AppendAgentEngineTaskEventConfigOrDict = Union[
+    AppendAgentEngineTaskEventConfig, AppendAgentEngineTaskEventConfigDict
+]
+
+
+class _AppendAgentEngineTaskEventRequestParameters(_common.BaseModel):
+    """Parameters for appending Agent Engine task events."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the Agent Engine task to append the events to.""",
+    )
+    task_events: Optional[list[TaskEvent]] = Field(
+        default=None, description="""The events to append to the task."""
+    )
+    config: Optional[AppendAgentEngineTaskEventConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _AppendAgentEngineTaskEventRequestParametersDict(TypedDict, total=False):
+    """Parameters for appending Agent Engine task events."""
+
+    name: Optional[str]
+    """Name of the Agent Engine task to append the events to."""
+
+    task_events: Optional[list[TaskEventDict]]
+    """The events to append to the task."""
+
+    config: Optional[AppendAgentEngineTaskEventConfigDict]
+    """"""
+
+
+_AppendAgentEngineTaskEventRequestParametersOrDict = Union[
+    _AppendAgentEngineTaskEventRequestParameters,
+    _AppendAgentEngineTaskEventRequestParametersDict,
+]
+
+
+class AppendAgentEngineTaskEventResponse(_common.BaseModel):
+    """Response for appending Agent Engine task events."""
+
+    pass
+
+
+class AppendAgentEngineTaskEventResponseDict(TypedDict, total=False):
+    """Response for appending Agent Engine task events."""
+
+    pass
+
+
+AppendAgentEngineTaskEventResponseOrDict = Union[
+    AppendAgentEngineTaskEventResponse, AppendAgentEngineTaskEventResponseDict
+]
+
+
+class ListAgentEngineTaskEventsConfig(_common.BaseModel):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`.""",
+    )
+
+
+class ListAgentEngineTaskEventsConfigDict(TypedDict, total=False):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`."""
+
+
+ListAgentEngineTaskEventsConfigOrDict = Union[
+    ListAgentEngineTaskEventsConfig, ListAgentEngineTaskEventsConfigDict
+]
+
+
+class _ListAgentEngineTaskEventsRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine task."""
+    )
+    config: Optional[ListAgentEngineTaskEventsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineTaskEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the Agent Engine task."""
+
+    config: Optional[ListAgentEngineTaskEventsConfigDict]
+    """"""
+
+
+_ListAgentEngineTaskEventsRequestParametersOrDict = Union[
+    _ListAgentEngineTaskEventsRequestParameters,
+    _ListAgentEngineTaskEventsRequestParametersDict,
+]
+
+
+class ListAgentEngineTaskEventsResponse(_common.BaseModel):
+    """Response for listing Agent Engine tasks events."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    taskEvents: Optional[list[TaskEvent]] = Field(
+        default=None, description="""List of Agent Engine task events."""
+    )
+
+
+class ListAgentEngineTaskEventsResponseDict(TypedDict, total=False):
+    """Response for listing Agent Engine tasks events."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    taskEvents: Optional[list[TaskEventDict]]
+    """List of Agent Engine task events."""
+
+
+ListAgentEngineTaskEventsResponseOrDict = Union[
+    ListAgentEngineTaskEventsResponse, ListAgentEngineTaskEventsResponseDict
+]
 
 
 class CreateEvaluationItemConfig(_common.BaseModel):
