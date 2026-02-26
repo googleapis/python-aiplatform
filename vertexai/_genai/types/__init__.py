@@ -800,6 +800,9 @@ from .common import ReasoningEngineContextSpecOrDict
 from .common import ReasoningEngineDict
 from .common import ReasoningEngineOrDict
 from .common import ReasoningEngineSpec
+from .common import ReasoningEngineSpecContainerSpec
+from .common import ReasoningEngineSpecContainerSpecDict
+from .common import ReasoningEngineSpecContainerSpecOrDict
 from .common import ReasoningEngineSpecDeploymentSpec
 from .common import ReasoningEngineSpecDeploymentSpecDict
 from .common import ReasoningEngineSpecDeploymentSpecOrDict
@@ -1579,6 +1582,9 @@ __all__ = [
     "VertexBaseConfig",
     "VertexBaseConfigDict",
     "VertexBaseConfigOrDict",
+    "ReasoningEngineSpecContainerSpec",
+    "ReasoningEngineSpecContainerSpecDict",
+    "ReasoningEngineSpecContainerSpecOrDict",
     "SecretRef",
     "SecretRefDict",
     "SecretRefOrDict",
