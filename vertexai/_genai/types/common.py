@@ -6030,6 +6030,27 @@ _GetCustomJobParametersOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecContainerSpec(_common.BaseModel):
+    """Specification for deploying from a container image."""
+
+    image_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica.""",
+    )
+
+
+class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
+    """Specification for deploying from a container image."""
+
+    image_uri: Optional[str]
+    """Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica."""
+
+
+ReasoningEngineSpecContainerSpecOrDict = Union[
+    ReasoningEngineSpecContainerSpec, ReasoningEngineSpecContainerSpecDict
+]
+
+
 class SecretRef(_common.BaseModel):
     """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
 
@@ -6412,6 +6433,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Optional. Declarations for object class methods in OpenAPI specification format.""",
     )
+    container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
+        default=None,
+        description="""Deploy from a container image with a defined entrypoint and commands.""",
+    )
     deployment_spec: Optional[ReasoningEngineSpecDeploymentSpec] = Field(
         default=None,
         description="""Optional. The specification of a Reasoning Engine deployment.""",
@@ -6449,6 +6474,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     class_methods: Optional[list[dict[str, Any]]]
     """Optional. Declarations for object class methods in OpenAPI specification format."""
+
+    container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
+    """Deploy from a container image with a defined entrypoint and commands."""
 
     deployment_spec: Optional[ReasoningEngineSpecDeploymentSpecDict]
     """Optional. The specification of a Reasoning Engine deployment."""
@@ -15291,6 +15319,9 @@ class AgentEngineConfig(_common.BaseModel):
     image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
         default=None, description="""The image spec for the Agent Engine."""
     )
+    container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
+        default=None, description="""The container spec for the Agent Engine."""
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -15456,6 +15487,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
     """The image spec for the Agent Engine."""
+
+    container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
+    """The container spec for the Agent Engine."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
