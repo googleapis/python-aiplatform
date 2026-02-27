@@ -1740,6 +1740,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -1777,6 +1781,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:cancel",
                 },
             ]
             return http_options
@@ -2125,6 +2133,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -2182,6 +2194,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                 },
             ]
             return http_options
@@ -2542,6 +2558,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -2599,6 +2619,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                 },
             ]
             return http_options
@@ -2943,6 +2967,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                 },
                 {
@@ -3012,6 +3040,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*}/operations",
                 },
             ]
             return http_options
@@ -3364,6 +3396,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                 },
                 {
@@ -3421,6 +3457,10 @@ class _BaseDatasetServiceRestTransport(DatasetServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
             ]
             return http_options

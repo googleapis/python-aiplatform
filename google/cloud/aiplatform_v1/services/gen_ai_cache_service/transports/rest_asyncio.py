@@ -51,7 +51,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import cached_content
 from google.cloud.aiplatform_v1.types import cached_content as gca_cached_content
 from google.cloud.aiplatform_v1.types import gen_ai_cache_service
-from google.protobuf import empty_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -998,7 +998,7 @@ class AsyncGenAiCacheServiceRestTransport(_BaseGenAiCacheServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {

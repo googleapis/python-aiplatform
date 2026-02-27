@@ -45,8 +45,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation as gac_operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.reasoning_engine_service import pagers
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
@@ -59,9 +57,11 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api_core.operation as gac_operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 from .transports.base import ReasoningEngineServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import ReasoningEngineServiceGrpcAsyncIOTransport
 from .client import ReasoningEngineServiceClient
@@ -148,7 +148,10 @@ class ReasoningEngineServiceAsyncClient:
         Returns:
             ReasoningEngineServiceAsyncClient: The constructed client.
         """
-        return ReasoningEngineServiceClient.from_service_account_info.__func__(ReasoningEngineServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            ReasoningEngineServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(ReasoningEngineServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -164,7 +167,12 @@ class ReasoningEngineServiceAsyncClient:
         Returns:
             ReasoningEngineServiceAsyncClient: The constructed client.
         """
-        return ReasoningEngineServiceClient.from_service_account_file.__func__(ReasoningEngineServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            ReasoningEngineServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(
+            ReasoningEngineServiceAsyncClient, filename, *args, **kwargs
+        )
 
     from_service_account_json = from_service_account_file
 

@@ -45,8 +45,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.vizier_service import pagers
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import study as gca_study
@@ -55,7 +53,9 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api_core.operation as operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 from .transports.base import VizierServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import VizierServiceGrpcAsyncIOTransport
 from .client import VizierServiceClient
@@ -131,7 +131,10 @@ class VizierServiceAsyncClient:
         Returns:
             VizierServiceAsyncClient: The constructed client.
         """
-        return VizierServiceClient.from_service_account_info.__func__(VizierServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            VizierServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(VizierServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -147,7 +150,10 @@ class VizierServiceAsyncClient:
         Returns:
             VizierServiceAsyncClient: The constructed client.
         """
-        return VizierServiceClient.from_service_account_file.__func__(VizierServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            VizierServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(VizierServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

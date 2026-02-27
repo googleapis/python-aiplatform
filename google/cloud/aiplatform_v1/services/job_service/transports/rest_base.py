@@ -46,7 +46,7 @@ from google.cloud.aiplatform_v1.types import (
 )
 from google.cloud.aiplatform_v1.types import nas_job
 from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
-from google.protobuf import empty_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -2562,6 +2562,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                 },
                 {
@@ -2599,6 +2603,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:cancel",
                 },
             ]
             return http_options
@@ -2947,6 +2955,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -3004,6 +3016,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                 },
             ]
             return http_options
@@ -3364,6 +3380,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                 },
                 {
@@ -3421,6 +3441,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                 },
             ]
             return http_options
@@ -3765,6 +3789,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                 },
                 {
@@ -3834,6 +3862,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*}/operations",
                 },
             ]
             return http_options
@@ -4186,6 +4218,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                 },
                 {
@@ -4243,6 +4279,10 @@ class _BaseJobServiceRestTransport(JobServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:wait",
                 },
             ]
             return http_options

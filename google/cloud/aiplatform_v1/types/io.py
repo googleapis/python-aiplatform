@@ -20,7 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import api_auth
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -32,6 +32,8 @@ __protobuf__ = proto.module(
         "GcsDestination",
         "BigQuerySource",
         "BigQueryDestination",
+        "VertexMultimodalDatasetSource",
+        "VertexMultimodalDatasetDestination",
         "CsvDestination",
         "TFRecordDestination",
         "ContainerRegistryDestination",
@@ -149,6 +151,46 @@ class BigQueryDestination(proto.Message):
     output_uri: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+
+
+class VertexMultimodalDatasetSource(proto.Message):
+    r"""The Vertex Multimodal Dataset for the input content.
+
+    Attributes:
+        dataset_name (str):
+            Required. The resource name of the Vertex Dataset. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
+    """
+
+    dataset_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+
+
+class VertexMultimodalDatasetDestination(proto.Message):
+    r"""The details for a Vertex Multimodal Dataset output.
+
+    Attributes:
+        bigquery_destination (google.cloud.aiplatform_v1.types.BigQueryDestination):
+            Optional. The destination of the underlying
+            BigQuery table that will be created for the
+            output Multimodal Dataset. If not specified, the
+            BigQuery table will be created in a default
+            BigQuery dataset.
+        display_name (str):
+            Optional. Display name of the output dataset.
+    """
+
+    bigquery_destination: "BigQueryDestination" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="BigQueryDestination",
+    )
+    display_name: str = proto.Field(
+        proto.STRING,
+        number=2,
     )
 
 

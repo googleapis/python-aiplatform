@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -82,6 +82,7 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
 
 
