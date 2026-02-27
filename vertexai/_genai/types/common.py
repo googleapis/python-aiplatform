@@ -6192,6 +6192,82 @@ ReasoningEngineSpecPackageSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig(_common.BaseModel):
+    """Configuration for the Agent Development Kit (ADK)."""
+
+    json_config: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. The value of the ADK config in JSON format.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for the Agent Development Kit (ADK)."""
+
+    json_config: Optional[dict[str, Any]]
+    """Required. The value of the ADK config in JSON format."""
+
+
+ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig,
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecInlineSource(_common.BaseModel):
+    """Specifies source code provided as a byte stream."""
+
+    source_archive: Optional[bytes] = Field(
+        default=None,
+        description="""Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecInlineSourceDict(TypedDict, total=False):
+    """Specifies source code provided as a byte stream."""
+
+    source_archive: Optional[bytes]
+    """Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file."""
+
+
+ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecInlineSource,
+    ReasoningEngineSpecSourceCodeSpecInlineSourceDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSource(_common.BaseModel):
+    """Specification for the deploying from agent config."""
+
+    adk_config: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig
+    ] = Field(default=None, description="""Required. The ADK configuration.""")
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
+        default=None,
+        description="""Optional. Any additional files needed to interpret the config. If a `requirements.txt` file is present in the `inline_source`, the corresponding packages will be installed. If no `requirements.txt` file is present in `inline_source`, then the latest version of `google-adk` will be installed for interpreting the ADK config.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict(TypedDict, total=False):
+    """Specification for the deploying from agent config."""
+
+    adk_config: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict
+    ]
+    """Required. The ADK configuration."""
+
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
+    """Optional. Any additional files needed to interpret the config. If a `requirements.txt` file is present in the `inline_source`, the corresponding packages will be installed. If no `requirements.txt` file is present in `inline_source`, then the latest version of `google-adk` will be installed for interpreting the ADK config."""
+
+
+ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSource,
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict,
+]
+
+
 class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(_common.BaseModel):
     """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
 
@@ -6260,25 +6336,31 @@ ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict = Union[
 ]
 
 
-class ReasoningEngineSpecSourceCodeSpecInlineSource(_common.BaseModel):
-    """Specifies source code provided as a byte stream."""
+class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
+    """The image spec for building an image (within a single build step).
 
-    source_archive: Optional[bytes] = Field(
+    It is based on the config file (i.e. Dockerfile) in the source directory.
+    """
+
+    build_args: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file.""",
+        description="""Optional. Build arguments to be used. They will be passed through --build-arg flags.""",
     )
 
 
-class ReasoningEngineSpecSourceCodeSpecInlineSourceDict(TypedDict, total=False):
-    """Specifies source code provided as a byte stream."""
+class ReasoningEngineSpecSourceCodeSpecImageSpecDict(TypedDict, total=False):
+    """The image spec for building an image (within a single build step).
 
-    source_archive: Optional[bytes]
-    """Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file."""
+    It is based on the config file (i.e. Dockerfile) in the source directory.
+    """
+
+    build_args: Optional[dict[str, str]]
+    """Optional. Build arguments to be used. They will be passed through --build-arg flags."""
 
 
-ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpecInlineSource,
-    ReasoningEngineSpecSourceCodeSpecInlineSourceDict,
+ReasoningEngineSpecSourceCodeSpecImageSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecImageSpec,
+    ReasoningEngineSpecSourceCodeSpecImageSpecDict,
 ]
 
 
@@ -6325,42 +6407,23 @@ ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
 ]
 
 
-class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
-    """The image spec for building an image (within a single build step).
-
-    It is based on the config file (i.e. Dockerfile) in the source directory.
-    """
-
-    build_args: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""Optional. Build arguments to be used. They will be passed through --build-arg flags.""",
-    )
-
-
-class ReasoningEngineSpecSourceCodeSpecImageSpecDict(TypedDict, total=False):
-    """The image spec for building an image (within a single build step).
-
-    It is based on the config file (i.e. Dockerfile) in the source directory.
-    """
-
-    build_args: Optional[dict[str, str]]
-    """Optional. Build arguments to be used. They will be passed through --build-arg flags."""
-
-
-ReasoningEngineSpecSourceCodeSpecImageSpecOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpecImageSpec,
-    ReasoningEngineSpecSourceCodeSpecImageSpecDict,
-]
-
-
 class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     """Specification for deploying from source code."""
 
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSource
+    ] = Field(
+        default=None, description="""Source code is generated from the agent config."""
+    )
     developer_connect_source: Optional[
         ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
     ] = Field(
         default=None,
         description="""Source code is in a Git repository managed by Developer Connect.""",
+    )
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for building an image with custom config file.""",
     )
     inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
         default=None, description="""Source code is provided directly in the request."""
@@ -6368,28 +6431,29 @@ class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
     python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpec] = Field(
         default=None, description="""Configuration for a Python application."""
     )
-    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
-        default=None,
-        description="""Optional. Configuration for building an image with custom config file.""",
-    )
 
 
 class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
     """Specification for deploying from source code."""
+
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+    ]
+    """Source code is generated from the agent config."""
 
     developer_connect_source: Optional[
         ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
     ]
     """Source code is in a Git repository managed by Developer Connect."""
 
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
+    """Optional. Configuration for building an image with custom config file."""
+
     inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
     """Source code is provided directly in the request."""
 
     python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpecDict]
     """Configuration for a Python application."""
-
-    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
-    """Optional. Configuration for building an image with custom config file."""
 
 
 ReasoningEngineSpecSourceCodeSpecOrDict = Union[
@@ -15291,6 +15355,11 @@ class AgentEngineConfig(_common.BaseModel):
     image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
         default=None, description="""The image spec for the Agent Engine."""
     )
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSource
+    ] = Field(
+        default=None, description="""The agent config source for the Agent Engine."""
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -15456,6 +15525,11 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
     """The image spec for the Agent Engine."""
+
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+    ]
+    """The agent config source for the Agent Engine."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

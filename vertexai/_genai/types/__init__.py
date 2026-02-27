@@ -809,6 +809,12 @@ from .common import ReasoningEngineSpecPackageSpec
 from .common import ReasoningEngineSpecPackageSpecDict
 from .common import ReasoningEngineSpecPackageSpecOrDict
 from .common import ReasoningEngineSpecSourceCodeSpec
+from .common import ReasoningEngineSpecSourceCodeSpecAgentConfigSource
+from .common import ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig
+from .common import ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict
+from .common import ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict
+from .common import ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+from .common import ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
 from .common import ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict
@@ -1591,21 +1597,27 @@ __all__ = [
     "ReasoningEngineSpecPackageSpec",
     "ReasoningEngineSpecPackageSpecDict",
     "ReasoningEngineSpecPackageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSource",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSource",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict",
     "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig",
     "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict",
     "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict",
     "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource",
     "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict",
     "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecInlineSource",
-    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
     "ReasoningEngineSpecSourceCodeSpecImageSpec",
     "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
     "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
     "ReasoningEngineSpecSourceCodeSpec",
     "ReasoningEngineSpecSourceCodeSpecDict",
     "ReasoningEngineSpecSourceCodeSpecOrDict",

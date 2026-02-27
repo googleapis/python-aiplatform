@@ -786,7 +786,12 @@ class AgentEngines(_api_module.BaseModule):
     def _is_lightweight_creation(
         self, agent: Any, config: types.AgentEngineConfig
     ) -> bool:
-        if agent or config.source_packages or config.developer_connect_source:
+        if (
+            agent
+            or config.source_packages
+            or config.developer_connect_source
+            or config.agent_config_source
+        ):
             return False
         return True
 
@@ -937,6 +942,9 @@ class AgentEngines(_api_module.BaseModule):
             developer_connect_source = json.loads(
                 developer_connect_source.model_dump_json()
             )
+        agent_config_source = config.agent_config_source
+        if agent_config_source is not None:
+            agent_config_source = json.loads(agent_config_source.model_dump_json())
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -975,6 +983,7 @@ class AgentEngines(_api_module.BaseModule):
             python_version=config.python_version,
             build_options=config.build_options,
             image_spec=config.image_spec,
+            agent_config_source=agent_config_source,
         )
         operation = self._create(config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -1034,10 +1043,13 @@ class AgentEngines(_api_module.BaseModule):
         image_spec: Optional[
             types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
         ] = None,
+        agent_config_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+        ] = None,
     ) -> None:
         """Sets source_code_spec for agent engine inside the `spec`."""
         source_code_spec = types.ReasoningEngineSpecSourceCodeSpecDict()
-        if source_packages:
+        if source_packages and not agent_config_source:
             source_packages = _agent_engines_utils._validate_packages_or_raise(
                 packages=source_packages,
                 build_options=build_options,
@@ -1053,13 +1065,15 @@ class AgentEngines(_api_module.BaseModule):
             source_code_spec["developer_connect_source"] = {
                 "config": developer_connect_source
             }
-        else:
+        elif not agent_config_source:
             raise ValueError(
-                "Please specify one of `source_packages` or `developer_connect_source`."
+                "Please specify one of `source_packages`, `developer_connect_source`, "
+                "or `agent_config_source`."
             )
         if class_methods is None:
             raise ValueError(
-                "`class_methods` must be specified if `source_packages` or `developer_connect_source` is specified."
+                "`class_methods` must be specified if `source_packages`, "
+                "`developer_connect_source`, or `agent_config_source` is specified."
             )
         update_masks.append("spec.class_methods")
         class_methods_spec_list = (
@@ -1078,6 +1092,11 @@ class AgentEngines(_api_module.BaseModule):
                     "`entrypoint_object`, or `requirements_file`, as they are "
                     "mutually exclusive."
                 )
+            if agent_config_source:
+                raise ValueError(
+                    "`image_spec` cannot be specified alongside `agent_config_source`, "
+                    "as they are mutually exclusive."
+                )
             update_masks.append("spec.source_code_spec.image_spec")
             source_code_spec["image_spec"] = image_spec
             spec["source_code_spec"] = source_code_spec
@@ -1087,6 +1106,38 @@ class AgentEngines(_api_module.BaseModule):
         python_spec: types.ReasoningEngineSpecSourceCodeSpecPythonSpecDict = {
             "version": sys_version,
         }
+        if agent_config_source is not None:
+            if entrypoint_module or entrypoint_object:
+                logger.warning(
+                    "`entrypoint_module` and `entrypoint_object` are ignored when "
+                    "`agent_config_source` is specified, as they are pre-defined."
+                )
+            if source_packages:
+                source_packages = _agent_engines_utils._validate_packages_or_raise(
+                    packages=source_packages,
+                    build_options=build_options,
+                )
+                update_masks.append(
+                    "spec.source_code_spec.agent_config_source.inline_source.source_archive"
+                )
+                agent_config_source["inline_source"] = {  # type: ignore[typeddict-item]
+                    "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
+                        source_packages=source_packages
+                    )
+                }
+            update_masks.append("spec.source_code_spec.agent_config_source")
+            source_code_spec["agent_config_source"] = agent_config_source
+
+            if requirements_file is not None:
+                update_masks.append(
+                    "spec.source_code_spec.python_spec.requirements_file"
+                )
+                python_spec["requirements_file"] = requirements_file
+            source_code_spec["python_spec"] = python_spec
+
+            spec["source_code_spec"] = source_code_spec
+            return
+
         if not entrypoint_module:
             raise ValueError(
                 "`entrypoint_module` must be specified if `source_packages` or `developer_connect_source` is specified."
@@ -1235,6 +1286,9 @@ class AgentEngines(_api_module.BaseModule):
         image_spec: Optional[
             types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
         ] = None,
+        agent_config_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+        ] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1307,7 +1361,12 @@ class AgentEngines(_api_module.BaseModule):
                 sys_version=sys_version,
                 build_options=build_options,
             )
-        elif source_packages or developer_connect_source:
+        elif (
+            source_packages
+            or developer_connect_source
+            or image_spec
+            or agent_config_source
+        ):
             agent_engine_spec = {}
             self._set_source_code_spec(
                 spec=agent_engine_spec,
@@ -1321,6 +1380,7 @@ class AgentEngines(_api_module.BaseModule):
                 sys_version=sys_version,
                 build_options=build_options,
                 image_spec=image_spec,
+                agent_config_source=agent_config_source,
             )
 
         is_deployment_spec_updated = (
@@ -1336,7 +1396,8 @@ class AgentEngines(_api_module.BaseModule):
                 "To update `env_vars`, `psc_interface_config`, `min_instances`, "
                 "`max_instances`, `resource_limits`, or `container_concurrency`, "
                 "you must also provide the `agent` variable or the source code "
-                "options (`source_packages` or `developer_connect_source`)."
+                "options (`source_packages`, `developer_connect_source` or "
+                "`agent_config_source`)."
             )
 
         if agent_engine_spec is not None:
@@ -1598,6 +1659,9 @@ class AgentEngines(_api_module.BaseModule):
             developer_connect_source = json.loads(
                 developer_connect_source.model_dump_json()
             )
+        agent_config_source = config.agent_config_source
+        if agent_config_source is not None:
+            agent_config_source = json.loads(agent_config_source.model_dump_json())
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -1633,6 +1697,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_framework=config.agent_framework,
             python_version=config.python_version,
             build_options=config.build_options,
+            agent_config_source=agent_config_source,
         )
         operation = self._update(name=name, config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
