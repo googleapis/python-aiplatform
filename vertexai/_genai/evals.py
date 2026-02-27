@@ -81,13 +81,7 @@ def _CreateEvaluationRunParameters_to_vertex(
         setv(to_object, ["dataSource"], getv(from_object, ["data_source"]))
 
     if getv(from_object, ["evaluation_config"]) is not None:
-        setv(
-            to_object,
-            ["evaluationConfig"],
-            _EvaluationRunConfig_to_vertex(
-                getv(from_object, ["evaluation_config"]), to_object
-            ),
-        )
+        setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -114,36 +108,6 @@ def _CreateEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    return to_object
-
-
-def _CustomCodeExecutionSpec_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["evaluation_function"]) is not None:
-        setv(
-            to_object,
-            ["remote_custom_function"],
-            getv(from_object, ["evaluation_function"]),
-        )
-
-    return to_object
-
-
-def _CustomCodeExecutionSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["remote_custom_function"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_function"],
-            getv(from_object, ["remote_custom_function"]),
-        )
 
     return to_object
 
@@ -232,90 +196,6 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     return to_object
 
 
-def _EvaluationRunConfig_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [
-                _EvaluationRunMetric_from_vertex(item, to_object)
-                for item in getv(from_object, ["metrics"])
-            ],
-        )
-
-    if getv(from_object, ["outputConfig"]) is not None:
-        setv(to_object, ["output_config"], getv(from_object, ["outputConfig"]))
-
-    if getv(from_object, ["autoraterConfig"]) is not None:
-        setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
-
-    return to_object
-
-
-def _EvaluationRunConfig_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [
-                _EvaluationRunMetric_to_vertex(item, to_object)
-                for item in getv(from_object, ["metrics"])
-            ],
-        )
-
-    if getv(from_object, ["output_config"]) is not None:
-        setv(to_object, ["outputConfig"], getv(from_object, ["output_config"]))
-
-    if getv(from_object, ["autorater_config"]) is not None:
-        setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
-
-    return to_object
-
-
-def _EvaluationRunMetric_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric"]) is not None:
-        setv(to_object, ["metric"], getv(from_object, ["metric"]))
-
-    if getv(from_object, ["metricConfig"]) is not None:
-        setv(
-            to_object,
-            ["metric_config"],
-            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
-        )
-
-    return to_object
-
-
-def _EvaluationRunMetric_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["metric"]) is not None:
-        setv(to_object, ["metric"], getv(from_object, ["metric"]))
-
-    if getv(from_object, ["metric_config"]) is not None:
-        setv(
-            to_object,
-            ["metricConfig"],
-            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
-        )
-
-    return to_object
-
-
 def _EvaluationRun_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -360,13 +240,7 @@ def _EvaluationRun_from_vertex(
         )
 
     if getv(from_object, ["evaluationConfig"]) is not None:
-        setv(
-            to_object,
-            ["evaluation_config"],
-            _EvaluationRunConfig_from_vertex(
-                getv(from_object, ["evaluationConfig"]), to_object
-            ),
-        )
+        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
 
     if getv(from_object, ["inferenceConfigs"]) is not None:
         setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
@@ -531,108 +405,6 @@ def _RubricGenerationSpec_to_vertex(
             to_object,
             ["rubricTypeOntology"],
             getv(from_object, ["rubric_type_ontology"]),
-        )
-
-    return to_object
-
-
-def _UnifiedMetric_from_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bleuSpec"]) is not None:
-        setv(to_object, ["bleu_spec"], getv(from_object, ["bleuSpec"]))
-
-    if getv(from_object, ["rougeSpec"]) is not None:
-        setv(to_object, ["rouge_spec"], getv(from_object, ["rougeSpec"]))
-
-    if getv(from_object, ["pointwiseMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["pointwise_metric_spec"],
-            getv(from_object, ["pointwiseMetricSpec"]),
-        )
-
-    if getv(from_object, ["llmBasedMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["llm_based_metric_spec"],
-            getv(from_object, ["llmBasedMetricSpec"]),
-        )
-
-    if getv(from_object, ["customCodeExecutionSpec"]) is not None:
-        setv(
-            to_object,
-            ["custom_code_execution_spec"],
-            _CustomCodeExecutionSpec_from_vertex(
-                getv(from_object, ["customCodeExecutionSpec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["predefinedMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["predefined_metric_spec"],
-            getv(from_object, ["predefinedMetricSpec"]),
-        )
-
-    if getv(from_object, ["computationBasedMetricSpec"]) is not None:
-        setv(
-            to_object,
-            ["computation_based_metric_spec"],
-            getv(from_object, ["computationBasedMetricSpec"]),
-        )
-
-    return to_object
-
-
-def _UnifiedMetric_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["bleu_spec"]) is not None:
-        setv(to_object, ["bleuSpec"], getv(from_object, ["bleu_spec"]))
-
-    if getv(from_object, ["rouge_spec"]) is not None:
-        setv(to_object, ["rougeSpec"], getv(from_object, ["rouge_spec"]))
-
-    if getv(from_object, ["pointwise_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["pointwiseMetricSpec"],
-            getv(from_object, ["pointwise_metric_spec"]),
-        )
-
-    if getv(from_object, ["llm_based_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["llmBasedMetricSpec"],
-            getv(from_object, ["llm_based_metric_spec"]),
-        )
-
-    if getv(from_object, ["custom_code_execution_spec"]) is not None:
-        setv(
-            to_object,
-            ["customCodeExecutionSpec"],
-            _CustomCodeExecutionSpec_to_vertex(
-                getv(from_object, ["custom_code_execution_spec"]), to_object
-            ),
-        )
-
-    if getv(from_object, ["predefined_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["predefinedMetricSpec"],
-            getv(from_object, ["predefined_metric_spec"]),
-        )
-
-    if getv(from_object, ["computation_based_metric_spec"]) is not None:
-        setv(
-            to_object,
-            ["computationBasedMetricSpec"],
-            getv(from_object, ["computation_based_metric_spec"]),
         )
 
     return to_object
@@ -908,7 +680,7 @@ class Evals(_api_module.BaseModule):
         *,
         contents: list[genai_types.ContentOrDict],
         predefined_rubric_generation_spec: Optional[
-            types.PredefinedMetricSpecOrDict
+            genai_types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
@@ -1480,7 +1252,7 @@ class Evals(_api_module.BaseModule):
                     "Could not determine metric_spec_name from predefined_spec_name"
                 )
 
-            predefined_spec = types.PredefinedMetricSpec(
+            predefined_spec = genai_types.PredefinedMetricSpec(
                 metric_spec_name=actual_predefined_spec_name,
                 metric_spec_parameters=metric_spec_parameters,
             )
@@ -2072,7 +1844,7 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         contents: list[genai_types.ContentOrDict],
         predefined_rubric_generation_spec: Optional[
-            types.PredefinedMetricSpecOrDict
+            genai_types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,

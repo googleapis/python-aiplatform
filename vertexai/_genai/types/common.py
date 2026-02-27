@@ -357,32 +357,6 @@ class SamplingMethod(_common.CaseInSensitiveEnum):
     """Sampling method is random."""
 
 
-class RubricContentType(_common.CaseInSensitiveEnum):
-    """Specifies the type of rubric content to generate."""
-
-    PROPERTY = "PROPERTY"
-    """Generate rubrics based on properties."""
-    NL_QUESTION_ANSWER = "NL_QUESTION_ANSWER"
-    """Generate rubrics in an NL question answer format."""
-    PYTHON_CODE_ASSERTION = "PYTHON_CODE_ASSERTION"
-    """Generate rubrics in a unit test format."""
-
-
-class ComputationBasedMetricType(_common.CaseInSensitiveEnum):
-    """Represents the type of the computation based metric."""
-
-    COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED = (
-        "COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED"
-    )
-    """Computation based metric type is unspecified."""
-    EXACT_MATCH = "EXACT_MATCH"
-    """Exact match metric."""
-    BLEU = "BLEU"
-    """BLEU metric."""
-    ROUGE = "ROUGE"
-    """ROUGE metric."""
-
-
 class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Represents the state of an evaluation run."""
 
@@ -402,6 +376,17 @@ class EvaluationRunState(_common.CaseInSensitiveEnum):
     """Evaluation run is performing inference."""
     GENERATING_RUBRICS = "GENERATING_RUBRICS"
     """Evaluation run is performing rubric generation."""
+
+
+class RubricContentType(_common.CaseInSensitiveEnum):
+    """Specifies the type of rubric content to generate."""
+
+    PROPERTY = "PROPERTY"
+    """Generate rubrics based on properties."""
+    NL_QUESTION_ANSWER = "NL_QUESTION_ANSWER"
+    """Generate rubrics in an NL question answer format."""
+    PYTHON_CODE_ASSERTION = "PYTHON_CODE_ASSERTION"
+    """Generate rubrics in a unit test format."""
 
 
 class OptimizeTarget(_common.CaseInSensitiveEnum):
@@ -2020,256 +2005,13 @@ EvaluationRunDataSourceOrDict = Union[
 ]
 
 
-class PredefinedMetricSpec(_common.BaseModel):
-    """Spec for predefined metric."""
-
-    metric_spec_name: Optional[str] = Field(
-        default=None,
-        description="""The name of a pre-defined metric, such as "instruction_following_v1" or
-      "text_quality_v1".""",
-    )
-    metric_spec_parameters: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The parameters needed to run the pre-defined metric.""",
-    )
-
-
-class PredefinedMetricSpecDict(TypedDict, total=False):
-    """Spec for predefined metric."""
-
-    metric_spec_name: Optional[str]
-    """The name of a pre-defined metric, such as "instruction_following_v1" or
-      "text_quality_v1"."""
-
-    metric_spec_parameters: Optional[dict[str, Any]]
-    """The parameters needed to run the pre-defined metric."""
-
-
-PredefinedMetricSpecOrDict = Union[PredefinedMetricSpec, PredefinedMetricSpecDict]
-
-
-class RubricGenerationSpec(_common.BaseModel):
-    """Spec for generating rubrics."""
-
-    prompt_template: Optional[str] = Field(
-        default=None,
-        description="""Template for the prompt used to generate rubrics.
-      The details should be updated based on the most-recent recipe requirements.""",
-    )
-    generator_model_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None,
-        description="""Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation.""",
-    )
-    rubric_content_type: Optional[RubricContentType] = Field(
-        default=None, description="""The type of rubric content to be generated."""
-    )
-    rubric_type_ontology: Optional[list[str]] = Field(
-        default=None,
-        description="""An optional, pre-defined list of allowed types for generated rubrics.
-      If this field is provided, it implies `include_rubric_type` should be true,
-      and the generated rubric types should be chosen from this ontology.""",
-    )
-
-
-class RubricGenerationSpecDict(TypedDict, total=False):
-    """Spec for generating rubrics."""
-
-    prompt_template: Optional[str]
-    """Template for the prompt used to generate rubrics.
-      The details should be updated based on the most-recent recipe requirements."""
-
-    generator_model_config: Optional[genai_types.AutoraterConfigDict]
-    """Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation."""
-
-    rubric_content_type: Optional[RubricContentType]
-    """The type of rubric content to be generated."""
-
-    rubric_type_ontology: Optional[list[str]]
-    """An optional, pre-defined list of allowed types for generated rubrics.
-      If this field is provided, it implies `include_rubric_type` should be true,
-      and the generated rubric types should be chosen from this ontology."""
-
-
-RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
-
-
-class LLMBasedMetricSpec(_common.BaseModel):
-    """Specification for an LLM based metric."""
-
-    metric_prompt_template: Optional[str] = Field(
-        default=None, description="""Template for the prompt sent to the judge model."""
-    )
-    system_instruction: Optional[str] = Field(
-        default=None, description="""System instruction for the judge model."""
-    )
-    judge_autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None,
-        description="""Optional configuration for the judge LLM (Autorater).""",
-    )
-    rubric_group_key: Optional[str] = Field(
-        default=None,
-        description="""Use a pre-defined group of rubrics associated with the input.
-      Refers to a key in the rubric_groups map of EvaluationInstance.""",
-    )
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpec] = Field(
-        default=None,
-        description="""Dynamically generate rubrics using a predefined spec.""",
-    )
-    rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
-        default=None,
-        description="""Dynamically generate rubrics using this specification.""",
-    )
-
-
-class LLMBasedMetricSpecDict(TypedDict, total=False):
-    """Specification for an LLM based metric."""
-
-    metric_prompt_template: Optional[str]
-    """Template for the prompt sent to the judge model."""
-
-    system_instruction: Optional[str]
-    """System instruction for the judge model."""
-
-    judge_autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """Optional configuration for the judge LLM (Autorater)."""
-
-    rubric_group_key: Optional[str]
-    """Use a pre-defined group of rubrics associated with the input.
-      Refers to a key in the rubric_groups map of EvaluationInstance."""
-
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpecDict]
-    """Dynamically generate rubrics using a predefined spec."""
-
-    rubric_generation_spec: Optional[RubricGenerationSpecDict]
-    """Dynamically generate rubrics using this specification."""
-
-
-LLMBasedMetricSpecOrDict = Union[LLMBasedMetricSpec, LLMBasedMetricSpecDict]
-
-
-class CustomCodeExecutionSpec(_common.BaseModel):
-    """Specificies a metric that is computed by running user-defined Python functions remotely."""
-
-    remote_custom_function: Optional[str] = Field(
-        default=None,
-        description="""A string representing a user-defined function for evaluation.
-  Expected user to define the following function, e.g.:
-    def evaluate(instance: dict[str, Any]) -> float:
-  Please include this function signature in the code snippet.
-  Instance is the evaluation instance, any fields populated in the instance
-  are available to the function as instance[field_name].""",
-    )
-
-
-class CustomCodeExecutionSpecDict(TypedDict, total=False):
-    """Specificies a metric that is computed by running user-defined Python functions remotely."""
-
-    remote_custom_function: Optional[str]
-    """A string representing a user-defined function for evaluation.
-  Expected user to define the following function, e.g.:
-    def evaluate(instance: dict[str, Any]) -> float:
-  Please include this function signature in the code snippet.
-  Instance is the evaluation instance, any fields populated in the instance
-  are available to the function as instance[field_name]."""
-
-
-CustomCodeExecutionSpecOrDict = Union[
-    CustomCodeExecutionSpec, CustomCodeExecutionSpecDict
-]
-
-
-class ComputationBasedMetricSpec(_common.BaseModel):
-    """Specification for a computation based metric."""
-
-    type: Optional[ComputationBasedMetricType] = Field(
-        default=None, description="""The type of the computation based metric."""
-    )
-    parameters: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}.""",
-    )
-
-
-class ComputationBasedMetricSpecDict(TypedDict, total=False):
-    """Specification for a computation based metric."""
-
-    type: Optional[ComputationBasedMetricType]
-    """The type of the computation based metric."""
-
-    parameters: Optional[dict[str, Any]]
-    """A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}."""
-
-
-ComputationBasedMetricSpecOrDict = Union[
-    ComputationBasedMetricSpec, ComputationBasedMetricSpecDict
-]
-
-
-class UnifiedMetric(_common.BaseModel):
-    """The unified metric used for evaluation."""
-
-    bleu_spec: Optional[genai_types.BleuSpec] = Field(
-        default=None, description="""The Bleu metric spec."""
-    )
-    rouge_spec: Optional[genai_types.RougeSpec] = Field(
-        default=None, description="""The rouge metric spec."""
-    )
-    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpec] = Field(
-        default=None, description="""The pointwise metric spec."""
-    )
-    llm_based_metric_spec: Optional[LLMBasedMetricSpec] = Field(
-        default=None, description="""The spec for an LLM based metric."""
-    )
-    custom_code_execution_spec: Optional[CustomCodeExecutionSpec] = Field(
-        default=None, description="""The spec for a custom code execution metric."""
-    )
-    predefined_metric_spec: Optional[PredefinedMetricSpec] = Field(
-        default=None, description="""The spec for a pre-defined metric."""
-    )
-    computation_based_metric_spec: Optional[ComputationBasedMetricSpec] = Field(
-        default=None, description="""The spec for a computation based metric."""
-    )
-
-
-class UnifiedMetricDict(TypedDict, total=False):
-    """The unified metric used for evaluation."""
-
-    bleu_spec: Optional[genai_types.BleuSpecDict]
-    """The Bleu metric spec."""
-
-    rouge_spec: Optional[genai_types.RougeSpecDict]
-    """The rouge metric spec."""
-
-    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpecDict]
-    """The pointwise metric spec."""
-
-    llm_based_metric_spec: Optional[LLMBasedMetricSpecDict]
-    """The spec for an LLM based metric."""
-
-    custom_code_execution_spec: Optional[CustomCodeExecutionSpecDict]
-    """The spec for a custom code execution metric."""
-
-    predefined_metric_spec: Optional[PredefinedMetricSpecDict]
-    """The spec for a pre-defined metric."""
-
-    computation_based_metric_spec: Optional[ComputationBasedMetricSpecDict]
-    """The spec for a computation based metric."""
-
-
-UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]
-
-
 class EvaluationRunMetric(_common.BaseModel):
     """The metric used for evaluation run."""
 
     metric: Optional[str] = Field(
         default=None, description="""The name of the metric."""
     )
-    metric_config: Optional[UnifiedMetric] = Field(
+    metric_config: Optional[genai_types.UnifiedMetric] = Field(
         default=None, description="""The unified metric used for evaluation run."""
     )
 
@@ -2280,7 +2022,7 @@ class EvaluationRunMetricDict(TypedDict, total=False):
     metric: Optional[str]
     """The name of the metric."""
 
-    metric_config: Optional[UnifiedMetricDict]
+    metric_config: Optional[genai_types.UnifiedMetricDict]
     """The unified metric used for evaluation run."""
 
 
@@ -3923,6 +3665,55 @@ EvaluateInstancesConfigOrDict = Union[
 ]
 
 
+class RubricGenerationSpec(_common.BaseModel):
+    """Spec for generating rubrics."""
+
+    prompt_template: Optional[str] = Field(
+        default=None,
+        description="""Template for the prompt used to generate rubrics.
+      The details should be updated based on the most-recent recipe requirements.""",
+    )
+    generator_model_config: Optional[genai_types.AutoraterConfig] = Field(
+        default=None,
+        description="""Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation.""",
+    )
+    rubric_content_type: Optional[RubricContentType] = Field(
+        default=None, description="""The type of rubric content to be generated."""
+    )
+    rubric_type_ontology: Optional[list[str]] = Field(
+        default=None,
+        description="""An optional, pre-defined list of allowed types for generated rubrics.
+      If this field is provided, it implies `include_rubric_type` should be true,
+      and the generated rubric types should be chosen from this ontology.""",
+    )
+
+
+class RubricGenerationSpecDict(TypedDict, total=False):
+    """Spec for generating rubrics."""
+
+    prompt_template: Optional[str]
+    """Template for the prompt used to generate rubrics.
+      The details should be updated based on the most-recent recipe requirements."""
+
+    generator_model_config: Optional[genai_types.AutoraterConfigDict]
+    """Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation."""
+
+    rubric_content_type: Optional[RubricContentType]
+    """The type of rubric content to be generated."""
+
+    rubric_type_ontology: Optional[list[str]]
+    """An optional, pre-defined list of allowed types for generated rubrics.
+      If this field is provided, it implies `include_rubric_type` should be true,
+      and the generated rubric types should be chosen from this ontology."""
+
+
+RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
+
+
 class RubricBasedMetricSpec(_common.BaseModel):
     """Specification for a metric that is based on rubrics."""
 
@@ -5032,14 +4823,16 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.""",
     )
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpec] = Field(
-        default=None,
-        description="""Specification for using the rubric generation configs of a pre-defined
+    predefined_rubric_generation_spec: Optional[genai_types.PredefinedMetricSpec] = (
+        Field(
+            default=None,
+            description="""Specification for using the rubric generation configs of a pre-defined
           metric, e.g. "generic_quality_v1" and "instruction_following_v1".
           Some of the configs may be only used in rubric generation and not
           supporting evaluation, e.g. "fully_customized_generic_quality_v1".
           If this field is set, the `rubric_generation_spec` field will be ignored.
           """,
+        )
     )
     rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
         default=None,
@@ -5054,7 +4847,7 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     contents: Optional[list[genai_types.ContentDict]]
     """The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
 
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpecDict]
+    predefined_rubric_generation_spec: Optional[genai_types.PredefinedMetricSpecDict]
     """Specification for using the rubric generation configs of a pre-defined
           metric, e.g. "generic_quality_v1" and "instruction_following_v1".
           Some of the configs may be only used in rubric generation and not
