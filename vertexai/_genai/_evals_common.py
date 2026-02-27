@@ -1047,8 +1047,10 @@ def _resolve_dataset_inputs(
     datasets_to_process = dataset
     logger.info("Processing %s dataset(s).", num_response_candidates)
 
-    loaded_raw_datasets: list[list[dict[str, Any]]] = []
-    schemas_for_merge: list[str] = []
+    if len(datasets_to_process) == 1 and datasets_to_process[0].eval_cases:
+        return datasets_to_process[0], 1
+
+    parsed_evaluation_datasets: list[types.EvaluationDataset] = []
 
     for i, ds_item in enumerate(datasets_to_process):
         if not isinstance(ds_item, types.EvaluationDataset):
@@ -1062,9 +1064,13 @@ def _resolve_dataset_inputs(
                 f"Item at index {i} is not an EvaluationDataset: {type(ds_item)}"
             )
 
+        if ds_item.eval_cases:
+            logger.info("Dataset %d already contains eval_cases.", i)
+            parsed_evaluation_datasets.append(ds_item)
+            continue
+
         ds_source_for_loader = _get_dataset_source(ds_item)
         current_loaded_data = loader.load(ds_source_for_loader)
-        loaded_raw_datasets.append(current_loaded_data)
 
         if dataset_schema:
             current_schema = _evals_data_converters.EvalDatasetSchema(dataset_schema)
@@ -1072,7 +1078,6 @@ def _resolve_dataset_inputs(
             current_schema = _evals_data_converters.auto_detect_dataset_schema(  # type: ignore[assignment]
                 current_loaded_data
             )
-        schemas_for_merge.append(current_schema)
 
         logger.info(
             "Dataset %d: Schema: %s. Using %s converter.",
@@ -1082,13 +1087,12 @@ def _resolve_dataset_inputs(
                 current_schema
             ).__class__.__name__,
         )
+        converter = _evals_data_converters.get_dataset_converter(current_schema)
+        parsed_evaluation_datasets.append(converter.convert(current_loaded_data))
 
-    processed_eval_dataset = (
-        _evals_data_converters.merge_response_datasets_into_canonical_format(
-            raw_datasets=loaded_raw_datasets,
-            schemas=schemas_for_merge,
-            agent_info=agent_info,
-        )
+    processed_eval_dataset = _evals_data_converters.merge_evaluation_datasets(
+        datasets=parsed_evaluation_datasets,
+        agent_info=agent_info,
     )
 
     if not processed_eval_dataset.eval_cases:

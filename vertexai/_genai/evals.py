@@ -224,10 +224,40 @@ def _EvaluateInstancesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["instance"]) is not None:
-        setv(to_object, ["instance"], getv(from_object, ["instance"]))
+        setv(
+            to_object,
+            ["instance"],
+            _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _EvaluationInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt"]) is not None:
+        setv(to_object, ["prompt"], getv(from_object, ["prompt"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(to_object, ["response"], getv(from_object, ["response"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    if getv(from_object, ["other_data"]) is not None:
+        setv(to_object, ["otherData"], getv(from_object, ["other_data"]))
+
+    if getv(from_object, ["agent_data"]) is not None:
+        setv(to_object, ["agent_eval_data"], getv(from_object, ["agent_data"]))
+
+    if getv(from_object, ["rubric_groups"]) is not None:
+        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
 
     return to_object
 
