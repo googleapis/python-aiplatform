@@ -796,6 +796,48 @@ class UserScenarioDict(TypedDict, total=False):
 UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
 
 
+class UserScenarioGenerationConfig(_common.BaseModel):
+    """User scenario generation configuration."""
+
+    user_scenario_count: Optional[int] = Field(
+        default=None,
+        description="""The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
+    simulation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Simulation instruction to guide the user scenario generation.""",
+    )
+    environment_data: Optional[str] = Field(
+        default=None,
+        description="""Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
+    )
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The model name to use for user scenario generation.""",
+    )
+
+
+class UserScenarioGenerationConfigDict(TypedDict, total=False):
+    """User scenario generation configuration."""
+
+    user_scenario_count: Optional[int]
+    """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
+
+    simulation_instruction: Optional[str]
+    """Simulation instruction to guide the user scenario generation."""
+
+    environment_data: Optional[str]
+    """Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
+
+    model_name: Optional[str]
+    """The model name to use for user scenario generation."""
+
+
+UserScenarioGenerationConfigOrDict = Union[
+    UserScenarioGenerationConfig, UserScenarioGenerationConfigDict
+]
+
+
 class UserSimulatorConfig(_common.BaseModel):
     """Configuration for a user simulator that uses an LLM to generate messages."""
 

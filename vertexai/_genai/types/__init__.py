@@ -50,6 +50,7 @@ from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
+from .common import _GenerateUserScenariosParameters
 from .common import _GetAgentEngineGenerateMemoriesOperationParameters
 from .common import _GetAgentEngineMemoryOperationParameters
 from .common import _GetAgentEngineMemoryRequestParameters
@@ -474,6 +475,12 @@ from .common import GenerateMemoriesResponseGeneratedMemoryAction
 from .common import GenerateMemoriesResponseGeneratedMemoryDict
 from .common import GenerateMemoriesResponseGeneratedMemoryOrDict
 from .common import GenerateMemoriesResponseOrDict
+from .common import GenerateUserScenariosConfig
+from .common import GenerateUserScenariosConfigDict
+from .common import GenerateUserScenariosConfigOrDict
+from .common import GenerateUserScenariosResponse
+from .common import GenerateUserScenariosResponseDict
+from .common import GenerateUserScenariosResponseOrDict
 from .common import GetAgentEngineConfig
 from .common import GetAgentEngineConfigDict
 from .common import GetAgentEngineConfigOrDict
@@ -1525,6 +1532,12 @@ __all__ = [
     "GenerateInstanceRubricsResponse",
     "GenerateInstanceRubricsResponseDict",
     "GenerateInstanceRubricsResponseOrDict",
+    "GenerateUserScenariosConfig",
+    "GenerateUserScenariosConfigDict",
+    "GenerateUserScenariosConfigOrDict",
+    "GenerateUserScenariosResponse",
+    "GenerateUserScenariosResponseDict",
+    "GenerateUserScenariosResponseOrDict",
     "GetEvaluationRunConfig",
     "GetEvaluationRunConfigDict",
     "GetEvaluationRunConfigOrDict",
@@ -2198,6 +2211,7 @@ __all__ = [
     "_CreateEvaluationSetParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateInstanceRubricsRequest",
+    "_GenerateUserScenariosParameters",
     "_GetEvaluationRunParameters",
     "_GetEvaluationSetParameters",
     "_GetEvaluationItemParameters",

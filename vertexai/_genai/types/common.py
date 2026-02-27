@@ -2685,6 +2685,10 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. The agent data of the agent under evaluation.""",
     )
+    user_scenario: Optional[evals_types.UserScenario] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The user scenario for the evaluation case.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -2721,6 +2725,9 @@ class EvalCaseDict(TypedDict, total=False):
 
     agent_data: Optional[evals_types.AgentData]
     """This field is experimental and may change in future versions. The agent data of the agent under evaluation."""
+
+    user_scenario: Optional[evals_types.UserScenario]
+    """This field is experimental and may change in future versions. The user scenario for the evaluation case."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
@@ -5091,6 +5098,84 @@ class GenerateInstanceRubricsResponseDict(TypedDict, total=False):
 
 GenerateInstanceRubricsResponseOrDict = Union[
     GenerateInstanceRubricsResponse, GenerateInstanceRubricsResponseDict
+]
+
+
+class GenerateUserScenariosConfig(_common.BaseModel):
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GenerateUserScenariosConfigDict(TypedDict, total=False):
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GenerateUserScenariosConfigOrDict = Union[
+    GenerateUserScenariosConfig, GenerateUserScenariosConfigDict
+]
+
+
+class _GenerateUserScenariosParameters(_common.BaseModel):
+    """Parameters for GenerateUserScenarios."""
+
+    location: Optional[str] = Field(default=None, description="""""")
+    agents: Optional[dict[str, evals_types.AgentConfig]] = Field(
+        default=None, description=""""""
+    )
+    root_agent_id: Optional[str] = Field(default=None, description="""""")
+    user_scenario_generation_config: Optional[
+        evals_types.UserScenarioGenerationConfig
+    ] = Field(default=None, description="""""")
+    config: Optional[GenerateUserScenariosConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GenerateUserScenariosParametersDict(TypedDict, total=False):
+    """Parameters for GenerateUserScenarios."""
+
+    location: Optional[str]
+    """"""
+
+    agents: Optional[dict[str, evals_types.AgentConfig]]
+    """"""
+
+    root_agent_id: Optional[str]
+    """"""
+
+    user_scenario_generation_config: Optional[evals_types.UserScenarioGenerationConfig]
+    """"""
+
+    config: Optional[GenerateUserScenariosConfigDict]
+    """"""
+
+
+_GenerateUserScenariosParametersOrDict = Union[
+    _GenerateUserScenariosParameters, _GenerateUserScenariosParametersDict
+]
+
+
+class GenerateUserScenariosResponse(_common.BaseModel):
+    """Response message for DataFoundryService.GenerateUserScenarios."""
+
+    user_scenarios: Optional[list[evals_types.UserScenario]] = Field(
+        default=None, description=""""""
+    )
+
+
+class GenerateUserScenariosResponseDict(TypedDict, total=False):
+    """Response message for DataFoundryService.GenerateUserScenarios."""
+
+    user_scenarios: Optional[list[evals_types.UserScenario]]
+    """"""
+
+
+GenerateUserScenariosResponseOrDict = Union[
+    GenerateUserScenariosResponse, GenerateUserScenariosResponseDict
 ]
 
 

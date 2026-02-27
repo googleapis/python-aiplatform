@@ -20,6 +20,7 @@ import os
 import re
 import statistics
 import sys
+import unittest
 from unittest import mock
 
 import google.auth.credentials
@@ -5500,3 +5501,70 @@ class TestEvaluationDataset:
                 }
             ),
         )
+
+
+class TestEvalsGenerateUserScenarios(unittest.TestCase):
+    """Unit tests for the Evals generate_user_scenarios method."""
+
+    def setUp(self):
+        self.addCleanup(mock.patch.stopall)
+        self.mock_client = mock.MagicMock(spec=client.Client)
+        self.mock_client.vertexai = True
+        self.mock_api_client = mock.MagicMock()
+        self.mock_client._api_client = self.mock_api_client
+
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "userScenarios": [
+                    {"startingPrompt": "Prompt 1", "conversationPlan": "Plan 1"},
+                    {"startingPrompt": "Prompt 2", "conversationPlan": "Plan 2"},
+                ]
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_generate_user_scenarios(self):
+        """Tests that generate_user_scenarios correctly calls the API and parses the response."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        eval_dataset = evals_module.generate_user_scenarios(
+            agents={"agent_1": {}},
+            user_scenario_generation_config={"user_scenario_count": 2},
+            root_agent_id="agent_1",
+        )
+        assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(eval_dataset.eval_cases) == 2
+        assert eval_dataset.eval_cases[0].user_scenario.starting_prompt == "Prompt 1"
+        assert eval_dataset.eval_cases[0].user_scenario.conversation_plan == "Plan 1"
+        assert eval_dataset.eval_cases[1].user_scenario.starting_prompt == "Prompt 2"
+        assert eval_dataset.eval_cases[1].user_scenario.conversation_plan == "Plan 2"
+
+        assert eval_dataset.eval_dataset_df is not None
+        assert len(eval_dataset.eval_dataset_df) == 2
+        assert eval_dataset.eval_dataset_df.iloc[0]["starting_prompt"] == "Prompt 1"
+
+        self.mock_api_client.request.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_async_generate_user_scenarios(self):
+        """Tests that async generate_user_scenarios correctly calls the API and parses the response."""
+
+        self.mock_api_client.async_request = mock.AsyncMock(
+            return_value=self.mock_response
+        )
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        eval_dataset = await async_evals_module.generate_user_scenarios(
+            agents={"agent_1": {}},
+            user_scenario_generation_config={"user_scenario_count": 2},
+            root_agent_id="agent_1",
+        )
+        assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(eval_dataset.eval_cases) == 2
+        assert eval_dataset.eval_cases[0].user_scenario.starting_prompt == "Prompt 1"
+
+        assert eval_dataset.eval_dataset_df is not None
+        assert len(eval_dataset.eval_dataset_df) == 2
+
+        self.mock_api_client.async_request.assert_called_once()

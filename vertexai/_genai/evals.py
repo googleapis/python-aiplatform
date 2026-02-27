@@ -32,6 +32,7 @@ from . import _evals_common
 from . import _evals_utils
 from . import _transformers as t
 from . import types
+from .types import evals as evals_types
 
 try:
     from google.adk.agents import LlmAgent
@@ -399,6 +400,33 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             _RubricGenerationSpec_to_vertex(
                 getv(from_object, ["rubric_generation_spec"]), to_object
             ),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GenerateUserScenariosParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["location"]) is not None:
+        setv(to_object, ["location"], getv(from_object, ["location"]))
+
+    if getv(from_object, ["agents"]) is not None:
+        setv(to_object, ["agents"], getv(from_object, ["agents"]))
+
+    if getv(from_object, ["root_agent_id"]) is not None:
+        setv(to_object, ["rootAgentId"], getv(from_object, ["root_agent_id"]))
+
+    if getv(from_object, ["user_scenario_generation_config"]) is not None:
+        setv(
+            to_object,
+            ["userScenarioGenerationConfig"],
+            getv(from_object, ["user_scenario_generation_config"]),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -956,6 +984,67 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateInstanceRubricsResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _generate_user_scenarios(
+        self,
+        *,
+        location: Optional[str] = None,
+        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        root_agent_id: Optional[str] = None,
+        user_scenario_generation_config: Optional[
+            evals_types.UserScenarioGenerationConfigOrDict
+        ] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+    ) -> types.GenerateUserScenariosResponse:
+        """
+        Generates user scenarios for agent evaluation.
+        """
+
+        parameter_model = types._GenerateUserScenariosParameters(
+            location=location,
+            agents=agents,
+            root_agent_id=root_agent_id,
+            user_scenario_generation_config=user_scenario_generation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateUserScenarios".format_map(request_url_dict)
+            else:
+                path = ":generateUserScenarios"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateUserScenariosResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1594,7 +1683,7 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[types.evals.AgentInfoOrDict] = None,
+        agent_info: Optional[evals_types.AgentInfoOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -1626,9 +1715,9 @@ class Evals(_api_module.BaseModule):
                 "At most one of agent_info or inference_configs can be provided."
             )
         agent_info_pydantic = (
-            types.evals.AgentInfo.model_validate(agent_info)
+            evals_types.AgentInfo.model_validate(agent_info)
             if isinstance(agent_info, dict)
-            else (agent_info or types.evals.AgentInfo())
+            else (agent_info or evals_types.AgentInfo())
         )
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, agent_info_pydantic
@@ -1792,6 +1881,36 @@ class Evals(_api_module.BaseModule):
             display_name=display_name,
             config=config,
         )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_user_scenarios module is experimental, "
+        "and may change in future versions."
+    )
+    def generate_user_scenarios(
+        self,
+        *,
+        agents: dict[str, evals_types.AgentConfigOrDict],
+        user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
+        root_agent_id: str,
+    ) -> types.EvaluationDataset:
+        """Generates an evaluation dataset with user scenarios,
+           which helps to generate conversations between a simulated user
+           and the agent under test.
+
+        Args:
+            agents: A map of agent ID to AgentConfig.
+            user_scenario_generation_config: Configuration for generating user scenarios.
+            root_agent_id: The ID of the root agent.
+
+        Returns:
+            An EvaluationDataset containing the generated user scenarios.
+        """
+        response = self._generate_user_scenarios(
+            agents=agents,
+            user_scenario_generation_config=user_scenario_generation_config,
+            root_agent_id=root_agent_id,
+        )
+        return _evals_utils._postprocess_user_scenarios_response(response)
 
 
 class AsyncEvals(_api_module.BaseModule):
@@ -2128,6 +2247,69 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _generate_user_scenarios(
+        self,
+        *,
+        location: Optional[str] = None,
+        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        root_agent_id: Optional[str] = None,
+        user_scenario_generation_config: Optional[
+            evals_types.UserScenarioGenerationConfigOrDict
+        ] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+    ) -> types.GenerateUserScenariosResponse:
+        """
+        Generates user scenarios for agent evaluation.
+        """
+
+        parameter_model = types._GenerateUserScenariosParameters(
+            location=location,
+            agents=agents,
+            root_agent_id=root_agent_id,
+            user_scenario_generation_config=user_scenario_generation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateUserScenarios".format_map(request_url_dict)
+            else:
+                path = ":generateUserScenarios"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_evaluation_run(
         self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
     ) -> types.EvaluationRun:
@@ -2429,7 +2611,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[types.evals.AgentInfo] = None,
+        agent_info: Optional[evals_types.AgentInfo] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -2461,9 +2643,9 @@ class AsyncEvals(_api_module.BaseModule):
                 "At most one of agent_info or inference_configs can be provided."
             )
         agent_info_pydantic = (
-            types.evals.AgentInfo.model_validate(agent_info)
+            evals_types.AgentInfo.model_validate(agent_info)
             if isinstance(agent_info, dict)
-            else (agent_info or types.evals.AgentInfo())
+            else (agent_info or evals_types.AgentInfo())
         )
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, agent_info_pydantic
@@ -2634,3 +2816,33 @@ class AsyncEvals(_api_module.BaseModule):
             config=config,
         )
         return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_user_scenarios module is experimental, "
+        "and may change in future versions."
+    )
+    async def generate_user_scenarios(
+        self,
+        *,
+        agents: dict[str, evals_types.AgentConfigOrDict],
+        user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
+        root_agent_id: str,
+    ) -> types.EvaluationDataset:
+        """Generates an evaluation dataset with user scenarios,
+           which helps to generate conversations between a simulated user
+           and the agent under test.
+
+        Args:
+            agents: A map of agent ID to AgentConfig.
+            user_scenario_generation_config: Configuration for generating user scenarios.
+            root_agent_id: The ID of the root agent.
+
+        Returns:
+            An EvaluationDataset containing the generated user scenarios.
+        """
+        response = await self._generate_user_scenarios(
+            agents=agents,
+            user_scenario_generation_config=user_scenario_generation_config,
+            root_agent_id=root_agent_id,
+        )
+        return _evals_utils._postprocess_user_scenarios_response(response)
