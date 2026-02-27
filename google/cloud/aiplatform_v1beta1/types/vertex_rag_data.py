@@ -22,7 +22,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

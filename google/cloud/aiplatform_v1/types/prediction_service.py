@@ -19,14 +19,14 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import content as gca_content
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import types
 from google.cloud.aiplatform_v1.types import usage_metadata as gca_usage_metadata
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api.httpbody_pb2 as httpbody_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -1028,7 +1028,39 @@ class GenerateContentResponse(proto.Message):
             candidates_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
                 Output only. List of modalities that were
                 returned in the response.
+            tool_use_prompt_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. A detailed breakdown by modality
+                of the token counts from the results of tool
+                executions, which are provided back to the model
+                as input.
+            traffic_type (google.cloud.aiplatform_v1.types.GenerateContentResponse.UsageMetadata.TrafficType):
+                Output only. The traffic type for this
+                request.
         """
+
+        class TrafficType(proto.Enum):
+            r"""The type of traffic that this request was processed with,
+            indicating which quota is consumed.
+
+            Values:
+                TRAFFIC_TYPE_UNSPECIFIED (0):
+                    Unspecified request traffic type.
+                ON_DEMAND (1):
+                    The request was processed using Pay-As-You-Go
+                    quota.
+                ON_DEMAND_PRIORITY (3):
+                    Type for Priority Pay-As-You-Go traffic.
+                ON_DEMAND_FLEX (4):
+                    Type for Flex traffic.
+                PROVISIONED_THROUGHPUT (2):
+                    Type for Provisioned Throughput traffic.
+            """
+
+            TRAFFIC_TYPE_UNSPECIFIED = 0
+            ON_DEMAND = 1
+            ON_DEMAND_PRIORITY = 3
+            ON_DEMAND_FLEX = 4
+            PROVISIONED_THROUGHPUT = 2
 
         prompt_token_count: int = proto.Field(
             proto.INT32,
@@ -1070,6 +1102,18 @@ class GenerateContentResponse(proto.Message):
                 number=11,
                 message=gca_content.ModalityTokenCount,
             )
+        )
+        tool_use_prompt_tokens_details: MutableSequence[
+            gca_content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=12,
+            message=gca_content.ModalityTokenCount,
+        )
+        traffic_type: "GenerateContentResponse.UsageMetadata.TrafficType" = proto.Field(
+            proto.ENUM,
+            number=8,
+            enum="GenerateContentResponse.UsageMetadata.TrafficType",
         )
 
     candidates: MutableSequence[gca_content.Candidate] = proto.RepeatedField(

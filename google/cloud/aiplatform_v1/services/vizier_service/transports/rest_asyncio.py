@@ -53,7 +53,7 @@ from typing import Any, Dict, List, Callable, Tuple, Optional, Sequence, Union
 from google.cloud.aiplatform_v1.types import study
 from google.cloud.aiplatform_v1.types import study as gca_study
 from google.cloud.aiplatform_v1.types import vizier_service
-from google.protobuf import empty_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -1557,7 +1557,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2212,7 +2212,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2330,7 +2330,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -3599,7 +3599,7 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4005,6 +4005,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -4042,6 +4046,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -4371,6 +4379,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -4428,6 +4440,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -4769,6 +4785,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -4826,6 +4846,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -5151,6 +5175,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -5220,6 +5248,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -5553,6 +5585,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                     },
                     {
@@ -5610,6 +5646,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:wait",
                     },
                 ],
             }

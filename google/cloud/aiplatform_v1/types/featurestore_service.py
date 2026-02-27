@@ -25,9 +25,9 @@ from google.cloud.aiplatform_v1.types import feature_selector as gca_feature_sel
 from google.cloud.aiplatform_v1.types import featurestore as gca_featurestore
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import operation
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.type import interval_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.type.interval_pb2 as interval_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

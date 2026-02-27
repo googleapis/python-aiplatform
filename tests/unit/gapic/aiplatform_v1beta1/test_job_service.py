@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -115,16 +115,17 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.protobuf import wrappers_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
-from google.type import money_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.any_pb2 as any_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.protobuf.wrappers_pb2 as wrappers_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
+import google.type.money_pb2 as money_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -28310,6 +28311,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
         "input_config": {
             "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
             "bigquery_source": {"input_uri": "input_uri_value"},
+            "vertex_multimodal_dataset_source": {"dataset_name": "dataset_name_value"},
             "instances_format": "instances_format_value",
         },
         "instance_config": {
@@ -28329,6 +28331,10 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
         "output_config": {
             "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"},
             "bigquery_destination": {"output_uri": "output_uri_value"},
+            "vertex_multimodal_dataset_destination": {
+                "bigquery_destination": {},
+                "display_name": "display_name_value",
+            },
             "predictions_format": "predictions_format_value",
         },
         "dedicated_resources": {
@@ -28393,6 +28399,7 @@ def test_create_batch_prediction_job_rest_call_success(request_type):
         "output_info": {
             "gcs_output_directory": "gcs_output_directory_value",
             "bigquery_output_dataset": "bigquery_output_dataset_value",
+            "vertex_multimodal_dataset_name": "vertex_multimodal_dataset_name_value",
             "bigquery_output_table": "bigquery_output_table_value",
         },
         "state": 1,
@@ -36251,6 +36258,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
         "input_config": {
             "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
             "bigquery_source": {"input_uri": "input_uri_value"},
+            "vertex_multimodal_dataset_source": {"dataset_name": "dataset_name_value"},
             "instances_format": "instances_format_value",
         },
         "instance_config": {
@@ -36270,6 +36278,10 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
         "output_config": {
             "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"},
             "bigquery_destination": {"output_uri": "output_uri_value"},
+            "vertex_multimodal_dataset_destination": {
+                "bigquery_destination": {},
+                "display_name": "display_name_value",
+            },
             "predictions_format": "predictions_format_value",
         },
         "dedicated_resources": {
@@ -36334,6 +36346,7 @@ async def test_create_batch_prediction_job_rest_asyncio_call_success(request_typ
         "output_info": {
             "gcs_output_directory": "gcs_output_directory_value",
             "bigquery_output_dataset": "bigquery_output_dataset_value",
+            "vertex_multimodal_dataset_name": "vertex_multimodal_dataset_name_value",
             "bigquery_output_table": "bigquery_output_table_value",
         },
         "state": 1,

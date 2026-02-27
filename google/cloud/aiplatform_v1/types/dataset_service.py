@@ -26,7 +26,7 @@ from google.cloud.aiplatform_v1.types import dataset_version as gca_dataset_vers
 from google.cloud.aiplatform_v1.types import model
 from google.cloud.aiplatform_v1.types import operation
 from google.cloud.aiplatform_v1.types import saved_query as gca_saved_query
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -112,7 +112,6 @@ class CreateDatasetOperationMetadata(proto.Message):
 class GetDatasetRequest(proto.Message):
     r"""Request message for
     [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
-    Next ID: 4
 
     Attributes:
         name (str):
@@ -489,7 +488,6 @@ class DeleteDatasetVersionRequest(proto.Message):
 class GetDatasetVersionRequest(proto.Message):
     r"""Request message for
     [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
-    Next ID: 4
 
     Attributes:
         name (str):

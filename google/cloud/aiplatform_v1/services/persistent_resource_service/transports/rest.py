@@ -1101,6 +1101,10 @@ class PersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1138,6 +1142,10 @@ class PersistentResourceServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -1467,6 +1475,10 @@ class PersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -1524,6 +1536,10 @@ class PersistentResourceServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -1865,6 +1881,10 @@ class PersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -1922,6 +1942,10 @@ class PersistentResourceServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -2247,6 +2271,10 @@ class PersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -2316,6 +2344,10 @@ class PersistentResourceServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -2649,6 +2681,10 @@ class PersistentResourceServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                     },
                     {
@@ -2706,6 +2742,10 @@ class PersistentResourceServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:wait",
                     },
                 ],
             }
@@ -2818,7 +2858,7 @@ class PersistentResourceServiceRestTransport(
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2972,7 +3012,7 @@ class PersistentResourceServiceRestTransport(
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -3443,7 +3483,7 @@ class PersistentResourceServiceRestTransport(
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -3602,7 +3642,7 @@ class PersistentResourceServiceRestTransport(
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
