@@ -21,7 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import session as gca_session
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -121,9 +121,10 @@ class ListSessionsRequest(proto.Message):
             call.
         filter (str):
             Optional. The standard list filter. Supported fields: \*
-            ``display_name`` \* ``user_id``
+            ``display_name`` \* ``user_id`` \* ``labels``
 
-            Example: ``display_name="abc"``, ``user_id="123"``.
+            Example: ``display_name="abc"``, ``user_id="123"``,
+            ``labels.key="value"``.
         order_by (str):
             Optional. A comma-separated list of fields to order by,
             sorted in ascending order. Use "desc" after a field name for

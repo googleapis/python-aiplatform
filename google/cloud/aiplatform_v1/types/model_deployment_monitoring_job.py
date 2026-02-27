@@ -24,10 +24,10 @@ from google.cloud.aiplatform_v1.types import feature_monitoring_stats
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import model_monitoring
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

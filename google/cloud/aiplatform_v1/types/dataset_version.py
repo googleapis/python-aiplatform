@@ -19,8 +19,8 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -36,8 +36,9 @@ class DatasetVersion(proto.Message):
 
     Attributes:
         name (str):
-            Output only. Identifier. The resource name of
-            the DatasetVersion.
+            Output only. Identifier. The resource name of the
+            DatasetVersion. Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}/datasetVersions/{dataset_version}``
         create_time (google.protobuf.timestamp_pb2.Timestamp):
             Output only. Timestamp when this
             DatasetVersion was created.

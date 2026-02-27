@@ -56,9 +56,9 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 from .transports.base import GenAiCacheServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import GenAiCacheServiceGrpcAsyncIOTransport
 from .client import GenAiCacheServiceClient
@@ -129,7 +129,10 @@ class GenAiCacheServiceAsyncClient:
         Returns:
             GenAiCacheServiceAsyncClient: The constructed client.
         """
-        return GenAiCacheServiceClient.from_service_account_info.__func__(GenAiCacheServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            GenAiCacheServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(GenAiCacheServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -145,7 +148,10 @@ class GenAiCacheServiceAsyncClient:
         Returns:
             GenAiCacheServiceAsyncClient: The constructed client.
         """
-        return GenAiCacheServiceClient.from_service_account_file.__func__(GenAiCacheServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            GenAiCacheServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(GenAiCacheServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

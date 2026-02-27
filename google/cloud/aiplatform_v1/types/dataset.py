@@ -22,8 +22,8 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import saved_query
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -43,8 +43,9 @@ class Dataset(proto.Message):
 
     Attributes:
         name (str):
-            Output only. Identifier. The resource name of
-            the Dataset.
+            Output only. Identifier. The resource name of the Dataset.
+            Format:
+            ``projects/{project}/locations/{location}/datasets/{dataset}``
         display_name (str):
             Required. The user-defined name of the
             Dataset. The name can be up to 128 characters

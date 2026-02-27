@@ -114,7 +114,10 @@ class EvaluationServiceAsyncClient:
         Returns:
             EvaluationServiceAsyncClient: The constructed client.
         """
-        return EvaluationServiceClient.from_service_account_info.__func__(EvaluationServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            EvaluationServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(EvaluationServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -130,7 +133,10 @@ class EvaluationServiceAsyncClient:
         Returns:
             EvaluationServiceAsyncClient: The constructed client.
         """
-        return EvaluationServiceClient.from_service_account_file.__func__(EvaluationServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            EvaluationServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(EvaluationServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

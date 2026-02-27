@@ -28,7 +28,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     notebook_runtime_template_ref as gca_notebook_runtime_template_ref,
 )
 from google.cloud.aiplatform_v1beta1.types import notebook_software_config
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

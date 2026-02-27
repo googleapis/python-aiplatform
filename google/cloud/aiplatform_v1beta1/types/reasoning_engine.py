@@ -22,9 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import service_networking
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -231,6 +231,11 @@ class ReasoningEngineSpec(proto.Message):
                 Configuration for a Python application.
 
                 This field is a member of `oneof`_ ``language_spec``.
+            image_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.ImageSpec):
+                Optional. Configuration for building an image
+                with custom config file.
+
+                This field is a member of `oneof`_ ``language_spec``.
         """
 
         class InlineSource(proto.Message):
@@ -245,6 +250,23 @@ class ReasoningEngineSpec(proto.Message):
 
             source_archive: bytes = proto.Field(
                 proto.BYTES,
+                number=1,
+            )
+
+        class ImageSpec(proto.Message):
+            r"""The image spec for building an image (within a single build
+            step), based on the config file (i.e. Dockerfile) in the source
+            directory.
+
+            Attributes:
+                build_args (MutableMapping[str, str]):
+                    Optional. Build arguments to be used. They
+                    will be passed through --build-arg flags.
+            """
+
+            build_args: MutableMapping[str, str] = proto.MapField(
+                proto.STRING,
+                proto.STRING,
                 number=1,
             )
 
@@ -362,6 +384,12 @@ class ReasoningEngineSpec(proto.Message):
             number=2,
             oneof="language_spec",
             message="ReasoningEngineSpec.SourceCodeSpec.PythonSpec",
+        )
+        image_spec: "ReasoningEngineSpec.SourceCodeSpec.ImageSpec" = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            oneof="language_spec",
+            message="ReasoningEngineSpec.SourceCodeSpec.ImageSpec",
         )
 
     source_code_spec: SourceCodeSpec = proto.Field(
