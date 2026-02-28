@@ -63,7 +63,9 @@ BLEU_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
         )
     ),
 )
-
+INFERENCE_CONFIG = types.EvaluationRunInferenceConfig(
+    model="projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+)
 
 def test_create_eval_run_data_source_evaluation_set(client):
     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
@@ -189,9 +191,6 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
 def test_create_eval_run_with_inference_configs(client):
     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with inference_configs."""
     client._api_client._http_options.api_version = "v1beta1"
-    inference_config = types.EvaluationRunInferenceConfig(
-        model="projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
-    )
     evaluation_run = client.evals.create_evaluation_run(
         name="test_inference_config",
         display_name="test_inference_config",
@@ -200,7 +199,7 @@ def test_create_eval_run_with_inference_configs(client):
         ),
         dest=GCS_DEST,
         metrics=[GENERAL_QUALITY_METRIC],
-        inference_configs={"model_1": inference_config},
+        inference_configs={"model_1": INFERENCE_CONFIG},
         labels={"label1": "value1"},
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
@@ -216,7 +215,7 @@ def test_create_eval_run_with_inference_configs(client):
         ),
         metrics=[GENERAL_QUALITY_METRIC],
     )
-    assert evaluation_run.inference_configs["model_1"] == inference_config
+    assert evaluation_run.inference_configs["model_1"] == INFERENCE_CONFIG
     assert evaluation_run.labels == {
         "label1": "value1",
     }
@@ -318,6 +317,45 @@ def test_create_eval_run_with_inference_configs(client):
 #         )
 #     assert evaluation_run.error is None
 
+import pandas as pd
+
+def test_create_eval_run_data_source_evaluation_dataset_inference_config(client):
+    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with EvaluationDataset."""
+    input_df = pd.DataFrame(
+        {
+            "prompt": ["prompt1", "prompt2"],
+            "reference": ["reference1", "reference2"],
+        }
+    )
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test9",
+        display_name="test9",
+        dataset=types.EvaluationDataset(
+            candidate_name="candidate_1",
+            eval_dataset_df=input_df,
+        ),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        inference_configs={"candidate_1": INFERENCE_CONFIG},
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test9"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+    # Check evaluation set
+    assert evaluation_run.data_source.evaluation_set
+    eval_set = client.evals.get_evaluation_set(
+        name=evaluation_run.data_source.evaluation_set
+    )
+    assert len(eval_set.evaluation_items) == 2
+    assert evaluation_run.inference_configs["candidate_1"] == INFERENCE_CONFIG
+    # Check evaluation items
+    for i, eval_item_name in enumerate(eval_set.evaluation_items):
+        eval_item = client.evals.get_evaluation_item(name=eval_item_name)
+        assert eval_item.evaluation_item_type == types.EvaluationItemType.REQUEST
+        assert eval_item.evaluation_request.prompt.text == input_df.iloc[i]["prompt"]
+        assert eval_item.evaluation_request.candidate_responses == []
+    assert evaluation_run.error is None
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -370,9 +408,6 @@ async def test_create_eval_run_async(client):
 async def test_create_eval_run_async_with_inference_configs(client):
     """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with inference_configs asynchronously."""
     client._api_client._http_options.api_version = "v1beta1"
-    inference_config = types.EvaluationRunInferenceConfig(
-        model="projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
-    )
     evaluation_run = await client.aio.evals.create_evaluation_run(
         name="test_inference_config_async",
         display_name="test_inference_config_async",
@@ -381,7 +416,7 @@ async def test_create_eval_run_async_with_inference_configs(client):
         ),
         dest=GCS_DEST,
         metrics=[GENERAL_QUALITY_METRIC],
-        inference_configs={"model_1": inference_config},
+        inference_configs={"model_1": INFERENCE_CONFIG},
         labels={"label1": "value1"},
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
@@ -397,7 +432,7 @@ async def test_create_eval_run_async_with_inference_configs(client):
         ),
         metrics=[GENERAL_QUALITY_METRIC],
     )
-    assert evaluation_run.inference_configs["model_1"] == inference_config
+    assert evaluation_run.inference_configs["model_1"] == INFERENCE_CONFIG
     assert evaluation_run.labels == {
         "label1": "value1",
     }
