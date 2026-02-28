@@ -53,6 +53,7 @@ CONTEXT = "context"
 CONTENT = "content"
 PARTS = "parts"
 USER_AUTHOR = "user"
+AGENT_DATA = "agent_data"
 
 COMMON_DATASET_COLUMNS = frozenset(
     {
