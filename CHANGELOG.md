@@ -1,5 +1,53 @@
 # Changelog
 
+## [1.140.0](https://github.com/googleapis/python-aiplatform/compare/v1.139.0...v1.140.0) (2026-02-28)
+
+
+### Features
+
+* A new field `computation_based_metric_spec` is added to message `.google.cloud.aiplatform.v1beta1.Metric` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new field `evaluation_run` is added to message `.google.cloud.aiplatform.v1beta1.EvaluateDatasetRun` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new field `inference_generation_config` is added to message `.google.cloud.aiplatform.v1beta1.EvaluationConfig` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new field `llm_based_metric_spec` is added to message `.google.cloud.aiplatform.v1beta1.Metric` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new field `metric_results` is added to message `.google.cloud.aiplatform.v1beta1.EvaluateInstancesResponse` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new field `predefined_metric_spec` is added to message `.google.cloud.aiplatform.v1beta1.Metric` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new message `ComputationBasedMetricSpec` is added ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new message `LLMBasedMetricSpec` is added ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new message `MetricResult` is added ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A new message `PredefinedMetricSpec` is added ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add `traffic_type, tool_use_prompt_tokens_details` to message `GenerateContentResponse.UsageMetadata` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add image_spec to Reasoning Engine public protos ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add image_spec to Reasoning Engine public protos ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add max_concurrent_active_run_count field to Schedule message ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add max_concurrent_active_run_count field to Schedule message ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add model_armor_config to GeminiExample ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add resource_reference to the field `name` in message `.google.cloud.aiplatform.v1beta1.Dataset` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add resource_reference to the field `name` in message `.google.cloud.aiplatform.v1beta1.DatasetVersion` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add support for agent_config_source (ADK) in AgentEngines ([204e5b4](https://github.com/googleapis/python-aiplatform/commit/204e5b4a70ceec4623f71f8c6cfa56ff420fbbf7))
+* Add the GenAI client for the Agent Engine Task Store Service ([b54ce6d](https://github.com/googleapis/python-aiplatform/commit/b54ce6de0b5fa303643151579e2ae754c2765c53))
+* Add transcription fields to Session Service ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add v1 API version for Session Service ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add Vertex Multimodal Datasets as input and output types in `google.cloud.aiplatform.v1beta1.BatchPredictionJob` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Add Vertex Multimodal Datasets as input and output types in `google.cloud.aiplatform.v1beta1.BatchPredictionJob` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* GenAI Client(evals): Add user scenario generation function to eval components ([87a5125](https://github.com/googleapis/python-aiplatform/commit/87a51259637e9863d2fb598c450880ebd9b0dc9c))
+* Update data types from discovery doc. ([6b5cc8f](https://github.com/googleapis/python-aiplatform/commit/6b5cc8fb3f53a94c0ddf1fd3d494c187686a7c6e))
+
+
+### Documentation
+
+* A comment for enum `AggregationMetric` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for field `aggregation_output` in message `.google.cloud.aiplatform.v1beta1.EvaluateDatasetResponse` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for field `expire_time` in message `.google.cloud.aiplatform.v1beta1.Session` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for field `filter` in message `.google.cloud.aiplatform.v1beta1.ListSessionsRequest` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for field `output_info` in message `.google.cloud.aiplatform.v1beta1.EvaluateDatasetResponse` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for field `ttl` in message `.google.cloud.aiplatform.v1beta1.Session` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for message `EvaluateDatasetResponse` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for message `Metric` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* A comment for message `OutputInfo` is changed ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Comment on `evaluate_dataset_response` clarified ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Update documentation of `.google.cloud.aiplatform.v1.DatasetService`, `.google.cloud.aiplatform.v1.Dataset`, and `.google.cloud.aiplatform.v1.DatasetVersion` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+* Update documentation of `.google.cloud.aiplatform.v1beta1.Dataset` and `.google.cloud.aiplatform.v1beta1.DatasetVersion` ([e5f71de](https://github.com/googleapis/python-aiplatform/commit/e5f71de169f378ee3ae992b15f8c38b1cf9454a1))
+
 ## [1.139.0](https://github.com/googleapis/python-aiplatform/compare/v1.138.0...v1.139.0) (2026-02-24)
 
 
