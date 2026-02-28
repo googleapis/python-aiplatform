@@ -94,7 +94,12 @@ def _CreateEvaluationRunParameters_to_vertex(
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
 
     if getv(from_object, ["inference_configs"]) is not None:
-        setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
+        inference_configs = getv(from_object, ["inference_configs"])
+        vertex_inference_configs = {
+            k: _EvaluationRunInferenceConfig_to_vertex(v)
+            for k, v in inference_configs.items()
+        }
+        setv(to_object, ["inferenceConfigs"], vertex_inference_configs)
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -268,6 +273,9 @@ def _EvaluationRunConfig_from_vertex(
     if getv(from_object, ["autoraterConfig"]) is not None:
         setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
 
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
+
     return to_object
 
 
@@ -291,6 +299,15 @@ def _EvaluationRunConfig_to_vertex(
 
     if getv(from_object, ["autorater_config"]) is not None:
         setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
+
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(
+            to_object,
+            ["promptTemplate"],
+            _EvaluationRunPromptTemplate_to_vertex(
+                getv(from_object, ["prompt_template"])
+            ),
+        )
 
     return to_object
 
@@ -384,7 +401,12 @@ def _EvaluationRun_from_vertex(
         )
 
     if getv(from_object, ["inferenceConfigs"]) is not None:
-        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
+        inference_configs = getv(from_object, ["inferenceConfigs"])
+        vertex_inference_configs = {
+            k: _EvaluationRunInferenceConfig_from_vertex(v)
+            for k, v in inference_configs.items()
+        }
+        setv(to_object, ["inference_configs"], vertex_inference_configs)
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -549,6 +571,99 @@ def _RubricBasedMetricSpec_to_vertex(
             ),
         )
 
+    return to_object
+
+
+def _EvaluationRunPromptTemplate_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
+    if getv(from_object, ["gcs_uri"]) is not None:
+        setv(to_object, ["gcsUri"], getv(from_object, ["gcs_uri"]))
+    return to_object
+
+
+def _EvaluationRunPromptTemplate_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
+    if getv(from_object, ["gcsUri"]) is not None:
+        setv(to_object, ["gcs_uri"], getv(from_object, ["gcsUri"]))
+    return to_object
+
+
+def _EvaluationRunAgentConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["developer_instruction"]) is not None:
+        setv(to_object, ["developerInstruction"], getv(from_object, ["developer_instruction"]))
+    if getv(from_object, ["tools"]) is not None:
+        setv(to_object, ["tools"], getv(from_object, ["tools"]))
+    return to_object
+
+
+def _EvaluationRunAgentConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["developerInstruction"]) is not None:
+        setv(to_object, ["developer_instruction"], getv(from_object, ["developerInstruction"]))
+    if getv(from_object, ["tools"]) is not None:
+        setv(to_object, ["tools"], getv(from_object, ["tools"]))
+    return to_object
+
+
+def _EvaluationRunInferenceConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(
+            to_object,
+            ["promptTemplate"],
+            _EvaluationRunPromptTemplate_to_vertex(getv(from_object, ["prompt_template"])),
+        )
+    if getv(from_object, ["agent_config"]) is not None:
+        setv(to_object, ["agentConfig"], _EvaluationRunAgentConfig_to_vertex(getv(from_object, ["agent_config"]), to_object))
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+    if getv(from_object, ["user_simulator_config"]) is not None:
+        setv(to_object, ["userSimulatorConfig"], getv(from_object, ["user_simulator_config"]))
+    return to_object
+
+
+def _EvaluationRunInferenceConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    """Converts a Vertex InferenceConfig response to SDK format."""
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(
+            to_object,
+            ["prompt_template"],
+            _EvaluationRunPromptTemplate_from_vertex(getv(from_object, ["promptTemplate"])),
+        )
+    if getv(from_object, ["agentConfig"]) is not None:
+        setv(to_object, ["agent_config"], _EvaluationRunAgentConfig_from_vertex(getv(from_object, ["agentConfig"]), to_object))
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+    if getv(from_object, ["userSimulatorConfig"]) is not None:
+        setv(to_object, ["user_simulator_config"], getv(from_object, ["userSimulatorConfig"]))
     return to_object
 
 
@@ -792,6 +907,7 @@ class Evals(_api_module.BaseModule):
 
         request_dict = _common.convert_to_dict(request_dict)
         request_dict = _common.encode_unserializable_types(request_dict)
+        logger.info("request_dict: %s", request_dict)
 
         response = self._api_client.request("post", path, request_dict, http_options)
 
@@ -1746,7 +1862,7 @@ class Evals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
             labels, agent_info_pydantic
@@ -2674,7 +2790,7 @@ class AsyncEvals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
             labels, agent_info_pydantic
