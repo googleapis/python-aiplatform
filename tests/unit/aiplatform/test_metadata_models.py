@@ -18,6 +18,7 @@
 import datetime
 import os
 import pickle
+import sys
 from importlib import reload
 from unittest import mock
 from unittest.mock import patch
@@ -41,6 +42,7 @@ from sklearn.datasets import make_classification
 from sklearn.linear_model import LinearRegression
 import tensorflow as tf
 import xgboost as xgb
+import xgboost.sklearn
 
 
 # project
@@ -341,6 +343,8 @@ class TestModels:
         reload(initializer)
         reload(metadata)
         reload(aiplatform)
+        reload(xgboost.sklearn)
+        reload(xgb)
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
