@@ -40,12 +40,15 @@ class Predictor(ABC):
         return
 
     @abstractmethod
-    def load(self, artifacts_uri: str) -> None:
+    def load(self, artifacts_uri: str, **kwargs) -> None:
         """Loads the model artifact.
 
         Args:
             artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
+            **kwargs:
+                Optional. Additional keyword arguments for security or
+                configuration (e.g., allowed_extensions).
         """
         pass
 

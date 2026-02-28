@@ -19,6 +19,7 @@ import joblib
 import logging
 import os
 import pickle
+import warnings
 
 import numpy as np
 import xgboost as xgb
@@ -34,21 +35,52 @@ class XgboostPredictor(Predictor):
     def __init__(self):
         return
 
-    def load(self, artifacts_uri: str) -> None:
+    def load(self, artifacts_uri: str, **kwargs) -> None:
         """Loads the model artifact.
 
         Args:
             artifacts_uri (str):
                 Required. The value of the environment variable AIP_STORAGE_URI.
+            **kwargs:
+                Optional. Additional keyword arguments for security or
+                configuration. Supported arguments:
+                    allowed_extensions (list[str]):
+                        The allowed file extensions for model artifacts.
+                        If not provided, a UserWarning is issued.
 
         Raises:
             ValueError: If there's no required model files provided in the artifacts
                 uri.
         """
+        allowed_extensions = kwargs.get("allowed_extensions", None)
+
+        if allowed_extensions is None:
+            warnings.warn(
+                "No 'allowed_extensions' provided. Loading model artifacts from "
+                "untrusted sources may lead to remote code execution.",
+                UserWarning,
+            )
+
         prediction_utils.download_model_artifacts(artifacts_uri)
-        if os.path.exists(prediction.MODEL_FILENAME_BST):
+
+        if os.path.exists(
+            prediction.MODEL_FILENAME_BST
+        ) and prediction_utils.is_allowed(
+            filename=prediction.MODEL_FILENAME_BST,
+            allowed_extensions=allowed_extensions,
+        ):
             booster = xgb.Booster(model_file=prediction.MODEL_FILENAME_BST)
-        elif os.path.exists(prediction.MODEL_FILENAME_JOBLIB):
+        elif os.path.exists(
+            prediction.MODEL_FILENAME_JOBLIB
+        ) and prediction_utils.is_allowed(
+            filename=prediction.MODEL_FILENAME_JOBLIB,
+            allowed_extensions=allowed_extensions,
+        ):
+            warnings.warn(
+                f"Loading {prediction.MODEL_FILENAME_JOBLIB} using joblib pickle, which is unsafe. "
+                "Only load files from trusted sources.",
+                RuntimeWarning,
+            )
             try:
                 booster = joblib.load(prediction.MODEL_FILENAME_JOBLIB)
             except KeyError:
@@ -58,7 +90,17 @@ class XgboostPredictor(Predictor):
                 )
                 booster = xgb.Booster()
                 booster.load_model(prediction.MODEL_FILENAME_JOBLIB)
-        elif os.path.exists(prediction.MODEL_FILENAME_PKL):
+        elif os.path.exists(
+            prediction.MODEL_FILENAME_PKL
+        ) and prediction_utils.is_allowed(
+            filename=prediction.MODEL_FILENAME_PKL,
+            allowed_extensions=allowed_extensions,
+        ):
+            warnings.warn(
+                f"Loading {prediction.MODEL_FILENAME_PKL} using pickle, which is unsafe. "
+                "Only load files from trusted sources.",
+                RuntimeWarning,
+            )
             booster = pickle.load(open(prediction.MODEL_FILENAME_PKL, "rb"))
         else:
             valid_filenames = [
@@ -67,7 +109,7 @@ class XgboostPredictor(Predictor):
                 prediction.MODEL_FILENAME_PKL,
             ]
             raise ValueError(
-                f"One of the following model files must be provided: {valid_filenames}."
+                f"One of the following model files must be provided and allowed: {valid_filenames}."
             )
         self._booster = booster
 

@@ -19,6 +19,7 @@ import importlib
 import os
 import pickle
 import tempfile
+import warnings
 from typing import Any, Dict, Optional, Sequence, Union
 
 from google.auth import credentials as auth_credentials
@@ -147,6 +148,13 @@ def _load_sklearn_model(
             f"You are using sklearn {sklearn.__version__}."
             "Attempting to load model..."
         )
+
+    warnings.warn(
+        "Loading a scikit-learn model via pickle is insecure. "
+        "Ensure the model artifact is from a trusted source.",
+        RuntimeWarning,
+    )
+
     with open(model_file, "rb") as f:
         sk_model = pickle.load(f)
 

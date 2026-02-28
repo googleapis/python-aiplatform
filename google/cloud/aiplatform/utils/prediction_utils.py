@@ -174,3 +174,9 @@ def add_flex_start_to_dedicated_resources(
         dedicated_resources.flex_start = gca_machine_resources_compat.FlexStart(
             max_runtime_duration=duration_pb2.Duration(seconds=max_runtime_duration)
         )
+
+
+def is_allowed(filename: str, allowed_extensions: Optional[list[str]]) -> bool:
+    if allowed_extensions is None:
+        return True
+    return any(filename.endswith(ext) for ext in allowed_extensions)
