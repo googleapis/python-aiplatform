@@ -824,12 +824,13 @@ def create_transformation_config(
 def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
-    assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
-    assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
-    assert returned_corpus.vertex_ai_search_config.__eq__(
-        expected_corpus.vertex_ai_search_config
+    assert returned_corpus.vector_db == expected_corpus.vector_db
+    assert returned_corpus.backend_config == expected_corpus.backend_config
+    assert (
+        returned_corpus.vertex_ai_search_config
+        == expected_corpus.vertex_ai_search_config
     )
-    assert returned_corpus.corpus_type_config.__eq__(expected_corpus.corpus_type_config)
+    assert returned_corpus.corpus_type_config == expected_corpus.corpus_type_config
 
 
 def rag_file_eq(returned_file, expected_file):
@@ -879,8 +880,8 @@ def import_files_request_eq(returned_request, expected_request):
 
 def rag_engine_config_eq(returned_config, expected_config):
     assert returned_config.name == expected_config.name
-    assert returned_config.rag_managed_db_config.__eq__(
-        expected_config.rag_managed_db_config
+    assert (
+        returned_config.rag_managed_db_config == expected_config.rag_managed_db_config
     )
 
 
