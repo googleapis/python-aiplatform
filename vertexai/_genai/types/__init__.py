@@ -429,12 +429,23 @@ from .common import ExecuteSandboxEnvironmentResponseOrDict
 from .common import FileData
 from .common import FileDataDict
 from .common import FileDataOrDict
+from .common import Framework
 from .common import FunctionCall
 from .common import FunctionCallDict
 from .common import FunctionCallOrDict
 from .common import FunctionResponse
+from .common import FunctionResponseBlob
+from .common import FunctionResponseBlobDict
+from .common import FunctionResponseBlobOrDict
 from .common import FunctionResponseDict
+from .common import FunctionResponseFileData
+from .common import FunctionResponseFileDataDict
+from .common import FunctionResponseFileDataOrDict
 from .common import FunctionResponseOrDict
+from .common import FunctionResponsePart
+from .common import FunctionResponsePartDict
+from .common import FunctionResponsePartOrDict
+from .common import FunctionResponseScheduling
 from .common import GcsSource
 from .common import GcsSourceDict
 from .common import GcsSourceOrDict
@@ -605,6 +616,7 @@ from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
+from .common import MediaResolution
 from .common import Memory
 from .common import MemoryBankCustomizationConfig
 from .common import MemoryBankCustomizationConfigDict
@@ -679,6 +691,9 @@ from .common import MetricResultOrDict
 from .common import MetricxResult
 from .common import MetricxResultDict
 from .common import MetricxResultOrDict
+from .common import ModelArmorConfig
+from .common import ModelArmorConfigDict
+from .common import ModelArmorConfigOrDict
 from .common import MultimodalDataset
 from .common import MultimodalDatasetDict
 from .common import MultimodalDatasetOperation
@@ -723,6 +738,9 @@ from .common import PartDict
 from .common import PartialArg
 from .common import PartialArgDict
 from .common import PartialArgOrDict
+from .common import PartMediaResolution
+from .common import PartMediaResolutionDict
+from .common import PartMediaResolutionOrDict
 from .common import PartOrDict
 from .common import PointwiseMetricInput
 from .common import PointwiseMetricInputDict
@@ -957,6 +975,12 @@ from .common import SchemaPromptInstancePromptExecutionOrDict
 from .common import SchemaPromptInstanceVariableValue
 from .common import SchemaPromptInstanceVariableValueDict
 from .common import SchemaPromptInstanceVariableValueOrDict
+from .common import SchemaPromptSpecAppBuilderData
+from .common import SchemaPromptSpecAppBuilderDataDict
+from .common import SchemaPromptSpecAppBuilderDataLinkedResource
+from .common import SchemaPromptSpecAppBuilderDataLinkedResourceDict
+from .common import SchemaPromptSpecAppBuilderDataLinkedResourceOrDict
+from .common import SchemaPromptSpecAppBuilderDataOrDict
 from .common import SchemaPromptSpecMultimodalPrompt
 from .common import SchemaPromptSpecMultimodalPromptDict
 from .common import SchemaPromptSpecMultimodalPromptOrDict
@@ -1178,12 +1202,24 @@ __all__ = [
     "FunctionCall",
     "FunctionCallDict",
     "FunctionCallOrDict",
+    "FunctionResponseFileData",
+    "FunctionResponseFileDataDict",
+    "FunctionResponseFileDataOrDict",
+    "FunctionResponseBlob",
+    "FunctionResponseBlobDict",
+    "FunctionResponseBlobOrDict",
+    "FunctionResponsePart",
+    "FunctionResponsePartDict",
+    "FunctionResponsePartOrDict",
     "FunctionResponse",
     "FunctionResponseDict",
     "FunctionResponseOrDict",
     "Blob",
     "BlobDict",
     "BlobOrDict",
+    "PartMediaResolution",
+    "PartMediaResolutionDict",
+    "PartMediaResolutionOrDict",
     "VideoMetadata",
     "VideoMetadataDict",
     "VideoMetadataOrDict",
@@ -1922,6 +1958,9 @@ __all__ = [
     "ListAgentEngineSessionEventsResponse",
     "ListAgentEngineSessionEventsResponseDict",
     "ListAgentEngineSessionEventsResponseOrDict",
+    "ModelArmorConfig",
+    "ModelArmorConfigDict",
+    "ModelArmorConfigOrDict",
     "GeminiExample",
     "GeminiExampleDict",
     "GeminiExampleOrDict",
@@ -1994,6 +2033,12 @@ __all__ = [
     "SchemaPromptSpecMultimodalPrompt",
     "SchemaPromptSpecMultimodalPromptDict",
     "SchemaPromptSpecMultimodalPromptOrDict",
+    "SchemaPromptSpecAppBuilderDataLinkedResource",
+    "SchemaPromptSpecAppBuilderDataLinkedResourceDict",
+    "SchemaPromptSpecAppBuilderDataLinkedResourceOrDict",
+    "SchemaPromptSpecAppBuilderData",
+    "SchemaPromptSpecAppBuilderDataDict",
+    "SchemaPromptSpecAppBuilderDataOrDict",
     "SchemaPromptSpecPartList",
     "SchemaPromptSpecPartListDict",
     "SchemaPromptSpecPartListOrDict",
@@ -2159,7 +2204,10 @@ __all__ = [
     "A2aTaskState",
     "Outcome",
     "Language",
+    "FunctionResponseScheduling",
+    "MediaResolution",
     "State",
+    "ComputationBasedMetricType",
     "PairwiseChoice",
     "Strategy",
     "AcceleratorType",
@@ -2170,10 +2218,10 @@ __all__ = [
     "ManagedTopicEnum",
     "Operator",
     "MachineConfig",
+    "Framework",
     "EvaluationItemType",
     "SamplingMethod",
     "RubricContentType",
-    "ComputationBasedMetricType",
     "EvaluationRunState",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
