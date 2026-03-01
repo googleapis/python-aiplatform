@@ -1962,6 +1962,15 @@ def _create_evaluation_set_from_dataframe(
             for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
                 if CONTENT in event:
                     intermediate_events.append(event[CONTENT])
+        candidate_responses = []
+        if _evals_constant.RESPONSE in row:
+            candidate_responses.append(
+                types.CandidateResponse(
+                    candidate=candidate_name or "Candidate 1",
+                    text=row[_evals_constant.RESPONSE],
+                    events=intermediate_events or None,
+                )
+            )
         eval_item_requests.append(
             types.EvaluationItemRequest(
                 prompt=(
@@ -1974,17 +1983,7 @@ def _create_evaluation_set_from_dataframe(
                     if _evals_constant.REFERENCE in row
                     else None
                 ),
-                candidate_responses=[
-                    types.CandidateResponse(
-                        candidate=candidate_name or "Candidate 1",
-                        text=row.get(_evals_constant.RESPONSE, None),
-                        events=(
-                            intermediate_events
-                            if len(intermediate_events) > 0
-                            else None
-                        ),
-                    )
-                ],
+                candidate_responses=candidate_responses,
             )
         )
     logger.info("Writing evaluation item requests to GCS.")
