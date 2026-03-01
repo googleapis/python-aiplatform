@@ -821,15 +821,27 @@ def create_transformation_config(
     )
 
 
+from vertexai.rag.utils.resources import RagVectorDbConfig
+
 def rag_corpus_eq(returned_corpus, expected_corpus):
+    if returned_corpus != expected_corpus:
+        print(f"Returned Corpus: {returned_corpus}")
+        print(f"Expected Corpus: {expected_corpus}")
+
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
-    assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
-    assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
-    assert returned_corpus.vertex_ai_search_config.__eq__(
-        expected_corpus.vertex_ai_search_config
-    )
-    assert returned_corpus.corpus_type_config.__eq__(expected_corpus.corpus_type_config)
+    assert returned_corpus.vector_db == expected_corpus.vector_db
+    assert returned_corpus.corpus_type_config == expected_corpus.corpus_type_config
+
+    if expected_corpus.vertex_ai_search_config:
+        assert returned_corpus.vertex_ai_search_config == expected_corpus.vertex_ai_search_config
+        assert returned_corpus.backend_config == RagVectorDbConfig(vector_db=None, rag_embedding_model_config=None)
+    elif expected_corpus.backend_config:
+        assert returned_corpus.backend_config == expected_corpus.backend_config
+        assert returned_corpus.vertex_ai_search_config is None
+    else:
+        assert returned_corpus.backend_config == RagVectorDbConfig(vector_db=None, rag_embedding_model_config=None)
+        assert returned_corpus.vertex_ai_search_config is None
 
 
 def rag_file_eq(returned_file, expected_file):
