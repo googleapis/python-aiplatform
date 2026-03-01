@@ -12,7 +12,7 @@ Gemini API and Generative AI on Vertex AI
 
 -----------------------------------------
 
-|GA| |pypi| |versions| |unit-tests| |system-tests| |sample-tests|
+|GA| |pypi| |versions|
 
 `Vertex AI`_: Google Vertex AI is an integrated suite of machine learning tools and services for building and using ML models with AutoML or custom code. It offers both novices and experts the best workbench for the entire machine learning development lifecycle.
 
@@ -25,12 +25,6 @@ Gemini API and Generative AI on Vertex AI
    :target: https://pypi.org/project/google-cloud-aiplatform/
 .. |versions| image:: https://img.shields.io/pypi/pyversions/google-cloud-aiplatform.svg
    :target: https://pypi.org/project/google-cloud-aiplatform/
-.. |unit-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.svg
-   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-unit-tests.html
-.. |system-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.svg
-   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-system-tests.html
-.. |sample-tests| image:: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.svg
-   :target: https://storage.googleapis.com/cloud-devrel-public/python-aiplatform/badges/sdk-sample-tests.html
 .. _Vertex AI: https://cloud.google.com/vertex-ai/docs
 .. _Client Library Documentation: https://cloud.google.com/python/docs/reference/aiplatform/latest
 .. _Product Documentation:  https://cloud.google.com/vertex-ai/docs
