@@ -2261,6 +2261,10 @@ class RubricGenerationSpec(_common.BaseModel):
       If this field is provided, it implies `include_rubric_type` should be true,
       and the generated rubric types should be chosen from this ontology.""",
     )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition.""",
+    )
 
 
 class RubricGenerationSpecDict(TypedDict, total=False):
@@ -2282,6 +2286,8 @@ class RubricGenerationSpecDict(TypedDict, total=False):
     """An optional, pre-defined list of allowed types for generated rubrics.
       If this field is provided, it implies `include_rubric_type` should be true,
       and the generated rubric types should be chosen from this ontology."""
+
+    metric_resource_name: Optional[str]
 
 
 RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
@@ -2469,6 +2475,10 @@ class EvaluationRunMetric(_common.BaseModel):
     metric_config: Optional[UnifiedMetric] = Field(
         default=None, description="""The unified metric used for evaluation run."""
     )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition.""",
+    )
 
 
 class EvaluationRunMetricDict(TypedDict, total=False):
@@ -2479,6 +2489,8 @@ class EvaluationRunMetricDict(TypedDict, total=False):
 
     metric_config: Optional[UnifiedMetricDict]
     """The unified metric used for evaluation run."""
+
+    metric_resource_name: Optional[str]
 
 
 EvaluationRunMetricOrDict = Union[EvaluationRunMetric, EvaluationRunMetricDict]
@@ -5303,6 +5315,10 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""Specification for how the rubrics should be generated.""",
     )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition.""",
+    )
     config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
 
 
@@ -5323,6 +5339,7 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     rubric_generation_spec: Optional[RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
 
+    metric_resource_name: Optional[str]
     config: Optional[RubricGenerationConfigDict]
     """"""
 

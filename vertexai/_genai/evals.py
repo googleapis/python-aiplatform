@@ -345,6 +345,12 @@ def _EvaluationRunMetric_from_vertex(
             ["metric_config"],
             _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
         )
+    if getv(from_object, ["metricResourceName"]) is not None:
+        setv(
+            to_object,
+            ["metric_resource_name"],
+            getv(from_object, ["metricResourceName"]),
+        )
 
     return to_object
 
@@ -362,6 +368,12 @@ def _EvaluationRunMetric_to_vertex(
             to_object,
             ["metricConfig"],
             _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
+        )
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
         )
 
     return to_object
@@ -454,6 +466,12 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             _RubricGenerationSpec_to_vertex(
                 getv(from_object, ["rubric_generation_spec"]), to_object
             ),
+        )
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -613,6 +631,12 @@ def _RubricGenerationSpec_to_vertex(
             to_object,
             ["rubricTypeOntology"],
             getv(from_object, ["rubric_type_ontology"]),
+        )
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
         )
 
     return to_object
@@ -989,6 +1013,7 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         contents: list[genai_types.ContentOrDict],
+        metric_resource_name: Optional[str] = None,
         predefined_rubric_generation_spec: Optional[
             types.PredefinedMetricSpecOrDict
         ] = None,
@@ -1003,6 +1028,7 @@ class Evals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
@@ -1503,6 +1529,7 @@ class Evals(_api_module.BaseModule):
         generator_model_config: Optional["genai_types.AutoraterConfigOrDict"] = None,
         rubric_content_type: Optional["types.RubricContentType"] = None,
         rubric_type_ontology: Optional[list[str]] = None,
+        metric_resource_name: Optional[str] = None,
         predefined_spec_name: Optional[Union[str, "types.PrebuiltMetric"]] = None,
         metric_spec_parameters: Optional[dict[str, Any]] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
@@ -1538,6 +1565,7 @@ class Evals(_api_module.BaseModule):
               generated. Only used if `prompt_template` is provided.
             rubric_type_ontology: Optional. A pre-defined list of allowed types
               for generated rubrics. Only used if `prompt_template` is provided.
+            metric_resource_name: Optional. The resource name of the metric definition.
             predefined_spec_name: Optional. The name of a Predefined Metric to use
                 for rubric generation (e.g., "general_quality_v1") or a types.PrebuiltMetric object.
                 Mutually exclusive with `prompt_template` and its related parameters.
@@ -1641,6 +1669,8 @@ class Evals(_api_module.BaseModule):
             }
             spec_dict = {k: v for k, v in spec_dict.items() if v is not None}
             rubric_gen_spec = types.RubricGenerationSpec.model_validate(spec_dict)
+        elif metric_resource_name:
+            pass
         else:
             raise ValueError(
                 "Either predefined_spec_name or prompt_template must be provided."
@@ -1666,6 +1696,7 @@ class Evals(_api_module.BaseModule):
                     contents=contents,
                     rubric_generation_spec=rubric_gen_spec,
                     predefined_rubric_generation_spec=predefined_spec,
+                    metric_resource_name=metric_resource_name,
                     config=config,
                 )
                 rubric_group = {rubric_group_name: response.generated_rubrics}
