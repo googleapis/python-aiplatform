@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -80,6 +80,7 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
 
 
@@ -5596,6 +5597,58 @@ def test_parse_annotated_dataset_path():
 
 def test_dataset_path():
     project = "cuttlefish"
+    location = "mussel"
+    dataset = "winkle"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "nautilus",
+        "location": "scallop",
+        "dataset": "abalone",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "squid"
+    location = "clam"
+    dataset = "whelk"
+    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
+        project=project,
+        location=location,
+        dataset=dataset,
+    )
+    actual = MigrationServiceClient.dataset_path(project, location, dataset)
+    assert expected == actual
+
+
+def test_parse_dataset_path():
+    expected = {
+        "project": "octopus",
+        "location": "oyster",
+        "dataset": "nudibranch",
+    }
+    path = MigrationServiceClient.dataset_path(**expected)
+
+    # Check that the path construction is reversible.
+    actual = MigrationServiceClient.parse_dataset_path(path)
+    assert expected == actual
+
+
+def test_dataset_path():
+    project = "cuttlefish"
     dataset = "mussel"
     expected = "projects/{project}/datasets/{dataset}".format(
         project=project,
@@ -5608,58 +5661,6 @@ def test_dataset_path():
 def test_parse_dataset_path():
     expected = {
         "project": "winkle",
-        "dataset": "nautilus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "scallop"
-    location = "abalone"
-    dataset = "squid"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "clam",
-        "location": "whelk",
-        "dataset": "octopus",
-    }
-    path = MigrationServiceClient.dataset_path(**expected)
-
-    # Check that the path construction is reversible.
-    actual = MigrationServiceClient.parse_dataset_path(path)
-    assert expected == actual
-
-
-def test_dataset_path():
-    project = "oyster"
-    location = "nudibranch"
-    dataset = "cuttlefish"
-    expected = "projects/{project}/locations/{location}/datasets/{dataset}".format(
-        project=project,
-        location=location,
-        dataset=dataset,
-    )
-    actual = MigrationServiceClient.dataset_path(project, location, dataset)
-    assert expected == actual
-
-
-def test_parse_dataset_path():
-    expected = {
-        "project": "mussel",
-        "location": "winkle",
         "dataset": "nautilus",
     }
     path = MigrationServiceClient.dataset_path(**expected)

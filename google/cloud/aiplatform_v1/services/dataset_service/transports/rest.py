@@ -1839,6 +1839,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -1876,6 +1880,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -2205,6 +2213,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -2262,6 +2274,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -2603,6 +2619,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -2660,6 +2680,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -2985,6 +3009,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -3054,6 +3082,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -3387,6 +3419,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                     },
                     {
@@ -3444,6 +3480,10 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:wait",
                     },
                 ],
             }
@@ -3550,7 +3590,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -3706,7 +3746,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -3854,7 +3894,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4004,7 +4044,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4153,7 +4193,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4309,7 +4349,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4569,7 +4609,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 request (~.dataset_service.GetDatasetRequest):
                     The request object. Request message for
                 [DatasetService.GetDataset][google.cloud.aiplatform.v1.DatasetService.GetDataset].
-                Next ID: 4
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -4720,7 +4759,6 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 request (~.dataset_service.GetDatasetVersionRequest):
                     The request object. Request message for
                 [DatasetService.GetDatasetVersion][google.cloud.aiplatform.v1.DatasetService.GetDatasetVersion].
-                Next ID: 4
                 retry (google.api_core.retry.Retry): Designation of what errors, if any,
                     should be retried.
                 timeout (float): The timeout for this request.
@@ -4916,7 +4954,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -5824,7 +5862,7 @@ class DatasetServiceRestTransport(_BaseDatasetServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {

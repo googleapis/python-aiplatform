@@ -48,7 +48,7 @@ from google.cloud.aiplatform_v1beta1.types import (
 )
 from google.cloud.aiplatform_v1beta1.types import nas_job
 from google.cloud.aiplatform_v1beta1.types import nas_job as gca_nas_job
-from google.protobuf import empty_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 

@@ -119,7 +119,10 @@ class VertexRagServiceAsyncClient:
         Returns:
             VertexRagServiceAsyncClient: The constructed client.
         """
-        return VertexRagServiceClient.from_service_account_info.__func__(VertexRagServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            VertexRagServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(VertexRagServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -135,7 +138,10 @@ class VertexRagServiceAsyncClient:
         Returns:
             VertexRagServiceAsyncClient: The constructed client.
         """
-        return VertexRagServiceClient.from_service_account_file.__func__(VertexRagServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            VertexRagServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(VertexRagServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

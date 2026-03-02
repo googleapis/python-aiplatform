@@ -53,9 +53,9 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 from .transports.base import FeatureOnlineStoreServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import FeatureOnlineStoreServiceGrpcAsyncIOTransport
 from .client import FeatureOnlineStoreServiceClient
@@ -132,7 +132,10 @@ class FeatureOnlineStoreServiceAsyncClient:
         Returns:
             FeatureOnlineStoreServiceAsyncClient: The constructed client.
         """
-        return FeatureOnlineStoreServiceClient.from_service_account_info.__func__(FeatureOnlineStoreServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            FeatureOnlineStoreServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(FeatureOnlineStoreServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -148,7 +151,12 @@ class FeatureOnlineStoreServiceAsyncClient:
         Returns:
             FeatureOnlineStoreServiceAsyncClient: The constructed client.
         """
-        return FeatureOnlineStoreServiceClient.from_service_account_file.__func__(FeatureOnlineStoreServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            FeatureOnlineStoreServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(
+            FeatureOnlineStoreServiceAsyncClient, filename, *args, **kwargs
+        )
 
     from_service_account_json = from_service_account_file
 

@@ -768,3 +768,109 @@ class SessionInputDict(TypedDict, total=False):
 
 
 SessionInputOrDict = Union[SessionInput, SessionInputDict]
+
+
+class UserScenario(_common.BaseModel):
+    """User scenario to help simulate multi-turn agent run results."""
+
+    starting_prompt: Optional[str] = Field(
+        default=None,
+        description="""The prompt that starts the conversation between the simulated user and the agent under test.""",
+    )
+    conversation_plan: Optional[str] = Field(
+        default=None,
+        description="""The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset.""",
+    )
+
+
+class UserScenarioDict(TypedDict, total=False):
+    """User scenario to help simulate multi-turn agent run results."""
+
+    starting_prompt: Optional[str]
+    """The prompt that starts the conversation between the simulated user and the agent under test."""
+
+    conversation_plan: Optional[str]
+    """The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset."""
+
+
+UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
+
+
+class UserScenarioGenerationConfig(_common.BaseModel):
+    """User scenario generation configuration."""
+
+    user_scenario_count: Optional[int] = Field(
+        default=None,
+        description="""The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
+    simulation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Simulation instruction to guide the user scenario generation.""",
+    )
+    environment_data: Optional[str] = Field(
+        default=None,
+        description="""Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
+    )
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The model name to use for user scenario generation.""",
+    )
+
+
+class UserScenarioGenerationConfigDict(TypedDict, total=False):
+    """User scenario generation configuration."""
+
+    user_scenario_count: Optional[int]
+    """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
+
+    simulation_instruction: Optional[str]
+    """Simulation instruction to guide the user scenario generation."""
+
+    environment_data: Optional[str]
+    """Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
+
+    model_name: Optional[str]
+    """The model name to use for user scenario generation."""
+
+
+UserScenarioGenerationConfigOrDict = Union[
+    UserScenarioGenerationConfig, UserScenarioGenerationConfigDict
+]
+
+
+class UserSimulatorConfig(_common.BaseModel):
+    """Configuration for a user simulator that uses an LLM to generate messages."""
+
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The model name to get next user message for multi-turn agent run.""",
+    )
+    model_configuration: Optional[genai_types.GenerateContentConfig] = Field(
+        default=None, description="""The configuration for the model."""
+    )
+    max_turn: Optional[int] = Field(
+        default=None,
+        description="""Maximum number of invocations allowed by the multi-turn agent
+      running. This property allows us to stop a run-off conversation
+      where the agent and the user simulator get into a never ending loop.
+      The initial fixed prompt is also counted as an invocation.""",
+    )
+
+
+class UserSimulatorConfigDict(TypedDict, total=False):
+    """Configuration for a user simulator that uses an LLM to generate messages."""
+
+    model_name: Optional[str]
+    """The model name to get next user message for multi-turn agent run."""
+
+    model_configuration: Optional[genai_types.GenerateContentConfigDict]
+    """The configuration for the model."""
+
+    max_turn: Optional[int]
+    """Maximum number of invocations allowed by the multi-turn agent
+      running. This property allows us to stop a run-off conversation
+      where the agent and the user simulator get into a never ending loop.
+      The initial fixed prompt is also counted as an invocation."""
+
+
+UserSimulatorConfigOrDict = Union[UserSimulatorConfig, UserSimulatorConfigDict]

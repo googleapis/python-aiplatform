@@ -31,6 +31,7 @@ Services for Google Cloud Aiplatform v1 API
     reasoning_engine_execution_service
     reasoning_engine_service
     schedule_service
+    session_service
     specialist_pool_service
     tensorboard_service
     vertex_rag_data_service

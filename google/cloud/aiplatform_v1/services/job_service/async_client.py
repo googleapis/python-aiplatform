@@ -45,8 +45,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation as gac_operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.job_service import pagers
 from google.cloud.aiplatform_v1.types import batch_prediction_job
 from google.cloud.aiplatform_v1.types import (
@@ -82,13 +80,15 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
-from google.type import money_pb2  # type: ignore
+import google.api_core.operation as gac_operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
+import google.type.money_pb2 as money_pb2  # type: ignore
 from .transports.base import JobServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import JobServiceGrpcAsyncIOTransport
 from .client import JobServiceClient
@@ -203,7 +203,10 @@ class JobServiceAsyncClient:
         Returns:
             JobServiceAsyncClient: The constructed client.
         """
-        return JobServiceClient.from_service_account_info.__func__(JobServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            JobServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(JobServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -219,7 +222,10 @@ class JobServiceAsyncClient:
         Returns:
             JobServiceAsyncClient: The constructed client.
         """
-        return JobServiceClient.from_service_account_file.__func__(JobServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            JobServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(JobServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

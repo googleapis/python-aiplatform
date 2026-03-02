@@ -45,8 +45,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.migration_service import pagers
 from google.cloud.aiplatform_v1.types import migratable_resource
 from google.cloud.aiplatform_v1.types import migration_service
@@ -54,6 +52,8 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+import google.api_core.operation as operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 from .transports.base import MigrationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import MigrationServiceGrpcAsyncIOTransport
 from .client import MigrationServiceClient
@@ -136,7 +136,10 @@ class MigrationServiceAsyncClient:
         Returns:
             MigrationServiceAsyncClient: The constructed client.
         """
-        return MigrationServiceClient.from_service_account_info.__func__(MigrationServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            MigrationServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(MigrationServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -152,7 +155,10 @@ class MigrationServiceAsyncClient:
         Returns:
             MigrationServiceAsyncClient: The constructed client.
         """
-        return MigrationServiceClient.from_service_account_file.__func__(MigrationServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            MigrationServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(MigrationServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

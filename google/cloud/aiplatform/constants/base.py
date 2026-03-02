@@ -35,6 +35,7 @@ SUPPORTED_REGIONS = frozenset(
         "australia-southeast2",
         "europe-central2",
         "europe-north1",
+        "europe-north2",
         "europe-southwest1",
         "europe-west1",
         "europe-west2",

@@ -19,6 +19,7 @@ import logging
 import os
 from typing import Any, Optional, Union
 
+from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
@@ -335,3 +336,37 @@ class EvalDataConverter(abc.ABC):
     def convert(self, raw_data: Any) -> "types.EvaluationDataset":
         """Converts a loaded raw dataset into an EvaluationDataset."""
         raise NotImplementedError()
+
+
+def _postprocess_user_scenarios_response(
+    response: types.GenerateUserScenariosResponse,
+) -> types.EvaluationDataset:
+    """Postprocesses the response from generating user scenarios."""
+    eval_cases = []
+    data_for_df = []
+    if hasattr(response, "user_scenarios") and response.user_scenarios:
+        for scenario in response.user_scenarios:
+            prompt_content = None
+            if scenario.starting_prompt:
+                prompt_content = genai_types.Content(
+                    parts=[genai_types.Part(text=scenario.starting_prompt)]
+                )
+            eval_case = types.EvalCase(
+                prompt=prompt_content,
+                user_scenario=scenario,
+            )
+            eval_cases.append(eval_case)
+            data_for_df.append(
+                {
+                    "starting_prompt": scenario.starting_prompt,
+                    "conversation_plan": scenario.conversation_plan,
+                }
+            )
+    eval_dataset_df = None
+    if pd is not None:
+        eval_dataset_df = pd.DataFrame(data_for_df)
+    else:
+        logger.warning("Pandas is not installed. eval_dataset_df will be None.")
+    return types.EvaluationDataset(
+        eval_cases=eval_cases, eval_dataset_df=eval_dataset_df
+    )

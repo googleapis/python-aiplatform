@@ -135,7 +135,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Returns:
             FeaturestoreOnlineServingServiceAsyncClient: The constructed client.
         """
-        return FeaturestoreOnlineServingServiceClient.from_service_account_info.__func__(FeaturestoreOnlineServingServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            FeaturestoreOnlineServingServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(
+            FeaturestoreOnlineServingServiceAsyncClient, info, *args, **kwargs
+        )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -151,7 +156,12 @@ class FeaturestoreOnlineServingServiceAsyncClient:
         Returns:
             FeaturestoreOnlineServingServiceAsyncClient: The constructed client.
         """
-        return FeaturestoreOnlineServingServiceClient.from_service_account_file.__func__(FeaturestoreOnlineServingServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            FeaturestoreOnlineServingServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(
+            FeaturestoreOnlineServingServiceAsyncClient, filename, *args, **kwargs
+        )
 
     from_service_account_json = from_service_account_file
 
