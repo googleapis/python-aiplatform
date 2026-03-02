@@ -20,6 +20,7 @@ from vertexai._genai import types
 
 def test_create_simple_a2a_task(client):
     # Use the autopush environment.
+    # Blah.
     client._api_client._http_options.base_url = (
         "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
     )
