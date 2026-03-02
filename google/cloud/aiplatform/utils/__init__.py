@@ -299,11 +299,18 @@ def validate_labels(labels: Dict[str, str]):
             )
 
 
-def validate_region(region: str) -> bool:
+def validate_region(
+    region: str,
+    api_endpoint: Optional[str] = None,
+    universe_domain: Optional[str] = None,
+) -> bool:
     """Validates region against supported regions.
 
     Args:
         region: region to validate
+        api_endpoint: Optional API endpoint.
+        universe_domain: Optional universe domain.
+
     Returns:
         bool: True if no errors raised
     Raises:
@@ -316,9 +323,16 @@ def validate_region(region: str) -> bool:
 
     region = region.lower()
     if region not in constants.SUPPORTED_REGIONS:
-        raise ValueError(
-            f"Unsupported region for Vertex AI, select from {constants.SUPPORTED_REGIONS}"
-        )
+        if not (
+            api_endpoint
+            or universe_domain
+            or initializer.global_config.api_endpoint
+            or initializer.global_config.universe_domain
+        ):
+            raise ValueError(
+                "Unsupported region for Vertex AI, select from"
+                f" {constants.SUPPORTED_REGIONS}"
+            )
 
     return True
 
