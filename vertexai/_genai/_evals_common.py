@@ -45,6 +45,8 @@ from . import _gcs_utils
 from . import evals
 from . import types
 
+logger = logging.getLogger(__name__)
+
 try:
     import litellm
 except ImportError:
@@ -54,13 +56,29 @@ try:
     from google.adk.agents import LlmAgent
     from google.adk.runners import Runner
     from google.adk.sessions import InMemorySessionService
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulator,
+    )
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulatorConfig,
+    )
+    from google.adk.evaluation.conversation_scenarios import ConversationScenario
+    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
+    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
 except ImportError:
+    logging.getLogger(__name__).warning(
+        "ADK is not installed. Please install it using" " 'pip install google-adk'"
+    )
     LlmAgent = None
     Runner = None
     InMemorySessionService = None
+    LlmBackedUserSimulator = None
+    LlmBackedUserSimulatorConfig = None
+    ConversationScenario = None
+    EvaluationGenerator = None
+    ADK_SessionInput = None
 
 
-logger = logging.getLogger(__name__)
 _thread_local_data = threading.local()
 
 MAX_WORKERS = 100
@@ -68,6 +86,7 @@ AGENT_MAX_WORKERS = 10
 CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
+AGENT_DATA = _evals_constant.AGENT_DATA
 
 
 @contextlib.contextmanager
@@ -341,6 +360,7 @@ def _execute_inference_concurrently(
     inference_fn: Optional[Callable[..., Any]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
     agent: Optional[LlmAgent] = None,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
         genai_types.GenerateContentResponse,
@@ -364,12 +384,15 @@ def _execute_inference_concurrently(
     ] = [None] * len(prompt_dataset)
     tasks = []
 
-    primary_prompt_column = (
-        "request" if "request" in prompt_dataset.columns else "prompt"
-    )
-    if primary_prompt_column not in prompt_dataset.columns:
+    if "request" in prompt_dataset.columns:
+        primary_prompt_column = "request"
+    elif "prompt" in prompt_dataset.columns:
+        primary_prompt_column = "prompt"
+    elif "starting_prompt" in prompt_dataset.columns:
+        primary_prompt_column = "starting_prompt"
+    else:
         raise ValueError(
-            "Dataset must contain either 'prompt' or 'request'."
+            "Dataset must contain either 'prompt', 'request', or 'starting_prompt'."
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
@@ -399,6 +422,7 @@ def _execute_inference_concurrently(
                         agent_arg,
                         inference_fn_arg,
                         api_client_arg,
+                        user_simulator_config_arg,
                     ) -> Any:
                         if agent_engine_arg:
                             if isinstance(agent_engine_arg, str):
@@ -417,6 +441,7 @@ def _execute_inference_concurrently(
                             return inference_fn_arg(
                                 row=row_arg,
                                 contents=contents_arg,
+                                user_simulator_config=user_simulator_config_arg,
                                 agent=agent_arg,
                             )
 
@@ -428,6 +453,7 @@ def _execute_inference_concurrently(
                         agent,
                         inference_fn,
                         api_client,
+                        user_simulator_config,
                     )
                 elif isinstance(model_or_fn, str):
                     generation_content_config = _build_generate_content_config(
@@ -619,10 +645,11 @@ def _run_inference_internal(
         if (
             "prompt" not in prompt_dataset.columns
             and "request" not in prompt_dataset.columns
+            and "starting_prompt" not in prompt_dataset.columns
         ):
             raise ValueError(
-                "Prompt dataset for Gemini model must contain either 'prompt' or"
-                " 'request' column for inference. "
+                "Prompt dataset for Gemini model must contain either 'prompt',"
+                " 'request' or 'starting_prompt' column for inference. "
                 f"Found columns: {prompt_dataset.columns.tolist()}"
             )
 
@@ -794,6 +821,112 @@ def _run_inference_internal(
     return results_df
 
 
+async def _run_adk_user_simulation(
+    row: pd.Series,
+    agent: LlmAgent,
+    config: Optional[types.evals.UserSimulatorConfig] = None,
+) -> list[dict[str, Any]]:
+    """Runs a multi-turn user simulation using ADK's EvaluationGenerator."""
+    starting_prompt = row.get("starting_prompt")
+    conversation_plan = row.get("conversation_plan")
+
+    if not starting_prompt or not conversation_plan:
+        raise ValueError(
+            "User simulation requires 'starting_prompt' and 'conversation_plan'"
+            " columns."
+        )
+
+    scenario = ConversationScenario(
+        starting_prompt=starting_prompt, conversation_plan=conversation_plan
+    )
+
+    user_simulator_kwargs: dict[str, Any] = {}
+    if config:
+        if config.model_name:
+            user_simulator_kwargs["model"] = config.model_name
+        if config.model_configuration is not None:
+            user_simulator_kwargs["model_configuration"] = (
+                config.model_configuration.model_dump(exclude_none=True)
+            )
+        if config.max_turn is not None:
+            user_simulator_kwargs["max_allowed_invocations"] = config.max_turn
+
+    user_simulator_config = LlmBackedUserSimulatorConfig(**user_simulator_kwargs)
+    user_simulator = LlmBackedUserSimulator(
+        conversation_scenario=scenario, config=user_simulator_config
+    )
+
+    initial_session = _get_session_inputs(row)
+
+    invocations = await EvaluationGenerator._generate_inferences_from_root_agent(  # pylint: disable=protected-access
+        root_agent=agent,
+        user_simulator=user_simulator,
+        reset_func=getattr(agent, "reset_data", None),
+        initial_session=ADK_SessionInput(
+            app_name=initial_session.app_name or "user_simulation_app",
+            user_id=initial_session.user_id or "user_simulation_default_user",
+            state=initial_session.state or {},
+        ),
+    )
+
+    turns = []
+    for i, invocation in enumerate(invocations):
+        events = []
+        if invocation.user_content:
+            events.append(
+                {
+                    "author": "user",
+                    "content": invocation.user_content.model_dump(mode="json"),
+                    "event_time": invocation.creation_timestamp,
+                }
+            )
+        if invocation.intermediate_data:
+            if (
+                hasattr(invocation.intermediate_data, "invocation_events")
+                and invocation.intermediate_data.invocation_events
+            ):
+                for ie in invocation.intermediate_data.invocation_events:
+                    events.append(
+                        {
+                            "author": ie.author,
+                            "content": (
+                                ie.content.model_dump(mode="json")
+                                if ie.content
+                                else None
+                            ),
+                            "event_time": invocation.creation_timestamp,
+                        }
+                    )
+            elif hasattr(invocation.intermediate_data, "tool_uses"):
+                for tool_call in invocation.intermediate_data.tool_uses:
+                    events.append(
+                        {
+                            "author": "tool_call",
+                            "content": tool_call.model_dump(mode="json"),
+                            "event_time": invocation.creation_timestamp,
+                        }
+                    )
+
+        if invocation.final_response:
+            events.append(
+                {
+                    "author": "agent",
+                    "content": invocation.final_response.model_dump(mode="json"),
+                    "event_time": invocation.creation_timestamp,
+                }
+            )
+
+        turns.append(
+            {
+                "turn_index": i,
+                "turn_id": invocation.invocation_id or str(uuid.uuid4()),
+                "events": events,
+            }
+        )
+
+    return turns
+
+
 def _apply_prompt_template(
     df: pd.DataFrame, prompt_template: types.PromptTemplate
 ) -> None:
@@ -860,6 +993,7 @@ def _execute_inference(
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
     location: Optional[str] = None,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> pd.DataFrame:
     """Executes inference on a given dataset using the specified model.
 
@@ -878,6 +1012,8 @@ def _execute_inference(
         prompt_template: The prompt template to use for inference.
         location: The location to use for the inference. If not specified, the
           location configured in the client will be used.
+        user_simulator_config: The configuration for the user simulator in
+          multi-turn agent scraping.
 
     Returns:
         A pandas DataFrame containing the inference results.
@@ -956,6 +1092,7 @@ def _execute_inference(
             agent_engine=agent_engine,
             agent=agent,
             prompt_dataset=prompt_dataset,
+            user_simulator_config=user_simulator_config,
         )
         end_time = time.time()
         logger.info("Agent Run completed in %.2f seconds.", end_time - start_time)
@@ -1360,11 +1497,23 @@ def _get_session_inputs(row: pd.Series) -> types.evals.SessionInput:
         )
 
 
+def _is_multi_turn_agent_run(
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    prompt_dataset: pd.DataFrame = None,
+) -> bool:
+    """Checks if the agent run is multi-turn."""
+    return (
+        user_simulator_config is not None
+        or "conversation_plan" in prompt_dataset.columns
+    )
+
+
 def _run_agent_internal(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
     agent: Optional[LlmAgent],
     prompt_dataset: pd.DataFrame,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> pd.DataFrame:
     """Runs an agent."""
     raw_responses = _run_agent(
@@ -1372,66 +1521,94 @@ def _run_agent_internal(
         agent_engine=agent_engine,
         agent=agent,
         prompt_dataset=prompt_dataset,
+        user_simulator_config=user_simulator_config,
     )
     processed_intermediate_events = []
     processed_responses = []
+    processed_agent_data = []
+
     for resp_item in raw_responses:
         intermediate_events_row: list[dict[str, Any]] = []
         response_row = None
-        if isinstance(resp_item, list):
-            try:
-                response_row = resp_item[-1]["content"]["parts"][0]["text"]
-                for intermediate_event in resp_item[:-1]:
-                    intermediate_events_row.append(
-                        {
-                            "event_id": intermediate_event["id"],
-                            "content": intermediate_event["content"],
-                            "creation_timestamp": intermediate_event["timestamp"],
-                            "author": intermediate_event["author"],
-                        }
-                    )
-            except Exception as e:  # pylint: disable=broad-exception-caught
+        agent_data_row = None
+
+        if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
+            if isinstance(resp_item, dict) and "error" in resp_item:
+                response_row = json.dumps(resp_item)
+            else:
+                # TODO: Migrate single turn agent run result to AgentData.
+                agent_data_row = types.evals.AgentData(turns=resp_item).model_dump()
+        else:
+            if isinstance(resp_item, list):
+                try:
+                    response_row = resp_item[-1]["content"]["parts"][0]["text"]
+                    for intermediate_event in resp_item[:-1]:
+                        intermediate_events_row.append(
+                            {
+                                "event_id": intermediate_event.get("id"),
+                                "content": intermediate_event.get("content"),
+                                "creation_timestamp": intermediate_event.get(
+                                    "timestamp"
+                                ),
+                                "author": intermediate_event.get("author"),
+                            }
+                        )
+                except Exception as e:  # pylint: disable=broad-exception-caught
+                    error_payload = {
+                        "error": (
+                            f"Failed to parse agent run response {str(resp_item)} to "
+                            f"agent data: {e}"
+                        ),
+                    }
+                    response_row = json.dumps(error_payload)
+            elif isinstance(resp_item, dict) and "error" in resp_item:
+                response_row = json.dumps(resp_item)
+            else:
                 error_payload = {
-                    "error": (
-                        f"Failed to parse agent run response {str(resp_item)} to "
-                        f"intermediate events and final response: {e}"
-                    ),
+                    "error": "Unexpected response type from agent run",
+                    "response_type": str(type(resp_item)),
+                    "details": str(resp_item),
                 }
                 response_row = json.dumps(error_payload)
-        else:
-            error_payload = {
-                "error": "Unexpected response type from agent run",
-                "response_type": str(type(resp_item)),
-                "details": str(resp_item),
-            }
-            response_row = json.dumps(error_payload)
 
         processed_intermediate_events.append(intermediate_events_row)
         processed_responses.append(response_row)
+        processed_agent_data.append(agent_data_row)
 
-    if len(processed_responses) != len(prompt_dataset) or len(
-        processed_responses
-    ) != len(processed_intermediate_events):
-        raise RuntimeError(
-            "Critical prompt/response/intermediate_events count mismatch: %d"
-            " prompts vs %d vs %d responses. This indicates an issue in response"
-            " collection."
-            % (
-                len(prompt_dataset),
-                len(processed_responses),
-                len(processed_intermediate_events),
+    df_dict: dict[str, Any] = {}
+    if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
+        df_dict[AGENT_DATA] = processed_agent_data
+        if len(processed_agent_data) != len(prompt_dataset):
+            raise RuntimeError(
+                "Critical prompt/agent_data count mismatch: %d"
+                " prompts vs %d agent_data. This indicates an issue in response"
+                " collection."
+                % (
+                    len(prompt_dataset),
+                    len(processed_agent_data),
+                )
             )
-        )
+    else:
+        df_dict[_evals_constant.INTERMEDIATE_EVENTS] = processed_intermediate_events
+        df_dict[_evals_constant.RESPONSE] = processed_responses
+        if len(processed_responses) != len(prompt_dataset) or len(
+            processed_responses
+        ) != len(processed_intermediate_events):
+            raise RuntimeError(
+                "Critical prompt/response/intermediate_events count mismatch: %d"
+                " prompts vs %d vs %d responses. This indicates an issue in response"
+                " collection."
+                % (
+                    len(prompt_dataset),
+                    len(processed_responses),
+                    len(processed_intermediate_events),
+                )
+            )
 
-    results_df_responses_only = pd.DataFrame(
-        {
-            _evals_constant.INTERMEDIATE_EVENTS: processed_intermediate_events,
-            _evals_constant.RESPONSE: processed_responses,
-        }
-    )
+    results_df_raw = pd.DataFrame(df_dict)
 
     prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
-    results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
+    results_df_responses_only_indexed = results_df_raw.reset_index(drop=True)
 
     results_df = pd.concat(
         [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
@@ -1444,6 +1621,7 @@ def _run_agent(
     agent_engine: Optional[Union[str, types.AgentEngine]],
     agent: Optional[LlmAgent],
     prompt_dataset: pd.DataFrame,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
         list[dict[str, Any]],
@@ -1459,6 +1637,7 @@ def _run_agent(
             prompt_dataset=prompt_dataset,
             progress_desc="Agent Run",
             gemini_config=None,
+            user_simulator_config=None,
             inference_fn=_execute_agent_run_with_retry,
         )
     elif agent:
@@ -1468,6 +1647,7 @@ def _run_agent(
             prompt_dataset=prompt_dataset,
             progress_desc="Local Agent Run",
             gemini_config=None,
+            user_simulator_config=user_simulator_config,
             inference_fn=_execute_local_agent_run_with_retry,
         )
     else:
@@ -1535,10 +1715,13 @@ def _execute_local_agent_run_with_retry(
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent: LlmAgent,
     max_retries: int = 3,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt synchronously."""
     return asyncio.run(
-        _execute_local_agent_run_with_retry_async(row, contents, agent, max_retries)
+        _execute_local_agent_run_with_retry_async(
+            row, contents, agent, max_retries, user_simulator_config
+        )
     )
 
 
@@ -1547,8 +1730,18 @@ async def _execute_local_agent_run_with_retry_async(
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent: LlmAgent,
     max_retries: int = 3,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt asynchronously."""
+
+    # Multi-turn agent scraping with user simulation.
+    if user_simulator_config or "conversation_plan" in row:
+        try:
+            return await _run_adk_user_simulation(row, agent, user_simulator_config)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Multi-turn agent run with user simulation failed: %s", e)
+            return {"error": f"Multi-turn agent run with user simulation failed: {e}"}
+
     session_inputs = _get_session_inputs(row)
     user_id = session_inputs.user_id
     session_id = str(uuid.uuid4())

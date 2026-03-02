@@ -1309,6 +1309,7 @@ class Evals(_api_module.BaseModule):
             prompt_template=config.prompt_template,
             location=location,
             config=config.generate_content_config,
+            user_simulator_config=getattr(config, "user_simulator_config", None),
         )
 
     def evaluate(
