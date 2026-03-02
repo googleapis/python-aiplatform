@@ -51,6 +51,18 @@ def _CreateAgentEngineTaskConfig_to_vertex(
     if getv(from_object, ["context_id"]) is not None:
         setv(parent_object, ["contextId"], getv(from_object, ["context_id"]))
 
+    if getv(from_object, ["metadata"]) is not None:
+        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(parent_object, ["state"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["status_details"]) is not None:
+        setv(parent_object, ["statusDetails"], getv(from_object, ["status_details"]))
+
+    if getv(from_object, ["output"]) is not None:
+        setv(parent_object, ["output"], getv(from_object, ["output"]))
+
     return to_object
 
 
