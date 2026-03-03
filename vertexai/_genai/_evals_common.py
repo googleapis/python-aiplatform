@@ -856,16 +856,24 @@ async def _run_adk_user_simulation(
         conversation_scenario=scenario, config=user_simulator_config
     )
 
-    initial_session = _get_session_inputs(row)
+    try:
+        initial_session = _get_session_inputs(row)
+        app_name = initial_session.app_name or "user_simulation_app"
+        user_id = initial_session.user_id or "user_simulation_default_user"
+        state = initial_session.state or {}
+    except (KeyError, TypeError, ValueError):
+        app_name = "user_simulation_app"
+        user_id = "user_simulation_default_user"
+        state = {}
 
     invocations = await EvaluationGenerator._generate_inferences_from_root_agent(  # pylint: disable=protected-access
         root_agent=agent,
         user_simulator=user_simulator,
         reset_func=getattr(agent, "reset_data", None),
         initial_session=ADK_SessionInput(
-            app_name=initial_session.app_name or "user_simulation_app",
-            user_id=initial_session.user_id or "user_simulation_default_user",
-            state=initial_session.state or {},
+            app_name=app_name,
+            user_id=user_id,
+            state=state,
         ),
     )
 
