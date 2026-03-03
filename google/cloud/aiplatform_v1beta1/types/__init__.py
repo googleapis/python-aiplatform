@@ -1450,6 +1450,11 @@ from .vertex_rag_data_service import (
     UploadRagFileResponse,
 )
 from .vertex_rag_service import (
+    AskContextsRequest,
+    AskContextsResponse,
+    AsyncRetrieveContextsOperationMetadata,
+    AsyncRetrieveContextsRequest,
+    AsyncRetrieveContextsResponse,
     AugmentPromptRequest,
     AugmentPromptResponse,
     Claim,
@@ -2647,6 +2652,11 @@ __all__ = (
     "UpdateRagEngineConfigRequest",
     "UploadRagFileRequest",
     "UploadRagFileResponse",
+    "AskContextsRequest",
+    "AskContextsResponse",
+    "AsyncRetrieveContextsOperationMetadata",
+    "AsyncRetrieveContextsRequest",
+    "AsyncRetrieveContextsResponse",
     "AugmentPromptRequest",
     "AugmentPromptResponse",
     "Claim",
