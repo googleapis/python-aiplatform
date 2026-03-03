@@ -23,6 +23,7 @@ import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 import google.protobuf
@@ -156,6 +157,16 @@ class VertexRagServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.ask_contexts: gapic_v1.method.wrap_method(
+                self.ask_contexts,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.async_retrieve_contexts: gapic_v1.method.wrap_method(
+                self.async_retrieve_contexts,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -218,6 +229,11 @@ class VertexRagServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def operations_client(self):
+        """Return the client designed to process long-running operations."""
+        raise NotImplementedError()
+
+    @property
     def retrieve_contexts(
         self,
     ) -> Callable[
@@ -250,6 +266,27 @@ class VertexRagServiceTransport(abc.ABC):
             vertex_rag_service.CorroborateContentResponse,
             Awaitable[vertex_rag_service.CorroborateContentResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def ask_contexts(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AskContextsRequest],
+        Union[
+            vertex_rag_service.AskContextsResponse,
+            Awaitable[vertex_rag_service.AskContextsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def async_retrieve_contexts(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AsyncRetrieveContextsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
