@@ -1077,6 +1077,11 @@ from .types.vertex_rag_data_service import UpdateRagEngineConfigOperationMetadat
 from .types.vertex_rag_data_service import UpdateRagEngineConfigRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import AskContextsRequest
+from .types.vertex_rag_service import AskContextsResponse
+from .types.vertex_rag_service import AsyncRetrieveContextsOperationMetadata
+from .types.vertex_rag_service import AsyncRetrieveContextsRequest
+from .types.vertex_rag_service import AsyncRetrieveContextsResponse
 from .types.vertex_rag_service import AugmentPromptRequest
 from .types.vertex_rag_service import AugmentPromptResponse
 from .types.vertex_rag_service import Claim
@@ -1254,8 +1259,13 @@ __all__ = (
     "AppendEventRequest",
     "AppendEventResponse",
     "Artifact",
+    "AskContextsRequest",
+    "AskContextsResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "AsyncRetrieveContextsOperationMetadata",
+    "AsyncRetrieveContextsRequest",
+    "AsyncRetrieveContextsResponse",
     "Attribution",
     "AugmentPromptRequest",
     "AugmentPromptResponse",
