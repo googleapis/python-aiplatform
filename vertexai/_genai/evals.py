@@ -414,7 +414,11 @@ def _EvaluationRun_from_vertex(
         )
 
     if getv(from_object, ["inferenceConfigs"]) is not None:
-        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
+        setv(
+            to_object,
+            ["inference_configs"],
+            {k: v for k, v in getv(from_object, ["inferenceConfigs"]).items()},
+        )
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
