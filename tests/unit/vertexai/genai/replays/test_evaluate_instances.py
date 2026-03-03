@@ -105,39 +105,6 @@ def test_pointwise_metric(client):
     assert response.pointwise_metric_result.score is not None
 
 
-# def test_predefined_metric_with_agent_data(client):
-#     """Tests the _evaluate_instances method with predefined metric and agent_data."""
-#     agent_data = types.evals.AgentData(
-#         agent_config=types.evals.AgentConfig(
-#             tools=[
-#                 genai_types.Tool(
-#                     function_declarations=[
-#                         genai_types.FunctionDeclaration(name="search")
-#                     ]
-#                 )
-#             ],
-#             developer_instruction=types.evals.InstanceData(text="instruction"),
-#         ),
-#         events=types.evals.Events(
-#             event=[genai_types.Content(parts=[genai_types.Part(text="hello")])]
-#         ),
-#     )
-#     instance = types.EvaluationInstance(
-#         prompt=types.evals.InstanceData(text="What is the capital of France?"),
-#         response=types.evals.InstanceData(text="Paris"),
-#         reference=types.evals.InstanceData(text="Paris"),
-#         agent_data=agent_data,
-#     )
-
-#     response = client.evals.evaluate_instances(
-#         metric_config=types._EvaluateInstancesRequestParameters(
-#             metrics=[types.Metric(name="general_quality_v1")],
-#             instance=instance,
-#         )
-#     )
-#     assert response.metric_results[0].score is not None
-
-
 def test_pairwise_metric_with_autorater(client):
     """Tests the _evaluate_instances method with PairwiseMetricInput and AutoraterConfig."""
 
