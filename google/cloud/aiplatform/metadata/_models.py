@@ -147,6 +147,12 @@ def _load_sklearn_model(
             f"You are using sklearn {sklearn.__version__}."
             "Attempting to load model..."
         )
+
+    _LOGGER.warning(
+        "Loading a scikit-learn model via pickle is insecure. "
+        "Ensure the model artifact is from a trusted source.",
+    )
+
     with open(model_file, "rb") as f:
         sk_model = pickle.load(f)
 
