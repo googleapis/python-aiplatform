@@ -298,6 +298,9 @@ def _EvaluationRunConfig_from_vertex(
     if getv(from_object, ["autoraterConfig"]) is not None:
         setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
 
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
+
     return to_object
 
 
@@ -321,6 +324,9 @@ def _EvaluationRunConfig_to_vertex(
 
     if getv(from_object, ["autorater_config"]) is not None:
         setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
+
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
 
     return to_object
 
@@ -1781,7 +1787,7 @@ class Evals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
             labels, agent_info_pydantic
@@ -2709,7 +2715,7 @@ class AsyncEvals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
             labels, agent_info_pydantic
