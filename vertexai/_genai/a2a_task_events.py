@@ -25,7 +25,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import types
 
@@ -245,8 +245,6 @@ class A2aTaskEvents(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    """Task events."""
-
     def list(
         self,
         *,
@@ -415,3 +413,28 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineTaskEventsConfigOrDict] = None,
+    ) -> AsyncPager[types.TaskEvent]:
+        """Lists the A2A tasks of an Agent Engine.
+
+        Args:
+            name (str):
+                Required. The name of the agent engine to list tasks for.
+            config (List):
+                Optional. The configuration for the tasks to list.
+
+        Returns:
+            AsyncPager[TaskEvent]: An async pager of Task events.
+        """
+
+        return AsyncPager(
+            "taskEvents",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )

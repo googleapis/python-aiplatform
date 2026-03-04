@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+import pytest
 
 
 def test_list_a2a_tasks(client):
@@ -66,3 +67,51 @@ pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
 )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_list_a2a_tasks_async(client):
+    # Use the autopush environment.
+    client.aio._api_client._http_options.base_url = (
+        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+    )
+    agent_engine = client.agent_engines.create()
+    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    # Use the internal API version for internal API access.
+    client.aio._api_client._http_options.api_version = "internal"
+
+    assert not list(
+        await client.aio.agent_engines.a2a_tasks.list(
+            name=agent_engine.api_resource.name,
+        )
+    )
+    await client.aio.agent_engines.a2a_tasks.create(
+        name=agent_engine.api_resource.name,
+        a2a_task_id="task123",
+        config=types.CreateAgentEngineTaskConfig(context_id="context123"),
+    )
+    await client.aio.agent_engines.a2a_tasks.create(
+        name=agent_engine.api_resource.name,
+        a2a_task_id="task456",
+        config=types.CreateAgentEngineTaskConfig(context_id="context456"),
+    )
+    a2a_tasks_list = await client.aio.agent_engines.a2a_tasks.list(
+        name=agent_engine.api_resource.name,
+        config=types.ListAgentEngineTasksConfig(
+            page_size=1,
+            order_by="create_time asc",
+        ),
+    )
+    assert len(a2a_tasks_list) == 1
+    assert isinstance(a2a_tasks_list[0], types.A2aTask)
+    assert a2a_tasks_list[0].name == (
+        f"{agent_engine.api_resource.name}/a2aTasks/task123"
+    )
+    assert a2a_tasks_list[0].context_id == "context123"
+
+    # Clean up resources.
+    agent_engine.delete(force=True)
