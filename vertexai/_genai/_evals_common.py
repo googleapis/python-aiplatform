@@ -1389,15 +1389,17 @@ def _resolve_evaluation_run_metrics(
 
 
 def _resolve_metrics(
-    metrics: list[types.Metric], api_client: Any
-) -> list[types.Metric]:
+    metrics: list[Any], api_client: Any
+) -> list[types.MetricSource]:
     """Resolves a list of metric instances, loading RubricMetric if necessary."""
     resolved_metrics_list = []
     for metric_instance in metrics:
         if isinstance(metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric):
             try:
                 resolved_metrics_list.append(
-                    metric_instance.resolve(api_client=api_client)
+                    types.MetricSource(
+                        metric=metric_instance.resolve(api_client=api_client)
+                    )
                 )
             except Exception as e:
                 logger.error(
@@ -1408,10 +1410,15 @@ def _resolve_metrics(
                 )
                 raise
         elif isinstance(metric_instance, types.Metric):
-            resolved_metrics_list.append(metric_instance)
+            resolved_metrics_list.append(types.MetricSource(metric=metric_instance))
         else:
             try:
                 metric_name_str = str(metric_instance)
+                if metric_name_str.lower().startswith("projects/"):
+                    resolved_metrics_list.append(
+                        types.MetricSource(metric_resource_name=metric_name_str)
+                    )
+                    continue
                 lazy_metric_instance = getattr(
                     _evals_metric_loaders.RubricMetric, metric_name_str.upper()
                 )
@@ -1419,7 +1426,9 @@ def _resolve_metrics(
                     lazy_metric_instance, _evals_metric_loaders.LazyLoadedPrebuiltMetric
                 ):
                     resolved_metrics_list.append(
-                        lazy_metric_instance.resolve(api_client=api_client)
+                        types.MetricSource(
+                            metric=lazy_metric_instance.resolve(api_client=api_client)
+                        )
                     )
                 else:
                     raise TypeError(

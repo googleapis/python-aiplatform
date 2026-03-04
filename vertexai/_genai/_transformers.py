@@ -23,7 +23,7 @@ from . import types
 
 
 def t_metrics(
-    metrics: list["types.MetricSubclass"],
+    metrics: list["types.MetricSource"],
     set_default_aggregation_metrics: bool = False,
 ) -> list[dict[str, Any]]:
     """Prepares the metric payload for the evaluation request.
@@ -31,12 +31,20 @@ def t_metrics(
     Args:
         metrics: A list of metrics used for evaluation.
         set_default_aggregation_metrics: Whether to set default aggregation metrics.
+
     Returns:
         A list of resolved metric payloads for the evaluation request.
     """
     metrics_payload = []
 
-    for metric in metrics:
+    for metric_source in metrics:
+        if metric_source.metric_resource_name:
+            metrics_payload.append(
+                {"metric_resource_name": metric_source.metric_resource_name}
+            )
+            continue
+
+        metric = metric_source.metric
         metric_payload_item: dict[str, Any] = {}
 
         metric_name = getv(metric, ["name"]).lower()
