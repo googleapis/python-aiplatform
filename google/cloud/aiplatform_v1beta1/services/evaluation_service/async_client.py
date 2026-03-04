@@ -45,13 +45,13 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+import google.api_core.operation as operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 from .transports.base import EvaluationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import EvaluationServiceGrpcAsyncIOTransport
 from .client import EvaluationServiceClient
@@ -116,7 +116,10 @@ class EvaluationServiceAsyncClient:
         Returns:
             EvaluationServiceAsyncClient: The constructed client.
         """
-        return EvaluationServiceClient.from_service_account_info.__func__(EvaluationServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            EvaluationServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(EvaluationServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -132,7 +135,10 @@ class EvaluationServiceAsyncClient:
         Returns:
             EvaluationServiceAsyncClient: The constructed client.
         """
-        return EvaluationServiceClient.from_service_account_file.__func__(EvaluationServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            EvaluationServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(EvaluationServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 
@@ -415,12 +421,16 @@ class EvaluationServiceAsyncClient:
                 dataset = aiplatform_v1beta1.EvaluationDataset()
                 dataset.gcs_source.uris = ['uris_value1', 'uris_value2']
 
+                metrics = aiplatform_v1beta1.Metric()
+                metrics.predefined_metric_spec.metric_spec_name = "metric_spec_name_value"
+
                 output_config = aiplatform_v1beta1.OutputConfig()
                 output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
 
                 request = aiplatform_v1beta1.EvaluateDatasetRequest(
                     location="location_value",
                     dataset=dataset,
+                    metrics=metrics,
                     output_config=output_config,
                 )
 
@@ -452,7 +462,8 @@ class EvaluationServiceAsyncClient:
 
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.EvaluateDatasetResponse`
-                Response in LRO for EvaluationService.EvaluateDataset.
+                The results from an evaluation run performed by the
+                EvaluationService.
 
         """
         # Create or coerce a protobuf request object.

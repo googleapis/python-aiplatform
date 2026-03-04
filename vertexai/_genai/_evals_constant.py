@@ -23,6 +23,9 @@ SUPPORTED_PREDEFINED_METRICS = frozenset(
         "safety_v1",
         "multi_turn_general_quality_v1",
         "multi_turn_text_quality_v1",
+        "multi_turn_tool_use_quality_v1",
+        "multi_turn_trajectory_quality_v1",
+        "multi_turn_task_success_v1",
         "final_response_match_v2",
         "final_response_reference_free_v1",
         "final_response_quality_v1",
@@ -53,6 +56,7 @@ CONTEXT = "context"
 CONTENT = "content"
 PARTS = "parts"
 USER_AUTHOR = "user"
+AGENT_DATA = "agent_data"
 
 COMMON_DATASET_COLUMNS = frozenset(
     {

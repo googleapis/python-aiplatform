@@ -4572,6 +4572,130 @@
         }
       }
     },
+    "SessionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "SessionServiceClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "SessionServiceAsyncClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "SessionServiceClient",
+          "rpcs": {
+            "AppendEvent": {
+              "methods": [
+                "append_event"
+              ]
+            },
+            "CreateSession": {
+              "methods": [
+                "create_session"
+              ]
+            },
+            "DeleteSession": {
+              "methods": [
+                "delete_session"
+              ]
+            },
+            "GetSession": {
+              "methods": [
+                "get_session"
+              ]
+            },
+            "ListEvents": {
+              "methods": [
+                "list_events"
+              ]
+            },
+            "ListSessions": {
+              "methods": [
+                "list_sessions"
+              ]
+            },
+            "UpdateSession": {
+              "methods": [
+                "update_session"
+              ]
+            }
+          }
+        }
+      }
+    },
     "SpecialistPoolService": {
       "clients": {
         "grpc": {
@@ -5339,6 +5463,16 @@
         "grpc": {
           "libraryClient": "VertexRagServiceClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"
@@ -5359,6 +5493,16 @@
         "grpc-async": {
           "libraryClient": "VertexRagServiceAsyncClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"
@@ -5379,6 +5523,16 @@
         "rest": {
           "libraryClient": "VertexRagServiceClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"

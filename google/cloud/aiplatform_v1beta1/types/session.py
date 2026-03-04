@@ -20,9 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -32,6 +32,7 @@ __protobuf__ = proto.module(
         "SessionEvent",
         "EventMetadata",
         "EventActions",
+        "Transcription",
     },
 )
 
@@ -51,12 +52,13 @@ class Session(proto.Message):
         expire_time (google.protobuf.timestamp_pb2.Timestamp):
             Optional. Timestamp of when this session is considered
             expired. This is *always* provided on output, regardless of
-            what was sent on input.
+            what was sent on input. The minimum value is 24 hours from
+            the time of creation.
 
             This field is a member of `oneof`_ ``expiration``.
         ttl (google.protobuf.duration_pb2.Duration):
             Optional. Input only. The TTL for this
-            session.
+            session. The minimum value is 24 hours.
 
             This field is a member of `oneof`_ ``expiration``.
         name (str):
@@ -70,6 +72,17 @@ class Session(proto.Message):
             updated.
         display_name (str):
             Optional. The display name of the session.
+        labels (MutableMapping[str, str]):
+            The labels with user-defined metadata to
+            organize your Sessions.
+            Label keys and values can be no longer than 64
+            characters (Unicode codepoints), can only
+            contain lowercase letters, numeric characters,
+            underscores and dashes. International characters
+            are allowed.
+
+            See https://goo.gl/xmQnxf for more information
+            and examples of labels.
         session_state (google.protobuf.struct_pb2.Struct):
             Optional. Session specific memory which
             stores key conversation points.
@@ -107,6 +120,11 @@ class Session(proto.Message):
     display_name: str = proto.Field(
         proto.STRING,
         number=5,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=8,
     )
     session_state: struct_pb2.Struct = proto.Field(
         proto.MESSAGE,
@@ -226,6 +244,11 @@ class EventMetadata(proto.Message):
             siblings' conversation history.
         custom_metadata (google.protobuf.struct_pb2.Struct):
             The custom metadata of the LlmResponse.
+        input_transcription (google.cloud.aiplatform_v1beta1.types.Transcription):
+            Optional. Audio transcription of user input.
+        output_transcription (google.cloud.aiplatform_v1beta1.types.Transcription):
+            Optional. Audio transcription of model
+            output.
     """
 
     grounding_metadata: gca_content.GroundingMetadata = proto.Field(
@@ -257,6 +280,16 @@ class EventMetadata(proto.Message):
         proto.MESSAGE,
         number=7,
         message=struct_pb2.Struct,
+    )
+    input_transcription: "Transcription" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message="Transcription",
+    )
+    output_transcription: "Transcription" = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message="Transcription",
     )
 
 
@@ -316,6 +349,27 @@ class EventActions(proto.Message):
     transfer_agent: str = proto.Field(
         proto.STRING,
         number=8,
+    )
+
+
+class Transcription(proto.Message):
+    r"""Audio transcription in Server Content.
+
+    Attributes:
+        text (str):
+            Optional. Transcription text.
+        finished (bool):
+            Optional. The bool indicates the end of the
+            transcription.
+    """
+
+    text: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    finished: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 

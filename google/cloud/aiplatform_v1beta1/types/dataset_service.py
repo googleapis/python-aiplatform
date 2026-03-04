@@ -27,7 +27,7 @@ from google.cloud.aiplatform_v1beta1.types import dataset_version as gca_dataset
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import saved_query as gca_saved_query
 from google.cloud.aiplatform_v1beta1.types import tool
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -1562,6 +1562,10 @@ class GeminiExample(proto.Message):
             Optional. Per request settings for blocking
             unsafe content. Enforced on
             GenerateContentResponse.candidates.
+        model_armor_config (google.cloud.aiplatform_v1beta1.types.ModelArmorConfig):
+            Optional. Settings for prompt and response sanitization
+            using the Model Armor service. If supplied, safety_settings
+            must not be supplied.
         generation_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig):
             Optional. Generation config.
     """
@@ -1604,6 +1608,11 @@ class GeminiExample(proto.Message):
         proto.MESSAGE,
         number=3,
         message=content.SafetySetting,
+    )
+    model_armor_config: content.ModelArmorConfig = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message=content.ModelArmorConfig,
     )
     generation_config: content.GenerationConfig = proto.Field(
         proto.MESSAGE,

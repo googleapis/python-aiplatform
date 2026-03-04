@@ -21,7 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import notebook_service
 from google.cloud.aiplatform_v1.types import pipeline_service
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -119,6 +119,14 @@ class Schedule(proto.Message):
             the limit for starting the scheduled requests
             and not the execution of the operations/jobs
             created by the requests (if applicable).
+        max_concurrent_active_run_count (int):
+            Optional. Specifies the maximum number of
+            active runs that can be executed concurrently
+            for this Schedule. This limits the number of
+            runs that can be in a non-terminal state at the
+            same time.
+            Currently, this field is only supported for
+            requests of type CreatePipelineJobRequest.
         allow_queueing (bool):
             Optional. Whether new scheduled runs can be queued when
             max_concurrent_runs limit is reached. If set to true, new
@@ -264,6 +272,10 @@ class Schedule(proto.Message):
     max_concurrent_run_count: int = proto.Field(
         proto.INT64,
         number=11,
+    )
+    max_concurrent_active_run_count: int = proto.Field(
+        proto.INT64,
+        number=21,
     )
     allow_queueing: bool = proto.Field(
         proto.BOOL,

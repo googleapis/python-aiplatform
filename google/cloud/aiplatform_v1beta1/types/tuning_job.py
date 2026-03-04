@@ -23,9 +23,9 @@ from google.cloud.aiplatform_v1beta1.types import content
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.aiplatform_v1beta1.types import job_state
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -1196,6 +1196,10 @@ class EvaluationConfig(proto.Message):
             Required. Config for evaluation output.
         autorater_config (google.cloud.aiplatform_v1beta1.types.AutoraterConfig):
             Optional. Autorater config for evaluation.
+        inference_generation_config (google.cloud.aiplatform_v1beta1.types.GenerationConfig):
+            Optional. Configuration options for inference
+            generation and outputs. If not set, default
+            generation parameters are used.
     """
 
     metrics: MutableSequence[evaluation_service.Metric] = proto.RepeatedField(
@@ -1213,6 +1217,11 @@ class EvaluationConfig(proto.Message):
         number=3,
         message=evaluation_service.AutoraterConfig,
     )
+    inference_generation_config: content.GenerationConfig = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=content.GenerationConfig,
+    )
 
 
 class EvaluateDatasetRun(proto.Message):
@@ -1222,13 +1231,16 @@ class EvaluateDatasetRun(proto.Message):
         operation_name (str):
             Output only. The operation ID of the evaluation run. Format:
             ``projects/{project}/locations/{location}/operations/{operation_id}``.
+        evaluation_run (str):
+            Output only. The resource name of the evaluation run.
+            Format:
+            ``projects/{project}/locations/{location}/evaluationRuns/{evaluation_run_id}``.
         checkpoint_id (str):
             Output only. The checkpoint id used in the
             evaluation run. Only populated when evaluating
             checkpoints.
         evaluate_dataset_response (google.cloud.aiplatform_v1beta1.types.EvaluateDatasetResponse):
-            Output only. Results for
-            EvaluationService.EvaluateDataset.
+            Output only. Results for EvaluationService.
         error (google.rpc.status_pb2.Status):
             Output only. The error of the evaluation run
             if any.
@@ -1237,6 +1249,10 @@ class EvaluateDatasetRun(proto.Message):
     operation_name: str = proto.Field(
         proto.STRING,
         number=1,
+    )
+    evaluation_run: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
     checkpoint_id: str = proto.Field(
         proto.STRING,

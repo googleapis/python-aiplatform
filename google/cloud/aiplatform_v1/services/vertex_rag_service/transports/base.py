@@ -23,6 +23,7 @@ import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 import google.protobuf
@@ -87,8 +88,6 @@ class VertexRagServiceTransport(abc.ABC):
                 be used for service account credentials.
         """
 
-        scopes_kwargs = {"scopes": scopes, "default_scopes": self.AUTH_SCOPES}
-
         # Save the scopes.
         self._scopes = scopes
         if not hasattr(self, "_ignore_credentials"):
@@ -103,11 +102,16 @@ class VertexRagServiceTransport(abc.ABC):
 
         if credentials_file is not None:
             credentials, _ = google.auth.load_credentials_from_file(
-                credentials_file, **scopes_kwargs, quota_project_id=quota_project_id
+                credentials_file,
+                scopes=scopes,
+                quota_project_id=quota_project_id,
+                default_scopes=self.AUTH_SCOPES,
             )
         elif credentials is None and not self._ignore_credentials:
             credentials, _ = google.auth.default(
-                **scopes_kwargs, quota_project_id=quota_project_id
+                scopes=scopes,
+                quota_project_id=quota_project_id,
+                default_scopes=self.AUTH_SCOPES,
             )
             # Don't apply audience if the credentials file passed from user.
             if hasattr(credentials, "with_gdch_audience"):
@@ -150,6 +154,16 @@ class VertexRagServiceTransport(abc.ABC):
             ),
             self.corroborate_content: gapic_v1.method.wrap_method(
                 self.corroborate_content,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.ask_contexts: gapic_v1.method.wrap_method(
+                self.ask_contexts,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.async_retrieve_contexts: gapic_v1.method.wrap_method(
+                self.async_retrieve_contexts,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -215,6 +229,11 @@ class VertexRagServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def operations_client(self):
+        """Return the client designed to process long-running operations."""
+        raise NotImplementedError()
+
+    @property
     def retrieve_contexts(
         self,
     ) -> Callable[
@@ -247,6 +266,27 @@ class VertexRagServiceTransport(abc.ABC):
             vertex_rag_service.CorroborateContentResponse,
             Awaitable[vertex_rag_service.CorroborateContentResponse],
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def ask_contexts(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AskContextsRequest],
+        Union[
+            vertex_rag_service.AskContextsResponse,
+            Awaitable[vertex_rag_service.AskContextsResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def async_retrieve_contexts(
+        self,
+    ) -> Callable[
+        [vertex_rag_service.AsyncRetrieveContextsRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 

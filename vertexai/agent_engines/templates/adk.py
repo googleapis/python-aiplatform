@@ -454,17 +454,36 @@ def _default_instrumentor_builder(
                 return True
 
         logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
-        logger_provider.add_log_record_processor(
-            _SimpleLogRecordProcessor(
-                opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
-                    project_id=project_id,
-                    default_log_name=os.getenv(
-                        "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+        # Use the legacy log processor when experimental semconv is enabled.
+        # Exporting JSON logs to stdout is bugged; Agent Engine fails to
+        # correctly parse the `gen_ai.client.inference.operation.details`
+        # messages.
+        # TODO: b/480102541 - Unify both branches once the regression is fixed.
+        if "gen_ai_latest_experimental" in os.getenv(
+            "OTEL_SEMCONV_STABILITY_OPT_IN", ""
+        ).split(","):
+            logger_provider.add_log_record_processor(
+                opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
                     ),
-                    structured_json_file=sys.stdout,
-                ),
+                )
             )
-        )
+        else:
+            logger_provider.add_log_record_processor(
+                _SimpleLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
+                        structured_json_file=sys.stdout,
+                    ),
+                )
+            )
         event_logger_provider = opentelemetry.sdk._events.EventLoggerProvider(
             logger_provider=logger_provider
         )
@@ -665,6 +684,18 @@ class AdkApp:
             for event in request.events:
                 await session_service.append_event(session, Event(**event))
         if request.artifacts:
+            await self._save_artifacts(session.id, artifact_service, request)
+        return session
+
+    async def _save_artifacts(
+        self,
+        session_id: str,
+        artifact_service: "BaseArtifactService",
+        request: _StreamRunRequest,
+    ):
+        """Saves the artifacts."""
+        app = self._tmpl_attrs.get("app")
+        if request.artifacts:
             for artifact in request.artifacts:
                 artifact = _Artifact(**artifact)
                 for version_data in sorted(
@@ -674,7 +705,7 @@ class AdkApp:
                     saved_version = await artifact_service.save_artifact(
                         app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
-                        session_id=session.id,
+                        session_id=session_id,
                         filename=artifact.file_name,
                         artifact=version_data.data,
                     )
@@ -688,7 +719,6 @@ class AdkApp:
                             saved_version,
                             version_data.version,
                         )
-        return session
 
     async def _convert_response_events(
         self,
@@ -1183,13 +1213,22 @@ class AdkApp:
             session_service = self._tmpl_attrs.get("session_service")
             artifact_service = self._tmpl_attrs.get("artifact_service")
             runner = self._tmpl_attrs.get("runner")
+            session = None
             try:
                 session = await session_service.get_session(
                     app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                     user_id=request.user_id,
                     session_id=request.session_id,
                 )
+                if session:
+                    await self._save_artifacts(
+                        session_id=request.session_id,
+                        artifact_service=artifact_service,
+                        request=request,
+                    )
             except ClientError:
+                pass
+            if not session:
                 #  Fall back to create session if the session is not found.
                 #  Specifying session_id on creation is not supported,
                 #  so session id will be regenerated.

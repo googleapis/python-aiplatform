@@ -22,9 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1.types import openapi
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import vertex_rag_data
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.type import date_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.type.date_pb2 as date_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

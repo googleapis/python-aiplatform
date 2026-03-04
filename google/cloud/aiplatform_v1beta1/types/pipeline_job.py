@@ -28,9 +28,9 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_state
 from google.cloud.aiplatform_v1beta1.types import service_networking
 from google.cloud.aiplatform_v1beta1.types import ui_pipeline_spec
 from google.cloud.aiplatform_v1beta1.types import value as gca_value
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

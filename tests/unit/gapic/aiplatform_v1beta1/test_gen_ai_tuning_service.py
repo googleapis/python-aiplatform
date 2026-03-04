@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -80,6 +80,7 @@ from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.aiplatform_v1beta1.types import tuning_job
 from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
@@ -89,12 +90,13 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.any_pb2 as any_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -4780,6 +4782,23 @@ def test_create_tuning_job_rest_call_success(request_type):
             "evaluation_config": {
                 "metrics": [
                     {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                            },
+                            "additional_config": {},
+                        },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
@@ -4805,10 +4824,89 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
-                "autorater_config": {
-                    "sampling_count": 1507,
-                    "flip_enabled": True,
-                    "autorater_model": "autorater_model_value",
+                "autorater_config": {},
+                "inference_generation_config": {
+                    "temperature": 0.1198,
+                    "top_p": 0.546,
+                    "top_k": 0.541,
+                    "candidate_count": 1573,
+                    "max_output_tokens": 1865,
+                    "stop_sequences": [
+                        "stop_sequences_value1",
+                        "stop_sequences_value2",
+                    ],
+                    "response_logprobs": True,
+                    "logprobs": 872,
+                    "presence_penalty": 0.1713,
+                    "frequency_penalty": 0.18380000000000002,
+                    "seed": 417,
+                    "response_mime_type": "response_mime_type_value",
+                    "response_schema": {
+                        "type_": 1,
+                        "format_": "format__value",
+                        "title": "title_value",
+                        "description": "description_value",
+                        "nullable": True,
+                        "default": {
+                            "null_value": 0,
+                            "number_value": 0.1285,
+                            "string_value": "string_value_value",
+                            "bool_value": True,
+                            "struct_value": {},
+                            "list_value": {"values": {}},
+                        },
+                        "items": {},
+                        "min_items": 965,
+                        "max_items": 967,
+                        "enum": ["enum_value1", "enum_value2"],
+                        "properties": {},
+                        "property_ordering": [
+                            "property_ordering_value1",
+                            "property_ordering_value2",
+                        ],
+                        "required": ["required_value1", "required_value2"],
+                        "min_properties": 1520,
+                        "max_properties": 1522,
+                        "minimum": 0.764,
+                        "maximum": 0.766,
+                        "min_length": 1061,
+                        "max_length": 1063,
+                        "pattern": "pattern_value",
+                        "example": {},
+                        "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
+                    },
+                    "response_json_schema": {},
+                    "routing_config": {
+                        "auto_mode": {"model_routing_preference": 1},
+                        "manual_mode": {"model_name": "model_name_value"},
+                    },
+                    "audio_timestamp": True,
+                    "response_modalities": [1],
+                    "media_resolution": 1,
+                    "speech_config": {
+                        "voice_config": {
+                            "prebuilt_voice_config": {"voice_name": "voice_name_value"},
+                            "replicated_voice_config": {
+                                "mime_type": "mime_type_value",
+                                "voice_sample_audio": b"voice_sample_audio_blob",
+                            },
+                        },
+                        "language_code": "language_code_value",
+                        "multi_speaker_voice_config": {
+                            "speaker_voice_configs": [
+                                {"speaker": "speaker_value", "voice_config": {}}
+                            ]
+                        },
+                    },
+                    "thinking_config": {
+                        "include_thoughts": True,
+                        "thinking_budget": 1590,
+                    },
+                    "model_config": {"feature_selection_preference": 1},
+                    "image_config": {"aspect_ratio": "aspect_ratio_value"},
                 },
             },
             "tuning_mode": 1,
@@ -4910,7 +5008,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "function_call": {
                                     "id": "id_value",
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
                                     "partial_args": [
                                         {
                                             "null_value": 0,
@@ -4996,6 +5094,7 @@ def test_create_tuning_job_rest_call_success(request_type):
         "evaluate_dataset_runs": [
             {
                 "operation_name": "operation_name_value",
+                "evaluation_run": "evaluation_run_value",
                 "checkpoint_id": "checkpoint_id_value",
                 "evaluate_dataset_response": {
                     "aggregation_output": {
@@ -6556,6 +6655,23 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             "evaluation_config": {
                 "metrics": [
                     {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                            },
+                            "additional_config": {},
+                        },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
@@ -6581,10 +6697,89 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
-                "autorater_config": {
-                    "sampling_count": 1507,
-                    "flip_enabled": True,
-                    "autorater_model": "autorater_model_value",
+                "autorater_config": {},
+                "inference_generation_config": {
+                    "temperature": 0.1198,
+                    "top_p": 0.546,
+                    "top_k": 0.541,
+                    "candidate_count": 1573,
+                    "max_output_tokens": 1865,
+                    "stop_sequences": [
+                        "stop_sequences_value1",
+                        "stop_sequences_value2",
+                    ],
+                    "response_logprobs": True,
+                    "logprobs": 872,
+                    "presence_penalty": 0.1713,
+                    "frequency_penalty": 0.18380000000000002,
+                    "seed": 417,
+                    "response_mime_type": "response_mime_type_value",
+                    "response_schema": {
+                        "type_": 1,
+                        "format_": "format__value",
+                        "title": "title_value",
+                        "description": "description_value",
+                        "nullable": True,
+                        "default": {
+                            "null_value": 0,
+                            "number_value": 0.1285,
+                            "string_value": "string_value_value",
+                            "bool_value": True,
+                            "struct_value": {},
+                            "list_value": {"values": {}},
+                        },
+                        "items": {},
+                        "min_items": 965,
+                        "max_items": 967,
+                        "enum": ["enum_value1", "enum_value2"],
+                        "properties": {},
+                        "property_ordering": [
+                            "property_ordering_value1",
+                            "property_ordering_value2",
+                        ],
+                        "required": ["required_value1", "required_value2"],
+                        "min_properties": 1520,
+                        "max_properties": 1522,
+                        "minimum": 0.764,
+                        "maximum": 0.766,
+                        "min_length": 1061,
+                        "max_length": 1063,
+                        "pattern": "pattern_value",
+                        "example": {},
+                        "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
+                    },
+                    "response_json_schema": {},
+                    "routing_config": {
+                        "auto_mode": {"model_routing_preference": 1},
+                        "manual_mode": {"model_name": "model_name_value"},
+                    },
+                    "audio_timestamp": True,
+                    "response_modalities": [1],
+                    "media_resolution": 1,
+                    "speech_config": {
+                        "voice_config": {
+                            "prebuilt_voice_config": {"voice_name": "voice_name_value"},
+                            "replicated_voice_config": {
+                                "mime_type": "mime_type_value",
+                                "voice_sample_audio": b"voice_sample_audio_blob",
+                            },
+                        },
+                        "language_code": "language_code_value",
+                        "multi_speaker_voice_config": {
+                            "speaker_voice_configs": [
+                                {"speaker": "speaker_value", "voice_config": {}}
+                            ]
+                        },
+                    },
+                    "thinking_config": {
+                        "include_thoughts": True,
+                        "thinking_budget": 1590,
+                    },
+                    "model_config": {"feature_selection_preference": 1},
+                    "image_config": {"aspect_ratio": "aspect_ratio_value"},
                 },
             },
             "tuning_mode": 1,
@@ -6686,7 +6881,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "function_call": {
                                     "id": "id_value",
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
                                     "partial_args": [
                                         {
                                             "null_value": 0,
@@ -6772,6 +6967,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         "evaluate_dataset_runs": [
             {
                 "operation_name": "operation_name_value",
+                "evaluation_run": "evaluation_run_value",
                 "checkpoint_id": "checkpoint_id_value",
                 "evaluate_dataset_response": {
                     "aggregation_output": {

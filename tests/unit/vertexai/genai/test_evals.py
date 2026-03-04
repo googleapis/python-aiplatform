@@ -20,6 +20,7 @@ import os
 import re
 import statistics
 import sys
+import unittest
 from unittest import mock
 
 import google.auth.credentials
@@ -1885,8 +1886,122 @@ class TestRunAgentInternal:
 
         assert "response" in result_df.columns
         response_content = result_df["response"][0]
-        assert "Unexpected response type from agent run" in response_content
+        assert "agent run failed" in response_content
         assert not result_df["intermediate_events"][0]
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_multi_turn_success(self, mock_run_agent):
+        mock_run_agent.return_value = [
+            [
+                {"turn_index": 0, "turn_id": "t1", "events": []},
+                {"turn_index": 1, "turn_id": "t2", "events": []},
+            ]
+        ]
+        prompt_dataset = pd.DataFrame({"prompt": ["p1"], "conversation_plan": ["plan"]})
+        mock_agent_engine = mock.Mock()
+        mock_api_client = mock.Mock()
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock_api_client,
+            agent_engine=mock_agent_engine,
+            agent=None,
+            prompt_dataset=prompt_dataset,
+        )
+
+        assert "agent_data" in result_df.columns
+        agent_data = result_df["agent_data"][0]
+        assert agent_data["turns"] == [
+            {"turn_index": 0, "turn_id": "t1", "events": []},
+            {"turn_index": 1, "turn_id": "t2", "events": []},
+        ]
+
+    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    @pytest.mark.asyncio
+    async def test_run_adk_user_simulation_with_intermediate_events(
+        self,
+        mock_config,
+        mock_scenario,
+        mock_simulator,
+        mock_generator,
+        mock_session_input,
+    ):
+        """Tests that intermediate invocation events (e.g. tool calls) are parsed successfully."""
+        row = pd.Series(
+            {
+                "starting_prompt": "I want a laptop.",
+                "conversation_plan": "Ask for a laptop",
+                "session_inputs": json.dumps({"user_id": "u1"}),
+            }
+        )
+        mock_agent = mock.Mock()
+
+        mock_invocation = mock.Mock()
+        mock_invocation.invocation_id = "turn_123"
+        mock_invocation.creation_timestamp = 1771811084.88
+        mock_invocation.user_content.model_dump.return_value = {
+            "parts": [{"text": "I want a laptop."}],
+            "role": "user",
+        }
+        mock_event_1 = mock.Mock()
+        mock_event_1.author = "ecommerce_agent"
+        mock_event_1.content.model_dump.return_value = {
+            "parts": [
+                {
+                    "function_call": {
+                        "name": "search_products",
+                        "args": {"query": "laptop"},
+                    }
+                }
+            ]
+        }
+        mock_event_2 = mock.Mock()
+        mock_event_2.author = "ecommerce_agent"
+        mock_event_2.content.model_dump.return_value = {
+            "parts": [
+                {
+                    "function_response": {
+                        "name": "search_products",
+                        "response": {"products": []},
+                    }
+                }
+            ]
+        }
+
+        mock_invocation.intermediate_data.invocation_events = [
+            mock_event_1,
+            mock_event_2,
+        ]
+        mock_invocation.final_response.model_dump.return_value = {
+            "parts": [{"text": "There are no laptops matching your search."}],
+            "role": "model",
+        }
+        mock_generator._generate_inferences_from_root_agent = mock.AsyncMock(
+            return_value=[mock_invocation]
+        )
+        turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+
+        assert len(turns) == 1
+        turn = turns[0]
+        assert turn["turn_index"] == 0
+        assert turn["turn_id"] == "turn_123"
+        assert len(turn["events"]) == 4
+        assert turn["events"][0]["author"] == "user"
+        assert turn["events"][0]["content"]["parts"][0]["text"] == "I want a laptop."
+        assert turn["events"][1]["author"] == "ecommerce_agent"
+        assert "function_call" in turn["events"][1]["content"]["parts"][0]
+        assert turn["events"][2]["author"] == "ecommerce_agent"
+        assert "function_response" in turn["events"][2]["content"]["parts"][0]
+        assert turn["events"][3]["author"] == "agent"
+        assert (
+            turn["events"][3]["content"]["parts"][0]["text"]
+            == "There are no laptops matching your search."
+        )
+        mock_invocation.user_content.model_dump.assert_called_with(mode="json")
+        mock_event_1.content.model_dump.assert_called_with(mode="json")
+        mock_invocation.final_response.model_dump.assert_called_with(mode="json")
 
     @mock.patch.object(_evals_common, "_run_agent")
     def test_run_agent_internal_malformed_event(self, mock_run_agent):
@@ -1913,6 +2028,28 @@ class TestRunAgentInternal:
         response_content = result_df["response"][0]
         assert "Failed to parse agent run response" in response_content
         assert not result_df["intermediate_events"][0]
+
+
+class TestIsMultiTurnAgentRun:
+    """Unit tests for the _is_multi_turn_agent_run function."""
+
+    def test_is_multi_turn_agent_run_with_config(self):
+        config = vertexai_genai_types.evals.UserSimulatorConfig(model_name="gemini-pro")
+        assert _evals_common._is_multi_turn_agent_run(
+            user_simulator_config=config, prompt_dataset=pd.DataFrame()
+        )
+
+    def test_is_multi_turn_agent_run_with_conversation_plan(self):
+        prompt_dataset = pd.DataFrame({"conversation_plan": ["plan"]})
+        assert _evals_common._is_multi_turn_agent_run(
+            user_simulator_config=None, prompt_dataset=prompt_dataset
+        )
+
+    def test_is_multi_turn_agent_run_false(self):
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt"]})
+        assert not _evals_common._is_multi_turn_agent_run(
+            user_simulator_config=None, prompt_dataset=prompt_dataset
+        )
 
 
 class TestMetricPromptBuilder:
@@ -4056,7 +4193,7 @@ class TestPredefinedMetricHandler:
         )
 
         assert agent_data.agent_config.developer_instruction.text == "instruction1"
-        assert agent_data.agent_config.tools.tool == [tool]
+        assert agent_data.agent_config.legacy_tools.tool == [tool]
         assert agent_data.events.event[0].parts[0].text == "intermediate event"
 
     def test_eval_case_to_agent_data_events_only(self):
@@ -4164,7 +4301,7 @@ class TestPredefinedMetricHandler:
         )
 
         assert agent_data.agent_config.developer_instruction.text == "instruction1"
-        assert not agent_data.agent_config.tools.tool
+        assert not agent_data.agent_config.legacy_tools.tool
 
     def test_eval_case_to_agent_data_agent_info_empty(self):
         intermediate_events = [
@@ -4225,6 +4362,124 @@ class TestPredefinedMetricHandler:
             "Metric 'tool_use_quality_v1' requires tool usage in "
             "'intermediate_events', but no tool usage was found for case %s.",
             "case-no-tool-call",
+        )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestRunAdkUserSimulation:
+    """Unit tests for the _run_adk_user_simulation function."""
+
+    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    @pytest.mark.asyncio
+    async def test_run_adk_user_simulation_success(
+        self,
+        mock_config_cls,
+        mock_scenario_cls,
+        mock_simulator_cls,
+        mock_generator_cls,
+        mock_session_input_cls,
+    ):
+        row = pd.Series(
+            {
+                "starting_prompt": "start",
+                "conversation_plan": "plan",
+                "session_inputs": json.dumps({"user_id": "u1"}),
+            }
+        )
+        mock_agent = mock.Mock()
+        mock_invocation = mock.Mock()
+        mock_invocation.user_content.model_dump.return_value = {"text": "user msg"}
+        mock_invocation.final_response.model_dump.return_value = {"text": "agent msg"}
+        mock_invocation.intermediate_data = None
+        mock_invocation.creation_timestamp = 12345
+        mock_invocation.invocation_id = "turn1"
+
+        mock_generator_cls._generate_inferences_from_root_agent = mock.AsyncMock(
+            return_value=[mock_invocation]
+        )
+
+        turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+
+        assert len(turns) == 1
+        turn = turns[0]
+        assert turn["turn_index"] == 0
+        assert turn["turn_id"] == "turn1"
+        assert len(turn["events"]) == 2
+        assert turn["events"][0]["author"] == "user"
+        assert turn["events"][0]["content"] == {"text": "user msg"}
+        assert turn["events"][1]["author"] == "agent"
+        assert turn["events"][1]["content"] == {"text": "agent msg"}
+
+        mock_scenario_cls.assert_called_once_with(
+            starting_prompt="start", conversation_plan="plan"
+        )
+        mock_session_input_cls.assert_called_once()
+
+    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    @pytest.mark.asyncio
+    async def test_run_adk_user_simulation_missing_columns(
+        self,
+        mock_config_cls,
+        mock_scenario_cls,
+        mock_simulator_cls,
+        mock_generator_cls,
+        mock_session_input_cls,
+    ):
+        row = pd.Series({"conversation_plan": "plan"})
+        mock_agent = mock.Mock()
+
+        with pytest.raises(ValueError, match="User simulation requires"):
+            await _evals_common._run_adk_user_simulation(row, mock_agent)
+
+    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    @pytest.mark.asyncio
+    async def test_run_adk_user_simulation_missing_session_inputs(
+        self,
+        mock_config_cls,
+        mock_scenario_cls,
+        mock_simulator_cls,
+        mock_generator_cls,
+        mock_session_input_cls,
+    ):
+        row = pd.Series(
+            {
+                "starting_prompt": "start",
+                "conversation_plan": "plan",
+            }
+        )
+        mock_agent = mock.Mock()
+        mock_invocation = mock.Mock()
+        mock_invocation.user_content.model_dump.return_value = {"text": "user msg"}
+        mock_invocation.final_response.model_dump.return_value = {"text": "agent msg"}
+        mock_invocation.intermediate_data = None
+        mock_invocation.creation_timestamp = 12345
+        mock_invocation.invocation_id = "turn1"
+
+        mock_generator_cls._generate_inferences_from_root_agent = mock.AsyncMock(
+            return_value=[mock_invocation]
+        )
+
+        await _evals_common._run_adk_user_simulation(row, mock_agent)
+
+        mock_scenario_cls.assert_called_once_with(
+            starting_prompt="start", conversation_plan="plan"
+        )
+        mock_session_input_cls.assert_called_once_with(
+            app_name="user_simulation_app",
+            user_id="user_simulation_default_user",
+            state={},
         )
 
 
@@ -5500,3 +5755,70 @@ class TestEvaluationDataset:
                 }
             ),
         )
+
+
+class TestEvalsGenerateUserScenarios(unittest.TestCase):
+    """Unit tests for the Evals generate_user_scenarios method."""
+
+    def setUp(self):
+        self.addCleanup(mock.patch.stopall)
+        self.mock_client = mock.MagicMock(spec=client.Client)
+        self.mock_client.vertexai = True
+        self.mock_api_client = mock.MagicMock()
+        self.mock_client._api_client = self.mock_api_client
+
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "userScenarios": [
+                    {"startingPrompt": "Prompt 1", "conversationPlan": "Plan 1"},
+                    {"startingPrompt": "Prompt 2", "conversationPlan": "Plan 2"},
+                ]
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_generate_user_scenarios(self):
+        """Tests that generate_user_scenarios correctly calls the API and parses the response."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        eval_dataset = evals_module.generate_user_scenarios(
+            agents={"agent_1": {}},
+            user_scenario_generation_config={"user_scenario_count": 2},
+            root_agent_id="agent_1",
+        )
+        assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(eval_dataset.eval_cases) == 2
+        assert eval_dataset.eval_cases[0].user_scenario.starting_prompt == "Prompt 1"
+        assert eval_dataset.eval_cases[0].user_scenario.conversation_plan == "Plan 1"
+        assert eval_dataset.eval_cases[1].user_scenario.starting_prompt == "Prompt 2"
+        assert eval_dataset.eval_cases[1].user_scenario.conversation_plan == "Plan 2"
+
+        assert eval_dataset.eval_dataset_df is not None
+        assert len(eval_dataset.eval_dataset_df) == 2
+        assert eval_dataset.eval_dataset_df.iloc[0]["starting_prompt"] == "Prompt 1"
+
+        self.mock_api_client.request.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_async_generate_user_scenarios(self):
+        """Tests that async generate_user_scenarios correctly calls the API and parses the response."""
+
+        self.mock_api_client.async_request = mock.AsyncMock(
+            return_value=self.mock_response
+        )
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        eval_dataset = await async_evals_module.generate_user_scenarios(
+            agents={"agent_1": {}},
+            user_scenario_generation_config={"user_scenario_count": 2},
+            root_agent_id="agent_1",
+        )
+        assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
+        assert len(eval_dataset.eval_cases) == 2
+        assert eval_dataset.eval_cases[0].user_scenario.starting_prompt == "Prompt 1"
+
+        assert eval_dataset.eval_dataset_df is not None
+        assert len(eval_dataset.eval_dataset_df) == 2
+
+        self.mock_api_client.async_request.assert_called_once()

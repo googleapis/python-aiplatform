@@ -61,13 +61,13 @@ except ImportError:  # pragma: NO COVER
 
 _LOGGER = std_logging.getLogger(__name__)
 
-from google.api_core import operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+import google.api_core.operation as operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 from .transports.base import EvaluationServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import EvaluationServiceGrpcTransport
 from .transports.grpc_asyncio import EvaluationServiceGrpcAsyncIOTransport
@@ -873,12 +873,16 @@ class EvaluationServiceClient(metaclass=EvaluationServiceClientMeta):
                 dataset = aiplatform_v1beta1.EvaluationDataset()
                 dataset.gcs_source.uris = ['uris_value1', 'uris_value2']
 
+                metrics = aiplatform_v1beta1.Metric()
+                metrics.predefined_metric_spec.metric_spec_name = "metric_spec_name_value"
+
                 output_config = aiplatform_v1beta1.OutputConfig()
                 output_config.gcs_destination.output_uri_prefix = "output_uri_prefix_value"
 
                 request = aiplatform_v1beta1.EvaluateDatasetRequest(
                     location="location_value",
                     dataset=dataset,
+                    metrics=metrics,
                     output_config=output_config,
                 )
 
@@ -910,7 +914,8 @@ class EvaluationServiceClient(metaclass=EvaluationServiceClientMeta):
 
                 The result type for the operation will be
                 :class:`google.cloud.aiplatform_v1beta1.types.EvaluateDatasetResponse`
-                Response in LRO for EvaluationService.EvaluateDataset.
+                The results from an evaluation run performed by the
+                EvaluationService.
 
         """
         # Create or coerce a protobuf request object.

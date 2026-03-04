@@ -26,7 +26,7 @@ from google.cloud.aiplatform_v1.types import execution as gca_execution
 from google.cloud.aiplatform_v1.types import metadata_schema as gca_metadata_schema
 from google.cloud.aiplatform_v1.types import metadata_store as gca_metadata_store
 from google.cloud.aiplatform_v1.types import operation
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

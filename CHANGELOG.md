@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.139.0](https://github.com/googleapis/python-aiplatform/compare/v1.138.0...v1.139.0) (2026-02-24)
+
+
+### Features
+
+* Add `max_concurrent_active_run_count` support to Scheduled Pipelines client GA. ([a204e74](https://github.com/googleapis/python-aiplatform/commit/a204e742a5bf398cd65f47508c04500432d3d884))
+* GenAI Client(evals) - update SDK type definitions for Agent Data ([6ac28a5](https://github.com/googleapis/python-aiplatform/commit/6ac28a546218feb6c3cd1d29f36cd9e980eba778))
+
+## [1.138.0](https://github.com/googleapis/python-aiplatform/compare/v1.137.0...v1.138.0) (2026-02-17)
+
+
+### Features
+
+* Add support for BYO-dockerfile in AE deployment ([7572601](https://github.com/googleapis/python-aiplatform/commit/7572601e4eb15167c3c6965039994d4f0c069d67))
+* GenAI SDK client - Make operation polling interval configurable when creating agent engine sandbox ([bf9e0ff](https://github.com/googleapis/python-aiplatform/commit/bf9e0ffbdb9d4c08817cb54d46f6b22f968f077d))
+* GenAI SDK client(multimodal) - Support Assess Batch Prediction Resources for the multimodal datasets. ([0fe5314](https://github.com/googleapis/python-aiplatform/commit/0fe5314995cb07388408587ed843fb5586b797b0))
+* GenAI SDK client(multimodal) - Support Assess Batch Prediction Validity for the multimodal datasets. ([a63e8d5](https://github.com/googleapis/python-aiplatform/commit/a63e8d5980cec5851c933e8f446e63b5ca847df5))
+* GenAI SDK client(multimodal) - Support Assess Tuning Validity for multimodal dataset. ([12f5aa5](https://github.com/googleapis/python-aiplatform/commit/12f5aa5799d8e342d8fdf2d1a2b14dc8e05aa0da))
+* Update the ADK template to export logs directly to Cloud Logging when OTEL_SEMCONV_STABILITY_OPT_IN is set to "gen_ai_latest_experimental". ([82db4ad](https://github.com/googleapis/python-aiplatform/commit/82db4adcf5900bd9bb38f1d7a6949e0cc09a05cd))
+
+
+### Bug Fixes
+
+* Refactor session retrieval fallback in _streaming_agent_run_with_events. ([8aec754](https://github.com/googleapis/python-aiplatform/commit/8aec75496dc0aab66dec7012ac6e9f3272ffccfd))
+
+## [1.137.0](https://github.com/googleapis/python-aiplatform/compare/v1.136.0...v1.137.0) (2026-02-11)
+
+
+### Features
+
+* Add filter_groups to PurgeMemories for metadata-based filtering ([6907f89](https://github.com/googleapis/python-aiplatform/commit/6907f89be1fa40a29f779fa79b785513248e35d6))
+* Deprecate prompt_optimizer.optimize and prompt_optimizer.optimize_prompt in favor of prompts.launch_optimization_job and prompts.optimize ([ff811f5](https://github.com/googleapis/python-aiplatform/commit/ff811f5dc2bb82eec2a38c5fe6d69961e9bbe78b))
+
+
+### Bug Fixes
+
+* Use GOOGLE_CLOUD_AGENT_ENGINE_LOCATION env var for service locations. ([04aacbb](https://github.com/googleapis/python-aiplatform/commit/04aacbb76c0ce0280daf5a4cd4fd5496e8d3f5e1))
+
 ## [1.136.0](https://github.com/googleapis/python-aiplatform/compare/v1.135.0...v1.136.0) (2026-02-04)
 
 
