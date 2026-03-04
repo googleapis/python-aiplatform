@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+import pytest
 
 
 def test_create_simple_a2a_task(client):
@@ -94,3 +95,78 @@ pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_create_simple_a2a_task_async(client):
+    # Use the autopush environment.
+    client.aio._api_client._http_options.base_url = (
+        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+    )
+    agent_engine = client.agent_engines.create()
+    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    # Use the internal API version for internal API access.
+    client.aio._api_client._http_options.api_version = "internal"
+
+    task = await client.aio.agent_engines.a2a_tasks.create(
+        name=agent_engine.api_resource.name,
+        a2a_task_id="task123",
+        config=types.CreateAgentEngineTaskConfig(
+            context_id="context123",
+            metadata={
+                "key": "value",
+                "key2": [{"key3": "value3", "key4": "value4"}],
+            },
+            status_details=types.TaskStatusDetails(
+                task_message=types.TaskMessage(
+                    role="user",
+                    message_id="message123",
+                    parts=[
+                        types.Part(
+                            text="hello123",
+                        )
+                    ],
+                    metadata={
+                        "key42": "value42",
+                    },
+                ),
+            ),
+            output=types.TaskOutput(
+                artifacts=[
+                    types.TaskArtifact(
+                        artifact_id="artifact123",
+                        display_name="display_name123",
+                        description="description123",
+                        parts=[
+                            types.Part(
+                                text="hello456",
+                            )
+                        ],
+                    )
+                ],
+            ),
+        ),
+    )
+
+    assert isinstance(task, types.A2aTask)
+    assert task.name == f"{agent_engine.api_resource.name}/a2aTasks/task123"
+    assert task.context_id == "context123"
+    assert task.state == types.State.SUBMITTED
+    assert task.status_details.task_message.role == "user"
+    assert task.status_details.task_message.message_id == "message123"
+    assert task.status_details.task_message.parts[0].text == "hello123"
+    assert task.status_details.task_message.metadata["key42"] == "value42"
+    assert task.output.artifacts[0].artifact_id == "artifact123"
+    assert task.output.artifacts[0].display_name == "display_name123"
+    assert task.output.artifacts[0].description == "description123"
+    assert task.output.artifacts[0].parts[0].text == "hello456"
+    assert task.metadata == {
+        "key": "value",
+        "key2": [{"key3": "value3", "key4": "value4"}],
+    }
+
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)

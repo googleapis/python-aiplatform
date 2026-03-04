@@ -84,7 +84,11 @@ def _AgentEngineMemoryConfig_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
 
     return to_object
 
@@ -163,7 +167,11 @@ def _GenerateAgentEngineMemoriesConfig_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
 
     if getv(from_object, ["metadata_merge_strategy"]) is not None:
         setv(
@@ -447,7 +455,11 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(

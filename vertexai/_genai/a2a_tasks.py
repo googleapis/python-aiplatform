@@ -27,7 +27,7 @@ from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
-from google.genai.pagers import Pager
+from google.genai.pagers import AsyncPager, Pager
 
 from . import types
 
@@ -591,3 +591,45 @@ class AsyncA2aTasks(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    _events = None
+
+    async def list(
+        self,
+        *,
+        name: str,
+        config: Optional[types.ListAgentEngineTasksConfigOrDict] = None,
+    ) -> AsyncPager[types.A2aTask]:
+        """Lists the A2A tasks of an Agent Engine.
+
+        Args:
+            name (str):
+                Required. The name of the agent engine to list tasks for.
+            config (List):
+                Optional. The configuration for the tasks to list.
+
+        Returns:
+            AsyncPager[A2aTask]: An async pager of A2A tasks.
+        """
+
+        return AsyncPager(
+            "a2aTasks",
+            functools.partial(self._list, name=name),
+            await self._list(name=name, config=config),
+            config,
+        )
+
+    @property
+    def events(self) -> "a2a_task_events_module.AsyncA2aTaskEvents":
+        if self._events is None:
+            try:
+                # We need to lazy load the events module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._events = importlib.import_module(".a2a_task_events", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.a2a_tasks.events' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._events.AsyncA2aTaskEvents(self._api_client)  # type: ignore[no-any-return]

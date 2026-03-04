@@ -4439,6 +4439,49 @@ class TestRunAdkUserSimulation:
         with pytest.raises(ValueError, match="User simulation requires"):
             await _evals_common._run_adk_user_simulation(row, mock_agent)
 
+    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
+    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    @pytest.mark.asyncio
+    async def test_run_adk_user_simulation_missing_session_inputs(
+        self,
+        mock_config_cls,
+        mock_scenario_cls,
+        mock_simulator_cls,
+        mock_generator_cls,
+        mock_session_input_cls,
+    ):
+        row = pd.Series(
+            {
+                "starting_prompt": "start",
+                "conversation_plan": "plan",
+            }
+        )
+        mock_agent = mock.Mock()
+        mock_invocation = mock.Mock()
+        mock_invocation.user_content.model_dump.return_value = {"text": "user msg"}
+        mock_invocation.final_response.model_dump.return_value = {"text": "agent msg"}
+        mock_invocation.intermediate_data = None
+        mock_invocation.creation_timestamp = 12345
+        mock_invocation.invocation_id = "turn1"
+
+        mock_generator_cls._generate_inferences_from_root_agent = mock.AsyncMock(
+            return_value=[mock_invocation]
+        )
+
+        await _evals_common._run_adk_user_simulation(row, mock_agent)
+
+        mock_scenario_cls.assert_called_once_with(
+            starting_prompt="start", conversation_plan="plan"
+        )
+        mock_session_input_cls.assert_called_once_with(
+            app_name="user_simulation_app",
+            user_id="user_simulation_default_user",
+            state={},
+        )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLLMMetricHandlerPayload:

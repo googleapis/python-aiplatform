@@ -2484,6 +2484,48 @@ class EvaluationRunMetricDict(TypedDict, total=False):
 EvaluationRunMetricOrDict = Union[EvaluationRunMetric, EvaluationRunMetricDict]
 
 
+class EvaluationRunPromptTemplate(_common.BaseModel):
+    """Prompt template used for inference.
+
+    Only one of `prompt_template` or `gcs_uri` should be set. If both are
+    provided, an error will be raised.
+    """
+
+    prompt_template: Optional[str] = Field(
+        default=None,
+        description="""Inline prompt template. Template variables should be in the format
+      "{var_name}". Only one of `prompt_template` or `gcs_uri` should be set.""",
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Prompt template stored in Cloud Storage. Format:
+      "gs://my-bucket/file-name.txt". Only one of `prompt_template` or `gcs_uri`
+      should be set.""",
+    )
+
+
+class EvaluationRunPromptTemplateDict(TypedDict, total=False):
+    """Prompt template used for inference.
+
+    Only one of `prompt_template` or `gcs_uri` should be set. If both are
+    provided, an error will be raised.
+    """
+
+    prompt_template: Optional[str]
+    """Inline prompt template. Template variables should be in the format
+      "{var_name}". Only one of `prompt_template` or `gcs_uri` should be set."""
+
+    gcs_uri: Optional[str]
+    """Prompt template stored in Cloud Storage. Format:
+      "gs://my-bucket/file-name.txt". Only one of `prompt_template` or `gcs_uri`
+      should be set."""
+
+
+EvaluationRunPromptTemplateOrDict = Union[
+    EvaluationRunPromptTemplate, EvaluationRunPromptTemplateDict
+]
+
+
 class EvaluationRunConfig(_common.BaseModel):
     """The evaluation configuration used for the evaluation run."""
 
@@ -2496,6 +2538,9 @@ class EvaluationRunConfig(_common.BaseModel):
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None, description="""The autorater config for the evaluation run."""
+    )
+    prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
+        default=None, description="""The prompt template used for inference."""
     )
 
 
@@ -2510,6 +2555,9 @@ class EvaluationRunConfigDict(TypedDict, total=False):
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
     """The autorater config for the evaluation run."""
+
+    prompt_template: Optional[EvaluationRunPromptTemplateDict]
+    """The prompt template used for inference."""
 
 
 EvaluationRunConfigOrDict = Union[EvaluationRunConfig, EvaluationRunConfigDict]
@@ -3236,6 +3284,9 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
         default=None,
         description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
     )
+    prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
+        default=None, description="""The prompt template used for inference."""
+    )
     user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
         default=None,
         description="""Used for multi-turn agent run.
@@ -3255,6 +3306,9 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
 
     model: Optional[str]
     """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+    prompt_template: Optional[EvaluationRunPromptTemplateDict]
+    """The prompt template used for inference."""
 
     user_simulator_config: Optional[evals_types.UserSimulatorConfig]
     """Used for multi-turn agent run.

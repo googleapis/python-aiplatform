@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+import pytest
 
 
 def test_append_simple_a2a_task_events(client):
@@ -57,3 +58,41 @@ pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
 )
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_append_simple_a2a_task_events_async(client):
+    # Use the autopush environment.
+    client.aio._api_client._http_options.base_url = (
+        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
+    )
+    agent_engine = client.agent_engines.create()
+    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+    # Use the internal API version for internal API access.
+    client.aio._api_client._http_options.api_version = "internal"
+    task = await client.aio.agent_engines.a2a_tasks.create(
+        name=agent_engine.api_resource.name,
+        a2a_task_id="task123",
+        config=types.CreateAgentEngineTaskConfig(context_id="context123"),
+    )
+    assert isinstance(task, types.A2aTask)
+
+    await client.aio.agent_engines.a2a_tasks.events.append(
+        name=task.name,
+        task_events=[
+            types.TaskEvent(
+                event_data=types.TaskEventData(
+                    metadata_change=types.TaskMetadataChange(
+                        new_metadata={"key1": "value1"}
+                    )
+                ),
+                event_sequence_number=1,
+            )
+        ],
+    )
+
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
