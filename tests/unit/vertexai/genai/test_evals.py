@@ -1387,6 +1387,11 @@ class TestEvalsRunInference:
         )
 
         mock_agent_instance = mock.Mock()
+        mock_agent_instance.name = "mock_agent"
+        mock_agent_instance.description = "mock description"
+        mock_agent_instance.instruction = "mock instruction"
+        mock_agent_instance.tools = []
+        mock_agent_instance.sub_agents = []
         mock_llm_agent.return_value = mock_agent_instance
         mock_session_service.return_value.create_session = mock.AsyncMock()
         mock_runner_instance = mock_runner.return_value
@@ -1913,6 +1918,35 @@ class TestRunAgentInternal:
             {"turn_index": 0, "turn_id": "t1", "events": []},
             {"turn_index": 1, "turn_id": "t2", "events": []},
         ]
+
+    @mock.patch.object(_evals_common, "_run_agent")
+    def test_run_agent_internal_multi_turn_with_agent(self, mock_run_agent):
+        mock_run_agent.return_value = [
+            [
+                {"turn_index": 0, "turn_id": "t1", "events": []},
+            ]
+        ]
+        prompt_dataset = pd.DataFrame({"prompt": ["p1"], "conversation_plan": ["plan"]})
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.description = "mock description"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.tools = []
+        mock_agent.sub_agents = []
+        mock_api_client = mock.Mock()
+        result_df = _evals_common._run_agent_internal(
+            api_client=mock_api_client,
+            agent_engine=None,
+            agent=mock_agent,
+            prompt_dataset=prompt_dataset,
+        )
+
+        assert "agent_data" in result_df.columns
+        agent_data = result_df["agent_data"][0]
+        assert agent_data["turns"] == [
+            {"turn_index": 0, "turn_id": "t1", "events": []},
+        ]
+        assert "mock_agent" in agent_data["agents"]
 
     @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
     @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip

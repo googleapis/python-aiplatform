@@ -1603,18 +1603,25 @@ def _run_agent_internal(
     processed_intermediate_events = []
     processed_responses = []
     processed_agent_data = []
+    agent_data_agents = None
+    if agent:
+        agent_data_agents = types.evals.AgentData._get_agents_map(agent)
 
     for resp_item in raw_responses:
         intermediate_events_row: list[dict[str, Any]] = []
-        response_row = None
-        agent_data_row = None
+        response_row: Optional[Union[str, dict[str, Any]]] = None
+        agent_data_row: Optional[Union[str, dict[str, Any]]] = None
 
         if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
             if isinstance(resp_item, dict) and "error" in resp_item:
-                response_row = json.dumps(resp_item)
+                agent_data_row = json.dumps(resp_item)
             else:
                 # TODO: Migrate single turn agent run result to AgentData.
-                agent_data_row = types.evals.AgentData(turns=resp_item).model_dump()
+                agent_data_row = types.evals.AgentData(
+                    turns=resp_item,
+                    agents=agent_data_agents,
+                ).model_dump()
+
         else:
             if isinstance(resp_item, list):
                 try:
