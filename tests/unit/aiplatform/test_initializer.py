@@ -47,6 +47,10 @@ _TEST_STAGING_BUCKET = "test-bucket"
 _TEST_NETWORK = "projects/12345/global/networks/myVPC"
 _TEST_SERVICE_ACCOUNT = "test-service-account@test-project.iam.gserviceaccount.com"
 
+_TEST_LOCATION_TPC = "u-us-prp1"
+_TEST_ENDPOINT_TPC = "u-us-prp1-aiplatform.apis-tpczero.goog"
+_TEST_UNIVERSE_TPC = "apis-tpczero.goog"
+
 # tensorboard
 _TEST_TENSORBOARD_ID = "1028944691210842416"
 _TEST_TENSORBOARD_NAME = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/tensorboards/{_TEST_TENSORBOARD_ID}"
@@ -546,6 +550,73 @@ class TestInit:
             headers = call_kwargs["headers"]
             for metadata_key in ["global_param", "request_param"]:
                 assert metadata_key in headers
+
+    def test_init_with_universe_domain(self):
+        """Test that aiplatform.init supports universe_domain."""
+        initializer.global_config.init(
+            project=_TEST_PROJECT, universe_domain=_TEST_UNIVERSE_TPC
+        )
+        assert initializer.global_config.universe_domain == _TEST_UNIVERSE_TPC
+
+    def test_get_client_options_with_universe_domain(self):
+        """Test that ClientOptions correctly inherits universe_domain."""
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location="us-central1",
+            universe_domain=_TEST_UNIVERSE_TPC,
+        )
+        client_options = initializer.global_config.get_client_options()
+        assert client_options.universe_domain == _TEST_UNIVERSE_TPC
+        assert (
+            client_options.api_endpoint == f"us-central1-aiplatform.{_TEST_UNIVERSE_TPC}"
+        )
+
+    def test_init_tpc_success(self):
+        """Test that aiplatform.init succeeds with TPC parameters."""
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION_TPC,
+            api_endpoint=_TEST_ENDPOINT_TPC,
+            universe_domain=_TEST_UNIVERSE_TPC,
+        )
+        assert initializer.global_config.location == _TEST_LOCATION_TPC
+
+    def test_get_impersonated_credentials_tpc(self):
+        """Test impersonated credentials for TPC."""
+        info = {
+            "type": "impersonated_service_account",
+            "source_credentials": {
+                "type": "external_account_authorized_user",
+                "token_url": "https://sts.apis-tpczero.goog/v1/oauth/token",
+            },
+            "service_account_impersonation_url": (
+                "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/test-sa@test.iam.gserviceaccount.com:generateAccessToken"
+            ),
+            "universe_domain": _TEST_UNIVERSE_TPC,
+        }
+
+        with mock.patch(
+            "google.auth._default._get_external_account_authorized_user_credentials"
+        ) as mock_get_ext:
+            mock_source_creds = mock.Mock()
+            mock_get_ext.return_value = (mock_source_creds, None)
+
+            with mock.patch(
+                "google.auth.impersonated_credentials.Credentials"
+            ) as mock_imp_creds:
+                # pylint: disable=protected-access
+                google.auth._default._get_impersonated_service_account_credentials(
+                    "fake-file", info, ["scope"]
+                )
+
+                # Verify that iam_endpoint_override was set correctly for TPC
+                _, kwargs = mock_imp_creds.call_args
+                target_principal = "test-sa@test.iam.gserviceaccount.com"
+                expected_iam_endpoint = (
+                    f"https://iamcredentials.{_TEST_UNIVERSE_TPC}/v1/projects/"
+                    f"-/serviceAccounts/{target_principal}:generateAccessToken"
+                )
+                assert kwargs["iam_endpoint_override"] == expected_iam_endpoint
 
 
 class TestThreadPool:

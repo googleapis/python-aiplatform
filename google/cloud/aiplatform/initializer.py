@@ -133,6 +133,7 @@ class _Config:
         self._request_metadata = None
         self._resource_type = None
         self._async_rest_credentials = None
+        self._universe_domain = None
 
     def init(
         self,
@@ -153,6 +154,7 @@ class _Config:
         api_key: Optional[str] = None,
         api_transport: Optional[str] = None,
         request_metadata: Optional[Sequence[Tuple[str, str]]] = None,
+        universe_domain: Optional[str] = None,
     ):
         """Updates common initialization parameters with provided options.
 
@@ -220,6 +222,8 @@ class _Config:
                 beta state (preview).
             request_metadata:
                 Optional. Additional gRPC metadata to send with every client request.
+            universe_domain (str):
+                Optional. The universe domain.
         Raises:
             ValueError:
                 If experiment_description is provided but experiment is not.
@@ -291,6 +295,8 @@ class _Config:
             self._request_metadata = request_metadata
         if api_key is not None:
             self._api_key = api_key
+        if universe_domain is not None:
+            self._universe_domain = universe_domain
         self._resource_type = None
 
         # Finally, perform secondary state updates
@@ -349,6 +355,11 @@ class _Config:
         return self._api_key
 
     @property
+    def universe_domain(self) -> Optional[str]:
+        """Default universe domain, if provided."""
+        return self._universe_domain
+
+    @property
     def project(self) -> str:
         """Default project."""
         if self._project:
@@ -382,7 +393,11 @@ class _Config:
 
         location = os.getenv("GOOGLE_CLOUD_REGION") or os.getenv("CLOUD_ML_REGION")
         if location:
-            utils.validate_region(location)
+            utils.validate_region(
+                location,
+                api_endpoint=self.api_endpoint,
+                universe_domain=self.universe_domain,
+            )
             return location
 
         return constants.DEFAULT_REGION
@@ -449,6 +464,7 @@ class _Config:
         api_base_path_override: Optional[str] = None,
         api_key: Optional[str] = None,
         api_path_override: Optional[str] = None,
+        universe_domain: Optional[str] = None,
     ) -> client_options.ClientOptions:
         """Creates GAPIC client_options using location and type.
 
@@ -461,6 +477,7 @@ class _Config:
             api_base_path_override (str): Optional. Override default API base path.
             api_key (str): Optional. API key to use for the client.
             api_path_override (str): Optional. Override default api path.
+            universe_domain (str): Optional. Override default universe domain.
         Returns:
             clients_options (google.api_core.client_options.ClientOptions):
                 A ClientOptions object set with regionalized API endpoint, i.e.
@@ -491,13 +508,28 @@ class _Config:
             region = location_override or self.location
             region = region.lower()
 
-            utils.validate_region(region)
+            utils.validate_region(
+                region,
+                api_endpoint=self.api_endpoint,
+                universe_domain=universe_domain or self.universe_domain,
+            )
 
             service_base_path = api_base_path_override or (
                 constants.PREDICTION_API_BASE_PATH
                 if prediction_client
                 else constants.API_BASE_PATH
             )
+
+            current_universe_domain = (
+                universe_domain
+                or self.universe_domain
+                or constants.DEFAULT_UNIVERSE_DOMAIN
+            )
+
+            if not api_base_path_override and current_universe_domain != "googleapis.com":
+                service_base_path = service_base_path.replace(
+                    "googleapis.com", current_universe_domain
+                )
 
             api_endpoint = (
                 f"{region}-{service_base_path}"
@@ -508,9 +540,14 @@ class _Config:
         # Project/location take precedence over api_key
         if api_key and not self._project:
             return client_options.ClientOptions(
-                api_endpoint=api_endpoint, api_key=api_key
+                api_endpoint=api_endpoint,
+                api_key=api_key,
+                universe_domain=universe_domain or self.universe_domain,
             )
-        return client_options.ClientOptions(api_endpoint=api_endpoint)
+        return client_options.ClientOptions(
+            api_endpoint=api_endpoint,
+            universe_domain=universe_domain or self.universe_domain,
+        )
 
     def common_location_path(
         self, project: Optional[str] = None, location: Optional[str] = None
@@ -524,7 +561,11 @@ class _Config:
             resource_parent: Formatted parent resource string.
         """
         if location:
-            utils.validate_region(location)
+            utils.validate_region(
+                location,
+                api_endpoint=self.api_endpoint,
+                universe_domain=self.universe_domain,
+            )
 
         return "/".join(
             [
@@ -546,6 +587,7 @@ class _Config:
         api_path_override: Optional[str] = None,
         appended_user_agent: Optional[List[str]] = None,
         appended_gapic_version: Optional[str] = None,
+        universe_domain: Optional[str] = None,
     ) -> _TVertexAiServiceClientWithOverride:
         """Instantiates a given VertexAiServiceClient with optional
         overrides.
@@ -565,6 +607,8 @@ class _Config:
                 separated by spaces.
             appended_gapic_version (str):
                 Optional. GAPIC version suffix appended in the client info.
+            universe_domain (str):
+                Optional. universe domain override.
         Returns:
             client: Instantiated Vertex AI Service client with optional overrides
         """
@@ -607,6 +651,7 @@ class _Config:
                 api_key=api_key,
                 api_base_path_override=api_base_path_override,
                 api_path_override=api_path_override,
+                universe_domain=universe_domain,
             ),
             "client_info": client_info,
         }
