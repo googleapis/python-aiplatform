@@ -1914,6 +1914,13 @@ class CandidateResponse(_common.BaseModel):
         default=None,
         description="""Intermediate events (such as tool calls and responses) that led to the final response.""",
     )
+    agent_data: Optional[evals_types.AgentData] = Field(
+        default=None,
+        description="""Represents the complete execution trace of an anget conversation,
+      which can involve single or multiple agents. This field is used to
+      provide the full output of an agent's run, including all turns and
+      events, for direct evaluation.""",
+    )
 
 
 class CandidateResponseDict(TypedDict, total=False):
@@ -1930,6 +1937,12 @@ class CandidateResponseDict(TypedDict, total=False):
 
     events: Optional[list[genai_types.ContentDict]]
     """Intermediate events (such as tool calls and responses) that led to the final response."""
+
+    agent_data: Optional[evals_types.AgentData]
+    """Represents the complete execution trace of an anget conversation,
+      which can involve single or multiple agents. This field is used to
+      provide the full output of an agent's run, including all turns and
+      events, for direct evaluation."""
 
 
 CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
@@ -3271,6 +3284,41 @@ EvaluationRunAgentConfigOrDict = Union[
 ]
 
 
+class AgentRunConfig(_common.BaseModel):
+    """Configuration for an Agent Run."""
+
+    session_input: Optional[evals_types.SessionInput] = Field(
+        default=None, description="""The session input to get agent running results."""
+    )
+    agent_engine: Optional[str] = Field(
+        default=None, description="""The resource name of the Agent Engine."""
+    )
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None,
+        description="""Used for multi-turn agent run.
+        Contains configuration for a user simulator that
+        uses an LLM to generate messages on behalf of the user.""",
+    )
+
+
+class AgentRunConfigDict(TypedDict, total=False):
+    """Configuration for an Agent Run."""
+
+    session_input: Optional[evals_types.SessionInput]
+    """The session input to get agent running results."""
+
+    agent_engine: Optional[str]
+    """The resource name of the Agent Engine."""
+
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    """Used for multi-turn agent run.
+        Contains configuration for a user simulator that
+        uses an LLM to generate messages on behalf of the user."""
+
+
+AgentRunConfigOrDict = Union[AgentRunConfig, AgentRunConfigDict]
+
+
 class EvaluationRunInferenceConfig(_common.BaseModel):
     """This field is experimental and may change in future versions.
 
@@ -3287,11 +3335,9 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
     )
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+    agent_run_config: Optional[AgentRunConfig] = Field(
         default=None,
-        description="""Used for multi-turn agent run.
-      Contains configuration for a user simulator that
-      uses an LLM to generate messages on behalf of the user.""",
+        description="""Configuration for Agent Run in evaluation management service.""",
     )
 
 
@@ -3310,10 +3356,8 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
 
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
-    """Used for multi-turn agent run.
-      Contains configuration for a user simulator that
-      uses an LLM to generate messages on behalf of the user."""
+    agent_run_config: Optional[AgentRunConfigDict]
+    """Configuration for Agent Run in evaluation management service."""
 
 
 EvaluationRunInferenceConfigOrDict = Union[

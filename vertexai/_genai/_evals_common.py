@@ -35,6 +35,7 @@ from google.genai._api_client import BaseApiClient
 from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
+from pydantic import ValidationError
 
 from . import _evals_constant
 from . import _evals_data_converters
@@ -2254,7 +2255,48 @@ def _create_evaluation_set_from_dataframe(
             for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
                 if CONTENT in event:
                     intermediate_events.append(event[CONTENT])
-        if _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+
+        agent_data_obj = None
+        if _evals_constant.AGENT_DATA in row:
+            agent_data_val = row[AGENT_DATA]
+            if isinstance(agent_data_val, str):
+                try:
+                    agent_data_val = json.loads(agent_data_val)
+                except json.JSONDecodeError:
+                    pass
+            if isinstance(agent_data_val, dict):
+                try:
+                    agent_data_obj = types.evals.AgentData.model_validate(
+                        agent_data_val
+                    )
+                except ValidationError:
+                    pass
+            elif isinstance(agent_data_val, types.evals.AgentData):
+                agent_data_obj = agent_data_val
+
+        candidate_responses = []
+        if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
+            candidate_responses.append(
+                types.CandidateResponse(
+                    candidate=candidate_name or "Candidate 1",
+                    text=row.get(_evals_constant.RESPONSE) or None,
+                    events=intermediate_events or None,
+                    agent_data=agent_data_obj,
+                )
+            )
+
+        prompt = None
+        if (
+            _evals_constant.STARTING_PROMPT in row
+            and _evals_constant.CONVERSATION_PLAN in row
+        ):
+            prompt = types.EvaluationPrompt(
+                user_scenario=types.evals.UserScenario(
+                    starting_prompt=row[_evals_constant.STARTING_PROMPT],
+                    conversation_plan=row[_evals_constant.CONVERSATION_PLAN],
+                )
+            )
+        elif _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
             values = {}
             if _evals_constant.CONTEXT in row:
                 values[_evals_constant.CONTEXT] = _get_content(
@@ -2273,15 +2315,7 @@ def _create_evaluation_set_from_dataframe(
             )
         elif _evals_constant.PROMPT in row:
             prompt = types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
-        candidate_responses = []
-        if _evals_constant.RESPONSE in row:
-            candidate_responses.append(
-                types.CandidateResponse(
-                    candidate=candidate_name or "Candidate 1",
-                    text=row[_evals_constant.RESPONSE],
-                    events=intermediate_events or None,
-                )
-            )
+
         eval_item_requests.append(
             types.EvaluationItemRequest(
                 prompt=prompt or None,
@@ -2290,7 +2324,9 @@ def _create_evaluation_set_from_dataframe(
                     if _evals_constant.REFERENCE in row
                     else None
                 ),
-                candidate_responses=candidate_responses,
+                candidate_responses=(
+                    candidate_responses if candidate_responses else None
+                ),
             )
         )
     logger.info("Writing evaluation item requests to GCS.")
