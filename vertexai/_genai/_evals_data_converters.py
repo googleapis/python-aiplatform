@@ -447,6 +447,15 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
                         type(agent_data_raw),
                     )
 
+            logger.warning("item: %s", item)
+            logger.warning("prompt: %s", prompt)
+            logger.warning("responses: %s", responses)
+            logger.warning("reference: %s", reference)
+            logger.warning("conversation_history: %s", conversation_history)
+            logger.warning("system_instruction: %s", system_instruction)
+            logger.warning("rubric_groups: %s", rubric_groups)
+            logger.warning("intermediate_events: %s", intermediate_events)
+            logger.warning("agent_data: %s", agent_data)
             eval_case = types.EvalCase(
                 eval_case_id=eval_case_id,
                 prompt=prompt,
