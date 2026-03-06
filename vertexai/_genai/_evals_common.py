@@ -951,7 +951,9 @@ async def _run_adk_user_simulation(
                 {
                     "author": "user",
                     "content": invocation.user_content.model_dump(mode="json"),
-                    "event_time": invocation.creation_timestamp,
+                    "event_time": datetime.datetime.fromtimestamp(
+                        invocation.creation_timestamp, tz=datetime.timezone.utc
+                    ),
                 }
             )
         if invocation.intermediate_data:
@@ -968,7 +970,9 @@ async def _run_adk_user_simulation(
                                 if ie.content
                                 else None
                             ),
-                            "event_time": invocation.creation_timestamp,
+                            "event_time": datetime.datetime.fromtimestamp(
+                                invocation.creation_timestamp, tz=datetime.timezone.utc
+                            ),
                         }
                     )
             elif hasattr(invocation.intermediate_data, "tool_uses"):
@@ -977,7 +981,9 @@ async def _run_adk_user_simulation(
                         {
                             "author": "tool_call",
                             "content": tool_call.model_dump(mode="json"),
-                            "event_time": invocation.creation_timestamp,
+                            "event_time": datetime.datetime.fromtimestamp(
+                                invocation.creation_timestamp, tz=datetime.timezone.utc
+                            ),
                         }
                     )
 
@@ -986,7 +992,9 @@ async def _run_adk_user_simulation(
                 {
                     "author": "agent",
                     "content": invocation.final_response.model_dump(mode="json"),
-                    "event_time": invocation.creation_timestamp,
+                    "event_time": datetime.datetime.fromtimestamp(
+                        invocation.creation_timestamp, tz=datetime.timezone.utc
+                    ),
                 }
             )
 
@@ -2199,26 +2207,27 @@ async def _convert_evaluation_run_results_async(
 
 def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
     """Converts an object to a dictionary."""
+    if obj is None:
+        return obj
+    if isinstance(obj, (int, float, str, bool)):
+        return obj
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    if isinstance(obj, bytes):
+        return base64.b64encode(obj).decode("utf-8")
+    if isinstance(obj, (list, tuple)):
+        return [_object_to_dict(item) for item in obj]
+    if isinstance(obj, dict):
+        return {k: _object_to_dict(v) for k, v in obj.items()}
+
     if not hasattr(obj, "__dict__"):
-        return obj  # Not an object with attributes, return as is (e.g., int, str)
+        return obj  # Not an object with attributes, return as is (e.g., set)
 
     result: dict[str, Any] = {}
     for key, value in obj.__dict__.items():
         if value is None:
             continue
-        if isinstance(value, (int, float, str, bool)):
-            result[key] = value
-        elif isinstance(value, (list, tuple)):
-            result[key] = [_object_to_dict(item) for item in value]
-        # Add recursive handling for dictionaries
-        elif isinstance(value, dict):
-            result[key] = {k: _object_to_dict(v) for k, v in value.items()}
-        elif isinstance(value, bytes):
-            result[key] = base64.b64encode(value).decode("utf-8")
-        elif hasattr(value, "__dict__"):  # Nested object
-            result[key] = _object_to_dict(value)
-        else:
-            result[key] = value  # Handle other types like sets, etc.
+        result[key] = _object_to_dict(value)
     return result
 
 
