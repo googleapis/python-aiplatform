@@ -1236,7 +1236,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name is None
+        assert inference_result.candidate_name == "agent_engine_0"
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -1315,7 +1315,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name is None
+        assert inference_result.candidate_name == "agent_engine_0"
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -1499,7 +1499,7 @@ class TestEvalsRunInference:
             ),
             expected_df.sort_values(by="prompt").reset_index(drop=True),
         )
-        assert inference_result.candidate_name is None
+        assert inference_result.candidate_name == "mock_agent"
         assert inference_result.gcs_source is None
 
     def test_run_inference_with_litellm_string_prompt_format(
