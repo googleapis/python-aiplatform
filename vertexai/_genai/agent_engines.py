@@ -49,6 +49,44 @@ logger = logging.getLogger("vertexai_genai.agentengines")
 logger.setLevel(logging.INFO)
 
 
+def _AsyncQueryAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["query"]) is not None:
+        setv(parent_object, ["query"], getv(from_object, ["query"]))
+
+    if getv(from_object, ["input_gcs_uri"]) is not None:
+        setv(parent_object, ["inputGcsUri"], getv(from_object, ["input_gcs_uri"]))
+
+    if getv(from_object, ["output_gcs_uri"]) is not None:
+        setv(parent_object, ["outputGcsUri"], getv(from_object, ["output_gcs_uri"]))
+
+    return to_object
+
+
+def _AsyncQueryAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _AsyncQueryAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _CreateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -336,6 +374,61 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
 
 
 class AgentEngines(_api_module.BaseModule):
+
+    def _async_query(
+        self,
+        *,
+        name: str,
+        config: Optional[types.AsyncQueryAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._AsyncQueryAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _AsyncQueryAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
@@ -794,6 +887,96 @@ class AgentEngines(_api_module.BaseModule):
         ):
             return False
         return True
+
+    def async_query(
+        self,
+        *,
+        name: str,
+        config: Optional[types.AsyncQueryAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """Queries an agent engine asynchronously.
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (AsyncQueryAgentEngineConfigOrDict):
+                Optional. The configuration for the async query. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - query: The query to send to the agent engine.
+                  - input_gcs_uri: The GCS URI of the input file to use for the query.
+                  - output_gcs_uri: The GCS URI of the output file to store the results of the query.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+
+        if config is None:
+            config = types.AsyncQueryAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.AsyncQueryAgentEngineConfig(**config)
+
+        api_resource = self._get(name=name)
+
+        # Extract default GCS URIs from ReasoningEngine deployment spec env if needed
+        default_input_gcs_uri = None
+        default_output_gcs_uri = None
+
+        if (
+            api_resource.spec
+            and api_resource.spec.deployment_spec
+            and api_resource.spec.deployment_spec.env
+        ):
+            for env_var in api_resource.spec.deployment_spec.env:
+                if env_var.name == "INPUT_GCS_URI":
+                    default_input_gcs_uri = env_var.value
+                elif env_var.name == "OUTPUT_GCS_URI":
+                    default_output_gcs_uri = env_var.value
+
+        storage_client = storage.Client()
+
+        # Set up input_gcs_uri
+        input_gcs_uri = config.input_gcs_uri
+        if not input_gcs_uri:
+            if not default_input_gcs_uri:
+                raise ValueError(
+                    "Could not determine a default GCS bucket for `input_gcs_uri` from the agent engine configuration. Please specify `input_gcs_uri`."
+                )
+            input_gcs_uri = default_input_gcs_uri
+            config.input_gcs_uri = input_gcs_uri
+
+        # Handle creating the bucket if it does not exist
+        bucket_name = input_gcs_uri.replace("gs://", "").split("/")[0]
+        bucket = storage_client.bucket(bucket_name)
+
+        if not bucket.exists():
+            bucket.create()
+
+        if config.query:
+            blob_name = input_gcs_uri.replace(f"gs://{bucket_name}/", "")
+            blob = bucket.blob(blob_name)
+            if blob.exists():
+                logger.warning(f"Overwriting existing file at {input_gcs_uri}")
+            blob.upload_from_string(config.query)
+
+        # Set up output_gcs_uri
+        output_gcs_uri = config.output_gcs_uri
+        if not output_gcs_uri:
+            if not default_output_gcs_uri:
+                raise ValueError(
+                    "Could not determine a default GCS bucket for `output_gcs_uri` from the agent engine configuration. Please specify `output_gcs_uri`."
+                )
+            output_gcs_uri = default_output_gcs_uri
+            config.output_gcs_uri = output_gcs_uri
+
+        output_bucket_name = output_gcs_uri.replace("gs://", "").split("/")[0]
+        output_bucket = storage_client.bucket(output_bucket_name)
+        if not output_bucket.exists():
+            output_bucket.create()
+
+        # Set query to None before it goes back to the server
+        config.query = None
+
+        # Proceed with sending the async query via the auto-generated method
+        return self._async_query(name=name, config=config)
 
     def get(
         self,
@@ -2054,6 +2237,63 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
+    async def _async_query(
+        self,
+        *,
+        name: str,
+        config: Optional[types.AsyncQueryAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._AsyncQueryAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _AsyncQueryAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
