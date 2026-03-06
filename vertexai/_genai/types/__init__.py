@@ -22,6 +22,30 @@ import typing
 from . import agent_engines
 from . import evals
 from . import prompts
+from .evals import AgentConfig
+from .evals import AgentConfigDict
+from .evals import AgentConfigOrDict
+from .evals import AgentData
+from .evals import AgentDataDict
+from .evals import AgentDataOrDict
+from .evals import AgentEvent
+from .evals import AgentEventDict
+from .evals import AgentEventOrDict
+from .evals import ConversationTurn
+from .evals import ConversationTurnDict
+from .evals import ConversationTurnOrDict
+from .evals import Events
+from .evals import EventsDict
+from .evals import EventsOrDict
+from .evals import UserScenario
+from .evals import UserScenarioDict
+from .evals import UserScenarioOrDict
+from .evals import UserScenarioGenerationConfig
+from .evals import UserScenarioGenerationConfigDict
+from .evals import UserScenarioGenerationConfigOrDict
+from .evals import UserSimulatorConfig
+from .evals import UserSimulatorConfigDict
+from .evals import UserSimulatorConfigOrDict
 from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AppendAgentEngineTaskEventRequestParameters
 from .common import _AssembleDatasetParameters
@@ -908,7 +932,7 @@ from .common import RougeMetricValueOrDict
 from .common import RougeResults
 from .common import RougeResultsDict
 from .common import RougeResultsOrDict
-from .common import Rubric
+from .evals import Rubric
 from .common import RubricBasedMetricInput
 from .common import RubricBasedMetricInputDict
 from .common import RubricBasedMetricInputOrDict
@@ -926,7 +950,7 @@ from .common import RubricContentDict
 from .common import RubricContentProperty
 from .common import RubricContentPropertyDict
 from .common import RubricContentType
-from .common import RubricDict
+from .evals import RubricDict
 from .common import RubricEnhancedContents
 from .common import RubricEnhancedContentsDict
 from .common import RubricEnhancedContentsOrDict
@@ -939,6 +963,7 @@ from .common import RubricGenerationSpecOrDict
 from .common import RubricGroup
 from .common import RubricGroupDict
 from .common import RubricGroupOrDict
+from .evals import RubricOrDict
 from .common import RubricVerdict
 from .common import RubricVerdictDict
 from .common import SamplingConfig
@@ -2334,6 +2359,31 @@ __all__ = [
     "_CustomJobParameters",
     "_GetCustomJobParameters",
     "_OptimizeRequestParameters",
+    "AgentConfig",
+    "AgentConfigDict",
+    "AgentConfigOrDict",
+    "AgentData",
+    "AgentDataDict",
+    "AgentDataOrDict",
+    "AgentEvent",
+    "AgentEventDict",
+    "AgentEventOrDict",
+    "ConversationTurn",
+    "ConversationTurnDict",
+    "ConversationTurnOrDict",
+    "Events",
+    "EventsDict",
+    "EventsOrDict",
+    "RubricOrDict",
+    "UserScenario",
+    "UserScenarioDict",
+    "UserScenarioOrDict",
+    "UserScenarioGenerationConfig",
+    "UserScenarioGenerationConfigDict",
+    "UserScenarioGenerationConfigOrDict",
+    "UserSimulatorConfig",
+    "UserSimulatorConfigDict",
+    "UserSimulatorConfigOrDict",
     "evals",
     "agent_engines",
     "prompts",
