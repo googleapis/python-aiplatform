@@ -35,6 +35,7 @@ from google.genai._api_client import BaseApiClient
 from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
+from pydantic import ValidationError
 
 from . import _evals_constant
 from . import _evals_data_converters
@@ -950,7 +951,9 @@ async def _run_adk_user_simulation(
                 {
                     "author": "user",
                     "content": invocation.user_content.model_dump(mode="json"),
-                    "event_time": invocation.creation_timestamp,
+                    "event_time": datetime.datetime.fromtimestamp(
+                        invocation.creation_timestamp, tz=datetime.timezone.utc
+                    ),
                 }
             )
         if invocation.intermediate_data:
@@ -967,7 +970,9 @@ async def _run_adk_user_simulation(
                                 if ie.content
                                 else None
                             ),
-                            "event_time": invocation.creation_timestamp,
+                            "event_time": datetime.datetime.fromtimestamp(
+                                invocation.creation_timestamp, tz=datetime.timezone.utc
+                            ),
                         }
                     )
             elif hasattr(invocation.intermediate_data, "tool_uses"):
@@ -976,7 +981,9 @@ async def _run_adk_user_simulation(
                         {
                             "author": "tool_call",
                             "content": tool_call.model_dump(mode="json"),
-                            "event_time": invocation.creation_timestamp,
+                            "event_time": datetime.datetime.fromtimestamp(
+                                invocation.creation_timestamp, tz=datetime.timezone.utc
+                            ),
                         }
                     )
 
@@ -985,7 +992,9 @@ async def _run_adk_user_simulation(
                 {
                     "author": "agent",
                     "content": invocation.final_response.model_dump(mode="json"),
-                    "event_time": invocation.creation_timestamp,
+                    "event_time": datetime.datetime.fromtimestamp(
+                        invocation.creation_timestamp, tz=datetime.timezone.utc
+                    ),
                 }
             )
 
@@ -1603,18 +1612,25 @@ def _run_agent_internal(
     processed_intermediate_events = []
     processed_responses = []
     processed_agent_data = []
+    agent_data_agents = None
+    if agent:
+        agent_data_agents = types.evals.AgentData._get_agents_map(agent)
 
     for resp_item in raw_responses:
         intermediate_events_row: list[dict[str, Any]] = []
-        response_row = None
-        agent_data_row = None
+        response_row: Optional[Union[str, dict[str, Any]]] = None
+        agent_data_row: Optional[Union[str, dict[str, Any]]] = None
 
         if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
             if isinstance(resp_item, dict) and "error" in resp_item:
-                response_row = json.dumps(resp_item)
+                agent_data_row = json.dumps(resp_item)
             else:
                 # TODO: Migrate single turn agent run result to AgentData.
-                agent_data_row = types.evals.AgentData(turns=resp_item).model_dump()
+                agent_data_row = types.evals.AgentData(
+                    turns=resp_item,
+                    agents=agent_data_agents,
+                ).model_dump()
+
         else:
             if isinstance(resp_item, list):
                 try:
@@ -2191,26 +2207,27 @@ async def _convert_evaluation_run_results_async(
 
 def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
     """Converts an object to a dictionary."""
+    if obj is None:
+        return obj
+    if isinstance(obj, (int, float, str, bool)):
+        return obj
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    if isinstance(obj, bytes):
+        return base64.b64encode(obj).decode("utf-8")
+    if isinstance(obj, (list, tuple)):
+        return [_object_to_dict(item) for item in obj]
+    if isinstance(obj, dict):
+        return {k: _object_to_dict(v) for k, v in obj.items()}
+
     if not hasattr(obj, "__dict__"):
-        return obj  # Not an object with attributes, return as is (e.g., int, str)
+        return obj  # Not an object with attributes, return as is (e.g., set)
 
     result: dict[str, Any] = {}
     for key, value in obj.__dict__.items():
         if value is None:
             continue
-        if isinstance(value, (int, float, str, bool)):
-            result[key] = value
-        elif isinstance(value, (list, tuple)):
-            result[key] = [_object_to_dict(item) for item in value]
-        # Add recursive handling for dictionaries
-        elif isinstance(value, dict):
-            result[key] = {k: _object_to_dict(v) for k, v in value.items()}
-        elif isinstance(value, bytes):
-            result[key] = base64.b64encode(value).decode("utf-8")
-        elif hasattr(value, "__dict__"):  # Nested object
-            result[key] = _object_to_dict(value)
-        else:
-            result[key] = value  # Handle other types like sets, etc.
+        result[key] = _object_to_dict(value)
     return result
 
 
@@ -2247,7 +2264,48 @@ def _create_evaluation_set_from_dataframe(
             for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
                 if CONTENT in event:
                     intermediate_events.append(event[CONTENT])
-        if _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+
+        agent_data_obj = None
+        if _evals_constant.AGENT_DATA in row:
+            agent_data_val = row[AGENT_DATA]
+            if isinstance(agent_data_val, str):
+                try:
+                    agent_data_val = json.loads(agent_data_val)
+                except json.JSONDecodeError:
+                    pass
+            if isinstance(agent_data_val, dict):
+                try:
+                    agent_data_obj = types.evals.AgentData.model_validate(
+                        agent_data_val
+                    )
+                except ValidationError:
+                    pass
+            elif isinstance(agent_data_val, types.evals.AgentData):
+                agent_data_obj = agent_data_val
+
+        candidate_responses = []
+        if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
+            candidate_responses.append(
+                types.CandidateResponse(
+                    candidate=candidate_name or "Candidate 1",
+                    text=row.get(_evals_constant.RESPONSE) or None,
+                    events=intermediate_events or None,
+                    agent_data=agent_data_obj,
+                )
+            )
+
+        prompt = None
+        if (
+            _evals_constant.STARTING_PROMPT in row
+            and _evals_constant.CONVERSATION_PLAN in row
+        ):
+            prompt = types.EvaluationPrompt(
+                user_scenario=types.evals.UserScenario(
+                    starting_prompt=row[_evals_constant.STARTING_PROMPT],
+                    conversation_plan=row[_evals_constant.CONVERSATION_PLAN],
+                )
+            )
+        elif _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
             values = {}
             if _evals_constant.CONTEXT in row:
                 values[_evals_constant.CONTEXT] = _get_content(
@@ -2266,15 +2324,7 @@ def _create_evaluation_set_from_dataframe(
             )
         elif _evals_constant.PROMPT in row:
             prompt = types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
-        candidate_responses = []
-        if _evals_constant.RESPONSE in row:
-            candidate_responses.append(
-                types.CandidateResponse(
-                    candidate=candidate_name or "Candidate 1",
-                    text=row[_evals_constant.RESPONSE],
-                    events=intermediate_events or None,
-                )
-            )
+
         eval_item_requests.append(
             types.EvaluationItemRequest(
                 prompt=prompt or None,
@@ -2283,7 +2333,9 @@ def _create_evaluation_set_from_dataframe(
                     if _evals_constant.REFERENCE in row
                     else None
                 ),
-                candidate_responses=candidate_responses,
+                candidate_responses=(
+                    candidate_responses if candidate_responses else None
+                ),
             )
         )
     logger.info("Writing evaluation item requests to GCS.")

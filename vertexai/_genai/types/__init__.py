@@ -130,6 +130,9 @@ from .common import AgentEngineSandboxOperationOrDict
 from .common import AgentEngineSessionOperation
 from .common import AgentEngineSessionOperationDict
 from .common import AgentEngineSessionOperationOrDict
+from .common import AgentRunConfig
+from .common import AgentRunConfigDict
+from .common import AgentRunConfigOrDict
 from .common import AgentServerMode
 from .common import AggregatedMetricResult
 from .common import AggregatedMetricResultDict
@@ -1391,6 +1394,9 @@ __all__ = [
     "EvaluationRunAgentConfig",
     "EvaluationRunAgentConfigDict",
     "EvaluationRunAgentConfigOrDict",
+    "AgentRunConfig",
+    "AgentRunConfigDict",
+    "AgentRunConfigOrDict",
     "EvaluationRunInferenceConfig",
     "EvaluationRunInferenceConfigDict",
     "EvaluationRunInferenceConfigOrDict",
