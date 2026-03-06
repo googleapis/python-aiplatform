@@ -25,7 +25,7 @@ from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google import genai
-from google.cloud import iam_credentials_v1
+from google.cloud import iam_credentials_v1  # type: ignore[attr-defined]
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
@@ -540,6 +540,7 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
+        poll_interval_seconds: float = 0.1,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
         config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
     ) -> types.AgentEngineSandboxOperation:
@@ -549,6 +550,9 @@ class Sandboxes(_api_module.BaseModule):
             name (str):
                 Required. The name of the agent engine to create sandbox for.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}
+            poll_interval_seconds (float):
+                Optional. The interval in seconds to poll for sandbox creation
+                completion.
             spec (SandboxEnvironmentSpec):
                 Optional. The specification for the sandbox to create.
             config (CreateAgentEngineSandboxConfigOrDict):
@@ -557,6 +561,17 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             AgentEngineSandboxOperation: The operation for creating the sandbox.
         """
+        if spec:
+            computer_use = False
+            if isinstance(spec, dict):
+                computer_use = spec.get("computer_use_environment") is not None
+            elif hasattr(spec, "computer_use_environment"):
+                computer_use = True
+
+            if computer_use:
+                logging.warning(
+                    "The computer_use_environment feature in the sandboxes module is experimental and may change in future versions."
+                )
         operation = self._create(
             name=name,
             spec=spec,
@@ -571,7 +586,7 @@ class Sandboxes(_api_module.BaseModule):
                 operation = _agent_engines_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_sandbox_operation,
-                    poll_interval_seconds=0.1,
+                    poll_interval_seconds=poll_interval_seconds,
                 )
             # We need to make a call to get the sandbox because the operation
             # response might not contain the relevant fields.
@@ -655,20 +670,20 @@ class Sandboxes(_api_module.BaseModule):
         )
 
         output_chunks = []
-        for output in response.outputs:
-            if output.mime_type is None:
-                # if mime_type is not available, try to guess the mime_type from the file_name.
-                if (
-                    output.metadata is not None
-                    and output.metadata.attributes is not None
-                ):
-                    file_name = output.metadata.attributes.get("file_name", b"").decode(
-                        "utf-8"
-                    )
-                    mime_type, _ = mimetypes.guess_type(file_name)
-                    output.mime_type = mime_type
-
-            output_chunks.append(output)
+        if response.outputs is not None:
+            for output in response.outputs:
+                if output.mime_type is None:
+                    # if mime_type is not available, try to guess the mime_type from the file_name.
+                    if (
+                        output.metadata is not None
+                        and output.metadata.attributes is not None
+                    ):
+                        file_name = output.metadata.attributes.get(
+                            "file_name", b""
+                        ).decode("utf-8")
+                        mime_type, _ = mimetypes.guess_type(file_name)
+                        output.mime_type = mime_type
+                output_chunks.append(output)
 
         response = types.ExecuteSandboxEnvironmentResponse(outputs=output_chunks)
 
@@ -747,7 +762,7 @@ class Sandboxes(_api_module.BaseModule):
             payload=json.dumps(payload),
         )
         response = client.sign_jwt(request=request)
-        return response.signed_jwt
+        return response.signed_jwt  # type: ignore[no-any-return]
 
     def send_command(
         self,
@@ -755,7 +770,7 @@ class Sandboxes(_api_module.BaseModule):
         http_method: str,
         access_token: str,
         sandbox_environment: types.SandboxEnvironment,
-        path: str = None,
+        path: Optional[str] = None,
         query_params: Optional[dict[str, object]] = None,
         headers: Optional[dict[str, str]] = None,
         request_dict: Optional[dict[str, object]] = None,

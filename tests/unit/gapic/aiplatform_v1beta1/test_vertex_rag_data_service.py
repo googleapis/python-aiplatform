@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -86,10 +86,11 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -6882,7 +6883,12 @@ def test_delete_rag_corpus_rest_required_fields(
         credentials=ga_credentials.AnonymousCredentials()
     ).delete_rag_corpus._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("force",))
+    assert not set(unset_fields) - set(
+        (
+            "force",
+            "force_delete",
+        )
+    )
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -6934,7 +6940,15 @@ def test_delete_rag_corpus_rest_unset_required_fields():
     )
 
     unset_fields = transport.delete_rag_corpus._get_unset_required_fields({})
-    assert set(unset_fields) == (set(("force",)) & set(("name",)))
+    assert set(unset_fields) == (
+        set(
+            (
+                "force",
+                "forceDelete",
+            )
+        )
+        & set(("name",))
+    )
 
 
 def test_delete_rag_corpus_rest_flattened():

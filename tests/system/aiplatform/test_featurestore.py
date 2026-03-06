@@ -76,7 +76,6 @@ class TestFeaturestore(e2e_base.TestEndToEnd):
             featurestore_name=featurestore.resource_name
         )
         assert featurestore.resource_name == get_featurestore.resource_name
-
         list_featurestores = aiplatform.Featurestore.list()
         assert get_featurestore.resource_name in [
             featurestore.resource_name for featurestore in list_featurestores

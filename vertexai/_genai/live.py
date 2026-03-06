@@ -61,4 +61,4 @@ class AsyncLive(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._agent_engines.AsyncLiveAgentEngines(self._api_client)
+        return self._agent_engines.AsyncLiveAgentEngines(self._api_client)  # type: ignore[no-any-return]

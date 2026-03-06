@@ -91,6 +91,10 @@ class TestBatchPrediction(e2e_base.TestEndToEnd):
             output_uri_prefix=f"bq://{shared_state['bigquery_dataset_id']}",
         )
         shared_state["resources"].append(job)
+        bigquery_client = shared_state["bigquery_client"]
+        bigquery_client.delete_dataset(
+            shared_state["bigquery_dataset_id"], delete_contents=True, not_found_ok=True
+        )
 
         assert (
             job.model_name == _GEMINI_MODEL_RESOURCE_NAME

@@ -44,7 +44,7 @@ class LazyLoadedPrebuiltMetric:
         "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/{metric_name}/"
     )
 
-    def __init__(self, name: str, version: Optional[str] = None, **kwargs):
+    def __init__(self, name: str, version: Optional[str] = None, **kwargs: Any):
         self.name = name.upper()
         self.version = version
         self.metric_kwargs = kwargs
@@ -248,7 +248,7 @@ class LazyLoadedPrebuiltMetric:
             ) from e
 
     def __call__(
-        self, version: Optional[str] = None, **kwargs
+        self, version: Optional[str] = None, **kwargs: Any
     ) -> "LazyLoadedPrebuiltMetric":
         """Allows setting a specific version and other metric attributes."""
         updated_kwargs = self.metric_kwargs.copy()
@@ -271,7 +271,7 @@ class PrebuiltMetricLoader:
     """
 
     def __getattr__(
-        self, name: str, version: Optional[str] = None, **kwargs
+        self, name: str, version: Optional[str] = None, **kwargs: Any
     ) -> LazyLoadedPrebuiltMetric:
         return LazyLoadedPrebuiltMetric(name=name, version=version, **kwargs)
 
@@ -298,6 +298,18 @@ class PrebuiltMetricLoader:
     @property
     def MULTI_TURN_TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("MULTI_TURN_TEXT_QUALITY")
+
+    @property
+    def MULTI_TURN_TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TOOL_USE_QUALITY", version="v1")
+
+    @property
+    def MULTI_TURN_TRAJECTORY_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TRAJECTORY_QUALITY", version="v1")
+
+    @property
+    def MULTI_TURN_TASK_SUCCESS(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TASK_SUCCESS", version="v1")
 
     @property
     def FINAL_RESPONSE_MATCH(self) -> LazyLoadedPrebuiltMetric:

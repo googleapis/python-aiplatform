@@ -69,7 +69,7 @@ from google.cloud.aiplatform_v1.types import (
 )
 from google.cloud.aiplatform_v1.types import nas_job
 from google.cloud.aiplatform_v1.types import nas_job as gca_nas_job
-from google.protobuf import empty_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -2507,7 +2507,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2629,7 +2629,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2753,7 +2753,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -2881,7 +2881,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -3009,7 +3009,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4170,7 +4170,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4329,7 +4329,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4488,7 +4488,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4653,7 +4653,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4818,7 +4818,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -4983,7 +4983,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -7437,7 +7437,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -7565,7 +7565,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -7878,7 +7878,7 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                 )
                 method = transcoded_request["method"]
                 try:
-                    request_payload = json_format.MessageToJson(request)
+                    request_payload = type(request).to_json(request)
                 except:
                     request_payload = None
                 http_request = {
@@ -8286,6 +8286,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:cancel",
                     },
                     {
@@ -8323,6 +8327,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -8652,6 +8660,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -8709,6 +8721,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -9050,6 +9066,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}",
                     },
                     {
@@ -9107,6 +9127,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -9432,6 +9456,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*}/operations",
                     },
                     {
@@ -9501,6 +9529,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -9834,6 +9866,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/studies/*/operations/*}:wait",
                     },
                     {
@@ -9891,6 +9927,10 @@ class AsyncJobServiceRestTransport(_BaseJobServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1/{name=projects/*/locations/*/featureGroups/*/features/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1/{name=reasoningEngines/*/sessions/*/operations/*}:wait",
                     },
                 ],
             }

@@ -6364,6 +6364,16 @@
         "grpc": {
           "libraryClient": "VertexRagServiceClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"
@@ -6384,6 +6394,16 @@
         "grpc-async": {
           "libraryClient": "VertexRagServiceAsyncClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"
@@ -6404,6 +6424,16 @@
         "rest": {
           "libraryClient": "VertexRagServiceClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"

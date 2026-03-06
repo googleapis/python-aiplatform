@@ -64,8 +64,10 @@ from vertexai.preview.rag.utils.resources import (
     Basic,
     Enterprise,
     Scaled,
+    Serverless,
     SharePointSources,
     SlackChannelsSource,
+    Spanner,
     TransformationConfig,
     Unprovisioned,
     VertexAiSearchConfig,
@@ -1011,6 +1013,22 @@ def set_backend_config(
             )
 
 
+def _convert_gapic_to_spanner(
+    gapic_spanner: GapicRagManagedDbConfig.Spanner,
+) -> Spanner:
+    """Converts a GapicRagManagedDbConfig.Spanner to a Spanner."""
+    spanner = Spanner()
+    if gapic_spanner.__contains__("scaled"):
+        spanner.tier = Scaled()
+    elif gapic_spanner.__contains__("basic"):
+        spanner.tier = Basic()
+    elif gapic_spanner.__contains__("unprovisioned"):
+        spanner.tier = Unprovisioned()
+    else:
+        raise ValueError("At least one of scaled, basic, or unprovisioned must be set.")
+    return spanner
+
+
 def convert_gapic_to_rag_engine_config(
     response: GapicRagEngineConfig,
 ) -> RagEngineConfig:
@@ -1018,7 +1036,13 @@ def convert_gapic_to_rag_engine_config(
     rag_managed_db_config = RagManagedDbConfig()
     # If future fields are added with similar names, beware that __contains__
     # may match them.
-    if response.rag_managed_db_config.__contains__("enterprise"):
+    if response.rag_managed_db_config.__contains__("spanner"):
+        rag_managed_db_config.mode = _convert_gapic_to_spanner(
+            response.rag_managed_db_config.spanner
+        )
+    elif response.rag_managed_db_config.__contains__("serverless"):
+        rag_managed_db_config.mode = Serverless()
+    elif response.rag_managed_db_config.__contains__("enterprise"):
         rag_managed_db_config.tier = Enterprise()
     elif response.rag_managed_db_config.__contains__("basic"):
         rag_managed_db_config.tier = Basic()
@@ -1027,11 +1051,25 @@ def convert_gapic_to_rag_engine_config(
     elif response.rag_managed_db_config.__contains__("scaled"):
         rag_managed_db_config.tier = Scaled()
     else:
-        raise ValueError("At least one of rag_managed_db_config must be set.")
+        raise ValueError("At least one of rag_managed_db_config mode must be set.")
     return RagEngineConfig(
         name=response.name,
         rag_managed_db_config=rag_managed_db_config,
     )
+
+
+def _convert_spanner_to_gapic(
+    spanner: Spanner,
+) -> GapicRagManagedDbConfig.Spanner:
+    """Converts a Spanner to a GapicRagManagedDbConfig.Spanner."""
+    gapic_spanner = GapicRagManagedDbConfig.Spanner()
+    if isinstance(spanner.tier, Scaled):
+        gapic_spanner.scaled = GapicRagManagedDbConfig.Scaled()
+    elif isinstance(spanner.tier, Basic):
+        gapic_spanner.basic = GapicRagManagedDbConfig.Basic()
+    elif isinstance(spanner.tier, Unprovisioned):
+        gapic_spanner.unprovisioned = GapicRagManagedDbConfig.Unprovisioned()
+    return gapic_spanner
 
 
 def convert_rag_engine_config_to_gapic(
@@ -1040,14 +1078,32 @@ def convert_rag_engine_config_to_gapic(
     """Converts a RagEngineConfig to a GapicRagEngineConfig."""
     rag_managed_db_config = GapicRagManagedDbConfig()
     if (
-        rag_engine_config.rag_managed_db_config is None
-        or rag_engine_config.rag_managed_db_config.tier is None
+        rag_engine_config.rag_managed_db_config is not None
+        and rag_engine_config.rag_managed_db_config.mode is not None
+        and rag_engine_config.rag_managed_db_config.tier is not None
+    ):
+        raise ValueError(
+            "mode and tier both cannot be set at the same time. Please set"
+            " the tier inside the Spanner mode."
+        )
+
+    if rag_engine_config.rag_managed_db_config is None or (
+        rag_engine_config.rag_managed_db_config.tier is None
+        and rag_engine_config.rag_managed_db_config.mode is None
     ):
         rag_managed_db_config = GapicRagManagedDbConfig(
-            basic=GapicRagManagedDbConfig.Basic()
+            spanner=GapicRagManagedDbConfig.Spanner(
+                basic=GapicRagManagedDbConfig.Basic()
+            )
         )
     else:
-        if isinstance(rag_engine_config.rag_managed_db_config.tier, Enterprise):
+        if isinstance(rag_engine_config.rag_managed_db_config.mode, Serverless):
+            rag_managed_db_config.serverless = GapicRagManagedDbConfig.Serverless()
+        elif isinstance(rag_engine_config.rag_managed_db_config.mode, Spanner):
+            rag_managed_db_config.spanner = _convert_spanner_to_gapic(
+                rag_engine_config.rag_managed_db_config.mode
+            )
+        elif isinstance(rag_engine_config.rag_managed_db_config.tier, Enterprise):
             rag_managed_db_config.enterprise = GapicRagManagedDbConfig.Enterprise()
         elif isinstance(rag_engine_config.rag_managed_db_config.tier, Basic):
             rag_managed_db_config.basic = GapicRagManagedDbConfig.Basic()

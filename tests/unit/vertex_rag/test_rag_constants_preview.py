@@ -69,10 +69,12 @@ from vertexai.preview.rag import (
     RankService,
     Ranking,
     Scaled,
+    Serverless,
     SharePointSource,
     SharePointSources,
     SlackChannel,
     SlackChannelsSource,
+    Spanner,
     Unprovisioned,
     VertexAiSearchConfig,
     VertexFeatureStore,
@@ -584,6 +586,34 @@ TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING = ImportRagFilesRequest(
 TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = (
     f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragEngineConfig"
 )
+TEST_RAG_ENGINE_CONFIG_SERVERLESS = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(mode=Serverless()),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Basic()),
+    ),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Scaled()),
+    ),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Unprovisioned()),
+    ),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_NO_TIER = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(),
+    ),
+)
 TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
@@ -603,6 +633,39 @@ TEST_RAG_ENGINE_CONFIG_ENTERPRISE = RagEngineConfig(
 TEST_DEFAULT_RAG_ENGINE_CONFIG = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=None,
+)
+TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Basic()),
+        tier=Scaled(),
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        serverless=GapicRagManagedDbConfig.Serverless()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_BASIC = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        spanner=GapicRagManagedDbConfig.Spanner(basic=GapicRagManagedDbConfig.Basic())
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        spanner=GapicRagManagedDbConfig.Spanner(scaled=GapicRagManagedDbConfig.Scaled())
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        spanner=GapicRagManagedDbConfig.Spanner(
+            unprovisioned=GapicRagManagedDbConfig.Unprovisioned()
+        )
+    ),
 )
 TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,

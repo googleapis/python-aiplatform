@@ -32,11 +32,12 @@ from . import _evals_common
 from . import _evals_utils
 from . import _transformers as t
 from . import types
+from .types import evals as evals_types
 
 try:
     from google.adk.agents import LlmAgent
 except ImportError:
-    LlmAgent = None  # type: ignore[assignment]
+    LlmAgent = None
 
 
 logger = logging.getLogger("vertexai_genai.evals")
@@ -130,6 +131,13 @@ def _CustomCodeExecutionSpec_from_vertex(
             getv(from_object, ["evaluation_function"]),
         )
 
+    if getv(from_object, ["evaluationFunction"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_function"],
+            getv(from_object, ["evaluationFunction"]),
+        )
+
     return to_object
 
 
@@ -143,6 +151,13 @@ def _CustomCodeExecutionSpec_to_vertex(
             to_object,
             ["evaluation_function"],
             getv(from_object, ["remote_custom_function"]),
+        )
+
+    if getv(from_object, ["evaluation_function"]) is not None:
+        setv(
+            to_object,
+            ["evaluationFunction"],
+            getv(from_object, ["evaluation_function"]),
         )
 
     return to_object
@@ -224,10 +239,40 @@ def _EvaluateInstancesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["instance"]) is not None:
-        setv(to_object, ["instance"], getv(from_object, ["instance"]))
+        setv(
+            to_object,
+            ["instance"],
+            _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _EvaluationInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt"]) is not None:
+        setv(to_object, ["prompt"], getv(from_object, ["prompt"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(to_object, ["response"], getv(from_object, ["response"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    if getv(from_object, ["other_data"]) is not None:
+        setv(to_object, ["otherData"], getv(from_object, ["other_data"]))
+
+    if getv(from_object, ["agent_data"]) is not None:
+        setv(to_object, ["agent_eval_data"], getv(from_object, ["agent_data"]))
+
+    if getv(from_object, ["rubric_groups"]) is not None:
+        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
 
     return to_object
 
@@ -253,6 +298,9 @@ def _EvaluationRunConfig_from_vertex(
     if getv(from_object, ["autoraterConfig"]) is not None:
         setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
 
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
+
     return to_object
 
 
@@ -276,6 +324,9 @@ def _EvaluationRunConfig_to_vertex(
 
     if getv(from_object, ["autorater_config"]) is not None:
         setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
+
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
 
     return to_object
 
@@ -369,7 +420,11 @@ def _EvaluationRun_from_vertex(
         )
 
     if getv(from_object, ["inferenceConfigs"]) is not None:
-        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
+        setv(
+            to_object,
+            ["inference_configs"],
+            {k: v for k, v in getv(from_object, ["inferenceConfigs"]).items()},
+        )
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -399,6 +454,33 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             _RubricGenerationSpec_to_vertex(
                 getv(from_object, ["rubric_generation_spec"]), to_object
             ),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GenerateUserScenariosParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["location"]) is not None:
+        setv(to_object, ["location"], getv(from_object, ["location"]))
+
+    if getv(from_object, ["agents"]) is not None:
+        setv(to_object, ["agents"], getv(from_object, ["agents"]))
+
+    if getv(from_object, ["root_agent_id"]) is not None:
+        setv(to_object, ["rootAgentId"], getv(from_object, ["root_agent_id"]))
+
+    if getv(from_object, ["user_scenario_generation_config"]) is not None:
+        setv(
+            to_object,
+            ["userScenarioGenerationConfig"],
+            getv(from_object, ["user_scenario_generation_config"]),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -962,6 +1044,67 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _generate_user_scenarios(
+        self,
+        *,
+        location: Optional[str] = None,
+        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        root_agent_id: Optional[str] = None,
+        user_scenario_generation_config: Optional[
+            evals_types.UserScenarioGenerationConfigOrDict
+        ] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+    ) -> types.GenerateUserScenariosResponse:
+        """
+        Generates user scenarios for agent evaluation.
+        """
+
+        parameter_model = types._GenerateUserScenariosParameters(
+            location=location,
+            agents=agents,
+            root_agent_id=root_agent_id,
+            user_scenario_generation_config=user_scenario_generation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateUserScenarios".format_map(request_url_dict)
+            else:
+                path = ":generateUserScenarios"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _get_evaluation_run(
         self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
     ) -> types.EvaluationRun:
@@ -1206,6 +1349,7 @@ class Evals(_api_module.BaseModule):
             prompt_template=config.prompt_template,
             location=location,
             config=config.generate_content_config,
+            user_simulator_config=getattr(config, "user_simulator_config", None),
         )
 
     def evaluate(
@@ -1216,10 +1360,10 @@ class Evals(_api_module.BaseModule):
             types.EvaluationDatasetOrDict,
             list[types.EvaluationDatasetOrDict],
         ],
-        metrics: list[types.MetricOrDict] = None,
+        metrics: Optional[list[types.MetricOrDict]] = None,
         location: Optional[str] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
@@ -1594,7 +1738,7 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[types.evals.AgentInfoOrDict] = None,
+        agent_info: Optional[evals_types.AgentInfoOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -1625,28 +1769,14 @@ class Evals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        if agent_info and isinstance(agent_info, dict):
-            agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if type(dataset).__name__ == "EvaluationDataset":
-            if dataset.eval_dataset_df is None:
-                raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
-                )
-            if (
-                dataset.candidate_name
-                and agent_info
-                and agent_info.name
-                and dataset.candidate_name != agent_info.name
-            ):
-                logger.warning(
-                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-                )
-            elif dataset.candidate_name is None and agent_info:
-                dataset.candidate_name = agent_info.name
-            eval_set = _evals_common._create_evaluation_set_from_dataframe(
-                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
-            )
-            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        agent_info_pydantic = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else (agent_info or evals_types.AgentInfo())
+        )
+        resolved_dataset = _evals_common._resolve_dataset(
+            self._api_client, dataset, dest, agent_info_pydantic
+        )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
@@ -1656,31 +1786,20 @@ class Evals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        if agent_info:
-            inference_configs = {}
-            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info.instruction)]
-                    ),
-                    tools=agent_info.tool_declarations,
-                )
-            )
-            if agent_info.agent_resource_name:
-                labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
-                )
-        if not name:
-            name = f"evaluation_run_{uuid.uuid4()}"
-
-        return self._create_evaluation_run(  # type: ignore[no-any-return]
-            name=name,
-            display_name=display_name or name,
-            data_source=dataset,
+        resolved_inference_configs = _evals_common._resolve_inference_configs(
+            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
+        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(
+            labels, agent_info_pydantic
+        )
+        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
+        return self._create_evaluation_run(
+            name=resolved_name,
+            display_name=display_name or resolved_name,
+            data_source=resolved_dataset,
             evaluation_config=evaluation_config,
-            inference_configs=inference_configs,
-            labels=labels,
+            inference_configs=resolved_inference_configs,
+            labels=resolved_labels,
             config=config,
         )
 
@@ -1782,7 +1901,7 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        return self._create_evaluation_item(  # type: ignore[no-any-return]
+        return self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
@@ -1812,11 +1931,41 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation set.
         """
-        return self._create_evaluation_set(  # type: ignore[no-any-return]
+        return self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
         )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_user_scenarios module is experimental, "
+        "and may change in future versions."
+    )
+    def generate_user_scenarios(
+        self,
+        *,
+        agents: dict[str, evals_types.AgentConfigOrDict],
+        user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
+        root_agent_id: str,
+    ) -> types.EvaluationDataset:
+        """Generates an evaluation dataset with user scenarios,
+           which helps to generate conversations between a simulated user
+           and the agent under test.
+
+        Args:
+            agents: A map of agent ID to AgentConfig.
+            user_scenario_generation_config: Configuration for generating user scenarios.
+            root_agent_id: The ID of the root agent.
+
+        Returns:
+            An EvaluationDataset containing the generated user scenarios.
+        """
+        response = self._generate_user_scenarios(
+            agents=agents,
+            user_scenario_generation_config=user_scenario_generation_config,
+            root_agent_id=root_agent_id,
+        )
+        return _evals_utils._postprocess_user_scenarios_response(response)
 
 
 class AsyncEvals(_api_module.BaseModule):
@@ -2153,6 +2302,69 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _generate_user_scenarios(
+        self,
+        *,
+        location: Optional[str] = None,
+        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        root_agent_id: Optional[str] = None,
+        user_scenario_generation_config: Optional[
+            evals_types.UserScenarioGenerationConfigOrDict
+        ] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+    ) -> types.GenerateUserScenariosResponse:
+        """
+        Generates user scenarios for agent evaluation.
+        """
+
+        parameter_model = types._GenerateUserScenariosParameters(
+            location=location,
+            agents=agents,
+            root_agent_id=root_agent_id,
+            user_scenario_generation_config=user_scenario_generation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateUserScenarios".format_map(request_url_dict)
+            else:
+                path = ":generateUserScenarios"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_evaluation_run(
         self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
     ) -> types.EvaluationRun:
@@ -2454,7 +2666,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[types.evals.AgentInfo] = None,
+        agent_info: Optional[evals_types.AgentInfo] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -2485,27 +2697,14 @@ class AsyncEvals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        if agent_info and isinstance(agent_info, dict):
-            agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if type(dataset).__name__ == "EvaluationDataset":
-            if dataset.eval_dataset_df is None:
-                raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
-                )
-            if (
-                dataset.candidate_name
-                and agent_info.name
-                and dataset.candidate_name != agent_info.name
-            ):
-                logger.warning(
-                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-                )
-            elif dataset.candidate_name is None and agent_info:
-                dataset.candidate_name = agent_info.name
-            eval_set = _evals_common._create_evaluation_set_from_dataframe(
-                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
-            )
-            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        agent_info_pydantic = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else (agent_info or evals_types.AgentInfo())
+        )
+        resolved_dataset = _evals_common._resolve_dataset(
+            self._api_client, dataset, dest, agent_info_pydantic
+        )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
@@ -2515,31 +2714,21 @@ class AsyncEvals(_api_module.BaseModule):
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config, metrics=resolved_metrics
         )
-        if agent_info:
-            inference_configs = {}
-            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info.instruction)]
-                    ),
-                    tools=agent_info.tool_declarations,
-                )
-            )
-            if agent_info.agent_resource_name:
-                labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
-                )
-        if not name:
-            name = f"evaluation_run_{uuid.uuid4()}"
+        resolved_inference_configs = _evals_common._resolve_inference_configs(
+            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
+        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(
+            labels, agent_info_pydantic
+        )
+        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
 
-        result = await self._create_evaluation_run(  # type: ignore[no-any-return]
-            name=name,
-            display_name=display_name or name,
-            data_source=dataset,
+        result = await self._create_evaluation_run(
+            name=resolved_name,
+            display_name=display_name or resolved_name,
+            data_source=resolved_dataset,
             evaluation_config=evaluation_config,
-            inference_configs=inference_configs,
-            labels=labels,
+            inference_configs=resolved_inference_configs,
+            labels=resolved_labels,
             config=config,
         )
 
@@ -2645,7 +2834,7 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        result = await self._create_evaluation_item(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
@@ -2676,9 +2865,39 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
           The evaluation set.
         """
-        result = await self._create_evaluation_set(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
         )
         return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_user_scenarios module is experimental, "
+        "and may change in future versions."
+    )
+    async def generate_user_scenarios(
+        self,
+        *,
+        agents: dict[str, evals_types.AgentConfigOrDict],
+        user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
+        root_agent_id: str,
+    ) -> types.EvaluationDataset:
+        """Generates an evaluation dataset with user scenarios,
+           which helps to generate conversations between a simulated user
+           and the agent under test.
+
+        Args:
+            agents: A map of agent ID to AgentConfig.
+            user_scenario_generation_config: Configuration for generating user scenarios.
+            root_agent_id: The ID of the root agent.
+
+        Returns:
+            An EvaluationDataset containing the generated user scenarios.
+        """
+        response = await self._generate_user_scenarios(
+            agents=agents,
+            user_scenario_generation_config=user_scenario_generation_config,
+            root_agent_id=root_agent_id,
+        )
+        return _evals_utils._postprocess_user_scenarios_response(response)

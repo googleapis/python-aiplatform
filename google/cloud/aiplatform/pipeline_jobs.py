@@ -542,6 +542,7 @@ class PipelineJob(
         allow_queueing: bool = False,
         max_run_count: Optional[int] = None,
         max_concurrent_run_count: int = 1,
+        max_concurrent_active_run_count: Optional[int] = None,
         service_account: Optional[str] = None,
         network: Optional[str] = None,
         create_request_timeout: Optional[float] = None,
@@ -582,6 +583,10 @@ class PipelineJob(
                 Must be positive and <= 2^63-1.
             max_concurrent_run_count (int):
                 Optional. Maximum number of runs that can be started concurrently for this PipelineJobSchedule.
+            max_concurrent_active_run_count (int):
+                Optional. Maximum number of active runs that can be executed
+                concurrently for this PipelineJobSchedule. Active runs are those
+                in a non-terminal state (e.g., RUNNING, PENDING, or QUEUED).
             service_account (str):
                 Optional. Specifies the service account for workload run-as account.
                 Users submitting jobs must have act-as permission on this run-as account.
@@ -616,6 +621,7 @@ class PipelineJob(
             allow_queueing=allow_queueing,
             max_run_count=max_run_count,
             max_concurrent_run_count=max_concurrent_run_count,
+            max_concurrent_active_run_count=max_concurrent_active_run_count,
             service_account=service_account,
             network=network,
             create_request_timeout=create_request_timeout,

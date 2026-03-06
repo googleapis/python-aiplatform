@@ -1113,6 +1113,196 @@ class TestAgentEngineHelpers:
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
 
+    def test_create_agent_engine_config_with_agent_config_source_and_requirements_file(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                agent_config_source={"adk_config": {"json_config": {}}},
+                requirements_file=requirements_file_path,
+            )
+
+            assert config["spec"]["source_code_spec"] == {
+                "agent_config_source": {"adk_config": {"json_config": {}}},
+                "python_spec": {
+                    "version": _TEST_PYTHON_VERSION_OVERRIDE,
+                    "requirements_file": requirements_file_path,
+                },
+            }
+
+    def test_create_agent_engine_config_with_agent_config_source_and_entrypoint_module_warns(
+        self, caplog
+    ):
+        caplog.set_level(logging.WARNING, logger="vertexai_genai.agentengines")
+
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            agent_framework=_TEST_AGENT_FRAMEWORK,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            agent_config_source={"adk_config": {"json_config": {}}},
+            entrypoint_module="some_module",
+        )
+
+        assert (
+            "`entrypoint_module` and `entrypoint_object` are ignored when"
+            in caplog.text
+        )
+        assert config["spec"]["source_code_spec"] == {
+            "agent_config_source": {"adk_config": {"json_config": {}}},
+            "python_spec": {
+                "version": _TEST_PYTHON_VERSION_OVERRIDE,
+            },
+        }
+        # entrypoint_module is NOT in python_spec
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_source_packages_and_image_spec_raises(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            with pytest.raises(ValueError) as excinfo:
+                self.client.agent_engines._create_config(
+                    mode="create",
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    source_packages=[test_file_path],
+                    entrypoint_module="main",
+                    entrypoint_object="app",
+                    requirements_file=requirements_file_path,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                    agent_framework=_TEST_AGENT_FRAMEWORK,
+                    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                    python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                    image_spec={},
+                )
+            assert "`image_spec` cannot be specified alongside" in str(excinfo.value)
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_agent_config_source_and_image_spec_raises(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            with pytest.raises(ValueError) as excinfo:
+                self.client.agent_engines._create_config(
+                    mode="create",
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                    agent_framework=_TEST_AGENT_FRAMEWORK,
+                    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                    python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                    image_spec={},
+                    agent_config_source={"adk_config": {"json_config": {}}},
+                )
+            assert "`image_spec` cannot be specified alongside" in str(excinfo.value)
+
+    def test_create_agent_engine_config_with_agent_config_source(self):
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            agent_framework=_TEST_AGENT_FRAMEWORK,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            agent_config_source={"adk_config": {"json_config": {}}},
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
+        assert config["spec"]["source_code_spec"] == {
+            "agent_config_source": {"adk_config": {"json_config": {}}},
+            "python_spec": {"version": _TEST_PYTHON_VERSION_OVERRIDE},
+        }
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_source_packages_and_agent_config_source(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                source_packages=[test_file_path],
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                agent_config_source={"adk_config": {"json_config": {}}},
+            )
+            assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+            assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+            assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
+            assert config["spec"]["source_code_spec"] == {
+                "agent_config_source": {
+                    "adk_config": {"json_config": {}},
+                    "inline_source": {"source_archive": "test_tarball"},
+                },
+                "python_spec": {"version": _TEST_PYTHON_VERSION_OVERRIDE},
+            }
+            assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+            mock_create_base64_encoded_tarball.assert_called_once_with(
+                source_packages=[test_file_path]
+            )
+            assert (
+                config["spec"]["identity_type"]
+                == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+            )
+
     @mock.patch.object(
         _agent_engines_utils,
         "_create_base64_encoded_tarball",
@@ -1882,6 +2072,8 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
+                agent_config_source=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1983,6 +2175,8 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
+                agent_config_source=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2083,6 +2277,8 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
+                agent_config_source=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2252,6 +2448,8 @@ class TestAgentEngine:
                 agent_framework=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
+                agent_config_source=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2347,6 +2545,8 @@ class TestAgentEngine:
                 identity_type=None,
                 python_version=None,
                 build_options=None,
+                image_spec=None,
+                agent_config_source=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2477,6 +2677,19 @@ class TestAgentEngine:
                     "_query": {"updateMask": update_mask},
                 },
                 None,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_deployment_config_without_agent_raises(
+        self, mock_await_operation, mock_prepare
+    ):
+        with pytest.raises(ValueError, match="To update `env_vars`"):
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentEngineConfig(
+                    env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT
+                ),
             )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")

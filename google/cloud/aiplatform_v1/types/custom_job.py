@@ -25,9 +25,9 @@ from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
 from google.cloud.aiplatform_v1.types import machine_resources
 from google.cloud.aiplatform_v1.types import service_networking
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -420,6 +420,8 @@ class WorkerPoolSpec(proto.Message):
             use for this worker pool.
         nfs_mounts (MutableSequence[google.cloud.aiplatform_v1.types.NfsMount]):
             Optional. List of NFS mount spec.
+        lustre_mounts (MutableSequence[google.cloud.aiplatform_v1.types.LustreMount]):
+            Optional. List of Lustre mounts.
         disk_spec (google.cloud.aiplatform_v1.types.DiskSpec):
             Disk spec.
     """
@@ -449,6 +451,11 @@ class WorkerPoolSpec(proto.Message):
         proto.MESSAGE,
         number=4,
         message=machine_resources.NfsMount,
+    )
+    lustre_mounts: MutableSequence[machine_resources.LustreMount] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=9,
+        message=machine_resources.LustreMount,
     )
     disk_spec: machine_resources.DiskSpec = proto.Field(
         proto.MESSAGE,

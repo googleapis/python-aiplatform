@@ -617,7 +617,7 @@ class LLMMetricHandler(MetricHandler):
 
     def _add_autorater_config(self, payload: dict[str, Any]) -> None:
         """Adds autorater config to the request payload if specified."""
-        autorater_config = {}
+        autorater_config: dict[str, Any] = {}
         if self.metric.judge_model:
             autorater_config["autorater_model"] = self.metric.judge_model
         if self.metric.judge_model_generation_config:
@@ -625,7 +625,7 @@ class LLMMetricHandler(MetricHandler):
                 self.metric.judge_model_generation_config
             )
         if self.metric.judge_model_sampling_count:
-            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count  # type: ignore[assignment]
+            autorater_config["sampling_count"] = self.metric.judge_model_sampling_count
 
         if not autorater_config:
             return
@@ -879,6 +879,9 @@ class PredefinedMetricHandler(MetricHandler):
         eval_case: types.EvalCase,
     ) -> Optional[types.evals.AgentData]:
         """Converts an EvalCase object to an AgentData object."""
+        if getattr(eval_case, "agent_data", None):
+            return eval_case.agent_data
+
         if not eval_case.agent_info and not eval_case.intermediate_events:
             return None
         tools = None
@@ -899,7 +902,7 @@ class PredefinedMetricHandler(MetricHandler):
 
             if tools or developer_instruction:
                 agent_config = types.evals.AgentConfig(
-                    tools=tools,
+                    legacy_tools=tools,
                     developer_instruction=developer_instruction,
                 )
 
@@ -920,11 +923,16 @@ class PredefinedMetricHandler(MetricHandler):
         self, eval_case: types.EvalCase, response_index: int
     ) -> dict[str, Any]:
         """Builds the request parameters for evaluate instances request."""
-        if not eval_case.responses or response_index >= len(eval_case.responses):
+        if (
+            not eval_case.responses or response_index >= len(eval_case.responses)
+        ) and not getattr(eval_case, "agent_data", None):
             raise IndexError(f"response_index {response_index} is out of bounds.")
 
-        response_content = eval_case.responses[response_index].response
-        if not response_content:
+        response_content = None
+        if eval_case.responses and response_index < len(eval_case.responses):
+            response_content = eval_case.responses[response_index].response
+
+        if not response_content and not getattr(eval_case, "agent_data", None):
             raise ValueError(
                 f"Response content missing for candidate {response_index}."
             )
@@ -989,11 +997,11 @@ class PredefinedMetricHandler(MetricHandler):
             agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
 
-        request_payload = {
+        request_payload: dict[str, Any] = {
             "instance": instance_payload,
         }
 
-        autorater_config = {}
+        autorater_config: dict[str, Any] = {}
         if self.metric.judge_model:
             autorater_config["autorater_model"] = self.metric.judge_model
         if self.metric.judge_model_generation_config:
@@ -1442,9 +1450,15 @@ def compute_metrics_and_aggregate(
                 for eval_case_index, eval_case in enumerate(
                     evaluation_run_config.dataset.eval_cases
                 ):
+                    num_responses = (
+                        len(eval_case.responses) if eval_case.responses else 0
+                    )
+                    if num_responses == 0 and getattr(eval_case, "agent_data", None):
+                        num_responses = 1
+
                     actual_num_candidates_for_case = min(
                         evaluation_run_config.num_response_candidates,
-                        len(eval_case.responses),
+                        num_responses,
                     )
                     for response_index in range(actual_num_candidates_for_case):
                         try:

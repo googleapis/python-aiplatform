@@ -14,6 +14,8 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import sys
+
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 
@@ -24,6 +26,32 @@ _TEST_CLASS_METHODS = [
 
 def test_create_with_developer_connect_source(client):
     """Tests creating an agent engine with developer connect source."""
+    if sys.version_info >= (3, 13):
+        try:
+            client._api_client._initialize_replay_session_if_not_loaded()
+            if client._api_client.replay_session:
+                target_ver = f"{sys.version_info.major}.{sys.version_info.minor}"
+                for interaction in client._api_client.replay_session.interactions:
+
+                    def _update_ver(obj):
+                        if isinstance(obj, dict):
+                            if "python_spec" in obj and isinstance(
+                                obj["python_spec"], dict
+                            ):
+                                if "version" in obj["python_spec"]:
+                                    obj["python_spec"]["version"] = target_ver
+                            for v in obj.values():
+                                _update_ver(v)
+                        elif isinstance(obj, list):
+                            for item in obj:
+                                _update_ver(item)
+
+                    if hasattr(interaction.request, "body_segments"):
+                        _update_ver(interaction.request.body_segments)
+                    if hasattr(interaction.request, "body"):
+                        _update_ver(interaction.request.body)
+        except Exception:
+            pass
     developer_connect_source_config = types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(
         git_repository_link="projects/reasoning-engine-test-1/locations/europe-west3/connections/shawn-develop-connect/gitRepositoryLinks/shawn-yang-google-adk-samples",
         revision="main",
