@@ -2576,6 +2576,126 @@ class EvaluationRunConfigDict(TypedDict, total=False):
 EvaluationRunConfigOrDict = Union[EvaluationRunConfig, EvaluationRunConfigDict]
 
 
+class EvaluationRunAgentConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""The developer instruction for the agent."""
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The tools available to the agent."""
+    )
+
+
+class EvaluationRunAgentConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.ContentDict]
+    """The developer instruction for the agent."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The tools available to the agent."""
+
+
+EvaluationRunAgentConfigOrDict = Union[
+    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
+]
+
+
+class AgentRunConfig(_common.BaseModel):
+    """Configuration for an Agent Run."""
+
+    session_input: Optional[evals_types.SessionInput] = Field(
+        default=None, description="""The session input to get agent running results."""
+    )
+    agent_engine: Optional[str] = Field(
+        default=None, description="""The resource name of the Agent Engine."""
+    )
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None,
+        description="""Used for multi-turn agent run.
+        Contains configuration for a user simulator that
+        uses an LLM to generate messages on behalf of the user.""",
+    )
+
+
+class AgentRunConfigDict(TypedDict, total=False):
+    """Configuration for an Agent Run."""
+
+    session_input: Optional[evals_types.SessionInput]
+    """The session input to get agent running results."""
+
+    agent_engine: Optional[str]
+    """The resource name of the Agent Engine."""
+
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    """Used for multi-turn agent run.
+        Contains configuration for a user simulator that
+        uses an LLM to generate messages on behalf of the user."""
+
+
+AgentRunConfigOrDict = Union[AgentRunConfig, AgentRunConfigDict]
+
+
+class EvaluationRunInferenceConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfig] = Field(
+        default=None, description="""The agent config."""
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+    )
+    prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
+        default=None, description="""The prompt template used for inference."""
+    )
+    agent_run_config: Optional[AgentRunConfig] = Field(
+        default=None,
+        description="""Configuration for Agent Run in evaluation management service.""",
+    )
+    agent_configs: Optional[dict[str, evals_types.AgentConfig]] = Field(
+        default=None,
+        description="""A map of agent IDs to their respective agent config.""",
+    )
+
+
+class EvaluationRunInferenceConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfigDict]
+    """The agent config."""
+
+    model: Optional[str]
+    """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+    prompt_template: Optional[EvaluationRunPromptTemplateDict]
+    """The prompt template used for inference."""
+
+    agent_run_config: Optional[AgentRunConfigDict]
+    """Configuration for Agent Run in evaluation management service."""
+
+    agent_configs: Optional[dict[str, evals_types.AgentConfig]]
+    """A map of agent IDs to their respective agent config."""
+
+
+EvaluationRunInferenceConfigOrDict = Union[
+    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
+]
+
+
 class CreateEvaluationRunConfig(_common.BaseModel):
     """Config to create an evaluation run."""
 
@@ -2608,7 +2728,7 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
         default=None, description=""""""
     )
     labels: Optional[dict[str, str]] = Field(default=None, description="""""")
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfig]] = Field(
         default=None, description=""""""
     )
     config: Optional[CreateEvaluationRunConfig] = Field(
@@ -2634,7 +2754,7 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     labels: Optional[dict[str, str]]
     """"""
 
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfigDict]]
     """"""
 
     config: Optional[CreateEvaluationRunConfigDict]
@@ -3250,119 +3370,6 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
-
-
-class EvaluationRunAgentConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.Content] = Field(
-        default=None, description="""The developer instruction for the agent."""
-    )
-    tools: Optional[list[genai_types.Tool]] = Field(
-        default=None, description="""The tools available to the agent."""
-    )
-
-
-class EvaluationRunAgentConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.ContentDict]
-    """The developer instruction for the agent."""
-
-    tools: Optional[list[genai_types.ToolDict]]
-    """The tools available to the agent."""
-
-
-EvaluationRunAgentConfigOrDict = Union[
-    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
-]
-
-
-class AgentRunConfig(_common.BaseModel):
-    """Configuration for an Agent Run."""
-
-    session_input: Optional[evals_types.SessionInput] = Field(
-        default=None, description="""The session input to get agent running results."""
-    )
-    agent_engine: Optional[str] = Field(
-        default=None, description="""The resource name of the Agent Engine."""
-    )
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
-        default=None,
-        description="""Used for multi-turn agent run.
-        Contains configuration for a user simulator that
-        uses an LLM to generate messages on behalf of the user.""",
-    )
-
-
-class AgentRunConfigDict(TypedDict, total=False):
-    """Configuration for an Agent Run."""
-
-    session_input: Optional[evals_types.SessionInput]
-    """The session input to get agent running results."""
-
-    agent_engine: Optional[str]
-    """The resource name of the Agent Engine."""
-
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
-    """Used for multi-turn agent run.
-        Contains configuration for a user simulator that
-        uses an LLM to generate messages on behalf of the user."""
-
-
-AgentRunConfigOrDict = Union[AgentRunConfig, AgentRunConfigDict]
-
-
-class EvaluationRunInferenceConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfig] = Field(
-        default=None, description="""The agent config."""
-    )
-    model: Optional[str] = Field(
-        default=None,
-        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
-    )
-    prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
-        default=None, description="""The prompt template used for inference."""
-    )
-    agent_run_config: Optional[AgentRunConfig] = Field(
-        default=None,
-        description="""Configuration for Agent Run in evaluation management service.""",
-    )
-
-
-class EvaluationRunInferenceConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfigDict]
-    """The agent config."""
-
-    model: Optional[str]
-    """The fully qualified name of the publisher model or endpoint to use for inference."""
-
-    prompt_template: Optional[EvaluationRunPromptTemplateDict]
-    """The prompt template used for inference."""
-
-    agent_run_config: Optional[AgentRunConfigDict]
-    """Configuration for Agent Run in evaluation management service."""
-
-
-EvaluationRunInferenceConfigOrDict = Union[
-    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
-]
 
 
 class EvaluationRun(_common.BaseModel):
