@@ -15,6 +15,7 @@
 """Visualization utilities for GenAI Evaluation SDK."""
 
 import base64
+import datetime
 import html
 import json
 import logging
@@ -44,6 +45,10 @@ def _pydantic_serializer(obj: Any) -> Any:
     """Custom serializer for Pydantic models."""
     if hasattr(obj, "model_dump"):
         return obj.model_dump(mode="json")
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    if isinstance(obj, bytes):
+        return base64.b64encode(obj).decode("utf-8")
     raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
 
