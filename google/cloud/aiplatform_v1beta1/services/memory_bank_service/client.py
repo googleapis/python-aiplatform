@@ -836,6 +836,9 @@ class MemoryBankServiceClient(metaclass=MemoryBankServiceClientMeta):
         self,
         request: Optional[Union[memory_bank_service.CreateMemoryRequest, dict]] = None,
         *,
+        parent: Optional[str] = None,
+        memory: Optional[memory_bank.Memory] = None,
+        memory_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
@@ -880,6 +883,33 @@ class MemoryBankServiceClient(metaclass=MemoryBankServiceClientMeta):
             request (Union[google.cloud.aiplatform_v1beta1.types.CreateMemoryRequest, dict]):
                 The request object. Request message for
                 [MemoryBankService.CreateMemory][google.cloud.aiplatform.v1beta1.MemoryBankService.CreateMemory].
+            parent (str):
+                Required. The resource name of the ReasoningEngine to
+                create the Memory under. Format:
+                ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            memory (google.cloud.aiplatform_v1beta1.types.Memory):
+                Required. The Memory to be created.
+                This corresponds to the ``memory`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            memory_id (str):
+                Optional. The user defined ID to use for memory, which
+                will become the final component of the memory resource
+                name. If not provided, Vertex AI will generate a value
+                for this ID.
+
+                This value may be up to 63 characters, and valid
+                characters are ``[a-z0-9-]``. The first character must
+                be a letter, and the last character must be a letter or
+                number.
+
+                This corresponds to the ``memory_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -898,10 +928,30 @@ class MemoryBankServiceClient(metaclass=MemoryBankServiceClientMeta):
 
         """
         # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent, memory, memory_id]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
         # - Use the request object if provided (there's no risk of modifying the input as
         #   there are no flattened fields), or create one.
         if not isinstance(request, memory_bank_service.CreateMemoryRequest):
             request = memory_bank_service.CreateMemoryRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if memory is not None:
+                request.memory = memory
+            if memory_id is not None:
+                request.memory_id = memory_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

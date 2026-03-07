@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.140.0"
+    "version": "0.0.0"
   },
   "snippets": [
     {
@@ -29617,6 +29617,18 @@
             "type": "google.cloud.aiplatform_v1beta1.types.CreateMemoryRequest"
           },
           {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "memory",
+            "type": "google.cloud.aiplatform_v1beta1.types.Memory"
+          },
+          {
+            "name": "memory_id",
+            "type": "str"
+          },
+          {
             "name": "retry",
             "type": "google.api_core.retry.Retry"
           },
@@ -29691,6 +29703,18 @@
           {
             "name": "request",
             "type": "google.cloud.aiplatform_v1beta1.types.CreateMemoryRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "memory",
+            "type": "google.cloud.aiplatform_v1beta1.types.Memory"
+          },
+          {
+            "name": "memory_id",
+            "type": "str"
           },
           {
             "name": "retry",
@@ -53209,6 +53233,10 @@
             "type": "google.cloud.aiplatform_v1beta1.types.Session"
           },
           {
+            "name": "session_id",
+            "type": "str"
+          },
+          {
             "name": "retry",
             "type": "google.api_core.retry.Retry"
           },
@@ -53291,6 +53319,10 @@
           {
             "name": "session",
             "type": "google.cloud.aiplatform_v1beta1.types.Session"
+          },
+          {
+            "name": "session_id",
+            "type": "str"
           },
           {
             "name": "retry",
