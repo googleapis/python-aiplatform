@@ -1385,6 +1385,7 @@ def test_create_session_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = session_service.CreateSessionRequest(
         parent="parent_value",
+        session_id="session_id_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1397,6 +1398,7 @@ def test_create_session_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == session_service.CreateSessionRequest(
             parent="parent_value",
+            session_id="session_id_value",
         )
 
 
@@ -1600,6 +1602,7 @@ def test_create_session_flattened():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -1611,6 +1614,9 @@ def test_create_session_flattened():
         assert arg == mock_val
         arg = args[0].session
         mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
+        assert arg == mock_val
+        arg = args[0].session_id
+        mock_val = "session_id_value"
         assert arg == mock_val
 
 
@@ -1628,6 +1634,7 @@ def test_create_session_flattened_error():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
 
@@ -1652,6 +1659,7 @@ async def test_create_session_flattened_async():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -1663,6 +1671,9 @@ async def test_create_session_flattened_async():
         assert arg == mock_val
         arg = args[0].session
         mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
+        assert arg == mock_val
+        arg = args[0].session_id
+        mock_val = "session_id_value"
         assert arg == mock_val
 
 
@@ -1681,6 +1692,7 @@ async def test_create_session_flattened_error_async():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
 
@@ -4119,6 +4131,8 @@ def test_create_session_rest_required_fields(
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
     ).create_session._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("session_id",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -4172,7 +4186,7 @@ def test_create_session_rest_unset_required_fields():
 
     unset_fields = transport.create_session._get_unset_required_fields({})
     assert set(unset_fields) == (
-        set(())
+        set(("sessionId",))
         & set(
             (
                 "parent",
@@ -4204,6 +4218,7 @@ def test_create_session_rest_flattened():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
         mock_args.update(sample_request)
 
@@ -4243,6 +4258,7 @@ def test_create_session_rest_flattened_error(transport: str = "rest"):
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
 
@@ -7112,6 +7128,7 @@ def test_append_event_rest_call_success(request_type):
             "input_transcription": {"text": "text_value", "finished": True},
             "output_transcription": {},
         },
+        "raw_event": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9338,6 +9355,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
             "input_transcription": {"text": "text_value", "finished": True},
             "output_transcription": {},
         },
+        "raw_event": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
