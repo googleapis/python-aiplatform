@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.141.0](https://github.com/googleapis/python-aiplatform/compare/v1.140.0...v1.141.0) (2026-03-07)
+
+
+### Features
+
+* "global" endpoint supports "grpc" transport ([b3bae32](https://github.com/googleapis/python-aiplatform/commit/b3bae32b8577974a113ad1dc3effb5d3a3db4fe0))
+* Add PromptTemplateData to support `context` and `history` columns when creating Evaluation run from dataframe ([e887a2e](https://github.com/googleapis/python-aiplatform/commit/e887a2e5dc00462793663c647b00666e5b7bae02))
+* GenAI Client(evals): Patch agent config map to agent data ([8ba4707](https://github.com/googleapis/python-aiplatform/commit/8ba4707cab8c33aa63bacf1c56bb6b61a74aea70))
+* GenAI Client(evals): Update to enable agent run functionality in eval management service ([7a59738](https://github.com/googleapis/python-aiplatform/commit/7a597382a0f793cf8784bb4e2735c756b43886ea))
+* Update match_service proto for new embedding metadata fields ([fba5350](https://github.com/googleapis/python-aiplatform/commit/fba53506b8b59746a822824aad5f08975450112c))
+* Update match_service proto for new embedding metadata fields ([fba5350](https://github.com/googleapis/python-aiplatform/commit/fba53506b8b59746a822824aad5f08975450112c))
+* Update match_service proto for new embedding metadata fields ([fba5350](https://github.com/googleapis/python-aiplatform/commit/fba53506b8b59746a822824aad5f08975450112c))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Add datetime and bytes serialization to _json_serializer ([7410b1d](https://github.com/googleapis/python-aiplatform/commit/7410b1d4361c42e52d6527ed96e69349cbb84378))
+
 ## [1.140.0](https://github.com/googleapis/python-aiplatform/compare/v1.139.0...v1.140.0) (2026-03-04)
 
 
