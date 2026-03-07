@@ -232,11 +232,7 @@ def _EvaluateInstancesRequestParameters_to_vertex(
         setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
 
     if getv(from_object, ["metrics"]) is not None:
-        setv(
-            to_object,
-            ["metrics"],
-            [item for item in t.t_metrics(getv(from_object, ["metrics"]))],
-        )
+        setv(to_object, ["metricSources"], t.t_metrics(getv(from_object, ["metrics"])))
 
     if getv(from_object, ["instance"]) is not None:
         setv(
@@ -346,6 +342,13 @@ def _EvaluationRunMetric_from_vertex(
             _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
         )
 
+    if getv(from_object, ["metricResourceName"]) is not None:
+        setv(
+            to_object,
+            ["metric_resource_name"],
+            getv(from_object, ["metricResourceName"]),
+        )
+
     return to_object
 
 
@@ -362,6 +365,13 @@ def _EvaluationRunMetric_to_vertex(
             to_object,
             ["metricConfig"],
             _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
+        )
+
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
         )
 
     return to_object
@@ -439,6 +449,13 @@ def _GenerateInstanceRubricsRequest_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["contents"]) is not None:
         setv(to_object, ["contents"], getv(from_object, ["contents"]))
+
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
+        )
 
     if getv(from_object, ["predefined_rubric_generation_spec"]) is not None:
         setv(
@@ -920,7 +937,7 @@ class Evals(_api_module.BaseModule):
         ] = None,
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
-        metrics: Optional[list[types.MetricOrDict]] = None,
+        metrics: Optional[list[types.MetricSourceOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
@@ -989,6 +1006,7 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         contents: list[genai_types.ContentOrDict],
+        metric_resource_name: Optional[str] = None,
         predefined_rubric_generation_spec: Optional[
             types.PredefinedMetricSpecOrDict
         ] = None,
@@ -1001,6 +1019,7 @@ class Evals(_api_module.BaseModule):
 
         parameter_model = types._GenerateInstanceRubricsRequest(
             contents=contents,
+            metric_resource_name=metric_resource_name,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
             config=config,
@@ -2174,7 +2193,7 @@ class AsyncEvals(_api_module.BaseModule):
         ] = None,
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
-        metrics: Optional[list[types.MetricOrDict]] = None,
+        metrics: Optional[list[types.MetricSourceOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
@@ -2245,6 +2264,7 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         contents: list[genai_types.ContentOrDict],
+        metric_resource_name: Optional[str] = None,
         predefined_rubric_generation_spec: Optional[
             types.PredefinedMetricSpecOrDict
         ] = None,
@@ -2257,6 +2277,7 @@ class AsyncEvals(_api_module.BaseModule):
 
         parameter_model = types._GenerateInstanceRubricsRequest(
             contents=contents,
+            metric_resource_name=metric_resource_name,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
             config=config,
