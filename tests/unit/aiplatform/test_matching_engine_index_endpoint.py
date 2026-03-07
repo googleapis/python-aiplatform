@@ -2459,6 +2459,7 @@ class TestMatchNeighbor:
                     name="namespace2", value_int=10, value_float=None, value_double=None
                 )
             ],
+            embedding_metadata={"key": "value"},
         )
 
         result = MatchNeighbor(id="embedding_id", distance=0.3).from_embedding(
@@ -2476,3 +2477,4 @@ class TestMatchNeighbor:
         assert result.numeric_restricts[0].value_int == 10
         assert not result.numeric_restricts[0].value_float
         assert not result.numeric_restricts[0].value_double
+        assert result.embedding_metadata == {"key": "value"}
