@@ -180,7 +180,7 @@ def test_run_inference_with_agent(client):
         agent="projects/977012026409/locations/us-central1/reasoningEngines/7188347537655332864",
         src=test_df,
     )
-    assert inference_result.candidate_name is None
+    assert inference_result.candidate_name == "agent_engine_0"
     assert inference_result.gcs_source is None
 
 

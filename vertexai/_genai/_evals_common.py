@@ -1143,6 +1143,13 @@ def _execute_inference(
             candidate_name=candidate_name,
         )
     elif agent_engine or agent:
+        candidate_name = None
+        if agent_engine:
+            candidate_name = "agent_engine_0"
+        elif agent:
+            agent_config = types.evals.AgentConfig.from_agent(agent)
+            candidate_name = agent_config.agent_id or "agent_0"
+
         if (
             agent_engine
             and not isinstance(agent_engine, str)
@@ -1181,6 +1188,7 @@ def _execute_inference(
 
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
+            candidate_name=candidate_name,
         )
     else:
         raise ValueError("Either model, agent_engine or agent must be provided.")
