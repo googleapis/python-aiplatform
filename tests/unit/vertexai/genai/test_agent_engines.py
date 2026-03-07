@@ -2866,6 +2866,56 @@ class TestAgentEngine:
                 None,
             )
 
+    def test_async_query_agent_engine(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            with mock.patch(
+                "google.cloud.storage.Client"
+            ) as mock_storage_client, mock.patch.object(
+                self.client.agent_engines, "_get"
+            ) as get_mock:
+                # Mock the GCS bucket and blob so we don't actually try to use GCS
+                mock_bucket = mock.Mock()
+                mock_bucket.exists.return_value = False
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = False
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                # Mock _get to return a dummy resource
+                get_mock.return_value = _genai_types.ReasoningEngine(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    spec=_genai_types.ReasoningEngineSpec(),
+                )
+
+                self.client.agent_engines.async_query(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "input_gcs_uri": "gs://my-input-bucket/input.json",
+                        "output_gcs_uri": "gs://my-output-bucket/output.json",
+                    },
+                )
+
+                # Verify bucket creation
+                assert mock_bucket.create.call_count == 2
+                # Verify file upload
+                mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+
+            request_mock.assert_called_with(
+                "post",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:asyncQuery",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "query": _TEST_QUERY_PROMPT,
+                    "inputGcsUri": "gs://my-input-bucket/input.json",
+                    "outputGcsUri": "gs://my-output-bucket/output.json",
+                },
+                None,
+            )
+
     def test_query_agent_engine_async(self):
         agent = self.client.agent_engines._register_api_methods(
             agent_engine=_genai_types.AgentEngine(
