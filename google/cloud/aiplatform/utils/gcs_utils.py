@@ -194,26 +194,12 @@ def stage_local_data_in_gcs(
 
     staging_gcs_dir = staging_gcs_dir or initializer.global_config.staging_bucket
     if not staging_gcs_dir:
-        project = project or initializer.global_config.project
-        location = location or initializer.global_config.location
-        credentials = credentials or initializer.global_config.credentials
-        # Creating the bucket if it does not exist.
-        # Currently we only do this when staging_gcs_dir is not specified.
-        # The buckets that we create are regional.
-        # This prevents errors when some service required regional bucket.
-        # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...` is in location `us`. It must be in the same regional location as the service location `us-central1`."
-        # We are making the bucket name region-specific since the bucket is regional.
-        staging_bucket_name = project + "-vertex-staging-" + location
-        client = storage.Client(project=project, credentials=credentials)
-        staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
-        if not staging_bucket.exists():
-            _logger.info(f'Creating staging GCS bucket "{staging_bucket_name}"')
-            staging_bucket = client.create_bucket(
-                bucket_or_name=staging_bucket,
-                project=project,
-                location=location,
-            )
-        staging_gcs_dir = "gs://" + staging_bucket_name
+        raise RuntimeError(
+            "staging_gcs_dir should be passed to stage_local_data_in_gcs or "
+            "should be set using aiplatform.init(staging_bucket='gs://my-bucket'). "
+            "This is required to prevent the use of predictable bucket names "
+            "which could be exploited via bucket squatting attacks."
+        )
 
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
     staging_gcs_subdir = (
@@ -248,11 +234,16 @@ def generate_gcs_directory_for_pipeline_artifacts(
     Returns:
         Google Cloud Storage URI of the staged data.
     """
-    project = project or initializer.global_config.project
-    location = location or initializer.global_config.location
+    pipeline_root = initializer.global_config.staging_bucket
+    if not pipeline_root:
+        raise RuntimeError(
+            "pipeline_root should be passed to PipelineJob or "
+            "should be set using aiplatform.init(staging_bucket='gs://my-bucket'). "
+            "This is required to prevent the use of predictable bucket names "
+            "which could be exploited via bucket squatting attacks."
+        )
 
-    pipelines_bucket_name = project + "-vertex-pipelines-" + location
-    output_artifacts_gcs_dir = "gs://" + pipelines_bucket_name + "/output_artifacts/"
+    output_artifacts_gcs_dir = pipeline_root.rstrip("/") + "/output_artifacts/"
     return output_artifacts_gcs_dir
 
 
