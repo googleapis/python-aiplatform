@@ -4661,6 +4661,33 @@ class MetricDict(TypedDict, total=False):
 MetricOrDict = Union[Metric, MetricDict]
 
 
+class MetricSource(_common.BaseModel):
+    """The metric source used for evaluation."""
+
+    metric: Optional[Metric] = Field(
+        default=None, description="""Inline metric config."""
+    )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""Resource name for registered metric. Example:
+      projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
+
+
+class MetricSourceDict(TypedDict, total=False):
+    """The metric source used for evaluation."""
+
+    metric: Optional[MetricDict]
+    """Inline metric config."""
+
+    metric_resource_name: Optional[str]
+    """Resource name for registered metric. Example:
+      projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
+
+MetricSourceOrDict = Union[MetricSource, MetricSourceDict]
+
+
 class _EvaluateInstancesRequestParameters(_common.BaseModel):
     """Parameters for evaluating instances."""
 
@@ -4696,8 +4723,11 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     metrics: Optional[list[Metric]] = Field(
         default=None,
         description="""The metrics used for evaluation.
-  Currently, we only support evaluating a single metric. If multiple metrics
+      Currently, we only support evaluating a single metric. If multiple metrics
   are provided, only the first one will be evaluated.""",
+    )
+    metric_sources: Optional[list[MetricSource]] = Field(
+        default=None, description="""The metrics used for evaluation."""
     )
     instance: Optional[EvaluationInstance] = Field(
         default=None, description="""The instance to be evaluated."""
@@ -4743,8 +4773,11 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
     metrics: Optional[list[MetricDict]]
     """The metrics used for evaluation.
-  Currently, we only support evaluating a single metric. If multiple metrics
+      Currently, we only support evaluating a single metric. If multiple metrics
   are provided, only the first one will be evaluated."""
+
+    metric_sources: Optional[list[MetricSourceDict]]
+    """The metrics used for evaluation."""
 
     instance: Optional[EvaluationInstanceDict]
     """The instance to be evaluated."""

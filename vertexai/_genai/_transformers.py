@@ -14,12 +14,15 @@
 #
 
 """Transformers module for Vertex addons."""
+import re
 from typing import Any
 
 from google.genai._common import get_value_by_path as getv
 
 from . import _evals_constant
 from . import types
+
+_METRIC_RES_NAME_RE = r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$"
 
 
 def t_metrics(
@@ -38,10 +41,9 @@ def t_metrics(
 
     for metric in metrics:
         metric_payload_item: dict[str, Any] = {}
-        if hasattr(metric, "metric_resource_name") and metric.metric_resource_name:
-            metric_payload_item["metric_resource_name"] = metric.metric_resource_name
 
-        metric_name = getv(metric, ["name"]).lower()
+        metric_id = getv(metric, ["metric"]) or getv(metric, ["name"])
+        metric_name = metric_id.lower() if metric_id else None
 
         if set_default_aggregation_metrics:
             metric_payload_item["aggregation_metrics"] = [
@@ -53,11 +55,13 @@ def t_metrics(
             metric_payload_item["exact_match_spec"] = {}
         elif metric_name == "bleu":
             metric_payload_item["bleu_spec"] = {}
-        elif metric_name.startswith("rouge"):
+        elif metric_name and metric_name.startswith("rouge"):
             rouge_type = metric_name.replace("_", "")
             metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}
         # API Pre-defined metrics
-        elif metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
+        elif (
+            metric_name and metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS
+        ):
             metric_payload_item["predefined_metric_spec"] = {
                 "metric_spec_name": metric_name,
                 "metric_spec_parameters": metric.metric_spec_parameters,
@@ -81,8 +85,8 @@ def t_metrics(
                     "return_raw_output": return_raw_output
                 }
             metric_payload_item["pointwise_metric_spec"] = pointwise_spec
-        elif "metric_resource_name" in metric_payload_item:
-            # Valid case: Metric is identified by resource name; no inline spec required.
+        elif getattr(metric, "metric_resource_name", None) is not None:
+            # Safe pass
             pass
         else:
             raise ValueError(
@@ -90,3 +94,29 @@ def t_metrics(
             )
         metrics_payload.append(metric_payload_item)
     return metrics_payload
+
+
+def t_metric_sources(metrics: list[Any]) -> list[dict[str, Any]]:
+    """Prepares the MetricSource payload."""
+    sources_payload = []
+    for metric in metrics:
+        resource_name = getattr(metric, "metric_resource_name", None)
+        if (
+            not resource_name
+            and isinstance(metric, str)
+            and re.match(_METRIC_RES_NAME_RE, metric)
+        ):
+            resource_name = metric
+
+        if resource_name:
+            sources_payload.append({"metric_resource_name": resource_name})
+        else:
+            if hasattr(metric, "metric") and not isinstance(metric, str):
+                metric = metric.metric
+
+            if not hasattr(metric, "name"):
+                metric = types.Metric(name=str(metric))
+
+            metric_payload = t_metrics([metric])[0]
+            sources_payload.append({"metric": metric_payload})
+    return sources_payload
