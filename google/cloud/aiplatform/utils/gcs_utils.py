@@ -185,6 +185,8 @@ def stage_local_data_in_gcs(
 
     Raises:
         RuntimeError: When source_path does not exist.
+        RuntimeError: When staging_gcs_dir is not provided and staging_bucket
+            is not configured via aiplatform.init().
         GoogleCloudError: When the upload process fails.
     """
     data_path_obj = pathlib.Path(data_path)
@@ -225,14 +227,20 @@ def generate_gcs_directory_for_pipeline_artifacts(
     project: Optional[str] = None,
     location: Optional[str] = None,
 ):
-    """Gets or creates the GCS directory for Vertex Pipelines artifacts.
+    """Gets the GCS directory for Vertex Pipelines artifacts.
+
+    Requires staging_bucket to be configured via aiplatform.init().
+    The project and location parameters are deprecated and ignored.
 
     Args:
-        project: Optional. Google Cloud Project that contains the staging bucket.
-        location: Optional. Google Cloud location to use for the staging bucket.
+        project: Deprecated. No longer used.
+        location: Deprecated. No longer used.
 
     Returns:
-        Google Cloud Storage URI of the staged data.
+        Google Cloud Storage URI for pipeline artifacts.
+
+    Raises:
+        RuntimeError: When staging_bucket is not configured via aiplatform.init().
     """
     pipeline_root = initializer.global_config.staging_bucket
     if not pipeline_root:
@@ -242,6 +250,7 @@ def generate_gcs_directory_for_pipeline_artifacts(
             "This is required to prevent the use of predictable bucket names "
             "which could be exploited via bucket squatting attacks."
         )
+    validate_gcs_path(pipeline_root)
 
     output_artifacts_gcs_dir = pipeline_root.rstrip("/") + "/output_artifacts/"
     return output_artifacts_gcs_dir

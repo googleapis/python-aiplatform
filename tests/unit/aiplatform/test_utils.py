@@ -577,11 +577,27 @@ class TestGcsUtils:
             == f"{staging_gcs_dir}/vertex_ai_auto_staging/{timestamp}/test.json"
         )
 
-    def test_generate_gcs_directory_for_pipeline_artifacts(self):
-        output = gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
-            "project", "us-central1"
-        )
-        assert output == "gs://project-vertex-pipelines-us-central1/output_artifacts/"
+    def test_generate_gcs_directory_for_pipeline_artifacts_with_staging_bucket(self):
+        with patch.object(
+            gcs_utils.initializer.global_config,
+            "staging_bucket",
+            "gs://my-staging-bucket",
+        ):
+            output = gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                "project", "us-central1"
+            )
+            assert output == "gs://my-staging-bucket/output_artifacts/"
+
+    def test_generate_gcs_directory_for_pipeline_artifacts_raises_without_staging_bucket(
+        self,
+    ):
+        with patch.object(
+            gcs_utils.initializer.global_config, "staging_bucket", None
+        ):
+            with pytest.raises(RuntimeError, match="pipeline_root should be passed"):
+                gcs_utils.generate_gcs_directory_for_pipeline_artifacts(
+                    "project", "us-central1"
+                )
 
     @patch.object(storage.Bucket, "exists", return_value=False)
     @patch.object(storage, "Client")
@@ -593,15 +609,14 @@ class TestGcsUtils:
     ):
         output = (
             gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
-                project="test-project", location="us-central1"
+                output_artifacts_gcs_dir="gs://my-bucket/output_artifacts/",
+                project="test-project",
+                location="us-central1",
             )
         )
         assert mock_storage_client.called
         assert mock_bucket_not_exist.called
-        assert mock_get_project_number.called
-        assert (
-            output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
-        )
+        assert output == "gs://my-bucket/output_artifacts/"
 
     def test_download_from_gcs_dir(
         self, mock_storage_client_list_blobs, mock_storage_blob_download_to_filename
