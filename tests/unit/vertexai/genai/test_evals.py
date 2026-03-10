@@ -3292,6 +3292,136 @@ class TestAgentInfo:
         mock_from_callable.assert_called_once_with(callable=my_search_tool)
 
 
+class TestValidateDatasetAgentData:
+    """Unit tests for the _validate_dataset_agent_data function."""
+
+    def test_valid_agent_data_in_df(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [
+                    {
+                        "agent_data": {
+                            "turns": [{"turn_index": 0, "turn_id": "1", "events": []}]
+                        }
+                    },
+                    {
+                        "agent_data": '{"turns": [{"turn_index": 0, "turn_id": "2", "events": []}]}'
+                    },
+                    {
+                        "agent_data": vertexai_genai_types.evals.AgentData(
+                            turns=[{"turn_index": 0, "turn_id": "3", "events": []}]
+                        )
+                    },
+                ]
+            )
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_valid_agent_data_in_eval_cases(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_cases=[
+                vertexai_genai_types.EvalCase(
+                    agent_data={
+                        "turns": [{"turn_index": 0, "turn_id": "1", "events": []}]
+                    }
+                ),
+                vertexai_genai_types.EvalCase(
+                    agent_data=json.loads(
+                        '{"turns": [{"turn_index": 0, "turn_id": "2", "events": []}]}'
+                    )
+                ),
+                vertexai_genai_types.EvalCase(
+                    agent_data=vertexai_genai_types.evals.AgentData(
+                        turns=[{"turn_index": 0, "turn_id": "3", "events": []}]
+                    )
+                ),
+            ]
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_invalid_json_string_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": '{"turns":'}])
+        )
+        with pytest.raises(ValueError, match="is not valid JSON"):
+            _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_invalid_dict_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": {"agents": 123}}])
+        )
+        with pytest.raises(ValueError, match="is inconsistent with AgentData type"):
+            _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_valid_agent_data_with_error_in_dict(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"agent_data": {"error": "some error message"}}]
+            )
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_valid_agent_data_with_error_in_string(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"agent_data": '{"error": "some error message"}'}]
+            )
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_invalid_agent_data_type_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": 123}])
+        )
+        with pytest.raises(ValueError, match="is inconsistent with AgentData type"):
+            _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_conflict_with_inference_configs_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [
+                    {
+                        "agent_data": {
+                            "agents": {"agent1": {"agent_id": "agent1"}},
+                            "turns": [],
+                        }
+                    }
+                ]
+            )
+        )
+        inference_configs = {
+            "cand1": {"agent_configs": {"agent1": {"agent_id": "agent1"}}}
+        }
+        with pytest.raises(
+            ValueError,
+            match="Cannot provide 'agents' in the dataset's 'agent_data'",
+        ):
+            _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+
+    def test_no_conflict_with_inference_configs(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": {"turns": []}}])
+        )
+        inference_configs = {"cand1": {"agent_configs": {"agent1": {"name": "agent1"}}}}
+        _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+
+    def test_no_conflict_if_inference_configs_has_no_agent_configs(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [
+                    {
+                        "agent_data": {
+                            "agents": {"agent1": {"agent_id": "agent1"}},
+                            "turns": [],
+                        }
+                    }
+                ]
+            )
+        )
+        inference_configs = {"cand1": {"model": "gemini-pro"}}
+        _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+
+
 class TestEvent:
     """Unit tests for the Event class."""
 

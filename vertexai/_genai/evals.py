@@ -1830,6 +1830,8 @@ class Evals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+        if isinstance(dataset, types.EvaluationDataset):
+            _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, agent_info_pydantic
         )
@@ -2758,6 +2760,8 @@ class AsyncEvals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+        if isinstance(dataset, types.EvaluationDataset):
+            _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
             self._api_client, dataset, dest, agent_info_pydantic
         )

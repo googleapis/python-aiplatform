@@ -17,6 +17,7 @@
 import abc
 import logging
 import os
+import json
 from typing import Any, Optional, Union
 
 from google.genai import types as genai_types
@@ -370,3 +371,77 @@ def _postprocess_user_scenarios_response(
     return types.EvaluationDataset(
         eval_cases=eval_cases, eval_dataset_df=eval_dataset_df
     )
+
+
+def _validate_dataset_agent_data(
+    dataset: types.EvaluationDataset,
+    inference_configs: Optional[dict[str, Any]] = None,
+) -> None:
+    """Validates agent_data in the EvaluationDataset.
+
+    Checks that agent_data matches the expected AgentData type and that
+    'agents' are not defined in both the dataset's agent_data and inference_configs.
+    """
+    has_inference_agent_configs = False
+    if inference_configs:
+        for cand_config in inference_configs.values():
+            if isinstance(cand_config, dict) and cand_config.get("agent_configs"):
+                has_inference_agent_configs = True
+            elif hasattr(cand_config, "agent_configs") and cand_config.agent_configs:
+                has_inference_agent_configs = True
+
+    def _validate_single_agent_data(agent_data_val: Any, identifier: str) -> None:
+
+        if not agent_data_val:
+            return
+
+        agent_data_obj = None
+        if isinstance(agent_data_val, str):
+            try:
+                agent_data_val = json.loads(agent_data_val)
+                if "error" in agent_data_val:
+                    return
+                agent_data_obj = types.evals.AgentData.model_validate(agent_data_val)
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    f"{identifier}: 'agent_data' is not valid JSON: {e}"
+                ) from e
+        elif isinstance(agent_data_val, dict) and "error" in agent_data_val:
+            return
+        elif isinstance(agent_data_val, dict):
+            try:
+                agent_data_obj = types.evals.AgentData.model_validate(agent_data_val)
+            except Exception as e:
+                raise ValueError(
+                    f"{identifier}: 'agent_data' "
+                    f"is inconsistent with AgentData type: {e}"
+                ) from e
+        elif isinstance(agent_data_val, types.evals.AgentData):
+            agent_data_obj = agent_data_val
+        else:
+            raise ValueError(
+                f"{identifier}: 'agent_data' is inconsistent with AgentData type. "
+                f"Got {type(agent_data_val)}"
+            )
+
+        if agent_data_obj and agent_data_obj.agents and has_inference_agent_configs:
+            raise ValueError(
+                f"{identifier}: Cannot provide 'agents' in the dataset's 'agent_data' "
+                "and 'agent_configs' in inference_configs at the same time."
+            )
+
+    if (
+        dataset.eval_dataset_df is not None
+        and "agent_data" in dataset.eval_dataset_df.columns
+    ):
+        for idx, row in dataset.eval_dataset_df.iterrows():
+            _validate_single_agent_data(row.get("agent_data"), f"Row {idx}")
+
+    if dataset.eval_cases:
+        for idx, eval_case in enumerate(dataset.eval_cases):
+            agent_data = None
+            if isinstance(eval_case, dict):
+                agent_data = eval_case.get("agent_data", None)
+            elif hasattr(eval_case, "agent_data"):
+                agent_data = eval_case.agent_data
+            _validate_single_agent_data(agent_data, f"EvalCase {idx}")
