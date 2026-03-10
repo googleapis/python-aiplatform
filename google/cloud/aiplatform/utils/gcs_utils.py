@@ -187,6 +187,7 @@ def stage_local_data_in_gcs(
         RuntimeError: When source_path does not exist.
         RuntimeError: When staging_gcs_dir is not provided and staging_bucket
             is not configured via aiplatform.init().
+        ValueError: When staging_gcs_dir does not have a 'gs://' prefix.
         GoogleCloudError: When the upload process fails.
     """
     data_path_obj = pathlib.Path(data_path)
@@ -202,6 +203,7 @@ def stage_local_data_in_gcs(
             "This is required to prevent the use of predictable bucket names "
             "which could be exploited via bucket squatting attacks."
         )
+    validate_gcs_path(staging_gcs_dir)
 
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
     staging_gcs_subdir = (
