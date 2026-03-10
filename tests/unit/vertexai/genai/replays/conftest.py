@@ -25,6 +25,7 @@ from vertexai._genai import (
 from vertexai._genai import _agent_engines_utils
 from google.cloud import storage, bigquery
 from google.genai import _replay_api_client
+from google.genai import types as genai_types
 from google.genai import client as google_genai_client_module
 from vertexai._genai import _gcs_utils
 from vertexai._genai import prompt_optimizer
@@ -249,6 +250,13 @@ def client(use_vertex, replays_prefix, http_options, request):
             )
         )
         os.environ["GOOGLE_GENAI_REPLAYS_DIRECTORY"] = replays_root_directory
+
+    if http_options is None:
+        http_options = genai_types.HttpOptions()
+    if http_options.headers is None:
+        http_options.headers = {}
+    http_options.headers["x-goog-vertex-sdk"] = "true"
+
     replay_client = _replay_api_client.ReplayApiClient(
         mode=mode,
         replay_id=replay_id,
