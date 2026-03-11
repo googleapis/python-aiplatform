@@ -651,12 +651,15 @@ class Sessions(_api_module.BaseModule):
             user_id=user_id,
             config=config,
         )
-        if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
-                operation_name=operation.name,
-                get_operation_fn=self._get_session_operation,
-                poll_interval_seconds=0.5,
-            )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = _agent_engines_utils._await_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_session_operation,
+                    poll_interval_seconds=0.5,
+                )
+            # We need to make a call to get the session because the operation
+            # response might not contain the relevant fields.
             if operation.response:
                 operation.response = self.get(name=operation.response.name)
             elif operation.error:
@@ -1133,12 +1136,15 @@ class AsyncSessions(_api_module.BaseModule):
             user_id=user_id,
             config=config,
         )
-        if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
-                operation_name=operation.name,
-                get_operation_fn=self._get_session_operation,
-                poll_interval_seconds=0.5,
-            )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = await _agent_engines_utils._await_async_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_session_operation,
+                    poll_interval_seconds=0.5,
+                )
+            # We need to make a call to get the session because the operation
+            # response might not contain the relevant fields.
             if operation.response:
                 operation.response = await self.get(name=operation.response.name)
             elif operation.error:
