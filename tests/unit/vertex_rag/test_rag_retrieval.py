@@ -18,6 +18,7 @@ import importlib
 from google.cloud import aiplatform
 from vertexai import rag
 from google.cloud.aiplatform_v1 import (
+    VertexRagServiceAsyncClient,
     VertexRagServiceClient,
 )
 import mock
@@ -33,6 +34,29 @@ def retrieve_contexts_mock():
     ) as retrieve_contexts_mock:
         retrieve_contexts_mock.return_value = tc.TEST_RETRIEVAL_RESPONSE
         yield retrieve_contexts_mock
+
+
+@pytest.fixture
+def ask_contexts_mock():
+    with mock.patch.object(
+        VertexRagServiceClient,
+        "ask_contexts",
+    ) as ask_contexts_mock:
+        ask_contexts_mock.return_value = tc.TEST_RETRIEVAL_RESPONSE
+        yield ask_contexts_mock
+
+
+@pytest.fixture
+def async_retrieve_contexts_mock():
+    with mock.patch.object(
+        VertexRagServiceAsyncClient,
+        "async_retrieve_contexts",
+        new_callable=mock.AsyncMock,
+    ) as async_retrieve_contexts_mock:
+        lro_mock = mock.Mock()
+        lro_mock.result = mock.AsyncMock(return_value=tc.TEST_RETRIEVAL_RESPONSE)
+        async_retrieve_contexts_mock.return_value = lro_mock
+        yield async_retrieve_contexts_mock
 
 
 @pytest.fixture
@@ -73,6 +97,44 @@ class TestRagRetrieval:
     def test_retrieval_query_rag_resources_success(self):
         response = rag.retrieval_query(
             rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_rag_resources_success(self):
+        response = rag.ask_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_multiple_rag_resources_success(self):
+        response = rag.ask_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
+    async def test_async_retrieve_contexts_rag_resources_success(self):
+        response = await rag.async_retrieve_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
+    async def test_async_retrieve_contexts_multiple_rag_resources_success(self):
+        response = await rag.async_retrieve_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
             text=tc.TEST_QUERY_TEXT,
             rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
         )

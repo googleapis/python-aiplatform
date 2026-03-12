@@ -18,6 +18,7 @@ import importlib
 from google.cloud import aiplatform
 from vertexai.preview import rag
 from google.cloud.aiplatform_v1beta1 import (
+    VertexRagServiceAsyncClient,
     VertexRagServiceClient,
 )
 import mock
@@ -35,6 +36,33 @@ def retrieve_contexts_mock():
             test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
         )
         yield retrieve_contexts_mock
+
+
+@pytest.fixture
+def ask_contexts_mock():
+    with mock.patch.object(
+        VertexRagServiceClient,
+        "ask_contexts",
+    ) as ask_contexts_mock:
+        ask_contexts_mock.return_value = (
+            test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+        yield ask_contexts_mock
+
+
+@pytest.fixture
+def async_retrieve_contexts_mock():
+    with mock.patch.object(
+        VertexRagServiceAsyncClient,
+        "async_retrieve_contexts",
+        new_callable=mock.AsyncMock,
+    ) as async_retrieve_contexts_mock:
+        lro_mock = mock.Mock()
+        lro_mock.result = mock.AsyncMock(
+            return_value=test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+        async_retrieve_contexts_mock.return_value = lro_mock
+        yield async_retrieve_contexts_mock
 
 
 @pytest.fixture
@@ -80,6 +108,77 @@ class TestRagRetrieval:
                 similarity_top_k=2,
                 vector_distance_threshold=0.5,
                 vector_search_alpha=0.5,
+            )
+            retrieve_contexts_eq(
+                response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+            )
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_rag_resources_success(self):
+        response = rag.ask_contexts(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_multiple_rag_resources_success(self):
+        response = rag.ask_contexts(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE, test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_multiple_rag_corpora_success(self):
+        with pytest.warns(DeprecationWarning):
+            response = rag.ask_contexts(
+                rag_corpora=[test_rag_constants_preview.TEST_RAG_CORPUS_ID, test_rag_constants_preview.TEST_RAG_CORPUS_ID],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
+            )
+            retrieve_contexts_eq(
+                response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+            )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
+    async def test_async_retrieve_contexts_rag_resources_success(self):
+        response = await rag.async_retrieve_contexts(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
+    async def test_async_retrieve_contexts_multiple_rag_resources_success(self):
+        response = await rag.async_retrieve_contexts(
+            rag_resources=[test_rag_constants_preview.TEST_RAG_RESOURCE, test_rag_constants_preview.TEST_RAG_RESOURCE],
+            text=test_rag_constants_preview.TEST_QUERY_TEXT,
+            rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
+        )
+        retrieve_contexts_eq(
+            response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE
+        )
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
+    async def test_async_retrieve_contexts_multiple_rag_corpora_success(self):
+        with pytest.warns(DeprecationWarning):
+            response = await rag.async_retrieve_contexts(
+                rag_corpora=[test_rag_constants_preview.TEST_RAG_CORPUS_ID, test_rag_constants_preview.TEST_RAG_CORPUS_ID],
+                text=test_rag_constants_preview.TEST_QUERY_TEXT,
+                rag_retrieval_config=test_rag_constants_preview.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
             )
             retrieve_contexts_eq(
                 response, test_rag_constants_preview.TEST_RETRIEVAL_RESPONSE

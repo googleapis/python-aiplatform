@@ -18,6 +18,7 @@ import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
+    VertexRagAsyncClientWithOverride,
     VertexRagClientWithOverride,
     VertexRagDataAsyncClientWithOverride,
     VertexRagDataClientWithOverride,
@@ -44,8 +45,10 @@ from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils.resources import (
     ANN,
+    Basic,
     DocumentCorpus,
     EmbeddingModelConfig,
+    Enterprise,
     JiraSource,
     KNN,
     LayoutParserConfig,
@@ -61,8 +64,6 @@ from vertexai.preview.rag.utils.resources import (
     RagManagedDbConfig,
     RagManagedVertexVectorSearch,
     RagVectorDbConfig,
-    Basic,
-    Enterprise,
     Scaled,
     Serverless,
     SharePointSources,
@@ -99,6 +100,12 @@ def create_rag_data_service_async_client():
 def create_rag_service_client():
     return initializer.global_config.create_client(
         client_class=VertexRagClientWithOverride,
+    ).select_version("v1beta1")
+
+
+def create_rag_service_async_client():
+    return initializer.global_config.create_client(
+        client_class=VertexRagAsyncClientWithOverride,
     ).select_version("v1beta1")
 
 
