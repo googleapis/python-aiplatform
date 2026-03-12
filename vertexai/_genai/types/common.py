@@ -116,6 +116,21 @@ class A2aTaskState(_common.CaseInSensitiveEnum):
     """Task is paused."""
 
 
+class MediaResolution(_common.CaseInSensitiveEnum):
+    """The tokenization quality used for given media."""
+
+    MEDIA_RESOLUTION_UNSPECIFIED = "MEDIA_RESOLUTION_UNSPECIFIED"
+    """Media resolution has not been set."""
+    MEDIA_RESOLUTION_LOW = "MEDIA_RESOLUTION_LOW"
+    """Media resolution set to low."""
+    MEDIA_RESOLUTION_MEDIUM = "MEDIA_RESOLUTION_MEDIUM"
+    """Media resolution set to medium."""
+    MEDIA_RESOLUTION_HIGH = "MEDIA_RESOLUTION_HIGH"
+    """Media resolution set to high."""
+    MEDIA_RESOLUTION_ULTRA_HIGH = "MEDIA_RESOLUTION_ULTRA_HIGH"
+    """Media resolution set to ultra high. This is for image only."""
+
+
 class Outcome(_common.CaseInSensitiveEnum):
     """Outcome of the code execution."""
 
@@ -149,21 +164,6 @@ class FunctionResponseScheduling(_common.CaseInSensitiveEnum):
     """Add the result to the conversation context, and prompt to generate output without interrupting ongoing generation."""
     INTERRUPT = "INTERRUPT"
     """Add the result to the conversation context, interrupt ongoing generation and prompt to generate output."""
-
-
-class MediaResolution(_common.CaseInSensitiveEnum):
-    """The tokenization quality used for given media."""
-
-    MEDIA_RESOLUTION_UNSPECIFIED = "MEDIA_RESOLUTION_UNSPECIFIED"
-    """Media resolution has not been set."""
-    MEDIA_RESOLUTION_LOW = "MEDIA_RESOLUTION_LOW"
-    """Media resolution set to low."""
-    MEDIA_RESOLUTION_MEDIUM = "MEDIA_RESOLUTION_MEDIUM"
-    """Media resolution set to medium."""
-    MEDIA_RESOLUTION_HIGH = "MEDIA_RESOLUTION_HIGH"
-    """Media resolution set to high."""
-    MEDIA_RESOLUTION_ULTRA_HIGH = "MEDIA_RESOLUTION_ULTRA_HIGH"
-    """Media resolution set to ultra high. This is for image only."""
 
 
 class State(_common.CaseInSensitiveEnum):
@@ -547,6 +547,24 @@ _GetAgentEngineTaskRequestParametersOrDict = Union[
 ]
 
 
+class PartMediaResolution(_common.BaseModel):
+    """per part media resolution. Media resolution for the input media."""
+
+    level: Optional[MediaResolution] = Field(
+        default=None, description="""The tokenization quality used for given media."""
+    )
+
+
+class PartMediaResolutionDict(TypedDict, total=False):
+    """per part media resolution. Media resolution for the input media."""
+
+    level: Optional[MediaResolution]
+    """The tokenization quality used for given media."""
+
+
+PartMediaResolutionOrDict = Union[PartMediaResolution, PartMediaResolutionDict]
+
+
 class CodeExecutionResult(_common.BaseModel):
     """Result of executing the [ExecutableCode]. Only generated when using the [CodeExecution] tool, and always follows a `part` containing the [ExecutableCode]."""
 
@@ -682,13 +700,13 @@ PartialArgOrDict = Union[PartialArg, PartialArgDict]
 class FunctionCall(_common.BaseModel):
     """A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing the parameters and their values."""
 
-    args: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional. The function parameters and values in JSON object format. See [FunctionDeclaration.parameters] for parameter details.""",
-    )
     id: Optional[str] = Field(
         default=None,
         description="""Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`.""",
+    )
+    args: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. The function parameters and values in JSON object format. See [FunctionDeclaration.parameters] for parameter details.""",
     )
     name: Optional[str] = Field(
         default=None,
@@ -707,11 +725,11 @@ class FunctionCall(_common.BaseModel):
 class FunctionCallDict(TypedDict, total=False):
     """A predicted [FunctionCall] returned from the model that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing the parameters and their values."""
 
-    args: Optional[dict[str, Any]]
-    """Optional. The function parameters and values in JSON object format. See [FunctionDeclaration.parameters] for parameter details."""
-
     id: Optional[str]
     """Optional. The unique id of the function call. If populated, the client to execute the `function_call` and return the response with the matching `id`."""
+
+    args: Optional[dict[str, Any]]
+    """Optional. The function parameters and values in JSON object format. See [FunctionDeclaration.parameters] for parameter details."""
 
     name: Optional[str]
     """Optional. The name of the function to call. Matches [FunctionDeclaration.name]."""
@@ -726,54 +744,25 @@ class FunctionCallDict(TypedDict, total=False):
 FunctionCallOrDict = Union[FunctionCall, FunctionCallDict]
 
 
-class FunctionResponseFileData(_common.BaseModel):
-    """URI based data for function response."""
+class FunctionResponseBlob(_common.BaseModel):
+    """Raw media bytes for function response. Text should not be sent as raw bytes, use the 'text' field."""
 
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
-    )
-    file_uri: Optional[str] = Field(default=None, description="""Required. URI.""")
     mime_type: Optional[str] = Field(
         default=None,
         description="""Required. The IANA standard MIME type of the source data.""",
     )
-
-
-class FunctionResponseFileDataDict(TypedDict, total=False):
-    """URI based data for function response."""
-
-    display_name: Optional[str]
-    """Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
-
-    file_uri: Optional[str]
-    """Required. URI."""
-
-    mime_type: Optional[str]
-    """Required. The IANA standard MIME type of the source data."""
-
-
-FunctionResponseFileDataOrDict = Union[
-    FunctionResponseFileData, FunctionResponseFileDataDict
-]
-
-
-class FunctionResponseBlob(_common.BaseModel):
-    """Raw media bytes for function response. Text should not be sent as raw bytes, use the 'text' field."""
-
     data: Optional[bytes] = Field(default=None, description="""Required. Raw bytes.""")
     display_name: Optional[str] = Field(
         default=None,
         description="""Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
     )
-    mime_type: Optional[str] = Field(
-        default=None,
-        description="""Required. The IANA standard MIME type of the source data.""",
-    )
 
 
 class FunctionResponseBlobDict(TypedDict, total=False):
     """Raw media bytes for function response. Text should not be sent as raw bytes, use the 'text' field."""
+
+    mime_type: Optional[str]
+    """Required. The IANA standard MIME type of the source data."""
 
     data: Optional[bytes]
     """Required. Raw bytes."""
@@ -781,32 +770,61 @@ class FunctionResponseBlobDict(TypedDict, total=False):
     display_name: Optional[str]
     """Optional. Display name of the blob. Used to provide a label or filename to distinguish blobs. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
 
+
+FunctionResponseBlobOrDict = Union[FunctionResponseBlob, FunctionResponseBlobDict]
+
+
+class FunctionResponseFileData(_common.BaseModel):
+    """URI based data for function response."""
+
+    file_uri: Optional[str] = Field(default=None, description="""Required. URI.""")
+    mime_type: Optional[str] = Field(
+        default=None,
+        description="""Required. The IANA standard MIME type of the source data.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled.""",
+    )
+
+
+class FunctionResponseFileDataDict(TypedDict, total=False):
+    """URI based data for function response."""
+
+    file_uri: Optional[str]
+    """Required. URI."""
+
     mime_type: Optional[str]
     """Required. The IANA standard MIME type of the source data."""
 
+    display_name: Optional[str]
+    """Optional. Display name of the file data. Used to provide a label or filename to distinguish file datas. This field is only returned in PromptMessage for prompt management. It is currently used in the Gemini GenerateContent calls only when server side tools (code_execution, google_search, and url_context) are enabled."""
 
-FunctionResponseBlobOrDict = Union[FunctionResponseBlob, FunctionResponseBlobDict]
+
+FunctionResponseFileDataOrDict = Union[
+    FunctionResponseFileData, FunctionResponseFileDataDict
+]
 
 
 class FunctionResponsePart(_common.BaseModel):
     """A datatype containing media that is part of a `FunctionResponse` message. A `FunctionResponsePart` consists of data which has an associated datatype. A `FunctionResponsePart` can only contain one of the accepted types in `FunctionResponsePart.data`. A `FunctionResponsePart` must have a fixed IANA MIME type identifying the type and subtype of the media if the `inline_data` field is filled with raw bytes."""
 
-    file_data: Optional[FunctionResponseFileData] = Field(
-        default=None, description="""URI based data."""
-    )
     inline_data: Optional[FunctionResponseBlob] = Field(
         default=None, description="""Inline media bytes."""
+    )
+    file_data: Optional[FunctionResponseFileData] = Field(
+        default=None, description="""URI based data."""
     )
 
 
 class FunctionResponsePartDict(TypedDict, total=False):
     """A datatype containing media that is part of a `FunctionResponse` message. A `FunctionResponsePart` consists of data which has an associated datatype. A `FunctionResponsePart` can only contain one of the accepted types in `FunctionResponsePart.data`. A `FunctionResponsePart` must have a fixed IANA MIME type identifying the type and subtype of the media if the `inline_data` field is filled with raw bytes."""
 
-    file_data: Optional[FunctionResponseFileDataDict]
-    """URI based data."""
-
     inline_data: Optional[FunctionResponseBlobDict]
     """Inline media bytes."""
+
+    file_data: Optional[FunctionResponseFileDataDict]
+    """URI based data."""
 
 
 FunctionResponsePartOrDict = Union[FunctionResponsePart, FunctionResponsePartDict]
@@ -815,6 +833,14 @@ FunctionResponsePartOrDict = Union[FunctionResponsePart, FunctionResponsePartDic
 class FunctionResponse(_common.BaseModel):
     """The result output from a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function is used as context to the model. This should contain the result of a [FunctionCall] made based on model prediction."""
 
+    scheduling: Optional[FunctionResponseScheduling] = Field(
+        default=None,
+        description="""Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE.""",
+    )
+    parts: Optional[list[FunctionResponsePart]] = Field(
+        default=None,
+        description="""Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types.""",
+    )
     id: Optional[str] = Field(
         default=None,
         description="""Optional. The id of the function call this response is for. Populated by the client to match the corresponding function call `id`.""",
@@ -823,22 +849,20 @@ class FunctionResponse(_common.BaseModel):
         default=None,
         description="""Required. The name of the function to call. Matches [FunctionDeclaration.name] and [FunctionCall.name].""",
     )
-    parts: Optional[list[FunctionResponsePart]] = Field(
-        default=None,
-        description="""Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types.""",
-    )
     response: Optional[dict[str, Any]] = Field(
         default=None,
         description="""Required. The function response in JSON object format. Use "output" key to specify function output and "error" key to specify error details (if any). If "output" and "error" keys are not specified, then whole "response" is treated as function output.""",
-    )
-    scheduling: Optional[FunctionResponseScheduling] = Field(
-        default=None,
-        description="""Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE.""",
     )
 
 
 class FunctionResponseDict(TypedDict, total=False):
     """The result output from a [FunctionCall] that contains a string representing the [FunctionDeclaration.name] and a structured JSON object containing any output from the function is used as context to the model. This should contain the result of a [FunctionCall] made based on model prediction."""
+
+    scheduling: Optional[FunctionResponseScheduling]
+    """Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE."""
+
+    parts: Optional[list[FunctionResponsePartDict]]
+    """Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types."""
 
     id: Optional[str]
     """Optional. The id of the function call this response is for. Populated by the client to match the corresponding function call `id`."""
@@ -846,14 +870,8 @@ class FunctionResponseDict(TypedDict, total=False):
     name: Optional[str]
     """Required. The name of the function to call. Matches [FunctionDeclaration.name] and [FunctionCall.name]."""
 
-    parts: Optional[list[FunctionResponsePartDict]]
-    """Optional. Ordered `Parts` that constitute a function response. Parts may have different IANA MIME types."""
-
     response: Optional[dict[str, Any]]
     """Required. The function response in JSON object format. Use "output" key to specify function output and "error" key to specify error details (if any). If "output" and "error" keys are not specified, then whole "response" is treated as function output."""
-
-    scheduling: Optional[FunctionResponseScheduling]
-    """Optional. Specifies how the response should be scheduled in the conversation. Only applicable to NON_BLOCKING function calls, is ignored otherwise. Defaults to WHEN_IDLE."""
 
 
 FunctionResponseOrDict = Union[FunctionResponse, FunctionResponseDict]
@@ -891,24 +909,6 @@ class BlobDict(TypedDict, total=False):
 BlobOrDict = Union[Blob, BlobDict]
 
 
-class PartMediaResolution(_common.BaseModel):
-    """per part media resolution. Media resolution for the input media."""
-
-    level: Optional[MediaResolution] = Field(
-        default=None, description="""The tokenization quality used for given media."""
-    )
-
-
-class PartMediaResolutionDict(TypedDict, total=False):
-    """per part media resolution. Media resolution for the input media."""
-
-    level: Optional[MediaResolution]
-    """The tokenization quality used for given media."""
-
-
-PartMediaResolutionOrDict = Union[PartMediaResolution, PartMediaResolutionDict]
-
-
 class VideoMetadata(_common.BaseModel):
     """Provides metadata for a video, including the start and end offsets for clipping and the frame rate."""
 
@@ -943,6 +943,10 @@ VideoMetadataOrDict = Union[VideoMetadata, VideoMetadataDict]
 class Part(_common.BaseModel):
     """A datatype containing media that is part of a multi-part Content message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. For media types that are not text, `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if `inline_data` or `file_data` field is filled with raw bytes."""
 
+    media_resolution: Optional[PartMediaResolution] = Field(
+        default=None,
+        description="""per part media resolution. Media resolution for the input media.""",
+    )
     code_execution_result: Optional[CodeExecutionResult] = Field(
         default=None,
         description="""Optional. The result of executing the ExecutableCode.""",
@@ -967,10 +971,6 @@ class Part(_common.BaseModel):
         default=None,
         description="""Optional. The inline data content of the part. This can be used to include images, audio, or video in a request.""",
     )
-    media_resolution: Optional[PartMediaResolution] = Field(
-        default=None,
-        description="""per part media resolution. Media resolution for the input media.""",
-    )
     text: Optional[str] = Field(
         default=None,
         description="""Optional. The text content of the part. When sent from the VSCode Gemini Code Assist extension, references to @mentioned items will be converted to markdown boldface text. For example `@my-repo` will be converted to and sent as `**my-repo**` by the IDE agent.""",
@@ -992,6 +992,9 @@ class Part(_common.BaseModel):
 class PartDict(TypedDict, total=False):
     """A datatype containing media that is part of a multi-part Content message. A `Part` consists of data which has an associated datatype. A `Part` can only contain one of the accepted types in `Part.data`. For media types that are not text, `Part` must have a fixed IANA MIME type identifying the type and subtype of the media if `inline_data` or `file_data` field is filled with raw bytes."""
 
+    media_resolution: Optional[PartMediaResolutionDict]
+    """per part media resolution. Media resolution for the input media."""
+
     code_execution_result: Optional[CodeExecutionResultDict]
     """Optional. The result of executing the ExecutableCode."""
 
@@ -1009,9 +1012,6 @@ class PartDict(TypedDict, total=False):
 
     inline_data: Optional[BlobDict]
     """Optional. The inline data content of the part. This can be used to include images, audio, or video in a request."""
-
-    media_resolution: Optional[PartMediaResolutionDict]
-    """per part media resolution. Media resolution for the input media."""
 
     text: Optional[str]
     """Optional. The text content of the part. When sent from the VSCode Gemini Code Assist extension, references to @mentioned items will be converted to markdown boldface text. For example `@my-repo` will be converted to and sent as `**my-repo**` by the IDE agent."""
@@ -2265,12 +2265,6 @@ class RubricGenerationSpec(_common.BaseModel):
         description="""Template for the prompt used to generate rubrics.
       The details should be updated based on the most-recent recipe requirements.""",
     )
-    generator_model_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None,
-        description="""Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation.""",
-    )
     rubric_content_type: Optional[RubricContentType] = Field(
         default=None, description="""The type of rubric content to be generated."""
     )
@@ -2279,6 +2273,12 @@ class RubricGenerationSpec(_common.BaseModel):
         description="""An optional, pre-defined list of allowed types for generated rubrics.
       If this field is provided, it implies `include_rubric_type` should be true,
       and the generated rubric types should be chosen from this ontology.""",
+    )
+    generator_model_config: Optional[genai_types.AutoraterConfig] = Field(
+        default=None,
+        description="""Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation.""",
     )
 
 
@@ -2289,11 +2289,6 @@ class RubricGenerationSpecDict(TypedDict, total=False):
     """Template for the prompt used to generate rubrics.
       The details should be updated based on the most-recent recipe requirements."""
 
-    generator_model_config: Optional[genai_types.AutoraterConfigDict]
-    """Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation."""
-
     rubric_content_type: Optional[RubricContentType]
     """The type of rubric content to be generated."""
 
@@ -2301,6 +2296,11 @@ class RubricGenerationSpecDict(TypedDict, total=False):
     """An optional, pre-defined list of allowed types for generated rubrics.
       If this field is provided, it implies `include_rubric_type` should be true,
       and the generated rubric types should be chosen from this ontology."""
+
+    generator_model_config: Optional[genai_types.AutoraterConfigDict]
+    """Configuration for the model used in rubric generation.
+      Configs including sampling count and base model can be specified here.
+      Flipping is not supported for rubric generation."""
 
 
 RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
@@ -2366,6 +2366,10 @@ class CustomCodeExecutionSpec(_common.BaseModel):
     This metric is computed by running user-defined Python functions remotely.
     """
 
+    evaluation_function: Optional[str] = Field(
+        default=None,
+        description="""Required. Python function. Expected user to define the following function, e.g.: def evaluate(instance: dict[str, Any]) -> float: Please include this function signature in the code snippet. Instance is the evaluation instance, any fields populated in the instance are available to the function as instance[field_name]. Example: Example input: ``` instance= EvaluationInstance( response=EvaluationInstance.InstanceData(text="The answer is 4."), reference=EvaluationInstance.InstanceData(text="4") ) ``` Example converted input: ``` { 'response': {'text': 'The answer is 4.'}, 'reference': {'text': '4'} } ``` Example python function: ``` def evaluate(instance: dict[str, Any]) -> float: if instance'response' == instance'reference': return 1.0 return 0.0 ``` CustomCodeExecutionSpec is also supported in Batch Evaluation (EvalDataset RPC) and Tuning Evaluation. Each line in the input jsonl file will be converted to dict[str, Any] and passed to the evaluation function.""",
+    )
     remote_custom_function: Optional[str] = Field(
         default=None,
         description="""A string representing a user-defined function for evaluation.
@@ -2375,10 +2379,6 @@ class CustomCodeExecutionSpec(_common.BaseModel):
   Instance is the evaluation instance, any fields populated in the instance
   are available to the function as instance[field_name].""",
     )
-    evaluation_function: Optional[str] = Field(
-        default=None,
-        description="""Required. Python function. Expected user to define the following function, e.g.: def evaluate(instance: dict[str, Any]) -> float: Please include this function signature in the code snippet. Instance is the evaluation instance, any fields populated in the instance are available to the function as instance[field_name]. Example: Example input: ``` instance= EvaluationInstance( response=EvaluationInstance.InstanceData(text="The answer is 4."), reference=EvaluationInstance.InstanceData(text="4") ) ``` Example converted input: ``` { 'response': {'text': 'The answer is 4.'}, 'reference': {'text': '4'} } ``` Example python function: ``` def evaluate(instance: dict[str, Any]) -> float: if instance'response' == instance'reference': return 1.0 return 0.0 ``` CustomCodeExecutionSpec is also supported in Batch Evaluation (EvalDataset RPC) and Tuning Evaluation. Each line in the input jsonl file will be converted to dict[str, Any] and passed to the evaluation function.""",
-    )
 
 
 class CustomCodeExecutionSpecDict(TypedDict, total=False):
@@ -2387,6 +2387,9 @@ class CustomCodeExecutionSpecDict(TypedDict, total=False):
     This metric is computed by running user-defined Python functions remotely.
     """
 
+    evaluation_function: Optional[str]
+    """Required. Python function. Expected user to define the following function, e.g.: def evaluate(instance: dict[str, Any]) -> float: Please include this function signature in the code snippet. Instance is the evaluation instance, any fields populated in the instance are available to the function as instance[field_name]. Example: Example input: ``` instance= EvaluationInstance( response=EvaluationInstance.InstanceData(text="The answer is 4."), reference=EvaluationInstance.InstanceData(text="4") ) ``` Example converted input: ``` { 'response': {'text': 'The answer is 4.'}, 'reference': {'text': '4'} } ``` Example python function: ``` def evaluate(instance: dict[str, Any]) -> float: if instance'response' == instance'reference': return 1.0 return 0.0 ``` CustomCodeExecutionSpec is also supported in Batch Evaluation (EvalDataset RPC) and Tuning Evaluation. Each line in the input jsonl file will be converted to dict[str, Any] and passed to the evaluation function."""
+
     remote_custom_function: Optional[str]
     """A string representing a user-defined function for evaluation.
   Expected user to define the following function, e.g.:
@@ -2394,9 +2397,6 @@ class CustomCodeExecutionSpecDict(TypedDict, total=False):
   Please include this function signature in the code snippet.
   Instance is the evaluation instance, any fields populated in the instance
   are available to the function as instance[field_name]."""
-
-    evaluation_function: Optional[str]
-    """Required. Python function. Expected user to define the following function, e.g.: def evaluate(instance: dict[str, Any]) -> float: Please include this function signature in the code snippet. Instance is the evaluation instance, any fields populated in the instance are available to the function as instance[field_name]. Example: Example input: ``` instance= EvaluationInstance( response=EvaluationInstance.InstanceData(text="The answer is 4."), reference=EvaluationInstance.InstanceData(text="4") ) ``` Example converted input: ``` { 'response': {'text': 'The answer is 4.'}, 'reference': {'text': '4'} } ``` Example python function: ``` def evaluate(instance: dict[str, Any]) -> float: if instance'response' == instance'reference': return 1.0 return 0.0 ``` CustomCodeExecutionSpec is also supported in Batch Evaluation (EvalDataset RPC) and Tuning Evaluation. Each line in the input jsonl file will be converted to dict[str, Any] and passed to the evaluation function."""
 
 
 CustomCodeExecutionSpecOrDict = Union[
@@ -2491,12 +2491,12 @@ class EvaluationRunMetric(_common.BaseModel):
     metric: Optional[str] = Field(
         default=None, description="""The name of the metric."""
     )
+    metric_config: Optional[UnifiedMetric] = Field(
+        default=None, description="""The unified metric used for evaluation run."""
+    )
     metric_resource_name: Optional[str] = Field(
         default=None,
         description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
-    )
-    metric_config: Optional[UnifiedMetric] = Field(
-        default=None, description="""The unified metric used for evaluation run."""
     )
 
 
@@ -2506,11 +2506,11 @@ class EvaluationRunMetricDict(TypedDict, total=False):
     metric: Optional[str]
     """The name of the metric."""
 
-    metric_resource_name: Optional[str]
-    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
-
     metric_config: Optional[UnifiedMetricDict]
     """The unified metric used for evaluation run."""
+
+    metric_resource_name: Optional[str]
+    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
 
 
 EvaluationRunMetricOrDict = Union[EvaluationRunMetric, EvaluationRunMetricDict]
@@ -3130,6 +3130,25 @@ class EvalCaseDict(TypedDict, total=False):
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
 
 
+class BigQuerySource(_common.BaseModel):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
+    )
+
+
+class BigQuerySourceDict(TypedDict, total=False):
+    """The BigQuery location for the input content."""
+
+    input_uri: Optional[str]
+    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
+
+
+BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
+
+
 class GcsSource(_common.BaseModel):
     """Cloud storage source holds the dataset.
 
@@ -3155,28 +3174,15 @@ class GcsSourceDict(TypedDict, total=False):
 GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
 
 
-class BigQuerySource(_common.BaseModel):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str] = Field(
-        default=None,
-        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
-    )
-
-
-class BigQuerySourceDict(TypedDict, total=False):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str]
-    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
-
-
-BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
-
-
 class EvaluationDataset(_common.BaseModel):
     """The dataset used for evaluation."""
 
+    bigquery_source: Optional[BigQuerySource] = Field(
+        default=None, description="""The BigQuery source for the evaluation dataset."""
+    )
+    gcs_source: Optional[GcsSource] = Field(
+        default=None, description="""The GCS source for the evaluation dataset."""
+    )
     eval_cases: Optional[list[EvalCase]] = Field(
         default=None, description="""The evaluation cases to be evaluated."""
     )
@@ -3187,12 +3193,6 @@ class EvaluationDataset(_common.BaseModel):
     candidate_name: Optional[str] = Field(
         default=None,
         description="""The name of the candidate model or agent for this evaluation dataset.""",
-    )
-    gcs_source: Optional[GcsSource] = Field(
-        default=None, description="""The GCS source for the evaluation dataset."""
-    )
-    bigquery_source: Optional[BigQuerySource] = Field(
-        default=None, description="""The BigQuery source for the evaluation dataset."""
     )
 
     @model_validator(mode="before")
@@ -3269,6 +3269,12 @@ class EvaluationDataset(_common.BaseModel):
 class EvaluationDatasetDict(TypedDict, total=False):
     """The dataset used for evaluation."""
 
+    bigquery_source: Optional[BigQuerySourceDict]
+    """The BigQuery source for the evaluation dataset."""
+
+    gcs_source: Optional[GcsSourceDict]
+    """The GCS source for the evaluation dataset."""
+
     eval_cases: Optional[list[EvalCaseDict]]
     """The evaluation cases to be evaluated."""
 
@@ -3277,12 +3283,6 @@ class EvaluationDatasetDict(TypedDict, total=False):
 
     candidate_name: Optional[str]
     """The name of the candidate model or agent for this evaluation dataset."""
-
-    gcs_source: Optional[GcsSourceDict]
-    """The GCS source for the evaluation dataset."""
-
-    bigquery_source: Optional[BigQuerySourceDict]
-    """The BigQuery source for the evaluation dataset."""
 
 
 EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
@@ -4424,22 +4424,8 @@ class Metric(_common.BaseModel):
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
-    remote_custom_function: Optional[str] = Field(
-        default=None,
-        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
-    )
     prompt_template: Optional[str] = Field(
         default=None, description="""The prompt template for the metric."""
-    )
-    judge_model: Optional[str] = Field(
-        default=None, description="""The judge model for the metric."""
-    )
-    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
-        default=None,
-        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
-    )
-    judge_model_sampling_count: Optional[int] = Field(
-        default=None, description="""The sampling count for the judge model."""
     )
     judge_model_system_instruction: Optional[str] = Field(
         default=None, description="""The system instruction for the judge model."""
@@ -4455,6 +4441,20 @@ class Metric(_common.BaseModel):
     aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
         default=None,
         description="""The aggregate summary function for the judge model.""",
+    )
+    remote_custom_function: Optional[str] = Field(
+        default=None,
+        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
+    )
+    judge_model: Optional[str] = Field(
+        default=None, description="""The judge model for the metric."""
+    )
+    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
+        default=None,
+        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
+    )
+    judge_model_sampling_count: Optional[int] = Field(
+        default=None, description="""The sampling count for the judge model."""
     )
     rubric_group_name: Optional[str] = Field(
         default=None,
@@ -4639,20 +4639,8 @@ class MetricDict(TypedDict, total=False):
     custom_function: Optional[Callable[..., Any]]
     """The custom function that defines the end-to-end logic for metric computation."""
 
-    remote_custom_function: Optional[str]
-    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
-
     prompt_template: Optional[str]
     """The prompt template for the metric."""
-
-    judge_model: Optional[str]
-    """The judge model for the metric."""
-
-    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
-    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
-
-    judge_model_sampling_count: Optional[int]
-    """The sampling count for the judge model."""
 
     judge_model_system_instruction: Optional[str]
     """The system instruction for the judge model."""
@@ -4665,6 +4653,18 @@ class MetricDict(TypedDict, total=False):
 
     aggregate_summary_fn: Optional[Callable[..., Any]]
     """The aggregate summary function for the judge model."""
+
+    remote_custom_function: Optional[str]
+    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
+
+    judge_model: Optional[str]
+    """The judge model for the metric."""
+
+    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
+    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
+
+    judge_model_sampling_count: Optional[int]
+    """The sampling count for the judge model."""
 
     rubric_group_name: Optional[str]
     """The rubric group name for the rubric-based metric."""
@@ -5386,11 +5386,11 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""Specification for how the rubrics should be generated.""",
     )
+    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
     metric_resource_name: Optional[str] = Field(
         default=None,
         description="""Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored.""",
     )
-    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
 
 
 class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
@@ -5410,11 +5410,11 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     rubric_generation_spec: Optional[RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
 
-    metric_resource_name: Optional[str]
-    """Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored."""
-
     config: Optional[RubricGenerationConfigDict]
     """"""
+
+    metric_resource_name: Optional[str]
+    """Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored."""
 
 
 _GenerateInstanceRubricsRequestOrDict = Union[
