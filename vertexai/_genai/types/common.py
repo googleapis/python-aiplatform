@@ -321,6 +321,21 @@ class JobState(_common.CaseInSensitiveEnum):
     """The job is partially succeeded, some results may be missing due to errors."""
 
 
+class ManagedTopicEnum(_common.CaseInSensitiveEnum):
+    """The managed memory topic."""
+
+    MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
+    """Unspecified topic. This value should not be used."""
+    USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
+    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
+    USER_PREFERENCES = "USER_PREFERENCES"
+    """Stated or implied likes, dislikes, preferred styles, or patterns."""
+    KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
+    """Important milestones or conclusions within the dialogue."""
+    EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
+    """Information that the user explicitly requested to remember or forget."""
+
+
 class IdentityType(_common.CaseInSensitiveEnum):
     """The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
 
@@ -341,21 +356,6 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
     """Stable agent server mode. This mode has everything stable and well-tested features agent engine offers."""
     EXPERIMENTAL = "EXPERIMENTAL"
     """Experimental agent server mode. This mode contains experimental features."""
-
-
-class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """The managed memory topic."""
-
-    MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
-    """Unspecified topic. This value should not be used."""
-    USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
-    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
-    USER_PREFERENCES = "USER_PREFERENCES"
-    """Stated or implied likes, dislikes, preferred styles, or patterns."""
-    KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
-    """Important milestones or conclusions within the dialogue."""
-    EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
-    """Information that the user explicitly requested to remember or forget."""
 
 
 class Operator(_common.CaseInSensitiveEnum):
@@ -6424,6 +6424,659 @@ _GetCustomJobParametersOrDict = Union[
 ]
 
 
+class CheckQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for async querying agent engines."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    retrieve_result: Optional[bool] = Field(
+        default=None,
+        description="""Whether to retrieve the results of the query job.""",
+    )
+
+
+class CheckQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for async querying agent engines."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    retrieve_result: Optional[bool]
+    """Whether to retrieve the results of the query job."""
+
+
+CheckQueryJobAgentEngineConfigOrDict = Union[
+    CheckQueryJobAgentEngineConfig, CheckQueryJobAgentEngineConfigDict
+]
+
+
+class _CheckQueryJobAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for async querying agent engines."""
+
+    name: Optional[str] = Field(default=None, description="""Name of the query job.""")
+    config: Optional[CheckQueryJobAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CheckQueryJobAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for async querying agent engines."""
+
+    name: Optional[str]
+    """Name of the query job."""
+
+    config: Optional[CheckQueryJobAgentEngineConfigDict]
+    """"""
+
+
+_CheckQueryJobAgentEngineRequestParametersOrDict = Union[
+    _CheckQueryJobAgentEngineRequestParameters,
+    _CheckQueryJobAgentEngineRequestParametersDict,
+]
+
+
+class CheckQueryJobResult(_common.BaseModel):
+    """Result of checking a query job."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    operation_name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine operation."""
+    )
+    input_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the input file."""
+    )
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
+    )
+    status: Optional[str] = Field(
+        default=None, description="""Status of the operation."""
+    )
+    result: Optional[str] = Field(
+        default=None, description="""JSON result of the operation."""
+    )
+
+
+class CheckQueryJobResultDict(TypedDict, total=False):
+    """Result of checking a query job."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    operation_name: Optional[str]
+    """Name of the agent engine operation."""
+
+    input_gcs_uri: Optional[str]
+    """The GCS URI of the input file."""
+
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
+
+    status: Optional[str]
+    """Status of the operation."""
+
+    result: Optional[str]
+    """JSON result of the operation."""
+
+
+CheckQueryJobResultOrDict = Union[CheckQueryJobResult, CheckQueryJobResultDict]
+
+
+class _RunQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for running a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    input_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the input file."""
+    )
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
+    )
+
+
+class _RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for running a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    input_gcs_uri: Optional[str]
+    """The GCS URI of the input file."""
+
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
+
+
+_RunQueryJobAgentEngineConfigOrDict = Union[
+    _RunQueryJobAgentEngineConfig, _RunQueryJobAgentEngineConfigDict
+]
+
+
+class _RunQueryJobAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for running a query job on an agent engine."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[_RunQueryJobAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _RunQueryJobAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for running a query job on an agent engine."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[_RunQueryJobAgentEngineConfigDict]
+    """"""
+
+
+_RunQueryJobAgentEngineRequestParametersOrDict = Union[
+    _RunQueryJobAgentEngineRequestParameters,
+    _RunQueryJobAgentEngineRequestParametersDict,
+]
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
+    _common.BaseModel
+):
+    """The conversation source event for generating memories."""
+
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Required. The content of the event."""
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict(
+    TypedDict, total=False
+):
+    """The conversation source event for generating memories."""
+
+    content: Optional[genai_types.ContentDict]
+    """Required. The content of the event."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict = (
+    Union[
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent,
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict,
+    ]
+)
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource(
+    _common.BaseModel
+):
+    """A conversation source for the example. This is similar to `DirectContentsSource`."""
+
+    events: Optional[
+        list[
+            MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent
+        ]
+    ] = Field(
+        default=None,
+        description="""Optional. The input conversation events for the example.""",
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict(
+    TypedDict, total=False
+):
+    """A conversation source for the example. This is similar to `DirectContentsSource`."""
+
+    events: Optional[
+        list[
+            MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict
+        ]
+    ]
+    """Optional. The input conversation events for the example."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = Union[
+    MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource,
+    MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict,
+]
+
+
+class MemoryTopicId(_common.BaseModel):
+    """The topic ID for a memory."""
+
+    custom_memory_topic_label: Optional[str] = Field(
+        default=None, description="""Optional. The custom memory topic label."""
+    )
+    managed_memory_topic: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Optional. The managed memory topic."""
+    )
+
+
+class MemoryTopicIdDict(TypedDict, total=False):
+    """The topic ID for a memory."""
+
+    custom_memory_topic_label: Optional[str]
+    """Optional. The custom memory topic label."""
+
+    managed_memory_topic: Optional[ManagedTopicEnum]
+    """Optional. The managed memory topic."""
+
+
+MemoryTopicIdOrDict = Union[MemoryTopicId, MemoryTopicIdDict]
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
+    _common.BaseModel
+):
+    """A memory generated by the operation."""
+
+    fact: Optional[str] = Field(
+        default=None, description="""Required. The fact to generate a memory from."""
+    )
+    topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
+    TypedDict, total=False
+):
+    """A memory generated by the operation."""
+
+    fact: Optional[str]
+    """Required. The fact to generate a memory from."""
+
+    topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
+    MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory,
+    MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict,
+]
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExample(_common.BaseModel):
+    """An example of how to generate memories for a particular scope."""
+
+    conversation_source: Optional[
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource
+    ] = Field(default=None, description="""A conversation source for the example.""")
+    generated_memories: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory]
+    ] = Field(
+        default=None,
+        description="""Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
+    )
+
+
+class MemoryBankCustomizationConfigGenerateMemoriesExampleDict(TypedDict, total=False):
+    """An example of how to generate memories for a particular scope."""
+
+    conversation_source: Optional[
+        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict
+    ]
+    """A conversation source for the example."""
+
+    generated_memories: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict]
+    ]
+    """Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
+
+
+MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
+    MemoryBankCustomizationConfigGenerateMemoriesExample,
+    MemoryBankCustomizationConfigGenerateMemoriesExampleDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str] = Field(
+        default=None, description="""Required. The label of the topic."""
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A custom memory topic defined by the developer."""
+
+    label: Optional[str]
+    """Required. The label of the topic."""
+
+    description: Optional[str]
+    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
+        default=None, description="""Required. The managed topic."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
+    TypedDict, total=False
+):
+    """A managed memory topic defined by the system."""
+
+    managed_topic_enum: Optional[ManagedTopicEnum]
+    """Required. The managed topic."""
+
+
+MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
+    ] = Field(
+        default=None, description="""A custom memory topic defined by the developer."""
+    )
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
+    ] = Field(
+        default=None, description="""A managed memory topic defined by Memory Bank."""
+    )
+
+
+class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
+    """A topic of information that should be extracted from conversations and stored as memories."""
+
+    custom_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
+    ]
+    """A custom memory topic defined by the developer."""
+
+    managed_memory_topic: Optional[
+        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
+    ]
+    """A managed memory topic defined by Memory Bank."""
+
+
+MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
+    MemoryBankCustomizationConfigMemoryTopic,
+    MemoryBankCustomizationConfigMemoryTopicDict,
+]
+
+
+class MemoryBankCustomizationConfig(_common.BaseModel):
+    """Configuration for organizing memories for a particular scope."""
+
+    enable_third_person_memories: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+    )
+    generate_memories_examples: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExample]
+    ] = Field(
+        default=None,
+        description="""Optional. Examples of how to generate memories for a particular scope.""",
+    )
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
+        default=None,
+        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+    )
+    scope_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+
+
+class MemoryBankCustomizationConfigDict(TypedDict, total=False):
+    """Configuration for organizing memories for a particular scope."""
+
+    enable_third_person_memories: Optional[bool]
+    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
+
+    generate_memories_examples: Optional[
+        list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
+    ]
+    """Optional. Examples of how to generate memories for a particular scope."""
+
+    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
+    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+
+    scope_keys: Optional[list[str]]
+    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+
+MemoryBankCustomizationConfigOrDict = Union[
+    MemoryBankCustomizationConfig, MemoryBankCustomizationConfigDict
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
+    """Configuration for how to generate memories."""
+
+    model: Optional[str] = Field(
+        default=None,
+        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for how to generate memories."""
+
+    model: Optional[str]
+    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigGenerationConfig,
+    ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
+    _common.BaseModel
+):
+    """Configuration for how to perform similarity search on memories."""
+
+    embedding_model: Optional[str] = Field(
+        default=None,
+        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for how to perform similarity search on memories."""
+
+    embedding_model: Optional[str]
+    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
+    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
+    _common.BaseModel
+):
+    """Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
+
+    create_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories uploaded via CreateMemory.""",
+    )
+    generate_created_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED).""",
+    )
+    generate_updated_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL).""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
+
+    create_ttl: Optional[str]
+    """Optional. The TTL duration for memories uploaded via CreateMemory."""
+
+    generate_created_ttl: Optional[str]
+    """Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED)."""
+
+    generate_updated_ttl: Optional[str]
+    """Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL)."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig,
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfig(_common.BaseModel):
+    """Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
+
+    default_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory.""",
+    )
+    granular_ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig
+    ] = Field(
+        default=None,
+        description="""Optional. The granular TTL configuration of the memories in the Memory Bank.""",
+    )
+    memory_revision_default_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. The default TTL duration of the memory revisions in the Memory Bank. This applies to all operations that create a memory revision. If not set, a default TTL of 365 days will be used.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict(TypedDict, total=False):
+    """Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
+
+    default_ttl: Optional[str]
+    """Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory."""
+
+    granular_ttl_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict
+    ]
+    """Optional. The granular TTL configuration of the memories in the Memory Bank."""
+
+    memory_revision_default_ttl: Optional[str]
+    """Optional. The default TTL duration of the memory revisions in the Memory Bank. This applies to all operations that create a memory revision. If not set, a default TTL of 365 days will be used."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfig,
+    ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict,
+]
+
+
+class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
+    """Specification for a Memory Bank."""
+
+    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
+        default=None,
+        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
+    )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""If true, no memory revisions will be created for any requests to the Memory Bank.""",
+    )
+    generation_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigGenerationConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for how to generate memories for the Memory Bank.""",
+    )
+    similarity_search_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
+    )
+    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfig] = Field(
+        default=None,
+        description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
+    )
+
+
+class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
+    """Specification for a Memory Bank."""
+
+    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
+    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
+
+    disable_memory_revisions: Optional[bool]
+    """If true, no memory revisions will be created for any requests to the Memory Bank."""
+
+    generation_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict
+    ]
+    """Optional. Configuration for how to generate memories for the Memory Bank."""
+
+    similarity_search_config: Optional[
+        ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
+    ]
+    """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
+
+    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
+    """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
+
+
+ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
+    ReasoningEngineContextSpecMemoryBankConfig,
+    ReasoningEngineContextSpecMemoryBankConfigDict,
+]
+
+
+class ReasoningEngineContextSpec(_common.BaseModel):
+    """The configuration for agent engine sub-resources to manage context."""
+
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
+        default=None,
+        description="""Optional. Specification for a Memory Bank, which manages memories for the Agent Engine.""",
+    )
+
+
+class ReasoningEngineContextSpecDict(TypedDict, total=False):
+    """The configuration for agent engine sub-resources to manage context."""
+
+    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
+    """Optional. Specification for a Memory Bank, which manages memories for the Agent Engine."""
+
+
+ReasoningEngineContextSpecOrDict = Union[
+    ReasoningEngineContextSpec, ReasoningEngineContextSpecDict
+]
+
+
 class SecretRef(_common.BaseModel):
     """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
 
@@ -6930,498 +7583,130 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
 
-class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
-    _common.BaseModel
-):
-    """The conversation source event for generating memories."""
+class ReasoningEngine(_common.BaseModel):
+    """An agent engine."""
 
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Required. The content of the event."""
-    )
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict(
-    TypedDict, total=False
-):
-    """The conversation source event for generating memories."""
-
-    content: Optional[genai_types.ContentDict]
-    """Required. The content of the event."""
-
-
-MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict = (
-    Union[
-        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent,
-        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict,
-    ]
-)
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource(
-    _common.BaseModel
-):
-    """A conversation source for the example. This is similar to `DirectContentsSource`."""
-
-    events: Optional[
-        list[
-            MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent
-        ]
-    ] = Field(
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
-        description="""Optional. The input conversation events for the example.""",
+        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
     )
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict(
-    TypedDict, total=False
-):
-    """A conversation source for the example. This is similar to `DirectContentsSource`."""
-
-    events: Optional[
-        list[
-            MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict
-        ]
-    ]
-    """Optional. The input conversation events for the example."""
-
-
-MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = Union[
-    MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource,
-    MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict,
-]
-
-
-class MemoryTopicId(_common.BaseModel):
-    """The topic ID for a memory."""
-
-    custom_memory_topic_label: Optional[str] = Field(
-        default=None, description="""Optional. The custom memory topic label."""
-    )
-    managed_memory_topic: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Optional. The managed memory topic."""
-    )
-
-
-class MemoryTopicIdDict(TypedDict, total=False):
-    """The topic ID for a memory."""
-
-    custom_memory_topic_label: Optional[str]
-    """Optional. The custom memory topic label."""
-
-    managed_memory_topic: Optional[ManagedTopicEnum]
-    """Optional. The managed memory topic."""
-
-
-MemoryTopicIdOrDict = Union[MemoryTopicId, MemoryTopicIdDict]
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
-    _common.BaseModel
-):
-    """A memory generated by the operation."""
-
-    fact: Optional[str] = Field(
-        default=None, description="""Required. The fact to generate a memory from."""
-    )
-    topics: Optional[list[MemoryTopicId]] = Field(
+    context_spec: Optional[ReasoningEngineContextSpec] = Field(
         default=None,
-        description="""Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
+        description="""Optional. Configuration for how Agent Engine sub-resources should manage context.""",
     )
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
-    TypedDict, total=False
-):
-    """A memory generated by the operation."""
-
-    fact: Optional[str]
-    """Required. The fact to generate a memory from."""
-
-    topics: Optional[list[MemoryTopicIdDict]]
-    """Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
-
-
-MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
-    MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory,
-    MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict,
-]
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExample(_common.BaseModel):
-    """An example of how to generate memories for a particular scope."""
-
-    conversation_source: Optional[
-        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource
-    ] = Field(default=None, description="""A conversation source for the example.""")
-    generated_memories: Optional[
-        list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory]
-    ] = Field(
+    create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
-    )
-
-
-class MemoryBankCustomizationConfigGenerateMemoriesExampleDict(TypedDict, total=False):
-    """An example of how to generate memories for a particular scope."""
-
-    conversation_source: Optional[
-        MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict
-    ]
-    """A conversation source for the example."""
-
-    generated_memories: Optional[
-        list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict]
-    ]
-    """Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
-
-
-MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
-    MemoryBankCustomizationConfigGenerateMemoriesExample,
-    MemoryBankCustomizationConfigGenerateMemoriesExampleDict,
-]
-
-
-class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseModel):
-    """A custom memory topic defined by the developer."""
-
-    label: Optional[str] = Field(
-        default=None, description="""Required. The label of the topic."""
+        description="""Output only. Timestamp when this ReasoningEngine was created.""",
     )
     description: Optional[str] = Field(
         default=None,
-        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+        description="""Optional. The description of the ReasoningEngine.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the ReasoningEngine.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the ReasoningEngine."""
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`""",
+    )
+    spec: Optional[ReasoningEngineSpec] = Field(
+        default=None, description="""Optional. Configurations of the ReasoningEngine"""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this ReasoningEngine was most recently updated.""",
     )
 
 
-class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
-    TypedDict, total=False
-):
-    """A custom memory topic defined by the developer."""
+class ReasoningEngineDict(TypedDict, total=False):
+    """An agent engine."""
 
-    label: Optional[str]
-    """Required. The label of the topic."""
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
+
+    context_spec: Optional[ReasoningEngineContextSpecDict]
+    """Optional. Configuration for how Agent Engine sub-resources should manage context."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ReasoningEngine was created."""
 
     description: Optional[str]
-    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+    """Optional. The description of the ReasoningEngine."""
+
+    display_name: Optional[str]
+    """Required. The display name of the ReasoningEngine."""
+
+    etag: Optional[str]
+    """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the ReasoningEngine."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`"""
+
+    spec: Optional[ReasoningEngineSpecDict]
+    """Optional. Configurations of the ReasoningEngine"""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ReasoningEngine was most recently updated."""
 
 
-MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict,
-]
+ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
 
 
-class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseModel):
-    """A managed memory topic defined by the system."""
+class AgentEngineOperation(_common.BaseModel):
+    """Operation that has an agent engine as a response."""
 
-    managed_topic_enum: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Required. The managed topic."""
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
-    TypedDict, total=False
-):
-    """A managed memory topic defined by the system."""
-
-    managed_topic_enum: Optional[ManagedTopicEnum]
-    """Required. The managed topic."""
-
-
-MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict,
-]
-
-
-class MemoryBankCustomizationConfigMemoryTopic(_common.BaseModel):
-    """A topic of information that should be extracted from conversations and stored as memories."""
-
-    custom_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic
-    ] = Field(
-        default=None, description="""A custom memory topic defined by the developer."""
-    )
-    managed_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic
-    ] = Field(
-        default=None, description="""A managed memory topic defined by Memory Bank."""
-    )
-
-
-class MemoryBankCustomizationConfigMemoryTopicDict(TypedDict, total=False):
-    """A topic of information that should be extracted from conversations and stored as memories."""
-
-    custom_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict
-    ]
-    """A custom memory topic defined by the developer."""
-
-    managed_memory_topic: Optional[
-        MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict
-    ]
-    """A managed memory topic defined by Memory Bank."""
-
-
-MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
-    MemoryBankCustomizationConfigMemoryTopic,
-    MemoryBankCustomizationConfigMemoryTopicDict,
-]
-
-
-class MemoryBankCustomizationConfig(_common.BaseModel):
-    """Configuration for organizing memories for a particular scope."""
-
-    enable_third_person_memories: Optional[bool] = Field(
+    name: Optional[str] = Field(
         default=None,
-        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
     )
-    generate_memories_examples: Optional[
-        list[MemoryBankCustomizationConfigGenerateMemoriesExample]
-    ] = Field(
+    metadata: Optional[dict[str, Any]] = Field(
         default=None,
-        description="""Optional. Examples of how to generate memories for a particular scope.""",
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
     )
-    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
+    done: Optional[bool] = Field(
         default=None,
-        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
     )
-    scope_keys: Optional[list[str]] = Field(
+    error: Optional[dict[str, Any]] = Field(
         default=None,
-        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[ReasoningEngine] = Field(
+        default=None, description="""The created Agent Engine."""
     )
 
 
-class MemoryBankCustomizationConfigDict(TypedDict, total=False):
-    """Configuration for organizing memories for a particular scope."""
+class AgentEngineOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine as a response."""
 
-    enable_third_person_memories: Optional[bool]
-    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
 
-    generate_memories_examples: Optional[
-        list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
-    ]
-    """Optional. Examples of how to generate memories for a particular scope."""
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
 
-    memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
-    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
 
-    scope_keys: Optional[list[str]]
-    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
 
-
-MemoryBankCustomizationConfigOrDict = Union[
-    MemoryBankCustomizationConfig, MemoryBankCustomizationConfigDict
-]
+    response: Optional[ReasoningEngineDict]
+    """The created Agent Engine."""
 
 
-class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
-    """Configuration for how to generate memories."""
-
-    model: Optional[str] = Field(
-        default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for how to generate memories."""
-
-    model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigGenerationConfig,
-    ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict,
-]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig(
-    _common.BaseModel
-):
-    """Configuration for how to perform similarity search on memories."""
-
-    embedding_model: Optional[str] = Field(
-        default=None,
-        description="""Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for how to perform similarity search on memories."""
-
-    embedding_model: Optional[str]
-    """Required. The model used to generate embeddings to lookup similar memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig,
-    ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict,
-]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig(
-    _common.BaseModel
-):
-    """Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
-
-    create_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. The TTL duration for memories uploaded via CreateMemory.""",
-    )
-    generate_created_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED).""",
-    )
-    generate_updated_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL).""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict(
-    TypedDict, total=False
-):
-    """Configuration for TTL of the memories in the Memory Bank based on the action that created or updated the memory."""
-
-    create_ttl: Optional[str]
-    """Optional. The TTL duration for memories uploaded via CreateMemory."""
-
-    generate_created_ttl: Optional[str]
-    """Optional. The TTL duration for memories newly generated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.CREATED)."""
-
-    generate_updated_ttl: Optional[str]
-    """Optional. The TTL duration for memories updated via GenerateMemories (GenerateMemoriesResponse.GeneratedMemory.Action.UPDATED). In the case of an UPDATE action, the `expire_time` of the existing memory will be updated to the new value (now + TTL)."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig,
-    ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict,
-]
-
-
-class ReasoningEngineContextSpecMemoryBankConfigTtlConfig(_common.BaseModel):
-    """Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
-
-    default_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory.""",
-    )
-    granular_ttl_config: Optional[
-        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfig
-    ] = Field(
-        default=None,
-        description="""Optional. The granular TTL configuration of the memories in the Memory Bank.""",
-    )
-    memory_revision_default_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. The default TTL duration of the memory revisions in the Memory Bank. This applies to all operations that create a memory revision. If not set, a default TTL of 365 days will be used.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict(TypedDict, total=False):
-    """Configuration for automatically setting the TTL ("time-to-live") of the memories in the Memory Bank."""
-
-    default_ttl: Optional[str]
-    """Optional. The default TTL duration of the memories in the Memory Bank. This applies to all operations that create or update a memory."""
-
-    granular_ttl_config: Optional[
-        ReasoningEngineContextSpecMemoryBankConfigTtlConfigGranularTtlConfigDict
-    ]
-    """Optional. The granular TTL configuration of the memories in the Memory Bank."""
-
-    memory_revision_default_ttl: Optional[str]
-    """Optional. The default TTL duration of the memory revisions in the Memory Bank. This applies to all operations that create a memory revision. If not set, a default TTL of 365 days will be used."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfigTtlConfig,
-    ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict,
-]
-
-
-class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
-    """Specification for a Memory Bank."""
-
-    customization_configs: Optional[list[MemoryBankCustomizationConfig]] = Field(
-        default=None,
-        description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
-    )
-    disable_memory_revisions: Optional[bool] = Field(
-        default=None,
-        description="""If true, no memory revisions will be created for any requests to the Memory Bank.""",
-    )
-    generation_config: Optional[
-        ReasoningEngineContextSpecMemoryBankConfigGenerationConfig
-    ] = Field(
-        default=None,
-        description="""Optional. Configuration for how to generate memories for the Memory Bank.""",
-    )
-    similarity_search_config: Optional[
-        ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfig
-    ] = Field(
-        default=None,
-        description="""Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`.""",
-    )
-    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfig] = Field(
-        default=None,
-        description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
-    )
-
-
-class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
-    """Specification for a Memory Bank."""
-
-    customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
-    """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
-
-    disable_memory_revisions: Optional[bool]
-    """If true, no memory revisions will be created for any requests to the Memory Bank."""
-
-    generation_config: Optional[
-        ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict
-    ]
-    """Optional. Configuration for how to generate memories for the Memory Bank."""
-
-    similarity_search_config: Optional[
-        ReasoningEngineContextSpecMemoryBankConfigSimilaritySearchConfigDict
-    ]
-    """Optional. Configuration for how to perform similarity search on memories. If not set, the Memory Bank will use the default embedding model `text-embedding-005`."""
-
-    ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
-    """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
-
-
-ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
-    ReasoningEngineContextSpecMemoryBankConfig,
-    ReasoningEngineContextSpecMemoryBankConfigDict,
-]
-
-
-class ReasoningEngineContextSpec(_common.BaseModel):
-    """The configuration for agent engine sub-resources to manage context."""
-
-    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
-        default=None,
-        description="""Optional. Specification for a Memory Bank, which manages memories for the Agent Engine.""",
-    )
-
-
-class ReasoningEngineContextSpecDict(TypedDict, total=False):
-    """The configuration for agent engine sub-resources to manage context."""
-
-    memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
-    """Optional. Specification for a Memory Bank, which manages memories for the Agent Engine."""
-
-
-ReasoningEngineContextSpecOrDict = Union[
-    ReasoningEngineContextSpec, ReasoningEngineContextSpecDict
-]
+AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDict]
 
 
 class CreateAgentEngineConfig(_common.BaseModel):
@@ -7725,132 +8010,6 @@ class _CreateAgentEngineRequestParametersDict(TypedDict, total=False):
 _CreateAgentEngineRequestParametersOrDict = Union[
     _CreateAgentEngineRequestParameters, _CreateAgentEngineRequestParametersDict
 ]
-
-
-class ReasoningEngine(_common.BaseModel):
-    """An agent engine."""
-
-    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
-        default=None,
-        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
-    )
-    context_spec: Optional[ReasoningEngineContextSpec] = Field(
-        default=None,
-        description="""Optional. Configuration for how Agent Engine sub-resources should manage context.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this ReasoningEngine was created.""",
-    )
-    description: Optional[str] = Field(
-        default=None,
-        description="""Optional. The description of the ReasoningEngine.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Required. The display name of the ReasoningEngine.""",
-    )
-    etag: Optional[str] = Field(
-        default=None,
-        description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
-    )
-    labels: Optional[dict[str, str]] = Field(
-        default=None, description="""Labels for the ReasoningEngine."""
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`""",
-    )
-    spec: Optional[ReasoningEngineSpec] = Field(
-        default=None, description="""Optional. Configurations of the ReasoningEngine"""
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this ReasoningEngine was most recently updated.""",
-    )
-
-
-class ReasoningEngineDict(TypedDict, total=False):
-    """An agent engine."""
-
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
-    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
-
-    context_spec: Optional[ReasoningEngineContextSpecDict]
-    """Optional. Configuration for how Agent Engine sub-resources should manage context."""
-
-    create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this ReasoningEngine was created."""
-
-    description: Optional[str]
-    """Optional. The description of the ReasoningEngine."""
-
-    display_name: Optional[str]
-    """Required. The display name of the ReasoningEngine."""
-
-    etag: Optional[str]
-    """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
-
-    labels: Optional[dict[str, str]]
-    """Labels for the ReasoningEngine."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`"""
-
-    spec: Optional[ReasoningEngineSpecDict]
-    """Optional. Configurations of the ReasoningEngine"""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this ReasoningEngine was most recently updated."""
-
-
-ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
-
-
-class AgentEngineOperation(_common.BaseModel):
-    """Operation that has an agent engine as a response."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[ReasoningEngine] = Field(
-        default=None, description="""The created Agent Engine."""
-    )
-
-
-class AgentEngineOperationDict(TypedDict, total=False):
-    """Operation that has an agent engine as a response."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[ReasoningEngineDict]
-    """The created Agent Engine."""
-
-
-AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDict]
 
 
 class DeleteAgentEngineConfig(_common.BaseModel):
@@ -16047,6 +16206,75 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
+
+
+class RunQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for checking a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    query: Optional[str] = Field(
+        default=None, description="""The query to send to the agent engine."""
+    )
+    gcs_bucket: Optional[str] = Field(
+        default=None, description="""The GCS bucket to use for the query."""
+    )
+
+
+class RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for checking a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    query: Optional[str]
+    """The query to send to the agent engine."""
+
+    gcs_bucket: Optional[str]
+    """The GCS bucket to use for the query."""
+
+
+RunQueryJobAgentEngineConfigOrDict = Union[
+    RunQueryJobAgentEngineConfig, RunQueryJobAgentEngineConfigDict
+]
+
+
+class RunQueryJobResult(_common.BaseModel):
+    """Result of running a query job."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    job_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine operation to later check for status.""",
+    )
+    input_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the input file."""
+    )
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
+    )
+
+
+class RunQueryJobResultDict(TypedDict, total=False):
+    """Result of running a query job."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    job_name: Optional[str]
+    """Name of the agent engine operation to later check for status."""
+
+    input_gcs_uri: Optional[str]
+    """The GCS URI of the input file."""
+
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
+
+
+RunQueryJobResultOrDict = Union[RunQueryJobResult, RunQueryJobResultDict]
 
 
 class AssembleDataset(_common.BaseModel):

@@ -26,6 +26,7 @@ from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AppendAgentEngineTaskEventRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
+from .common import _CheckQueryJobAgentEngineRequestParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
@@ -90,6 +91,10 @@ from .common import _QueryAgentEngineRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
 from .common import _RollbackAgentEngineMemoryRequestParameters
+from .common import _RunQueryJobAgentEngineConfig
+from .common import _RunQueryJobAgentEngineConfigDict
+from .common import _RunQueryJobAgentEngineConfigOrDict
+from .common import _RunQueryJobAgentEngineRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
@@ -196,6 +201,12 @@ from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
 from .common import CandidateResult
 from .common import CandidateResultDict
+from .common import CheckQueryJobAgentEngineConfig
+from .common import CheckQueryJobAgentEngineConfigDict
+from .common import CheckQueryJobAgentEngineConfigOrDict
+from .common import CheckQueryJobResult
+from .common import CheckQueryJobResultDict
+from .common import CheckQueryJobResultOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
@@ -941,6 +952,12 @@ from .common import RubricGroupDict
 from .common import RubricGroupOrDict
 from .common import RubricVerdict
 from .common import RubricVerdictDict
+from .common import RunQueryJobAgentEngineConfig
+from .common import RunQueryJobAgentEngineConfigDict
+from .common import RunQueryJobAgentEngineConfigOrDict
+from .common import RunQueryJobResult
+from .common import RunQueryJobResultDict
+from .common import RunQueryJobResultOrDict
 from .common import SamplingConfig
 from .common import SamplingConfigDict
 from .common import SamplingConfigOrDict
@@ -1646,45 +1663,15 @@ __all__ = [
     "VertexBaseConfig",
     "VertexBaseConfigDict",
     "VertexBaseConfigOrDict",
-    "SecretRef",
-    "SecretRefDict",
-    "SecretRefOrDict",
-    "SecretEnvVar",
-    "SecretEnvVarDict",
-    "SecretEnvVarOrDict",
-    "ReasoningEngineSpecDeploymentSpec",
-    "ReasoningEngineSpecDeploymentSpecDict",
-    "ReasoningEngineSpecDeploymentSpecOrDict",
-    "ReasoningEngineSpecPackageSpec",
-    "ReasoningEngineSpecPackageSpecDict",
-    "ReasoningEngineSpecPackageSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict",
-    "ReasoningEngineSpecSourceCodeSpecInlineSource",
-    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSource",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecImageSpec",
-    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpec",
-    "ReasoningEngineSpecSourceCodeSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecOrDict",
-    "ReasoningEngineSpec",
-    "ReasoningEngineSpecDict",
-    "ReasoningEngineSpecOrDict",
+    "CheckQueryJobAgentEngineConfig",
+    "CheckQueryJobAgentEngineConfigDict",
+    "CheckQueryJobAgentEngineConfigOrDict",
+    "CheckQueryJobResult",
+    "CheckQueryJobResultDict",
+    "CheckQueryJobResultOrDict",
+    "_RunQueryJobAgentEngineConfig",
+    "_RunQueryJobAgentEngineConfigDict",
+    "_RunQueryJobAgentEngineConfigOrDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict",
@@ -1730,15 +1717,54 @@ __all__ = [
     "ReasoningEngineContextSpec",
     "ReasoningEngineContextSpecDict",
     "ReasoningEngineContextSpecOrDict",
-    "CreateAgentEngineConfig",
-    "CreateAgentEngineConfigDict",
-    "CreateAgentEngineConfigOrDict",
+    "SecretRef",
+    "SecretRefDict",
+    "SecretRefOrDict",
+    "SecretEnvVar",
+    "SecretEnvVarDict",
+    "SecretEnvVarOrDict",
+    "ReasoningEngineSpecDeploymentSpec",
+    "ReasoningEngineSpecDeploymentSpecDict",
+    "ReasoningEngineSpecDeploymentSpecOrDict",
+    "ReasoningEngineSpecPackageSpec",
+    "ReasoningEngineSpecPackageSpecDict",
+    "ReasoningEngineSpecPackageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSource",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSource",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpec",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpec",
+    "ReasoningEngineSpecSourceCodeSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecOrDict",
+    "ReasoningEngineSpec",
+    "ReasoningEngineSpecDict",
+    "ReasoningEngineSpecOrDict",
     "ReasoningEngine",
     "ReasoningEngineDict",
     "ReasoningEngineOrDict",
     "AgentEngineOperation",
     "AgentEngineOperationDict",
     "AgentEngineOperationOrDict",
+    "CreateAgentEngineConfig",
+    "CreateAgentEngineConfigDict",
+    "CreateAgentEngineConfigOrDict",
     "DeleteAgentEngineConfig",
     "DeleteAgentEngineConfigDict",
     "DeleteAgentEngineConfigOrDict",
@@ -2174,6 +2200,12 @@ __all__ = [
     "AgentEngineConfig",
     "AgentEngineConfigDict",
     "AgentEngineConfigOrDict",
+    "RunQueryJobAgentEngineConfig",
+    "RunQueryJobAgentEngineConfigDict",
+    "RunQueryJobAgentEngineConfigOrDict",
+    "RunQueryJobResult",
+    "RunQueryJobResultDict",
+    "RunQueryJobResultOrDict",
     "AssembleDataset",
     "AssembleDatasetDict",
     "AssembleDatasetOrDict",
@@ -2225,9 +2257,9 @@ __all__ = [
     "AcceleratorType",
     "Type",
     "JobState",
+    "ManagedTopicEnum",
     "IdentityType",
     "AgentServerMode",
-    "ManagedTopicEnum",
     "Operator",
     "MachineConfig",
     "Framework",
@@ -2278,6 +2310,8 @@ __all__ = [
     "_OptimizeRequestParameters",
     "_CustomJobParameters",
     "_GetCustomJobParameters",
+    "_CheckQueryJobAgentEngineRequestParameters",
+    "_RunQueryJobAgentEngineRequestParameters",
     "_CreateAgentEngineRequestParameters",
     "_DeleteAgentEngineRequestParameters",
     "_GetAgentEngineRequestParameters",
