@@ -22,6 +22,63 @@ from . import _evals_constant
 from . import types
 
 
+def _transform_metric(
+    metric: "types.MetricSubclass",
+    set_default_aggregation_metrics: bool = False,
+) -> dict[str, Any]:
+    """Transforms a single metric to its payload representation."""
+    metric_payload_item: dict[str, Any] = {}
+    if hasattr(metric, "metric_resource_name") and metric.metric_resource_name:
+        metric_payload_item["metric_resource_name"] = metric.metric_resource_name
+
+    metric_name = getv(metric, ["name"]).lower()
+
+    if set_default_aggregation_metrics:
+        metric_payload_item["aggregation_metrics"] = [
+            "AVERAGE",
+            "STANDARD_DEVIATION",
+        ]
+
+    if metric_name == "exact_match":
+        metric_payload_item["exact_match_spec"] = {}
+    elif metric_name == "bleu":
+        metric_payload_item["bleu_spec"] = {}
+    elif metric_name.startswith("rouge"):
+        rouge_type = metric_name.replace("_", "")
+        metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}
+    # API Pre-defined metrics
+    elif metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
+        metric_payload_item["predefined_metric_spec"] = {
+            "metric_spec_name": metric_name,
+            "metric_spec_parameters": metric.metric_spec_parameters,
+        }
+    # Custom Code Execution Metric
+    elif hasattr(metric, "remote_custom_function") and metric.remote_custom_function:
+        metric_payload_item["custom_code_execution_spec"] = {
+            "evaluation_function": metric.remote_custom_function
+        }
+    # Pointwise metrics
+    elif hasattr(metric, "prompt_template") and metric.prompt_template:
+        pointwise_spec = {"metric_prompt_template": metric.prompt_template}
+        system_instruction = getv(metric, ["judge_model_system_instruction"])
+        if system_instruction:
+            pointwise_spec["system_instruction"] = system_instruction
+        return_raw_output = getv(metric, ["return_raw_output"])
+        if return_raw_output:
+            pointwise_spec["custom_output_format_config"] = {
+                "return_raw_output": return_raw_output
+            }
+        metric_payload_item["pointwise_metric_spec"] = pointwise_spec
+    elif "metric_resource_name" in metric_payload_item:
+        # Valid case: Metric is identified by resource name; no inline spec required.
+        pass
+    else:
+        raise ValueError(
+            f"Unsupported metric type or invalid metric name: {metric_name}"
+        )
+    return metric_payload_item
+
+
 def t_metrics(
     metrics: list["types.MetricSubclass"],
     set_default_aggregation_metrics: bool = False,
@@ -35,58 +92,13 @@ def t_metrics(
         A list of resolved metric payloads for the evaluation request.
     """
     metrics_payload = []
-
     for metric in metrics:
-        metric_payload_item: dict[str, Any] = {}
-        if hasattr(metric, "metric_resource_name") and metric.metric_resource_name:
-            metric_payload_item["metric_resource_name"] = metric.metric_resource_name
-
-        metric_name = getv(metric, ["name"]).lower()
-
-        if set_default_aggregation_metrics:
-            metric_payload_item["aggregation_metrics"] = [
-                "AVERAGE",
-                "STANDARD_DEVIATION",
-            ]
-
-        if metric_name == "exact_match":
-            metric_payload_item["exact_match_spec"] = {}
-        elif metric_name == "bleu":
-            metric_payload_item["bleu_spec"] = {}
-        elif metric_name.startswith("rouge"):
-            rouge_type = metric_name.replace("_", "")
-            metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}
-        # API Pre-defined metrics
-        elif metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
-            metric_payload_item["predefined_metric_spec"] = {
-                "metric_spec_name": metric_name,
-                "metric_spec_parameters": metric.metric_spec_parameters,
-            }
-        # Custom Code Execution Metric
-        elif (
-            hasattr(metric, "remote_custom_function") and metric.remote_custom_function
-        ):
-            metric_payload_item["custom_code_execution_spec"] = {
-                "evaluation_function": metric.remote_custom_function
-            }
-        # Pointwise metrics
-        elif hasattr(metric, "prompt_template") and metric.prompt_template:
-            pointwise_spec = {"metric_prompt_template": metric.prompt_template}
-            system_instruction = getv(metric, ["judge_model_system_instruction"])
-            if system_instruction:
-                pointwise_spec["system_instruction"] = system_instruction
-            return_raw_output = getv(metric, ["return_raw_output"])
-            if return_raw_output:
-                pointwise_spec["custom_output_format_config"] = {
-                    "return_raw_output": return_raw_output
-                }
-            metric_payload_item["pointwise_metric_spec"] = pointwise_spec
-        elif "metric_resource_name" in metric_payload_item:
-            # Valid case: Metric is identified by resource name; no inline spec required.
-            pass
-        else:
-            raise ValueError(
-                f"Unsupported metric type or invalid metric name: {metric_name}"
-            )
-        metrics_payload.append(metric_payload_item)
+        metrics_payload.append(
+            _transform_metric(metric, set_default_aggregation_metrics)
+        )
     return metrics_payload
+
+
+def t_metric(metric: "types.MetricOrDict") -> dict[str, Any]:
+    """Prepares the metric payload for the evaluation metric resource."""
+    return _transform_metric(metric)

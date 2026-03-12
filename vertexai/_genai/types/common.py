@@ -402,15 +402,6 @@ class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The EvaluationItem is the result of evaluation."""
 
 
-class SamplingMethod(_common.CaseInSensitiveEnum):
-    """Represents the sampling method for a BigQuery request set."""
-
-    UNSPECIFIED = "UNSPECIFIED"
-    """Sampling method is unspecified."""
-    RANDOM = "RANDOM"
-    """Sampling method is random."""
-
-
 class RubricContentType(_common.CaseInSensitiveEnum):
     """Specifies the type of rubric content to generate."""
 
@@ -420,6 +411,15 @@ class RubricContentType(_common.CaseInSensitiveEnum):
     """Generate rubrics in an NL question answer format."""
     PYTHON_CODE_ASSERTION = "PYTHON_CODE_ASSERTION"
     """Generate rubrics in a unit test format."""
+
+
+class SamplingMethod(_common.CaseInSensitiveEnum):
+    """Represents the sampling method for a BigQuery request set."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """Sampling method is unspecified."""
+    RANDOM = "RANDOM"
+    """Sampling method is random."""
 
 
 class EvaluationRunState(_common.CaseInSensitiveEnum):
@@ -2137,98 +2137,6 @@ class EvaluationItemDict(TypedDict, total=False):
 EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
 
 
-class SamplingConfig(_common.BaseModel):
-    """Sampling config for a BigQuery request set."""
-
-    sampling_count: Optional[int] = Field(default=None, description="""""")
-    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
-    sampling_duration: Optional[str] = Field(default=None, description="""""")
-
-
-class SamplingConfigDict(TypedDict, total=False):
-    """Sampling config for a BigQuery request set."""
-
-    sampling_count: Optional[int]
-    """"""
-
-    sampling_method: Optional[SamplingMethod]
-    """"""
-
-    sampling_duration: Optional[str]
-    """"""
-
-
-SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
-
-
-class BigQueryRequestSet(_common.BaseModel):
-    """Represents a BigQuery request set."""
-
-    uri: Optional[str] = Field(default=None, description="""""")
-    prompt_column: Optional[str] = Field(
-        default=None,
-        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
-    )
-    rubrics_column: Optional[str] = Field(
-        default=None,
-        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
-    )
-    candidate_response_columns: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
-    )
-    sampling_config: Optional[SamplingConfig] = Field(
-        default=None,
-        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
-    )
-
-
-class BigQueryRequestSetDict(TypedDict, total=False):
-    """Represents a BigQuery request set."""
-
-    uri: Optional[str]
-    """"""
-
-    prompt_column: Optional[str]
-    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
-
-    rubrics_column: Optional[str]
-    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
-
-    candidate_response_columns: Optional[dict[str, str]]
-    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
-
-    sampling_config: Optional[SamplingConfigDict]
-    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
-
-
-BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
-
-
-class EvaluationRunDataSource(_common.BaseModel):
-    """Represents an evaluation run data source."""
-
-    evaluation_set: Optional[str] = Field(default=None, description="""""")
-    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
-        default=None, description=""""""
-    )
-
-
-class EvaluationRunDataSourceDict(TypedDict, total=False):
-    """Represents an evaluation run data source."""
-
-    evaluation_set: Optional[str]
-    """"""
-
-    bigquery_request_set: Optional[BigQueryRequestSetDict]
-    """"""
-
-
-EvaluationRunDataSourceOrDict = Union[
-    EvaluationRunDataSource, EvaluationRunDataSourceDict
-]
-
-
 class PredefinedMetricSpec(_common.BaseModel):
     """Spec for predefined metric."""
 
@@ -2483,6 +2391,204 @@ class UnifiedMetricDict(TypedDict, total=False):
 
 
 UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]
+
+
+class CreateEvaluationMetricConfig(_common.BaseModel):
+    """Config for creating an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for creating an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationMetricConfigOrDict = Union[
+    CreateEvaluationMetricConfig, CreateEvaluationMetricConfigDict
+]
+
+
+class _CreateEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for creating an evaluation metric."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the evaluation metric.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the evaluation metric."""
+    )
+    metric: Optional[UnifiedMetric] = Field(
+        default=None,
+        description="""The metric configuration of the evaluation metric.""",
+    )
+    config: Optional[CreateEvaluationMetricConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for creating an evaluation metric."""
+
+    display_name: Optional[str]
+    """The user-defined name of the evaluation metric.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the evaluation metric."""
+
+    metric: Optional[UnifiedMetricDict]
+    """The metric configuration of the evaluation metric."""
+
+    config: Optional[CreateEvaluationMetricConfigDict]
+    """"""
+
+
+_CreateEvaluationMetricParametersOrDict = Union[
+    _CreateEvaluationMetricParameters, _CreateEvaluationMetricParametersDict
+]
+
+
+class EvaluationMetric(_common.BaseModel):
+    """Represents an evaluation metric."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the evaluation metric."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-friendly display name for the EvaluationMetric.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the EvaluationMetric."""
+    )
+    metric: Optional[UnifiedMetric] = Field(
+        default=None,
+        description="""The metric configuration of the evaluation metric.""",
+    )
+
+
+class EvaluationMetricDict(TypedDict, total=False):
+    """Represents an evaluation metric."""
+
+    name: Optional[str]
+    """The resource name of the evaluation metric."""
+
+    display_name: Optional[str]
+    """The user-friendly display name for the EvaluationMetric."""
+
+    description: Optional[str]
+    """The description of the EvaluationMetric."""
+
+    metric: Optional[UnifiedMetricDict]
+    """The metric configuration of the evaluation metric."""
+
+
+EvaluationMetricOrDict = Union[EvaluationMetric, EvaluationMetricDict]
+
+
+class SamplingConfig(_common.BaseModel):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int] = Field(default=None, description="""""")
+    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
+    sampling_duration: Optional[str] = Field(default=None, description="""""")
+
+
+class SamplingConfigDict(TypedDict, total=False):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int]
+    """"""
+
+    sampling_method: Optional[SamplingMethod]
+    """"""
+
+    sampling_duration: Optional[str]
+    """"""
+
+
+SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
+
+
+class BigQueryRequestSet(_common.BaseModel):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str] = Field(default=None, description="""""")
+    prompt_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    rubrics_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    candidate_response_columns: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    sampling_config: Optional[SamplingConfig] = Field(
+        default=None,
+        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
+    )
+
+
+class BigQueryRequestSetDict(TypedDict, total=False):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str]
+    """"""
+
+    prompt_column: Optional[str]
+    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
+
+    rubrics_column: Optional[str]
+    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
+
+    candidate_response_columns: Optional[dict[str, str]]
+    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
+
+    sampling_config: Optional[SamplingConfigDict]
+    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
+
+
+BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
+
+
+class EvaluationRunDataSource(_common.BaseModel):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str] = Field(default=None, description="""""")
+    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
+        default=None, description=""""""
+    )
+
+
+class EvaluationRunDataSourceDict(TypedDict, total=False):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str]
+    """"""
+
+    bigquery_request_set: Optional[BigQueryRequestSetDict]
+    """"""
+
+
+EvaluationRunDataSourceOrDict = Union[
+    EvaluationRunDataSource, EvaluationRunDataSourceDict
+]
 
 
 class EvaluationRunMetric(_common.BaseModel):
@@ -5520,6 +5626,50 @@ GenerateUserScenariosResponseOrDict = Union[
 ]
 
 
+class GetEvaluationMetricConfig(_common.BaseModel):
+    """Config for getting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for getting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationMetricConfigOrDict = Union[
+    GetEvaluationMetricConfig, GetEvaluationMetricConfigDict
+]
+
+
+class _GetEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for getting an evaluation metric."""
+
+    metric_resource_name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationMetricConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for getting an evaluation metric."""
+
+    metric_resource_name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationMetricConfigDict]
+    """"""
+
+
+_GetEvaluationMetricParametersOrDict = Union[
+    _GetEvaluationMetricParameters, _GetEvaluationMetricParametersDict
+]
+
+
 class GetEvaluationRunConfig(_common.BaseModel):
     """Config for get evaluation run."""
 
@@ -5639,6 +5789,79 @@ class _GetEvaluationItemParametersDict(TypedDict, total=False):
 
 _GetEvaluationItemParametersOrDict = Union[
     _GetEvaluationItemParameters, _GetEvaluationItemParametersDict
+]
+
+
+class ListEvaluationMetricsConfig(_common.BaseModel):
+    """Config for listing evaluation metrics."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ListEvaluationMetricsConfigDict(TypedDict, total=False):
+    """Config for listing evaluation metrics."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+ListEvaluationMetricsConfigOrDict = Union[
+    ListEvaluationMetricsConfig, ListEvaluationMetricsConfigDict
+]
+
+
+class _ListEvaluationMetricsParameters(_common.BaseModel):
+    """Parameters for listing evaluation metrics."""
+
+    config: Optional[ListEvaluationMetricsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListEvaluationMetricsParametersDict(TypedDict, total=False):
+    """Parameters for listing evaluation metrics."""
+
+    config: Optional[ListEvaluationMetricsConfigDict]
+    """"""
+
+
+_ListEvaluationMetricsParametersOrDict = Union[
+    _ListEvaluationMetricsParameters, _ListEvaluationMetricsParametersDict
+]
+
+
+class ListEvaluationMetricsResponse(_common.BaseModel):
+    """Response for listing evaluation metrics."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    evaluation_metrics: Optional[list[EvaluationMetric]] = Field(
+        default=None,
+        description="""List of evaluation metrics.
+      """,
+    )
+
+
+class ListEvaluationMetricsResponseDict(TypedDict, total=False):
+    """Response for listing evaluation metrics."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    evaluation_metrics: Optional[list[EvaluationMetricDict]]
+    """List of evaluation metrics.
+      """
+
+
+ListEvaluationMetricsResponseOrDict = Union[
+    ListEvaluationMetricsResponse, ListEvaluationMetricsResponseDict
 ]
 
 
