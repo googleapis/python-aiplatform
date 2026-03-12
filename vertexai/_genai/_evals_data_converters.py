@@ -786,9 +786,11 @@ def merge_evaluation_datasets(
 
         if base_eval_case.responses:
             candidate_responses.append(base_eval_case.responses[0])
+        elif base_eval_case.agent_data:
+            candidate_responses.append(_create_placeholder_response_candidate(""))
         else:
             logger.warning(
-                "No response found for base dataset (index 0) in case %s. "
+                "No response or agent data found for base dataset (index 0) in case %s. "
                 "Adding placeholder.",
                 case_idx,
             )
@@ -807,6 +809,7 @@ def merge_evaluation_datasets(
                 "system_instruction",
                 "conversation_history",
                 "intermediate_events",
+                "agent_data",
             },
             exclude_none=True,
         )
@@ -830,6 +833,7 @@ def merge_evaluation_datasets(
                     "system_instruction",
                     "conversation_history",
                     "intermediate_events",
+                    "agent_data",
                 },
                 exclude_none=True,
             )
@@ -837,9 +841,12 @@ def merge_evaluation_datasets(
 
             if current_ds_eval_case.responses:
                 candidate_responses.append(current_ds_eval_case.responses[0])
+            elif current_ds_eval_case.agent_data:
+                candidate_responses.append(_create_placeholder_response_candidate(""))
             else:
                 logger.warning(
-                    "No response found for dataset %s in case %s. Adding placeholder.",
+                    "No response or agent data found for dataset %s in case %s. Adding"
+                    " placeholder.",
                     dataset_idx_offset,
                     case_idx,
                 )
@@ -854,11 +861,12 @@ def merge_evaluation_datasets(
             eval_case_id=base_eval_case.eval_case_id
             or "merged_eval_case_%s" % case_idx,
             prompt=base_eval_case.prompt,
-            responses=candidate_responses,
+            responses=candidate_responses if candidate_responses else None,
             reference=base_eval_case.reference,
             system_instruction=base_eval_case.system_instruction,
             conversation_history=base_eval_case.conversation_history,
             agent_info=agent_info,
+            agent_data=base_eval_case.agent_data,
             intermediate_events=base_eval_case.intermediate_events,
             **eval_case_custom_columns,
         )
