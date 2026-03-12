@@ -2479,6 +2479,10 @@ class EvaluationRunMetric(_common.BaseModel):
     metric: Optional[str] = Field(
         default=None, description="""The name of the metric."""
     )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
     metric_config: Optional[UnifiedMetric] = Field(
         default=None, description="""The unified metric used for evaluation run."""
     )
@@ -2489,6 +2493,9 @@ class EvaluationRunMetricDict(TypedDict, total=False):
 
     metric: Optional[str]
     """The name of the metric."""
+
+    metric_resource_name: Optional[str]
+    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
 
     metric_config: Optional[UnifiedMetricDict]
     """The unified metric used for evaluation run."""
@@ -4439,6 +4446,10 @@ class Metric(_common.BaseModel):
         default=None,
         description="""Optional steering instruction parameters for the automated predefined metric.""",
     )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
 
     # Allow extra fields to support metric-specific config fields.
     model_config = ConfigDict(extra="allow")
@@ -4642,6 +4653,9 @@ class MetricDict(TypedDict, total=False):
 
     metric_spec_parameters: Optional[dict[str, Any]]
     """Optional steering instruction parameters for the automated predefined metric."""
+
+    metric_resource_name: Optional[str]
+    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
 
 
 MetricOrDict = Union[Metric, MetricDict]

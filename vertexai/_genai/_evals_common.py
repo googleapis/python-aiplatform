@@ -45,6 +45,7 @@ from . import _evals_utils
 from . import _gcs_utils
 from . import evals
 from . import types
+from . import _transformers as t
 
 logger = logging.getLogger(__name__)
 
@@ -1328,7 +1329,7 @@ def _resolve_dataset_inputs(
 
 
 def _resolve_evaluation_run_metrics(
-    metrics: list[types.EvaluationRunMetric], api_client: Any
+    metrics: Union[list[types.EvaluationRunMetric], list[types.Metric]], api_client: Any
 ) -> list[types.EvaluationRunMetric]:
     """Resolves a list of evaluation run metric instances, loading RubricMetric if necessary."""
     if not metrics:
@@ -1361,6 +1362,16 @@ def _resolve_evaluation_run_metrics(
                     e,
                 )
                 raise
+        elif isinstance(metric_instance, types.Metric):
+            config_dict = t.t_metrics([metric_instance])[0]
+            res_name = config_dict.pop("metric_resource_name", None)
+            resolved_metrics_list.append(
+                types.EvaluationRunMetric(
+                    metric=metric_instance.name,
+                    metric_config=config_dict if config_dict else None,
+                    metric_resource_name=res_name,
+                )
+            )
         else:
             try:
                 metric_name_str = str(metric_instance)

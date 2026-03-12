@@ -392,6 +392,13 @@ def _EvaluationRunMetric_from_vertex(
     if getv(from_object, ["metric"]) is not None:
         setv(to_object, ["metric"], getv(from_object, ["metric"]))
 
+    if getv(from_object, ["metricResourceName"]) is not None:
+        setv(
+            to_object,
+            ["metric_resource_name"],
+            getv(from_object, ["metricResourceName"]),
+        )
+
     if getv(from_object, ["metricConfig"]) is not None:
         setv(
             to_object,
@@ -409,6 +416,13 @@ def _EvaluationRunMetric_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["metric"]) is not None:
         setv(to_object, ["metric"], getv(from_object, ["metric"]))
+
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
+        )
 
     if getv(from_object, ["metric_config"]) is not None:
         setv(

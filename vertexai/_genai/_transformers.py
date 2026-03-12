@@ -38,6 +38,8 @@ def t_metrics(
 
     for metric in metrics:
         metric_payload_item: dict[str, Any] = {}
+        if hasattr(metric, "metric_resource_name") and metric.metric_resource_name:
+            metric_payload_item["metric_resource_name"] = metric.metric_resource_name
 
         metric_name = getv(metric, ["name"]).lower()
 
@@ -79,6 +81,9 @@ def t_metrics(
                     "return_raw_output": return_raw_output
                 }
             metric_payload_item["pointwise_metric_spec"] = pointwise_spec
+        elif "metric_resource_name" in metric_payload_item:
+            # Valid case: Metric is identified by resource name; no inline spec required.
+            pass
         else:
             raise ValueError(
                 f"Unsupported metric type or invalid metric name: {metric_name}"

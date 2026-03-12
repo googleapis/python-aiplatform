@@ -238,6 +238,28 @@ def test_create_eval_run_with_inference_configs(client):
     assert evaluation_run.error is None
 
 
+def test_create_eval_run_with_metric_resource_name(client):
+    """Tests create_evaluation_run with metric_resource_name."""
+    client._api_client._http_options.api_version = "v1beta1"
+    client._api_client._http_options.base_url = (
+        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+    )
+    metric_resource_name = "projects/977012026409/locations/us-central1/evaluationMetrics/6048334299558576128"
+    metric = types.EvaluationRunMetric(
+        metric="my_custom_metric",
+        metric_resource_name=metric_resource_name,
+    )
+    evaluation_run = client.evals.create_evaluation_run(
+        dataset=types.EvaluationDataset(
+            eval_dataset_df=INPUT_DF_WITH_CONTEXT_AND_HISTORY
+        ),
+        metrics=[metric],
+        dest=GCS_DEST,
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.evaluation_config.metrics[0].metric == "my_custom_metric"
+
+
 # Dataframe tests fail in replay mode because of UUID generation mismatch.
 # def test_create_eval_run_data_source_evaluation_dataset(client):
 #     """Tests that create_evaluation_run() creates a correctly structured
