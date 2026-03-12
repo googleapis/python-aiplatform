@@ -79,11 +79,13 @@ TOOL = genai_types.Tool(
         )
     ]
 )
-AGENT_INFO = types.evals.AgentInfo(
-    agent_resource_name="projects/123/locations/us-central1/reasoningEngines/456",
-    name="agent-1",
+AGENT_CONFIG = types.evals.AgentConfig(
+    agent_id="agent-1",
+    agent_resource_name=(
+        "projects/123/locations/us-central1/reasoningEngines/456"
+    ),
     instruction="agent-1 instruction",
-    tool_declarations=[TOOL],
+    tools=[TOOL],
 )
 DEFAULT_PROMPT_TEMPLATE = "{prompt}"
 INPUT_DF_WITH_CONTEXT_AND_HISTORY = pd.DataFrame(
@@ -103,55 +105,55 @@ EVAL_SET_NAME = (
 
 
 def test_create_eval_run_data_source_evaluation_set(client):
-    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
-    client._api_client._http_options.api_version = "v1beta1"
-    evaluation_run = client.evals.create_evaluation_run(
-        name="test4",
-        display_name="test4",
-        dataset=types.EvaluationRunDataSource(evaluation_set=EVAL_SET_NAME),
-        dest=GCS_DEST,
-        metrics=[
-            GENERAL_QUALITY_METRIC,
-            types.RubricMetric.FINAL_RESPONSE_QUALITY,
-            LLM_METRIC,
-            EXACT_MATCH_COMPUTATION_BASED_METRIC,
-            BLEU_COMPUTATION_BASED_METRIC,
-        ],
-        agent_info=AGENT_INFO,
-        labels={"label1": "value1"},
-    )
-    assert isinstance(evaluation_run, types.EvaluationRun)
-    assert evaluation_run.display_name == "test4"
-    assert evaluation_run.state == types.EvaluationRunState.PENDING
-    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
-    assert evaluation_run.data_source.evaluation_set == EVAL_SET_NAME
-    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
-        output_config=genai_types.OutputConfig(
-            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
-        ),
-        metrics=[
-            GENERAL_QUALITY_METRIC,
-            FINAL_RESPONSE_QUALITY_METRIC,
-            LLM_METRIC,
-            EXACT_MATCH_COMPUTATION_BASED_METRIC,
-            BLEU_COMPUTATION_BASED_METRIC,
-        ],
-    )
-    assert evaluation_run.inference_configs[
-        AGENT_INFO.name
-    ] == types.EvaluationRunInferenceConfig(
-        agent_config=types.EvaluationRunAgentConfig(
-            developer_instruction=genai_types.Content(
-                parts=[genai_types.Part(text="agent-1 instruction")]
-            ),
-            tools=[TOOL],
-        )
-    )
-    assert evaluation_run.labels == {
-        "vertex-ai-evaluation-agent-engine-id": "456",
-        "label1": "value1",
-    }
-    assert evaluation_run.error is None
+  """Tests that create_evaluation_run() creates a correctly structured EvaluationRun."""
+  client._api_client._http_options.api_version = "v1beta1"
+  evaluation_run = client.evals.create_evaluation_run(
+      name="test4",
+      display_name="test4",
+      dataset=types.EvaluationRunDataSource(evaluation_set=EVAL_SET_NAME),
+      dest=GCS_DEST,
+      metrics=[
+          GENERAL_QUALITY_METRIC,
+          types.RubricMetric.FINAL_RESPONSE_QUALITY,
+          LLM_METRIC,
+          EXACT_MATCH_COMPUTATION_BASED_METRIC,
+          BLEU_COMPUTATION_BASED_METRIC,
+      ],
+      agent_definitions={"agent-1": AGENT_CONFIG},
+      labels={"label1": "value1"},
+  )
+  assert isinstance(evaluation_run, types.EvaluationRun)
+  assert evaluation_run.display_name == "test4"
+  assert evaluation_run.state == types.EvaluationRunState.PENDING
+  assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+  assert evaluation_run.data_source.evaluation_set == EVAL_SET_NAME
+  assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+      output_config=genai_types.OutputConfig(
+          gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+      ),
+      metrics=[
+          GENERAL_QUALITY_METRIC,
+          FINAL_RESPONSE_QUALITY_METRIC,
+          LLM_METRIC,
+          EXACT_MATCH_COMPUTATION_BASED_METRIC,
+          BLEU_COMPUTATION_BASED_METRIC,
+      ],
+  )
+  assert evaluation_run.inference_configs[
+      "agent-1"
+  ] == types.EvaluationRunInferenceConfig(
+      agent_config=types.EvaluationRunAgentConfig(
+          developer_instruction=genai_types.Content(
+              parts=[genai_types.Part(text="agent-1 instruction")]
+          ),
+          tools=[TOOL],
+      )
+  )
+  assert evaluation_run.labels == {
+      "vertex-ai-evaluation-agent-engine-id": "456",
+      "label1": "value1",
+  }
+  assert evaluation_run.error is None
 
 
 def test_create_eval_run_data_source_bigquery_request_set(client):
@@ -203,15 +205,15 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
 
 
 def test_create_eval_run_with_inference_configs(client):
-    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with inference_configs."""
-    client._api_client._http_options.api_version = "v1beta1"
-    inference_config = types.EvaluationRunInferenceConfig(
+  """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with inference_configs."""
+  client._api_client._http_options.api_version = "v1beta1"
+  inference_config = types.EvaluationRunInferenceConfig(
         model=MODEL_NAME,
         prompt_template=types.EvaluationRunPromptTemplate(
             prompt_template="test prompt template"
         ),
     )
-    evaluation_run = client.evals.create_evaluation_run(
+  evaluation_run = client.evals.create_evaluation_run(
         name="test_inference_config",
         display_name="test_inference_config",
         dataset=types.EvaluationRunDataSource(evaluation_set=EVAL_SET_NAME),
@@ -220,22 +222,22 @@ def test_create_eval_run_with_inference_configs(client):
         inference_configs={"model_1": inference_config},
         labels={"label1": "value1"},
     )
-    assert isinstance(evaluation_run, types.EvaluationRun)
-    assert evaluation_run.display_name == "test_inference_config"
-    assert evaluation_run.state == types.EvaluationRunState.PENDING
-    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
-    assert evaluation_run.data_source.evaluation_set == EVAL_SET_NAME
-    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+  assert isinstance(evaluation_run, types.EvaluationRun)
+  assert evaluation_run.display_name == "test_inference_config"
+  assert evaluation_run.state == types.EvaluationRunState.PENDING
+  assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+  assert evaluation_run.data_source.evaluation_set == EVAL_SET_NAME
+  assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
         output_config=genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
         ),
         metrics=[GENERAL_QUALITY_METRIC],
     )
-    assert evaluation_run.inference_configs["model_1"] == inference_config
-    assert evaluation_run.labels == {
+  assert evaluation_run.inference_configs["model_1"] == inference_config
+  assert evaluation_run.labels == {
         "label1": "value1",
     }
-    assert evaluation_run.error is None
+  assert evaluation_run.error is None
 
 
 # Dataframe tests fail in replay mode because of UUID generation mismatch.
@@ -533,7 +535,7 @@ def test_create_eval_run_with_inference_configs(client):
 #     ] == types.EvaluationRunInferenceConfig(
 #         agent_config=types.EvaluationRunAgentConfig(
 #             developer_instruction=genai_types.Content(
-#                 parts=[genai_types.Part(text=AGENT_INFO.instruction)]
+#                 parts=[genai_types.Part(text=AGENT_CONFIG.instruction)]
 #             ),
 #             tools=[TOOL],
 #         ),

@@ -2663,7 +2663,7 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
         default=None,
         description="""Configuration for Agent Run in evaluation management service.""",
     )
-    agent_configs: Optional[dict[str, evals_types.AgentConfig]] = Field(
+    agent_definitions: Optional[dict[str, evals_types.AgentConfig]] = Field(
         default=None,
         description="""A map of agent IDs to their respective agent config.""",
     )
@@ -2687,7 +2687,7 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
     agent_run_config: Optional[AgentRunConfigDict]
     """Configuration for Agent Run in evaluation management service."""
 
-    agent_configs: Optional[dict[str, evals_types.AgentConfig]]
+    agent_definitions: Optional[dict[str, evals_types.AgentConfig]]
     """A map of agent IDs to their respective agent config."""
 
 
@@ -2721,6 +2721,7 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
 
     name: Optional[str] = Field(default=None, description="""""")
     display_name: Optional[str] = Field(default=None, description="""""")
+    agent: Optional[str] = Field(default=None, description="""""")
     data_source: Optional[EvaluationRunDataSource] = Field(
         default=None, description=""""""
     )
@@ -2743,6 +2744,9 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """"""
 
     display_name: Optional[str]
+    """"""
+
+    agent: Optional[str]
     """"""
 
     data_source: Optional[EvaluationRunDataSourceDict]
@@ -3055,10 +3059,6 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run.""",
     )
-    agent_info: Optional[evals_types.AgentInfo] = Field(
-        default=None,
-        description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
-    )
     agent_data: Optional[evals_types.AgentData] = Field(
         default=None,
         description="""This field is experimental and may change in future versions. The agent data of the agent under evaluation.""",
@@ -3097,9 +3097,6 @@ class EvalCaseDict(TypedDict, total=False):
 
     intermediate_events: Optional[list[evals_types.Event]]
     """This field is experimental and may change in future versions. Intermediate events of a single turn in an agent run or intermediate events of the last turn for multi-turn an agent run."""
-
-    agent_info: Optional[evals_types.AgentInfo]
-    """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
 
     agent_data: Optional[evals_types.AgentData]
     """This field is experimental and may change in future versions. The agent data of the agent under evaluation."""
@@ -3330,9 +3327,9 @@ class EvaluationResult(_common.BaseModel):
     metadata: Optional[EvaluationRunMetadata] = Field(
         default=None, description="""Metadata for the evaluation run."""
     )
-    agent_info: Optional[evals_types.AgentInfo] = Field(
+    agent_definitions: Optional[dict[str, evals_types.AgentConfig]] = Field(
         default=None,
-        description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
+        description="""This field is experimental and may change in future versions. The agent configs of the agents under evaluation.""",
     )
 
     def show(self, candidate_names: Optional[List[str]] = None) -> None:
@@ -3365,8 +3362,8 @@ class EvaluationResultDict(TypedDict, total=False):
     metadata: Optional[EvaluationRunMetadataDict]
     """Metadata for the evaluation run."""
 
-    agent_info: Optional[evals_types.AgentInfo]
-    """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
+    agent_definitions: Optional[dict[str, evals_types.AgentConfig]]
+    """This field is experimental and may change in future versions. The agent configs of the agents under evaluation."""
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
@@ -5425,7 +5422,7 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
     """Parameters for GenerateUserScenarios."""
 
     location: Optional[str] = Field(default=None, description="""""")
-    agents: Optional[dict[str, evals_types.AgentConfig]] = Field(
+    agent_definitions: Optional[dict[str, evals_types.AgentConfig]] = Field(
         default=None, description=""""""
     )
     root_agent_id: Optional[str] = Field(default=None, description="""""")
@@ -5443,7 +5440,7 @@ class _GenerateUserScenariosParametersDict(TypedDict, total=False):
     location: Optional[str]
     """"""
 
-    agents: Optional[dict[str, evals_types.AgentConfig]]
+    agent_definitions: Optional[dict[str, evals_types.AgentConfig]]
     """"""
 
     root_agent_id: Optional[str]

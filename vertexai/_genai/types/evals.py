@@ -207,6 +207,10 @@ class AgentConfig(_common.BaseModel):
             description=getattr(agent, "description", None),
             instruction=getattr(agent, "instruction", None),
             tools=AgentConfig._get_tool_declarations_from_agent(agent),
+            sub_agents=[
+                getattr(sa, "name", "agent_0")
+                for sa in getattr(agent, "sub_agents", [])
+            ],
         )
 
 
@@ -366,7 +370,7 @@ EventsOrDict = Union[Events, EventsDict]
 class AgentData(_common.BaseModel):
     """Represents data specific to multi-turn agent evaluations."""
 
-    agents: Optional[dict[str, AgentConfig]] = Field(
+    agent_definitions: Optional[dict[str, AgentConfig]] = Field(
         default=None,
         description="""A map containing the static configurations for each agent in the system.
       Key: agent_id (matches the `author` field in events).
@@ -387,8 +391,8 @@ class AgentData(_common.BaseModel):
     events: Optional[Events] = Field(default=None, description="""A list of events.""")
 
     @classmethod
-    def _get_agents_map(cls, agent: Any) -> dict[str, AgentConfig]:
-        """Recursively gets all agent configs from an agent and its sub-agents.
+    def get_agent_definitions(cls, agent: Any) -> dict[str, AgentConfig]:
+        """Recursively gets all agent definitions from an agent and its sub-agents.
 
         Args:
           agent: The agent to get the agent info from.
@@ -401,7 +405,7 @@ class AgentData(_common.BaseModel):
         agents_map = {agent_id: agent_config}
 
         for sub_agent in getattr(agent, "sub_agents", []):
-            agents_map.update(cls._get_agents_map(sub_agent))
+            agents_map.update(cls.get_agent_definitions(sub_agent))
 
         return agents_map
 
@@ -419,7 +423,7 @@ class AgentData(_common.BaseModel):
         Returns:
             An AgentData object containing the segmented history and agent config.
         """
-        agents_map = cls._get_agents_map(agent)
+        agents_map = cls.get_agent_definitions(agent)
         agent_id = getattr(agent, "name", "agent_0") or "agent_0"
 
         turns: list[ConversationTurn] = []
@@ -494,13 +498,15 @@ class AgentData(_common.BaseModel):
                 )
             )
 
-        return cls(agents=agents_map, turns=turns)  # pytype: disable=missing-parameter
+        return cls(
+            agent_definitions=agents_map, turns=turns
+        )  # pytype: disable=missing-parameter
 
 
 class AgentDataDict(TypedDict, total=False):
     """Represents data specific to multi-turn agent evaluations."""
 
-    agents: Optional[dict[str, AgentConfigDict]]
+    agent_definitions: Optional[dict[str, AgentConfigDict]]
     """A map containing the static configurations for each agent in the system.
       Key: agent_id (matches the `author` field in events).
       Value: The static configuration of the agent."""
@@ -521,107 +527,6 @@ class AgentDataDict(TypedDict, total=False):
 
 
 AgentDataOrDict = Union[AgentData, AgentDataDict]
-
-
-class AgentInfo(_common.BaseModel):
-    """The agent info of an agent, used for agent eval."""
-
-    agent_resource_name: Optional[str] = Field(
-        default=None,
-        description="""The agent engine used to run agent. Agent engine resource name in str type, with format
-            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
-    )
-    name: Optional[str] = Field(
-        default=None, description="""Agent name, used as an identifier."""
-    )
-    instruction: Optional[str] = Field(
-        default=None, description="""Agent developer instruction."""
-    )
-    description: Optional[str] = Field(
-        default=None, description="""Agent description."""
-    )
-    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
-        default=None, description="""List of tools used by the Agent."""
-    )
-
-    @staticmethod
-    def _get_tool_declarations_from_agent(agent: Any) -> genai_types.ToolListUnion:
-        """Gets tool declarations from an agent.
-
-        Args:
-          agent: The agent to get the tool declarations from. Data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
-
-        Returns:
-          The tool declarations of the agent.
-        """
-        tool_declarations: genai_types.ToolListUnion = []
-        for tool in agent.tools:
-            tool_declarations.append(
-                {
-                    "function_declarations": [
-                        genai_types.FunctionDeclaration.from_callable_with_api_option(
-                            callable=tool
-                        )
-                    ]
-                }
-            )
-        return tool_declarations
-
-    @classmethod
-    def load_from_agent(
-        cls, agent: Any, agent_resource_name: Optional[str] = None
-    ) -> "AgentInfo":
-        """Loads agent info from an agent.
-
-        Args:
-          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
-          agent_resource_name: Optional. The agent engine resource name.
-
-        Returns:
-          The agent info of the agent.
-
-        Example:
-        ```
-        from vertexai._genai import types
-
-        # Assuming 'my_agent' is an instance of google.adk.agents.LLMAgent
-
-        agent_info = types.evals.AgentInfo.load_from_agent(
-            agent=my_agent,
-            agent_resource_name="projects/123/locations/us-central1/reasoningEngines/456"
-        )
-        ```
-        """
-        return cls(  # pytype: disable=missing-parameter
-            name=agent.name,
-            agent_resource_name=agent_resource_name,
-            instruction=agent.instruction,
-            description=agent.description,
-            tool_declarations=AgentInfo._get_tool_declarations_from_agent(agent),
-        )
-
-
-class AgentInfoDict(TypedDict, total=False):
-    """The agent info of an agent, used for agent eval."""
-
-    agent_resource_name: Optional[str]
-    """The agent engine used to run agent. Agent engine resource name in str type, with format
-            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
-
-    name: Optional[str]
-    """Agent name, used as an identifier."""
-
-    instruction: Optional[str]
-    """Agent developer instruction."""
-
-    description: Optional[str]
-    """Agent description."""
-
-    tool_declarations: Optional[genai_types.ToolListUnionDict]
-    """List of tools used by the Agent."""
-
-
-AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
 
 
 class RubricContentProperty(_common.BaseModel):

@@ -78,6 +78,9 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["display_name"]) is not None:
         setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
 
+    if getv(from_object, ["agent"]) is not None:
+        setv(to_object, ["agent"], getv(from_object, ["agent"]))
+
     if getv(from_object, ["data_source"]) is not None:
         setv(to_object, ["dataSource"], getv(from_object, ["data_source"]))
 
@@ -356,7 +359,7 @@ def _EvaluationRunInferenceConfig_from_vertex(
         setv(to_object, ["agent_run_config"], getv(from_object, ["agentRunConfig"]))
 
     if getv(from_object, ["agents"]) is not None:
-        setv(to_object, ["agent_configs"], getv(from_object, ["agents"]))
+        setv(to_object, ["agent_definitions"], getv(from_object, ["agents"]))
 
     return to_object
 
@@ -378,8 +381,8 @@ def _EvaluationRunInferenceConfig_to_vertex(
     if getv(from_object, ["agent_run_config"]) is not None:
         setv(to_object, ["agentRunConfig"], getv(from_object, ["agent_run_config"]))
 
-    if getv(from_object, ["agent_configs"]) is not None:
-        setv(to_object, ["agents"], getv(from_object, ["agent_configs"]))
+    if getv(from_object, ["agent_definitions"]) is not None:
+        setv(to_object, ["agents"], getv(from_object, ["agent_definitions"]))
 
     return to_object
 
@@ -526,8 +529,8 @@ def _GenerateUserScenariosParameters_to_vertex(
     if getv(from_object, ["location"]) is not None:
         setv(to_object, ["location"], getv(from_object, ["location"]))
 
-    if getv(from_object, ["agents"]) is not None:
-        setv(to_object, ["agents"], getv(from_object, ["agents"]))
+    if getv(from_object, ["agent_definitions"]) is not None:
+        setv(to_object, ["agents"], getv(from_object, ["agent_definitions"]))
 
     if getv(from_object, ["root_agent_id"]) is not None:
         setv(to_object, ["rootAgentId"], getv(from_object, ["root_agent_id"]))
@@ -840,6 +843,7 @@ class Evals(_api_module.BaseModule):
         *,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
+        agent: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
@@ -855,6 +859,7 @@ class Evals(_api_module.BaseModule):
         parameter_model = types._CreateEvaluationRunParameters(
             name=name,
             display_name=display_name,
+            agent=agent,
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
@@ -1104,7 +1109,7 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         location: Optional[str] = None,
-        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        agent_definitions: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
         root_agent_id: Optional[str] = None,
         user_scenario_generation_config: Optional[
             evals_types.UserScenarioGenerationConfigOrDict
@@ -1117,7 +1122,7 @@ class Evals(_api_module.BaseModule):
 
         parameter_model = types._GenerateUserScenariosParameters(
             location=location,
-            agents=agents,
+            agent_definitions=agent_definitions,
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
@@ -1794,7 +1799,11 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[evals_types.AgentInfoOrDict] = None,
+        agent: Optional[str] = None,
+        agent_definitions: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        user_simulator_config: Optional[
+            Union[evals_types.UserSimulatorConfigOrDict, dict[str, Any]]
+        ] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -1809,10 +1818,12 @@ class Evals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          agent_info: The agent info to evaluate.
+          agent: The agent engine used to run agent.
+          agent_definitions: The agent configurations to evaluate, as a dictionary mapping agent IDs to agent configurations.
+          user_simulator_config: The configuration for the user simulator in multi-turn agent evaluation.
           inference_configs: The candidate to inference config map for the evaluation run.
               The key is the candidate name, and the value is the inference config.
-              If provided, agent_info must be None.
+              If provided, agent and agent_definitions must be None.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
@@ -1821,19 +1832,53 @@ class Evals(_api_module.BaseModule):
         Returns:
             The created evaluation run.
         """
-        if agent_info and inference_configs:
+        if (agent or agent_definitions) and inference_configs:
             raise ValueError(
-                "At most one of agent_info or inference_configs can be provided."
+                "At most one of (agent, agent_definitions) or inference_configs can be provided."
             )
-        agent_info_pydantic = (
-            evals_types.AgentInfo.model_validate(agent_info)
-            if isinstance(agent_info, dict)
-            else (agent_info or evals_types.AgentInfo())
-        )
+
+        agent_configs_map = None
+
+        if agent_definitions:
+            agent_configs_map = {
+                k: (
+                    evals_types.AgentConfig.model_validate(v)
+                    if isinstance(v, dict)
+                    else v
+                )
+                for k, v in agent_definitions.items()
+            }
+
+        candidate_name = None
+        if agent_configs_map:
+            candidate_name = list(agent_configs_map.keys())[0]
+
+        candidate_name = candidate_name or "candidate-1"
+        if isinstance(dataset, types.EvaluationDataset) and dataset.candidate_name:
+            candidate_name = dataset.candidate_name
+
+        if agent or agent_configs_map:
+            inference_configs = inference_configs or {}
+            if candidate_name not in inference_configs:
+                if user_simulator_config is None:
+                    user_simulator_config = evals_types.UserSimulatorConfig(max_turn=5)
+                elif isinstance(user_simulator_config, dict):
+                    user_simulator_config = (
+                        evals_types.UserSimulatorConfig.model_validate(
+                            user_simulator_config
+                        )
+                    )
+
+                inference_configs[candidate_name] = types.EvaluationRunInferenceConfig(
+                    agent_run_config=types.AgentRunConfig(
+                        agent_engine=agent, user_simulator_config=user_simulator_config
+                    ),
+                    agent_definitions=agent_configs_map,
+                )
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
-            self._api_client, dataset, dest, agent_info_pydantic
+            self._api_client, dataset, dest, agent_configs_map
         )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
@@ -1845,10 +1890,10 @@ class Evals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, agent_configs_map
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
-            labels, agent_info_pydantic
+            labels, agent_configs_map
         )
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
         return self._create_evaluation_run(
@@ -2002,7 +2047,7 @@ class Evals(_api_module.BaseModule):
     def generate_user_scenarios(
         self,
         *,
-        agents: dict[str, evals_types.AgentConfigOrDict],
+        agent_definitions: dict[str, evals_types.AgentConfigOrDict],
         user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
         root_agent_id: str,
     ) -> types.EvaluationDataset:
@@ -2011,7 +2056,7 @@ class Evals(_api_module.BaseModule):
            and the agent under test.
 
         Args:
-            agents: A map of agent ID to AgentConfig.
+            agent_definitions: A map of agent ID to AgentConfig.
             user_scenario_generation_config: Configuration for generating user scenarios.
             root_agent_id: The ID of the root agent.
 
@@ -2019,7 +2064,7 @@ class Evals(_api_module.BaseModule):
             An EvaluationDataset containing the generated user scenarios.
         """
         response = self._generate_user_scenarios(
-            agents=agents,
+            agent_definitions=agent_definitions,
             user_scenario_generation_config=user_scenario_generation_config,
             root_agent_id=root_agent_id,
         )
@@ -2092,6 +2137,7 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         name: Optional[str] = None,
         display_name: Optional[str] = None,
+        agent: Optional[str] = None,
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
@@ -2107,6 +2153,7 @@ class AsyncEvals(_api_module.BaseModule):
         parameter_model = types._CreateEvaluationRunParameters(
             name=name,
             display_name=display_name,
+            agent=agent,
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
@@ -2364,7 +2411,7 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         location: Optional[str] = None,
-        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        agent_definitions: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
         root_agent_id: Optional[str] = None,
         user_scenario_generation_config: Optional[
             evals_types.UserScenarioGenerationConfigOrDict
@@ -2377,7 +2424,7 @@ class AsyncEvals(_api_module.BaseModule):
 
         parameter_model = types._GenerateUserScenariosParameters(
             location=location,
-            agents=agents,
+            agent_definitions=agent_definitions,
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
@@ -2724,7 +2771,11 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[evals_types.AgentInfo] = None,
+        agent: Optional[str] = None,
+        agent_definitions: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        user_simulator_config: Optional[
+            Union[evals_types.UserSimulatorConfigOrDict, dict[str, Any]]
+        ] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -2739,10 +2790,12 @@ class AsyncEvals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          agent_info: The agent info to evaluate.
+          agent: The agent engine used to run agent.
+          agent_definitions: The agent configurations to evaluate, as a dictionary mapping agent IDs to agent configurations.
+          user_simulator_config: The configuration for the user simulator in multi-turn agent evaluation.
           inference_configs: The candidate to inference config map for the evaluation run.
               The key is the candidate name, and the value is the inference config.
-              If provided, agent_info must be None.
+              If provided, agent and agent_definitions must be None.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
@@ -2751,19 +2804,54 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
             The created evaluation run.
         """
-        if agent_info and inference_configs:
+        if (agent or agent_definitions) and inference_configs:
             raise ValueError(
-                "At most one of agent_info or inference_configs can be provided."
+                "At most one of (agent, agent_definitions) or inference_configs can be provided."
             )
-        agent_info_pydantic = (
-            evals_types.AgentInfo.model_validate(agent_info)
-            if isinstance(agent_info, dict)
-            else (agent_info or evals_types.AgentInfo())
-        )
+
+        agent_configs_map = None
+
+        if agent_definitions:
+            agent_configs_map = {
+                k: (
+                    evals_types.AgentConfig.model_validate(v)
+                    if isinstance(v, dict)
+                    else v
+                )
+                for k, v in agent_definitions.items()
+            }
+
+        candidate_name = None
+        if agent_configs_map:
+            candidate_name = list(agent_configs_map.keys())[0]
+
+        candidate_name = candidate_name or "candidate-1"
+
+        if isinstance(dataset, types.EvaluationDataset) and dataset.candidate_name:
+            candidate_name = dataset.candidate_name
+
+        if agent or agent_configs_map:
+            inference_configs = inference_configs or {}
+            if candidate_name not in inference_configs:
+                if user_simulator_config is None:
+                    user_simulator_config = evals_types.UserSimulatorConfig(max_turn=5)
+                elif isinstance(user_simulator_config, dict):
+                    user_simulator_config = (
+                        evals_types.UserSimulatorConfig.model_validate(
+                            user_simulator_config
+                        )
+                    )
+
+                inference_configs[candidate_name] = types.EvaluationRunInferenceConfig(
+                    agent_run_config=types.AgentRunConfig(
+                        agent_engine=agent, user_simulator_config=user_simulator_config
+                    ),
+                    agent_definitions=agent_configs_map,
+                )
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
-            self._api_client, dataset, dest, agent_info_pydantic
+            self._api_client, dataset, dest, agent_configs_map
         )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
@@ -2775,10 +2863,10 @@ class AsyncEvals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, agent_configs_map
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
-            labels, agent_info_pydantic
+            labels, agent_configs_map
         )
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
 
@@ -2939,7 +3027,7 @@ class AsyncEvals(_api_module.BaseModule):
     async def generate_user_scenarios(
         self,
         *,
-        agents: dict[str, evals_types.AgentConfigOrDict],
+        agent_definitions: dict[str, evals_types.AgentConfigOrDict],
         user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
         root_agent_id: str,
     ) -> types.EvaluationDataset:
@@ -2948,7 +3036,7 @@ class AsyncEvals(_api_module.BaseModule):
            and the agent under test.
 
         Args:
-            agents: A map of agent ID to AgentConfig.
+            agent_definitions: A map of agent ID to AgentConfig.
             user_scenario_generation_config: Configuration for generating user scenarios.
             root_agent_id: The ID of the root agent.
 
@@ -2956,7 +3044,7 @@ class AsyncEvals(_api_module.BaseModule):
             An EvaluationDataset containing the generated user scenarios.
         """
         response = await self._generate_user_scenarios(
-            agents=agents,
+            agent_definitions=agent_definitions,
             user_scenario_generation_config=user_scenario_generation_config,
             root_agent_id=root_agent_id,
         )
