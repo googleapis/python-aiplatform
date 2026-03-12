@@ -790,35 +790,11 @@ class Datasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        if (
-            not hasattr(multimodal_dataset, "metadata")
-            or multimodal_dataset.metadata is None
-        ):
-            raise ValueError("Multimodal dataset metadata is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata, "input_config")
-            or multimodal_dataset.metadata.input_config is None
-        ):
-            raise ValueError("Multimodal dataset input config is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config, "bigquery_source")
-            or multimodal_dataset.metadata.input_config.bigquery_source is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source is required."
-            )
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config.bigquery_source, "uri")
-            or multimodal_dataset.metadata.input_config.bigquery_source.uri is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source uri is required."
-            )
-        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
-            "bq://"
-        ):
-            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
-                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+
+        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        if not uri.startswith("bq://"):
+            _datasets_utils.multimodal_dataset_set_bigquery_uri(
+                multimodal_dataset, f"bq://{uri}"
             )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
@@ -948,35 +924,11 @@ class Datasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        if (
-            not hasattr(multimodal_dataset, "metadata")
-            or multimodal_dataset.metadata is None
-        ):
-            raise ValueError("Multimodal dataset metadata is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata, "input_config")
-            or multimodal_dataset.metadata.input_config is None
-        ):
-            raise ValueError("Multimodal dataset input config is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config, "bigquery_source")
-            or multimodal_dataset.metadata.input_config.bigquery_source is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source is required."
-            )
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config.bigquery_source, "uri")
-            or multimodal_dataset.metadata.input_config.bigquery_source.uri is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source uri is required."
-            )
-        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
-            "bq://"
-        ):
-            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
-                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+
+        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        if not uri.startswith("bq://"):
+            _datasets_utils.multimodal_dataset_set_bigquery_uri(
+                multimodal_dataset, f"bq://{uri}"
             )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
@@ -1887,35 +1839,11 @@ class AsyncDatasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        if (
-            not hasattr(multimodal_dataset, "metadata")
-            or multimodal_dataset.metadata is None
-        ):
-            raise ValueError("Multimodal dataset metadata is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata, "input_config")
-            or multimodal_dataset.metadata.input_config is None
-        ):
-            raise ValueError("Multimodal dataset input config is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config, "bigquery_source")
-            or multimodal_dataset.metadata.input_config.bigquery_source is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source is required."
-            )
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config.bigquery_source, "uri")
-            or multimodal_dataset.metadata.input_config.bigquery_source.uri is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source uri is required."
-            )
-        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
-            "bq://"
-        ):
-            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
-                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+
+        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        if not uri.startswith("bq://"):
+            _datasets_utils.multimodal_dataset_set_bigquery_uri(
+                multimodal_dataset, f"bq://{uri}"
             )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
@@ -2041,35 +1969,11 @@ class AsyncDatasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        if (
-            not hasattr(multimodal_dataset, "metadata")
-            or multimodal_dataset.metadata is None
-        ):
-            raise ValueError("Multimodal dataset metadata is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata, "input_config")
-            or multimodal_dataset.metadata.input_config is None
-        ):
-            raise ValueError("Multimodal dataset input config is required.")
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config, "bigquery_source")
-            or multimodal_dataset.metadata.input_config.bigquery_source is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source is required."
-            )
-        if (
-            not hasattr(multimodal_dataset.metadata.input_config.bigquery_source, "uri")
-            or multimodal_dataset.metadata.input_config.bigquery_source.uri is None
-        ):
-            raise ValueError(
-                "Multimodal dataset input config bigquery source uri is required."
-            )
-        if not multimodal_dataset.metadata.input_config.bigquery_source.uri.startswith(
-            "bq://"
-        ):
-            multimodal_dataset.metadata.input_config.bigquery_source.uri = (
-                f"bq://{multimodal_dataset.metadata.input_config.bigquery_source.uri}"
+
+        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        if not uri.startswith("bq://"):
+            _datasets_utils.multimodal_dataset_set_bigquery_uri(
+                multimodal_dataset, f"bq://{uri}"
             )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
