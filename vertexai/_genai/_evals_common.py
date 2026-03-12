@@ -282,11 +282,11 @@ def _resolve_dataset(
     api_client: BaseApiClient,
     dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
     dest: str,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    agent_configs: Optional[dict[str, types.evals.AgentConfig]] = None,
 ) -> types.EvaluationRunDataSource:
     """Resolves dataset for the evaluation run."""
     if isinstance(dataset, types.EvaluationDataset):
-        candidate_name = _get_candidate_name(dataset, agent_info_pydantic)
+        candidate_name = _get_candidate_name(dataset, agent_configs)
         eval_set = _create_evaluation_set_from_dataframe(
             api_client,
             dest,
@@ -338,22 +338,9 @@ def _resolve_inference_configs(
     inference_configs: Optional[
         dict[str, types.EvaluationRunInferenceConfigOrDict]
     ] = None,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    agent_configs: Optional[dict[str, types.evals.AgentConfig]] = None,
 ) -> Optional[dict[str, types.EvaluationRunInferenceConfigOrDict]]:
     """Resolves inference configs for the evaluation run."""
-    # Resolve agent config
-    if agent_info_pydantic and agent_info_pydantic.name:
-        inference_configs = {}
-        inference_configs[agent_info_pydantic.name] = (
-            types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info_pydantic.instruction)]
-                    ),
-                    tools=agent_info_pydantic.tool_declarations,
-                )
-            )
-        )
     # Resolve prompt template data
     if inference_configs:
         for inference_config in inference_configs.values():
@@ -387,33 +374,32 @@ def _resolve_inference_configs(
 
 def _add_evaluation_run_labels(
     labels: Optional[dict[str, str]] = None,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    agent_configs: Optional[dict[str, types.evals.AgentConfig]] = None,
 ) -> Optional[dict[str, str]]:
     """Adds labels to the evaluation run."""
-    if agent_info_pydantic and agent_info_pydantic.agent_resource_name:
-        labels = labels or {}
-        labels["vertex-ai-evaluation-agent-engine-id"] = (
-            agent_info_pydantic.agent_resource_name.split("reasoningEngines/")[-1]
-        )
+    if agent_configs:
+        for config in agent_configs.values():
+            if config.agent_resource_name:
+                labels = labels or {}
+                labels["vertex-ai-evaluation-agent-engine-id"] = (
+                    config.agent_resource_name.split("reasoningEngines/")[-1]
+                )
+                break
     return labels
 
 
 def _get_candidate_name(
     dataset: types.EvaluationDataset,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    agent_configs: Optional[dict[str, types.evals.AgentConfig]] = None,
 ) -> Optional[str]:
     """Internal helper to get candidate name."""
-    if agent_info_pydantic is not None and (
-        dataset.candidate_name
-        and agent_info_pydantic
-        and agent_info_pydantic.name
-        and dataset.candidate_name != agent_info_pydantic.name
-    ):
-        logger.warning(
-            "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-        )
-    elif dataset.candidate_name is None and agent_info_pydantic:
-        return agent_info_pydantic.name
+    if agent_configs and dataset.candidate_name:
+        if dataset.candidate_name not in agent_configs:
+            logger.warning(
+                "Evaluation dataset candidate_name is not in the provided agent definitions. Please make sure this is intended."
+            )
+    elif not dataset.candidate_name and agent_configs:
+        return list(agent_configs.keys())[0]
     return dataset.candidate_name or None
 
 
@@ -1249,7 +1235,6 @@ def _resolve_dataset_inputs(
     dataset: list[types.EvaluationDataset],
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]],
     loader: "_evals_utils.EvalDatasetLoader",
-    agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> tuple[types.EvaluationDataset, int]:
     """Loads and processes single or multiple datasets for evaluation.
 
@@ -1259,7 +1244,6 @@ def _resolve_dataset_inputs(
       dataset_schema: The schema to use for the dataset(s). If None, it will be
         auto-detected.
       loader: An instance of EvalDatasetLoader to load data.
-      agent_info: The agent info of the agent under evaluation.
 
     Returns:
       A tuple containing:
@@ -1319,7 +1303,6 @@ def _resolve_dataset_inputs(
 
     processed_eval_dataset = _evals_data_converters.merge_evaluation_datasets(
         datasets=parsed_evaluation_datasets,
-        agent_info=agent_info,
     )
 
     if not processed_eval_dataset.eval_cases:
@@ -1504,24 +1487,10 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
 
     loader = _evals_utils.EvalDatasetLoader(api_client=api_client)
 
-    agent_info = kwargs.get("agent_info", None)
-    validated_agent_info = None
-    if agent_info:
-        if isinstance(agent_info, dict):
-            validated_agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        elif isinstance(agent_info, types.evals.AgentInfo):
-            validated_agent_info = agent_info
-        else:
-            raise TypeError(
-                "agent_info values must be of type types.evals.AgentInfo or dict,"
-                f" but got {type(agent_info)}'"
-            )
-
     processed_eval_dataset, num_response_candidates = _resolve_dataset_inputs(
         dataset=dataset_list,
         dataset_schema=dataset_schema,
         loader=loader,
-        agent_info=validated_agent_info,
     )
 
     resolved_metrics = _resolve_metrics(metrics, api_client)
@@ -1542,7 +1511,6 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     logger.info("Evaluation took: %f seconds", t2 - t1)
 
     evaluation_result.evaluation_dataset = dataset_list
-    evaluation_result.agent_info = validated_agent_info
 
     if not evaluation_result.metadata:
         evaluation_result.metadata = types.EvaluationRunMetadata()
@@ -1636,7 +1604,7 @@ def _run_agent_internal(
                 # TODO: Migrate single turn agent run result to AgentData.
                 agent_data_row = types.evals.AgentData(
                     turns=resp_item,
-                    agents=agent_data_agents,
+                    agent_definitions=agent_data_agents,
                 ).model_dump()
 
         else:
@@ -2094,39 +2062,6 @@ def _get_eval_cases_eval_dfs_from_eval_items(
     return eval_case_results, eval_dfs
 
 
-def _get_agent_info_from_inference_configs(
-    candidate_names: list[str],
-    inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Optional[types.evals.AgentInfo]:
-    """Retrieves an AgentInfo from the inference configs."""
-    # TODO(lakeyk): Support multiple agents.
-    if not (
-        inference_configs
-        and candidate_names
-        and candidate_names[0] in inference_configs
-        and inference_configs[candidate_names[0]].agent_config
-    ):
-        return None
-    if len(inference_configs.keys()) > 1:
-        logger.warning(
-            "Multiple agents are not supported yet. Displaying the first agent."
-        )
-    agent_config = inference_configs[candidate_names[0]].agent_config
-    di = (
-        agent_config.developer_instruction
-        if agent_config and agent_config.developer_instruction
-        else None
-    )
-    instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
-    return types.evals.AgentInfo(
-        name=candidate_names[0],
-        instruction=instruction,
-        tool_declarations=(
-            agent_config.tools if agent_config and agent_config.tools else None
-        ),
-    )
-
-
 def _get_eval_result_from_eval_items(
     results: types.EvaluationRunResults,
     eval_items: list[types.EvaluationItem],
@@ -2148,6 +2083,14 @@ def _get_eval_result_from_eval_items(
     aggregated_metrics = _get_aggregated_metrics(results)
     eval_case_results, eval_dfs = _get_eval_cases_eval_dfs_from_eval_items(eval_items)
     candidate_names = [eval_df.candidate_name for eval_df in eval_dfs]
+
+    agent_configs = None
+    if inference_configs:
+        for config in inference_configs.values():
+            if config.agent_definitions:
+                agent_configs = config.agent_definitions
+                break
+
     eval_result = types.EvaluationResult(
         summary_metrics=aggregated_metrics,
         eval_case_results=eval_case_results,
@@ -2155,9 +2098,7 @@ def _get_eval_result_from_eval_items(
         metadata=types.EvaluationRunMetadata(
             candidate_names=candidate_names,
         ),
-        agent_info=_get_agent_info_from_inference_configs(
-            candidate_names, inference_configs
-        ),
+        agent_definitions=agent_configs,
     )
     return eval_result
 
