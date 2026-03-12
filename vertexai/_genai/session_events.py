@@ -78,12 +78,8 @@ def _AppendAgentEngineSessionEventRequestParameters_to_vertex(
         setv(to_object, ["timestamp"], getv(from_object, ["timestamp"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _AppendAgentEngineSessionEventConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _AppendAgentEngineSessionEventConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -116,12 +112,8 @@ def _ListAgentEngineSessionEventsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineSessionEventsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineSessionEventsConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
