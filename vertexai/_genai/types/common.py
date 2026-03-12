@@ -5368,6 +5368,10 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""Specification for how the rubrics should be generated.""",
     )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored.""",
+    )
     config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
 
 
@@ -5387,6 +5391,9 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
 
     rubric_generation_spec: Optional[RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
+
+    metric_resource_name: Optional[str]
+    """Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored."""
 
     config: Optional[RubricGenerationConfigDict]
     """"""

@@ -143,19 +143,21 @@ Now write a rubric for the following user prompt. Remember to write only the rub
 User prompt:
 {prompt}"""
 
+_PROMPTS_DF = pd.DataFrame(
+    {
+        "prompt": [
+            "Explain the theory of relativity in one sentence.",
+            "Write a short poem about a cat.",
+        ]
+    }
+)
+
 
 def test_public_method_generate_rubrics(client):
     """Tests the public generate_rubrics method."""
-    prompts_df = pd.DataFrame(
-        {
-            "prompt": [
-                "Explain the theory of relativity in one sentence.",
-                "Write a short poem about a cat.",
-            ]
-        }
-    )
+
     eval_dataset = client.evals.generate_rubrics(
-        src=prompts_df,
+        src=_PROMPTS_DF,
         prompt_template=_TEST_RUBRIC_GENERATION_PROMPT,
         rubric_group_name="text_quality_rubrics",
     )
@@ -174,6 +176,36 @@ def test_public_method_generate_rubrics(client):
     assert isinstance(first_rubric_group["text_quality_rubrics"], list)
     assert first_rubric_group["text_quality_rubrics"]
     assert isinstance(first_rubric_group["text_quality_rubrics"][0], types.evals.Rubric)
+
+
+def test_public_method_generate_rubrics_with_metric(client):
+    """Tests the public generate_rubrics method with a metric."""
+    client._api_client._http_options.api_version = "v1beta1"
+    client._api_client._http_options.base_url = (
+        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+    )
+    metric_resource_name = "projects/977012026409/locations/us-central1/evaluationMetrics/6048334299558576128"
+    metric = types.Metric(
+        name="my_custom_metric", metric_resource_name=metric_resource_name
+    )
+    eval_dataset = client.evals.generate_rubrics(
+        src=_PROMPTS_DF, rubric_group_name="my_registered_rubrics", metric=metric
+    )
+    eval_dataset_df = eval_dataset.eval_dataset_df
+
+    assert isinstance(eval_dataset, types.EvaluationDataset)
+    assert isinstance(eval_dataset_df, pd.DataFrame)
+    assert "rubric_groups" in eval_dataset_df.columns
+    assert len(eval_dataset_df) == 2
+
+    first_rubric_group = eval_dataset_df["rubric_groups"][0]
+    assert isinstance(first_rubric_group, dict)
+    assert "my_registered_rubrics" in first_rubric_group
+    assert isinstance(first_rubric_group["my_registered_rubrics"], list)
+    assert first_rubric_group["my_registered_rubrics"]
+    assert isinstance(
+        first_rubric_group["my_registered_rubrics"][0], types.evals.Rubric
+    )
 
 
 pytestmark = pytest_helper.setup(

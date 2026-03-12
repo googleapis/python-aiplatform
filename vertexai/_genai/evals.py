@@ -526,6 +526,13 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             ),
         )
 
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
+        )
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
@@ -1063,6 +1070,7 @@ class Evals(_api_module.BaseModule):
             types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
+        metric_resource_name: Optional[str] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
@@ -1073,6 +1081,7 @@ class Evals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
@@ -1575,16 +1584,20 @@ class Evals(_api_module.BaseModule):
         rubric_type_ontology: Optional[list[str]] = None,
         predefined_spec_name: Optional[Union[str, "types.PrebuiltMetric"]] = None,
         metric_spec_parameters: Optional[dict[str, Any]] = None,
+        metric: Optional[types.MetricOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Generates rubrics for each prompt in the source and adds them as a new column
         structured as a dictionary.
 
         You can generate rubrics by providing either:
-          1. A `predefined_spec_name` to use a Vertex AI backend recipe.
-          2. A `prompt_template` along with other configuration parameters
+          1. A `metric` to use a pre-registered metric resource.
+          2. A `predefined_spec_name` to use a Vertex AI backend recipe.
+          3. A `prompt_template` along with other configuration parameters
              (`generator_model_config`, `rubric_content_type`, `rubric_type_ontology`)
              for custom rubric generation.
+        with `metric` taking precedence over `predefined_spec_name`,
+        and `predefined_spec_name` taking precedence over `prompt_template`
 
         These two modes are mutually exclusive.
 
@@ -1614,6 +1627,9 @@ class Evals(_api_module.BaseModule):
             metric_spec_parameters: Optional. Parameters for the Predefined Metric,
                 used to customize rubric generation. Only used if `predefined_spec_name` is set.
                 Example: {"guidelines": ["The response must be in Japanese."]}
+            metric: Optional. A types.Metric object containing a metric_resource_name,
+                or a resource name string. If provided, this will take precedence over
+                predefined_spec_name and prompt_template.
             config: Optional. Configuration for the rubric generation process.
 
         Returns:
@@ -1653,10 +1669,32 @@ class Evals(_api_module.BaseModule):
         )
         all_rubric_groups: list[dict[str, list[types.Rubric]]] = []
 
+        actual_metric_resource_name = None
+        if metric:
+            if isinstance(metric, str) and metric.startswith("projects/"):
+                actual_metric_resource_name = metric
+            else:
+                metric_obj = (
+                    types.Metric.model_validate(metric)
+                    if isinstance(metric, dict)
+                    else metric
+                )
+                actual_metric_resource_name = getattr(
+                    metric_obj, "metric_resource_name", None
+                )
+                if not actual_metric_resource_name:
+                    raise ValueError(
+                        "The provided Metric object must have metric_resource_name set."
+                    )
+
         rubric_gen_spec = None
         predefined_spec = None
 
-        if predefined_spec_name:
+        if actual_metric_resource_name:
+            # Precedence: Registered metric resource overrides everything else.
+            predefined_spec = None
+            rubric_gen_spec = None
+        elif predefined_spec_name:
             if prompt_template:
                 logger.warning(
                     "prompt_template is ignored when predefined_spec_name is provided."
@@ -1713,7 +1751,7 @@ class Evals(_api_module.BaseModule):
             rubric_gen_spec = types.RubricGenerationSpec.model_validate(spec_dict)
         else:
             raise ValueError(
-                "Either predefined_spec_name or prompt_template must be provided."
+                "Either metric, predefined_spec_name or prompt_template must be provided."
             )
 
         for _, row in prompts_df.iterrows():
@@ -1736,6 +1774,7 @@ class Evals(_api_module.BaseModule):
                     contents=contents,
                     rubric_generation_spec=rubric_gen_spec,
                     predefined_rubric_generation_spec=predefined_spec,
+                    metric_resource_name=actual_metric_resource_name,
                     config=config,
                 )
                 rubric_group = {rubric_group_name: response.generated_rubrics}
@@ -2321,6 +2360,7 @@ class AsyncEvals(_api_module.BaseModule):
             types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
+        metric_resource_name: Optional[str] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
@@ -2331,6 +2371,7 @@ class AsyncEvals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
