@@ -52,6 +52,7 @@ logger.setLevel(logging.INFO)
 def _CreateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -116,6 +117,7 @@ def _CreateAgentEngineConfig_to_vertex(
 def _CreateAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
@@ -123,7 +125,7 @@ def _CreateAgentEngineRequestParameters_to_vertex(
             to_object,
             ["config"],
             _CreateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -133,6 +135,7 @@ def _CreateAgentEngineRequestParameters_to_vertex(
 def _DeleteAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -150,6 +153,7 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
 def _GetAgentEngineOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["operation_name"]) is not None:
@@ -166,6 +170,7 @@ def _GetAgentEngineOperationParameters_to_vertex(
 def _GetAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -180,6 +185,7 @@ def _GetAgentEngineRequestParameters_to_vertex(
 def _ListAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -198,13 +204,16 @@ def _ListAgentEngineConfig_to_vertex(
 def _ListAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
-            _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            _ListAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object, root_object
+            ),
         )
 
     return to_object
@@ -213,6 +222,7 @@ def _ListAgentEngineRequestParameters_to_vertex(
 def _QueryAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -231,6 +241,7 @@ def _QueryAgentEngineConfig_to_vertex(
 def _QueryAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -240,7 +251,9 @@ def _QueryAgentEngineRequestParameters_to_vertex(
         setv(
             to_object,
             ["config"],
-            _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            _QueryAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object, root_object
+            ),
         )
 
     return to_object
@@ -249,6 +262,7 @@ def _QueryAgentEngineRequestParameters_to_vertex(
 def _UpdateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
 
@@ -318,6 +332,7 @@ def _UpdateAgentEngineConfig_to_vertex(
 def _UpdateAgentEngineRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
+    root_object: Optional[Union[dict[str, Any], object]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
@@ -328,7 +343,7 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
             to_object,
             ["config"],
             _UpdateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
+                getv(from_object, ["config"]), to_object, root_object
             ),
         )
 
@@ -353,7 +368,7 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _CreateAgentEngineRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -423,7 +438,7 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeleteAgentEngineRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -474,7 +489,9 @@ class AgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetAgentEngineRequestParameters_to_vertex(parameter_model)
+            request_dict = _GetAgentEngineRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -523,7 +540,9 @@ class AgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _ListAgentEngineRequestParameters_to_vertex(parameter_model)
+            request_dict = _ListAgentEngineRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -572,7 +591,9 @@ class AgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetAgentEngineOperationParameters_to_vertex(parameter_model)
+            request_dict = _GetAgentEngineOperationParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -622,7 +643,9 @@ class AgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _QueryAgentEngineRequestParameters_to_vertex(parameter_model)
+            request_dict = _QueryAgentEngineRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:query".format_map(request_url_dict)
@@ -673,7 +696,7 @@ class AgentEngines(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _UpdateAgentEngineRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2071,7 +2094,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _CreateAgentEngineRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2143,7 +2166,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _DeleteAgentEngineRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
@@ -2196,7 +2219,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetAgentEngineRequestParameters_to_vertex(parameter_model)
+            request_dict = _GetAgentEngineRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}".format_map(request_url_dict)
@@ -2247,7 +2272,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _ListAgentEngineRequestParameters_to_vertex(parameter_model)
+            request_dict = _ListAgentEngineRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "reasoningEngines".format_map(request_url_dict)
@@ -2298,7 +2325,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _GetAgentEngineOperationParameters_to_vertex(parameter_model)
+            request_dict = _GetAgentEngineOperationParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{operationName}".format_map(request_url_dict)
@@ -2350,7 +2379,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         if not self._api_client.vertexai:
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
-            request_dict = _QueryAgentEngineRequestParameters_to_vertex(parameter_model)
+            request_dict = _QueryAgentEngineRequestParameters_to_vertex(
+                parameter_model, None, parameter_model
+            )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
                 path = "{name}:query".format_map(request_url_dict)
@@ -2403,7 +2434,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
             raise ValueError("This method is only supported in the Vertex AI client.")
         else:
             request_dict = _UpdateAgentEngineRequestParameters_to_vertex(
-                parameter_model
+                parameter_model, None, parameter_model
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
