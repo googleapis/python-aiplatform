@@ -8,7 +8,7 @@
     ],
     "language": "PYTHON",
     "name": "google-cloud-aiplatform",
-    "version": "1.141.0"
+    "version": "0.0.0"
   },
   "snippets": [
     {
@@ -44298,6 +44298,10 @@
             "type": "google.cloud.aiplatform_v1.types.Session"
           },
           {
+            "name": "session_id",
+            "type": "str"
+          },
+          {
             "name": "retry",
             "type": "google.api_core.retry.Retry"
           },
@@ -44380,6 +44384,10 @@
           {
             "name": "session",
             "type": "google.cloud.aiplatform_v1.types.Session"
+          },
+          {
+            "name": "session_id",
+            "type": "str"
           },
           {
             "name": "retry",

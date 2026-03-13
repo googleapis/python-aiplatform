@@ -40,6 +40,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from .base import VertexRagDataServiceTransport, DEFAULT_CLIENT_INFO
 from .grpc import VertexRagDataServiceGrpcTransport
 
@@ -701,6 +702,385 @@ class VertexRagDataServiceGrpcAsyncIOTransport(VertexRagDataServiceTransport):
             )
         return self._stubs["get_rag_engine_config"]
 
+    @property
+    def create_rag_data_schema(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.CreateRagDataSchemaRequest],
+        Awaitable[vertex_rag_data.RagDataSchema],
+    ]:
+        r"""Return a callable for the create rag data schema method over gRPC.
+
+        Creates a RagDataSchema.
+
+        Returns:
+            Callable[[~.CreateRagDataSchemaRequest],
+                    Awaitable[~.RagDataSchema]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_rag_data_schema" not in self._stubs:
+            self._stubs["create_rag_data_schema"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/CreateRagDataSchema",
+                request_serializer=vertex_rag_data_service.CreateRagDataSchemaRequest.serialize,
+                response_deserializer=vertex_rag_data.RagDataSchema.deserialize,
+            )
+        return self._stubs["create_rag_data_schema"]
+
+    @property
+    def batch_create_rag_data_schemas(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchCreateRagDataSchemasRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch create rag data schemas method over gRPC.
+
+        Batch Create one or more RagDataSchemas
+
+        Returns:
+            Callable[[~.BatchCreateRagDataSchemasRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_rag_data_schemas" not in self._stubs:
+            self._stubs["batch_create_rag_data_schemas"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.VertexRagDataService/BatchCreateRagDataSchemas",
+                    request_serializer=vertex_rag_data_service.BatchCreateRagDataSchemasRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
+            )
+        return self._stubs["batch_create_rag_data_schemas"]
+
+    @property
+    def get_rag_data_schema(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagDataSchemaRequest],
+        Awaitable[vertex_rag_data.RagDataSchema],
+    ]:
+        r"""Return a callable for the get rag data schema method over gRPC.
+
+        Gets a RagDataSchema.
+
+        Returns:
+            Callable[[~.GetRagDataSchemaRequest],
+                    Awaitable[~.RagDataSchema]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_rag_data_schema" not in self._stubs:
+            self._stubs["get_rag_data_schema"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/GetRagDataSchema",
+                request_serializer=vertex_rag_data_service.GetRagDataSchemaRequest.serialize,
+                response_deserializer=vertex_rag_data.RagDataSchema.deserialize,
+            )
+        return self._stubs["get_rag_data_schema"]
+
+    @property
+    def list_rag_data_schemas(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.ListRagDataSchemasRequest],
+        Awaitable[vertex_rag_data_service.ListRagDataSchemasResponse],
+    ]:
+        r"""Return a callable for the list rag data schemas method over gRPC.
+
+        Lists RagDataSchemas in a Location.
+
+        Returns:
+            Callable[[~.ListRagDataSchemasRequest],
+                    Awaitable[~.ListRagDataSchemasResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_rag_data_schemas" not in self._stubs:
+            self._stubs["list_rag_data_schemas"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/ListRagDataSchemas",
+                request_serializer=vertex_rag_data_service.ListRagDataSchemasRequest.serialize,
+                response_deserializer=vertex_rag_data_service.ListRagDataSchemasResponse.deserialize,
+            )
+        return self._stubs["list_rag_data_schemas"]
+
+    @property
+    def delete_rag_data_schema(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.DeleteRagDataSchemaRequest], Awaitable[empty_pb2.Empty]
+    ]:
+        r"""Return a callable for the delete rag data schema method over gRPC.
+
+        Deletes a RagDataSchema.
+
+        Returns:
+            Callable[[~.DeleteRagDataSchemaRequest],
+                    Awaitable[~.Empty]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_rag_data_schema" not in self._stubs:
+            self._stubs["delete_rag_data_schema"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/DeleteRagDataSchema",
+                request_serializer=vertex_rag_data_service.DeleteRagDataSchemaRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
+            )
+        return self._stubs["delete_rag_data_schema"]
+
+    @property
+    def batch_delete_rag_data_schemas(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchDeleteRagDataSchemasRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch delete rag data schemas method over gRPC.
+
+        Batch Deletes one or more RagDataSchemas
+
+        Returns:
+            Callable[[~.BatchDeleteRagDataSchemasRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_delete_rag_data_schemas" not in self._stubs:
+            self._stubs["batch_delete_rag_data_schemas"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.VertexRagDataService/BatchDeleteRagDataSchemas",
+                    request_serializer=vertex_rag_data_service.BatchDeleteRagDataSchemasRequest.serialize,
+                    response_deserializer=operations_pb2.Operation.FromString,
+                )
+            )
+        return self._stubs["batch_delete_rag_data_schemas"]
+
+    @property
+    def create_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.CreateRagMetadataRequest],
+        Awaitable[vertex_rag_data.RagMetadata],
+    ]:
+        r"""Return a callable for the create rag metadata method over gRPC.
+
+        Creates a RagMetadata.
+
+        Returns:
+            Callable[[~.CreateRagMetadataRequest],
+                    Awaitable[~.RagMetadata]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "create_rag_metadata" not in self._stubs:
+            self._stubs["create_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/CreateRagMetadata",
+                request_serializer=vertex_rag_data_service.CreateRagMetadataRequest.serialize,
+                response_deserializer=vertex_rag_data.RagMetadata.deserialize,
+            )
+        return self._stubs["create_rag_metadata"]
+
+    @property
+    def batch_create_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchCreateRagMetadataRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch create rag metadata method over gRPC.
+
+        Batch Create one or more RagMetadatas
+
+        Returns:
+            Callable[[~.BatchCreateRagMetadataRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_create_rag_metadata" not in self._stubs:
+            self._stubs["batch_create_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/BatchCreateRagMetadata",
+                request_serializer=vertex_rag_data_service.BatchCreateRagMetadataRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_create_rag_metadata"]
+
+    @property
+    def update_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagMetadataRequest],
+        Awaitable[vertex_rag_data.RagMetadata],
+    ]:
+        r"""Return a callable for the update rag metadata method over gRPC.
+
+        Updates a RagMetadata.
+
+        Returns:
+            Callable[[~.UpdateRagMetadataRequest],
+                    Awaitable[~.RagMetadata]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "update_rag_metadata" not in self._stubs:
+            self._stubs["update_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/UpdateRagMetadata",
+                request_serializer=vertex_rag_data_service.UpdateRagMetadataRequest.serialize,
+                response_deserializer=vertex_rag_data.RagMetadata.deserialize,
+            )
+        return self._stubs["update_rag_metadata"]
+
+    @property
+    def get_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagMetadataRequest],
+        Awaitable[vertex_rag_data.RagMetadata],
+    ]:
+        r"""Return a callable for the get rag metadata method over gRPC.
+
+        Gets a RagMetadata.
+
+        Returns:
+            Callable[[~.GetRagMetadataRequest],
+                    Awaitable[~.RagMetadata]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "get_rag_metadata" not in self._stubs:
+            self._stubs["get_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/GetRagMetadata",
+                request_serializer=vertex_rag_data_service.GetRagMetadataRequest.serialize,
+                response_deserializer=vertex_rag_data.RagMetadata.deserialize,
+            )
+        return self._stubs["get_rag_metadata"]
+
+    @property
+    def list_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.ListRagMetadataRequest],
+        Awaitable[vertex_rag_data_service.ListRagMetadataResponse],
+    ]:
+        r"""Return a callable for the list rag metadata method over gRPC.
+
+        Lists RagMetadata in a RagFile.
+
+        Returns:
+            Callable[[~.ListRagMetadataRequest],
+                    Awaitable[~.ListRagMetadataResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "list_rag_metadata" not in self._stubs:
+            self._stubs["list_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/ListRagMetadata",
+                request_serializer=vertex_rag_data_service.ListRagMetadataRequest.serialize,
+                response_deserializer=vertex_rag_data_service.ListRagMetadataResponse.deserialize,
+            )
+        return self._stubs["list_rag_metadata"]
+
+    @property
+    def delete_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.DeleteRagMetadataRequest], Awaitable[empty_pb2.Empty]
+    ]:
+        r"""Return a callable for the delete rag metadata method over gRPC.
+
+        Deletes a RagMetadata.
+
+        Returns:
+            Callable[[~.DeleteRagMetadataRequest],
+                    Awaitable[~.Empty]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "delete_rag_metadata" not in self._stubs:
+            self._stubs["delete_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/DeleteRagMetadata",
+                request_serializer=vertex_rag_data_service.DeleteRagMetadataRequest.serialize,
+                response_deserializer=empty_pb2.Empty.FromString,
+            )
+        return self._stubs["delete_rag_metadata"]
+
+    @property
+    def batch_delete_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchDeleteRagMetadataRequest],
+        Awaitable[operations_pb2.Operation],
+    ]:
+        r"""Return a callable for the batch delete rag metadata method over gRPC.
+
+        Batch Deletes one or more RagMetadata.
+
+        Returns:
+            Callable[[~.BatchDeleteRagMetadataRequest],
+                    Awaitable[~.Operation]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "batch_delete_rag_metadata" not in self._stubs:
+            self._stubs["batch_delete_rag_metadata"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.VertexRagDataService/BatchDeleteRagMetadata",
+                request_serializer=vertex_rag_data_service.BatchDeleteRagMetadataRequest.serialize,
+                response_deserializer=operations_pb2.Operation.FromString,
+            )
+        return self._stubs["batch_delete_rag_metadata"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -761,6 +1141,71 @@ class VertexRagDataServiceGrpcAsyncIOTransport(VertexRagDataServiceTransport):
             ),
             self.get_rag_engine_config: self._wrap_method(
                 self.get_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_rag_data_schema: self._wrap_method(
+                self.create_rag_data_schema,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_rag_data_schemas: self._wrap_method(
+                self.batch_create_rag_data_schemas,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_data_schema: self._wrap_method(
+                self.get_rag_data_schema,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_rag_data_schemas: self._wrap_method(
+                self.list_rag_data_schemas,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_rag_data_schema: self._wrap_method(
+                self.delete_rag_data_schema,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_delete_rag_data_schemas: self._wrap_method(
+                self.batch_delete_rag_data_schemas,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_rag_metadata: self._wrap_method(
+                self.create_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_rag_metadata: self._wrap_method(
+                self.batch_create_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_rag_metadata: self._wrap_method(
+                self.update_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_metadata: self._wrap_method(
+                self.get_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_rag_metadata: self._wrap_method(
+                self.list_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_rag_metadata: self._wrap_method(
+                self.delete_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_delete_rag_metadata: self._wrap_method(
+                self.batch_delete_rag_metadata,
                 default_timeout=None,
                 client_info=client_info,
             ),
