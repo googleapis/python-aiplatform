@@ -239,9 +239,10 @@ class A2aAgent:
         location = self._tmpl_attrs.get("location")
         os.environ["GOOGLE_CLOUD_LOCATION"] = location
         agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", "test-agent-engine")
+        vae_base_url = os.getenv("VAE_BASE_URL", F"{location}-autopush-aiplatform.sandbox.googleapis.com")
         version = "v1beta1"
 
-        self.agent_card.url = f"https://{location}-aiplatform.googleapis.com/{version}/projects/{project}/locations/{location}/reasoningEngines/{agent_engine_id}/a2a"
+        self.agent_card.url = f"https://{vae_base_url}/{version}/projects/{project}/locations/{location}/reasoningEngines/{agent_engine_id}/a2a"
         self._tmpl_attrs["agent_card"] = self.agent_card
 
         # Create the agent executor if a builder is provided.
