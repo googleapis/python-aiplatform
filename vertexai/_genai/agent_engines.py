@@ -119,13 +119,7 @@ def _CreateAgentEngineRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _CreateAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -141,9 +135,6 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -157,9 +148,6 @@ def _GetAgentEngineOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -170,9 +158,6 @@ def _GetAgentEngineRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -201,11 +186,7 @@ def _ListAgentEngineRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
+        _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -237,11 +218,7 @@ def _QueryAgentEngineRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
+        _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -324,13 +301,7 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _UpdateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _UpdateAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
