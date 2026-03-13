@@ -11811,7 +11811,7 @@ class GeminiRequestReadConfig(_common.BaseModel):
     )
     assembled_request_column_name: Optional[str] = Field(
         default=None,
-        description="""Optional. Column name in the dataset table that contains already fully assembled Gemini requests.""",
+        description="""Column name in the underlying BigQuery table that contains already fully assembled Gemini requests.""",
     )
 
 
@@ -11822,7 +11822,7 @@ class GeminiRequestReadConfigDict(TypedDict, total=False):
     """Gemini request template with placeholders."""
 
     assembled_request_column_name: Optional[str]
-    """Optional. Column name in the dataset table that contains already fully assembled Gemini requests."""
+    """Column name in the underlying BigQuery table that contains already fully assembled Gemini requests."""
 
 
 GeminiRequestReadConfigOrDict = Union[
@@ -12146,6 +12146,10 @@ class SchemaTablesDatasetMetadata(_common.BaseModel):
         default=None,
         description="""The input config for multimodal dataset metadata.""",
     )
+    gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
+        default=None,
+        description="""The Gemini request read config for the multimodal dataset.""",
+    )
 
 
 class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
@@ -12153,6 +12157,9 @@ class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
     """The input config for multimodal dataset metadata."""
+
+    gemini_request_read_config: Optional[GeminiRequestReadConfigDict]
+    """The Gemini request read config for the multimodal dataset."""
 
 
 SchemaTablesDatasetMetadataOrDict = Union[
