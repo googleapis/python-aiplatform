@@ -2026,7 +2026,17 @@ def _convert_request_to_dataset_row(
         request.prompt.text if request.prompt and request.prompt.text else None
     )
     dict_row[_evals_constant.REFERENCE] = request.golden_response
+
+    if request.prompt and request.prompt.user_scenario:
+        dict_row[_evals_constant.STARTING_PROMPT] = (
+            request.prompt.user_scenario.starting_prompt
+        )
+        dict_row[_evals_constant.CONVERSATION_PLAN] = (
+            request.prompt.user_scenario.conversation_plan
+        )
+
     intermediate_events = []
+    agent_data = None
     if request.candidate_responses:
         for candidate in request.candidate_responses:
             if candidate.candidate is not None:
@@ -2041,7 +2051,12 @@ def _convert_request_to_dataset_row(
                             "content": content_dict,
                         }
                         intermediate_events.append(int_events_dict)
+        agent_data = request.candidate_responses[0].agent_data
+
     dict_row[_evals_constant.INTERMEDIATE_EVENTS] = intermediate_events
+    dict_row[_evals_constant.AGENT_DATA] = (
+        agent_data.model_dump() if agent_data else None
+    )
     return dict_row
 
 

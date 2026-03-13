@@ -5961,6 +5961,9 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         assert eval_dataset.eval_dataset_df is not None
         assert len(eval_dataset.eval_dataset_df) == 2
         assert eval_dataset.eval_dataset_df.iloc[0]["starting_prompt"] == "Prompt 1"
+        assert eval_dataset.eval_dataset_df.iloc[0]["conversation_plan"] == "Plan 1"
+        assert eval_dataset.eval_dataset_df.iloc[1]["starting_prompt"] == "Prompt 2"
+        assert eval_dataset.eval_dataset_df.iloc[1]["conversation_plan"] == "Plan 2"
 
         self.mock_api_client.request.assert_called_once()
 
@@ -5984,8 +5987,85 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
 
         assert eval_dataset.eval_dataset_df is not None
         assert len(eval_dataset.eval_dataset_df) == 2
+        assert eval_dataset.eval_dataset_df.iloc[0]["starting_prompt"] == "Prompt 1"
+        assert eval_dataset.eval_dataset_df.iloc[0]["conversation_plan"] == "Plan 1"
+        assert eval_dataset.eval_dataset_df.iloc[1]["starting_prompt"] == "Prompt 2"
+        assert eval_dataset.eval_dataset_df.iloc[1]["conversation_plan"] == "Plan 2"
 
         self.mock_api_client.async_request.assert_called_once()
+
+
+class TestConvertRequestToDatasetRow:
+    """Unit tests for the _convert_request_to_dataset_row function."""
+
+    def test_convert_request_to_dataset_row_with_prompt_and_golden(self):
+        request = vertexai_genai_types.EvaluationItemRequest(
+            prompt=vertexai_genai_types.EvaluationPrompt(text="test prompt"),
+            golden_response=vertexai_genai_types.CandidateResponse(
+                text="golden response"
+            ),
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["prompt"] == "test prompt"
+        assert result["reference"] == vertexai_genai_types.CandidateResponse(
+            text="golden response"
+        )
+        assert result["intermediate_events"] == []
+        assert result["agent_data"] is None
+
+    def test_convert_request_to_dataset_row_with_user_scenario(self):
+        request = vertexai_genai_types.EvaluationItemRequest(
+            prompt=vertexai_genai_types.EvaluationPrompt(
+                user_scenario=vertexai_genai_types.evals.UserScenario(
+                    starting_prompt="start prompt", conversation_plan="convo plan"
+                )
+            )
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["starting_prompt"] == "start prompt"
+        assert result["conversation_plan"] == "convo plan"
+        assert result["prompt"] is None
+
+    def test_convert_request_to_dataset_row_with_candidate_events(self):
+        request = vertexai_genai_types.EvaluationItemRequest(
+            candidate_responses=[
+                vertexai_genai_types.CandidateResponse(
+                    candidate="test-candidate",
+                    text="candidate text",
+                    events=[
+                        genai_types.Content(
+                            parts=[genai_types.Part(text="event part")], role="model"
+                        )
+                    ],
+                )
+            ]
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["test-candidate"] == "candidate text"
+        assert result["intermediate_events"] == [
+            {
+                "event_id": "test-candidate",
+                "content": {
+                    "parts": [genai_types.Part(text="event part")],
+                    "role": "model",
+                },
+            }
+        ]
+        assert result["agent_data"] is None
+
+    def test_convert_request_to_dataset_row_with_agent_data(self):
+        mock_agent_data = {"turns": []}
+        request = vertexai_genai_types.EvaluationItemRequest(
+            candidate_responses=[
+                vertexai_genai_types.CandidateResponse(
+                    candidate="test-candidate", agent_data=mock_agent_data
+                )
+            ]
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["test-candidate"] is None
+        assert result["agent_data"]["turns"] == mock_agent_data["turns"]
+        assert result["intermediate_events"] == []
 
 
 class TestCreateEvaluationSetFromDataFrame:
