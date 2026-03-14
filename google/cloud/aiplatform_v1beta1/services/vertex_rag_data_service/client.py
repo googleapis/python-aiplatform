@@ -317,6 +317,30 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def rag_data_schema_path(
+        project: str,
+        location: str,
+        rag_corpus: str,
+        rag_data_schema: str,
+    ) -> str:
+        """Returns a fully-qualified rag_data_schema string."""
+        return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}".format(
+            project=project,
+            location=location,
+            rag_corpus=rag_corpus,
+            rag_data_schema=rag_data_schema,
+        )
+
+    @staticmethod
+    def parse_rag_data_schema_path(path: str) -> Dict[str, str]:
+        """Parses a rag_data_schema path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/ragCorpora/(?P<rag_corpus>.+?)/ragDataSchemas/(?P<rag_data_schema>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def rag_engine_config_path(
         project: str,
         location: str,
@@ -356,6 +380,32 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
         """Parses a rag_file path into its component segments."""
         m = re.match(
             r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/ragCorpora/(?P<rag_corpus>.+?)/ragFiles/(?P<rag_file>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
+    def rag_metadata_path(
+        project: str,
+        location: str,
+        rag_corpus: str,
+        rag_file: str,
+        rag_metadata: str,
+    ) -> str:
+        """Returns a fully-qualified rag_metadata string."""
+        return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}".format(
+            project=project,
+            location=location,
+            rag_corpus=rag_corpus,
+            rag_file=rag_file,
+            rag_metadata=rag_metadata,
+        )
+
+    @staticmethod
+    def parse_rag_metadata_path(path: str) -> Dict[str, str]:
+        """Parses a rag_metadata path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/ragCorpora/(?P<rag_corpus>.+?)/ragFiles/(?P<rag_file>.+?)/ragMetadata/(?P<rag_metadata>.+?)$",
             path,
         )
         return m.groupdict() if m else {}
@@ -2415,6 +2465,1507 @@ class VertexRagDataServiceClient(metaclass=VertexRagDataServiceClientMeta):
             retry=retry,
             timeout=timeout,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def create_rag_data_schema(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.CreateRagDataSchemaRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        rag_data_schema: Optional[vertex_rag_data.RagDataSchema] = None,
+        rag_data_schema_id: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> vertex_rag_data.RagDataSchema:
+        r"""Creates a RagDataSchema.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_rag_data_schema():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                rag_data_schema = aiplatform_v1beta1.RagDataSchema()
+                rag_data_schema.key = "key_value"
+
+                request = aiplatform_v1beta1.CreateRagDataSchemaRequest(
+                    parent="parent_value",
+                    rag_data_schema=rag_data_schema,
+                )
+
+                # Make the request
+                response = client.create_rag_data_schema(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateRagDataSchemaRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.CreateRagDataSchema][google.cloud.aiplatform.v1beta1.VertexRagDataService.CreateRagDataSchema].
+            parent (str):
+                Required. The resource name of the RagCorpus to create
+                the RagDataSchema in. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            rag_data_schema (google.cloud.aiplatform_v1beta1.types.RagDataSchema):
+                Required. The RagDataSchema to
+                create.
+
+                This corresponds to the ``rag_data_schema`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            rag_data_schema_id (str):
+                Optional. The ID to use for the RagDataSchema, which
+                will become the final component of the RagDataSchema's
+                resource name if the user chooses to specify. Otherwise,
+                RagDataSchema id will be generated by system.
+
+                This value should be up to 63 characters, and valid
+                characters are /[a-z][0-9]-/. The first character must
+                be a letter, the last could be a letter or a number.
+
+                This corresponds to the ``rag_data_schema_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.RagDataSchema:
+                The schema of the user specified
+                metadata.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent, rag_data_schema, rag_data_schema_id]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.CreateRagDataSchemaRequest):
+            request = vertex_rag_data_service.CreateRagDataSchemaRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if rag_data_schema is not None:
+                request.rag_data_schema = rag_data_schema
+            if rag_data_schema_id is not None:
+                request.rag_data_schema_id = rag_data_schema_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.create_rag_data_schema]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def batch_create_rag_data_schemas(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.BatchCreateRagDataSchemasRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Batch Create one or more RagDataSchemas
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_rag_data_schemas():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateRagDataSchemaRequest()
+                requests.parent = "parent_value"
+                requests.rag_data_schema.key = "key_value"
+
+                request = aiplatform_v1beta1.BatchCreateRagDataSchemasRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                operation = client.batch_create_rag_data_schemas(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateRagDataSchemasRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.BatchCreateRagDataSchemas][google.cloud.aiplatform.v1beta1.VertexRagDataService.BatchCreateRagDataSchemas].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchCreateRagDataSchemasResponse` Response message for
+                   [VertexRagDataService.BatchCreateRagDataSchemas][google.cloud.aiplatform.v1beta1.VertexRagDataService.BatchCreateRagDataSchemas].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, vertex_rag_data_service.BatchCreateRagDataSchemasRequest
+        ):
+            request = vertex_rag_data_service.BatchCreateRagDataSchemasRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.batch_create_rag_data_schemas
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            vertex_rag_data_service.BatchCreateRagDataSchemasResponse,
+            metadata_type=vertex_rag_data_service.BatchCreateRagDataSchemasOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_rag_data_schema(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.GetRagDataSchemaRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> vertex_rag_data.RagDataSchema:
+        r"""Gets a RagDataSchema.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_rag_data_schema():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetRagDataSchemaRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_rag_data_schema(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetRagDataSchemaRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.GetRagDataSchema][google.cloud.aiplatform.v1beta1.VertexRagDataService.GetRagDataSchema]
+            name (str):
+                Required. The name of the RagDataSchema resource.
+                Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.RagDataSchema:
+                The schema of the user specified
+                metadata.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.GetRagDataSchemaRequest):
+            request = vertex_rag_data_service.GetRagDataSchemaRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_rag_data_schema]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_rag_data_schemas(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.ListRagDataSchemasRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> pagers.ListRagDataSchemasPager:
+        r"""Lists RagDataSchemas in a Location.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_rag_data_schemas():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListRagDataSchemasRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_rag_data_schemas(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.ListRagDataSchemas][google.cloud.aiplatform.v1beta1.VertexRagDataService.ListRagDataSchemas].
+            parent (str):
+                Required. The resource name of the RagCorpus from which
+                to list the RagDataSchemas. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers.ListRagDataSchemasPager:
+                Response message for
+                   [VertexRagDataService.ListRagDataSchemas][google.cloud.aiplatform.v1beta1.VertexRagDataService.ListRagDataSchemas].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.ListRagDataSchemasRequest):
+            request = vertex_rag_data_service.ListRagDataSchemasRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_rag_data_schemas]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListRagDataSchemasPager(
+            method=rpc,
+            request=request,
+            response=response,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_rag_data_schema(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.DeleteRagDataSchemaRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> None:
+        r"""Deletes a RagDataSchema.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_rag_data_schema():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteRagDataSchemaRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.delete_rag_data_schema(request=request)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteRagDataSchemaRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.DeleteRagDataSchema][google.cloud.aiplatform.v1beta1.VertexRagDataService.DeleteRagDataSchema].
+            name (str):
+                Required. The name of the RagDataSchema resource to be
+                deleted. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.DeleteRagDataSchemaRequest):
+            request = vertex_rag_data_service.DeleteRagDataSchemaRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_rag_data_schema]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    def batch_delete_rag_data_schemas(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.BatchDeleteRagDataSchemasRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Batch Deletes one or more RagDataSchemas
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_delete_rag_data_schemas():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.BatchDeleteRagDataSchemasRequest(
+                    parent="parent_value",
+                    names=['names_value1', 'names_value2'],
+                )
+
+                # Make the request
+                operation = client.batch_delete_rag_data_schemas(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchDeleteRagDataSchemasRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.BatchDeleteRagDataSchemas][google.cloud.aiplatform.v1beta1.VertexRagDataService.BatchDeleteRagDataSchemas].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, vertex_rag_data_service.BatchDeleteRagDataSchemasRequest
+        ):
+            request = vertex_rag_data_service.BatchDeleteRagDataSchemasRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.batch_delete_rag_data_schemas
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def create_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.CreateRagMetadataRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        rag_metadata: Optional[vertex_rag_data.RagMetadata] = None,
+        rag_metadata_id: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> vertex_rag_data.RagMetadata:
+        r"""Creates a RagMetadata.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_create_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.CreateRagMetadataRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                response = client.create_rag_metadata(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.CreateRagMetadataRequest, dict]):
+                The request object. Request message for
+                CreateRagMetadata.
+            parent (str):
+                Required. The parent resource where this metadata will
+                be created. Format:
+                ``projects/{project_number}/locations/{location_id}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            rag_metadata (google.cloud.aiplatform_v1beta1.types.RagMetadata):
+                Required. The metadata to create.
+                This corresponds to the ``rag_metadata`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            rag_metadata_id (str):
+                Optional. The ID to use for the metadata, which will
+                become the final component of the metadata's resource
+                name if the user chooses to specify. Otherwise, metadata
+                id will be generated by system.
+
+                This value should be up to 63 characters, and valid
+                characters are /[a-z][0-9]-/. The first character must
+                be a letter, the last could be a letter or a number.
+
+                This corresponds to the ``rag_metadata_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.RagMetadata:
+                Metadata for RagFile provided by
+                users.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent, rag_metadata, rag_metadata_id]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.CreateRagMetadataRequest):
+            request = vertex_rag_data_service.CreateRagMetadataRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+            if rag_metadata is not None:
+                request.rag_metadata = rag_metadata
+            if rag_metadata_id is not None:
+                request.rag_metadata_id = rag_metadata_id
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.create_rag_metadata]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def batch_create_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.BatchCreateRagMetadataRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Batch Create one or more RagMetadatas
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_create_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                requests = aiplatform_v1beta1.CreateRagMetadataRequest()
+                requests.parent = "parent_value"
+
+                request = aiplatform_v1beta1.BatchCreateRagMetadataRequest(
+                    parent="parent_value",
+                    requests=requests,
+                )
+
+                # Make the request
+                operation = client.batch_create_rag_metadata(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchCreateRagMetadataRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.BatchCreateRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.BatchCreateRagMetadata].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.BatchCreateRagMetadataResponse` Response message for
+                   [VertexRagDataService.BatchCreateRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.BatchCreateRagMetadata].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, vertex_rag_data_service.BatchCreateRagMetadataRequest
+        ):
+            request = vertex_rag_data_service.BatchCreateRagMetadataRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.batch_create_rag_metadata
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            vertex_rag_data_service.BatchCreateRagMetadataResponse,
+            metadata_type=vertex_rag_data_service.BatchCreateRagMetadataOperationMetadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def update_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.UpdateRagMetadataRequest, dict]
+        ] = None,
+        *,
+        rag_metadata: Optional[vertex_rag_data.RagMetadata] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> vertex_rag_data.RagMetadata:
+        r"""Updates a RagMetadata.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_update_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.UpdateRagMetadataRequest(
+                )
+
+                # Make the request
+                response = client.update_rag_metadata(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.UpdateRagMetadataRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.UpdateRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.UpdateRagMetadata].
+            rag_metadata (google.cloud.aiplatform_v1beta1.types.RagMetadata):
+                Required. The RagMetadata which
+                replaces the resource on the server.
+
+                This corresponds to the ``rag_metadata`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.RagMetadata:
+                Metadata for RagFile provided by
+                users.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [rag_metadata]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.UpdateRagMetadataRequest):
+            request = vertex_rag_data_service.UpdateRagMetadataRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if rag_metadata is not None:
+                request.rag_metadata = rag_metadata
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.update_rag_metadata]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata(
+                (("rag_metadata.name", request.rag_metadata.name),)
+            ),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def get_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.GetRagMetadataRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> vertex_rag_data.RagMetadata:
+        r"""Gets a RagMetadata.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_get_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.GetRagMetadataRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                response = client.get_rag_metadata(request=request)
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.GetRagMetadataRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.GetRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.GetRagMetadata]
+            name (str):
+                Required. The name of the RagMetadata resource. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.types.RagMetadata:
+                Metadata for RagFile provided by
+                users.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.GetRagMetadataRequest):
+            request = vertex_rag_data_service.GetRagMetadataRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.get_rag_metadata]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def list_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.ListRagMetadataRequest, dict]
+        ] = None,
+        *,
+        parent: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> pagers.ListRagMetadataPager:
+        r"""Lists RagMetadata in a RagFile.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_list_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.ListRagMetadataRequest(
+                    parent="parent_value",
+                )
+
+                # Make the request
+                page_result = client.list_rag_metadata(request=request)
+
+                # Handle the response
+                for response in page_result:
+                    print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.ListRagMetadataRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.ListRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.ListRagMetadata].
+            parent (str):
+                Required. The resource name of the RagFile from which to
+                list the RagMetadata. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}``
+
+                This corresponds to the ``parent`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers.ListRagMetadataPager:
+                Response message for
+                   [VertexRagDataService.ListRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.ListRagMetadata].
+
+                Iterating over this object will yield results and
+                resolve additional pages automatically.
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [parent]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.ListRagMetadataRequest):
+            request = vertex_rag_data_service.ListRagMetadataRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if parent is not None:
+                request.parent = parent
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.list_rag_metadata]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # This method is paged; wrap the response in a pager, which provides
+        # an `__iter__` convenience method.
+        response = pagers.ListRagMetadataPager(
+            method=rpc,
+            request=request,
+            response=response,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    def delete_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.DeleteRagMetadataRequest, dict]
+        ] = None,
+        *,
+        name: Optional[str] = None,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> None:
+        r"""Deletes a RagMetadata.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_delete_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.DeleteRagMetadataRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                client.delete_rag_metadata(request=request)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.DeleteRagMetadataRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.DeleteRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.DeleteRagMetadata].
+            name (str):
+                Required. The name of the RagMetadata resource to be
+                deleted. Format:
+                ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}``
+
+                This corresponds to the ``name`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        # Create or coerce a protobuf request object.
+        # - Quick check: If we got a request object, we should *not* have
+        #   gotten any keyword arguments that map to the request.
+        flattened_params = [name]
+        has_flattened_params = (
+            len([param for param in flattened_params if param is not None]) > 0
+        )
+        if request is not None and has_flattened_params:
+            raise ValueError(
+                "If the `request` argument is set, then none of "
+                "the individual field arguments should be set."
+            )
+
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(request, vertex_rag_data_service.DeleteRagMetadataRequest):
+            request = vertex_rag_data_service.DeleteRagMetadataRequest(request)
+            # If we have keyword arguments corresponding to fields on the
+            # request, apply these.
+            if name is not None:
+                request.name = name
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[self._transport.delete_rag_metadata]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+    def batch_delete_rag_metadata(
+        self,
+        request: Optional[
+            Union[vertex_rag_data_service.BatchDeleteRagMetadataRequest, dict]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> gac_operation.Operation:
+        r"""Batch Deletes one or more RagMetadata.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            def sample_batch_delete_rag_metadata():
+                # Create a client
+                client = aiplatform_v1beta1.VertexRagDataServiceClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.BatchDeleteRagMetadataRequest(
+                    parent="parent_value",
+                    names=['names_value1', 'names_value2'],
+                )
+
+                # Make the request
+                operation = client.batch_delete_rag_metadata(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = operation.result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Union[google.cloud.aiplatform_v1beta1.types.BatchDeleteRagMetadataRequest, dict]):
+                The request object. Request message for
+                [VertexRagDataService.BatchDeleteRagMetadata][google.cloud.aiplatform.v1beta1.VertexRagDataService.BatchDeleteRagMetadata].
+            retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation.Operation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.protobuf.empty_pb2.Empty` A generic empty message that you can re-use to avoid defining duplicated
+                   empty messages in your APIs. A typical example is to
+                   use it as the request or the response type of an API
+                   method. For instance:
+
+                      service Foo {
+                         rpc Bar(google.protobuf.Empty) returns
+                         (google.protobuf.Empty);
+
+                      }
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, vertex_rag_data_service.BatchDeleteRagMetadataRequest
+        ):
+            request = vertex_rag_data_service.BatchDeleteRagMetadataRequest(request)
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._transport._wrapped_methods[
+            self._transport.batch_delete_rag_metadata
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("parent", request.parent),)),
+        )
+
+        # Validate the universe domain.
+        self._validate_universe_domain()
+
+        # Send the request.
+        response = rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = gac_operation.from_gapic(
+            response,
+            self._transport.operations_client,
+            empty_pb2.Empty,
+            metadata_type=gca_operation.DeleteOperationMetadata,
         )
 
         # Done; return the response.
