@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.142.0](https://github.com/googleapis/python-aiplatform/compare/v1.141.0...v1.142.0) (2026-03-14)
+
+
+### Features
+
+* Add support for metric_resource_name within metric in rubric generation ([4dbd76c](https://github.com/googleapis/python-aiplatform/commit/4dbd76c4a701552c91ab940b9596785912105be2))
+* Add support for referencing registered metrics by resource name in evaluation run API ([76a9558](https://github.com/googleapis/python-aiplatform/commit/76a9558c6d90d2beecb5817b16e77296560c0e48))
+* GenAI Client(evals): Add starting_prompt, conversation_plan, agent_data to evaluation datset ([64ef223](https://github.com/googleapis/python-aiplatform/commit/64ef2232d26217dcb52d016ed5e450823dde6704))
+* GenAI SDK client(multimodal) - Support creating multimodal dataset from pandas DataFrame. ([8f4b4fe](https://github.com/googleapis/python-aiplatform/commit/8f4b4fea460715a5d16405dc8bd71b7d1502b1df))
+
+
+### Bug Fixes
+
+* Add embedding_metadata to MatchNeighbor from_embedding. ([ffd2cff](https://github.com/googleapis/python-aiplatform/commit/ffd2cff8a4dd34ca97901df25b05d22da9530a92))
+* GenAI Client(evals) - missing response warning when agent_data is present ([0d6c54e](https://github.com/googleapis/python-aiplatform/commit/0d6c54e081e14fcadb1733f34a82a973c12183eb))
+* GenAI SDK client - Add get session call to create session sdk if an immediate success is returned ([933debd](https://github.com/googleapis/python-aiplatform/commit/933debd4e210bc152005d8383dc5a69fb091af53))
+
 ## [1.141.0](https://github.com/googleapis/python-aiplatform/compare/v1.140.0...v1.141.0) (2026-03-10)
 
 
