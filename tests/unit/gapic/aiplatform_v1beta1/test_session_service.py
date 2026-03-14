@@ -7017,6 +7017,7 @@ def test_append_event_rest_call_success(request_type):
                     "video_metadata": {
                         "start_offset": {"seconds": 751, "nanos": 543},
                         "end_offset": {},
+                        "fps": 0.5,
                     },
                     "thought": True,
                     "thought_signature": b"thought_signature_blob",
@@ -9243,6 +9244,7 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                     "video_metadata": {
                         "start_offset": {"seconds": 751, "nanos": 543},
                         "end_offset": {},
+                        "fps": 0.5,
                     },
                     "thought": True,
                     "thought_signature": b"thought_signature_blob",
