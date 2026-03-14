@@ -61,6 +61,10 @@ GCS_PREFIX = "fake/prefix"
 FAKE_FILENAME = "fake-filename"
 EXPECTED_TIME = datetime.datetime(2023, 1, 6, 8, 54, 41, 734495)
 
+_TEST_LOCATION_TPC = "u-us-prp1"
+_TEST_ENDPOINT_TPC = "u-us-prp1-aiplatform.apis-tpczero.goog"
+_TEST_UNIVERSE_TPC = "apis-tpczero.goog"
+
 
 @pytest.fixture
 def mock_storage_client():
@@ -135,6 +139,17 @@ def test_invalid_region_raises_with_invalid_region():
 
 def test_invalid_region_does_not_raise_with_valid_region():
     aiplatform.utils.validate_region(region="us-central1")
+
+
+def test_validate_region_tpc_with_context():
+    """Test region validation with explicit TPC context."""
+    assert aiplatform.utils.validate_region(
+        _TEST_LOCATION_TPC, api_endpoint=_TEST_ENDPOINT_TPC
+    )
+
+    assert aiplatform.utils.validate_region(
+        _TEST_LOCATION_TPC, universe_domain=_TEST_UNIVERSE_TPC
+    )
 
 
 @pytest.fixture
