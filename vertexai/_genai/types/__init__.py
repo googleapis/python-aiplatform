@@ -34,6 +34,7 @@ from .common import _CreateAgentEngineTaskRequestParameters
 from .common import _CreateDatasetParameters
 from .common import _CreateDatasetVersionParameters
 from .common import _CreateEvaluationItemParameters
+from .common import _CreateEvaluationMetricParameters
 from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
 from .common import _CreateMultimodalDatasetParameters
@@ -68,6 +69,7 @@ from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
 from .common import _GetEvaluationItemParameters
+from .common import _GetEvaluationMetricParameters
 from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetMultimodalDatasetOperationParameters
@@ -82,6 +84,7 @@ from .common import _ListAgentEngineTaskEventsRequestParameters
 from .common import _ListAgentEngineTasksRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
+from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
@@ -239,6 +242,9 @@ from .common import CreateDatasetVersionConfigOrDict
 from .common import CreateEvaluationItemConfig
 from .common import CreateEvaluationItemConfigDict
 from .common import CreateEvaluationItemConfigOrDict
+from .common import CreateEvaluationMetricConfig
+from .common import CreateEvaluationMetricConfigDict
+from .common import CreateEvaluationMetricConfigOrDict
 from .common import CreateEvaluationRunConfig
 from .common import CreateEvaluationRunConfigDict
 from .common import CreateEvaluationRunConfigOrDict
@@ -363,6 +369,9 @@ from .common import EvaluationItemResult
 from .common import EvaluationItemResultDict
 from .common import EvaluationItemResultOrDict
 from .common import EvaluationItemType
+from .common import EvaluationMetric
+from .common import EvaluationMetricDict
+from .common import EvaluationMetricOrDict
 from .common import EvaluationPrompt
 from .common import EvaluationPromptDict
 from .common import EvaluationPromptOrDict
@@ -525,6 +534,9 @@ from .common import GetDatasetOperationConfigOrDict
 from .common import GetEvaluationItemConfig
 from .common import GetEvaluationItemConfigDict
 from .common import GetEvaluationItemConfigOrDict
+from .common import GetEvaluationMetricConfig
+from .common import GetEvaluationMetricConfigDict
+from .common import GetEvaluationMetricConfigOrDict
 from .common import GetEvaluationRunConfig
 from .common import GetEvaluationRunConfigDict
 from .common import GetEvaluationRunConfigOrDict
@@ -589,6 +601,12 @@ from .common import ListDatasetsResponseOrDict
 from .common import ListDatasetVersionsResponse
 from .common import ListDatasetVersionsResponseDict
 from .common import ListDatasetVersionsResponseOrDict
+from .common import ListEvaluationMetricsConfig
+from .common import ListEvaluationMetricsConfigDict
+from .common import ListEvaluationMetricsConfigOrDict
+from .common import ListEvaluationMetricsResponse
+from .common import ListEvaluationMetricsResponseDict
+from .common import ListEvaluationMetricsResponseOrDict
 from .common import ListMultimodalDatasetsConfig
 from .common import ListMultimodalDatasetsConfigDict
 from .common import ListMultimodalDatasetsConfigOrDict
@@ -1310,15 +1328,6 @@ __all__ = [
     "EvaluationItem",
     "EvaluationItemDict",
     "EvaluationItemOrDict",
-    "SamplingConfig",
-    "SamplingConfigDict",
-    "SamplingConfigOrDict",
-    "BigQueryRequestSet",
-    "BigQueryRequestSetDict",
-    "BigQueryRequestSetOrDict",
-    "EvaluationRunDataSource",
-    "EvaluationRunDataSourceDict",
-    "EvaluationRunDataSourceOrDict",
     "PredefinedMetricSpec",
     "PredefinedMetricSpecDict",
     "PredefinedMetricSpecOrDict",
@@ -1337,6 +1346,21 @@ __all__ = [
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
+    "CreateEvaluationMetricConfig",
+    "CreateEvaluationMetricConfigDict",
+    "CreateEvaluationMetricConfigOrDict",
+    "EvaluationMetric",
+    "EvaluationMetricDict",
+    "EvaluationMetricOrDict",
+    "SamplingConfig",
+    "SamplingConfigDict",
+    "SamplingConfigOrDict",
+    "BigQueryRequestSet",
+    "BigQueryRequestSetDict",
+    "BigQueryRequestSetOrDict",
+    "EvaluationRunDataSource",
+    "EvaluationRunDataSourceDict",
+    "EvaluationRunDataSourceOrDict",
     "EvaluationRunMetric",
     "EvaluationRunMetricDict",
     "EvaluationRunMetricOrDict",
@@ -1586,6 +1610,9 @@ __all__ = [
     "GenerateUserScenariosResponse",
     "GenerateUserScenariosResponseDict",
     "GenerateUserScenariosResponseOrDict",
+    "GetEvaluationMetricConfig",
+    "GetEvaluationMetricConfigDict",
+    "GetEvaluationMetricConfigOrDict",
     "GetEvaluationRunConfig",
     "GetEvaluationRunConfigDict",
     "GetEvaluationRunConfigOrDict",
@@ -1595,6 +1622,12 @@ __all__ = [
     "GetEvaluationItemConfig",
     "GetEvaluationItemConfigDict",
     "GetEvaluationItemConfigOrDict",
+    "ListEvaluationMetricsConfig",
+    "ListEvaluationMetricsConfigDict",
+    "ListEvaluationMetricsConfigOrDict",
+    "ListEvaluationMetricsResponse",
+    "ListEvaluationMetricsResponseDict",
+    "ListEvaluationMetricsResponseOrDict",
     "OptimizeConfig",
     "OptimizeConfigDict",
     "OptimizeConfigOrDict",
@@ -2232,8 +2265,8 @@ __all__ = [
     "MachineConfig",
     "Framework",
     "EvaluationItemType",
-    "SamplingMethod",
     "RubricContentType",
+    "SamplingMethod",
     "EvaluationRunState",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
@@ -2267,14 +2300,17 @@ __all__ = [
     "_AppendAgentEngineTaskEventRequestParameters",
     "_ListAgentEngineTaskEventsRequestParameters",
     "_CreateEvaluationItemParameters",
+    "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateInstanceRubricsRequest",
     "_GenerateUserScenariosParameters",
+    "_GetEvaluationMetricParameters",
     "_GetEvaluationRunParameters",
     "_GetEvaluationSetParameters",
     "_GetEvaluationItemParameters",
+    "_ListEvaluationMetricsParameters",
     "_OptimizeRequestParameters",
     "_CustomJobParameters",
     "_GetCustomJobParameters",
