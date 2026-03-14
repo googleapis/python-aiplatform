@@ -1845,7 +1845,10 @@ _CreateEvaluationItemParametersOrDict = Union[
 
 
 class PromptTemplateData(_common.BaseModel):
-    """Message to hold a prompt template and the values to populate the template."""
+    """Holds data for a prompt template.
+
+    Message to hold a prompt template and the values to populate the template.
+    """
 
     values: Optional[dict[str, genai_types.Content]] = Field(
         default=None, description="""The values for fields in the prompt template."""
@@ -1853,7 +1856,10 @@ class PromptTemplateData(_common.BaseModel):
 
 
 class PromptTemplateDataDict(TypedDict, total=False):
-    """Message to hold a prompt template and the values to populate the template."""
+    """Holds data for a prompt template.
+
+    Message to hold a prompt template and the values to populate the template.
+    """
 
     values: Optional[dict[str, genai_types.ContentDict]]
     """The values for fields in the prompt template."""
@@ -2355,7 +2361,10 @@ LLMBasedMetricSpecOrDict = Union[LLMBasedMetricSpec, LLMBasedMetricSpecDict]
 
 
 class CustomCodeExecutionSpec(_common.BaseModel):
-    """Specificies a metric that is computed by running user-defined Python functions remotely."""
+    """Specifies a metric using remote Python function execution.
+
+    This metric is computed by running user-defined Python functions remotely.
+    """
 
     remote_custom_function: Optional[str] = Field(
         default=None,
@@ -2373,7 +2382,10 @@ class CustomCodeExecutionSpec(_common.BaseModel):
 
 
 class CustomCodeExecutionSpecDict(TypedDict, total=False):
-    """Specificies a metric that is computed by running user-defined Python functions remotely."""
+    """Specifies a metric using remote Python function execution.
+
+    This metric is computed by running user-defined Python functions remotely.
+    """
 
     remote_custom_function: Optional[str]
     """A string representing a user-defined function for evaluation.
@@ -2876,7 +2888,7 @@ EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDic
 
 
 class ResponseCandidateResult(_common.BaseModel):
-    """Aggregated metric results for a single response candidate of an EvalCase."""
+    """Aggregated metric results for a single response candidate."""
 
     response_index: Optional[int] = Field(
         default=None,
@@ -2889,7 +2901,7 @@ class ResponseCandidateResult(_common.BaseModel):
 
 
 class ResponseCandidateResultDict(TypedDict, total=False):
-    """Aggregated metric results for a single response candidate of an EvalCase."""
+    """Aggregated metric results for a single response candidate."""
 
     response_index: Optional[int]
     """Index of the response candidate this result pertains to."""
@@ -4338,7 +4350,10 @@ RubricEnhancedContentsOrDict = Union[RubricEnhancedContents, RubricEnhancedConte
 
 
 class RubricBasedMetricInstance(_common.BaseModel):
-    """Defines an instance for Rubric-based metrics, allowing various input formats."""
+    """Defines an instance for Rubric-based metrics.
+
+    This class allows various input formats.
+    """
 
     json_instance: Optional[str] = Field(
         default=None,
@@ -4356,7 +4371,10 @@ class RubricBasedMetricInstance(_common.BaseModel):
 
 
 class RubricBasedMetricInstanceDict(TypedDict, total=False):
-    """Defines an instance for Rubric-based metrics, allowing various input formats."""
+    """Defines an instance for Rubric-based metrics.
+
+    This class allows various input formats.
+    """
 
     json_instance: Optional[str]
     """Specify evaluation fields and their string values in JSON format."""
@@ -14937,6 +14955,241 @@ class OptimizeResponseDict(TypedDict, total=False):
 OptimizeResponseOrDict = Union[OptimizeResponse, OptimizeResponseDict]
 
 
+class ContentMapContents(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Contents of the model input."""
+    )
+
+
+class ContentMapContentsDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Contents of the model input."""
+
+
+ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
+
+
+class EvaluateMethodConfig(_common.BaseModel):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
+        default=None,
+        description="""The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset.""",
+    )
+    dest: Optional[str] = Field(
+        default=None, description="""The destination path for the evaluation results."""
+    )
+
+
+class EvaluateMethodConfigDict(TypedDict, total=False):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
+    """The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset."""
+
+    dest: Optional[str]
+    """The destination path for the evaluation results."""
+
+
+EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
+
+
+class EvaluateDatasetConfig(_common.BaseModel):
+    """Config for evaluate instances."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class EvaluateDatasetConfigDict(TypedDict, total=False):
+    """Config for evaluate instances."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
+
+
+class EvaluateDatasetOperation(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetOperationDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[EvaluationDatasetDict]
+    """"""
+
+
+EvaluateDatasetOperationOrDict = Union[
+    EvaluateDatasetOperation, EvaluateDatasetOperationDict
+]
+
+
+class EvaluateDatasetRequestParameters(_common.BaseModel):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
+    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
+    output_config: Optional[genai_types.OutputConfig] = Field(
+        default=None, description=""""""
+    )
+    autorater_config: Optional[genai_types.AutoraterConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDatasetDict]
+    """"""
+
+    metrics: Optional[list[MetricDict]]
+    """"""
+
+    output_config: Optional[genai_types.OutputConfigDict]
+    """"""
+
+    autorater_config: Optional[genai_types.AutoraterConfigDict]
+    """"""
+
+    config: Optional[EvaluateDatasetConfigDict]
+    """"""
+
+
+EvaluateDatasetRequestParametersOrDict = Union[
+    EvaluateDatasetRequestParameters, EvaluateDatasetRequestParametersDict
+]
+
+
+class ObservabilityEvalCase(_common.BaseModel):
+    """A single evaluation case instance for data stored in GCP Observability."""
+
+    input_src: Optional[str] = Field(
+        default=None,
+        description="""String containing the GCS reference to the GenAI input content.""",
+    )
+    output_src: Optional[str] = Field(
+        default=None,
+        description="""String containing the GCS reference to the GenAI response content.""",
+    )
+    system_instruction_src: Optional[str] = Field(
+        default=None,
+        description="""An optional string containing the GCS reference to the GenAI system instruction.""",
+    )
+    api_client: Optional[Any] = Field(
+        default=None, description="""The underlying API client."""
+    )
+
+
+class ObservabilityEvalCaseDict(TypedDict, total=False):
+    """A single evaluation case instance for data stored in GCP Observability."""
+
+    input_src: Optional[str]
+    """String containing the GCS reference to the GenAI input content."""
+
+    output_src: Optional[str]
+    """String containing the GCS reference to the GenAI response content."""
+
+    system_instruction_src: Optional[str]
+    """An optional string containing the GCS reference to the GenAI system instruction."""
+
+    api_client: Optional[Any]
+    """The underlying API client."""
+
+
+ObservabilityEvalCaseOrDict = Union[ObservabilityEvalCase, ObservabilityEvalCaseDict]
+
+
+class RubricGroup(_common.BaseModel):
+    """A group of rubrics.
+
+    Used for grouping rubrics based on a metric or a version.
+    """
+
+    group_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the group."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task".""",
+    )
+    rubrics: Optional[list[evals_types.Rubric]] = Field(
+        default=None, description="""Rubrics that are part of this group."""
+    )
+
+
+class RubricGroupDict(TypedDict, total=False):
+    """A group of rubrics.
+
+    Used for grouping rubrics based on a metric or a version.
+    """
+
+    group_id: Optional[str]
+    """Unique identifier for the group."""
+
+    display_name: Optional[str]
+    """Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task"."""
+
+    rubrics: Optional[list[evals_types.Rubric]]
+    """Rubrics that are part of this group."""
+
+
+RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
+
+
 class PromptTemplate(_common.BaseModel):
     """A prompt template for creating prompts with variables."""
 
@@ -15370,235 +15623,6 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
 
 
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
-
-
-class ContentMapContents(_common.BaseModel):
-    """Map of placeholder in metric prompt template to contents of model input."""
-
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Contents of the model input."""
-    )
-
-
-class ContentMapContentsDict(TypedDict, total=False):
-    """Map of placeholder in metric prompt template to contents of model input."""
-
-    contents: Optional[list[genai_types.ContentDict]]
-    """Contents of the model input."""
-
-
-ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
-
-
-class EvaluateMethodConfig(_common.BaseModel):
-    """Optional parameters for the evaluate method."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
-        default=None,
-        description="""The schema to use for the dataset.
-      If not specified, the dataset schema will be inferred from the first
-      example in the dataset.""",
-    )
-    dest: Optional[str] = Field(
-        default=None, description="""The destination path for the evaluation results."""
-    )
-
-
-class EvaluateMethodConfigDict(TypedDict, total=False):
-    """Optional parameters for the evaluate method."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
-    """The schema to use for the dataset.
-      If not specified, the dataset schema will be inferred from the first
-      example in the dataset."""
-
-    dest: Optional[str]
-    """The destination path for the evaluation results."""
-
-
-EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
-
-
-class EvaluateDatasetConfig(_common.BaseModel):
-    """Config for evaluate instances."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class EvaluateDatasetConfigDict(TypedDict, total=False):
-    """Config for evaluate instances."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
-
-
-class EvaluateDatasetRequestParameters(_common.BaseModel):
-    """Parameters for batch dataset evaluation."""
-
-    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
-    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
-    output_config: Optional[genai_types.OutputConfig] = Field(
-        default=None, description=""""""
-    )
-    autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description=""""""
-    )
-    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
-
-
-class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
-    """Parameters for batch dataset evaluation."""
-
-    dataset: Optional[EvaluationDatasetDict]
-    """"""
-
-    metrics: Optional[list[MetricDict]]
-    """"""
-
-    output_config: Optional[genai_types.OutputConfigDict]
-    """"""
-
-    autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """"""
-
-    config: Optional[EvaluateDatasetConfigDict]
-    """"""
-
-
-EvaluateDatasetRequestParametersOrDict = Union[
-    EvaluateDatasetRequestParameters, EvaluateDatasetRequestParametersDict
-]
-
-
-class EvaluateDatasetOperation(_common.BaseModel):
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
-
-
-class EvaluateDatasetOperationDict(TypedDict, total=False):
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[EvaluationDatasetDict]
-    """"""
-
-
-EvaluateDatasetOperationOrDict = Union[
-    EvaluateDatasetOperation, EvaluateDatasetOperationDict
-]
-
-
-class ObservabilityEvalCase(_common.BaseModel):
-    """A single evaluation case instance for data stored in GCP Observability."""
-
-    input_src: Optional[str] = Field(
-        default=None,
-        description="""String containing the GCS reference to the GenAI input content.""",
-    )
-    output_src: Optional[str] = Field(
-        default=None,
-        description="""String containing the GCS reference to the GenAI response content.""",
-    )
-    system_instruction_src: Optional[str] = Field(
-        default=None,
-        description="""An optional string containing the GCS reference to the GenAI system instruction.""",
-    )
-    api_client: Optional[Any] = Field(
-        default=None, description="""The underlying API client."""
-    )
-
-
-class ObservabilityEvalCaseDict(TypedDict, total=False):
-    """A single evaluation case instance for data stored in GCP Observability."""
-
-    input_src: Optional[str]
-    """String containing the GCS reference to the GenAI input content."""
-
-    output_src: Optional[str]
-    """String containing the GCS reference to the GenAI response content."""
-
-    system_instruction_src: Optional[str]
-    """An optional string containing the GCS reference to the GenAI system instruction."""
-
-    api_client: Optional[Any]
-    """The underlying API client."""
-
-
-ObservabilityEvalCaseOrDict = Union[ObservabilityEvalCase, ObservabilityEvalCaseDict]
-
-
-class RubricGroup(_common.BaseModel):
-    """A group of rubrics, used for grouping rubrics based on a metric or a version."""
-
-    group_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the group."""
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Human-readable name for the group. This should be unique
-      within a given context if used for display or selection.
-      Example: "Instruction Following V1", "Content Quality - Summarization
-      Task".""",
-    )
-    rubrics: Optional[list[evals_types.Rubric]] = Field(
-        default=None, description="""Rubrics that are part of this group."""
-    )
-
-
-class RubricGroupDict(TypedDict, total=False):
-    """A group of rubrics, used for grouping rubrics based on a metric or a version."""
-
-    group_id: Optional[str]
-    """Unique identifier for the group."""
-
-    display_name: Optional[str]
-    """Human-readable name for the group. This should be unique
-      within a given context if used for display or selection.
-      Example: "Instruction Following V1", "Content Quality - Summarization
-      Task"."""
-
-    rubrics: Optional[list[evals_types.Rubric]]
-    """Rubrics that are part of this group."""
-
-
-RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
 
 
 class AgentEngine(_common.BaseModel):
