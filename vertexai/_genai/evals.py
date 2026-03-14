@@ -245,6 +245,16 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             [item for item in t.t_metrics(getv(from_object, ["metrics"]))],
         )
 
+    if getv(from_object, ["metric_sources"]) is not None:
+        setv(
+            to_object,
+            ["metricSources"],
+            [
+                item
+                for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
+            ],
+        )
+
     if getv(from_object, ["instance"]) is not None:
         setv(
             to_object,
@@ -998,6 +1008,7 @@ class Evals(_api_module.BaseModule):
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
+        metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
@@ -1018,6 +1029,7 @@ class Evals(_api_module.BaseModule):
             rubric_based_metric_input=rubric_based_metric_input,
             autorater_config=autorater_config,
             metrics=metrics,
+            metric_sources=metric_sources,
             instance=instance,
             config=config,
         )
@@ -2286,6 +2298,7 @@ class AsyncEvals(_api_module.BaseModule):
         rubric_based_metric_input: Optional[types.RubricBasedMetricInputOrDict] = None,
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
+        metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
@@ -2306,6 +2319,7 @@ class AsyncEvals(_api_module.BaseModule):
             rubric_based_metric_input=rubric_based_metric_input,
             autorater_config=autorater_config,
             metrics=metrics,
+            metric_sources=metric_sources,
             instance=instance,
             config=config,
         )

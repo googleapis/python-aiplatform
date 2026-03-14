@@ -353,6 +353,32 @@ def test_evaluation_agent_data(client):
         assert case_result.response_candidate_results is not None
 
 
+def test_metric_resource_name(client):
+    """Tests with a metric resource name in types.Metric."""
+    client._api_client._http_options.api_version = "v1beta1"
+    client._api_client._http_options.base_url = (
+        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+    )
+    metric_resource_name = "projects/977012026409/locations/us-central1/evaluationMetrics/6048334299558576128"
+    byor_df = pd.DataFrame(
+        {
+            "prompt": ["Write a simple story about a dinosaur"],
+            "response": ["Once upon a time, there was a T-Rex named Rexy."],
+        }
+    )
+    metric = types.Metric(
+        name="my_custom_metric", metric_resource_name=metric_resource_name
+    )
+    evaluation_result = client.evals.evaluate(
+        dataset=byor_df,
+        metrics=[metric],
+    )
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    assert evaluation_result.eval_case_results is not None
+    assert len(evaluation_result.eval_case_results) > 0
+    assert evaluation_result.summary_metrics[0].metric_name == "my_custom_metric"
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

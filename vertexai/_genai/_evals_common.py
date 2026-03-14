@@ -1364,7 +1364,7 @@ def _resolve_evaluation_run_metrics(
                 raise
         elif isinstance(metric_instance, types.Metric):
             config_dict = t.t_metrics([metric_instance])[0]
-            res_name = config_dict.pop("metric_resource_name", None)
+            res_name = getattr(metric_instance, "metric_resource_name", None)
             resolved_metrics_list.append(
                 types.EvaluationRunMetric(
                     metric=metric_instance.name,
