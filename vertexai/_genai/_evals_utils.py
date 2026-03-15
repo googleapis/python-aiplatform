@@ -20,7 +20,6 @@ import os
 import json
 from typing import Any, Optional, Union
 
-from google.genai import types as genai_types
 from google.genai._api_client import BaseApiClient
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
@@ -347,13 +346,7 @@ def _postprocess_user_scenarios_response(
     data_for_df = []
     if hasattr(response, "user_scenarios") and response.user_scenarios:
         for scenario in response.user_scenarios:
-            prompt_content = None
-            if scenario.starting_prompt:
-                prompt_content = genai_types.Content(
-                    parts=[genai_types.Part(text=scenario.starting_prompt)]
-                )
             eval_case = types.EvalCase(
-                prompt=prompt_content,
                 user_scenario=scenario,
             )
             eval_cases.append(eval_case)
