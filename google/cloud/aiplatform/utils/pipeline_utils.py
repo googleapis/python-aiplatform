@@ -68,6 +68,10 @@ class PipelineRuntimeConfigBuilder(object):
         self._input_artifacts = copy.deepcopy(input_artifacts or {})
         self._failure_policy = failure_policy
         self._default_runtime = default_runtime
+        self._parsed_schema_version = packaging.version.parse(schema_version)
+        self._is_version_gt_2 = self._parsed_schema_version > packaging.version.parse(
+            "2.0.0"
+        )
 
     @classmethod
     def from_job_spec_json(
@@ -188,9 +192,7 @@ class PipelineRuntimeConfigBuilder(object):
                 "Pipeline root must be specified, either during "
                 "compile time, or when calling the service."
             )
-        if packaging.version.parse(self._schema_version) > packaging.version.parse(
-            "2.0.0"
-        ):
+        if self._is_version_gt_2:
             parameter_values_key = "parameterValues"
         else:
             parameter_values_key = "parameters"
@@ -243,9 +245,7 @@ class PipelineRuntimeConfigBuilder(object):
                 "pipeline job input definitions.".format(name)
             )
 
-        if packaging.version.parse(self._schema_version) <= packaging.version.parse(
-            "2.0.0"
-        ):
+        if not self._is_version_gt_2:
             result = {}
             if self._parameter_types[name] == "INT":
                 result["intValue"] = value
