@@ -95,6 +95,10 @@ if TYPE_CHECKING:
 
 _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
+_KEEP_ALIVE_DIR = "/dev/shm"
+_KEEP_ALIVE_FILENAME_PREFIX = "keep_alive_timestamp"
+_KEEP_ALIVE_TEMP_FILENAME_PREFIX = "tmp_keep_alive_timestamp"
+_KEEP_ALIVE_LEASE_SECONDS = 60 * 60  # 1 hour
 _TELEMETRY_API_DISABLED_WARNING = (
     "Tracing integration for Agent Engine has migrated to a new API.\n"
     "The 'telemetry.googleapis.com' has not been enabled in project %s. \n"
@@ -992,6 +996,77 @@ class AdkApp:
             memory_service=self._tmpl_attrs.get("in_memory_memory_service"),
         )
 
+    def _update_keep_alive_timestamp(self):
+        """Updates the keep-alive timestamp.
+
+        It writes the current timestamp to a file
+        /dev/shm/keep_alive_timestamp_{pid} where pid is the process id.
+        This is done atomically by writing to a temporary file and then renaming it.
+        This file can be checked by other processes to see if this agent process
+        is still alive and processing requests.
+        """
+        import os
+        import tempfile
+        import time
+
+        try:
+            pid = os.getpid()
+            timestamp = str(time.time() + _KEEP_ALIVE_LEASE_SECONDS)
+            filename = f"{_KEEP_ALIVE_DIR}/{_KEEP_ALIVE_FILENAME_PREFIX}_{pid}"
+            tmp_dir = _KEEP_ALIVE_DIR
+            if not os.path.exists(tmp_dir) or not os.path.isdir(tmp_dir):
+                return
+            with tempfile.NamedTemporaryFile(
+                "w",
+                dir=tmp_dir,
+                delete=False,
+                prefix=f"{_KEEP_ALIVE_TEMP_FILENAME_PREFIX}_{pid}_",
+            ) as fp:
+                fp.write(timestamp)
+                tmp_path = fp.name
+            os.rename(tmp_path, filename)
+        except Exception as e:
+            # If there's any issue writing the timestamp, we log a warning
+            # and ignore it.
+            _warn(f"Failed to update keep-alive timestamp: {e}")
+
+    def keep_alive(self) -> bool:
+        """Checks if the agent is busy."""
+        import glob
+        import os
+        import time
+
+        max_timestamp = -1.0
+        try:
+            timestamp_files = glob.glob(
+                f"{_KEEP_ALIVE_DIR}/{_KEEP_ALIVE_FILENAME_PREFIX}_*"
+            )
+            for timestamp_file in timestamp_files:
+                try:
+                    # Extract PID from filename (e.g., keep_alive_timestamp_1234)
+                    basename = os.path.basename(timestamp_file)
+                    pid_str = basename[len(_KEEP_ALIVE_FILENAME_PREFIX) + 1 :]
+                    pid = int(pid_str)
+
+                    # Check if the process that created the file is still running
+                    os.kill(pid, 0)
+
+                    with open(timestamp_file, "r") as f:
+                        timestamp = float(f.read())
+                        if timestamp > max_timestamp:
+                            max_timestamp = timestamp
+                except (ProcessLookupError, ValueError, FileNotFoundError):
+                    # If process is dead or file is missing/corrupt, remove the stale file
+                    try:
+                        os.remove(timestamp_file)
+                    except FileNotFoundError:
+                        pass
+                    continue
+        except Exception as e:
+            _warn(f"Failed to read timestamp files: {e}")
+
+        return time.time() <= max_timestamp
+
     async def async_stream_query(
         self,
         *,
@@ -1035,6 +1110,7 @@ class AdkApp:
         from vertexai.agent_engines import _utils
         from google.genai import types
 
+        self._update_keep_alive_timestamp()
         if isinstance(message, Dict):
             content = types.Content.model_validate(message)
         elif isinstance(message, str):
@@ -1140,6 +1216,7 @@ class AdkApp:
         from vertexai.agent_engines import _utils
         from google.genai import types
 
+        self._update_keep_alive_timestamp()
         if isinstance(message, Dict):
             content = types.Content.model_validate(message)
         elif isinstance(message, str):
@@ -1191,6 +1268,7 @@ class AdkApp:
         from google.genai import types
         from google.genai.errors import ClientError
 
+        self._update_keep_alive_timestamp()
         request = _StreamRunRequest(**json.loads(request_json))
         if not any(
             self._tmpl_attrs.get(service)
@@ -1659,6 +1737,7 @@ class AdkApp:
                 "async_stream_query",
                 "streaming_agent_run_with_events",
             ],
+            "keep_alive": ["keep_alive"],
         }
 
     def _telemetry_enabled(self) -> Optional[bool]:
