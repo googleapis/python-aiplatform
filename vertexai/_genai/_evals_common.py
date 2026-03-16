@@ -45,6 +45,7 @@ from . import _evals_utils
 from . import _gcs_utils
 from . import evals
 from . import types
+from . import _transformers as t
 
 logger = logging.getLogger(__name__)
 
@@ -1143,6 +1144,13 @@ def _execute_inference(
             candidate_name=candidate_name,
         )
     elif agent_engine or agent:
+        candidate_name = None
+        if agent_engine:
+            candidate_name = "agent_engine_0"
+        elif agent:
+            agent_config = types.evals.AgentConfig.from_agent(agent)
+            candidate_name = agent_config.agent_id or "agent_0"
+
         if (
             agent_engine
             and not isinstance(agent_engine, str)
@@ -1181,6 +1189,7 @@ def _execute_inference(
 
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
+            candidate_name=candidate_name,
         )
     else:
         raise ValueError("Either model, agent_engine or agent must be provided.")
@@ -1320,7 +1329,7 @@ def _resolve_dataset_inputs(
 
 
 def _resolve_evaluation_run_metrics(
-    metrics: list[types.EvaluationRunMetric], api_client: Any
+    metrics: Union[list[types.EvaluationRunMetric], list[types.Metric]], api_client: Any
 ) -> list[types.EvaluationRunMetric]:
     """Resolves a list of evaluation run metric instances, loading RubricMetric if necessary."""
     if not metrics:
@@ -1353,6 +1362,16 @@ def _resolve_evaluation_run_metrics(
                     e,
                 )
                 raise
+        elif isinstance(metric_instance, types.Metric):
+            config_dict = t.t_metrics([metric_instance])[0]
+            res_name = config_dict.pop("metric_resource_name", None)
+            resolved_metrics_list.append(
+                types.EvaluationRunMetric(
+                    metric=metric_instance.name,
+                    metric_config=config_dict if config_dict else None,
+                    metric_resource_name=res_name,
+                )
+            )
         else:
             try:
                 metric_name_str = str(metric_instance)
@@ -2007,7 +2026,17 @@ def _convert_request_to_dataset_row(
         request.prompt.text if request.prompt and request.prompt.text else None
     )
     dict_row[_evals_constant.REFERENCE] = request.golden_response
+
+    if request.prompt and request.prompt.user_scenario:
+        dict_row[_evals_constant.STARTING_PROMPT] = (
+            request.prompt.user_scenario.starting_prompt
+        )
+        dict_row[_evals_constant.CONVERSATION_PLAN] = (
+            request.prompt.user_scenario.conversation_plan
+        )
+
     intermediate_events = []
+    agent_data = None
     if request.candidate_responses:
         for candidate in request.candidate_responses:
             if candidate.candidate is not None:
@@ -2022,7 +2051,12 @@ def _convert_request_to_dataset_row(
                             "content": content_dict,
                         }
                         intermediate_events.append(int_events_dict)
+        agent_data = request.candidate_responses[0].agent_data
+
     dict_row[_evals_constant.INTERMEDIATE_EVENTS] = intermediate_events
+    dict_row[_evals_constant.AGENT_DATA] = (
+        agent_data.model_dump() if agent_data else None
+    )
     return dict_row
 
 

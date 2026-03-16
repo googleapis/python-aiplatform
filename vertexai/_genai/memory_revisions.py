@@ -43,9 +43,6 @@ def _GetAgentEngineMemoryRevisionRequestParameters_to_vertex(
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -76,12 +73,8 @@ def _ListAgentEngineMemoryRevisionsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineMemoryRevisionsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineMemoryRevisionsConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object

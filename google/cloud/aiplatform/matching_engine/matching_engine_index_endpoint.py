@@ -151,7 +151,7 @@ class NumericNamespace:
 @dataclass
 class HybridQuery:
     """
-    Hyrbid query. Could be used for dense-only or sparse-only or hybrid queries.
+    Hybrid query. Could be used for dense-only or sparse-only or hybrid queries.
 
     dense_embedding (List[float]):
         Optional. The dense part of the hybrid queries.
@@ -281,7 +281,7 @@ class MatchNeighbor:
             )
         # retrieve embedding metadata
         if index_datapoint.embedding_metadata is not None:
-            self.embedding_metadata = index_datapoint.embedding_metadata
+            self.embedding_metadata = dict(index_datapoint.embedding_metadata)
         return self
 
     def from_embedding(self, embedding: match_service_pb2.Embedding) -> "MatchNeighbor":
@@ -328,6 +328,10 @@ class MatchNeighbor:
         if embedding.sparse_embedding:
             self.sparse_embedding_values = embedding.sparse_embedding.float_val
             self.sparse_embedding_dimensions = embedding.sparse_embedding.dimension
+
+        # retrieve embedding metadata
+        if embedding.embedding_metadata:
+            self.embedding_metadata = dict(embedding.embedding_metadata)
         return self
 
 
@@ -1883,7 +1887,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             [
                 MatchNeighbor(
                     id=neighbor.datapoint.datapoint_id,
-                    distance=neighbor.distance,
+                    distance=neighbor.distance if neighbor.distance else None,
                     sparse_distance=(
                         neighbor.sparse_distance if neighbor.sparse_distance else None
                     ),
@@ -2219,19 +2223,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         # Wrap the results in MatchNeighbor objects and return
         match_neighbors_response = []
         for resp in response.responses[0].responses:
-            match_neighbors_id_map = {}
+            embedding_map = {embedding.id: embedding for embedding in resp.embeddings}
+            neighbors_list = []
             for neighbor in resp.neighbor:
-                match_neighbors_id_map[neighbor.id] = MatchNeighbor(
+                match_neighbor = MatchNeighbor(
                     id=neighbor.id,
-                    distance=neighbor.distance,
+                    distance=neighbor.distance if neighbor.distance else None,
                     sparse_distance=(
                         neighbor.sparse_distance if neighbor.sparse_distance else None
                     ),
                 )
-            for embedding in resp.embeddings:
-                if embedding.id in match_neighbors_id_map:
-                    match_neighbors_id_map[embedding.id] = match_neighbors_id_map[
-                        embedding.id
-                    ].from_embedding(embedding=embedding)
-            match_neighbors_response.append(list(match_neighbors_id_map.values()))
+                if neighbor.id in embedding_map:
+                    match_neighbor.from_embedding(embedding=embedding_map[neighbor.id])
+                neighbors_list.append(match_neighbor)
+            match_neighbors_response.append(neighbors_list)
         return match_neighbors_response

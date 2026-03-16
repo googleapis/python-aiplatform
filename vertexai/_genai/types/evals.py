@@ -624,6 +624,236 @@ class AgentInfoDict(TypedDict, total=False):
 AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
 
 
+class SessionInput(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Input to initialize a session and run an agent, used for agent evaluation.
+    """
+
+    user_id: Optional[str] = Field(default=None, description="""The user id.""")
+    state: Optional[dict[str, str]] = Field(
+        default=None, description="""The state of the session."""
+    )
+    app_name: Optional[str] = Field(
+        default=None,
+        description="""The name of the app, used for local ADK agent run Runner and Session.""",
+    )
+
+
+class SessionInputDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Input to initialize a session and run an agent, used for agent evaluation.
+    """
+
+    user_id: Optional[str]
+    """The user id."""
+
+    state: Optional[dict[str, str]]
+    """The state of the session."""
+
+    app_name: Optional[str]
+    """The name of the app, used for local ADK agent run Runner and Session."""
+
+
+SessionInputOrDict = Union[SessionInput, SessionInputDict]
+
+
+class UserScenario(_common.BaseModel):
+    """User scenario to help simulate multi-turn agent run results."""
+
+    starting_prompt: Optional[str] = Field(
+        default=None,
+        description="""The prompt that starts the conversation between the simulated user and the agent under test.""",
+    )
+    conversation_plan: Optional[str] = Field(
+        default=None,
+        description="""The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset.""",
+    )
+
+
+class UserScenarioDict(TypedDict, total=False):
+    """User scenario to help simulate multi-turn agent run results."""
+
+    starting_prompt: Optional[str]
+    """The prompt that starts the conversation between the simulated user and the agent under test."""
+
+    conversation_plan: Optional[str]
+    """The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset."""
+
+
+UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
+
+
+class UserScenarioGenerationConfig(_common.BaseModel):
+    """User scenario generation configuration."""
+
+    user_scenario_count: Optional[int] = Field(
+        default=None,
+        description="""The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
+    simulation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Simulation instruction to guide the user scenario generation.""",
+    )
+    environment_data: Optional[str] = Field(
+        default=None,
+        description="""Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
+    )
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The model name to use for user scenario generation.""",
+    )
+
+
+class UserScenarioGenerationConfigDict(TypedDict, total=False):
+    """User scenario generation configuration."""
+
+    user_scenario_count: Optional[int]
+    """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
+
+    simulation_instruction: Optional[str]
+    """Simulation instruction to guide the user scenario generation."""
+
+    environment_data: Optional[str]
+    """Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
+
+    model_name: Optional[str]
+    """The model name to use for user scenario generation."""
+
+
+UserScenarioGenerationConfigOrDict = Union[
+    UserScenarioGenerationConfig, UserScenarioGenerationConfigDict
+]
+
+
+class UserSimulatorConfig(_common.BaseModel):
+    """Configuration for a user simulator.
+
+    Uses an LLM to generate multi-turn messages that simulate a user.
+    """
+
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The model name to get next user message for multi-turn agent run.""",
+    )
+    model_configuration: Optional[genai_types.GenerateContentConfig] = Field(
+        default=None, description="""The configuration for the model."""
+    )
+    max_turn: Optional[int] = Field(
+        default=None,
+        description="""Maximum number of invocations allowed by the multi-turn agent
+      running. This property allows us to stop a run-off conversation
+      where the agent and the user simulator get into a never ending loop.
+      The initial fixed prompt is also counted as an invocation.""",
+    )
+
+
+class UserSimulatorConfigDict(TypedDict, total=False):
+    """Configuration for a user simulator.
+
+    Uses an LLM to generate multi-turn messages that simulate a user.
+    """
+
+    model_name: Optional[str]
+    """The model name to get next user message for multi-turn agent run."""
+
+    model_configuration: Optional[genai_types.GenerateContentConfigDict]
+    """The configuration for the model."""
+
+    max_turn: Optional[int]
+    """Maximum number of invocations allowed by the multi-turn agent
+      running. This property allows us to stop a run-off conversation
+      where the agent and the user simulator get into a never ending loop.
+      The initial fixed prompt is also counted as an invocation."""
+
+
+UserSimulatorConfigOrDict = Union[UserSimulatorConfig, UserSimulatorConfigDict]
+
+
+class Event(_common.BaseModel):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the agent event."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the event."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None, description="""The creation timestamp of the event."""
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the event."""
+    )
+
+
+class EventDict(TypedDict, total=False):
+    """Represents an event in a conversation between agents and users.
+
+    It is used to store the content of the conversation, as well as the actions
+    taken by the agents like function calls, function responses, intermediate NL
+    responses etc.
+    """
+
+    event_id: Optional[str]
+    """Unique identifier for the agent event."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the event."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """The creation timestamp of the event."""
+
+    author: Optional[str]
+    """Name of the entity that produced the event."""
+
+
+EventOrDict = Union[Event, EventDict]
+
+
+class Message(_common.BaseModel):
+    """Represents a single message turn in a conversation."""
+
+    turn_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the message turn."""
+    )
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Content of the message, including function call."""
+    )
+    creation_timestamp: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Timestamp indicating when the message was created.""",
+    )
+    author: Optional[str] = Field(
+        default=None, description="""Name of the entity that produced the message."""
+    )
+
+
+class MessageDict(TypedDict, total=False):
+    """Represents a single message turn in a conversation."""
+
+    turn_id: Optional[str]
+    """Unique identifier for the message turn."""
+
+    content: Optional[genai_types.ContentDict]
+    """Content of the message, including function call."""
+
+    creation_timestamp: Optional[datetime.datetime]
+    """Timestamp indicating when the message was created."""
+
+    author: Optional[str]
+    """Name of the entity that produced the message."""
+
+
+MessageOrDict = Union[Message, MessageDict]
+
+
 class RubricContentProperty(_common.BaseModel):
     """Defines criteria based on a specific property."""
 
@@ -812,227 +1042,3 @@ class CandidateResultDict(TypedDict, total=False):
 
 
 CandidateResultOrDict = Union[CandidateResult, CandidateResultDict]
-
-
-class Event(_common.BaseModel):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the agent event."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the event."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None, description="""The creation timestamp of the event."""
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the event."""
-    )
-
-
-class EventDict(TypedDict, total=False):
-    """Represents an event in a conversation between agents and users.
-
-    It is used to store the content of the conversation, as well as the actions
-    taken by the agents like function calls, function responses, intermediate NL
-    responses etc.
-    """
-
-    event_id: Optional[str]
-    """Unique identifier for the agent event."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the event."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """The creation timestamp of the event."""
-
-    author: Optional[str]
-    """Name of the entity that produced the event."""
-
-
-EventOrDict = Union[Event, EventDict]
-
-
-class Message(_common.BaseModel):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the message turn."""
-    )
-    content: Optional[genai_types.Content] = Field(
-        default=None, description="""Content of the message, including function call."""
-    )
-    creation_timestamp: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Timestamp indicating when the message was created.""",
-    )
-    author: Optional[str] = Field(
-        default=None, description="""Name of the entity that produced the message."""
-    )
-
-
-class MessageDict(TypedDict, total=False):
-    """Represents a single message turn in a conversation."""
-
-    turn_id: Optional[str]
-    """Unique identifier for the message turn."""
-
-    content: Optional[genai_types.ContentDict]
-    """Content of the message, including function call."""
-
-    creation_timestamp: Optional[datetime.datetime]
-    """Timestamp indicating when the message was created."""
-
-    author: Optional[str]
-    """Name of the entity that produced the message."""
-
-
-MessageOrDict = Union[Message, MessageDict]
-
-
-class SessionInput(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str] = Field(default=None, description="""The user id.""")
-    state: Optional[dict[str, str]] = Field(
-        default=None, description="""The state of the session."""
-    )
-    app_name: Optional[str] = Field(
-        default=None,
-        description="""The name of the app, used for local ADK agent run Runner and Session.""",
-    )
-
-
-class SessionInputDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str]
-    """The user id."""
-
-    state: Optional[dict[str, str]]
-    """The state of the session."""
-
-    app_name: Optional[str]
-    """The name of the app, used for local ADK agent run Runner and Session."""
-
-
-SessionInputOrDict = Union[SessionInput, SessionInputDict]
-
-
-class UserScenario(_common.BaseModel):
-    """User scenario to help simulate multi-turn agent run results."""
-
-    starting_prompt: Optional[str] = Field(
-        default=None,
-        description="""The prompt that starts the conversation between the simulated user and the agent under test.""",
-    )
-    conversation_plan: Optional[str] = Field(
-        default=None,
-        description="""The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset.""",
-    )
-
-
-class UserScenarioDict(TypedDict, total=False):
-    """User scenario to help simulate multi-turn agent run results."""
-
-    starting_prompt: Optional[str]
-    """The prompt that starts the conversation between the simulated user and the agent under test."""
-
-    conversation_plan: Optional[str]
-    """The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset."""
-
-
-UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
-
-
-class UserScenarioGenerationConfig(_common.BaseModel):
-    """User scenario generation configuration."""
-
-    user_scenario_count: Optional[int] = Field(
-        default=None,
-        description="""The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
-    )
-    simulation_instruction: Optional[str] = Field(
-        default=None,
-        description="""Simulation instruction to guide the user scenario generation.""",
-    )
-    environment_data: Optional[str] = Field(
-        default=None,
-        description="""Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
-    )
-    model_name: Optional[str] = Field(
-        default=None,
-        description="""The model name to use for user scenario generation.""",
-    )
-
-
-class UserScenarioGenerationConfigDict(TypedDict, total=False):
-    """User scenario generation configuration."""
-
-    user_scenario_count: Optional[int]
-    """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
-
-    simulation_instruction: Optional[str]
-    """Simulation instruction to guide the user scenario generation."""
-
-    environment_data: Optional[str]
-    """Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
-
-    model_name: Optional[str]
-    """The model name to use for user scenario generation."""
-
-
-UserScenarioGenerationConfigOrDict = Union[
-    UserScenarioGenerationConfig, UserScenarioGenerationConfigDict
-]
-
-
-class UserSimulatorConfig(_common.BaseModel):
-    """Configuration for a user simulator that uses an LLM to generate messages."""
-
-    model_name: Optional[str] = Field(
-        default=None,
-        description="""The model name to get next user message for multi-turn agent run.""",
-    )
-    model_configuration: Optional[genai_types.GenerateContentConfig] = Field(
-        default=None, description="""The configuration for the model."""
-    )
-    max_turn: Optional[int] = Field(
-        default=None,
-        description="""Maximum number of invocations allowed by the multi-turn agent
-      running. This property allows us to stop a run-off conversation
-      where the agent and the user simulator get into a never ending loop.
-      The initial fixed prompt is also counted as an invocation.""",
-    )
-
-
-class UserSimulatorConfigDict(TypedDict, total=False):
-    """Configuration for a user simulator that uses an LLM to generate messages."""
-
-    model_name: Optional[str]
-    """The model name to get next user message for multi-turn agent run."""
-
-    model_configuration: Optional[genai_types.GenerateContentConfigDict]
-    """The configuration for the model."""
-
-    max_turn: Optional[int]
-    """Maximum number of invocations allowed by the multi-turn agent
-      running. This property allows us to stop a run-off conversation
-      where the agent and the user simulator get into a never ending loop.
-      The initial fixed prompt is also counted as an invocation."""
-
-
-UserSimulatorConfigOrDict = Union[UserSimulatorConfig, UserSimulatorConfigDict]

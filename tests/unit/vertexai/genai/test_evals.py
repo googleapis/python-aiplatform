@@ -1236,7 +1236,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name is None
+        assert inference_result.candidate_name == "agent_engine_0"
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -1315,7 +1315,7 @@ class TestEvalsRunInference:
                 }
             ),
         )
-        assert inference_result.candidate_name is None
+        assert inference_result.candidate_name == "agent_engine_0"
         assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -1499,7 +1499,7 @@ class TestEvalsRunInference:
             ),
             expected_df.sort_values(by="prompt").reset_index(drop=True),
         )
-        assert inference_result.candidate_name is None
+        assert inference_result.candidate_name == "mock_agent"
         assert inference_result.gcs_source is None
 
     def test_run_inference_with_litellm_string_prompt_format(
@@ -3290,6 +3290,136 @@ class TestAgentInfo:
             mock_function_declaration
         ]
         mock_from_callable.assert_called_once_with(callable=my_search_tool)
+
+
+class TestValidateDatasetAgentData:
+    """Unit tests for the _validate_dataset_agent_data function."""
+
+    def test_valid_agent_data_in_df(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [
+                    {
+                        "agent_data": {
+                            "turns": [{"turn_index": 0, "turn_id": "1", "events": []}]
+                        }
+                    },
+                    {
+                        "agent_data": '{"turns": [{"turn_index": 0, "turn_id": "2", "events": []}]}'
+                    },
+                    {
+                        "agent_data": vertexai_genai_types.evals.AgentData(
+                            turns=[{"turn_index": 0, "turn_id": "3", "events": []}]
+                        )
+                    },
+                ]
+            )
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_valid_agent_data_in_eval_cases(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_cases=[
+                vertexai_genai_types.EvalCase(
+                    agent_data={
+                        "turns": [{"turn_index": 0, "turn_id": "1", "events": []}]
+                    }
+                ),
+                vertexai_genai_types.EvalCase(
+                    agent_data=json.loads(
+                        '{"turns": [{"turn_index": 0, "turn_id": "2", "events": []}]}'
+                    )
+                ),
+                vertexai_genai_types.EvalCase(
+                    agent_data=vertexai_genai_types.evals.AgentData(
+                        turns=[{"turn_index": 0, "turn_id": "3", "events": []}]
+                    )
+                ),
+            ]
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_invalid_json_string_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": '{"turns":'}])
+        )
+        with pytest.raises(ValueError, match="is not valid JSON"):
+            _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_invalid_dict_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": {"agents": 123}}])
+        )
+        with pytest.raises(ValueError, match="is inconsistent with AgentData type"):
+            _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_valid_agent_data_with_error_in_dict(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"agent_data": {"error": "some error message"}}]
+            )
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_valid_agent_data_with_error_in_string(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [{"agent_data": '{"error": "some error message"}'}]
+            )
+        )
+        _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_invalid_agent_data_type_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": 123}])
+        )
+        with pytest.raises(ValueError, match="is inconsistent with AgentData type"):
+            _evals_utils._validate_dataset_agent_data(dataset)
+
+    def test_conflict_with_inference_configs_raises_error(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [
+                    {
+                        "agent_data": {
+                            "agents": {"agent1": {"agent_id": "agent1"}},
+                            "turns": [],
+                        }
+                    }
+                ]
+            )
+        )
+        inference_configs = {
+            "cand1": {"agent_configs": {"agent1": {"agent_id": "agent1"}}}
+        }
+        with pytest.raises(
+            ValueError,
+            match="Cannot provide 'agents' in the dataset's 'agent_data'",
+        ):
+            _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+
+    def test_no_conflict_with_inference_configs(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame([{"agent_data": {"turns": []}}])
+        )
+        inference_configs = {"cand1": {"agent_configs": {"agent1": {"name": "agent1"}}}}
+        _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+
+    def test_no_conflict_if_inference_configs_has_no_agent_configs(self):
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=pd.DataFrame(
+                [
+                    {
+                        "agent_data": {
+                            "agents": {"agent1": {"agent_id": "agent1"}},
+                            "turns": [],
+                        }
+                    }
+                ]
+            )
+        )
+        inference_configs = {"cand1": {"model": "gemini-pro"}}
+        _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
 
 
 class TestEvent:
@@ -5831,6 +5961,9 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         assert eval_dataset.eval_dataset_df is not None
         assert len(eval_dataset.eval_dataset_df) == 2
         assert eval_dataset.eval_dataset_df.iloc[0]["starting_prompt"] == "Prompt 1"
+        assert eval_dataset.eval_dataset_df.iloc[0]["conversation_plan"] == "Plan 1"
+        assert eval_dataset.eval_dataset_df.iloc[1]["starting_prompt"] == "Prompt 2"
+        assert eval_dataset.eval_dataset_df.iloc[1]["conversation_plan"] == "Plan 2"
 
         self.mock_api_client.request.assert_called_once()
 
@@ -5854,8 +5987,85 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
 
         assert eval_dataset.eval_dataset_df is not None
         assert len(eval_dataset.eval_dataset_df) == 2
+        assert eval_dataset.eval_dataset_df.iloc[0]["starting_prompt"] == "Prompt 1"
+        assert eval_dataset.eval_dataset_df.iloc[0]["conversation_plan"] == "Plan 1"
+        assert eval_dataset.eval_dataset_df.iloc[1]["starting_prompt"] == "Prompt 2"
+        assert eval_dataset.eval_dataset_df.iloc[1]["conversation_plan"] == "Plan 2"
 
         self.mock_api_client.async_request.assert_called_once()
+
+
+class TestConvertRequestToDatasetRow:
+    """Unit tests for the _convert_request_to_dataset_row function."""
+
+    def test_convert_request_to_dataset_row_with_prompt_and_golden(self):
+        request = vertexai_genai_types.EvaluationItemRequest(
+            prompt=vertexai_genai_types.EvaluationPrompt(text="test prompt"),
+            golden_response=vertexai_genai_types.CandidateResponse(
+                text="golden response"
+            ),
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["prompt"] == "test prompt"
+        assert result["reference"] == vertexai_genai_types.CandidateResponse(
+            text="golden response"
+        )
+        assert result["intermediate_events"] == []
+        assert result["agent_data"] is None
+
+    def test_convert_request_to_dataset_row_with_user_scenario(self):
+        request = vertexai_genai_types.EvaluationItemRequest(
+            prompt=vertexai_genai_types.EvaluationPrompt(
+                user_scenario=vertexai_genai_types.evals.UserScenario(
+                    starting_prompt="start prompt", conversation_plan="convo plan"
+                )
+            )
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["starting_prompt"] == "start prompt"
+        assert result["conversation_plan"] == "convo plan"
+        assert result["prompt"] is None
+
+    def test_convert_request_to_dataset_row_with_candidate_events(self):
+        request = vertexai_genai_types.EvaluationItemRequest(
+            candidate_responses=[
+                vertexai_genai_types.CandidateResponse(
+                    candidate="test-candidate",
+                    text="candidate text",
+                    events=[
+                        genai_types.Content(
+                            parts=[genai_types.Part(text="event part")], role="model"
+                        )
+                    ],
+                )
+            ]
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["test-candidate"] == "candidate text"
+        assert result["intermediate_events"] == [
+            {
+                "event_id": "test-candidate",
+                "content": {
+                    "parts": [genai_types.Part(text="event part")],
+                    "role": "model",
+                },
+            }
+        ]
+        assert result["agent_data"] is None
+
+    def test_convert_request_to_dataset_row_with_agent_data(self):
+        mock_agent_data = {"turns": []}
+        request = vertexai_genai_types.EvaluationItemRequest(
+            candidate_responses=[
+                vertexai_genai_types.CandidateResponse(
+                    candidate="test-candidate", agent_data=mock_agent_data
+                )
+            ]
+        )
+        result = _evals_common._convert_request_to_dataset_row(request)
+        assert result["test-candidate"] is None
+        assert result["agent_data"]["turns"] == mock_agent_data["turns"]
+        assert result["intermediate_events"] == []
 
 
 class TestCreateEvaluationSetFromDataFrame:

@@ -69,5 +69,8 @@ COMMON_DATASET_COLUMNS = frozenset(
         SESSION_INPUT,
         CONTEXT,
         HISTORY,
+        STARTING_PROMPT,
+        CONVERSATION_PLAN,
+        AGENT_DATA,
     }
 )

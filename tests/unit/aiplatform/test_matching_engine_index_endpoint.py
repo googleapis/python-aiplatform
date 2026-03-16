@@ -15,46 +15,45 @@
 # limitations under the License.
 #
 
-import uuid
 from importlib import reload
 from unittest import mock
 from unittest.mock import patch
+import uuid
 
 from google.api_core import operation
 from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.matching_engine._protos import (
-    match_service_pb2,
-    match_service_pb2_grpc,
-)
-from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
-    Namespace,
-    NumericNamespace,
-    MatchNeighbor,
-    HybridQuery,
-)
-from google.cloud.aiplatform.compat.types import (
-    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
-    index_endpoint as gca_index_endpoint,
-    index as gca_index,
-    match_service_v1beta1 as gca_match_service_v1beta1,
-    index_v1beta1 as gca_index_v1beta1,
-    service_networking as gca_service_networking,
-    encryption_spec as gca_encryption_spec,
-)
 from google.cloud.aiplatform.compat.services import (
     index_endpoint_service_client,
     index_service_client,
     match_service_client_v1beta1,
 )
+from google.cloud.aiplatform.compat.types import (
+    encryption_spec as gca_encryption_spec,
+    index_endpoint as gca_index_endpoint,
+    index_v1beta1 as gca_index_v1beta1,
+    index as gca_index,
+    match_service_v1beta1 as gca_match_service_v1beta1,
+    matching_engine_deployed_index_ref as gca_matching_engine_deployed_index_ref,
+    service_networking as gca_service_networking,
+)
+from google.cloud.aiplatform.matching_engine._protos import (
+    match_service_pb2,
+    match_service_pb2_grpc,
+)
+from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint import (
+    HybridQuery,
+    MatchNeighbor,
+    Namespace,
+    NumericNamespace,
+)
 import constants as test_constants
+import grpc
+import pytest
 
 from google.protobuf import field_mask_pb2
-
-import grpc
-
-import pytest
+from google.protobuf import struct_pb2
 
 # project
 _TEST_PROJECT = test_constants.ProjectConstants._TEST_PROJECT
@@ -2427,6 +2426,7 @@ class TestMatchNeighbor:
                 value_int=0,
             )
         ]
+        index_datapoint.embedding_metadata = {"key": "value", "key2": "value2"}
 
         result = MatchNeighbor(
             id="index_datapoint_id", distance=0.3
@@ -2443,22 +2443,32 @@ class TestMatchNeighbor:
         assert result.numeric_restricts[0].value_int == 0
         assert result.numeric_restricts[0].value_float is None
         assert result.numeric_restricts[0].value_double is None
+        assert result.embedding_metadata == {"key": "value", "key2": "value2"}
 
     def test_from_embedding(self):
+        embedding_metadata_struct = struct_pb2.Struct()
+        embedding_metadata_struct.update({"key": "value", "key2": "value2"})
+
         embedding = match_service_pb2.Embedding(
             id="test_embedding_id",
             float_val=[1.0, 2.0, 3.0],
             crowding_attribute=1,
             restricts=[
                 match_service_pb2.Namespace(
-                    name="namespace1", allow_tokens=["token1"], deny_tokens=["token2"]
+                    name="namespace1",
+                    allow_tokens=["token1"],
+                    deny_tokens=["token2"],
                 ),
             ],
             numeric_restricts=[
                 match_service_pb2.NumericNamespace(
-                    name="namespace2", value_int=10, value_float=None, value_double=None
+                    name="namespace2",
+                    value_int=10,
+                    value_float=None,
+                    value_double=None,
                 )
             ],
+            embedding_metadata=embedding_metadata_struct,
         )
 
         result = MatchNeighbor(id="embedding_id", distance=0.3).from_embedding(
@@ -2476,3 +2486,4 @@ class TestMatchNeighbor:
         assert result.numeric_restricts[0].value_int == 10
         assert not result.numeric_restricts[0].value_float
         assert not result.numeric_restricts[0].value_double
+        assert result.embedding_metadata == {"key": "value", "key2": "value2"}
