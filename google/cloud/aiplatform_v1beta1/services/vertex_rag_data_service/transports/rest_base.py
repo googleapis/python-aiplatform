@@ -29,6 +29,7 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data_service
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 
 
@@ -94,6 +95,242 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             api_audience=api_audience,
         )
 
+    class _BaseBatchCreateRagDataSchemas:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*}/ragDataSchemas:batchCreate",
+                    "body": "*",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.BatchCreateRagDataSchemasRequest.pb(
+                request
+            )
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagDataSchemas._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseBatchCreateRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*/ragFiles/*}/ragMetadata:batchCreate",
+                    "body": "*",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.BatchCreateRagMetadataRequest.pb(
+                request
+            )
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseBatchCreateRagMetadata._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseBatchDeleteRagDataSchemas:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*}/ragDataSchemas:batchDelete",
+                    "body": "*",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.BatchDeleteRagDataSchemasRequest.pb(
+                request
+            )
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagDataSchemas._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseBatchDeleteRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*/ragFiles/*}/ragMetadata:batchDelete",
+                    "body": "*",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.BatchDeleteRagMetadataRequest.pb(
+                request
+            )
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseBatchDeleteRagMetadata._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
     class _BaseCreateRagCorpus:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -151,6 +388,120 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             query_params["$alt"] = "json;enum-encoding=int"
             return query_params
 
+    class _BaseCreateRagDataSchema:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*}/ragDataSchemas",
+                    "body": "rag_data_schema",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.CreateRagDataSchemaRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseCreateRagDataSchema._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseCreateRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*/ragFiles/*}/ragMetadata",
+                    "body": "rag_metadata",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.CreateRagMetadataRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseCreateRagMetadata._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
     class _BaseDeleteRagCorpus:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -191,6 +542,53 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             )
             query_params.update(
                 _BaseVertexRagDataServiceRestTransport._BaseDeleteRagCorpus._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseDeleteRagDataSchema:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragDataSchemas/*}",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.DeleteRagDataSchemaRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseDeleteRagDataSchema._get_unset_required_fields(
                     query_params
                 )
             )
@@ -245,6 +643,53 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             query_params["$alt"] = "json;enum-encoding=int"
             return query_params
 
+    class _BaseDeleteRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/ragMetadata/*}",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.DeleteRagMetadataRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseDeleteRagMetadata._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
     class _BaseGetRagCorpus:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -285,6 +730,53 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             )
             query_params.update(
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagCorpus._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseGetRagDataSchema:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragDataSchemas/*}",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.GetRagDataSchemaRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseGetRagDataSchema._get_unset_required_fields(
                     query_params
                 )
             )
@@ -379,6 +871,53 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             )
             query_params.update(
                 _BaseVertexRagDataServiceRestTransport._BaseGetRagFile._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseGetRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/ragCorpora/*/ragFiles/*/ragMetadata/*}",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.GetRagMetadataRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseGetRagMetadata._get_unset_required_fields(
                     query_params
                 )
             )
@@ -490,6 +1029,53 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             query_params["$alt"] = "json;enum-encoding=int"
             return query_params
 
+    class _BaseListRagDataSchemas:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*}/ragDataSchemas",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.ListRagDataSchemasRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseListRagDataSchemas._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
     class _BaseListRagFiles:
         def __hash__(self):  # pragma: NO COVER
             return NotImplementedError("__hash__ must be implemented.")
@@ -530,6 +1116,53 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             )
             query_params.update(
                 _BaseVertexRagDataServiceRestTransport._BaseListRagFiles._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseListRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{parent=projects/*/locations/*/ragCorpora/*/ragFiles/*}/ragMetadata",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.ListRagMetadataRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseListRagMetadata._get_unset_required_fields(
                     query_params
                 )
             )
@@ -646,6 +1279,63 @@ class _BaseVertexRagDataServiceRestTransport(VertexRagDataServiceTransport):
             )
             query_params.update(
                 _BaseVertexRagDataServiceRestTransport._BaseUpdateRagEngineConfig._get_unset_required_fields(
+                    query_params
+                )
+            )
+
+            query_params["$alt"] = "json;enum-encoding=int"
+            return query_params
+
+    class _BaseUpdateRagMetadata:
+        def __hash__(self):  # pragma: NO COVER
+            return NotImplementedError("__hash__ must be implemented.")
+
+        __REQUIRED_FIELDS_DEFAULT_VALUES: Dict[str, Any] = {}
+
+        @classmethod
+        def _get_unset_required_fields(cls, message_dict):
+            return {
+                k: v
+                for k, v in cls.__REQUIRED_FIELDS_DEFAULT_VALUES.items()
+                if k not in message_dict
+            }
+
+        @staticmethod
+        def _get_http_options():
+            http_options: List[Dict[str, str]] = [
+                {
+                    "method": "patch",
+                    "uri": "/v1beta1/{rag_metadata.name=projects/*/locations/*/ragCorpora/*/ragFiles/*/ragMetadata/*}",
+                    "body": "rag_metadata",
+                },
+            ]
+            return http_options
+
+        @staticmethod
+        def _get_transcoded_request(http_options, request):
+            pb_request = vertex_rag_data_service.UpdateRagMetadataRequest.pb(request)
+            transcoded_request = path_template.transcode(http_options, pb_request)
+            return transcoded_request
+
+        @staticmethod
+        def _get_request_body_json(transcoded_request):
+            # Jsonify the request body
+
+            body = json_format.MessageToJson(
+                transcoded_request["body"], use_integers_for_enums=True
+            )
+            return body
+
+        @staticmethod
+        def _get_query_params_json(transcoded_request):
+            query_params = json.loads(
+                json_format.MessageToJson(
+                    transcoded_request["query_params"],
+                    use_integers_for_enums=True,
+                )
+            )
+            query_params.update(
+                _BaseVertexRagDataServiceRestTransport._BaseUpdateRagMetadata._get_unset_required_fields(
                     query_params
                 )
             )

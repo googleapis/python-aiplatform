@@ -1264,8 +1264,11 @@ from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import MetadataList
+from .types.vertex_rag_data import MetadataValue
 from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
+from .types.vertex_rag_data import RagDataSchema
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
@@ -1274,27 +1277,49 @@ from .types.vertex_rag_data import RagFileMetadataConfig
 from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagManagedDbConfig
+from .types.vertex_rag_data import RagMetadata
+from .types.vertex_rag_data import RagMetadataSchemaDetails
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import UserSpecifiedMetadata
 from .types.vertex_rag_data import VertexAiSearchConfig
+from .types.vertex_rag_data_service import BatchCreateRagDataSchemasOperationMetadata
+from .types.vertex_rag_data_service import BatchCreateRagDataSchemasRequest
+from .types.vertex_rag_data_service import BatchCreateRagDataSchemasResponse
+from .types.vertex_rag_data_service import BatchCreateRagMetadataOperationMetadata
+from .types.vertex_rag_data_service import BatchCreateRagMetadataRequest
+from .types.vertex_rag_data_service import BatchCreateRagMetadataResponse
+from .types.vertex_rag_data_service import BatchDeleteRagDataSchemasRequest
+from .types.vertex_rag_data_service import BatchDeleteRagMetadataRequest
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
+from .types.vertex_rag_data_service import CreateRagDataSchemaRequest
+from .types.vertex_rag_data_service import CreateRagMetadataRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
+from .types.vertex_rag_data_service import DeleteRagDataSchemaRequest
 from .types.vertex_rag_data_service import DeleteRagFileRequest
+from .types.vertex_rag_data_service import DeleteRagMetadataRequest
 from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagDataSchemaRequest
 from .types.vertex_rag_data_service import GetRagEngineConfigRequest
 from .types.vertex_rag_data_service import GetRagFileRequest
+from .types.vertex_rag_data_service import GetRagMetadataRequest
 from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
 from .types.vertex_rag_data_service import ImportRagFilesRequest
 from .types.vertex_rag_data_service import ImportRagFilesResponse
 from .types.vertex_rag_data_service import ListRagCorporaRequest
 from .types.vertex_rag_data_service import ListRagCorporaResponse
+from .types.vertex_rag_data_service import ListRagDataSchemasRequest
+from .types.vertex_rag_data_service import ListRagDataSchemasResponse
 from .types.vertex_rag_data_service import ListRagFilesRequest
 from .types.vertex_rag_data_service import ListRagFilesResponse
+from .types.vertex_rag_data_service import ListRagMetadataRequest
+from .types.vertex_rag_data_service import ListRagMetadataResponse
 from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
 from .types.vertex_rag_data_service import UpdateRagEngineConfigOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagEngineConfigRequest
+from .types.vertex_rag_data_service import UpdateRagMetadataRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
 from .types.vertex_rag_service import AskContextsRequest
@@ -1515,6 +1540,12 @@ __all__ = (
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
+    "BatchCreateRagDataSchemasOperationMetadata",
+    "BatchCreateRagDataSchemasRequest",
+    "BatchCreateRagDataSchemasResponse",
+    "BatchCreateRagMetadataOperationMetadata",
+    "BatchCreateRagMetadataRequest",
+    "BatchCreateRagMetadataResponse",
     "BatchCreateTensorboardRunsRequest",
     "BatchCreateTensorboardRunsResponse",
     "BatchCreateTensorboardTimeSeriesRequest",
@@ -1522,6 +1553,8 @@ __all__ = (
     "BatchDedicatedResources",
     "BatchDeletePipelineJobsRequest",
     "BatchDeletePipelineJobsResponse",
+    "BatchDeleteRagDataSchemasRequest",
+    "BatchDeleteRagMetadataRequest",
     "BatchImportEvaluatedAnnotationsRequest",
     "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
@@ -1650,6 +1683,8 @@ __all__ = (
     "CreatePipelineJobRequest",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
+    "CreateRagDataSchemaRequest",
+    "CreateRagMetadataRequest",
     "CreateReasoningEngineOperationMetadata",
     "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
@@ -1726,7 +1761,9 @@ __all__ = (
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
     "DeleteRagCorpusRequest",
+    "DeleteRagDataSchemaRequest",
     "DeleteRagFileRequest",
+    "DeleteRagMetadataRequest",
     "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
@@ -1963,8 +2000,10 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetRagCorpusRequest",
+    "GetRagDataSchemaRequest",
     "GetRagEngineConfigRequest",
     "GetRagFileRequest",
+    "GetRagMetadataRequest",
     "GetReasoningEngineRequest",
     "GetScheduleRequest",
     "GetSessionRequest",
@@ -2122,8 +2161,12 @@ __all__ = (
     "ListPublisherModelsResponse",
     "ListRagCorporaRequest",
     "ListRagCorporaResponse",
+    "ListRagDataSchemasRequest",
+    "ListRagDataSchemasResponse",
     "ListRagFilesRequest",
     "ListRagFilesResponse",
+    "ListRagMetadataRequest",
+    "ListRagMetadataResponse",
     "ListReasoningEnginesRequest",
     "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
@@ -2161,9 +2204,11 @@ __all__ = (
     "Memory",
     "MemoryBankServiceClient",
     "MergeVersionAliasesRequest",
+    "MetadataList",
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "MetadataValue",
     "Metric",
     "MetricResult",
     "MetricxInput",
@@ -2339,6 +2384,7 @@ __all__ = (
     "RagChunk",
     "RagContexts",
     "RagCorpus",
+    "RagDataSchema",
     "RagEmbeddingModelConfig",
     "RagEngineConfig",
     "RagFile",
@@ -2347,6 +2393,8 @@ __all__ = (
     "RagFileParsingConfig",
     "RagFileTransformationConfig",
     "RagManagedDbConfig",
+    "RagMetadata",
+    "RagMetadataSchemaDetails",
     "RagQuery",
     "RagRetrievalConfig",
     "RagVectorDbConfig",
@@ -2652,6 +2700,7 @@ __all__ = (
     "UpdateRagCorpusRequest",
     "UpdateRagEngineConfigOperationMetadata",
     "UpdateRagEngineConfigRequest",
+    "UpdateRagMetadataRequest",
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",
@@ -2681,6 +2730,7 @@ __all__ = (
     "UrlMetadata",
     "UsageMetadata",
     "UserActionReference",
+    "UserSpecifiedMetadata",
     "Value",
     "VeoHyperParameters",
     "VeoTuningSpec",
