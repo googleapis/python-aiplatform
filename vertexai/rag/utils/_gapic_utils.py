@@ -67,6 +67,7 @@ from vertexai.rag.utils.resources import (
 )
 
 
+# Allows numeric resource IDs (e.g. "1234567890") as bare names.
 _VALID_RESOURCE_NAME_REGEX = "[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}"
 _VALID_DOCUMENT_AI_PROCESSOR_NAME_REGEX = (
     r"projects/[^/]+/locations/[^/]+/processors/[^/]+(?:/processorVersions/[^/]+)?"
