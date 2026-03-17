@@ -16,32 +16,33 @@
 #
 import re
 from typing import Any, Dict, Optional, Sequence, Union
-from google.cloud.aiplatform_v1.types import api_auth
-from google.cloud.aiplatform_v1.types import EncryptionSpec
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform.utils import (
+    VertexRagAsyncClientWithOverride,
+    VertexRagClientWithOverride,
+    VertexRagDataAsyncClientWithOverride,
+    VertexRagDataClientWithOverride,
+)
 from google.cloud.aiplatform_v1 import (
-    RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
     GoogleDriveSource,
     ImportRagFilesConfig,
     ImportRagFilesRequest,
+    JiraSource as GapicJiraSource,
+    RagCorpus as GapicRagCorpus,
+    RagEmbeddingModelConfig as GapicRagEmbeddingModelConfig,
     RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
-    RagCorpus as GapicRagCorpus,
     RagFile as GapicRagFile,
     RagManagedDbConfig as GapicRagManagedDbConfig,
+    RagVectorDbConfig as GapicRagVectorDbConfig,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
-    JiraSource as GapicJiraSource,
-    RagVectorDbConfig as GapicRagVectorDbConfig,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
-from google.cloud.aiplatform import initializer
-from google.cloud.aiplatform.utils import (
-    VertexRagDataAsyncClientWithOverride,
-    VertexRagDataClientWithOverride,
-    VertexRagClientWithOverride,
-)
+from google.cloud.aiplatform_v1.types import api_auth
+from google.cloud.aiplatform_v1.types import EncryptionSpec
 from vertexai.rag.utils.resources import (
     Basic,
     JiraSource,
@@ -62,8 +63,8 @@ from vertexai.rag.utils.resources import (
     TransformationConfig,
     Unprovisioned,
     VertexAiSearchConfig,
-    VertexVectorSearch,
     VertexPredictionEndpoint,
+    VertexVectorSearch,
 )
 
 
@@ -96,6 +97,15 @@ def create_rag_service_client(
 ):
     return initializer.global_config.create_client(
         client_class=VertexRagClientWithOverride,
+        api_path_override=api_path_override,
+    ).select_version("v1")
+
+
+def create_rag_service_async_client(
+    api_path_override: Optional[str] = None,
+):
+    return initializer.global_config.create_client(
+        client_class=VertexRagAsyncClientWithOverride,
         api_path_override=api_path_override,
     ).select_version("v1")
 
