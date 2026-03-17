@@ -50,7 +50,7 @@ _AVAILABLE_REGIONS = ["us", "europe", "asia"]
 _DEFAULT_REGION = "us"
 
 _PERSISTENT_RESOURCE_NAME_PATTERN = "projects/{}/locations/{}/persistentResources/{}"
-_VALID_RESOURCE_NAME_REGEX = "[a-z][a-zA-Z0-9._-]{0,127}"
+_VALID_RESOURCE_NAME_REGEX = "[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}"
 _DASHBOARD_URI_SUFFIX = "aiplatform-training.googleusercontent.com"
 
 
