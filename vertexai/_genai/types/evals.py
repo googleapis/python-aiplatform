@@ -36,83 +36,6 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
-class Tools(_common.BaseModel):
-    """This field is experimental and will be removed in future versions.
-
-    Represents a list of tools for an agent.
-    """
-
-    tool: Optional[list[genai_types.Tool]] = Field(
-        default=None,
-        description="""List of tools: each tool can have multiple function declarations.""",
-    )
-
-
-class ToolsDict(TypedDict, total=False):
-    """This field is experimental and will be removed in future versions.
-
-    Represents a list of tools for an agent.
-    """
-
-    tool: Optional[list[genai_types.ToolDict]]
-    """List of tools: each tool can have multiple function declarations."""
-
-
-ToolsOrDict = Union[Tools, ToolsDict]
-
-
-class InstanceDataContents(_common.BaseModel):
-    """This field is experimental and will be removed in future versions.
-
-    List of standard Content messages from Gemini API.
-    """
-
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Repeated contents."""
-    )
-
-
-class InstanceDataContentsDict(TypedDict, total=False):
-    """This field is experimental and will be removed in future versions.
-
-    List of standard Content messages from Gemini API.
-    """
-
-    contents: Optional[list[genai_types.ContentDict]]
-    """Repeated contents."""
-
-
-InstanceDataContentsOrDict = Union[InstanceDataContents, InstanceDataContentsDict]
-
-
-class InstanceData(_common.BaseModel):
-    """This field is experimental and will be removed in future versions.
-
-    Instance data used to populate placeholders in a metric prompt template.
-    """
-
-    text: Optional[str] = Field(default=None, description="""Text data.""")
-    contents: Optional[InstanceDataContents] = Field(
-        default=None, description="""List of Gemini content data."""
-    )
-
-
-class InstanceDataDict(TypedDict, total=False):
-    """This field is experimental and will be removed in future versions.
-
-    Instance data used to populate placeholders in a metric prompt template.
-    """
-
-    text: Optional[str]
-    """Text data."""
-
-    contents: Optional[InstanceDataContentsDict]
-    """List of Gemini content data."""
-
-
-InstanceDataOrDict = Union[InstanceData, InstanceDataDict]
-
-
 class AgentConfig(_common.BaseModel):
     """Represents configuration for an Agent."""
 
@@ -121,10 +44,6 @@ class AgentConfig(_common.BaseModel):
         description="""Unique identifier of the agent.
       This ID is used to refer to this agent, e.g., in AgentEvent.author, or in
       the `sub_agents` field. It must be unique within the `agents` map.""",
-    )
-    agent_resource_name: Optional[str] = Field(
-        default=None,
-        description="""The Agent Engine resource name, formatted as `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
     )
     agent_type: Optional[str] = Field(
         default=None,
@@ -152,24 +71,13 @@ class AgentConfig(_common.BaseModel):
         description="""The list of valid agent IDs that this agent can delegate to.
       This defines the directed edges in the multi-agent system graph topology.""",
     )
-    tools_text: Optional[str] = Field(
-        default=None,
-        description="""A JSON string containing a list of tools available to an agent.""",
-    )
-    legacy_tools: Optional[Tools] = Field(
-        default=None, description="""List of tools."""
-    )
-    developer_instruction: Optional[InstanceData] = Field(
-        default=None,
-        description="""A field containing instructions from the developer for the agent.""",
-    )
 
     @staticmethod
     def _get_tool_declarations_from_agent(agent: Any) -> genai_types.ToolListUnion:
         """Gets tool declarations from an agent.
 
         Args:
-          agent: The agent to get the tool declarations from. Data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
+          agent: The agent to get the tool declarations from. Data type is google.adk.agents.LLMAgent type.
 
         Returns:
           The tool declarations of the agent.
@@ -188,25 +96,26 @@ class AgentConfig(_common.BaseModel):
         return tool_declarations
 
     @classmethod
-    def from_agent(
-        cls, agent: Any, agent_resource_name: Optional[str] = None
-    ) -> "AgentConfig":
-        """Creates an AgentConfig from an ADK agent object.
+    def from_agent(cls, agent: Any) -> "AgentConfig":
+        """Creates an AgentConfig from an ADK agent.
 
         Args:
-          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
-          agent_resource_name: Optional. The agent engine resource name.
+          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type.
+          agent_resource_name: Optional. The agent engine resource name for the deployed agent.
 
         Returns:
-            An AgentConfig object populated with the agent's metadata.
+            An AgentConfig populated with the agent's metadata for evaluation.
         """
         return cls(  # pytype: disable=missing-parameter
-            agent_id=getattr(agent, "name", "agent_0") or "agent_0",
-            agent_resource_name=agent_resource_name,
+            agent_id=getattr(agent, "name", None),
             agent_type=agent.__class__.__name__,
             description=getattr(agent, "description", None),
             instruction=getattr(agent, "instruction", None),
             tools=AgentConfig._get_tool_declarations_from_agent(agent),
+            sub_agents=[
+                getattr(sub_agent, "name", None)
+                for sub_agent in getattr(agent, "sub_agents", [])
+            ],
         )
 
 
@@ -217,9 +126,6 @@ class AgentConfigDict(TypedDict, total=False):
     """Unique identifier of the agent.
       This ID is used to refer to this agent, e.g., in AgentEvent.author, or in
       the `sub_agents` field. It must be unique within the `agents` map."""
-
-    agent_resource_name: Optional[str]
-    """The Agent Engine resource name, formatted as `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
 
     agent_type: Optional[str]
     """The type or class of the agent (e.g., "LlmAgent", "RouterAgent",
@@ -242,15 +148,6 @@ class AgentConfigDict(TypedDict, total=False):
     sub_agents: Optional[list[str]]
     """The list of valid agent IDs that this agent can delegate to.
       This defines the directed edges in the multi-agent system graph topology."""
-
-    tools_text: Optional[str]
-    """A JSON string containing a list of tools available to an agent."""
-
-    legacy_tools: Optional[ToolsDict]
-    """List of tools."""
-
-    developer_instruction: Optional[InstanceDataDict]
-    """A field containing instructions from the developer for the agent."""
 
 
 AgentConfigOrDict = Union[AgentConfig, AgentConfigDict]
@@ -339,30 +236,6 @@ class ConversationTurnDict(TypedDict, total=False):
 ConversationTurnOrDict = Union[ConversationTurn, ConversationTurnDict]
 
 
-class Events(_common.BaseModel):
-    """This field is experimental and will be removed in future versions.
-
-    Represents a list of events for an agent.
-    """
-
-    event: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""A list of events."""
-    )
-
-
-class EventsDict(TypedDict, total=False):
-    """This field is experimental and will be removed in future versions.
-
-    Represents a list of events for an agent.
-    """
-
-    event: Optional[list[genai_types.ContentDict]]
-    """A list of events."""
-
-
-EventsOrDict = Union[Events, EventsDict]
-
-
 class AgentData(_common.BaseModel):
     """Represents data specific to multi-turn agent evaluations."""
 
@@ -378,20 +251,13 @@ class AgentData(_common.BaseModel):
       Each turn represents a logical execution cycle (e.g., User Input -> Agent
       Response).""",
     )
-    agent_config: Optional[AgentConfig] = Field(
-        default=None, description="""Agent configuration."""
-    )
-    events_text: Optional[str] = Field(
-        default=None, description="""A JSON string containing a sequence of events."""
-    )
-    events: Optional[Events] = Field(default=None, description="""A list of events.""")
 
     @classmethod
-    def _get_agents_map(cls, agent: Any) -> dict[str, AgentConfig]:
+    def get_agents_map(cls, agent: Any) -> dict[str, AgentConfig]:
         """Recursively gets all agent configs from an agent and its sub-agents.
 
         Args:
-          agent: The agent to get the agent info from.
+          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type.
 
         Returns:
           A dict mapping agent_id to AgentConfig.
@@ -401,7 +267,7 @@ class AgentData(_common.BaseModel):
         agents_map = {agent_id: agent_config}
 
         for sub_agent in getattr(agent, "sub_agents", []):
-            agents_map.update(cls._get_agents_map(sub_agent))
+            agents_map.update(cls.get_agents_map(sub_agent))
 
         return agents_map
 
@@ -419,7 +285,7 @@ class AgentData(_common.BaseModel):
         Returns:
             An AgentData object containing the segmented history and agent config.
         """
-        agents_map = cls._get_agents_map(agent)
+        agents_map = cls.get_agents_map(agent)
         agent_id = getattr(agent, "name", "agent_0") or "agent_0"
 
         turns: list[ConversationTurn] = []
@@ -510,21 +376,12 @@ class AgentDataDict(TypedDict, total=False):
       Each turn represents a logical execution cycle (e.g., User Input -> Agent
       Response)."""
 
-    agent_config: Optional[AgentConfigDict]
-    """Agent configuration."""
-
-    events_text: Optional[str]
-    """A JSON string containing a sequence of events."""
-
-    events: Optional[EventsDict]
-    """A list of events."""
-
 
 AgentDataOrDict = Union[AgentData, AgentDataDict]
 
 
 class AgentInfo(_common.BaseModel):
-    """The agent info of an agent, used for agent eval."""
+    """The agent info of an agent system, used for agent evaluation."""
 
     agent_resource_name: Optional[str] = Field(
         default=None,
@@ -532,53 +389,30 @@ class AgentInfo(_common.BaseModel):
             `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
     )
     name: Optional[str] = Field(
-        default=None, description="""Agent name, used as an identifier."""
+        default=None, description="""Agent candidate name, used as an identifier."""
     )
-    instruction: Optional[str] = Field(
-        default=None, description="""Agent developer instruction."""
+    agents: Optional[dict[str, AgentConfig]] = Field(
+        default=None,
+        description="""A map containing the static configurations for each agent in the system.
+      Key: agent_id (matches the `author` field in events).
+      Value: The static configuration of the agent.""",
     )
-    description: Optional[str] = Field(
-        default=None, description="""Agent description."""
+    root_agent_id: Optional[str] = Field(
+        default=None, description="""The agent ID of the root agent."""
     )
-    tool_declarations: Optional[genai_types.ToolListUnion] = Field(
-        default=None, description="""List of tools used by the Agent."""
-    )
-
-    @staticmethod
-    def _get_tool_declarations_from_agent(agent: Any) -> genai_types.ToolListUnion:
-        """Gets tool declarations from an agent.
-
-        Args:
-          agent: The agent to get the tool declarations from. Data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
-
-        Returns:
-          The tool declarations of the agent.
-        """
-        tool_declarations: genai_types.ToolListUnion = []
-        for tool in agent.tools:
-            tool_declarations.append(
-                {
-                    "function_declarations": [
-                        genai_types.FunctionDeclaration.from_callable_with_api_option(
-                            callable=tool
-                        )
-                    ]
-                }
-            )
-        return tool_declarations
 
     @classmethod
     def load_from_agent(
         cls, agent: Any, agent_resource_name: Optional[str] = None
     ) -> "AgentInfo":
-        """Loads agent info from an agent.
+        """Loads agent info from an ADK agent.
 
         Args:
-          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type, use Any to avoid dependency on ADK.
-          agent_resource_name: Optional. The agent engine resource name.
+          agent: The agent to get the agent info from, data type is google.adk.agents.LLMAgent type.
+          agent_resource_name: Optional. The agent engine resource name for the deployed agent.
 
         Returns:
-          The agent info of the agent.
+          The agent info of the agent system.
 
         Example:
         ```
@@ -595,30 +429,27 @@ class AgentInfo(_common.BaseModel):
         return cls(  # pytype: disable=missing-parameter
             name=agent.name,
             agent_resource_name=agent_resource_name,
-            instruction=agent.instruction,
-            description=agent.description,
-            tool_declarations=AgentInfo._get_tool_declarations_from_agent(agent),
+            agents=AgentData.get_agents_map(agent),
         )
 
 
 class AgentInfoDict(TypedDict, total=False):
-    """The agent info of an agent, used for agent eval."""
+    """The agent info of an agent system, used for agent evaluation."""
 
     agent_resource_name: Optional[str]
     """The agent engine used to run agent. Agent engine resource name in str type, with format
             `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
 
     name: Optional[str]
-    """Agent name, used as an identifier."""
+    """Agent candidate name, used as an identifier."""
 
-    instruction: Optional[str]
-    """Agent developer instruction."""
+    agents: Optional[dict[str, AgentConfigDict]]
+    """A map containing the static configurations for each agent in the system.
+      Key: agent_id (matches the `author` field in events).
+      Value: The static configuration of the agent."""
 
-    description: Optional[str]
-    """Agent description."""
-
-    tool_declarations: Optional[genai_types.ToolListUnionDict]
-    """List of tools used by the Agent."""
+    root_agent_id: Optional[str]
+    """The agent ID of the root agent."""
 
 
 AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
@@ -852,6 +683,107 @@ class MessageDict(TypedDict, total=False):
 
 
 MessageOrDict = Union[Message, MessageDict]
+
+
+class Events(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of events for an agent.
+    """
+
+    event: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""A list of events."""
+    )
+
+
+class EventsDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of events for an agent.
+    """
+
+    event: Optional[list[genai_types.ContentDict]]
+    """A list of events."""
+
+
+EventsOrDict = Union[Events, EventsDict]
+
+
+class InstanceDataContents(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    List of standard Content messages from Gemini API.
+    """
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Repeated contents."""
+    )
+
+
+class InstanceDataContentsDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    List of standard Content messages from Gemini API.
+    """
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Repeated contents."""
+
+
+InstanceDataContentsOrDict = Union[InstanceDataContents, InstanceDataContentsDict]
+
+
+class InstanceData(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    Instance data used to populate placeholders in a metric prompt template.
+    """
+
+    text: Optional[str] = Field(default=None, description="""Text data.""")
+    contents: Optional[InstanceDataContents] = Field(
+        default=None, description="""List of Gemini content data."""
+    )
+
+
+class InstanceDataDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    Instance data used to populate placeholders in a metric prompt template.
+    """
+
+    text: Optional[str]
+    """Text data."""
+
+    contents: Optional[InstanceDataContentsDict]
+    """List of Gemini content data."""
+
+
+InstanceDataOrDict = Union[InstanceData, InstanceDataDict]
+
+
+class Tools(_common.BaseModel):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of tools for an agent.
+    """
+
+    tool: Optional[list[genai_types.Tool]] = Field(
+        default=None,
+        description="""List of tools: each tool can have multiple function declarations.""",
+    )
+
+
+class ToolsDict(TypedDict, total=False):
+    """This field is experimental and will be removed in future versions.
+
+    Represents a list of tools for an agent.
+    """
+
+    tool: Optional[list[genai_types.ToolDict]]
+    """List of tools: each tool can have multiple function declarations."""
+
+
+ToolsOrDict = Union[Tools, ToolsDict]
 
 
 class RubricContentProperty(_common.BaseModel):

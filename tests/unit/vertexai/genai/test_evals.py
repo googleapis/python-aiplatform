@@ -258,7 +258,10 @@ class TestEvals:
         dataset = vertexai_genai_types.EvaluationDataset(
             eval_dataset_df=pd.DataFrame([{"prompt": "p1", "response": "r1"}])
         )
-        agent_info = {"agent1": {"name": "agent1", "instruction": "instruction1"}}
+        agent_info = {
+            "name": "agent_system",
+            "agents": {"agent1": {"agent_id": "agent1", "instruction": "instruction1"}},
+        }
         self.client.evals.evaluate(
             dataset=dataset,
             metrics=[vertexai_genai_types.Metric(name="exact_match")],
@@ -1313,6 +1316,31 @@ class TestEvalsRunInference:
                         ]
                     ],
                     "response": ["agent response"],
+                    "agent_data": [
+                        {
+                            "agents": None,
+                            "turns": [
+                                {
+                                    "events": [
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "intermediate1"}]
+                                            },
+                                        },
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "agent response"}]
+                                            },
+                                        },
+                                    ],
+                                    "turn_id": "turn_0",
+                                    "turn_index": 0,
+                                }
+                            ],
+                        }
+                    ],
                 }
             ),
         )
@@ -1392,6 +1420,31 @@ class TestEvalsRunInference:
                         ]
                     ],
                     "response": ["agent response"],
+                    "agent_data": [
+                        {
+                            "agents": None,
+                            "turns": [
+                                {
+                                    "events": [
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "intermediate1"}]
+                                            },
+                                        },
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "agent response"}]
+                                            },
+                                        },
+                                    ],
+                                    "turn_id": "turn_0",
+                                    "turn_index": 0,
+                                }
+                            ],
+                        }
+                    ],
                 }
             ),
         )
@@ -1571,6 +1624,72 @@ class TestEvalsRunInference:
                     ],
                 ],
                 "response": ["agent response", "agent response 2"],
+                "agent_data": [
+                    {
+                        "agents": {
+                            "mock_agent": {
+                                "agent_id": "mock_agent",
+                                "agent_type": "Mock",
+                                "instruction": "mock instruction",
+                                "description": "mock description",
+                                "tools": [],
+                                "sub_agents": [],
+                            }
+                        },
+                        "turns": [
+                            {
+                                "events": [
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "intermediate1"}]
+                                        },
+                                    },
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "agent response"}]
+                                        },
+                                    },
+                                ],
+                                "turn_id": "turn_0",
+                                "turn_index": 0,
+                            }
+                        ],
+                    },
+                    {
+                        "agents": {
+                            "mock_agent": {
+                                "agent_id": "mock_agent",
+                                "agent_type": "Mock",
+                                "instruction": "mock instruction",
+                                "description": "mock description",
+                                "tools": [],
+                                "sub_agents": [],
+                            }
+                        },
+                        "turns": [
+                            {
+                                "events": [
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "intermediate2"}]
+                                        },
+                                    },
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "agent response 2"}]
+                                        },
+                                    },
+                                ],
+                                "turn_id": "turn_0",
+                                "turn_index": 0,
+                            }
+                        ],
+                    },
+                ],
             }
         )
         pd.testing.assert_frame_equal(
@@ -1952,6 +2071,31 @@ class TestRunAgentInternal:
                     ]
                 ],
                 "response": ["final response"],
+                "agent_data": [
+                    {
+                        "agents": None,
+                        "turns": [
+                            {
+                                "events": [
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "intermediate1"}]
+                                        },
+                                    },
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "final response"}]
+                                        },
+                                    },
+                                ],
+                                "turn_id": "turn_0",
+                                "turn_index": 0,
+                            }
+                        ],
+                    }
+                ],
             }
         )
         pd.testing.assert_frame_equal(result_df, expected_df)
@@ -2144,24 +2288,24 @@ class TestRunAgentInternal:
         assert not result_df["intermediate_events"][0]
 
 
-class TestIsMultiTurnAgentRun:
-    """Unit tests for the _is_multi_turn_agent_run function."""
+class TestIsMultiTurnAgentSimulation:
+    """Unit tests for the _is_multi_turn_agent_simulation function."""
 
-    def test_is_multi_turn_agent_run_with_config(self):
+    def test_is_multi_turn_agent_simulation_with_config(self):
         config = vertexai_genai_types.evals.UserSimulatorConfig(model_name="gemini-pro")
-        assert _evals_common._is_multi_turn_agent_run(
+        assert _evals_common._is_multi_turn_agent_simulation(
             user_simulator_config=config, prompt_dataset=pd.DataFrame()
         )
 
-    def test_is_multi_turn_agent_run_with_conversation_plan(self):
+    def test_is_multi_turn_agent_simulation_with_conversation_plan(self):
         prompt_dataset = pd.DataFrame({"conversation_plan": ["plan"]})
-        assert _evals_common._is_multi_turn_agent_run(
+        assert _evals_common._is_multi_turn_agent_simulation(
             user_simulator_config=None, prompt_dataset=prompt_dataset
         )
 
-    def test_is_multi_turn_agent_run_false(self):
+    def test_is_multi_turn_agent_simulation_false(self):
         prompt_dataset = pd.DataFrame({"prompt": ["prompt"]})
-        assert not _evals_common._is_multi_turn_agent_run(
+        assert not _evals_common._is_multi_turn_agent_simulation(
             user_simulator_config=None, prompt_dataset=prompt_dataset
         )
 
@@ -3327,15 +3471,21 @@ class TestAgentInfo:
             ]
         )
         agent_info = vertexai_genai_types.evals.AgentInfo(
-            name="agent1",
-            instruction="instruction1",
-            description="description1",
-            tool_declarations=[tool],
+            name="agent_system",
+            agents={
+                "agent1": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="agent1",
+                    instruction="instruction1",
+                    description="description1",
+                    tools=[tool],
+                )
+            },
         )
-        assert agent_info.name == "agent1"
-        assert agent_info.instruction == "instruction1"
-        assert agent_info.description == "description1"
-        assert agent_info.tool_declarations == [tool]
+        assert agent_info.name == "agent_system"
+        assert "agent1" in agent_info.agents
+        assert agent_info.agents["agent1"].instruction == "instruction1"
+        assert agent_info.agents["agent1"].description == "description1"
+        assert agent_info.agents["agent1"].tools == [tool]
 
     @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
     def test_load_from_agent(self, mock_from_callable):
@@ -3351,6 +3501,7 @@ class TestAgentInfo:
         mock_agent.instruction = "mock instruction"
         mock_agent.description = "mock description"
         mock_agent.tools = [my_search_tool]
+        mock_agent.sub_agents = []
 
         agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
             agent=mock_agent,
@@ -3358,15 +3509,15 @@ class TestAgentInfo:
         )
 
         assert agent_info.name == "mock_agent"
-        assert agent_info.instruction == "mock instruction"
-        assert agent_info.description == "mock description"
+        assert agent_info.agents["mock_agent"].instruction == "mock instruction"
+        assert agent_info.agents["mock_agent"].description == "mock description"
         assert (
             agent_info.agent_resource_name
             == "projects/123/locations/abc/reasoningEngines/456"
         )
-        assert len(agent_info.tool_declarations) == 1
-        assert isinstance(agent_info.tool_declarations[0], genai_types.Tool)
-        assert agent_info.tool_declarations[0].function_declarations == [
+        assert len(agent_info.agents["mock_agent"].tools) == 1
+        assert isinstance(agent_info.agents["mock_agent"].tools[0], genai_types.Tool)
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
             mock_function_declaration
         ]
         mock_from_callable.assert_called_once_with(callable=my_search_tool)
@@ -3482,7 +3633,9 @@ class TestValidateDatasetAgentData:
         dataset = vertexai_genai_types.EvaluationDataset(
             eval_dataset_df=pd.DataFrame([{"agent_data": {"turns": []}}])
         )
-        inference_configs = {"cand1": {"agent_configs": {"agent1": {"name": "agent1"}}}}
+        inference_configs = {
+            "cand1": {"agent_configs": {"agent1": {"agent_id": "agent1"}}}
+        }
         _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
 
     def test_no_conflict_if_inference_configs_has_no_agent_configs(self):
@@ -3535,9 +3688,14 @@ class TestEvalCase:
             ]
         )
         agent_info = vertexai_genai_types.evals.AgentInfo(
-            name="agent1",
-            instruction="instruction1",
-            tool_declarations=[tool],
+            name="agent_system",
+            agents={
+                "agent1": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="agent1",
+                    instruction="instruction1",
+                    tools=[tool],
+                )
+            },
         )
         intermediate_events = [
             vertexai_genai_types.evals.Event(
@@ -4407,9 +4565,14 @@ class TestPredefinedMetricHandler:
             ]
         )
         agent_info = vertexai_genai_types.evals.AgentInfo(
-            name="agent1",
-            instruction="instruction1",
-            tool_declarations=[tool],
+            name="agent_system",
+            agents={
+                "agent1": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="agent1",
+                    instruction="instruction1",
+                    tools=[tool],
+                )
+            },
         )
         intermediate_events = [
             vertexai_genai_types.evals.Event(
@@ -4417,6 +4580,7 @@ class TestPredefinedMetricHandler:
                 content=genai_types.Content(
                     parts=[genai_types.Part(text="intermediate event")]
                 ),
+                author="agent1",
             )
         ]
         eval_case = vertexai_genai_types.EvalCase(
@@ -4432,13 +4596,19 @@ class TestPredefinedMetricHandler:
 
         agent_data = (
             _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
+                eval_case,
+                eval_case.prompt,
+                eval_case.responses[0].response,
             )
         )
 
-        assert agent_data.agent_config.developer_instruction.text == "instruction1"
-        assert agent_data.agent_config.legacy_tools.tool == [tool]
-        assert agent_data.events.event[0].parts[0].text == "intermediate event"
+        assert "agent1" in agent_data.agents
+        assert agent_data.agents["agent1"].instruction == "instruction1"
+        assert agent_data.agents["agent1"].tools == [tool]
+        assert len(agent_data.turns[0].events) == 3
+        assert (
+            agent_data.turns[0].events[1].content.parts[0].text == "intermediate event"
+        )
 
     def test_eval_case_to_agent_data_events_only(self):
         intermediate_events = [
@@ -4466,8 +4636,10 @@ class TestPredefinedMetricHandler:
             )
         )
 
-        assert agent_data.agent_config is None
-        assert agent_data.events.event[0].parts[0].text == "intermediate event"
+        assert agent_data.agents is None
+        assert (
+            agent_data.turns[0].events[0].content.parts[0].text == "intermediate event"
+        )
 
     def test_eval_case_to_agent_data_empty_event_content(self):
         intermediate_events = [
@@ -4493,14 +4665,19 @@ class TestPredefinedMetricHandler:
             )
         )
 
-        assert agent_data.agent_config is None
-        assert not agent_data.events.event
+        assert agent_data.agents is None
+        assert agent_data.turns[0].events[0].content is None
 
     def test_eval_case_to_agent_data_empty_intermediate_events_list(self):
         agent_info = vertexai_genai_types.evals.AgentInfo(
-            name="agent1",
-            instruction="instruction1",
-            tool_declarations=[],
+            name="agent_system",
+            agents={
+                "agent1": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="agent1",
+                    instruction="instruction1",
+                    tools=[],
+                )
+            },
         )
 
         eval_case = vertexai_genai_types.EvalCase(
@@ -4519,13 +4696,18 @@ class TestPredefinedMetricHandler:
             )
         )
 
-        assert not agent_data.events.event
+        assert agent_data.turns is None
 
     def test_eval_case_to_agent_data_agent_info_empty_tools(self):
         agent_info = vertexai_genai_types.evals.AgentInfo(
-            name="agent1",
-            instruction="instruction1",
-            tool_declarations=[],
+            name="agent_system",
+            agents={
+                "agent1": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="agent1",
+                    instruction="instruction1",
+                    tools=[],
+                )
+            },
         )
         eval_case = vertexai_genai_types.EvalCase(
             prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
@@ -4544,8 +4726,8 @@ class TestPredefinedMetricHandler:
             )
         )
 
-        assert agent_data.agent_config.developer_instruction.text == "instruction1"
-        assert not agent_data.agent_config.legacy_tools.tool
+        assert agent_data.agents["agent1"].instruction == "instruction1"
+        assert not agent_data.agents["agent1"].tools
 
     def test_eval_case_to_agent_data_agent_info_empty(self):
         intermediate_events = [
@@ -4573,7 +4755,7 @@ class TestPredefinedMetricHandler:
             )
         )
 
-        assert agent_data.agent_config is None
+        assert agent_data.agents is None
 
     @mock.patch.object(_evals_metric_handlers.logger, "warning")
     def test_tool_use_quality_metric_no_tool_call_logs_warning(
@@ -5102,10 +5284,15 @@ class TestEvalsRunEvaluation:
             ]
         }
         agent_info = {
-            "name": "agent1",
-            "instruction": "instruction1",
-            "description": "description1",
-            "tool_declarations": [tool],
+            "name": "agent_system",
+            "agents": {
+                "agent1": {
+                    "agent_id": "agent1",
+                    "instruction": "instruction1",
+                    "description": "description1",
+                    "tools": [tool],
+                }
+            },
         }
 
         result = _evals_common._execute_evaluation(
@@ -5117,9 +5304,10 @@ class TestEvalsRunEvaluation:
 
         assert isinstance(result, vertexai_genai_types.EvaluationResult)
         assert len(result.eval_case_results) == 1
-        assert result.agent_info.name == "agent1"
-        assert result.agent_info.instruction == "instruction1"
-        assert result.agent_info.tool_declarations == [
+        assert result.agent_info.name == "agent_system"
+        assert "agent1" in result.agent_info.agents
+        assert result.agent_info.agents["agent1"].instruction == "instruction1"
+        assert result.agent_info.agents["agent1"].tools == [
             genai_types.Tool(
                 function_declarations=[
                     genai_types.FunctionDeclaration(

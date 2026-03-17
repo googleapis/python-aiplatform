@@ -346,14 +346,7 @@ def _resolve_inference_configs(
     if agent_info_pydantic and agent_info_pydantic.name:
         inference_configs = {}
         inference_configs[agent_info_pydantic.name] = (
-            types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info_pydantic.instruction)]
-                    ),
-                    tools=agent_info_pydantic.tool_declarations,
-                )
-            )
+            types.EvaluationRunInferenceConfig(agent_configs=agent_info_pydantic.agents)
         )
     # Resolve prompt template data
     if inference_configs:
@@ -1604,93 +1597,111 @@ def _get_session_inputs(row: pd.Series) -> types.evals.SessionInput:
         )
 
 
-def _is_multi_turn_agent_run(
+def _is_multi_turn_agent_simulation(
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
     prompt_dataset: pd.DataFrame = None,
 ) -> bool:
-    """Checks if the agent run is multi-turn."""
+    """Checks if the agent run is a multi-turn user simulation."""
     return (
         user_simulator_config is not None
         or "conversation_plan" in prompt_dataset.columns
     )
 
 
-def _run_agent_internal(
-    api_client: BaseApiClient,
-    agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
-    prompt_dataset: pd.DataFrame,
-    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
-) -> pd.DataFrame:
-    """Runs an agent."""
-    raw_responses = _run_agent(
-        api_client=api_client,
-        agent_engine=agent_engine,
-        agent=agent,
-        prompt_dataset=prompt_dataset,
-        user_simulator_config=user_simulator_config,
-    )
-    processed_intermediate_events = []
-    processed_responses = []
-    processed_agent_data = []
-    agent_data_agents = None
-    if agent:
-        agent_data_agents = types.evals.AgentData._get_agents_map(agent)
+def _process_multi_turn_agent_response(
+    resp_item: Any,
+    agent_data_agents: Optional[dict[str, Any]],
+) -> Optional[Union[str, dict[str, Any]]]:
+    """Processes a multi-turn agent response."""
+    if isinstance(resp_item, dict) and "error" in resp_item:
+        return json.dumps(resp_item)
+    return types.evals.AgentData(
+        turns=resp_item,
+        agents=agent_data_agents,
+    ).model_dump(exclude_unset=True)
 
-    for resp_item in raw_responses:
-        intermediate_events_row: list[dict[str, Any]] = []
-        response_row: Optional[Union[str, dict[str, Any]]] = None
-        agent_data_row: Optional[Union[str, dict[str, Any]]] = None
 
-        if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
-            if isinstance(resp_item, dict) and "error" in resp_item:
-                agent_data_row = json.dumps(resp_item)
-            else:
-                # TODO: Migrate single turn agent run result to AgentData.
-                agent_data_row = types.evals.AgentData(
-                    turns=resp_item,
-                    agents=agent_data_agents,
-                ).model_dump()
+def _process_single_turn_agent_response(
+    resp_item: Any,
+    agent_data_agents: Optional[dict[str, Any]],
+) -> tuple[
+    Optional[Union[str, dict[str, Any]]],
+    list[dict[str, Any]],
+    Optional[Union[str, dict[str, Any]]],
+]:
+    """Processes a single-turn agent response."""
+    intermediate_events_row: list[dict[str, Any]] = []
+    response_row: Optional[Union[str, dict[str, Any]]] = None
+    agent_data_row: Optional[Union[str, dict[str, Any]]] = None
 
-        else:
-            if isinstance(resp_item, list):
-                try:
-                    response_row = resp_item[-1]["content"]["parts"][0]["text"]
-                    for intermediate_event in resp_item[:-1]:
-                        intermediate_events_row.append(
-                            {
-                                "event_id": intermediate_event.get("id"),
-                                "content": intermediate_event.get("content"),
-                                "creation_timestamp": intermediate_event.get(
-                                    "timestamp"
-                                ),
-                                "author": intermediate_event.get("author"),
-                            }
-                        )
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    error_payload = {
-                        "error": (
-                            f"Failed to parse agent run response {str(resp_item)} to "
-                            f"agent data: {e}"
-                        ),
+    if isinstance(resp_item, list):
+        try:
+            response_row = resp_item[-1]["content"]["parts"][0]["text"]
+            for intermediate_event in resp_item[:-1]:
+                intermediate_events_row.append(
+                    {
+                        "event_id": intermediate_event.get("id"),
+                        "content": intermediate_event.get("content"),
+                        "creation_timestamp": intermediate_event.get("timestamp"),
+                        "author": intermediate_event.get("author"),
                     }
-                    response_row = json.dumps(error_payload)
-            elif isinstance(resp_item, dict) and "error" in resp_item:
-                response_row = json.dumps(resp_item)
-            else:
-                error_payload = {
-                    "error": "Unexpected response type from agent run",
-                    "response_type": str(type(resp_item)),
-                    "details": str(resp_item),
-                }
-                response_row = json.dumps(error_payload)
+                )
+            # Construct AgentData natively for single-turn runs
+            agent_events = []
+            for event_dict in resp_item:
+                content_dict = event_dict.get("content")
+                content_obj = None
+                if content_dict:
+                    content_obj = genai_types.Content.model_validate(content_dict)
 
-        processed_intermediate_events.append(intermediate_events_row)
-        processed_responses.append(response_row)
-        processed_agent_data.append(agent_data_row)
+                agent_events.append(
+                    types.evals.AgentEvent(
+                        author=event_dict.get("author", "model"),
+                        content=content_obj,
+                    )
+                )
 
+            turn = types.evals.ConversationTurn(
+                turn_index=0,
+                turn_id="turn_0",
+                events=agent_events,
+            )
+            agent_data_row = types.evals.AgentData(
+                turns=[turn],
+                agents=agent_data_agents,
+            ).model_dump(exclude_unset=True)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            error_payload = {
+                "error": (
+                    f"Failed to parse agent run response {str(resp_item)} to "
+                    f"agent data: {e}"
+                ),
+            }
+            response_row = json.dumps(error_payload)
+            agent_data_row = json.dumps(error_payload)
+    elif isinstance(resp_item, dict) and "error" in resp_item:
+        response_row = json.dumps(resp_item)
+    else:
+        error_payload = {
+            "error": "Unexpected response type from agent run",
+            "response_type": str(type(resp_item)),
+            "details": str(resp_item),
+        }
+        response_row = json.dumps(error_payload)
+
+    return response_row, intermediate_events_row, agent_data_row
+
+
+def _create_agent_results_dataframe(
+    prompt_dataset: pd.DataFrame,
+    processed_responses: list[Any],
+    processed_intermediate_events: list[Any],
+    processed_agent_data: list[Any],
+    is_user_simulation: bool,
+) -> pd.DataFrame:
+    """Creates a DataFrame from the processed agent responses."""
     df_dict: dict[str, Any] = {}
-    if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
+    if is_user_simulation:
         df_dict[AGENT_DATA] = processed_agent_data
         if len(processed_agent_data) != len(prompt_dataset):
             raise RuntimeError(
@@ -1705,6 +1716,7 @@ def _run_agent_internal(
     else:
         df_dict[_evals_constant.INTERMEDIATE_EVENTS] = processed_intermediate_events
         df_dict[_evals_constant.RESPONSE] = processed_responses
+        df_dict[AGENT_DATA] = processed_agent_data
         if len(processed_responses) != len(prompt_dataset) or len(
             processed_responses
         ) != len(processed_intermediate_events):
@@ -1728,6 +1740,55 @@ def _run_agent_internal(
         [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
     )
     return results_df
+
+
+def _run_agent_internal(
+    api_client: BaseApiClient,
+    agent_engine: Optional[Union[str, types.AgentEngine]],
+    agent: Optional[LlmAgent],
+    prompt_dataset: pd.DataFrame,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+) -> pd.DataFrame:
+    """Runs an agent."""
+    raw_responses = _run_agent(
+        api_client=api_client,
+        agent_engine=agent_engine,
+        agent=agent,
+        prompt_dataset=prompt_dataset,
+        user_simulator_config=user_simulator_config,
+    )
+    processed_intermediate_events = []
+    processed_responses = []
+    processed_agent_data = []
+    agent_data_agents = None
+    if agent:
+        agent_data_agents = types.evals.AgentData.get_agents_map(agent)
+
+    is_user_simulation = _is_multi_turn_agent_simulation(
+        user_simulator_config, prompt_dataset
+    )
+
+    for resp_item in raw_responses:
+        if is_user_simulation:
+            agent_data_row = _process_multi_turn_agent_response(
+                resp_item, agent_data_agents
+            )
+            processed_agent_data.append(agent_data_row)
+        else:
+            response_row, intermediate_events_row, agent_data_row = (
+                _process_single_turn_agent_response(resp_item, agent_data_agents)
+            )
+            processed_responses.append(response_row)
+            processed_intermediate_events.append(intermediate_events_row)
+            processed_agent_data.append(agent_data_row)
+
+    return _create_agent_results_dataframe(
+        prompt_dataset,
+        processed_responses,
+        processed_intermediate_events,
+        processed_agent_data,
+        is_user_simulation,
+    )
 
 
 def _run_agent(
@@ -2163,12 +2224,17 @@ def _get_agent_info_from_inference_configs(
         else None
     )
     instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
+    tools = agent_config.tools if agent_config and agent_config.tools else None
+
     return types.evals.AgentInfo(
         name=candidate_names[0],
-        instruction=instruction,
-        tool_declarations=(
-            agent_config.tools if agent_config and agent_config.tools else None
-        ),
+        agents={
+            "agent_0": types.evals.AgentConfig(
+                instruction=instruction,
+                tools=tools,
+            )
+        },
+        root_agent_id="agent_0",
     )
 
 
