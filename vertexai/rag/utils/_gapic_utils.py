@@ -648,7 +648,7 @@ def set_backend_config(
 
     if backend_config.vector_db is not None:
         vector_config = backend_config.vector_db
-        if vector_config is None or isinstance(vector_config, RagManagedDb):
+        if isinstance(vector_config, RagManagedDb):
             rag_corpus.vector_db_config.rag_managed_db.CopyFrom(
                 GapicRagVectorDbConfig.RagManagedDb()
             )
@@ -668,7 +668,7 @@ def set_backend_config(
             rag_corpus.vector_db_config.api_auth.api_key_config.api_key_secret_version = (
                 api_key
             )
-        else:
+        elif vector_config is not None:
             raise TypeError(
                 "backend_config must be a VertexFeatureStore,"
                 "RagManagedDb, or Pinecone."

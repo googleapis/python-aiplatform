@@ -869,9 +869,7 @@ def set_vector_db(
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
     if vector_db is None:
-        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
-            rag_managed_db=GapicRagVectorDbConfig.RagManagedDb(),
-        )
+        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig()
     elif isinstance(vector_db, RagManagedDb):
         rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
             rag_managed_db=_convert_rag_managed_db_to_gapic(vector_db)
