@@ -663,6 +663,11 @@ class TestRagDataManagement:
         rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_ID)
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_get_corpus_numeric_id_success(self):
+        rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_NUMERIC_ID)
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
+
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_get_corpus_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -880,6 +885,14 @@ class TestRagDataManagement:
         rag_file = rag.get_file(
             name=test_rag_constants.TEST_RAG_FILE_ID,
             corpus_name=test_rag_constants.TEST_RAG_CORPUS_ID,
+        )
+        rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
+
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    def test_get_file_numeric_id_success(self):
+        rag_file = rag.get_file(
+            name=test_rag_constants.TEST_RAG_FILE_NUMERIC_ID,
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_NUMERIC_ID,
         )
         rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
 
