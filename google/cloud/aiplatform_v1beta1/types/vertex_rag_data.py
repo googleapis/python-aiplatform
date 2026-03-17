@@ -942,6 +942,10 @@ class RagChunk(proto.Message):
             starts and ends in the document.
 
             This field is a member of `oneof`_ ``_page_span``.
+        file_id (str):
+            The ID of the file that the chunk belongs to.
+        chunk_id (str):
+            The ID of the chunk.
     """
 
     class PageSpan(proto.Message):
@@ -974,6 +978,14 @@ class RagChunk(proto.Message):
         number=2,
         optional=True,
         message=PageSpan,
+    )
+    file_id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    chunk_id: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 

@@ -7072,6 +7072,8 @@ def test_append_event_rest_call_success(request_type):
                             "rag_chunk": {
                                 "text": "text_value",
                                 "page_span": {"first_page": 1060, "last_page": 944},
+                                "file_id": "file_id_value",
+                                "chunk_id": "chunk_id_value",
                             },
                             "uri": "uri_value",
                             "title": "title_value",
@@ -9299,6 +9301,8 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                             "rag_chunk": {
                                 "text": "text_value",
                                 "page_span": {"first_page": 1060, "last_page": 944},
+                                "file_id": "file_id_value",
+                                "chunk_id": "chunk_id_value",
                             },
                             "uri": "uri_value",
                             "title": "title_value",
