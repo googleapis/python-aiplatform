@@ -53,6 +53,47 @@ _evals_utils = _genai._evals_utils
 pytestmark = pytest.mark.usefixtures("google_auth_mock")
 
 
+class TestDropEmptyColumns:
+    """Unit tests for the _drop_empty_columns function."""
+
+    def test_drop_empty_columns(self):
+        df = pd.DataFrame(
+            {
+                "col1": [1, 2, 3],
+                "col2": [None, None, None],
+                "col3": [[], [], []],
+                "col4": [{}, {}, {}],
+                "col5": [1, None, []],
+            }
+        )
+        result_df = _evals_common._drop_empty_columns(df)
+        assert "col1" in result_df.columns
+        assert "col2" not in result_df.columns
+        assert "col3" not in result_df.columns
+        assert "col4" not in result_df.columns
+        assert "col5" in result_df.columns
+
+    def test_drop_empty_columns_all_empty(self):
+        df = pd.DataFrame(
+            {
+                "col1": [None, None, None],
+                "col2": [[], [], []],
+            }
+        )
+        result_df = _evals_common._drop_empty_columns(df)
+        assert result_df.empty
+
+    def test_drop_empty_columns_none_empty(self):
+        df = pd.DataFrame(
+            {
+                "col1": [1, 2, 3],
+                "col2": ["a", "b", "c"],
+            }
+        )
+        result_df = _evals_common._drop_empty_columns(df)
+        assert list(result_df.columns) == ["col1", "col2"]
+
+
 def _create_content_dump(text: str) -> dict[str, list[genai_types.Content]]:
     return {
         "contents": [
@@ -388,6 +429,45 @@ class TestEvalsRunInference:
             location=_TEST_LOCATION,
         )
         self.client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_drops_empty_columns(self, mock_eval_dataset_loader, mock_models):
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["test prompt 1", "test prompt 2"],
+                "empty_col": [None, None],
+                "empty_list_col": [[], []],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_generate_content_response = genai_types.GenerateContentResponse(
+            candidates=[
+                genai_types.Candidate(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="test response")]
+                    ),
+                    finish_reason=genai_types.FinishReason.STOP,
+                )
+            ],
+            prompt_feedback=None,
+        )
+        mock_models.return_value.generate_content.return_value = (
+            mock_generate_content_response
+        )
+
+        inference_result = self.client.evals.run_inference(
+            model="gemini-pro",
+            src=mock_df,
+        )
+
+        assert "empty_col" not in inference_result.eval_dataset_df.columns
+        assert "empty_list_col" not in inference_result.eval_dataset_df.columns
+        assert "prompt" in inference_result.eval_dataset_df.columns
+        assert "response" in inference_result.eval_dataset_df.columns
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -5993,6 +6073,42 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         assert eval_dataset.eval_dataset_df.iloc[1]["conversation_plan"] == "Plan 2"
 
         self.mock_api_client.async_request.assert_called_once()
+
+
+class TestTransformDataframe:
+    """Unit tests for the _transform_dataframe function."""
+
+    def test_transform_dataframe_drops_empty_columns(self):
+        rows = [
+            {
+                "prompt": "test prompt",
+                "reference": None,
+                "intermediate_events": [],
+                "agent_data": None,
+                "candidate1": "test response",
+            }
+        ]
+        eval_dfs = _evals_common._transform_dataframe(rows)
+        assert len(eval_dfs) == 1
+        df = eval_dfs[0].eval_dataset_df
+        assert "prompt" in df.columns
+        assert "response" in df.columns
+        assert "reference" not in df.columns
+        assert "intermediate_events" not in df.columns
+        assert "agent_data" not in df.columns
+
+    def test_transform_dataframe_drops_empty_prompt_and_response(self):
+        rows = [
+            {
+                "prompt": None,
+                "candidate1": None,
+            }
+        ]
+        eval_dfs = _evals_common._transform_dataframe(rows)
+        assert len(eval_dfs) == 1
+        df = eval_dfs[0].eval_dataset_df
+        assert "prompt" not in df.columns
+        assert "response" not in df.columns
 
 
 class TestConvertRequestToDatasetRow:

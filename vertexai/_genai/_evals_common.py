@@ -1139,6 +1139,7 @@ def _execute_inference(
         elif callable(model):
             candidate_name = getattr(model, "__name__", None)
 
+        results_df = _drop_empty_columns(results_df)
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
             candidate_name=candidate_name,
@@ -1187,6 +1188,7 @@ def _execute_inference(
         end_time = time.time()
         logger.info("Agent Run completed in %.2f seconds.", end_time - start_time)
 
+        results_df = _drop_empty_columns(results_df)
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
             candidate_name=candidate_name,
@@ -2060,6 +2062,20 @@ def _convert_request_to_dataset_row(
     return dict_row
 
 
+def _drop_empty_columns(df: "pd.DataFrame") -> "pd.DataFrame":
+    """Drops columns that are all None or all empty lists/dicts."""
+    if df is None or df.empty or pd is None:
+        return df
+
+    def is_empty(x: Any) -> bool:
+        if isinstance(x, (list, dict)):
+            return not x
+        return pd.isna(x)  # type: ignore[no-any-return]
+
+    cols_to_drop = [col for col in df.columns if df[col].apply(is_empty).all()]
+    return df.drop(columns=cols_to_drop)
+
+
 def _transform_dataframe(
     rows: list[dict[str, Any]],
 ) -> list[types.EvaluationDataset]:
@@ -2077,13 +2093,16 @@ def _transform_dataframe(
         col for col in df.columns if col not in _evals_constant.COMMON_DATASET_COLUMNS
     ]
 
-    eval_dfs = [
-        types.EvaluationDataset(
-            candidate_name=candidate,
-            eval_dataset_df=df.rename(columns={candidate: _evals_constant.RESPONSE}),
+    eval_dfs = []
+    for candidate in candidates:
+        temp_df = df.rename(columns={candidate: _evals_constant.RESPONSE})
+        temp_df = _drop_empty_columns(temp_df)
+        eval_dfs.append(
+            types.EvaluationDataset(
+                candidate_name=candidate,
+                eval_dataset_df=temp_df,
+            )
         )
-        for candidate in candidates
-    ]
     return eval_dfs
 
 
