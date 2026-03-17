@@ -694,6 +694,9 @@ from .common import MetricPromptBuilder
 from .common import MetricResult
 from .common import MetricResultDict
 from .common import MetricResultOrDict
+from .common import MetricSource
+from .common import MetricSourceDict
+from .common import MetricSourceOrDict
 from .common import MetricxResult
 from .common import MetricxResultDict
 from .common import MetricxResultOrDict
@@ -1505,6 +1508,9 @@ __all__ = [
     "Metric",
     "MetricDict",
     "MetricOrDict",
+    "MetricSource",
+    "MetricSourceDict",
+    "MetricSourceOrDict",
     "MetricResult",
     "MetricResultDict",
     "MetricResultOrDict",

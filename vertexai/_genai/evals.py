@@ -255,6 +255,16 @@ def _EvaluateInstancesRequestParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["metric_sources"]) is not None:
+        setv(
+            to_object,
+            ["metricSources"],
+            [
+                item
+                for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
+            ],
+        )
+
     return to_object
 
 
@@ -1000,6 +1010,7 @@ class Evals(_api_module.BaseModule):
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
+        metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
     ) -> types.EvaluateInstancesResponse:
         """
         Evaluates instances based on a given metric.
@@ -1020,6 +1031,7 @@ class Evals(_api_module.BaseModule):
             metrics=metrics,
             instance=instance,
             config=config,
+            metric_sources=metric_sources,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2288,6 +2300,7 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
+        metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
     ) -> types.EvaluateInstancesResponse:
         """
         Evaluates instances based on a given metric.
@@ -2308,6 +2321,7 @@ class AsyncEvals(_api_module.BaseModule):
             metrics=metrics,
             instance=instance,
             config=config,
+            metric_sources=metric_sources,
         )
 
         request_url_dict: Optional[dict[str, str]]
