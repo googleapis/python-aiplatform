@@ -1604,15 +1604,149 @@ def _get_session_inputs(row: pd.Series) -> types.evals.SessionInput:
         )
 
 
-def _is_multi_turn_agent_run(
+def _is_multi_turn_agent_simulation(
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
     prompt_dataset: pd.DataFrame = None,
 ) -> bool:
-    """Checks if the agent run is multi-turn."""
+    """Checks if the agent run is a multi-turn user simulation."""
     return (
         user_simulator_config is not None
         or "conversation_plan" in prompt_dataset.columns
     )
+
+
+def _process_multi_turn_agent_response(
+    resp_item: Any,
+    agent_data_agents: Optional[dict[str, Any]],
+) -> Optional[Union[str, dict[str, Any]]]:
+    """Processes a multi-turn agent response."""
+    if isinstance(resp_item, dict) and "error" in resp_item:
+        return json.dumps(resp_item)
+    return types.evals.AgentData(
+        turns=resp_item,
+        agents=agent_data_agents,
+    ).model_dump(exclude_unset=True)
+
+
+def _process_single_turn_agent_response(
+    resp_item: Any,
+    agent_data_agents: Optional[dict[str, Any]],
+) -> tuple[
+    Optional[Union[str, dict[str, Any]]],
+    list[dict[str, Any]],
+    Optional[Union[str, dict[str, Any]]],
+]:
+    """Processes a single-turn agent response."""
+    intermediate_events_row: list[dict[str, Any]] = []
+    response_row: Optional[Union[str, dict[str, Any]]] = None
+    agent_data_row: Optional[Union[str, dict[str, Any]]] = None
+
+    if isinstance(resp_item, list):
+        try:
+            response_row = resp_item[-1]["content"]["parts"][0]["text"]
+            for intermediate_event in resp_item[:-1]:
+                intermediate_events_row.append(
+                    {
+                        "event_id": intermediate_event.get("id"),
+                        "content": intermediate_event.get("content"),
+                        "creation_timestamp": intermediate_event.get("timestamp"),
+                        "author": intermediate_event.get("author"),
+                    }
+                )
+            # Construct AgentData natively for single-turn runs
+            agent_events = []
+            for event_dict in resp_item:
+                content_dict = event_dict.get("content")
+                content_obj = None
+                if content_dict:
+                    content_obj = genai_types.Content.model_validate(content_dict)
+
+                agent_events.append(
+                    types.evals.AgentEvent(
+                        author=event_dict.get("author", "model"),
+                        content=content_obj,
+                    )
+                )
+
+            turn = types.evals.ConversationTurn(
+                turn_index=0,
+                turn_id="turn_0",
+                events=agent_events,
+            )
+            agent_data_row = types.evals.AgentData(
+                turns=[turn],
+                agents=agent_data_agents,
+            ).model_dump(exclude_unset=True)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            error_payload = {
+                "error": (
+                    f"Failed to parse agent run response {str(resp_item)} to "
+                    f"agent data: {e}"
+                ),
+            }
+            response_row = json.dumps(error_payload)
+            agent_data_row = json.dumps(error_payload)
+    elif isinstance(resp_item, dict) and "error" in resp_item:
+        response_row = json.dumps(resp_item)
+    else:
+        error_payload = {
+            "error": "Unexpected response type from agent run",
+            "response_type": str(type(resp_item)),
+            "details": str(resp_item),
+        }
+        response_row = json.dumps(error_payload)
+
+    return response_row, intermediate_events_row, agent_data_row
+
+
+def _create_agent_results_dataframe(
+    prompt_dataset: pd.DataFrame,
+    processed_responses: list[Any],
+    processed_intermediate_events: list[Any],
+    processed_agent_data: list[Any],
+    is_user_simulation: bool,
+) -> pd.DataFrame:
+    """Creates a DataFrame from the processed agent responses."""
+    df_dict: dict[str, Any] = {}
+    if is_user_simulation:
+        df_dict[AGENT_DATA] = processed_agent_data
+        if len(processed_agent_data) != len(prompt_dataset):
+            raise RuntimeError(
+                "Critical prompt/agent_data count mismatch: %d"
+                " prompts vs %d agent_data. This indicates an issue in response"
+                " collection."
+                % (
+                    len(prompt_dataset),
+                    len(processed_agent_data),
+                )
+            )
+    else:
+        df_dict[_evals_constant.INTERMEDIATE_EVENTS] = processed_intermediate_events
+        df_dict[_evals_constant.RESPONSE] = processed_responses
+        df_dict[AGENT_DATA] = processed_agent_data
+        if len(processed_responses) != len(prompt_dataset) or len(
+            processed_responses
+        ) != len(processed_intermediate_events):
+            raise RuntimeError(
+                "Critical prompt/response/intermediate_events count mismatch: %d"
+                " prompts vs %d vs %d responses. This indicates an issue in response"
+                " collection."
+                % (
+                    len(prompt_dataset),
+                    len(processed_responses),
+                    len(processed_intermediate_events),
+                )
+            )
+
+    results_df_raw = pd.DataFrame(df_dict)
+
+    prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
+    results_df_responses_only_indexed = results_df_raw.reset_index(drop=True)
+
+    results_df = pd.concat(
+        [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
+    )
+    return results_df
 
 
 def _run_agent_internal(
@@ -1637,97 +1771,31 @@ def _run_agent_internal(
     if agent:
         agent_data_agents = types.evals.AgentData._get_agents_map(agent)
 
-    for resp_item in raw_responses:
-        intermediate_events_row: list[dict[str, Any]] = []
-        response_row: Optional[Union[str, dict[str, Any]]] = None
-        agent_data_row: Optional[Union[str, dict[str, Any]]] = None
-
-        if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
-            if isinstance(resp_item, dict) and "error" in resp_item:
-                agent_data_row = json.dumps(resp_item)
-            else:
-                # TODO: Migrate single turn agent run result to AgentData.
-                agent_data_row = types.evals.AgentData(
-                    turns=resp_item,
-                    agents=agent_data_agents,
-                ).model_dump()
-
-        else:
-            if isinstance(resp_item, list):
-                try:
-                    response_row = resp_item[-1]["content"]["parts"][0]["text"]
-                    for intermediate_event in resp_item[:-1]:
-                        intermediate_events_row.append(
-                            {
-                                "event_id": intermediate_event.get("id"),
-                                "content": intermediate_event.get("content"),
-                                "creation_timestamp": intermediate_event.get(
-                                    "timestamp"
-                                ),
-                                "author": intermediate_event.get("author"),
-                            }
-                        )
-                except Exception as e:  # pylint: disable=broad-exception-caught
-                    error_payload = {
-                        "error": (
-                            f"Failed to parse agent run response {str(resp_item)} to "
-                            f"agent data: {e}"
-                        ),
-                    }
-                    response_row = json.dumps(error_payload)
-            elif isinstance(resp_item, dict) and "error" in resp_item:
-                response_row = json.dumps(resp_item)
-            else:
-                error_payload = {
-                    "error": "Unexpected response type from agent run",
-                    "response_type": str(type(resp_item)),
-                    "details": str(resp_item),
-                }
-                response_row = json.dumps(error_payload)
-
-        processed_intermediate_events.append(intermediate_events_row)
-        processed_responses.append(response_row)
-        processed_agent_data.append(agent_data_row)
-
-    df_dict: dict[str, Any] = {}
-    if _is_multi_turn_agent_run(user_simulator_config, prompt_dataset):
-        df_dict[AGENT_DATA] = processed_agent_data
-        if len(processed_agent_data) != len(prompt_dataset):
-            raise RuntimeError(
-                "Critical prompt/agent_data count mismatch: %d"
-                " prompts vs %d agent_data. This indicates an issue in response"
-                " collection."
-                % (
-                    len(prompt_dataset),
-                    len(processed_agent_data),
-                )
-            )
-    else:
-        df_dict[_evals_constant.INTERMEDIATE_EVENTS] = processed_intermediate_events
-        df_dict[_evals_constant.RESPONSE] = processed_responses
-        if len(processed_responses) != len(prompt_dataset) or len(
-            processed_responses
-        ) != len(processed_intermediate_events):
-            raise RuntimeError(
-                "Critical prompt/response/intermediate_events count mismatch: %d"
-                " prompts vs %d vs %d responses. This indicates an issue in response"
-                " collection."
-                % (
-                    len(prompt_dataset),
-                    len(processed_responses),
-                    len(processed_intermediate_events),
-                )
-            )
-
-    results_df_raw = pd.DataFrame(df_dict)
-
-    prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
-    results_df_responses_only_indexed = results_df_raw.reset_index(drop=True)
-
-    results_df = pd.concat(
-        [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
+    is_user_simulation = _is_multi_turn_agent_simulation(
+        user_simulator_config, prompt_dataset
     )
-    return results_df
+
+    for resp_item in raw_responses:
+        if is_user_simulation:
+            agent_data_row = _process_multi_turn_agent_response(
+                resp_item, agent_data_agents
+            )
+            processed_agent_data.append(agent_data_row)
+        else:
+            response_row, intermediate_events_row, agent_data_row = (
+                _process_single_turn_agent_response(resp_item, agent_data_agents)
+            )
+            processed_responses.append(response_row)
+            processed_intermediate_events.append(intermediate_events_row)
+            processed_agent_data.append(agent_data_row)
+
+    return _create_agent_results_dataframe(
+        prompt_dataset,
+        processed_responses,
+        processed_intermediate_events,
+        processed_agent_data,
+        is_user_simulation,
+    )
 
 
 def _run_agent(
