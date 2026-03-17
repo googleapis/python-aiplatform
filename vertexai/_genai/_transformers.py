@@ -25,8 +25,15 @@ from . import types
 _METRIC_RES_NAME_RE = r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$"
 
 
+def t_metric(
+    metric: "types.MetricSubclass",
+) -> dict[str, Any]:
+    """Prepares the metric payload for a single metric."""
+    return t_metrics([metric])[0]
+
+
 def t_metrics(
-    metrics: list["types.MetricSubclass"],
+    metrics: "list[types.MetricSubclass]",
     set_default_aggregation_metrics: bool = False,
 ) -> list[dict[str, Any]]:
     """Prepares the metric payload for the evaluation request.

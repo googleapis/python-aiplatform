@@ -402,15 +402,6 @@ class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The EvaluationItem is the result of evaluation."""
 
 
-class SamplingMethod(_common.CaseInSensitiveEnum):
-    """Represents the sampling method for a BigQuery request set."""
-
-    UNSPECIFIED = "UNSPECIFIED"
-    """Sampling method is unspecified."""
-    RANDOM = "RANDOM"
-    """Sampling method is random."""
-
-
 class RubricContentType(_common.CaseInSensitiveEnum):
     """Specifies the type of rubric content to generate."""
 
@@ -420,6 +411,15 @@ class RubricContentType(_common.CaseInSensitiveEnum):
     """Generate rubrics in an NL question answer format."""
     PYTHON_CODE_ASSERTION = "PYTHON_CODE_ASSERTION"
     """Generate rubrics in a unit test format."""
+
+
+class SamplingMethod(_common.CaseInSensitiveEnum):
+    """Represents the sampling method for a BigQuery request set."""
+
+    UNSPECIFIED = "UNSPECIFIED"
+    """Sampling method is unspecified."""
+    RANDOM = "RANDOM"
+    """Sampling method is random."""
 
 
 class EvaluationRunState(_common.CaseInSensitiveEnum):
@@ -2137,95 +2137,334 @@ class EvaluationItemDict(TypedDict, total=False):
 EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
 
 
-class SamplingConfig(_common.BaseModel):
-    """Sampling config for a BigQuery request set."""
+class Metric(_common.BaseModel):
+    """The metric used for evaluation."""
 
-    sampling_count: Optional[int] = Field(default=None, description="""""")
-    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
-    sampling_duration: Optional[str] = Field(default=None, description="""""")
-
-
-class SamplingConfigDict(TypedDict, total=False):
-    """Sampling config for a BigQuery request set."""
-
-    sampling_count: Optional[int]
-    """"""
-
-    sampling_method: Optional[SamplingMethod]
-    """"""
-
-    sampling_duration: Optional[str]
-    """"""
-
-
-SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
-
-
-class BigQueryRequestSet(_common.BaseModel):
-    """Represents a BigQuery request set."""
-
-    uri: Optional[str] = Field(default=None, description="""""")
-    prompt_column: Optional[str] = Field(
+    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
+    custom_function: Optional[Callable[..., Any]] = Field(
         default=None,
-        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
+        description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
-    rubrics_column: Optional[str] = Field(
+    prompt_template: Optional[str] = Field(
+        default=None, description="""The prompt template for the metric."""
+    )
+    judge_model_system_instruction: Optional[str] = Field(
+        default=None, description="""The system instruction for the judge model."""
+    )
+    return_raw_output: Optional[bool] = Field(
         default=None,
-        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
+        description="""Whether to return the raw output from the judge model.""",
     )
-    candidate_response_columns: Optional[dict[str, str]] = Field(
+    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
         default=None,
-        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
+        description="""The parse and reduce function for the judge model.""",
     )
-    sampling_config: Optional[SamplingConfig] = Field(
+    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
         default=None,
-        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
+        description="""The aggregate summary function for the judge model.""",
+    )
+    remote_custom_function: Optional[str] = Field(
+        default=None,
+        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
+    )
+    judge_model: Optional[str] = Field(
+        default=None, description="""The judge model for the metric."""
+    )
+    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
+        default=None,
+        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
+    )
+    judge_model_sampling_count: Optional[int] = Field(
+        default=None, description="""The sampling count for the judge model."""
+    )
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""The rubric group name for the rubric-based metric.""",
+    )
+    metric_spec_parameters: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional steering instruction parameters for the automated predefined metric.""",
+    )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
+
+    # Allow extra fields to support metric-specific config fields.
+    model_config = ConfigDict(extra="allow")
+
+    _is_predefined: bool = PrivateAttr(default=False)
+    """A boolean indicating whether the metric is predefined."""
+
+    _config_source: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the source of the metric configuration."""
+
+    _version: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the version of the metric."""
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_name(cls, model: "Metric") -> "Metric":
+        if not model.name:
+            raise ValueError("Metric name cannot be empty.")
+        model.name = model.name.lower()
+        return model
+
+    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
+        """Dumps the metric object to a YAML file.
+
+        Args:
+            file_path: The path to the YAML file.
+            version: Optional version string to include in the YAML output.
+
+        Raises:
+            ImportError: If the pyyaml library is not installed.
+        """
+        if yaml is None:
+            raise ImportError(
+                "YAML serialization requires the pyyaml library. Please install"
+                " it using 'pip install google-cloud-aiplatform[evaluation]'."
+            )
+
+        fields_to_exclude = {
+            field_name
+            for field_name, field_info in self.model_fields.items()
+            if self.__getattribute__(field_name) is not None
+            and isinstance(self.__getattribute__(field_name), Callable)
+        }
+
+        data_to_dump = self.model_dump(
+            exclude_unset=True,
+            exclude_none=True,
+            mode="json",
+            exclude=fields_to_exclude if fields_to_exclude else None,
+        )
+
+        if version:
+            data_to_dump["version"] = version
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+
+
+class LLMMetric(Metric):
+    """A metric that uses LLM-as-a-judge for evaluation."""
+
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
+    )
+
+    @field_validator("prompt_template", mode="before")
+    @classmethod
+    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
+        """Validates prompt template to be a non-empty string."""
+        if value is None:
+            raise ValueError("Prompt template cannot be empty.")
+        if isinstance(value, MetricPromptBuilder):
+            value = str(value)
+        if not value.strip():
+            raise ValueError("Prompt template cannot be an empty string.")
+        return value
+
+    @field_validator("judge_model_sampling_count")
+    @classmethod
+    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
+        """Validates judge_model_sampling_count to be between 1 and 32."""
+        if value is not None and (value < 1 or value > 32):
+            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
+        return value
+
+    @classmethod
+    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
+        """Loads a metric configuration from a YAML or JSON file.
+
+        This method allows for the creation of an LLMMetric instance from a
+        local file path or a Google Cloud Storage (GCS) URI. It will automatically
+        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
+
+        Args:
+            config_path: The local path or GCS URI (e.g., 'gs://bucket/metric.yaml')
+                to the metric configuration file.
+            client: Optional. The Vertex AI client instance to use for authentication.
+                If not provided, Application Default Credentials (ADC) will be used.
+
+        Returns:
+            An instance of LLMMetric configured with the loaded data.
+
+        Raises:
+            ValueError: If the file path is invalid or the file content cannot be parsed.
+            ImportError: If a required library like 'PyYAML' or 'google-cloud-storage' is not installed.
+            IOError: If the file cannot be read from the specified path.
+        """
+        file_extension = os.path.splitext(config_path)[1].lower()
+        if file_extension not in [".yaml", ".yml", ".json"]:
+            raise ValueError(
+                "Unsupported file extension for metric config. Must be .yaml, .yml, or .json"
+            )
+
+        content_str: str
+        if config_path.startswith("gs://"):
+            try:
+                from google.cloud import storage  # type: ignore[attr-defined]
+
+                storage_client = storage.Client(
+                    credentials=client._api_client._credentials if client else None
+                )
+                path_without_prefix = config_path[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+                content_str = blob.download_as_bytes().decode("utf-8")
+            except ImportError as e:
+                raise ImportError(
+                    "Reading from GCS requires the 'google-cloud-storage' library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
+                ) from e
+            except Exception as e:
+                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
+        else:
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    content_str = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Local configuration file not found at: {config_path}"
+                )
+            except Exception as e:
+                raise IOError(f"Failed to read local file {config_path}: {e}") from e
+
+        data: Dict[str, Any]
+
+        if file_extension in [".yaml", ".yml"]:
+            if yaml is None:
+                raise ImportError(
+                    "YAML parsing requires the pyyaml library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
+                )
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        return cls.model_validate(data)
+
+
+class MetricDict(TypedDict, total=False):
+    """The metric used for evaluation."""
+
+    name: Optional[str]
+    """The name of the metric."""
+
+    custom_function: Optional[Callable[..., Any]]
+    """The custom function that defines the end-to-end logic for metric computation."""
+
+    prompt_template: Optional[str]
+    """The prompt template for the metric."""
+
+    judge_model_system_instruction: Optional[str]
+    """The system instruction for the judge model."""
+
+    return_raw_output: Optional[bool]
+    """Whether to return the raw output from the judge model."""
+
+    parse_and_reduce_fn: Optional[Callable[..., Any]]
+    """The parse and reduce function for the judge model."""
+
+    aggregate_summary_fn: Optional[Callable[..., Any]]
+    """The aggregate summary function for the judge model."""
+
+    remote_custom_function: Optional[str]
+    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
+
+    judge_model: Optional[str]
+    """The judge model for the metric."""
+
+    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
+    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
+
+    judge_model_sampling_count: Optional[int]
+    """The sampling count for the judge model."""
+
+    rubric_group_name: Optional[str]
+    """The rubric group name for the rubric-based metric."""
+
+    metric_spec_parameters: Optional[dict[str, Any]]
+    """Optional steering instruction parameters for the automated predefined metric."""
+
+    metric_resource_name: Optional[str]
+    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
+
+MetricOrDict = Union[Metric, MetricDict]
+
+
+class CreateEvaluationMetricConfig(_common.BaseModel):
+    """Config for creating an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
     )
 
 
-class BigQueryRequestSetDict(TypedDict, total=False):
-    """Represents a BigQuery request set."""
+class CreateEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for creating an evaluation metric."""
 
-    uri: Optional[str]
-    """"""
-
-    prompt_column: Optional[str]
-    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
-
-    rubrics_column: Optional[str]
-    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
-
-    candidate_response_columns: Optional[dict[str, str]]
-    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
-
-    sampling_config: Optional[SamplingConfigDict]
-    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
 
 
-BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
+CreateEvaluationMetricConfigOrDict = Union[
+    CreateEvaluationMetricConfig, CreateEvaluationMetricConfigDict
+]
 
 
-class EvaluationRunDataSource(_common.BaseModel):
-    """Represents an evaluation run data source."""
+class _CreateEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for creating an evaluation metric."""
 
-    evaluation_set: Optional[str] = Field(default=None, description="""""")
-    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the evaluation metric.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the evaluation metric."""
+    )
+    metric: Optional[Metric] = Field(
+        default=None,
+        description="""The metric configuration of the evaluation metric.""",
+    )
+    config: Optional[CreateEvaluationMetricConfig] = Field(
         default=None, description=""""""
     )
 
 
-class EvaluationRunDataSourceDict(TypedDict, total=False):
-    """Represents an evaluation run data source."""
+class _CreateEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for creating an evaluation metric."""
 
-    evaluation_set: Optional[str]
+    display_name: Optional[str]
+    """The user-defined name of the evaluation metric.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the evaluation metric."""
+
+    metric: Optional[MetricDict]
+    """The metric configuration of the evaluation metric."""
+
+    config: Optional[CreateEvaluationMetricConfigDict]
     """"""
 
-    bigquery_request_set: Optional[BigQueryRequestSetDict]
-    """"""
 
-
-EvaluationRunDataSourceOrDict = Union[
-    EvaluationRunDataSource, EvaluationRunDataSourceDict
+_CreateEvaluationMetricParametersOrDict = Union[
+    _CreateEvaluationMetricParameters, _CreateEvaluationMetricParametersDict
 ]
 
 
@@ -2483,6 +2722,136 @@ class UnifiedMetricDict(TypedDict, total=False):
 
 
 UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]
+
+
+class EvaluationMetric(_common.BaseModel):
+    """Represents an evaluation metric."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the evaluation metric."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-friendly display name for the EvaluationMetric.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the EvaluationMetric."""
+    )
+    metric: Optional[UnifiedMetric] = Field(
+        default=None,
+        description="""The metric configuration of the evaluation metric.""",
+    )
+
+
+class EvaluationMetricDict(TypedDict, total=False):
+    """Represents an evaluation metric."""
+
+    name: Optional[str]
+    """The resource name of the evaluation metric."""
+
+    display_name: Optional[str]
+    """The user-friendly display name for the EvaluationMetric."""
+
+    description: Optional[str]
+    """The description of the EvaluationMetric."""
+
+    metric: Optional[UnifiedMetricDict]
+    """The metric configuration of the evaluation metric."""
+
+
+EvaluationMetricOrDict = Union[EvaluationMetric, EvaluationMetricDict]
+
+
+class SamplingConfig(_common.BaseModel):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int] = Field(default=None, description="""""")
+    sampling_method: Optional[SamplingMethod] = Field(default=None, description="""""")
+    sampling_duration: Optional[str] = Field(default=None, description="""""")
+
+
+class SamplingConfigDict(TypedDict, total=False):
+    """Sampling config for a BigQuery request set."""
+
+    sampling_count: Optional[int]
+    """"""
+
+    sampling_method: Optional[SamplingMethod]
+    """"""
+
+    sampling_duration: Optional[str]
+    """"""
+
+
+SamplingConfigOrDict = Union[SamplingConfig, SamplingConfigDict]
+
+
+class BigQueryRequestSet(_common.BaseModel):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str] = Field(default=None, description="""""")
+    prompt_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the prompt in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    rubrics_column: Optional[str] = Field(
+        default=None,
+        description="""The column name of the rubrics in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    candidate_response_columns: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The column name of the response candidates in the BigQuery table. Used for EvaluationRun only.""",
+    )
+    sampling_config: Optional[SamplingConfig] = Field(
+        default=None,
+        description="""The sampling config for the BigQuery request set. Used for EvaluationRun only.""",
+    )
+
+
+class BigQueryRequestSetDict(TypedDict, total=False):
+    """Represents a BigQuery request set."""
+
+    uri: Optional[str]
+    """"""
+
+    prompt_column: Optional[str]
+    """The column name of the prompt in the BigQuery table. Used for EvaluationRun only."""
+
+    rubrics_column: Optional[str]
+    """The column name of the rubrics in the BigQuery table. Used for EvaluationRun only."""
+
+    candidate_response_columns: Optional[dict[str, str]]
+    """The column name of the response candidates in the BigQuery table. Used for EvaluationRun only."""
+
+    sampling_config: Optional[SamplingConfigDict]
+    """The sampling config for the BigQuery request set. Used for EvaluationRun only."""
+
+
+BigQueryRequestSetOrDict = Union[BigQueryRequestSet, BigQueryRequestSetDict]
+
+
+class EvaluationRunDataSource(_common.BaseModel):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str] = Field(default=None, description="""""")
+    bigquery_request_set: Optional[BigQueryRequestSet] = Field(
+        default=None, description=""""""
+    )
+
+
+class EvaluationRunDataSourceDict(TypedDict, total=False):
+    """Represents an evaluation run data source."""
+
+    evaluation_set: Optional[str]
+    """"""
+
+    bigquery_request_set: Optional[BigQueryRequestSetDict]
+    """"""
+
+
+EvaluationRunDataSourceOrDict = Union[
+    EvaluationRunDataSource, EvaluationRunDataSourceDict
+]
 
 
 class EvaluationRunMetric(_common.BaseModel):
@@ -4416,269 +4785,6 @@ class RubricBasedMetricInputDict(TypedDict, total=False):
 RubricBasedMetricInputOrDict = Union[RubricBasedMetricInput, RubricBasedMetricInputDict]
 
 
-class Metric(_common.BaseModel):
-    """The metric used for evaluation."""
-
-    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The custom function that defines the end-to-end logic for metric computation.""",
-    )
-    prompt_template: Optional[str] = Field(
-        default=None, description="""The prompt template for the metric."""
-    )
-    judge_model_system_instruction: Optional[str] = Field(
-        default=None, description="""The system instruction for the judge model."""
-    )
-    return_raw_output: Optional[bool] = Field(
-        default=None,
-        description="""Whether to return the raw output from the judge model.""",
-    )
-    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The parse and reduce function for the judge model.""",
-    )
-    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The aggregate summary function for the judge model.""",
-    )
-    remote_custom_function: Optional[str] = Field(
-        default=None,
-        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
-    )
-    judge_model: Optional[str] = Field(
-        default=None, description="""The judge model for the metric."""
-    )
-    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
-        default=None,
-        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
-    )
-    judge_model_sampling_count: Optional[int] = Field(
-        default=None, description="""The sampling count for the judge model."""
-    )
-    rubric_group_name: Optional[str] = Field(
-        default=None,
-        description="""The rubric group name for the rubric-based metric.""",
-    )
-    metric_spec_parameters: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional steering instruction parameters for the automated predefined metric.""",
-    )
-    metric_resource_name: Optional[str] = Field(
-        default=None,
-        description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
-    )
-
-    # Allow extra fields to support metric-specific config fields.
-    model_config = ConfigDict(extra="allow")
-
-    _is_predefined: bool = PrivateAttr(default=False)
-    """A boolean indicating whether the metric is predefined."""
-
-    _config_source: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the source of the metric configuration."""
-
-    _version: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the version of the metric."""
-
-    @model_validator(mode="after")
-    @classmethod
-    def validate_name(cls, model: "Metric") -> "Metric":
-        if not model.name:
-            raise ValueError("Metric name cannot be empty.")
-        model.name = model.name.lower()
-        return model
-
-    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
-        """Dumps the metric object to a YAML file.
-
-        Args:
-            file_path: The path to the YAML file.
-            version: Optional version string to include in the YAML output.
-
-        Raises:
-            ImportError: If the pyyaml library is not installed.
-        """
-        if yaml is None:
-            raise ImportError(
-                "YAML serialization requires the pyyaml library. Please install"
-                " it using 'pip install google-cloud-aiplatform[evaluation]'."
-            )
-
-        fields_to_exclude = {
-            field_name
-            for field_name, field_info in self.model_fields.items()
-            if self.__getattribute__(field_name) is not None
-            and isinstance(self.__getattribute__(field_name), Callable)
-        }
-
-        data_to_dump = self.model_dump(
-            exclude_unset=True,
-            exclude_none=True,
-            mode="json",
-            exclude=fields_to_exclude if fields_to_exclude else None,
-        )
-
-        if version:
-            data_to_dump["version"] = version
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
-
-
-class LLMMetric(Metric):
-    """A metric that uses LLM-as-a-judge for evaluation."""
-
-    rubric_group_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
-    )
-
-    @field_validator("prompt_template", mode="before")
-    @classmethod
-    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
-        """Validates prompt template to be a non-empty string."""
-        if value is None:
-            raise ValueError("Prompt template cannot be empty.")
-        if isinstance(value, MetricPromptBuilder):
-            value = str(value)
-        if not value.strip():
-            raise ValueError("Prompt template cannot be an empty string.")
-        return value
-
-    @field_validator("judge_model_sampling_count")
-    @classmethod
-    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
-        """Validates judge_model_sampling_count to be between 1 and 32."""
-        if value is not None and (value < 1 or value > 32):
-            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
-        return value
-
-    @classmethod
-    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
-        """Loads a metric configuration from a YAML or JSON file.
-
-        This method allows for the creation of an LLMMetric instance from a
-        local file path or a Google Cloud Storage (GCS) URI. It will automatically
-        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
-
-        Args:
-            config_path: The local path or GCS URI (e.g., 'gs://bucket/metric.yaml')
-                to the metric configuration file.
-            client: Optional. The Vertex AI client instance to use for authentication.
-                If not provided, Application Default Credentials (ADC) will be used.
-
-        Returns:
-            An instance of LLMMetric configured with the loaded data.
-
-        Raises:
-            ValueError: If the file path is invalid or the file content cannot be parsed.
-            ImportError: If a required library like 'PyYAML' or 'google-cloud-storage' is not installed.
-            IOError: If the file cannot be read from the specified path.
-        """
-        file_extension = os.path.splitext(config_path)[1].lower()
-        if file_extension not in [".yaml", ".yml", ".json"]:
-            raise ValueError(
-                "Unsupported file extension for metric config. Must be .yaml, .yml, or .json"
-            )
-
-        content_str: str
-        if config_path.startswith("gs://"):
-            try:
-                from google.cloud import storage  # type: ignore[attr-defined]
-
-                storage_client = storage.Client(
-                    credentials=client._api_client._credentials if client else None
-                )
-                path_without_prefix = config_path[len("gs://") :]
-                bucket_name, blob_path = path_without_prefix.split("/", 1)
-
-                bucket = storage_client.bucket(bucket_name)
-                blob = bucket.blob(blob_path)
-                content_str = blob.download_as_bytes().decode("utf-8")
-            except ImportError as e:
-                raise ImportError(
-                    "Reading from GCS requires the 'google-cloud-storage' library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
-                ) from e
-            except Exception as e:
-                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
-        else:
-            try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    content_str = f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    f"Local configuration file not found at: {config_path}"
-                )
-            except Exception as e:
-                raise IOError(f"Failed to read local file {config_path}: {e}") from e
-
-        data: Dict[str, Any]
-
-        if file_extension in [".yaml", ".yml"]:
-            if yaml is None:
-                raise ImportError(
-                    "YAML parsing requires the pyyaml library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
-                )
-            data = yaml.safe_load(content_str)
-        elif file_extension == ".json":
-            data = json.loads(content_str)
-
-        if not isinstance(data, dict):
-            raise ValueError("Metric config content did not parse into a dictionary.")
-
-        return cls.model_validate(data)
-
-
-class MetricDict(TypedDict, total=False):
-    """The metric used for evaluation."""
-
-    name: Optional[str]
-    """The name of the metric."""
-
-    custom_function: Optional[Callable[..., Any]]
-    """The custom function that defines the end-to-end logic for metric computation."""
-
-    prompt_template: Optional[str]
-    """The prompt template for the metric."""
-
-    judge_model_system_instruction: Optional[str]
-    """The system instruction for the judge model."""
-
-    return_raw_output: Optional[bool]
-    """Whether to return the raw output from the judge model."""
-
-    parse_and_reduce_fn: Optional[Callable[..., Any]]
-    """The parse and reduce function for the judge model."""
-
-    aggregate_summary_fn: Optional[Callable[..., Any]]
-    """The aggregate summary function for the judge model."""
-
-    remote_custom_function: Optional[str]
-    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
-
-    judge_model: Optional[str]
-    """The judge model for the metric."""
-
-    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
-    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
-
-    judge_model_sampling_count: Optional[int]
-    """The sampling count for the judge model."""
-
-    rubric_group_name: Optional[str]
-    """The rubric group name for the rubric-based metric."""
-
-    metric_spec_parameters: Optional[dict[str, Any]]
-    """Optional steering instruction parameters for the automated predefined metric."""
-
-    metric_resource_name: Optional[str]
-    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
-
-
-MetricOrDict = Union[Metric, MetricDict]
-
-
 class MetricSource(_common.BaseModel):
     """The metric source used for evaluation."""
 
@@ -5553,6 +5659,50 @@ GenerateUserScenariosResponseOrDict = Union[
 ]
 
 
+class GetEvaluationMetricConfig(_common.BaseModel):
+    """Config for getting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for getting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationMetricConfigOrDict = Union[
+    GetEvaluationMetricConfig, GetEvaluationMetricConfigDict
+]
+
+
+class _GetEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for getting an evaluation metric."""
+
+    metric_resource_name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationMetricConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for getting an evaluation metric."""
+
+    metric_resource_name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationMetricConfigDict]
+    """"""
+
+
+_GetEvaluationMetricParametersOrDict = Union[
+    _GetEvaluationMetricParameters, _GetEvaluationMetricParametersDict
+]
+
+
 class GetEvaluationRunConfig(_common.BaseModel):
     """Config for get evaluation run."""
 
@@ -5672,6 +5822,79 @@ class _GetEvaluationItemParametersDict(TypedDict, total=False):
 
 _GetEvaluationItemParametersOrDict = Union[
     _GetEvaluationItemParameters, _GetEvaluationItemParametersDict
+]
+
+
+class ListEvaluationMetricsConfig(_common.BaseModel):
+    """Config for listing evaluation metrics."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ListEvaluationMetricsConfigDict(TypedDict, total=False):
+    """Config for listing evaluation metrics."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+ListEvaluationMetricsConfigOrDict = Union[
+    ListEvaluationMetricsConfig, ListEvaluationMetricsConfigDict
+]
+
+
+class _ListEvaluationMetricsParameters(_common.BaseModel):
+    """Parameters for listing evaluation metrics."""
+
+    config: Optional[ListEvaluationMetricsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListEvaluationMetricsParametersDict(TypedDict, total=False):
+    """Parameters for listing evaluation metrics."""
+
+    config: Optional[ListEvaluationMetricsConfigDict]
+    """"""
+
+
+_ListEvaluationMetricsParametersOrDict = Union[
+    _ListEvaluationMetricsParameters, _ListEvaluationMetricsParametersDict
+]
+
+
+class ListEvaluationMetricsResponse(_common.BaseModel):
+    """Response for listing evaluation metrics."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    evaluation_metrics: Optional[list[EvaluationMetric]] = Field(
+        default=None,
+        description="""List of evaluation metrics.
+      """,
+    )
+
+
+class ListEvaluationMetricsResponseDict(TypedDict, total=False):
+    """Response for listing evaluation metrics."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    evaluation_metrics: Optional[list[EvaluationMetricDict]]
+    """List of evaluation metrics.
+      """
+
+
+ListEvaluationMetricsResponseOrDict = Union[
+    ListEvaluationMetricsResponse, ListEvaluationMetricsResponseDict
 ]
 
 

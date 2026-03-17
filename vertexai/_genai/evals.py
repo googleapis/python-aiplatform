@@ -17,7 +17,7 @@
 
 import json
 import logging
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, cast
 from urllib.parse import urlencode
 import uuid
 
@@ -60,6 +60,26 @@ def _CreateEvaluationItemParameters_to_vertex(
 
     if getv(from_object, ["display_name"]) is not None:
         setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _CreateEvaluationMetricParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["metric"]) is not None:
+        setv(to_object, ["metric"], t.t_metric(getv(from_object, ["metric"])))
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -290,6 +310,30 @@ def _EvaluationInstance_to_vertex(
 
     if getv(from_object, ["rubric_groups"]) is not None:
         setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
+
+    return to_object
+
+
+def _EvaluationMetric_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["metric"]) is not None:
+        setv(
+            to_object,
+            ["metric"],
+            _UnifiedMetric_from_vertex(getv(from_object, ["metric"]), to_object),
+        )
 
     return to_object
 
@@ -590,6 +634,24 @@ def _GetEvaluationItemParameters_to_vertex(
     return to_object
 
 
+def _GetEvaluationMetricParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["_url", "evaluation_metric"],
+            getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _GetEvaluationRunParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -614,6 +676,41 @@ def _GetEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ListEvaluationMetricsParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ListEvaluationMetricsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["evaluationMetrics"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_metrics"],
+            [
+                _EvaluationMetric_from_vertex(item, to_object)
+                for item in getv(from_object, ["evaluationMetrics"])
+            ],
+        )
 
     return to_object
 
@@ -860,6 +957,66 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Creates an EvaluationMetric.
+        """
+
+        parameter_model = types._CreateEvaluationMetricParameters(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -1196,6 +1353,62 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Retrieves an EvaluationMetric from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _get_evaluation_run(
         self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
     ) -> types.EvaluationRun:
@@ -1343,6 +1556,58 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _list_evaluation_metrics(
+        self, *, config: Optional[types.ListEvaluationMetricsConfigOrDict] = None
+    ) -> types.ListEvaluationMetricsResponse:
+        """
+        Lists EvaluationMetrics.
+        """
+
+        parameter_model = types._ListEvaluationMetricsParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
+
+        return_value = types.ListEvaluationMetricsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -2090,6 +2355,66 @@ class Evals(_api_module.BaseModule):
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_metric method is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> str:
+        """Creates an EvaluationMetric."""
+        if metric and not isinstance(metric, dict):
+            # metric is now Metric | LazyLoadedPrebuiltMetric (RubricMetric)
+            # Mypy correctly narrows the type here, so cast is not needed.
+            resolved_metrics = _evals_common._resolve_metrics(
+                [metric], self._api_client
+            )
+            metric = resolved_metrics[0]
+
+        result = self._create_evaluation_metric(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+        # result.name is Optional[str], but we know it's always returned on creation
+        return cast(str, result.name)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_metric module is experimental, "
+        "and may change in future versions."
+    )
+    def get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """Retrieves an EvaluationMetric from the resource name."""
+        return self._get_evaluation_metric(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.list_evaluation_metrics module is experimental, "
+        "and may change in future versions."
+    )
+    def list_evaluation_metrics(
+        self,
+        *,
+        config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
+    ) -> types.ListEvaluationMetricsResponse:
+        """Lists EvaluationMetrics."""
+        return self._list_evaluation_metrics(
+            config=config,
+        )
+
 
 class AsyncEvals(_api_module.BaseModule):
 
@@ -2146,6 +2471,68 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Creates an EvaluationMetric.
+        """
+
+        parameter_model = types._CreateEvaluationMetricParameters(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -2492,6 +2879,64 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Retrieves an EvaluationMetric from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_evaluation_run(
         self, *, name: str, config: Optional[types.GetEvaluationRunConfigOrDict] = None
     ) -> types.EvaluationRun:
@@ -2645,6 +3090,60 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _list_evaluation_metrics(
+        self, *, config: Optional[types.ListEvaluationMetricsConfigOrDict] = None
+    ) -> types.ListEvaluationMetricsResponse:
+        """
+        Lists EvaluationMetrics.
+        """
+
+        parameter_model = types._ListEvaluationMetricsParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
+
+        return_value = types.ListEvaluationMetricsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -3030,3 +3529,60 @@ class AsyncEvals(_api_module.BaseModule):
             root_agent_id=root_agent_id,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_metric module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> str:
+        """Creates an EvaluationMetric."""
+        if metric and not isinstance(metric, dict):
+            resolved_metrics = _evals_common._resolve_metrics(
+                [metric], self._api_client
+            )
+            metric = resolved_metrics[0]
+
+        result = await self._create_evaluation_metric(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+        return cast(str, result.name)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_metric module is experimental, "
+        "and may change in future versions."
+    )
+    async def get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """Retrieves an EvaluationMetric from the resource name."""
+        return await self._get_evaluation_metric(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.list_evaluation_metrics module is experimental, "
+        "and may change in future versions."
+    )
+    async def list_evaluation_metrics(
+        self,
+        *,
+        config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
+    ) -> types.ListEvaluationMetricsResponse:
+        """Lists EvaluationMetrics."""
+        return await self._list_evaluation_metrics(
+            config=config,
+        )
