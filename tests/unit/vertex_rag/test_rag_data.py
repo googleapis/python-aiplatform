@@ -663,10 +663,25 @@ class TestRagDataManagement:
         rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_ID)
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
-    @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_corpus_numeric_id_success(self):
-        rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_NUMERIC_ID)
-        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
+        """Bare numeric IDs must pass the regex and be expanded to full resource names."""
+        with mock.patch.object(
+            rag.utils._gapic_utils, "create_rag_data_service_client"
+        ) as mock_client_factory:
+            api_client_mock = mock.Mock(spec=VertexRagDataServiceClient)
+            api_client_mock.parse_rag_corpus_path.side_effect = (
+                VertexRagDataServiceClient.parse_rag_corpus_path
+            )
+            api_client_mock.rag_corpus_path.side_effect = (
+                VertexRagDataServiceClient.rag_corpus_path
+            )
+            api_client_mock.get_rag_corpus.return_value = (
+                test_rag_constants.TEST_GAPIC_RAG_CORPUS
+            )
+            mock_client_factory.return_value = api_client_mock
+
+            rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_NUMERIC_ID)
+            rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_get_corpus_failure(self):
@@ -888,13 +903,34 @@ class TestRagDataManagement:
         )
         rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
 
-    @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_file_numeric_id_success(self):
-        rag_file = rag.get_file(
-            name=test_rag_constants.TEST_RAG_FILE_NUMERIC_ID,
-            corpus_name=test_rag_constants.TEST_RAG_CORPUS_NUMERIC_ID,
-        )
-        rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
+        """Bare numeric IDs must pass the regex and be expanded to full resource names."""
+        with mock.patch.object(
+            rag.utils._gapic_utils, "create_rag_data_service_client"
+        ) as mock_client_factory:
+            api_client_mock = mock.Mock(spec=VertexRagDataServiceClient)
+            api_client_mock.parse_rag_corpus_path.side_effect = (
+                VertexRagDataServiceClient.parse_rag_corpus_path
+            )
+            api_client_mock.parse_rag_file_path.side_effect = (
+                VertexRagDataServiceClient.parse_rag_file_path
+            )
+            api_client_mock.rag_corpus_path.side_effect = (
+                VertexRagDataServiceClient.rag_corpus_path
+            )
+            api_client_mock.rag_file_path.side_effect = (
+                VertexRagDataServiceClient.rag_file_path
+            )
+            api_client_mock.get_rag_file.return_value = (
+                test_rag_constants.TEST_GAPIC_RAG_FILE
+            )
+            mock_client_factory.return_value = api_client_mock
+
+            rag_file = rag.get_file(
+                name=test_rag_constants.TEST_RAG_FILE_NUMERIC_ID,
+                corpus_name=test_rag_constants.TEST_RAG_CORPUS_NUMERIC_ID,
+            )
+            rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
 
     @pytest.mark.usefixtures("rag_data_client_mock_exception")
     def test_get_file_failure(self):
