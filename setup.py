@@ -169,6 +169,7 @@ agent_engines_extra_require = [
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
     "google-cloud-iam",
+    "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
 evaluation_extra_require = [
