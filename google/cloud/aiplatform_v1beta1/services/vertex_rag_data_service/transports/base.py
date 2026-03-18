@@ -34,6 +34,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 
 DEFAULT_CLIENT_INFO = gapic_v1.client_info.ClientInfo(
     gapic_version=package_version.__version__
@@ -200,6 +201,71 @@ class VertexRagDataServiceTransport(abc.ABC):
             ),
             self.get_rag_engine_config: gapic_v1.method.wrap_method(
                 self.get_rag_engine_config,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_rag_data_schema: gapic_v1.method.wrap_method(
+                self.create_rag_data_schema,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_rag_data_schemas: gapic_v1.method.wrap_method(
+                self.batch_create_rag_data_schemas,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_data_schema: gapic_v1.method.wrap_method(
+                self.get_rag_data_schema,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_rag_data_schemas: gapic_v1.method.wrap_method(
+                self.list_rag_data_schemas,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_rag_data_schema: gapic_v1.method.wrap_method(
+                self.delete_rag_data_schema,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_delete_rag_data_schemas: gapic_v1.method.wrap_method(
+                self.batch_delete_rag_data_schemas,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.create_rag_metadata: gapic_v1.method.wrap_method(
+                self.create_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_create_rag_metadata: gapic_v1.method.wrap_method(
+                self.batch_create_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.update_rag_metadata: gapic_v1.method.wrap_method(
+                self.update_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.get_rag_metadata: gapic_v1.method.wrap_method(
+                self.get_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.list_rag_metadata: gapic_v1.method.wrap_method(
+                self.list_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.delete_rag_metadata: gapic_v1.method.wrap_method(
+                self.delete_rag_metadata,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.batch_delete_rag_metadata: gapic_v1.method.wrap_method(
+                self.batch_delete_rag_metadata,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -385,6 +451,129 @@ class VertexRagDataServiceTransport(abc.ABC):
         Union[
             vertex_rag_data.RagEngineConfig, Awaitable[vertex_rag_data.RagEngineConfig]
         ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_rag_data_schema(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.CreateRagDataSchemaRequest],
+        Union[vertex_rag_data.RagDataSchema, Awaitable[vertex_rag_data.RagDataSchema]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_create_rag_data_schemas(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchCreateRagDataSchemasRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_rag_data_schema(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagDataSchemaRequest],
+        Union[vertex_rag_data.RagDataSchema, Awaitable[vertex_rag_data.RagDataSchema]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_rag_data_schemas(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.ListRagDataSchemasRequest],
+        Union[
+            vertex_rag_data_service.ListRagDataSchemasResponse,
+            Awaitable[vertex_rag_data_service.ListRagDataSchemasResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_rag_data_schema(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.DeleteRagDataSchemaRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_delete_rag_data_schemas(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchDeleteRagDataSchemasRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def create_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.CreateRagMetadataRequest],
+        Union[vertex_rag_data.RagMetadata, Awaitable[vertex_rag_data.RagMetadata]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_create_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchCreateRagMetadataRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def update_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.UpdateRagMetadataRequest],
+        Union[vertex_rag_data.RagMetadata, Awaitable[vertex_rag_data.RagMetadata]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def get_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.GetRagMetadataRequest],
+        Union[vertex_rag_data.RagMetadata, Awaitable[vertex_rag_data.RagMetadata]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def list_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.ListRagMetadataRequest],
+        Union[
+            vertex_rag_data_service.ListRagMetadataResponse,
+            Awaitable[vertex_rag_data_service.ListRagMetadataResponse],
+        ],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def delete_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.DeleteRagMetadataRequest],
+        Union[empty_pb2.Empty, Awaitable[empty_pb2.Empty]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def batch_delete_rag_metadata(
+        self,
+    ) -> Callable[
+        [vertex_rag_data_service.BatchDeleteRagMetadataRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
