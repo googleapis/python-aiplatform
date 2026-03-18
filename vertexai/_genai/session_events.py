@@ -30,7 +30,6 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import types
 
-
 logger = logging.getLogger("vertexai_genai.sessionevents")
 
 logger.setLevel(logging.INFO)
