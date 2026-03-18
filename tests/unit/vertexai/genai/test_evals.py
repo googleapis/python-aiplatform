@@ -1313,6 +1313,31 @@ class TestEvalsRunInference:
                         ]
                     ],
                     "response": ["agent response"],
+                    "agent_data": [
+                        {
+                            "agents": None,
+                            "turns": [
+                                {
+                                    "events": [
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "intermediate1"}]
+                                            },
+                                        },
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "agent response"}]
+                                            },
+                                        },
+                                    ],
+                                    "turn_id": "turn_0",
+                                    "turn_index": 0,
+                                }
+                            ],
+                        }
+                    ],
                 }
             ),
         )
@@ -1392,6 +1417,31 @@ class TestEvalsRunInference:
                         ]
                     ],
                     "response": ["agent response"],
+                    "agent_data": [
+                        {
+                            "agents": None,
+                            "turns": [
+                                {
+                                    "events": [
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "intermediate1"}]
+                                            },
+                                        },
+                                        {
+                                            "author": "model",
+                                            "content": {
+                                                "parts": [{"text": "agent response"}]
+                                            },
+                                        },
+                                    ],
+                                    "turn_id": "turn_0",
+                                    "turn_index": 0,
+                                }
+                            ],
+                        }
+                    ],
                 }
             ),
         )
@@ -1571,6 +1621,72 @@ class TestEvalsRunInference:
                     ],
                 ],
                 "response": ["agent response", "agent response 2"],
+                "agent_data": [
+                    {
+                        "agents": {
+                            "mock_agent": {
+                                "agent_id": "mock_agent",
+                                "agent_resource_name": None,
+                                "agent_type": "Mock",
+                                "instruction": "mock instruction",
+                                "description": "mock description",
+                                "tools": [],
+                            }
+                        },
+                        "turns": [
+                            {
+                                "events": [
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "intermediate1"}]
+                                        },
+                                    },
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "agent response"}]
+                                        },
+                                    },
+                                ],
+                                "turn_id": "turn_0",
+                                "turn_index": 0,
+                            }
+                        ],
+                    },
+                    {
+                        "agents": {
+                            "mock_agent": {
+                                "agent_id": "mock_agent",
+                                "agent_resource_name": None,
+                                "agent_type": "Mock",
+                                "instruction": "mock instruction",
+                                "description": "mock description",
+                                "tools": [],
+                            }
+                        },
+                        "turns": [
+                            {
+                                "events": [
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "intermediate2"}]
+                                        },
+                                    },
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "agent response 2"}]
+                                        },
+                                    },
+                                ],
+                                "turn_id": "turn_0",
+                                "turn_index": 0,
+                            }
+                        ],
+                    },
+                ],
             }
         )
         pd.testing.assert_frame_equal(
@@ -1952,6 +2068,31 @@ class TestRunAgentInternal:
                     ]
                 ],
                 "response": ["final response"],
+                "agent_data": [
+                    {
+                        "agents": None,
+                        "turns": [
+                            {
+                                "events": [
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "intermediate1"}]
+                                        },
+                                    },
+                                    {
+                                        "author": "model",
+                                        "content": {
+                                            "parts": [{"text": "final response"}]
+                                        },
+                                    },
+                                ],
+                                "turn_id": "turn_0",
+                                "turn_index": 0,
+                            }
+                        ],
+                    }
+                ],
             }
         )
         pd.testing.assert_frame_equal(result_df, expected_df)
@@ -2144,24 +2285,24 @@ class TestRunAgentInternal:
         assert not result_df["intermediate_events"][0]
 
 
-class TestIsMultiTurnAgentRun:
-    """Unit tests for the _is_multi_turn_agent_run function."""
+class TestIsMultiTurnAgentSimulation:
+    """Unit tests for the _is_multi_turn_agent_simulation function."""
 
-    def test_is_multi_turn_agent_run_with_config(self):
+    def test_is_multi_turn_agent_simulation_with_config(self):
         config = vertexai_genai_types.evals.UserSimulatorConfig(model_name="gemini-pro")
-        assert _evals_common._is_multi_turn_agent_run(
+        assert _evals_common._is_multi_turn_agent_simulation(
             user_simulator_config=config, prompt_dataset=pd.DataFrame()
         )
 
-    def test_is_multi_turn_agent_run_with_conversation_plan(self):
+    def test_is_multi_turn_agent_simulation_with_conversation_plan(self):
         prompt_dataset = pd.DataFrame({"conversation_plan": ["plan"]})
-        assert _evals_common._is_multi_turn_agent_run(
+        assert _evals_common._is_multi_turn_agent_simulation(
             user_simulator_config=None, prompt_dataset=prompt_dataset
         )
 
-    def test_is_multi_turn_agent_run_false(self):
+    def test_is_multi_turn_agent_simulation_false(self):
         prompt_dataset = pd.DataFrame({"prompt": ["prompt"]})
-        assert not _evals_common._is_multi_turn_agent_run(
+        assert not _evals_common._is_multi_turn_agent_simulation(
             user_simulator_config=None, prompt_dataset=prompt_dataset
         )
 
