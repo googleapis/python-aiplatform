@@ -1990,7 +1990,7 @@ class PredictionServiceAsyncClient:
                 should not be set.
             content (:class:`google.cloud.aiplatform_v1.types.Content`):
                 Required. Input content to be
-                embedded. Required.
+                embedded.
 
                 This corresponds to the ``content`` field
                 on the ``request`` instance; if ``request`` is provided, this
