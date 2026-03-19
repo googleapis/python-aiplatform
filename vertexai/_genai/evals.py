@@ -575,9 +575,7 @@ def _GenerateInstanceRubricsRequest_to_vertex(
         setv(
             to_object,
             ["rubricGenerationSpec"],
-            _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
-            ),
+            getv(from_object, ["rubric_generation_spec"]),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -768,36 +766,8 @@ def _RubricBasedMetricSpec_to_vertex(
         setv(
             to_object,
             ["rubricGenerationSpec"],
-            _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
-            ),
+            getv(from_object, ["rubric_generation_spec"]),
         )
-
-    return to_object
-
-
-def _RubricGenerationSpec_to_vertex(
-    from_object: Union[dict[str, Any], object],
-    parent_object: Optional[dict[str, Any]] = None,
-) -> dict[str, Any]:
-    to_object: dict[str, Any] = {}
-    if getv(from_object, ["prompt_template"]) is not None:
-        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
-
-    if getv(from_object, ["rubric_content_type"]) is not None:
-        setv(
-            to_object, ["rubricContentType"], getv(from_object, ["rubric_content_type"])
-        )
-
-    if getv(from_object, ["rubric_type_ontology"]) is not None:
-        setv(
-            to_object,
-            ["rubricTypeOntology"],
-            getv(from_object, ["rubric_type_ontology"]),
-        )
-
-    if getv(from_object, ["generator_model_config"]) is not None:
-        setv(to_object, ["model_config"], getv(from_object, ["generator_model_config"]))
 
     return to_object
 
@@ -1236,9 +1206,9 @@ class Evals(_api_module.BaseModule):
         *,
         contents: list[genai_types.ContentOrDict],
         predefined_rubric_generation_spec: Optional[
-            types.PredefinedMetricSpecOrDict
+            genai_types.PredefinedMetricSpecOrDict
         ] = None,
-        rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
+        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
         metric_resource_name: Optional[str] = None,
     ) -> types.GenerateInstanceRubricsResponse:
@@ -2009,7 +1979,7 @@ class Evals(_api_module.BaseModule):
                     "Could not determine metric_spec_name from predefined_spec_name"
                 )
 
-            predefined_spec = types.PredefinedMetricSpec(
+            predefined_spec = genai_types.PredefinedMetricSpec(
                 metric_spec_name=actual_predefined_spec_name,
                 metric_spec_parameters=metric_spec_parameters,
             )
@@ -2025,7 +1995,7 @@ class Evals(_api_module.BaseModule):
                 "generator_model_config": generator_model_config,
             }
             spec_dict = {k: v for k, v in spec_dict.items() if v is not None}
-            rubric_gen_spec = types.RubricGenerationSpec.model_validate(spec_dict)
+            rubric_gen_spec = genai_types.RubricGenerationSpec.model_validate(spec_dict)
         else:
             raise ValueError(
                 "Either metric, predefined_spec_name or prompt_template must be provided."
@@ -2758,9 +2728,9 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         contents: list[genai_types.ContentOrDict],
         predefined_rubric_generation_spec: Optional[
-            types.PredefinedMetricSpecOrDict
+            genai_types.PredefinedMetricSpecOrDict
         ] = None,
-        rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
+        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
         metric_resource_name: Optional[str] = None,
     ) -> types.GenerateInstanceRubricsResponse:

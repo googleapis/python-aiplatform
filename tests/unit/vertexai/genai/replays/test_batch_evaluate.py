@@ -18,11 +18,12 @@ import pytest
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 
 
 def test_batch_eval(client):
     eval_dataset = types.EvaluationDataset(
-        gcs_source=types.GcsSource(
+        gcs_source=genai_types.GcsSource(
             uris=["gs://genai-eval-sdk-replay-test/test_data/inference_results.jsonl"]
         )
     )
@@ -52,7 +53,7 @@ pytest_plugins = ("pytest_asyncio",)
 @pytest.mark.asyncio
 async def test_batch_eval_async(client):
     eval_dataset = types.EvaluationDataset(
-        gcs_source=types.GcsSource(
+        gcs_source=genai_types.GcsSource(
             uris=["gs://genai-eval-sdk-replay-test/test_data/inference_results.jsonl"]
         )
     )

@@ -1215,7 +1215,9 @@ def _execute_inference(
                     file_type="jsonl",
                 )
                 logger.info("Results saved to GCS: %s", full_dest_path)
-                evaluation_dataset.gcs_source = types.GcsSource(uris=[full_dest_path])
+                evaluation_dataset.gcs_source = genai_types.GcsSource(
+                    uris=[full_dest_path]
+                )
             else:
                 results_df.to_json(full_dest_path, orient="records", lines=True)
                 logger.info("Results saved locally to: %s", full_dest_path)
@@ -1349,8 +1351,8 @@ def _resolve_evaluation_run_metrics(
                     resolved_metrics_list.append(
                         types.EvaluationRunMetric(
                             metric=resolved_metric.name,
-                            metric_config=types.UnifiedMetric(
-                                predefined_metric_spec=types.PredefinedMetricSpec(
+                            metric_config=genai_types.UnifiedMetric(
+                                predefined_metric_spec=genai_types.PredefinedMetricSpec(
                                     metric_spec_name=resolved_metric.name,
                                 )
                             ),
@@ -1390,8 +1392,8 @@ def _resolve_evaluation_run_metrics(
                         resolved_metrics_list.append(
                             types.EvaluationRunMetric(
                                 metric=resolved_metric.name,
-                                metric_config=types.UnifiedMetric(
-                                    predefined_metric_spec=types.PredefinedMetricSpec(
+                                metric_config=genai_types.UnifiedMetric(
+                                    predefined_metric_spec=genai_types.PredefinedMetricSpec(
                                         metric_spec_name=resolved_metric.name,
                                     )
                                 ),

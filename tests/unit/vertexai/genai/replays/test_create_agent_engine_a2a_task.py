@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 import pytest
 
 
@@ -44,7 +45,7 @@ def test_create_simple_a2a_task(client):
                     role="user",
                     message_id="message123",
                     parts=[
-                        types.Part(
+                        genai_types.Part(
                             text="hello123",
                         )
                     ],
@@ -60,7 +61,7 @@ def test_create_simple_a2a_task(client):
                         display_name="display_name123",
                         description="description123",
                         parts=[
-                            types.Part(
+                            genai_types.Part(
                                 text="hello456",
                             )
                         ],
@@ -125,7 +126,7 @@ async def test_create_simple_a2a_task_async(client):
                     role="user",
                     message_id="message123",
                     parts=[
-                        types.Part(
+                        genai_types.Part(
                             text="hello123",
                         )
                     ],
@@ -141,7 +142,7 @@ async def test_create_simple_a2a_task_async(client):
                         display_name="display_name123",
                         description="description123",
                         parts=[
-                            types.Part(
+                            genai_types.Part(
                                 text="hello456",
                             )
                         ],

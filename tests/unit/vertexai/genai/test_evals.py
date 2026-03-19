@@ -136,21 +136,19 @@ def mock_eval_dependencies(mock_api_client_fixture):
                 return vertexai_genai_types.EvaluateInstancesResponse(
                     exact_match_results=vertexai_genai_types.ExactMatchResults(
                         exact_match_metric_values=[
-                            vertexai_genai_types.ExactMatchMetricValue(score=1.0)
+                            genai_types.ExactMatchMetricValue(score=1.0)
                         ]
                     )
                 )
             elif "rouge_input" in metric_config:
                 return vertexai_genai_types.EvaluateInstancesResponse(
                     rouge_results=vertexai_genai_types.RougeResults(
-                        rouge_metric_values=[
-                            vertexai_genai_types.RougeMetricValue(score=0.8)
-                        ]
+                        rouge_metric_values=[genai_types.RougeMetricValue(score=0.8)]
                     )
                 )
             elif "pointwise_metric_input" in metric_config:
                 return vertexai_genai_types.EvaluateInstancesResponse(
-                    pointwise_metric_result=vertexai_genai_types.PointwiseMetricResult(
+                    pointwise_metric_result=genai_types.PointwiseMetricResult(
                         score=0.9, explanation="Mocked LLM explanation"
                     )
                 )
@@ -678,7 +676,7 @@ class TestEvalsRunInference:
             inference_result.eval_dataset_df, expected_df_to_save
         )
         assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source == vertexai_genai_types.GcsSource(
+        assert inference_result.gcs_source == genai_types.GcsSource(
             uris=[expected_gcs_path]
         )
 
@@ -5227,7 +5225,7 @@ class TestEvalsRunEvaluation:
         input_dataset = vertexai_genai_types.EvaluationDataset(
             eval_dataset_df=dataset_df
         )
-        predefined_metric = vertexai_genai_types.PredefinedMetricSpec(
+        predefined_metric = genai_types.PredefinedMetricSpec(
             metric_spec_name="tool_search_validity"
         )
         tool = {
@@ -5825,7 +5823,7 @@ class TestEvalsRunEvaluation:
             vertexai_genai_types.EvaluateInstancesResponse(
                 exact_match_results=vertexai_genai_types.ExactMatchResults(
                     exact_match_metric_values=[
-                        vertexai_genai_types.ExactMatchMetricValue(score=1.0)
+                        genai_types.ExactMatchMetricValue(score=1.0)
                     ]
                 )
             )

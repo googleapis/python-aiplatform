@@ -176,24 +176,15 @@ from .common import BatchPredictionValidationAssessmentResultOrDict
 from .common import BigQueryRequestSet
 from .common import BigQueryRequestSetDict
 from .common import BigQueryRequestSetOrDict
-from .common import BigQuerySource
-from .common import BigQuerySourceDict
-from .common import BigQuerySourceOrDict
 from .common import BleuInput
 from .common import BleuInputDict
 from .common import BleuInputOrDict
 from .common import BleuInstance
 from .common import BleuInstanceDict
 from .common import BleuInstanceOrDict
-from .common import BleuMetricValue
-from .common import BleuMetricValueDict
-from .common import BleuMetricValueOrDict
 from .common import BleuResults
 from .common import BleuResultsDict
 from .common import BleuResultsOrDict
-from .common import Blob
-from .common import BlobDict
-from .common import BlobOrDict
 from .common import CandidateResponse
 from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
@@ -202,16 +193,9 @@ from .common import CandidateResultDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
-from .common import CodeExecutionResult
-from .common import CodeExecutionResultDict
-from .common import CodeExecutionResultOrDict
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
-from .common import ComputationBasedMetricSpec
-from .common import ComputationBasedMetricSpecDict
-from .common import ComputationBasedMetricSpecOrDict
-from .common import ComputationBasedMetricType
 from .common import ContainerSpec
 from .common import ContainerSpecDict
 from .common import ContainerSpecOrDict
@@ -269,9 +253,6 @@ from .common import CustomJobOrDict
 from .common import CustomJobSpec
 from .common import CustomJobSpecDict
 from .common import CustomJobSpecOrDict
-from .common import CustomOutput
-from .common import CustomOutputDict
-from .common import CustomOutputOrDict
 from .common import Dataset
 from .common import DatasetDict
 from .common import DatasetOperation
@@ -423,47 +404,19 @@ from .common import ExactMatchInputOrDict
 from .common import ExactMatchInstance
 from .common import ExactMatchInstanceDict
 from .common import ExactMatchInstanceOrDict
-from .common import ExactMatchMetricValue
-from .common import ExactMatchMetricValueDict
-from .common import ExactMatchMetricValueOrDict
 from .common import ExactMatchResults
 from .common import ExactMatchResultsDict
 from .common import ExactMatchResultsOrDict
 from .common import ExactMatchSpec
 from .common import ExactMatchSpecDict
 from .common import ExactMatchSpecOrDict
-from .common import ExecutableCode
-from .common import ExecutableCodeDict
-from .common import ExecutableCodeOrDict
 from .common import ExecuteCodeAgentEngineSandboxConfig
 from .common import ExecuteCodeAgentEngineSandboxConfigDict
 from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
 from .common import ExecuteSandboxEnvironmentResponse
 from .common import ExecuteSandboxEnvironmentResponseDict
 from .common import ExecuteSandboxEnvironmentResponseOrDict
-from .common import FileData
-from .common import FileDataDict
-from .common import FileDataOrDict
 from .common import Framework
-from .common import FunctionCall
-from .common import FunctionCallDict
-from .common import FunctionCallOrDict
-from .common import FunctionResponse
-from .common import FunctionResponseBlob
-from .common import FunctionResponseBlobDict
-from .common import FunctionResponseBlobOrDict
-from .common import FunctionResponseDict
-from .common import FunctionResponseFileData
-from .common import FunctionResponseFileDataDict
-from .common import FunctionResponseFileDataOrDict
-from .common import FunctionResponseOrDict
-from .common import FunctionResponsePart
-from .common import FunctionResponsePartDict
-from .common import FunctionResponsePartOrDict
-from .common import FunctionResponseScheduling
-from .common import GcsSource
-from .common import GcsSourceDict
-from .common import GcsSourceOrDict
 from .common import GeminiExample
 from .common import GeminiExampleDict
 from .common import GeminiExampleOrDict
@@ -625,9 +578,6 @@ from .common import ListReasoningEnginesResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
-from .common import LLMBasedMetricSpec
-from .common import LLMBasedMetricSpecDict
-from .common import LLMBasedMetricSpecOrDict
 from .common import LLMMetric
 from .common import LustreMount
 from .common import LustreMountDict
@@ -640,7 +590,6 @@ from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
-from .common import MediaResolution
 from .common import Memory
 from .common import MemoryBankCustomizationConfig
 from .common import MemoryBankCustomizationConfigDict
@@ -718,9 +667,6 @@ from .common import MetricSourceOrDict
 from .common import MetricxResult
 from .common import MetricxResultDict
 from .common import MetricxResultOrDict
-from .common import ModelArmorConfig
-from .common import ModelArmorConfigDict
-from .common import ModelArmorConfigOrDict
 from .common import MultimodalDataset
 from .common import MultimodalDatasetDict
 from .common import MultimodalDatasetOperation
@@ -748,39 +694,19 @@ from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
 from .common import OptimizeTarget
-from .common import Outcome
-from .common import PairwiseChoice
 from .common import PairwiseMetricInput
 from .common import PairwiseMetricInputDict
 from .common import PairwiseMetricInputOrDict
 from .common import PairwiseMetricInstance
 from .common import PairwiseMetricInstanceDict
 from .common import PairwiseMetricInstanceOrDict
-from .common import PairwiseMetricResult
-from .common import PairwiseMetricResultDict
-from .common import PairwiseMetricResultOrDict
 from .common import ParsedResponseUnion
-from .common import Part
-from .common import PartDict
-from .common import PartialArg
-from .common import PartialArgDict
-from .common import PartialArgOrDict
-from .common import PartMediaResolution
-from .common import PartMediaResolutionDict
-from .common import PartMediaResolutionOrDict
-from .common import PartOrDict
 from .common import PointwiseMetricInput
 from .common import PointwiseMetricInputDict
 from .common import PointwiseMetricInputOrDict
 from .common import PointwiseMetricInstance
 from .common import PointwiseMetricInstanceDict
 from .common import PointwiseMetricInstanceOrDict
-from .common import PointwiseMetricResult
-from .common import PointwiseMetricResultDict
-from .common import PointwiseMetricResultOrDict
-from .common import PredefinedMetricSpec
-from .common import PredefinedMetricSpecDict
-from .common import PredefinedMetricSpecOrDict
 from .common import Prompt
 from .common import PromptData
 from .common import PromptDataDict
@@ -821,9 +747,6 @@ from .common import QueryAgentEngineConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
-from .common import RawOutput
-from .common import RawOutputDict
-from .common import RawOutputOrDict
 from .common import ReasoningEngine
 from .common import ReasoningEngineContextSpec
 from .common import ReasoningEngineContextSpecDict
@@ -923,9 +846,6 @@ from .common import RougeInputOrDict
 from .common import RougeInstance
 from .common import RougeInstanceDict
 from .common import RougeInstanceOrDict
-from .common import RougeMetricValue
-from .common import RougeMetricValueDict
-from .common import RougeMetricValueOrDict
 from .common import RougeResults
 from .common import RougeResultsDict
 from .common import RougeResultsOrDict
@@ -946,7 +866,6 @@ from .common import RubricContent
 from .common import RubricContentDict
 from .common import RubricContentProperty
 from .common import RubricContentPropertyDict
-from .common import RubricContentType
 from .common import RubricDict
 from .common import RubricEnhancedContents
 from .common import RubricEnhancedContentsDict
@@ -954,9 +873,6 @@ from .common import RubricEnhancedContentsOrDict
 from .common import RubricGenerationConfig
 from .common import RubricGenerationConfigDict
 from .common import RubricGenerationConfigOrDict
-from .common import RubricGenerationSpec
-from .common import RubricGenerationSpecDict
-from .common import RubricGenerationSpecOrDict
 from .common import RubricGroup
 from .common import RubricGroupDict
 from .common import RubricGroupOrDict
@@ -1200,9 +1116,6 @@ from .common import UpdateMultimodalDatasetConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
-from .common import VideoMetadata
-from .common import VideoMetadataDict
-from .common import VideoMetadataOrDict
 from .common import WinRateStats
 from .common import WinRateStatsDict
 from .common import WinRateStatsOrDict
@@ -1214,45 +1127,6 @@ __all__ = [
     "GetAgentEngineTaskConfig",
     "GetAgentEngineTaskConfigDict",
     "GetAgentEngineTaskConfigOrDict",
-    "PartMediaResolution",
-    "PartMediaResolutionDict",
-    "PartMediaResolutionOrDict",
-    "CodeExecutionResult",
-    "CodeExecutionResultDict",
-    "CodeExecutionResultOrDict",
-    "ExecutableCode",
-    "ExecutableCodeDict",
-    "ExecutableCodeOrDict",
-    "FileData",
-    "FileDataDict",
-    "FileDataOrDict",
-    "PartialArg",
-    "PartialArgDict",
-    "PartialArgOrDict",
-    "FunctionCall",
-    "FunctionCallDict",
-    "FunctionCallOrDict",
-    "FunctionResponseBlob",
-    "FunctionResponseBlobDict",
-    "FunctionResponseBlobOrDict",
-    "FunctionResponseFileData",
-    "FunctionResponseFileDataDict",
-    "FunctionResponseFileDataOrDict",
-    "FunctionResponsePart",
-    "FunctionResponsePartDict",
-    "FunctionResponsePartOrDict",
-    "FunctionResponse",
-    "FunctionResponseDict",
-    "FunctionResponseOrDict",
-    "Blob",
-    "BlobDict",
-    "BlobOrDict",
-    "VideoMetadata",
-    "VideoMetadataDict",
-    "VideoMetadataOrDict",
-    "Part",
-    "PartDict",
-    "PartOrDict",
     "TaskArtifact",
     "TaskArtifactDict",
     "TaskArtifactOrDict",
@@ -1337,21 +1211,9 @@ __all__ = [
     "CreateEvaluationMetricConfig",
     "CreateEvaluationMetricConfigDict",
     "CreateEvaluationMetricConfigOrDict",
-    "PredefinedMetricSpec",
-    "PredefinedMetricSpecDict",
-    "PredefinedMetricSpecOrDict",
-    "RubricGenerationSpec",
-    "RubricGenerationSpecDict",
-    "RubricGenerationSpecOrDict",
-    "LLMBasedMetricSpec",
-    "LLMBasedMetricSpecDict",
-    "LLMBasedMetricSpecOrDict",
     "CustomCodeExecutionSpec",
     "CustomCodeExecutionSpecDict",
     "CustomCodeExecutionSpecOrDict",
-    "ComputationBasedMetricSpec",
-    "ComputationBasedMetricSpecDict",
-    "ComputationBasedMetricSpecOrDict",
     "UnifiedMetric",
     "UnifiedMetricDict",
     "UnifiedMetricOrDict",
@@ -1415,12 +1277,6 @@ __all__ = [
     "EvalCase",
     "EvalCaseDict",
     "EvalCaseOrDict",
-    "BigQuerySource",
-    "BigQuerySourceDict",
-    "BigQuerySourceOrDict",
-    "GcsSource",
-    "GcsSourceDict",
-    "GcsSourceOrDict",
     "EvaluationDataset",
     "EvaluationDatasetDict",
     "EvaluationDatasetOrDict",
@@ -1538,45 +1394,24 @@ __all__ = [
     "MetricResult",
     "MetricResultDict",
     "MetricResultOrDict",
-    "RubricBasedMetricResult",
-    "RubricBasedMetricResultDict",
-    "RubricBasedMetricResultOrDict",
-    "BleuMetricValue",
-    "BleuMetricValueDict",
-    "BleuMetricValueOrDict",
     "BleuResults",
     "BleuResultsDict",
     "BleuResultsOrDict",
-    "CometResult",
-    "CometResultDict",
-    "CometResultOrDict",
-    "ExactMatchMetricValue",
-    "ExactMatchMetricValueDict",
-    "ExactMatchMetricValueOrDict",
     "ExactMatchResults",
     "ExactMatchResultsDict",
     "ExactMatchResultsOrDict",
-    "MetricxResult",
-    "MetricxResultDict",
-    "MetricxResultOrDict",
-    "RawOutput",
-    "RawOutputDict",
-    "RawOutputOrDict",
-    "CustomOutput",
-    "CustomOutputDict",
-    "CustomOutputOrDict",
-    "PairwiseMetricResult",
-    "PairwiseMetricResultDict",
-    "PairwiseMetricResultOrDict",
-    "PointwiseMetricResult",
-    "PointwiseMetricResultDict",
-    "PointwiseMetricResultOrDict",
-    "RougeMetricValue",
-    "RougeMetricValueDict",
-    "RougeMetricValueOrDict",
     "RougeResults",
     "RougeResultsDict",
     "RougeResultsOrDict",
+    "RubricBasedMetricResult",
+    "RubricBasedMetricResultDict",
+    "RubricBasedMetricResultOrDict",
+    "CometResult",
+    "CometResultDict",
+    "CometResultOrDict",
+    "MetricxResult",
+    "MetricxResultDict",
+    "MetricxResultOrDict",
     "ToolCallValidMetricValue",
     "ToolCallValidMetricValueDict",
     "ToolCallValidMetricValueOrDict",
@@ -2009,9 +1844,6 @@ __all__ = [
     "ListAgentEngineSessionEventsResponse",
     "ListAgentEngineSessionEventsResponseDict",
     "ListAgentEngineSessionEventsResponseOrDict",
-    "ModelArmorConfig",
-    "ModelArmorConfigDict",
-    "ModelArmorConfigOrDict",
     "GeminiExample",
     "GeminiExampleDict",
     "GeminiExampleOrDict",
@@ -2253,13 +2085,7 @@ __all__ = [
     "OptimizeJobConfigDict",
     "OptimizeJobConfigOrDict",
     "A2aTaskState",
-    "MediaResolution",
-    "Outcome",
-    "Language",
-    "FunctionResponseScheduling",
     "State",
-    "ComputationBasedMetricType",
-    "PairwiseChoice",
     "Strategy",
     "AcceleratorType",
     "Type",
@@ -2268,10 +2094,10 @@ __all__ = [
     "AgentServerMode",
     "ManagedTopicEnum",
     "Operator",
+    "Language",
     "MachineConfig",
     "Framework",
     "EvaluationItemType",
-    "RubricContentType",
     "SamplingMethod",
     "EvaluationRunState",
     "OptimizeTarget",
