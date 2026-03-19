@@ -5857,6 +5857,95 @@ class SecretEnvVarDict(TypedDict, total=False):
 SecretEnvVarOrDict = Union[SecretEnvVar, SecretEnvVarDict]
 
 
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(
+    _common.BaseModel
+):
+    """Configuration for traffic targeting a Reasoning Engine."""
+
+    agent_gateway: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Agent Gateway to use for inbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `CLIENT_TO_AGENT`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for traffic targeting a Reasoning Engine."""
+
+    agent_gateway: Optional[str]
+    """Required. The resource name of the Agent Gateway to use for inbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `CLIENT_TO_AGENT`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`"""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict,
+]
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(
+    _common.BaseModel
+):
+    """Configuration for traffic originating from a Reasoning Engine."""
+
+    agent_gateway: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Agent Gateway for outbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `AGENT_TO_ANYWHERE`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for traffic originating from a Reasoning Engine."""
+
+    agent_gateway: Optional[str]
+    """Required. The resource name of the Agent Gateway for outbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `AGENT_TO_ANYWHERE`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`"""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict,
+]
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfig(_common.BaseModel):
+    """FUCK."""
+
+    client_to_agent_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for traffic targeting the Reasoning Engine. When unset, incoming traffic is not routed through an Agent Gateway.""",
+    )
+    agent_to_anywhere_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for traffic originating from the Reasoning Engine. When unset, outgoing traffic is not routed through an Agent Gateway.""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict(TypedDict, total=False):
+    """FUCK."""
+
+    client_to_agent_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict
+    ]
+    """Optional. Configuration for traffic targeting the Reasoning Engine. When unset, incoming traffic is not routed through an Agent Gateway."""
+
+    agent_to_anywhere_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict
+    ]
+    """Optional. Configuration for traffic originating from the Reasoning Engine. When unset, outgoing traffic is not routed through an Agent Gateway."""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict,
+]
+
+
 class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     """The specification of a Reasoning Engine deployment."""
 
@@ -5890,6 +5979,12 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
         default=None,
         description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Agent Gateway configuration for the Reasoning Engine deployment.""",
+    )
 
 
 class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
@@ -5918,6 +6013,11 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
 
     secret_env: Optional[list[SecretEnvVarDict]]
     """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Optional. Agent Gateway configuration for the Reasoning Engine deployment."""
 
 
 ReasoningEngineSpecDeploymentSpecOrDict = Union[
@@ -6953,6 +7053,9 @@ class CreateAgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(default=None, description="""Optional. FUCK.""")
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -7083,6 +7186,11 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Optional. FUCK."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -7726,6 +7834,9 @@ class UpdateAgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(default=None, description="""Optional. FUCK.""")
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -7861,6 +7972,11 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Optional. FUCK."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see

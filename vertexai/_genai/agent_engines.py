@@ -110,6 +110,13 @@ def _CreateAgentEngineConfig_to_vertex(
     if getv(from_object, ["python_version"]) is not None:
         setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
 
+    if getv(from_object, ["agent_gateway_config"]) is not None:
+        setv(
+            parent_object,
+            ["agentGatewayConfig"],
+            getv(from_object, ["agent_gateway_config"]),
+        )
+
     return to_object
 
 
@@ -283,6 +290,13 @@ def _UpdateAgentEngineConfig_to_vertex(
 
     if getv(from_object, ["python_version"]) is not None:
         setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
+
+    if getv(from_object, ["agent_gateway_config"]) is not None:
+        setv(
+            parent_object,
+            ["agentGatewayConfig"],
+            getv(from_object, ["agent_gateway_config"]),
+        )
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(

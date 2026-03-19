@@ -776,6 +776,27 @@ from .common import ReasoningEngineDict
 from .common import ReasoningEngineOrDict
 from .common import ReasoningEngineSpec
 from .common import ReasoningEngineSpecDeploymentSpec
+from .common import ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict,
+)
+from .common import ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+from .common import ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict
 from .common import ReasoningEngineSpecDeploymentSpecDict
 from .common import ReasoningEngineSpecDeploymentSpecOrDict
 from .common import ReasoningEngineSpecDict
@@ -1526,6 +1547,15 @@ __all__ = [
     "SecretEnvVar",
     "SecretEnvVarDict",
     "SecretEnvVarOrDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfig",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict",
     "ReasoningEngineSpecDeploymentSpec",
     "ReasoningEngineSpecDeploymentSpecDict",
     "ReasoningEngineSpecDeploymentSpecOrDict",
