@@ -17,8 +17,8 @@
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
 from google.genai import types as genai_types
-import pytest
 import pandas as pd
+import pytest
 
 GCS_DEST = "gs://lakeyk-limited-bucket/eval_run_output"
 GENERAL_QUALITY_METRIC = types.EvaluationRunMetric(
@@ -42,7 +42,7 @@ LLM_METRIC = types.EvaluationRunMetric(
     metric_config=types.UnifiedMetric(
         llm_based_metric_spec=genai_types.LLMBasedMetricSpec(
             metric_prompt_template=(
-                "\nEvaluate the fluency of the response. Provide a score from 1-5."
+                "\nEvaluate the fluency of the response. Provide a score from" " 1-5."
             )
         )
     ),
@@ -80,7 +80,7 @@ TOOL = genai_types.Tool(
     ]
 )
 AGENT_INFO = types.evals.AgentInfo(
-    agent_resource_name="projects/123/locations/us-central1/reasoningEngines/456",
+    agent_resource_name=("projects/123/locations/us-central1/reasoningEngines/456"),
     name="agent-1",
     agents={
         "agent-1": types.evals.AgentConfig(
@@ -147,6 +147,10 @@ def test_create_eval_run_data_source_evaluation_set(client):
         AGENT_INFO.name
     ] == types.EvaluationRunInferenceConfig(
         agent_configs=AGENT_INFO.agents,
+        agent_run_config=types.AgentRunConfig(
+            agent_engine=AGENT_INFO.agent_resource_name,
+            user_simulator_config={"max_turn": 5},
+        ),
     )
     assert evaluation_run.labels == {
         "vertex-ai-evaluation-agent-engine-id": "456",
@@ -198,6 +202,53 @@ def test_create_eval_run_data_source_bigquery_request_set(client):
     )
     assert evaluation_run.inference_configs is None
     assert evaluation_run.labels == {
+        "label1": "value1",
+    }
+    assert evaluation_run.error is None
+
+
+def test_create_eval_run_with_user_simulator_config(client):
+    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with user_simulator_config."""
+    client._api_client._http_options.api_version = "v1beta1"
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_user_simulator_config",
+        display_name="test_user_simulator_config",
+        dataset=types.EvaluationRunDataSource(
+            evaluation_set="projects/977012026409/locations/us-central1/evaluationSets/3885168317211607040"
+        ),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        agent_info=AGENT_INFO,
+        user_simulator_config=types.evals.UserSimulatorConfig(
+            max_turn=5,
+        ),
+        labels={"label1": "value1"},
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_user_simulator_config"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+    assert (
+        evaluation_run.data_source.evaluation_set
+        == "projects/977012026409/locations/us-central1/evaluationSets/3885168317211607040"
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+        ),
+        metrics=[GENERAL_QUALITY_METRIC],
+    )
+    assert evaluation_run.inference_configs[
+        AGENT_INFO.name
+    ] == types.EvaluationRunInferenceConfig(
+        agent_configs=AGENT_INFO.agents,
+        agent_run_config=types.AgentRunConfig(
+            agent_engine=AGENT_INFO.agent_resource_name,
+            user_simulator_config=types.evals.UserSimulatorConfig(max_turn=5),
+        ),
+    )
+    assert evaluation_run.labels == {
+        "vertex-ai-evaluation-agent-engine-id": "456",
         "label1": "value1",
     }
     assert evaluation_run.error is None
@@ -666,6 +717,54 @@ async def test_create_eval_run_async(client):
     assert evaluation_run.inference_configs is None
     assert evaluation_run.error is None
     assert evaluation_run.labels is None
+    assert evaluation_run.error is None
+
+
+@pytest.mark.asyncio
+async def test_create_eval_run_async_with_user_simulator_config(client):
+    """Tests that create_evaluation_run() creates a correctly structured EvaluationRun with user_simulator_config asynchronously."""
+    client._api_client._http_options.api_version = "v1beta1"
+    evaluation_run = await client.aio.evals.create_evaluation_run(
+        name="test_user_simulator_config_async",
+        display_name="test_user_simulator_config_async",
+        dataset=types.EvaluationRunDataSource(
+            evaluation_set="projects/977012026409/locations/us-central1/evaluationSets/3885168317211607040"
+        ),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        agent_info=AGENT_INFO,
+        user_simulator_config=types.evals.UserSimulatorConfig(
+            max_turn=5,
+        ),
+        labels={"label1": "value1"},
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_user_simulator_config_async"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert isinstance(evaluation_run.data_source, types.EvaluationRunDataSource)
+    assert (
+        evaluation_run.data_source.evaluation_set
+        == "projects/977012026409/locations/us-central1/evaluationSets/3885168317211607040"
+    )
+    assert evaluation_run.evaluation_config == types.EvaluationRunConfig(
+        output_config=genai_types.OutputConfig(
+            gcs_destination=genai_types.GcsDestination(output_uri_prefix=GCS_DEST)
+        ),
+        metrics=[GENERAL_QUALITY_METRIC],
+    )
+    assert evaluation_run.inference_configs[
+        AGENT_INFO.name
+    ] == types.EvaluationRunInferenceConfig(
+        agent_configs=AGENT_INFO.agents,
+        agent_run_config=types.AgentRunConfig(
+            agent_engine=AGENT_INFO.agent_resource_name,
+            user_simulator_config=types.evals.UserSimulatorConfig(max_turn=5),
+        ),
+    )
+    assert evaluation_run.labels == {
+        "label1": "value1",
+        "vertex-ai-evaluation-agent-engine-id": "456",
+    }
     assert evaluation_run.error is None
 
 

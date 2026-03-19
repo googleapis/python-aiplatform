@@ -283,15 +283,66 @@ def _resolve_dataset(
     api_client: BaseApiClient,
     dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
     dest: str,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> types.EvaluationRunDataSource:
     """Resolves dataset for the evaluation run."""
     if isinstance(dataset, types.EvaluationDataset):
-        candidate_name = _get_candidate_name(dataset, agent_info_pydantic)
+        candidate_name = _get_candidate_name(dataset, parsed_agent_info)
+        eval_df = dataset.eval_dataset_df
+        if eval_df is None and dataset.eval_cases:
+            rows = []
+            for case in dataset.eval_cases:
+                row: dict[str, Any] = {}
+                if case.prompt:
+                    row[_evals_constant.PROMPT] = (
+                        _evals_data_converters._get_content_text(case.prompt)
+                    )
+
+                if (
+                    case.responses
+                    and len(case.responses) > 0
+                    and case.responses[0].response
+                ):
+                    row[_evals_constant.RESPONSE] = (
+                        _evals_data_converters._get_content_text(
+                            case.responses[0].response
+                        )
+                    )
+
+                if case.reference and case.reference.response:
+                    row[_evals_constant.REFERENCE] = (
+                        _evals_data_converters._get_content_text(
+                            case.reference.response
+                        )
+                    )
+
+                if case.agent_data:
+                    row[AGENT_DATA] = case.agent_data
+
+                if case.intermediate_events:
+                    row[_evals_constant.INTERMEDIATE_EVENTS] = [
+                        {CONTENT: event.content}
+                        for event in case.intermediate_events
+                        if event.content
+                    ]
+
+                if case.user_scenario:
+                    if case.user_scenario.starting_prompt:
+                        row[_evals_constant.STARTING_PROMPT] = (
+                            case.user_scenario.starting_prompt
+                        )
+                    if case.user_scenario.conversation_plan:
+                        row[_evals_constant.CONVERSATION_PLAN] = (
+                            case.user_scenario.conversation_plan
+                        )
+
+                rows.append(row)
+            eval_df = pd.DataFrame(rows)
+
         eval_set = _create_evaluation_set_from_dataframe(
             api_client,
             dest,
-            dataset.eval_dataset_df,
+            eval_df,
             candidate_name,
         )
         dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
@@ -339,15 +390,34 @@ def _resolve_inference_configs(
     inference_configs: Optional[
         dict[str, types.EvaluationRunInferenceConfigOrDict]
     ] = None,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> Optional[dict[str, types.EvaluationRunInferenceConfigOrDict]]:
     """Resolves inference configs for the evaluation run."""
     # Resolve agent config
-    if agent_info_pydantic and agent_info_pydantic.name:
-        inference_configs = {}
-        inference_configs[agent_info_pydantic.name] = (
-            types.EvaluationRunInferenceConfig(agent_configs=agent_info_pydantic.agents)
-        )
+    if parsed_agent_info and parsed_agent_info.name:
+        if inference_configs is None:
+            inference_configs = {}
+
+        # We might have used "candidate-1" as a placeholder key in the caller,
+        # let's migrate it to the agent name, or if it doesn't exist, just create it.
+        if "candidate-1" in inference_configs:
+            inference_configs[parsed_agent_info.name] = inference_configs.pop(
+                "candidate-1"
+            )
+
+        if parsed_agent_info.name not in inference_configs:
+            inference_configs[parsed_agent_info.name] = (
+                types.EvaluationRunInferenceConfig(
+                    agent_configs=parsed_agent_info.agents
+                )
+            )
+        else:
+            config = inference_configs[parsed_agent_info.name]
+            if isinstance(config, dict):
+                config["agent_configs"] = parsed_agent_info.agents
+            else:
+                config.agent_configs = parsed_agent_info.agents
+
     # Resolve prompt template data
     if inference_configs:
         for inference_config in inference_configs.values():
@@ -381,33 +451,33 @@ def _resolve_inference_configs(
 
 def _add_evaluation_run_labels(
     labels: Optional[dict[str, str]] = None,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> Optional[dict[str, str]]:
     """Adds labels to the evaluation run."""
-    if agent_info_pydantic and agent_info_pydantic.agent_resource_name:
+    if parsed_agent_info and parsed_agent_info.agent_resource_name:
         labels = labels or {}
         labels["vertex-ai-evaluation-agent-engine-id"] = (
-            agent_info_pydantic.agent_resource_name.split("reasoningEngines/")[-1]
+            parsed_agent_info.agent_resource_name.split("reasoningEngines/")[-1]
         )
     return labels
 
 
 def _get_candidate_name(
     dataset: types.EvaluationDataset,
-    agent_info_pydantic: Optional[types.evals.AgentInfo] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> Optional[str]:
     """Internal helper to get candidate name."""
-    if agent_info_pydantic is not None and (
+    if parsed_agent_info is not None and (
         dataset.candidate_name
-        and agent_info_pydantic
-        and agent_info_pydantic.name
-        and dataset.candidate_name != agent_info_pydantic.name
+        and parsed_agent_info
+        and parsed_agent_info.name
+        and dataset.candidate_name != parsed_agent_info.name
     ):
         logger.warning(
             "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
         )
-    elif dataset.candidate_name is None and agent_info_pydantic:
-        return agent_info_pydantic.name
+    elif dataset.candidate_name is None and parsed_agent_info:
+        return parsed_agent_info.name
     return dataset.candidate_name or None
 
 
@@ -2406,10 +2476,21 @@ def _create_evaluation_set_from_dataframe(
 
         candidate_responses = []
         if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
+            # Resolve the oneof conflict: prioritize agent_data over flat text
+            response_text = row.get(_evals_constant.RESPONSE) or None
+
+            if agent_data_obj and response_text:
+                logger.info(
+                    "Both 'response' and 'agent_data' columns found in the evaluation dataset. "
+                    "Prioritizing 'agent_data' and omitting 'response' text to satisfy "
+                    "CandidateResponse protobuf oneof constraints."
+                )
+                response_text = None
+
             candidate_responses.append(
                 types.CandidateResponse(
                     candidate=candidate_name or "Candidate 1",
-                    text=row.get(_evals_constant.RESPONSE) or None,
+                    text=response_text,
                     events=intermediate_events or None,
                     agent_data=agent_data_obj,
                 )

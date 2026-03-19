@@ -2099,6 +2099,7 @@ class Evals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfoOrDict] = None,
+        user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -2113,10 +2114,16 @@ class Evals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          agent_info: The agent info to evaluate.
+          agent_info: The agent info to evaluate. Mutually exclusive with
+              `inference_configs`.
+          user_simulator_config: The user simulator configuration for agent evaluation.
+              If `agent_info` is provided without `inference_configs`, this config is used
+              to automatically construct the inference configuration. If not specified,
+              or if `max_turn` is not set, `max_turn` defaults to 5.
           inference_configs: The candidate to inference config map for the evaluation run.
               The key is the candidate name, and the value is the inference config.
-              If provided, agent_info must be None.
+              If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
+              this will be automatically constructed using `agent_info` and `user_simulator_config`.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
@@ -2134,6 +2141,27 @@ class Evals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+
+        if agent_info and not inference_configs:
+            parsed_user_simulator_config = (
+                evals_types.UserSimulatorConfig.model_validate(user_simulator_config)
+                if isinstance(user_simulator_config, dict)
+                else (user_simulator_config or evals_types.UserSimulatorConfig())
+            )
+            if getattr(parsed_user_simulator_config, "max_turn", None) is None:
+                parsed_user_simulator_config.max_turn = 5
+
+            candidate_name = parsed_agent_info.name or "candidate-1"
+            inference_configs = {
+                candidate_name: types.EvaluationRunInferenceConfig(
+                    agent_configs=parsed_agent_info.agents,
+                    agent_run_config=types.AgentRunConfig(
+                        agent_engine=parsed_agent_info.agent_resource_name,
+                        user_simulator_config=parsed_user_simulator_config,
+                    ),
+                )
+            }
+
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
@@ -3277,6 +3305,7 @@ class AsyncEvals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfo] = None,
+        user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
@@ -3291,10 +3320,16 @@ class AsyncEvals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          agent_info: The agent info to evaluate.
+          agent_info: The agent info to evaluate. Mutually exclusive with
+              `inference_configs`.
+          user_simulator_config: The user simulator configuration for agent evaluation.
+              If `agent_info` is provided without `inference_configs`, this config is used
+              to automatically construct the inference configuration. If not specified,
+              or if `max_turn` is not set, `max_turn` defaults to 5.
           inference_configs: The candidate to inference config map for the evaluation run.
               The key is the candidate name, and the value is the inference config.
-              If provided, agent_info must be None.
+              If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
+              this will be automatically constructed using `agent_info` and `user_simulator_config`.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
@@ -3312,6 +3347,27 @@ class AsyncEvals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+
+        if agent_info and not inference_configs:
+            parsed_user_simulator_config = (
+                evals_types.UserSimulatorConfig.model_validate(user_simulator_config)
+                if isinstance(user_simulator_config, dict)
+                else (user_simulator_config or evals_types.UserSimulatorConfig())
+            )
+            if getattr(parsed_user_simulator_config, "max_turn", None) is None:
+                parsed_user_simulator_config.max_turn = 5
+
+            candidate_name = parsed_agent_info.name or "candidate-1"
+            inference_configs = {
+                candidate_name: types.EvaluationRunInferenceConfig(
+                    agent_configs=parsed_agent_info.agents,
+                    agent_run_config=types.AgentRunConfig(
+                        agent_engine=parsed_agent_info.agent_resource_name,
+                        user_simulator_config=parsed_user_simulator_config,
+                    ),
+                )
+            }
+
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
