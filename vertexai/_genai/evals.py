@@ -2129,7 +2129,7 @@ class Evals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        agent_info_pydantic = (
+        parsed_agent_info = (
             evals_types.AgentInfo.model_validate(agent_info)
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
@@ -2137,7 +2137,7 @@ class Evals(_api_module.BaseModule):
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
-            self._api_client, dataset, dest, agent_info_pydantic
+            self._api_client, dataset, dest, parsed_agent_info
         )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
@@ -2149,10 +2149,10 @@ class Evals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, parsed_agent_info
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
-            labels, agent_info_pydantic
+            labels, parsed_agent_info
         )
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
         return self._create_evaluation_run(
@@ -2306,26 +2306,29 @@ class Evals(_api_module.BaseModule):
     def generate_user_scenarios(
         self,
         *,
-        agents: dict[str, evals_types.AgentConfigOrDict],
+        agent_info: evals_types.AgentInfoOrDict,
         user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
-        root_agent_id: str,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
            and the agent under test.
 
         Args:
-            agents: A map of agent ID to AgentConfig.
+            agent_info: The agent info to generate user scenarios for.
             user_scenario_generation_config: Configuration for generating user scenarios.
-            root_agent_id: The ID of the root agent.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
         """
+        parsed_agent_info = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else agent_info
+        )
         response = self._generate_user_scenarios(
-            agents=agents,
+            agents=parsed_agent_info.agents,
+            root_agent_id=parsed_agent_info.root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
-            root_agent_id=root_agent_id,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
@@ -3304,7 +3307,7 @@ class AsyncEvals(_api_module.BaseModule):
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
             )
-        agent_info_pydantic = (
+        parsed_agent_info = (
             evals_types.AgentInfo.model_validate(agent_info)
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
@@ -3312,7 +3315,7 @@ class AsyncEvals(_api_module.BaseModule):
         if isinstance(dataset, types.EvaluationDataset):
             _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
         resolved_dataset = _evals_common._resolve_dataset(
-            self._api_client, dataset, dest, agent_info_pydantic
+            self._api_client, dataset, dest, parsed_agent_info
         )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
@@ -3324,10 +3327,10 @@ class AsyncEvals(_api_module.BaseModule):
             output_config=output_config, metrics=resolved_metrics
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
-            self._api_client, resolved_dataset, inference_configs, agent_info_pydantic
+            self._api_client, resolved_dataset, inference_configs, parsed_agent_info
         )
         resolved_labels = _evals_common._add_evaluation_run_labels(
-            labels, agent_info_pydantic
+            labels, parsed_agent_info
         )
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
 
@@ -3488,26 +3491,29 @@ class AsyncEvals(_api_module.BaseModule):
     async def generate_user_scenarios(
         self,
         *,
-        agents: dict[str, evals_types.AgentConfigOrDict],
+        agent_info: evals_types.AgentInfoOrDict,
         user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
-        root_agent_id: str,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
            and the agent under test.
 
         Args:
-            agents: A map of agent ID to AgentConfig.
+            agent_info: The agent info to generate user scenarios for.
             user_scenario_generation_config: Configuration for generating user scenarios.
-            root_agent_id: The ID of the root agent.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
         """
+        parsed_agent_info = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else agent_info
+        )
         response = await self._generate_user_scenarios(
-            agents=agents,
+            agents=parsed_agent_info.agents,
+            root_agent_id=parsed_agent_info.root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
-            root_agent_id=root_agent_id,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 

@@ -6213,9 +6213,8 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 
         eval_dataset = evals_module.generate_user_scenarios(
-            agents={"agent_1": {}},
+            agent_info={"agents": {"agent_1": {}}, "root_agent_id": "agent_1"},
             user_scenario_generation_config={"user_scenario_count": 2},
-            root_agent_id="agent_1",
         )
         assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
         assert len(eval_dataset.eval_cases) == 2
@@ -6243,9 +6242,8 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
 
         eval_dataset = await async_evals_module.generate_user_scenarios(
-            agents={"agent_1": {}},
+            agent_info={"agents": {"agent_1": {}}, "root_agent_id": "agent_1"},
             user_scenario_generation_config={"user_scenario_count": 2},
-            root_agent_id="agent_1",
         )
         assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
         assert len(eval_dataset.eval_cases) == 2
