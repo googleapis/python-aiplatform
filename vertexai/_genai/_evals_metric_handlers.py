@@ -1281,66 +1281,91 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
         )
 
 
-class RegisteredMetricHandler(MetricHandler[types.MetricSource]):
+class RegisteredMetricHandler(MetricHandler[types.Metric]):
     """Metric handler for registered metrics."""
 
     def __init__(
         self,
         module: "evals.Evals",
-        metric: Union[types.MetricSource, types.MetricSourceDict],
+        metric: types.Metric,
     ):
         if isinstance(metric, dict):
             metric = types.MetricSource(**metric)
         super().__init__(module=module, metric=metric)
 
-    # TODO: b/489823454 - Unify _build_request_payload with PredefinedMetricHandler.
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int
     ) -> dict[str, Any]:
-        """Builds request payload for registered metric."""
-        if not self.metric.metric:
+        """Builds request payload for registered metric by assembling EvaluationInstance."""
+        response_content = _get_response_from_eval_case(
+            eval_case, response_index, self.metric_name
+        )
+
+        if not response_content and not getattr(eval_case, "agent_data", None):
             raise ValueError(
-                "Registered metric must have an underlying metric definition."
+                f"Response content missing for candidate {response_index}."
             )
-        return PredefinedMetricHandler(
-            self.module, metric=self.metric.metric
-        )._build_request_payload(eval_case, response_index)
+
+        reference_instance_data = None
+        if eval_case.reference:
+            reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
+                eval_case.reference.response
+            )
+
+        extracted_prompt = _get_prompt_from_eval_case(eval_case)
+        prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
+            extracted_prompt
+        )
+
+        instance_payload = types.EvaluationInstance(
+            prompt=prompt_instance_data,
+            response=PredefinedMetricHandler._content_to_instance_data(
+                response_content
+            ),
+            reference=reference_instance_data,
+            rubric_groups=eval_case.rubric_groups,
+            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
+        )
+
+        request_payload = {
+            "instance": instance_payload,
+        }
+        return request_payload
 
     @property
     def metric_name(self) -> str:
-        # Resolve name from resource name or internal metric name
-        if isinstance(self.metric, types.MetricSource):
-            if self.metric.metric and self.metric.metric.name:
-                return self.metric.metric.name
-            if self.metric.metric_resource_name:
-                return self.metric.metric_resource_name
-            return "unknown"
-        else:  # Should be Metric
-            metric_like = self.metric
-            if metric_like.name:
-                return metric_like.name
-            if metric_like.metric_resource_name:
-                return metric_like.metric_resource_name
-            return "unknown"
+        return self.metric.name or "unknown_metric"
 
     @override
     def get_metric_result(
         self, eval_case: types.EvalCase, response_index: int
     ) -> types.EvalCaseMetricResult:
-        """Processes a single evaluation case for a registered metric."""
+        """Processes a single evaluation case using a MetricSource reference."""
         metric_name = self.metric_name
+        metric_source = types.MetricSource(
+            metric_resource_name=self.metric.metric_resource_name
+        )
+
         try:
             payload = self._build_request_payload(eval_case, response_index)
             for attempt in range(_MAX_RETRIES):
                 try:
                     api_response = self.module._evaluate_instances(
-                        metric_sources=[self.metric],
+                        metric_sources=[metric_source],
                         instance=payload.get("instance"),
                         autorater_config=payload.get("autorater_config"),
                     )
                     break
                 except genai_errors.ClientError as e:
                     if e.code == 429:
+                        logger.warning(
+                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
+                            " seconds...",
+                            attempt + 1,
+                            _MAX_RETRIES,
+                            e,
+                            2**attempt,
+                        )
                         if attempt == _MAX_RETRIES - 1:
                             return types.EvalCaseMetricResult(
                                 metric_name=metric_name,
@@ -1377,7 +1402,6 @@ class RegisteredMetricHandler(MetricHandler[types.MetricSource]):
         self, eval_case_metric_results: list[types.EvalCaseMetricResult]
     ) -> types.AggregatedMetricResult:
         """Aggregates the metric results for a registered metric."""
-        logger.debug("Aggregating results for registered metric: %s", self.metric_name)
         return _default_aggregate_scores(
             self.metric_name, eval_case_metric_results, calculate_pass_rate=True
         )

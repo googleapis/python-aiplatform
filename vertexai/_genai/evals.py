@@ -79,7 +79,11 @@ def _CreateEvaluationMetricParameters_to_vertex(
         setv(to_object, ["description"], getv(from_object, ["description"]))
 
     if getv(from_object, ["metric"]) is not None:
-        setv(to_object, ["metric"], t.t_metric(getv(from_object, ["metric"])))
+        setv(
+            to_object,
+            ["metric"],
+            t.t_metric_for_registry(getv(from_object, ["metric"])),
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -2346,6 +2350,13 @@ class Evals(_api_module.BaseModule):
             )
             metric = resolved_metrics[0]
 
+        # Add fallback logic for display_name
+        if display_name is None and metric:
+            if isinstance(metric, dict):
+                display_name = metric.get("name")
+            else:
+                display_name = getattr(metric, "name", None)
+
         result = self._create_evaluation_metric(
             display_name=display_name,
             description=description,
@@ -3518,6 +3529,13 @@ class AsyncEvals(_api_module.BaseModule):
                 [metric], self._api_client
             )
             metric = resolved_metrics[0]
+
+        # Add fallback logic for display_name
+        if display_name is None and metric:
+            if isinstance(metric, dict):
+                display_name = metric.get("name")
+            else:
+                display_name = getattr(metric, "name", None)
 
         result = await self._create_evaluation_metric(
             display_name=display_name,
