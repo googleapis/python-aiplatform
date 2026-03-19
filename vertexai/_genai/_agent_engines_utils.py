@@ -1822,7 +1822,9 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
                     "Authorization": (
                         f"Bearer {self.api_client._api_client._credentials.token}"
                     )
-                }
+                },
+                timeout=self.api_client._api_client._http_options.timeout / 1000.0
+                or 60.0,
             ),
         )
         factory = ClientFactory(config)
