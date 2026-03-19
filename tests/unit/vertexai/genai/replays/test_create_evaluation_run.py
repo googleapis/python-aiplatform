@@ -65,7 +65,7 @@ BLEU_COMPUTATION_BASED_METRIC = types.EvaluationRunMetric(
     ),
 )
 INFERENCE_CONFIG = types.EvaluationRunInferenceConfig(
-    model="projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+    model="projects/977012026409/locations/us-central1/publishers/google/models/gemini-2.5-flash"
 )
 TOOL = genai_types.Tool(
     function_declarations=[
@@ -82,8 +82,14 @@ TOOL = genai_types.Tool(
 AGENT_INFO = types.evals.AgentInfo(
     agent_resource_name="projects/123/locations/us-central1/reasoningEngines/456",
     name="agent-1",
-    instruction="agent-1 instruction",
-    tool_declarations=[TOOL],
+    agents={
+        "agent-1": types.evals.AgentConfig(
+            agent_id="agent-1",
+            instruction="agent-1 instruction",
+            tools=[TOOL],
+        )
+    },
+    root_agent_id="agent-1",
 )
 DEFAULT_PROMPT_TEMPLATE = "{prompt}"
 INPUT_DF_WITH_CONTEXT_AND_HISTORY = pd.DataFrame(
@@ -96,9 +102,9 @@ INPUT_DF_WITH_CONTEXT_AND_HISTORY = pd.DataFrame(
     }
 )
 CANDIDATE_NAME = "candidate_1"
-MODEL_NAME = "projects/503583131166/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+MODEL_NAME = "projects/977012026409/locations/us-central1/publishers/google/models/gemini-2.5-flash"
 EVAL_SET_NAME = (
-    "projects/503583131166/locations/us-central1/evaluationSets/6619939608513740800"
+    "projects/977012026409/locations/us-central1/evaluationSets/6619939608513740800"
 )
 
 
@@ -140,12 +146,7 @@ def test_create_eval_run_data_source_evaluation_set(client):
     assert evaluation_run.inference_configs[
         AGENT_INFO.name
     ] == types.EvaluationRunInferenceConfig(
-        agent_config=types.EvaluationRunAgentConfig(
-            developer_instruction=genai_types.Content(
-                parts=[genai_types.Part(text="agent-1 instruction")]
-            ),
-            tools=[TOOL],
-        )
+        agent_configs=AGENT_INFO.agents,
     )
     assert evaluation_run.labels == {
         "vertex-ai-evaluation-agent-engine-id": "456",

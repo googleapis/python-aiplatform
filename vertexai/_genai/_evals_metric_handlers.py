@@ -923,46 +923,69 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
     @staticmethod
     def _eval_case_to_agent_data(
         eval_case: types.EvalCase,
+        prompt_content: Optional[genai_types.Content] = None,
+        response_content: Optional[genai_types.Content] = None,
     ) -> Optional[types.evals.AgentData]:
-        """Converts an EvalCase object to an AgentData object."""
+        """Converts an EvalCase object to a single turn AgentData object.
+
+        If `eval_case.agent_data` is provided, it is returned directly, and
+        `prompt_content` and `response_content` are ignored.
+        """
         if getattr(eval_case, "agent_data", None):
             return eval_case.agent_data
 
-        if not eval_case.agent_info and not eval_case.intermediate_events:
+        if (
+            not eval_case.agent_info
+            and not eval_case.intermediate_events
+            and not prompt_content
+            and not response_content
+        ):
             return None
-        tools = None
-        developer_instruction = None
-        agent_config = None
-        tool_declarations = []
-        event_contents = []
 
+        agents_map = None
         if eval_case.agent_info:
-            agent_info = eval_case.agent_info
-            if agent_info.instruction:
-                developer_instruction = types.evals.InstanceData(
-                    text=agent_info.instruction
-                )
-            if agent_info.tool_declarations:
-                tool_declarations = agent_info.tool_declarations
-            tools = types.evals.Tools(tool=tool_declarations)
+            agents_map = eval_case.agent_info.agents
 
-            if tools or developer_instruction:
-                agent_config = types.evals.AgentConfig(
-                    legacy_tools=tools,
-                    developer_instruction=developer_instruction,
+        events = []
+        if prompt_content:
+            events.append(
+                types.evals.AgentEvent(
+                    author="user",
+                    content=prompt_content,
                 )
+            )
 
         if eval_case.intermediate_events:
-            event_contents = [
-                event.content
-                for event in eval_case.intermediate_events
-                if event.content
+            for event in eval_case.intermediate_events:
+                events.append(
+                    types.evals.AgentEvent(
+                        author=event.author,
+                        content=event.content,
+                        event_time=event.creation_timestamp,
+                    )
+                )
+
+        if response_content:
+            events.append(
+                types.evals.AgentEvent(
+                    author="model",
+                    content=response_content,
+                )
+            )
+
+        turns = None
+        if events:
+            turns = [
+                types.evals.ConversationTurn(
+                    turn_index=0,
+                    turn_id="turn_0",
+                    events=events,
+                )
             ]
-        events = types.evals.Events(event=event_contents)
 
         return types.evals.AgentData(
-            agent_config=agent_config,
-            events=events,
+            agents=agents_map,
+            turns=turns,
         )
 
     def _build_request_payload(
@@ -1036,7 +1059,9 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
                 if other_data_map
                 else None
             ),
-            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
+            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(
+                eval_case, extracted_prompt, response_content
+            ),
         )
 
         request_payload: dict[str, Any] = {

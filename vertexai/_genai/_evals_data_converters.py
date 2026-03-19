@@ -810,6 +810,7 @@ def merge_evaluation_datasets(
                 "conversation_history",
                 "intermediate_events",
                 "agent_data",
+                "agent_info",
             },
             exclude_none=True,
         )
@@ -834,6 +835,7 @@ def merge_evaluation_datasets(
                     "conversation_history",
                     "intermediate_events",
                     "agent_data",
+                    "agent_info",
                 },
                 exclude_none=True,
             )
@@ -865,7 +867,7 @@ def merge_evaluation_datasets(
             reference=base_eval_case.reference,
             system_instruction=base_eval_case.system_instruction,
             conversation_history=base_eval_case.conversation_history,
-            agent_info=agent_info,
+            agent_info=agent_info or base_eval_case.agent_info,
             agent_data=base_eval_case.agent_data,
             intermediate_events=base_eval_case.intermediate_events,
             **eval_case_custom_columns,

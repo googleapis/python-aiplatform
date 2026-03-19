@@ -346,14 +346,7 @@ def _resolve_inference_configs(
     if agent_info_pydantic and agent_info_pydantic.name:
         inference_configs = {}
         inference_configs[agent_info_pydantic.name] = (
-            types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info_pydantic.instruction)]
-                    ),
-                    tools=agent_info_pydantic.tool_declarations,
-                )
-            )
+            types.EvaluationRunInferenceConfig(agent_configs=agent_info_pydantic.agents)
         )
     # Resolve prompt template data
     if inference_configs:
@@ -1771,7 +1764,7 @@ def _run_agent_internal(
     processed_agent_data = []
     agent_data_agents = None
     if agent:
-        agent_data_agents = types.evals.AgentData._get_agents_map(agent)
+        agent_data_agents = types.evals.AgentData.get_agents_map(agent)
 
     is_user_simulation = _is_multi_turn_agent_simulation(
         user_simulator_config, prompt_dataset
@@ -2233,12 +2226,17 @@ def _get_agent_info_from_inference_configs(
         else None
     )
     instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
+    tools = agent_config.tools if agent_config and agent_config.tools else None
+
     return types.evals.AgentInfo(
         name=candidate_names[0],
-        instruction=instruction,
-        tool_declarations=(
-            agent_config.tools if agent_config and agent_config.tools else None
-        ),
+        agents={
+            "agent_0": types.evals.AgentConfig(
+                instruction=instruction,
+                tools=tools,
+            )
+        },
+        root_agent_id="agent_0",
     )
 
 
