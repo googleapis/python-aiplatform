@@ -3503,16 +3503,11 @@ class TestAgentInfo:
 
         agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
             agent=mock_agent,
-            agent_resource_name="projects/123/locations/abc/reasoningEngines/456",
         )
 
         assert agent_info.name == "mock_agent"
         assert agent_info.agents["mock_agent"].instruction == "mock instruction"
         assert agent_info.agents["mock_agent"].description == "mock description"
-        assert (
-            agent_info.agent_resource_name
-            == "projects/123/locations/abc/reasoningEngines/456"
-        )
         assert len(agent_info.agents["mock_agent"].tools) == 1
         assert isinstance(agent_info.agents["mock_agent"].tools[0], genai_types.Tool)
         assert agent_info.agents["mock_agent"].tools[0].function_declarations == [

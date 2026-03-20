@@ -19,6 +19,8 @@ from vertexai import types
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
+from unittest import mock
+import uuid
 
 GCS_DEST = "gs://lakeyk-limited-bucket/eval_run_output"
 GENERAL_QUALITY_METRIC = types.EvaluationRunMetric(
@@ -79,8 +81,8 @@ TOOL = genai_types.Tool(
         )
     ]
 )
+AGENT_RESOURCE_NAME = "projects/123/locations/us-central1/reasoningEngines/456"
 AGENT_INFO = types.evals.AgentInfo(
-    agent_resource_name=("projects/123/locations/us-central1/reasoningEngines/456"),
     name="agent-1",
     agents={
         "agent-1": types.evals.AgentConfig(
@@ -124,6 +126,7 @@ def test_create_eval_run_data_source_evaluation_set(client):
             BLEU_COMPUTATION_BASED_METRIC,
         ],
         agent_info=AGENT_INFO,
+        agent=AGENT_RESOURCE_NAME,
         labels={"label1": "value1"},
     )
     assert isinstance(evaluation_run, types.EvaluationRun)
@@ -148,7 +151,7 @@ def test_create_eval_run_data_source_evaluation_set(client):
     ] == types.EvaluationRunInferenceConfig(
         agent_configs=AGENT_INFO.agents,
         agent_run_config=types.AgentRunConfig(
-            agent_engine=AGENT_INFO.agent_resource_name,
+            agent_engine=AGENT_RESOURCE_NAME,
             user_simulator_config={"max_turn": 5},
         ),
     )
@@ -219,6 +222,7 @@ def test_create_eval_run_with_user_simulator_config(client):
         dest=GCS_DEST,
         metrics=[GENERAL_QUALITY_METRIC],
         agent_info=AGENT_INFO,
+        agent=AGENT_RESOURCE_NAME,
         user_simulator_config=types.evals.UserSimulatorConfig(
             max_turn=5,
         ),
@@ -243,7 +247,7 @@ def test_create_eval_run_with_user_simulator_config(client):
     ] == types.EvaluationRunInferenceConfig(
         agent_configs=AGENT_INFO.agents,
         agent_run_config=types.AgentRunConfig(
-            agent_engine=AGENT_INFO.agent_resource_name,
+            agent_engine=AGENT_RESOURCE_NAME,
             user_simulator_config=types.evals.UserSimulatorConfig(max_turn=5),
         ),
     )
@@ -290,8 +294,14 @@ def test_create_eval_run_with_inference_configs(client):
     assert evaluation_run.error is None
 
 
-def test_create_eval_run_with_metric_resource_name(client):
+@mock.patch("uuid.uuid4")
+def test_create_eval_run_with_metric_resource_name(mock_uuid4, client):
     """Tests create_evaluation_run with metric_resource_name."""
+    mock_uuid4.side_effect = [
+        uuid.UUID("d392c573-9e81-4a30-b984-8a6aa4656369"),
+        uuid.UUID("49128576-accd-459e-aace-41391e163b3c"),
+        uuid.UUID("9bcc726e-d2cf-448c-967b-f49480d8c1c2"),
+    ]
     client._api_client._http_options.api_version = "v1beta1"
     client._api_client._http_options.base_url = (
         "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
@@ -733,6 +743,7 @@ async def test_create_eval_run_async_with_user_simulator_config(client):
         dest=GCS_DEST,
         metrics=[GENERAL_QUALITY_METRIC],
         agent_info=AGENT_INFO,
+        agent=AGENT_RESOURCE_NAME,
         user_simulator_config=types.evals.UserSimulatorConfig(
             max_turn=5,
         ),
@@ -757,7 +768,7 @@ async def test_create_eval_run_async_with_user_simulator_config(client):
     ] == types.EvaluationRunInferenceConfig(
         agent_configs=AGENT_INFO.agents,
         agent_run_config=types.AgentRunConfig(
-            agent_engine=AGENT_INFO.agent_resource_name,
+            agent_engine=AGENT_RESOURCE_NAME,
             user_simulator_config=types.evals.UserSimulatorConfig(max_turn=5),
         ),
     )

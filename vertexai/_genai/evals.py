@@ -2101,6 +2101,7 @@ class Evals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfoOrDict] = None,
+        agent: Optional[str] = None,
         user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
@@ -2118,6 +2119,10 @@ class Evals(_api_module.BaseModule):
           display_name: The display name of the evaluation run.
           agent_info: The agent info to evaluate. Mutually exclusive with
               `inference_configs`.
+          agent: The agent engine resource name in str type, with format
+              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.
+              If provided, runs inference with the deployed agent to get agent responses
+              for evaluation. This is required if `agent_info` is provided.
           user_simulator_config: The user simulator configuration for agent evaluation.
               If `agent_info` is provided without `inference_configs`, this config is used
               to automatically construct the inference configuration. If not specified,
@@ -2158,7 +2163,7 @@ class Evals(_api_module.BaseModule):
                 candidate_name: types.EvaluationRunInferenceConfig(
                     agent_configs=parsed_agent_info.agents,
                     agent_run_config=types.AgentRunConfig(
-                        agent_engine=parsed_agent_info.agent_resource_name,
+                        agent_engine=agent,
                         user_simulator_config=parsed_user_simulator_config,
                     ),
                 )
@@ -2181,9 +2186,7 @@ class Evals(_api_module.BaseModule):
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
         )
-        resolved_labels = _evals_common._add_evaluation_run_labels(
-            labels, parsed_agent_info
-        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
         return self._create_evaluation_run(
             name=resolved_name,
@@ -3307,6 +3310,7 @@ class AsyncEvals(_api_module.BaseModule):
         name: Optional[str] = None,
         display_name: Optional[str] = None,
         agent_info: Optional[evals_types.AgentInfo] = None,
+        agent: Optional[str] = None,
         user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
@@ -3324,6 +3328,10 @@ class AsyncEvals(_api_module.BaseModule):
           display_name: The display name of the evaluation run.
           agent_info: The agent info to evaluate. Mutually exclusive with
               `inference_configs`.
+          agent: The agent engine resource name in str type, with format
+              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.
+              If provided, runs inference with the deployed agent to get agent responses
+              for evaluation. This is required if `agent_info` is provided.
           user_simulator_config: The user simulator configuration for agent evaluation.
               If `agent_info` is provided without `inference_configs`, this config is used
               to automatically construct the inference configuration. If not specified,
@@ -3364,7 +3372,7 @@ class AsyncEvals(_api_module.BaseModule):
                 candidate_name: types.EvaluationRunInferenceConfig(
                     agent_configs=parsed_agent_info.agents,
                     agent_run_config=types.AgentRunConfig(
-                        agent_engine=parsed_agent_info.agent_resource_name,
+                        agent_engine=agent,
                         user_simulator_config=parsed_user_simulator_config,
                     ),
                 )
@@ -3387,9 +3395,7 @@ class AsyncEvals(_api_module.BaseModule):
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
         )
-        resolved_labels = _evals_common._add_evaluation_run_labels(
-            labels, parsed_agent_info
-        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
         resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
 
         result = await self._create_evaluation_run(

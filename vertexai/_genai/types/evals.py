@@ -388,11 +388,6 @@ AgentDataOrDict = Union[AgentData, AgentDataDict]
 class AgentInfo(_common.BaseModel):
     """The agent info of an agent system, used for agent evaluation."""
 
-    agent_resource_name: Optional[str] = Field(
-        default=None,
-        description="""The agent engine used to run agent. Agent engine resource name in str type, with format
-            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.""",
-    )
     name: Optional[str] = Field(
         default=None, description="""Agent candidate name, used as an identifier."""
     )
@@ -407,14 +402,11 @@ class AgentInfo(_common.BaseModel):
     )
 
     @classmethod
-    def load_from_agent(
-        cls, agent: Any, agent_resource_name: Optional[str] = None
-    ) -> "AgentInfo":
+    def load_from_agent(cls, agent: Any) -> "AgentInfo":
         """Loads agent info from an ADK agent.
 
         Args:
           agent: The root agent to get the agent info from, data type is google.adk.agents.LLMAgent type.
-          agent_resource_name: Optional. The agent engine resource name for the deployed agent.
 
         Returns:
           The agent info of the agent system.
@@ -423,10 +415,7 @@ class AgentInfo(_common.BaseModel):
         ```
         from vertexai._genai import types
 
-        agent_info = types.evals.AgentInfo.load_from_agent(
-            agent=my_agent,
-            agent_resource_name="projects/123/locations/us-central1/reasoningEngines/456"
-        )
+        agent_info = types.evals.AgentInfo.load_from_agent(agent=my_agent)
         ```
         """
         agent_name = getattr(agent, "name", None)
@@ -434,7 +423,6 @@ class AgentInfo(_common.BaseModel):
             raise ValueError(f"Agent {agent} must have a name.")
         return cls(  # pytype: disable=missing-parameter
             name=agent_name,
-            agent_resource_name=agent_resource_name,
             agents=AgentData.get_agents_map(agent),
             root_agent_id=agent_name,
         )
@@ -442,10 +430,6 @@ class AgentInfo(_common.BaseModel):
 
 class AgentInfoDict(TypedDict, total=False):
     """The agent info of an agent system, used for agent evaluation."""
-
-    agent_resource_name: Optional[str]
-    """The agent engine used to run agent. Agent engine resource name in str type, with format
-            `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`."""
 
     name: Optional[str]
     """Agent candidate name, used as an identifier."""

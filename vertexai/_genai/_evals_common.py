@@ -451,14 +451,14 @@ def _resolve_inference_configs(
 
 def _add_evaluation_run_labels(
     labels: Optional[dict[str, str]] = None,
-    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
+    agent: Optional[str] = None,
 ) -> Optional[dict[str, str]]:
     """Adds labels to the evaluation run."""
-    if parsed_agent_info and parsed_agent_info.agent_resource_name:
+    if agent:
         labels = labels or {}
-        labels["vertex-ai-evaluation-agent-engine-id"] = (
-            parsed_agent_info.agent_resource_name.split("reasoningEngines/")[-1]
-        )
+        labels["vertex-ai-evaluation-agent-engine-id"] = agent.split(
+            "reasoningEngines/"
+        )[-1]
     return labels
 
 
