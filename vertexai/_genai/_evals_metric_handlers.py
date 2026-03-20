@@ -1213,6 +1213,7 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
             reference=reference_instance_data,
             agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
+        print("instance_payload: ", instance_payload)
 
         return {
             "instance": instance_payload,
