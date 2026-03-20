@@ -51,17 +51,19 @@ def google_auth_mock():
 
 @pytest.fixture
 def authorized_session_mock():
-    with patch(
-        "google.auth.transport.requests.AuthorizedSession"
-    ) as MockAuthorizedSession:
+    from google.auth.transport import requests
+
+    with mock.patch.object(requests, "AuthorizedSession") as MockAuthorizedSession:
         mock_auth_session = MockAuthorizedSession(_TEST_CREDENTIALS)
         yield mock_auth_session
 
 
 @pytest.fixture
 def rag_data_client_mock():
+    from vertexai.rag.utils import _gapic_utils
+
     with mock.patch.object(
-        rag.utils._gapic_utils, "create_rag_data_service_client"
+        _gapic_utils, "create_rag_data_service_client"
     ) as rag_data_client_mock:
         api_client_mock = mock.Mock(spec=VertexRagDataServiceClient)
 
@@ -84,8 +86,10 @@ def rag_data_client_mock():
 
 @pytest.fixture
 def rag_data_client_preview_mock():
+    from vertexai.preview.rag.utils import _gapic_utils
+
     with mock.patch.object(
-        rag_preview.utils._gapic_utils, "create_rag_data_service_client"
+        _gapic_utils, "create_rag_data_service_client"
     ) as rag_data_client_mock:
         api_client_mock = mock.Mock(spec=VertexRagDataServiceClientPreview)
 
@@ -108,8 +112,10 @@ def rag_data_client_preview_mock():
 
 @pytest.fixture
 def rag_data_client_mock_exception():
+    from vertexai.rag.utils import _gapic_utils
+
     with mock.patch.object(
-        rag.utils._gapic_utils, "create_rag_data_service_client"
+        _gapic_utils, "create_rag_data_service_client"
     ) as rag_data_client_mock_exception:
         api_client_mock = mock.Mock(spec=VertexRagDataServiceClient)
         # create_rag_corpus
@@ -138,8 +144,10 @@ def rag_data_client_mock_exception():
 
 @pytest.fixture
 def rag_data_client_preview_mock_exception():
+    from vertexai.preview.rag.utils import _gapic_utils
+
     with mock.patch.object(
-        rag_preview.utils._gapic_utils, "create_rag_data_service_client"
+        _gapic_utils, "create_rag_data_service_client"
     ) as rag_data_client_mock_exception:
         api_client_mock = mock.Mock(spec=VertexRagDataServiceClientPreview)
         # create_rag_corpus
@@ -172,8 +180,10 @@ def rag_data_client_preview_mock_exception():
 
 @pytest.fixture
 def rag_data_async_client_mock_exception():
+    from vertexai.rag.utils import _gapic_utils
+
     with mock.patch.object(
-        rag.utils._gapic_utils, "create_rag_data_service_async_client"
+        _gapic_utils, "create_rag_data_service_async_client"
     ) as rag_data_async_client_mock_exception:
         api_client_mock = mock.Mock(spec=VertexRagDataServiceAsyncClient)
         # import_rag_files
@@ -184,8 +194,10 @@ def rag_data_async_client_mock_exception():
 
 @pytest.fixture
 def rag_data_async_client_preview_mock_exception():
+    from vertexai.preview.rag.utils import _gapic_utils
+
     with mock.patch.object(
-        rag_preview.utils._gapic_utils, "create_rag_data_service_async_client"
+        _gapic_utils, "create_rag_data_service_async_client"
     ) as rag_data_async_client_mock_exception:
         api_client_mock = mock.Mock(spec=VertexRagDataServiceAsyncClientPreview)
         # import_rag_files
