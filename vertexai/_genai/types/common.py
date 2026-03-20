@@ -11394,6 +11394,12 @@ class EventMetadata(_common.BaseModel):
         default=None,
         description="""Optional. Indicates whether the response from the model is complete. Only used for streaming mode.""",
     )
+    input_transcription: Optional[genai_types.Transcription] = Field(
+        default=None, description="""Optional. Audio transcription of user input."""
+    )
+    output_transcription: Optional[genai_types.Transcription] = Field(
+        default=None, description="""Optional. Audio transcription of model output."""
+    )
 
 
 class EventMetadataDict(TypedDict, total=False):
@@ -11419,6 +11425,12 @@ class EventMetadataDict(TypedDict, total=False):
 
     turn_complete: Optional[bool]
     """Optional. Indicates whether the response from the model is complete. Only used for streaming mode."""
+
+    input_transcription: Optional[genai_types.TranscriptionDict]
+    """Optional. Audio transcription of user input."""
+
+    output_transcription: Optional[genai_types.TranscriptionDict]
+    """Optional. Audio transcription of model output."""
 
 
 EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
