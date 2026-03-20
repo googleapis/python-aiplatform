@@ -41,16 +41,18 @@ def test_assemble_dataset(client):
 def test_assemble_dataset_public(client):
     bigquery_destination = client.datasets.assemble(
         name=DATASET,
-        template_config=types.GeminiTemplateConfig(
-            gemini_example=types.GeminiExample(
-                model="gemini-1.5-flash",
-                contents=[
-                    {
-                        "role": "user",
-                        "parts": [{"text": "What is the capital of {name}?"}],
-                    }
-                ],
-            ),
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    model="gemini-1.5-flash",
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        }
+                    ],
+                ),
+            )
         ),
     )
     assert bigquery_destination.startswith(f"bq://{BIGQUERY_TABLE_NAME}")
@@ -81,16 +83,18 @@ async def test_assemble_dataset_async(client):
 async def test_assemble_dataset_public_async(client):
     bigquery_destination = await client.aio.datasets.assemble(
         name=DATASET,
-        template_config=types.GeminiTemplateConfig(
-            gemini_example=types.GeminiExample(
-                model="gemini-1.5-flash",
-                contents=[
-                    {
-                        "role": "user",
-                        "parts": [{"text": "What is the capital of {name}?"}],
-                    }
-                ],
-            ),
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    model="gemini-1.5-flash",
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        }
+                    ],
+                ),
+            )
         ),
     )
     assert bigquery_destination.startswith(f"bq://{BIGQUERY_TABLE_NAME}")
