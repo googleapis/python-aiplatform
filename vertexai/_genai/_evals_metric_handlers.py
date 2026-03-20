@@ -1189,7 +1189,7 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
             eval_case, response_index, self.metric.name
         )
 
-        if not response_content:
+        if not response_content and not getattr(eval_case, "agent_data", None):
             raise ValueError(
                 f"Response content missing for candidate {response_index}."
             )
@@ -1211,6 +1211,7 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
                 response_content
             ),
             reference=reference_instance_data,
+            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
         )
 
         return {
