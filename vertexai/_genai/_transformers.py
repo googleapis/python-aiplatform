@@ -125,6 +125,27 @@ def t_metric_sources(metrics: list[Any]) -> list[dict[str, Any]]:
     return sources_payload
 
 
+def t_user_scenario_generation_config(
+    config: "types.evals.UserScenarioGenerationConfigOrDict",
+) -> dict[str, Any]:
+    """Transforms UserScenarioGenerationConfig to Vertex AI format."""
+    payload: dict[str, Any] = {}
+    config_dict = config if isinstance(config, dict) else config.model_dump()
+
+    if getv(config_dict, ["count"]) is not None:
+        payload["user_scenario_count"] = getv(config_dict, ["count"])
+    if getv(config_dict, ["generation_instruction"]) is not None:
+        payload["simulation_instruction"] = getv(
+            config_dict, ["generation_instruction"]
+        )
+    if getv(config_dict, ["environment_context"]) is not None:
+        payload["environment_data"] = getv(config_dict, ["environment_context"])
+    if getv(config_dict, ["model_name"]) is not None:
+        payload["model_name"] = getv(config_dict, ["model_name"])
+
+    return payload
+
+
 def t_metric_for_registry(
     metric: "types.Metric",
 ) -> dict[str, Any]:

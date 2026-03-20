@@ -526,38 +526,38 @@ UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
 class UserScenarioGenerationConfig(_common.BaseModel):
     """User scenario generation configuration."""
 
-    user_scenario_count: Optional[int] = Field(
-        default=None,
-        description="""The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
-    )
-    simulation_instruction: Optional[str] = Field(
-        default=None,
-        description="""Simulation instruction to guide the user scenario generation.""",
-    )
-    environment_data: Optional[str] = Field(
-        default=None,
-        description="""Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
-    )
     model_name: Optional[str] = Field(
         default=None,
         description="""The model name to use for user scenario generation.""",
+    )
+    count: Optional[int] = Field(
+        default=None,
+        description="""The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
+    generation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Instruction to guide the conversation scenario generation.""",
+    )
+    environment_context: Optional[str] = Field(
+        default=None,
+        description="""Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
     )
 
 
 class UserScenarioGenerationConfigDict(TypedDict, total=False):
     """User scenario generation configuration."""
 
-    user_scenario_count: Optional[int]
-    """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
-
-    simulation_instruction: Optional[str]
-    """Simulation instruction to guide the user scenario generation."""
-
-    environment_data: Optional[str]
-    """Environment data to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
-
     model_name: Optional[str]
     """The model name to use for user scenario generation."""
+
+    count: Optional[int]
+    """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
+
+    generation_instruction: Optional[str]
+    """Instruction to guide the conversation scenario generation."""
+
+    environment_context: Optional[str]
+    """Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
 
 
 UserScenarioGenerationConfigOrDict = Union[

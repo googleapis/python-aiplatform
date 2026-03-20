@@ -6187,8 +6187,8 @@ class TestEvaluationDataset:
         )
 
 
-class TestEvalsGenerateUserScenarios(unittest.TestCase):
-    """Unit tests for the Evals generate_user_scenarios method."""
+class TestEvalsGenerateConversationScenarios(unittest.TestCase):
+    """Unit tests for the Evals generate_conversation_scenarios method."""
 
     def setUp(self):
         self.addCleanup(mock.patch.stopall)
@@ -6208,13 +6208,16 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         )
         self.mock_api_client.request.return_value = self.mock_response
 
-    def test_generate_user_scenarios(self):
-        """Tests that generate_user_scenarios correctly calls the API and parses the response."""
+    def test_generate_conversation_scenarios(self):
+        """Tests that generate_conversation_scenarios correctly calls the API and parses the response."""
         evals_module = evals.Evals(api_client_=self.mock_api_client)
 
-        eval_dataset = evals_module.generate_user_scenarios(
-            agent_info={"agents": {"agent_1": {}}, "root_agent_id": "agent_1"},
-            user_scenario_generation_config={"user_scenario_count": 2},
+        eval_dataset = evals_module.generate_conversation_scenarios(
+            agent_info=vertexai_genai_types.evals.AgentInfo(
+                agents={"agent_1": {}},
+                root_agent_id="agent_1",
+            ),
+            config={"count": 2},
         )
         assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
         assert len(eval_dataset.eval_cases) == 2
@@ -6233,17 +6236,20 @@ class TestEvalsGenerateUserScenarios(unittest.TestCase):
         self.mock_api_client.request.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_async_generate_user_scenarios(self):
-        """Tests that async generate_user_scenarios correctly calls the API and parses the response."""
+    async def test_async_generate_conversation_scenarios(self):
+        """Tests that async generate_conversation_scenarios correctly calls the API and parses the response."""
 
         self.mock_api_client.async_request = mock.AsyncMock(
             return_value=self.mock_response
         )
         async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
 
-        eval_dataset = await async_evals_module.generate_user_scenarios(
-            agent_info={"agents": {"agent_1": {}}, "root_agent_id": "agent_1"},
-            user_scenario_generation_config={"user_scenario_count": 2},
+        eval_dataset = await async_evals_module.generate_conversation_scenarios(
+            agent_info=vertexai_genai_types.evals.AgentInfo(
+                agents={"agent_1": {}},
+                root_agent_id="agent_1",
+            ),
+            config={"count": 2},
         )
         assert isinstance(eval_dataset, vertexai_genai_types.EvaluationDataset)
         assert len(eval_dataset.eval_cases) == 2

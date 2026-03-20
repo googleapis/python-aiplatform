@@ -613,7 +613,9 @@ def _GenerateUserScenariosParameters_to_vertex(
         setv(
             to_object,
             ["userScenarioGenerationConfig"],
-            getv(from_object, ["user_scenario_generation_config"]),
+            t.t_user_scenario_generation_config(
+                getv(from_object, ["user_scenario_generation_config"])
+            ),
         )
 
     if getv(from_object, ["config"]) is not None:
@@ -1205,67 +1207,6 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    def _generate_rubrics(
-        self,
-        *,
-        contents: list[genai_types.ContentOrDict],
-        predefined_rubric_generation_spec: Optional[
-            genai_types.PredefinedMetricSpecOrDict
-        ] = None,
-        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
-        config: Optional[types.RubricGenerationConfigOrDict] = None,
-        metric_resource_name: Optional[str] = None,
-    ) -> types.GenerateInstanceRubricsResponse:
-        """
-        Generates rubrics for a given prompt.
-        """
-
-        parameter_model = types._GenerateInstanceRubricsRequest(
-            contents=contents,
-            predefined_rubric_generation_spec=predefined_rubric_generation_spec,
-            rubric_generation_spec=rubric_generation_spec,
-            config=config,
-            metric_resource_name=metric_resource_name,
-        )
-
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = ":generateInstanceRubrics".format_map(request_url_dict)
-            else:
-                path = ":generateInstanceRubrics"
-
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
-
-        http_options: Optional[types.HttpOptions] = None
-        if (
-            parameter_model.config is not None
-            and parameter_model.config.http_options is not None
-        ):
-            http_options = parameter_model.config.http_options
-
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
-
-        response = self._api_client.request("post", path, request_dict, http_options)
-
-        response_dict = {} if not response.body else json.loads(response.body)
-
-        return_value = types.GenerateInstanceRubricsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
-        )
-
-        self._api_client._verify_response(return_value)
-        return return_value
-
     def _generate_user_scenarios(
         self,
         *,
@@ -1321,6 +1262,67 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _generate_rubrics(
+        self,
+        *,
+        contents: list[genai_types.ContentOrDict],
+        predefined_rubric_generation_spec: Optional[
+            genai_types.PredefinedMetricSpecOrDict
+        ] = None,
+        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
+        metric_resource_name: Optional[str] = None,
+    ) -> types.GenerateInstanceRubricsResponse:
+        """
+        Generates rubrics for a given prompt.
+        """
+
+        parameter_model = types._GenerateInstanceRubricsRequest(
+            contents=contents,
+            predefined_rubric_generation_spec=predefined_rubric_generation_spec,
+            rubric_generation_spec=rubric_generation_spec,
+            config=config,
+            metric_resource_name=metric_resource_name,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateInstanceRubrics".format_map(request_url_dict)
+            else:
+                path = ":generateInstanceRubrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateInstanceRubricsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -2328,14 +2330,14 @@ class Evals(_api_module.BaseModule):
         )
 
     @_common.experimental_warning(
-        "The Vertex SDK GenAI evals.generate_user_scenarios module is experimental, "
+        "The Vertex SDK GenAI evals.generate_conversation_scenarios module is experimental, "
         "and may change in future versions."
     )
-    def generate_user_scenarios(
+    def generate_conversation_scenarios(
         self,
         *,
         agent_info: evals_types.AgentInfoOrDict,
-        user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
+        config: evals_types.UserScenarioGenerationConfigOrDict,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
@@ -2343,7 +2345,7 @@ class Evals(_api_module.BaseModule):
 
         Args:
             agent_info: The agent info to generate user scenarios for.
-            user_scenario_generation_config: Configuration for generating user scenarios.
+            config: Configuration for generating user scenarios.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
@@ -2356,7 +2358,7 @@ class Evals(_api_module.BaseModule):
         response = self._generate_user_scenarios(
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
-            user_scenario_generation_config=user_scenario_generation_config,
+            user_scenario_generation_config=config,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
@@ -2765,69 +2767,6 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
-    async def _generate_rubrics(
-        self,
-        *,
-        contents: list[genai_types.ContentOrDict],
-        predefined_rubric_generation_spec: Optional[
-            genai_types.PredefinedMetricSpecOrDict
-        ] = None,
-        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
-        config: Optional[types.RubricGenerationConfigOrDict] = None,
-        metric_resource_name: Optional[str] = None,
-    ) -> types.GenerateInstanceRubricsResponse:
-        """
-        Generates rubrics for a given prompt.
-        """
-
-        parameter_model = types._GenerateInstanceRubricsRequest(
-            contents=contents,
-            predefined_rubric_generation_spec=predefined_rubric_generation_spec,
-            rubric_generation_spec=rubric_generation_spec,
-            config=config,
-            metric_resource_name=metric_resource_name,
-        )
-
-        request_url_dict: Optional[dict[str, str]]
-        if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
-        else:
-            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
-            request_url_dict = request_dict.get("_url")
-            if request_url_dict:
-                path = ":generateInstanceRubrics".format_map(request_url_dict)
-            else:
-                path = ":generateInstanceRubrics"
-
-        query_params = request_dict.get("_query")
-        if query_params:
-            path = f"{path}?{urlencode(query_params)}"
-        # TODO: remove the hack that pops config.
-        request_dict.pop("config", None)
-
-        http_options: Optional[types.HttpOptions] = None
-        if (
-            parameter_model.config is not None
-            and parameter_model.config.http_options is not None
-        ):
-            http_options = parameter_model.config.http_options
-
-        request_dict = _common.convert_to_dict(request_dict)
-        request_dict = _common.encode_unserializable_types(request_dict)
-
-        response = await self._api_client.async_request(
-            "post", path, request_dict, http_options
-        )
-
-        response_dict = {} if not response.body else json.loads(response.body)
-
-        return_value = types.GenerateInstanceRubricsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
-        )
-
-        self._api_client._verify_response(return_value)
-        return return_value
-
     async def _generate_user_scenarios(
         self,
         *,
@@ -2885,6 +2824,69 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _generate_rubrics(
+        self,
+        *,
+        contents: list[genai_types.ContentOrDict],
+        predefined_rubric_generation_spec: Optional[
+            genai_types.PredefinedMetricSpecOrDict
+        ] = None,
+        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
+        metric_resource_name: Optional[str] = None,
+    ) -> types.GenerateInstanceRubricsResponse:
+        """
+        Generates rubrics for a given prompt.
+        """
+
+        parameter_model = types._GenerateInstanceRubricsRequest(
+            contents=contents,
+            predefined_rubric_generation_spec=predefined_rubric_generation_spec,
+            rubric_generation_spec=rubric_generation_spec,
+            config=config,
+            metric_resource_name=metric_resource_name,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateInstanceRubrics".format_map(request_url_dict)
+            else:
+                path = ":generateInstanceRubrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateInstanceRubricsResponse._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -3541,14 +3543,14 @@ class AsyncEvals(_api_module.BaseModule):
         return result
 
     @_common.experimental_warning(
-        "The Vertex SDK GenAI evals.generate_user_scenarios module is experimental, "
+        "The Vertex SDK GenAI evals.generate_conversation_scenarios module is experimental, "
         "and may change in future versions."
     )
-    async def generate_user_scenarios(
+    async def generate_conversation_scenarios(
         self,
         *,
         agent_info: evals_types.AgentInfoOrDict,
-        user_scenario_generation_config: evals_types.UserScenarioGenerationConfigOrDict,
+        config: evals_types.UserScenarioGenerationConfigOrDict,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
@@ -3556,7 +3558,7 @@ class AsyncEvals(_api_module.BaseModule):
 
         Args:
             agent_info: The agent info to generate user scenarios for.
-            user_scenario_generation_config: Configuration for generating user scenarios.
+            config: Configuration for generating user scenarios.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
@@ -3569,7 +3571,7 @@ class AsyncEvals(_api_module.BaseModule):
         response = await self._generate_user_scenarios(
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
-            user_scenario_generation_config=user_scenario_generation_config,
+            user_scenario_generation_config=config,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 

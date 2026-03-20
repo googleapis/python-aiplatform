@@ -19,9 +19,9 @@ from vertexai import types
 import pytest
 
 
-def test_gen_user_scenarios(client):
-    """Tests that generate_user_scenarios() correctly calls the API and parses the response."""
-    eval_dataset = client.evals.generate_user_scenarios(
+def test_gen_conversation_scenarios(client):
+    """Tests that generate_conversation_scenarios() correctly calls the API and parses the response."""
+    eval_dataset = client.evals.generate_conversation_scenarios(
         agent_info=types.evals.AgentInfo(
             agents={
                 "booking-agent": types.evals.AgentConfig(
@@ -43,13 +43,13 @@ def test_gen_user_scenarios(client):
             },
             root_agent_id="booking-agent",
         ),
-        user_scenario_generation_config=types.evals.UserScenarioGenerationConfig(
-            user_scenario_count=2,
-            simulation_instruction=(
+        config=types.evals.UserScenarioGenerationConfig(
+            count=2,
+            generation_instruction=(
                 "Generate scenarios where the user tries to book a flight but"
                 " changes their mind about the destination."
             ),
-            environment_data="Today is Monday. Flights to Paris are available.",
+            environment_context="Today is Monday. Flights to Paris are available.",
             model_name="gemini-2.5-flash",
         ),
     )
@@ -63,9 +63,9 @@ pytest_plugins = ("pytest_asyncio",)
 
 
 @pytest.mark.asyncio
-async def test_gen_user_scenarios_async(client):
-    """Tests that generate_user_scenarios() async correctly calls the API and parses the response."""
-    eval_dataset = await client.aio.evals.generate_user_scenarios(
+async def test_gen_conversation_scenarios_async(client):
+    """Tests that generate_conversation_scenarios() async correctly calls the API and parses the response."""
+    eval_dataset = await client.aio.evals.generate_conversation_scenarios(
         agent_info=types.evals.AgentInfo(
             agents={
                 "booking-agent": types.evals.AgentConfig(
@@ -87,13 +87,13 @@ async def test_gen_user_scenarios_async(client):
             },
             root_agent_id="booking-agent",
         ),
-        user_scenario_generation_config=types.evals.UserScenarioGenerationConfig(
-            user_scenario_count=2,
-            simulation_instruction=(
+        config=types.evals.UserScenarioGenerationConfig(
+            count=2,
+            generation_instruction=(
                 "Generate scenarios where the user tries to book a flight but"
                 " changes their mind about the destination."
             ),
-            environment_data="Today is Monday. Flights to Paris are available.",
+            environment_context="Today is Monday. Flights to Paris are available.",
             model_name="gemini-2.5-flash",
         ),
     )
@@ -106,5 +106,5 @@ async def test_gen_user_scenarios_async(client):
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="evals.generate_user_scenarios",
+    test_method="evals.generate_conversation_scenarios",
 )
