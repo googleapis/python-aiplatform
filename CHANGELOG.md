@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.143.0](https://github.com/googleapis/python-aiplatform/compare/v1.142.0...v1.143.0) (2026-03-21)
+
+
+### Features
+
+* Add AgentEngine Sessions module ([368a8f8](https://github.com/googleapis/python-aiplatform/commit/368a8f82c73a227b8fb90a36e6dfc1ff3ab91f53))
+
 ## [1.142.0](https://github.com/googleapis/python-aiplatform/compare/v1.141.0...v1.142.0) (2026-03-20)
 
 
