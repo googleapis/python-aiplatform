@@ -25,7 +25,7 @@ def test_append_session_event(client):
         name="reasoningEngines/2886612747586371584/sessions/6922431337672474624",
         author="test-user-123",
         invocation_id="test-invocation-id",
-        timestamp=datetime.datetime.fromtimestamp(1234567890, tz=datetime.timezone.utc),
+        timestamp=datetime.datetime.fromtimestamp(1234567860, tz=datetime.timezone.utc),
     )
     assert isinstance(session_event, types.AppendAgentEngineSessionEventResponse)
 

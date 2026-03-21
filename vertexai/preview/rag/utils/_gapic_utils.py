@@ -18,6 +18,7 @@ import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
+    VertexRagAsyncClientWithOverride,
     VertexRagClientWithOverride,
     VertexRagDataAsyncClientWithOverride,
     VertexRagDataClientWithOverride,
@@ -44,8 +45,10 @@ from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils.resources import (
     ANN,
+    Basic,
     DocumentCorpus,
     EmbeddingModelConfig,
+    Enterprise,
     JiraSource,
     KNN,
     LayoutParserConfig,
@@ -61,8 +64,6 @@ from vertexai.preview.rag.utils.resources import (
     RagManagedDbConfig,
     RagManagedVertexVectorSearch,
     RagVectorDbConfig,
-    Basic,
-    Enterprise,
     Scaled,
     Serverless,
     SharePointSources,
@@ -100,6 +101,12 @@ def create_rag_data_service_async_client():
 def create_rag_service_client():
     return initializer.global_config.create_client(
         client_class=VertexRagClientWithOverride,
+    ).select_version("v1beta1")
+
+
+def create_rag_service_async_client():
+    return initializer.global_config.create_client(
+        client_class=VertexRagAsyncClientWithOverride,
     ).select_version("v1beta1")
 
 
@@ -870,9 +877,7 @@ def set_vector_db(
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
     if vector_db is None:
-        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
-            rag_managed_db=GapicRagVectorDbConfig.RagManagedDb(),
-        )
+        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig()
     elif isinstance(vector_db, RagManagedDb):
         rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
             rag_managed_db=_convert_rag_managed_db_to_gapic(vector_db)

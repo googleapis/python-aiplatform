@@ -49,6 +49,59 @@ logger = logging.getLogger("vertexai_genai.agentengines")
 logger.setLevel(logging.INFO)
 
 
+def _CheckQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["retrieve_result"]) is not None:
+        setv(parent_object, ["retrieveResult"], getv(from_object, ["retrieve_result"]))
+
+    return to_object
+
+
+def _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _CheckQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _CheckQueryJobResult_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(parent_object, ["operationName"]) is not None:
+        setv(to_object, ["operation_name"], getv(parent_object, ["operationName"]))
+
+    if getv(parent_object, ["outputGcsUri"]) is not None:
+        setv(to_object, ["output_gcs_uri"], getv(parent_object, ["outputGcsUri"]))
+
+    if getv(parent_object, ["status"]) is not None:
+        setv(to_object, ["status"], getv(parent_object, ["status"]))
+
+    if getv(parent_object, ["result"]) is not None:
+        setv(to_object, ["result"], getv(parent_object, ["result"]))
+
+    return to_object
+
+
 def _CreateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -223,6 +276,41 @@ def _QueryAgentEngineRequestParameters_to_vertex(
     return to_object
 
 
+def _RunQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["input_gcs_uri"]) is not None:
+        setv(parent_object, ["inputGcsUri"], getv(from_object, ["input_gcs_uri"]))
+
+    if getv(from_object, ["output_gcs_uri"]) is not None:
+        setv(parent_object, ["outputGcsUri"], getv(from_object, ["output_gcs_uri"]))
+
+    return to_object
+
+
+def _RunQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _RunQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _UpdateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -307,6 +395,119 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
 
 
 class AgentEngines(_api_module.BaseModule):
+
+    def _check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:checkQueryJob".format_map(request_url_dict)
+            else:
+                path = "{name}:checkQueryJob"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CheckQueryJobResult._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types._RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Run a query job on an agent engine.
+        """
+
+        parameter_model = types._RunQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
@@ -754,6 +955,99 @@ class AgentEngines(_api_module.BaseModule):
             config,
         )
 
+    def check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """Checks a query job on an agent engine and optionally returns the results.
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (CheckQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the check_query_job. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - retrieve_result: Whether to retrieve the results of the query job.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+        import json
+
+        if config is None:
+            config = types.CheckQueryJobAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.CheckQueryJobAgentEngineConfig(**config)
+
+        raw_response = self._api_client.request("get", name, {})
+        if hasattr(raw_response, "body"):
+            operation = (
+                json.loads(raw_response.body)
+                if isinstance(raw_response.body, str)
+                else raw_response.body
+            )
+        else:
+            operation = raw_response
+
+        status = "RUNNING"
+        if isinstance(operation, dict):
+            if operation.get("done"):
+                status = "FAILED" if operation.get("error") else "SUCCESS"
+
+            response_dict = operation.get("response", {})
+            output_gcs_uri = response_dict.get("outputGcsUri") or response_dict.get(
+                "output_gcs_uri"
+            )
+            error = operation.get("error")
+        else:
+            if getattr(operation, "done", False):
+                status = "FAILED" if getattr(operation, "error", None) else "SUCCESS"
+
+            response_obj = getattr(operation, "response", None)
+            if isinstance(response_obj, dict):
+                output_gcs_uri = response_obj.get("outputGcsUri") or response_obj.get(
+                    "output_gcs_uri"
+                )
+            else:
+                output_gcs_uri = (
+                    getattr(
+                        response_obj,
+                        "output_gcs_uri",
+                        getattr(response_obj, "outputGcsUri", None),
+                    )
+                    if response_obj
+                    else None
+                )
+            error = getattr(operation, "error", None)
+
+        result_str = None
+        if status == "SUCCESS" and config.retrieve_result and output_gcs_uri:
+            storage_client = storage.Client(
+                project=self._api_client.project,
+                credentials=self._api_client._credentials,
+            )
+            bucket_name = output_gcs_uri.replace("gs://", "").split("/")[0]
+            blob_name = output_gcs_uri.replace(f"gs://{bucket_name}/", "")
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            if blob.exists():
+                result_str = blob.download_as_string().decode("utf-8")
+            else:
+                raise ValueError(
+                    f"Failed to retrieve blob results for {output_gcs_uri}"
+                )
+
+        elif status == "FAILED" and error:
+            result_str = str(error)
+
+        return types.CheckQueryJobResult(
+            operation_name=name,
+            output_gcs_uri=output_gcs_uri,
+            status=status,
+            result=result_str,
+        )
+
     def _is_lightweight_creation(
         self, agent: Any, config: types.AgentEngineConfig
     ) -> bool:
@@ -765,6 +1059,112 @@ class AgentEngines(_api_module.BaseModule):
         ):
             return False
         return True
+
+    def run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.RunQueryJobResult:
+        """Launches a long-running query job on an Agent Engine
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (RunQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the async query. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - query: The query to send to the agent engine.
+                  - gcs_bucket: The GCS bucket path to use for the query.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+        from google.api_core import exceptions
+        import uuid
+
+        if config is None:
+            config = types.RunQueryJobAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.RunQueryJobAgentEngineConfig(**config)
+
+        if not config.query:
+            raise ValueError("`query` is required in the config object.")
+        if not config.gcs_bucket:
+            raise ValueError("`gcs_bucket` is required in the config object.")
+
+        api_resource = self._get(name=name)
+
+        is_supported = False
+        if (
+            api_resource.spec
+            and api_resource.spec.deployment_spec
+            and api_resource.spec.deployment_spec.env
+        ):
+            for env in api_resource.spec.deployment_spec.env:
+                if env.name in [
+                    "INPUT_GCS_URI",
+                    "OUTPUT_GCS_URI",
+                    "input_gcs_uri",
+                    "output_gcs_uri",
+                ]:
+                    is_supported = True
+                    break
+
+        if not is_supported:
+            raise ValueError(
+                "Your ReasoningEngine does not support long running queries, "
+                "please update your ReasoningEngine and try again."
+            )
+
+        gcs_bucket = config.gcs_bucket.rstrip("/")
+
+        storage_client = storage.Client(
+            project=self._api_client.project, credentials=self._api_client._credentials
+        )
+
+        # Handle creating the bucket if it does not exist
+        bucket_name = gcs_bucket.replace("gs://", "").split("/")[0]
+        bucket = storage_client.bucket(bucket_name)
+
+        try:
+            bucket_exists = bucket.exists()
+        except exceptions.Forbidden as e:
+            raise ValueError(
+                f"Permission denied to check existence of bucket '{bucket_name}'. "
+                "The service account may lack 'storage.buckets.get' permission."
+            ) from e
+
+        if not bucket_exists:
+            try:
+                bucket.create()
+            except exceptions.Forbidden as e:
+                raise ValueError(
+                    f"Permission denied to create bucket '{bucket_name}'. "
+                    "The service account may lack 'storage.buckets.create' permission."
+                ) from e
+
+        job_uuid = uuid.uuid4().hex
+        input_blob_name = f"input_{job_uuid}.json"
+        input_gcs_uri = f"{gcs_bucket}/{input_blob_name}"
+        blob = bucket.blob(input_blob_name)
+        blob.upload_from_string(config.query)
+
+        output_blob_name = f"output_{job_uuid}.json"
+        output_gcs_uri = f"{gcs_bucket}/{output_blob_name}"
+
+        new_config = types._RunQueryJobAgentEngineConfig(
+            input_gcs_uri=input_gcs_uri,
+            output_gcs_uri=output_gcs_uri,
+        )
+
+        # Proceed with sending the async query via the auto-generated method
+        operation = self._run_query_job(name=name, config=new_config)
+
+        return types.RunQueryJobResult(
+            job_name=operation.name,
+            input_gcs_uri=input_gcs_uri,
+            output_gcs_uri=output_gcs_uri,
+        )
 
     def get(
         self,
@@ -2025,6 +2425,123 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
+    async def _check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:checkQueryJob".format_map(request_url_dict)
+            else:
+                path = "{name}:checkQueryJob"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CheckQueryJobResult._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types._RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Run a query job on an agent engine.
+        """
+
+        parameter_model = types._RunQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None

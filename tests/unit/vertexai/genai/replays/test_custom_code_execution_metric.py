@@ -16,6 +16,7 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import types as genai_types
 import pandas as pd
 
 
@@ -84,7 +85,7 @@ def evaluate(instance):
     )
 
     eval_dataset = types.EvaluationDataset(
-        gcs_source=types.GcsSource(
+        gcs_source=genai_types.GcsSource(
             uris=["gs://genai-eval-sdk-replay-test/test_data/inference_results.jsonl"]
         ),
     )

@@ -29,11 +29,6 @@ BIGQUERY_TABLE_NAME = "vertex-sdk-dev.multimodal_dataset.test-table"
 
 
 @pytest.fixture
-def is_replay_mode(request):
-    return request.config.getoption("--mode") in ["replay", "tap"]
-
-
-@pytest.fixture
 def mock_bigquery_client(is_replay_mode):
     if is_replay_mode:
         with mock.patch.object(

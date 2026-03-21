@@ -166,6 +166,9 @@ class SessionEvent(proto.Message):
             error.
         event_metadata (google.cloud.aiplatform_v1beta1.types.EventMetadata):
             Optional. Metadata relating to this event.
+        raw_event (google.protobuf.struct_pb2.Struct):
+            Optional. Weakly typed raw event data in
+            proto struct format.
     """
 
     name: str = proto.Field(
@@ -207,6 +210,11 @@ class SessionEvent(proto.Message):
         proto.MESSAGE,
         number=11,
         message="EventMetadata",
+    )
+    raw_event: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=struct_pb2.Struct,
     )
 
 

@@ -29,6 +29,8 @@ from vertexai.preview.rag.rag_data import (
     upload_file,
 )
 from vertexai.preview.rag.rag_retrieval import (
+    ask_contexts,
+    async_retrieve_contexts,
     retrieval_query,
 )
 from vertexai.preview.rag.rag_store import (
@@ -37,11 +39,11 @@ from vertexai.preview.rag.rag_store import (
 )
 from vertexai.preview.rag.utils.resources import (
     ANN,
-    ChunkingConfig,
     Basic,
+    ChunkingConfig,
     DocumentCorpus,
-    Enterprise,
     EmbeddingModelConfig,
+    Enterprise,
     Filter,
     HybridSearch,
     JiraQuery,
@@ -127,6 +129,7 @@ __all__ = (
     "VertexRagStore",
     "VertexVectorSearch",
     "Weaviate",
+    "ask_contexts",
     "create_corpus",
     "delete_corpus",
     "delete_file",
@@ -137,6 +140,7 @@ __all__ = (
     "list_corpora",
     "list_files",
     "retrieval_query",
+    "async_retrieve_contexts",
     "upload_file",
     "update_corpus",
     "update_rag_engine_config",

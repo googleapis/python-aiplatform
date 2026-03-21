@@ -84,23 +84,22 @@ def retrieval_query(
     Args:
         text: The query in text format to get relevant contexts.
         rag_resources: A list of RagResource. It can be used to specify corpus
-            only or ragfiles. Currently only support one corpus or multiple files
-            from one corpus. In the future we may open up multiple corpora support.
+          only or ragfiles. Currently only support one corpus or multiple files
+          from one corpus. In the future we may open up multiple corpora support.
         rag_corpora: If rag_resources is not specified, use rag_corpora as a list
-            of rag corpora names. Deprecated. Use rag_resources instead.
+          of rag corpora names. Deprecated. Use rag_resources instead.
         similarity_top_k: The number of contexts to retrieve. Deprecated. Use
-            rag_retrieval_config.top_k instead.
+          rag_retrieval_config.top_k instead.
         vector_distance_threshold: Optional. Only return contexts with vector
-            distance smaller than the threshold. Deprecated. Use
-            rag_retrieval_config.filter.vector_distance_threshold instead.
+          distance smaller than the threshold. Deprecated. Use
+          rag_retrieval_config.filter.vector_distance_threshold instead.
         vector_search_alpha: Optional. Controls the weight between dense and
-            sparse vector search results. The range is [0, 1], where 0 means
-            sparse vector search only and 1 means dense vector search only.
-            The default value is 0.5. Deprecated. Use
-            rag_retrieval_config.hybrid_search.alpha instead.
+          sparse vector search results. The range is [0, 1], where 0 means sparse
+          vector search only and 1 means dense vector search only. The default
+          value is 0.5. Deprecated. Use rag_retrieval_config.hybrid_search.alpha
+          instead.
         rag_retrieval_config: Optional. The config containing the retrieval
-            parameters, including top_k, vector_distance_threshold,
-            and alpha.
+          parameters, including top_k, vector_distance_threshold, and alpha.
 
     Returns:
         RetrieveContextsResonse.
@@ -118,7 +117,7 @@ def retrieval_query(
             raise ValueError("Currently only support 1 RagCorpus.")
         name = rag_corpora[0]
         warnings.warn(
-            f"rag_corpora is deprecated. Please use rag_resources instead."
+            "rag_corpora is deprecated. Please use rag_resources instead."
             f" After {resources.DEPRECATION_DATE} using"
             " rag_corpora will raise error",
             DeprecationWarning,
@@ -129,7 +128,12 @@ def retrieval_query(
     data_client = _gapic_utils.create_rag_data_service_client()
     if data_client.parse_rag_corpus_path(name):
         rag_corpus_name = name
-    elif re.match("^{}$".format(_gapic_utils._VALID_RESOURCE_NAME_REGEX), name):
+    elif re.match(
+        "^{}$".format(
+            _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+        ),
+        name,
+    ):
         rag_corpus_name = parent + "/ragCorpora/" + name
     else:
         raise ValueError(
@@ -270,5 +274,496 @@ def retrieval_query(
         response = client.retrieve_contexts(request=request)
     except Exception as e:
         raise RuntimeError("Failed in retrieving contexts due to: ", e) from e
+
+    return response
+
+
+async def async_retrieve_contexts(
+    text: str,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_corpora: Optional[List[str]] = None,
+    similarity_top_k: Optional[int] = None,
+    vector_distance_threshold: Optional[float] = None,
+    vector_search_alpha: Optional[float] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+) -> aiplatform_v1beta1.RetrieveContextsResponse:
+    """Retrieve top k relevant docs/chunks asynchronously.
+
+    Example usage:
+    ```
+    import vertexai
+
+    vertexai.init(project="my-project")
+
+    config = vertexai.preview.rag.RagRetrievalConfig(
+        top_k=2,
+    )
+
+    results = await vertexai.preview.rag.async_retrieve_contexts(
+        text="Why is the sky blue?",
+        rag_resources=[vertexai.preview.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: Required. The query in text format to get relevant contexts.
+        rag_resources: Optional. A list of RagResource. It can be used to specify
+          corpus only or ragfiles. Currently only support one corpus or multiple
+          files from one corpus. In the future we may open up multiple corpora
+          support.
+        rag_corpora: Optional. Deprecated. Please use rag_resources instead. A
+          list of RagCorpora resource names. Format:
+          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+          Currently only support one corpus. In the future we may open up multiple
+          corpora support.
+        similarity_top_k: Optional. Deprecated. Please use
+          rag_retrieval_config.top_k instead.
+        vector_distance_threshold: Optional. Deprecated. Please use
+          rag_retrieval_config.filter.vector_distance_threshold instead.
+        vector_search_alpha: Optional. Deprecated. Please use
+          rag_retrieval_config.hybrid_search.alpha instead.
+        rag_retrieval_config: Optional. The config containing the retrieval
+          parameters, including top_k, vector_distance_threshold, and alpha.
+
+    Returns:
+        RetrieveContextsResponse.
+    """
+    parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_async_client()
+
+    if not rag_resources and not rag_corpora:
+        raise ValueError("rag_resources or rag_corpora must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client()
+
+    gapic_rag_resources = []
+    gapic_rag_corpora = []
+    if rag_resources:
+        for rag_resource in rag_resources:
+            name = rag_resource.rag_corpus
+            if data_client.parse_rag_corpus_path(name):
+                rag_corpus_name = name
+            elif re.match(
+                "^{}$".format(
+                    _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+                ),
+                name,
+            ):
+                rag_corpus_name = parent + "/ragCorpora/" + name
+            else:
+                raise ValueError(
+                    f"Invalid RagCorpus name: {name}. Proper format should be:"
+                    " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+                )
+            gapic_rag_resources.append(
+                aiplatform_v1beta1.VertexRagStore.RagResource(
+                    rag_corpus=rag_corpus_name,
+                    rag_file_ids=rag_resource.rag_file_ids,
+                )
+            )
+        vertex_rag_store = aiplatform_v1beta1.VertexRagStore(
+            rag_resources=gapic_rag_resources,
+        )
+    elif rag_corpora:
+        warnings.warn(
+            "rag_corpora is deprecated. Please use rag_resources instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " rag_corpora will raise error",
+            DeprecationWarning,
+        )
+        for name in rag_corpora:
+            if data_client.parse_rag_corpus_path(name):
+                rag_corpus_name = name
+            elif re.match(
+                "^{}$".format(
+                    _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+                ),
+                name,
+            ):
+                rag_corpus_name = parent + "/ragCorpora/" + name
+            else:
+                raise ValueError(
+                    f"Invalid RagCorpus name: {name}. Proper format should be:"
+                    " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+                )
+            gapic_rag_corpora.append(rag_corpus_name)
+        vertex_rag_store = aiplatform_v1beta1.VertexRagStore(
+            rag_corpora=gapic_rag_corpora,
+        )
+
+    # Check for deprecated parameters and raise warnings.
+    if similarity_top_k:
+        warnings.warn(
+            "similarity_top_k is deprecated. Please use"
+            " rag_retrieval_config.top_k instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " similarity_top_k will raise error",
+            DeprecationWarning,
+        )
+    if vector_search_alpha:
+        warnings.warn(
+            "vector_search_alpha is deprecated. Please use"
+            " rag_retrieval_config.alpha instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " vector_search_alpha will raise error",
+            DeprecationWarning,
+        )
+    if vector_distance_threshold:
+        warnings.warn(
+            "vector_distance_threshold is deprecated. Please use"
+            " rag_retrieval_config.filter.vector_distance_threshold instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " vector_distance_threshold will raise error",
+            DeprecationWarning,
+        )
+
+    # If rag_retrieval_config is not specified, set it to default values.
+    if not rag_retrieval_config:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig(
+            top_k=similarity_top_k,
+            hybrid_search=aiplatform_v1beta1.RagRetrievalConfig.HybridSearch(
+                alpha=vector_search_alpha,
+            ),
+            filter=aiplatform_v1beta1.RagRetrievalConfig.Filter(
+                vector_distance_threshold=vector_distance_threshold
+            ),
+        )
+    else:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+        if rag_retrieval_config.top_k:
+            api_retrival_config.top_k = rag_retrieval_config.top_k
+        else:
+            api_retrival_config.top_k = similarity_top_k
+
+        if (
+            rag_retrieval_config.hybrid_search
+            and rag_retrieval_config.hybrid_search.alpha
+        ):
+            api_retrival_config.hybrid_search.alpha = (
+                rag_retrieval_config.hybrid_search.alpha
+            )
+        else:
+            api_retrival_config.hybrid_search.alpha = vector_search_alpha
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            raise ValueError(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+        ):
+            api_retrival_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+        else:
+            api_retrival_config.filter.vector_distance_threshold = (
+                vector_distance_threshold
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            api_retrival_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrival_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrival_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+
+    query = aiplatform_v1beta1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrival_config,
+    )
+
+    vertex_rag_store.rag_retrieval_config = api_retrival_config
+
+    tool = aiplatform_v1beta1.Tool(
+        retrieval=aiplatform_v1beta1.Retrieval(
+            vertex_rag_store=vertex_rag_store,
+        )
+    )
+
+    request = aiplatform_v1beta1.AsyncRetrieveContextsRequest(
+        parent=parent,
+        query=query,
+        tools=[tool],
+    )
+    try:
+        response_lro = await client.async_retrieve_contexts(request=request)
+        response = await response_lro.result()
+    except Exception as e:
+        raise RuntimeError(
+            "Failed in retrieving contexts asynchronously due to: ", e
+        ) from e
+
+    return response
+
+
+def ask_contexts(
+    text: str,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_corpora: Optional[List[str]] = None,
+    similarity_top_k: Optional[int] = None,
+    vector_distance_threshold: Optional[float] = None,
+    vector_search_alpha: Optional[float] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+) -> aiplatform_v1beta1.AskContextsResponse:
+    """Ask questions on top k relevant docs/chunks.
+
+    Example usage:
+    ```
+    import vertexai
+
+    vertexai.init(project="my-project")
+
+    config = vertexai.preview.rag.RagRetrievalConfig(
+        top_k=2,
+    )
+
+    results = vertexai.preview.rag.ask_contexts(
+        text="Why is the sky blue?",
+        rag_resources=[vertexai.preview.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: Required. The query in text format to get relevant contexts.
+        rag_resources: Optional. A list of RagResource. It can be used to specify
+          corpus only or ragfiles. Currently only support one corpus or multiple
+          files from one corpus. In the future we may open up multiple corpora
+          support.
+        rag_corpora: Optional. Deprecated. Please use rag_resources instead. A
+          list of RagCorpora resource names. Format:
+          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+          Currently only support one corpus. In the future we may open up multiple
+          corpora support.
+        similarity_top_k: Optional. Deprecated. Please use
+          rag_retrieval_config.top_k instead.
+        vector_distance_threshold: Optional. Deprecated. Please use
+          rag_retrieval_config.filter.vector_distance_threshold instead.
+        vector_search_alpha: Optional. Deprecated. Please use
+          rag_retrieval_config.hybrid_search.alpha instead.
+        rag_retrieval_config: Optional. The config containing the retrieval
+          parameters, including top_k, vector_distance_threshold, and alpha.
+
+    Returns:
+        AskContextsResponse.
+    """
+    parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_client()
+
+    if not rag_resources and not rag_corpora:
+        raise ValueError("rag_resources or rag_corpora must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client()
+
+    gapic_rag_resources = []
+    gapic_rag_corpora = []
+    if rag_resources:
+        for rag_resource in rag_resources:
+            name = rag_resource.rag_corpus
+            if data_client.parse_rag_corpus_path(name):
+                rag_corpus_name = name
+            elif re.match(
+                "^{}$".format(
+                    _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+                ),
+                name,
+            ):
+                rag_corpus_name = parent + "/ragCorpora/" + name
+            else:
+                raise ValueError(
+                    f"Invalid RagCorpus name: {name}. Proper format should be:"
+                    " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+                )
+            gapic_rag_resources.append(
+                aiplatform_v1beta1.VertexRagStore.RagResource(
+                    rag_corpus=rag_corpus_name,
+                    rag_file_ids=rag_resource.rag_file_ids,
+                )
+            )
+        vertex_rag_store = aiplatform_v1beta1.VertexRagStore(
+            rag_resources=gapic_rag_resources,
+        )
+    elif rag_corpora:
+        warnings.warn(
+            "rag_corpora is deprecated. Please use rag_resources instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " rag_corpora will raise error",
+            DeprecationWarning,
+        )
+        for name in rag_corpora:
+            if data_client.parse_rag_corpus_path(name):
+                rag_corpus_name = name
+            elif re.match(
+                "^{}$".format(
+                    _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+                ),
+                name,
+            ):
+                rag_corpus_name = parent + "/ragCorpora/" + name
+            else:
+                raise ValueError(
+                    f"Invalid RagCorpus name: {name}. Proper format should be:"
+                    " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+                )
+            gapic_rag_corpora.append(rag_corpus_name)
+        vertex_rag_store = aiplatform_v1beta1.VertexRagStore(
+            rag_corpora=gapic_rag_corpora,
+        )
+
+    # Check for deprecated parameters and raise warnings.
+    if similarity_top_k:
+        warnings.warn(
+            "similarity_top_k is deprecated. Please use"
+            " rag_retrieval_config.top_k instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " similarity_top_k will raise error",
+            DeprecationWarning,
+        )
+    if vector_search_alpha:
+        warnings.warn(
+            "vector_search_alpha is deprecated. Please use"
+            " rag_retrieval_config.alpha instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " vector_search_alpha will raise error",
+            DeprecationWarning,
+        )
+    if vector_distance_threshold:
+        warnings.warn(
+            "vector_distance_threshold is deprecated. Please use"
+            " rag_retrieval_config.filter.vector_distance_threshold instead."
+            f" After {resources.DEPRECATION_DATE} using"
+            " vector_distance_threshold will raise error",
+            DeprecationWarning,
+        )
+
+    # If rag_retrieval_config is not specified, set it to default values.
+    if not rag_retrieval_config:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig(
+            top_k=similarity_top_k,
+            hybrid_search=aiplatform_v1beta1.RagRetrievalConfig.HybridSearch(
+                alpha=vector_search_alpha,
+            ),
+            filter=aiplatform_v1beta1.RagRetrievalConfig.Filter(
+                vector_distance_threshold=vector_distance_threshold
+            ),
+        )
+    else:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+        if rag_retrieval_config.top_k:
+            api_retrival_config.top_k = rag_retrieval_config.top_k
+        else:
+            api_retrival_config.top_k = similarity_top_k
+
+        if (
+            rag_retrieval_config.hybrid_search
+            and rag_retrieval_config.hybrid_search.alpha
+        ):
+            api_retrival_config.hybrid_search.alpha = (
+                rag_retrieval_config.hybrid_search.alpha
+            )
+        else:
+            api_retrival_config.hybrid_search.alpha = vector_search_alpha
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            raise ValueError(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+        ):
+            api_retrival_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+        else:
+            api_retrival_config.filter.vector_distance_threshold = (
+                vector_distance_threshold
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            api_retrival_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrival_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrival_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+
+    query = aiplatform_v1beta1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrival_config,
+    )
+
+    vertex_rag_store.rag_retrieval_config = api_retrival_config
+
+    tool = aiplatform_v1beta1.Tool(
+        retrieval=aiplatform_v1beta1.Retrieval(
+            vertex_rag_store=vertex_rag_store,
+        )
+    )
+
+    request = aiplatform_v1beta1.AskContextsRequest(
+        parent=parent,
+        query=query,
+        tools=[tool],
+    )
+    try:
+        response = client.ask_contexts(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in asking contexts due to: ", e) from e
 
     return response
