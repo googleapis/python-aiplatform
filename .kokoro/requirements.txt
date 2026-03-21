@@ -435,9 +435,9 @@ pygments==2.16.1 \
     # via
     #   readme-renderer
     #   rich
-pyjwt==2.8.0 \
-    --hash=sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de \
-    --hash=sha256:59127c392cc44c2da5bb3192169a91f429924e17aff6534d70fdc02ab3e04320
+pyjwt==2.12.0 \
+    --hash=sha256:2f62390b667cd8257de560b850bb5a883102a388829274147f1d724453f8fb02 \
+    --hash=sha256:9bb459d1bdd0387967d287f5656bf7ec2b9a26645d1961628cda1764e087fd6e
     # via gcp-releasetool
 pyperclip==1.8.2 \
     --hash=sha256:105254a8b04934f0bc84e9c24eb360a591aaf6535c9def5f29d92af107a9bf57
