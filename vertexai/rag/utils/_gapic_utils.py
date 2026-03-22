@@ -185,6 +185,8 @@ def convert_gapic_to_backend_config(
     gapic_vector_db: GapicRagVectorDbConfig,
 ) -> RagVectorDbConfig:
     """Convert Gapic RagVectorDbConfig to VertexVectorSearch, Pinecone, or RagManagedDb."""
+    if not gapic_vector_db:
+        return None
     vector_config = RagVectorDbConfig()
     if _check_pinecone(gapic_vector_db):
         vector_config.vector_db = Pinecone(
@@ -208,10 +210,10 @@ def convert_gapic_to_backend_config(
 
 
 def convert_gapic_to_vertex_ai_search_config(
-    gapic_vertex_ai_search_config: VertexAiSearchConfig,
-) -> VertexAiSearchConfig:
+    gapic_vertex_ai_search_config: GapicVertexAiSearchConfig,
+) -> Optional[VertexAiSearchConfig]:
     """Convert Gapic VertexAiSearchConfig to VertexAiSearchConfig."""
-    if gapic_vertex_ai_search_config.serving_config:
+    if gapic_vertex_ai_search_config.ByteSize() > 0:
         return VertexAiSearchConfig(
             serving_config=gapic_vertex_ai_search_config.serving_config,
         )

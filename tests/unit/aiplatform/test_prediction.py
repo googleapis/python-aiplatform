@@ -3287,7 +3287,10 @@ class TestModelServer:
 
         assert response.status_code == 200
 
-    def test_predict(self, model_server_env_mock, importlib_import_module_mock_twice):
+    @pytest.mark.asyncio
+    async def test_predict(
+        self, model_server_env_mock, importlib_import_module_mock_twice
+    ):
         model_server = CprModelServer()
         client = TestClient(model_server.app)
 
