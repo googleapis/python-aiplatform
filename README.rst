@@ -8,6 +8,8 @@ Vertex AI SDK for Python
 - `Client Library Documentation`_
 - `Product Documentation`_
 
+<!-- trivial change -->
+
 .. |GA| image:: https://img.shields.io/badge/support-ga-gold.svg
    :target: https://github.com/googleapis/google-cloud-python/blob/main/README.rst#general-availability
 .. |pypi| image:: https://img.shields.io/pypi/v/google-cloud-aiplatform.svg
