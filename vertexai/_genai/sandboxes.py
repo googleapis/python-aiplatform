@@ -72,12 +72,8 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
         setv(to_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineSandboxConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _CreateAgentEngineSandboxConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -90,9 +86,6 @@ def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -108,9 +101,6 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
     if getv(from_object, ["inputs"]) is not None:
         setv(to_object, ["inputs"], [item for item in getv(from_object, ["inputs"])])
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -124,9 +114,6 @@ def _GetAgentEngineSandboxOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -137,9 +124,6 @@ def _GetAgentEngineSandboxRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -171,12 +155,8 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineSandboxesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineSandboxesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object

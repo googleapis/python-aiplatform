@@ -50,9 +50,6 @@ def _AppendAgentEngineTaskEventRequestParameters_to_vertex(
             [item for item in getv(from_object, ["task_events"])],
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -95,12 +92,8 @@ def _ListAgentEngineTaskEventsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineTaskEventsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineTaskEventsConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object

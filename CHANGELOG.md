@@ -1,5 +1,75 @@
 # Changelog
 
+## [1.142.0](https://github.com/googleapis/python-aiplatform/compare/v1.141.0...v1.142.0) (2026-03-20)
+
+
+### Features
+
+* Add `retrieve_contexts_async` and `ask_contexts` SDK methods in `rag_retrieval.py` ([0e0137e](https://github.com/googleapis/python-aiplatform/commit/0e0137e120286b07e749c1f3b4beeea0308fdfc6))
+* Add `VALIDATED` Function Calling mode to v1 ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Add aiohttp to agent_engines dependencies. ([394253a](https://github.com/googleapis/python-aiplatform/commit/394253a81f9bccbaef38bdb084da442668695f86))
+* Add custom session id field to create session v1 ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Add custom session id field to create session v1beta1 ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Add EvaluationMetric Create, Get and List methods to Vertex SDK GenAI evals ([f4b4244](https://github.com/googleapis/python-aiplatform/commit/f4b4244c99d4981ab38f7895e652d986026c2eab))
+* Add model_status to GenerateContentResponse (Gemini API only) ([6a03f78](https://github.com/googleapis/python-aiplatform/commit/6a03f7803cb7a998863a97cd33bb91c93bdde59a))
+* Add new `embed_content_config` to message `EmbedContentRequest` ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Add new `embed_content_config` to message `EmbedContentRequest` ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Add part_metadata in Part (Gemini API only) ([6a03f78](https://github.com/googleapis/python-aiplatform/commit/6a03f7803cb7a998863a97cd33bb91c93bdde59a))
+* Add raw_event field to event proto v1 ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Add support for metric_resource_name within metric in rubric generation ([4dbd76c](https://github.com/googleapis/python-aiplatform/commit/4dbd76c4a701552c91ab940b9596785912105be2))
+* Add support for passing agent data for custom code execution metric ([0c70de8](https://github.com/googleapis/python-aiplatform/commit/0c70de8a75328d81b24fe1a79b4e28bdb2863b00))
+* Add support for referencing registered metrics by resource name in evaluation run API ([76a9558](https://github.com/googleapis/python-aiplatform/commit/76a9558c6d90d2beecb5817b16e77296560c0e48))
+* Adds run_query_job and check_query_job to SDK for long running async tasks. ([0cff2d8](https://github.com/googleapis/python-aiplatform/commit/0cff2d8365dc0e51bbe763322d0d1ca635a41c84))
+* Allow using registered metric resource names in evaluation ([72942a4](https://github.com/googleapis/python-aiplatform/commit/72942a4030bd897b7a4b07295fd35b989ef2a825))
+* Enable a2a streaming for agents deployed to Agent Engine. ([ccfd37f](https://github.com/googleapis/python-aiplatform/commit/ccfd37f47bcdd1edcc26dee046bbee8284812146))
+* GenAI Client(evals) - BREAKING_CHANGE: The agent engine resource name is now passed as a separate `agent` parameter to `create_evaluation_run` methods, rather than being part of the `AgentInfo` object. This parameter is now required if `agent_info` is provided ([dab185a](https://github.com/googleapis/python-aiplatform/commit/dab185a9e6eb6e90e3d2b239214f4264777483a9))
+* GenAI Client(evals): Add starting_prompt, conversation_plan, agent_data to evaluation datset ([64ef223](https://github.com/googleapis/python-aiplatform/commit/64ef2232d26217dcb52d016ed5e450823dde6704))
+* GenAI Client(evals): Update to generate_conversation_scenarios from generate_user_scenarios ([1b4c325](https://github.com/googleapis/python-aiplatform/commit/1b4c325b1f54256b09b8e0dfb4117ae26b3a2838))
+* GenAI SDK client(multimodal) - Support creating multimodal dataset from pandas DataFrame. ([8f4b4fe](https://github.com/googleapis/python-aiplatform/commit/8f4b4fea460715a5d16405dc8bd71b7d1502b1df))
+* GenAI SDK client(multimodal) - Support getting a bigframe DataFrame from a multimodal dataset ([50d804f](https://github.com/googleapis/python-aiplatform/commit/50d804f6c96fb51210ae01da95e5c250123d7db7))
+* RAG - Remove VectorDb defaulting in SDK ([39b7fe5](https://github.com/googleapis/python-aiplatform/commit/39b7fe58263dd5237fa04f6fb118d4ac3fe84c50))
+* RagMetadata and RagDataSchema concepts and Batch API definitions added for Preview ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Refactor RegisteredMetricHandler and implement llm_based_metric_spec support ([24f626c](https://github.com/googleapis/python-aiplatform/commit/24f626c804f82ec3d9249b85ce2c84eec1485fd8))
+* Support rendered_parts in GroundingSupport ([6a03f78](https://github.com/googleapis/python-aiplatform/commit/6a03f7803cb7a998863a97cd33bb91c93bdde59a))
+* Update the schema proto for the RagChunk with file_id and chunk_id to align with the vertex_rag_data.proto ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+* Upgrade protobuf from v25.7 to v31.0 ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+
+
+### Bug Fixes
+
+* Add embedding_metadata to MatchNeighbor from_embedding. ([ffd2cff](https://github.com/googleapis/python-aiplatform/commit/ffd2cff8a4dd34ca97901df25b05d22da9530a92))
+* GenAI Client(evals) - missing response warning when agent_data is present ([0d6c54e](https://github.com/googleapis/python-aiplatform/commit/0d6c54e081e14fcadb1733f34a82a973c12183eb))
+* GenAI Client(evals): Drop empty columns in evaluation dataset ([be869ca](https://github.com/googleapis/python-aiplatform/commit/be869caaecbcfeae196a20c4916404bd5c2ef2a1))
+* GenAI Client(evals): Remove prompt filled by starting prompt ([55b12a5](https://github.com/googleapis/python-aiplatform/commit/55b12a501b28fd6e36b0b8323e7839d6ff31ec29))
+* GenAI SDK client - Add get session call to create session sdk if an immediate success is returned ([933debd](https://github.com/googleapis/python-aiplatform/commit/933debd4e210bc152005d8383dc5a69fb091af53))
+* GenAI SDK client - Breaking Change: Remove the following types from vertexai.types and depend on these types from the Google GenAI SDK via google.genai.types - ComputationBasedMetricType, FunctionResponseScheduling, MediaResolution, Outcome, PairwiseChoice, RubricContentType, Blob, CodeExecutionResult, ExecutableCode, FileData, Part, PartMediaResolution, VideoMetadata, FunctionCall, FunctionResponse, FunctionResponseBlob, FunctionResponseFileData, FunctionResponsePart, PartialArg, ComputationBasedMetricSpec, LLMBasedMetricSpec, PredefinedMetricSpec, RubricGenerationSpec, BleuMetricValue, CustomOutput, ExactMatchMetricValue, PairwiseMetricResult, PointwiseMetricResult, RawOutput, RougeMetricValue, BigQuerySource, GcsSource, ModelArmorConfig ([3cd949d](https://github.com/googleapis/python-aiplatform/commit/3cd949dd74225da2f58422291a638771e2c87807))
+
+
+### Documentation
+
+* Updated comments for `rag_file_metadata_config` across ImportRagFilesRequest and UploadRagFileRequest ([981a551](https://github.com/googleapis/python-aiplatform/commit/981a551c7438cad87fc52077ddbb5c109d2c62d6))
+
+## [1.141.0](https://github.com/googleapis/python-aiplatform/compare/v1.140.0...v1.141.0) (2026-03-10)
+
+
+### Features
+
+* "global" endpoint supports "grpc" transport ([b3bae32](https://github.com/googleapis/python-aiplatform/commit/b3bae32b8577974a113ad1dc3effb5d3a3db4fe0))
+* Add PromptTemplateData to support `context` and `history` columns when creating Evaluation run from dataframe ([e887a2e](https://github.com/googleapis/python-aiplatform/commit/e887a2e5dc00462793663c647b00666e5b7bae02))
+* GenAI Client(evals): Add candidate name to local ADK agent scraping ([79d8e1c](https://github.com/googleapis/python-aiplatform/commit/79d8e1c63ef3ec854fec7233f612eea77d5946ef))
+* GenAI Client(evals): Add validation for `agent_data` in EvaluationDataset in create_evaluation_run ([2b0a98c](https://github.com/googleapis/python-aiplatform/commit/2b0a98cc06ddaa40dab52359ade3dafa0ab07062))
+* GenAI Client(evals): onboarding agent_config (agents) in create_evaluation_run ([eacc86c](https://github.com/googleapis/python-aiplatform/commit/eacc86c1fec17d48cf6b2ec93e8ef03560496f7d))
+* GenAI Client(evals): Patch agent config map to agent data ([8ba4707](https://github.com/googleapis/python-aiplatform/commit/8ba4707cab8c33aa63bacf1c56bb6b61a74aea70))
+* GenAI Client(evals): Update to enable agent run functionality in eval management service ([7a59738](https://github.com/googleapis/python-aiplatform/commit/7a597382a0f793cf8784bb4e2735c756b43886ea))
+* Update match_service proto for new embedding metadata fields ([fba5350](https://github.com/googleapis/python-aiplatform/commit/fba53506b8b59746a822824aad5f08975450112c))
+* Update match_service proto for new embedding metadata fields ([fba5350](https://github.com/googleapis/python-aiplatform/commit/fba53506b8b59746a822824aad5f08975450112c))
+* Update match_service proto for new embedding metadata fields ([fba5350](https://github.com/googleapis/python-aiplatform/commit/fba53506b8b59746a822824aad5f08975450112c))
+
+
+### Bug Fixes
+
+* GenAI Client(evals) - Add datetime and bytes serialization to _json_serializer ([7410b1d](https://github.com/googleapis/python-aiplatform/commit/7410b1d4361c42e52d6527ed96e69349cbb84378))
+
 ## [1.140.0](https://github.com/googleapis/python-aiplatform/compare/v1.139.0...v1.140.0) (2026-03-04)
 
 

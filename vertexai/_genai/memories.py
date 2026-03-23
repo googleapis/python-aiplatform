@@ -108,13 +108,7 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _AgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _AgentEngineMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -126,9 +120,6 @@ def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -216,12 +207,8 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _GenerateAgentEngineMemoriesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _GenerateAgentEngineMemoriesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -237,9 +224,6 @@ def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -253,9 +237,6 @@ def _GetAgentEngineMemoryOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -266,9 +247,6 @@ def _GetAgentEngineMemoryRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -303,13 +281,7 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _ListAgentEngineMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -334,9 +306,6 @@ def _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
 
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -386,12 +355,8 @@ def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _RetrieveAgentEngineMemoriesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _RetrieveAgentEngineMemoriesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -407,9 +372,6 @@ def _RollbackAgentEngineMemoryRequestParameters_to_vertex(
 
     if getv(from_object, ["target_revision_id"]) is not None:
         setv(to_object, ["targetRevisionId"], getv(from_object, ["target_revision_id"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -484,12 +446,8 @@ def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _UpdateAgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _UpdateAgentEngineMemoryConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object

@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+from collections.abc import AsyncIterator
 import os
 from typing import Any, Callable, Dict, List, Mapping, Optional, TYPE_CHECKING
 
@@ -55,11 +56,13 @@ def create_agent_card(
     agent_card: Optional[Dict[str, Any]] = None,
     default_input_modes: Optional[List[str]] = None,
     default_output_modes: Optional[List[str]] = None,
+    streaming: bool = False,
 ) -> "AgentCard":
     """Creates an AgentCard object.
 
     The function can be called in two ways:
-    1. By providing the individual parameters: agent_name, description, and skills.
+    1. By providing the individual parameters: agent_name, description, and
+    skills.
     2. By providing a single dictionary containing all the data.
 
     If a dictionary is provided, the other parameters are ignored.
@@ -69,16 +72,19 @@ def create_agent_card(
         description (Optional[str]): A description of the agent.
         skills (Optional[List[AgentSkill]]): A list of AgentSkills.
         agent_card (Optional[Dict[str, Any]]): Agent Card as a dictionary.
-        default_input_modes (Optional[List[str]]): A list of input modes,
-            default to ["text/plain"].
+        default_input_modes (Optional[List[str]]): A list of input modes, default
+          to ["text/plain"].
         default_output_modes (Optional[List[str]]): A list of output modes,
-            default to ["application/json"].
+          default to ["application/json"].
+        streaming (bool): Whether to enable streaming for the agent. Defaults to
+          False.
 
     Returns:
         AgentCard: A fully constructed AgentCard object.
 
     Raises:
-        ValueError: If neither a dictionary nor the required parameters are provided.
+        ValueError: If neither a dictionary nor the required parameters are
+        provided.
     """
     # pylint: disable=g-import-not-at-top
     from a2a.types import AgentCard, AgentCapabilities, TransportProtocol
@@ -96,8 +102,7 @@ def create_agent_card(
             version="1.0.0",
             default_input_modes=default_input_modes or ["text/plain"],
             default_output_modes=default_output_modes or ["application/json"],
-            # Agent Engine does not support streaming yet
-            capabilities=AgentCapabilities(streaming=False),
+            capabilities=AgentCapabilities(streaming=streaming),
             skills=skills,
             preferred_transport=TransportProtocol.http_json,  # Http Only.
             supports_authenticated_extended_card=True,
@@ -185,8 +190,6 @@ class A2aAgent:
             raise ValueError(
                 "Only HTTP+JSON is supported for preferred transport on agent card "
             )
-        if agent_card.capabilities and agent_card.capabilities.streaming:
-            raise ValueError("Streaming is not supported by Agent Engine")
 
         self._tmpl_attrs: dict[str, Any] = {
             "project": initializer.global_config.project,
@@ -334,6 +337,27 @@ class A2aAgent:
                 "on_cancel_task",
             ]
         }
+        if self.agent_card.capabilities and self.agent_card.capabilities.streaming:
+            routes["a2a_extension"].append("on_message_send_stream")
+            routes["a2a_extension"].append("on_resubscribe_to_task")
         if self.agent_card.supports_authenticated_extended_card:
             routes["a2a_extension"].append("handle_authenticated_agent_card")
         return routes
+
+    async def on_message_send_stream(
+        self,
+        request: "Request",
+        context: "ServerCallContext",
+    ) -> AsyncIterator[str]:
+        """Handles A2A streaming requests via SSE."""
+        async for chunk in self.rest_handler.on_message_send_stream(request, context):
+            yield chunk
+
+    async def on_resubscribe_to_task(
+        self,
+        request: "Request",
+        context: "ServerCallContext",
+    ) -> AsyncIterator[str]:
+        """Handles A2A task resubscription requests via SSE."""
+        async for chunk in self.rest_handler.on_resubscribe_to_task(request, context):
+            yield chunk

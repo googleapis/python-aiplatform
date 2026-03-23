@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
-
+import re
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
@@ -351,6 +351,55 @@ def test_evaluation_agent_data(client):
         assert isinstance(case_result, types.EvalCaseResult)
         assert case_result.eval_case_index is not None
         assert case_result.response_candidate_results is not None
+
+
+def test_evaluation_metric_resource_name(client):
+    """Tests with a metric resource name in types.Metric."""
+    client._api_client._http_options.api_version = "v1beta1"
+    client._api_client._http_options.base_url = (
+        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+    )
+    metric_resource_name = client.evals.create_evaluation_metric(
+        display_name="test_metric",
+        description="test_description",
+        metric=types.RubricMetric.GENERAL_QUALITY,
+    )
+    assert isinstance(metric_resource_name, str)
+    assert re.match(
+        r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$",
+        metric_resource_name,
+    )
+    byor_df = pd.DataFrame(
+        {
+            "prompt": ["Write a simple story about a dinosaur"],
+            "response": ["Once upon a time, there was a T-Rex named Rexy."],
+        }
+    )
+    metric = types.Metric(
+        name="my_custom_metric", metric_resource_name=metric_resource_name
+    )
+    evaluation_result = client.evals.evaluate(
+        dataset=byor_df,
+        metrics=[metric],
+    )
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    assert evaluation_result.eval_case_results is not None
+    assert len(evaluation_result.eval_case_results) == 1
+    assert evaluation_result.summary_metrics[0].metric_name == "my_custom_metric"
+    assert evaluation_result.summary_metrics[0].mean_score is not None
+    assert evaluation_result.summary_metrics[0].num_cases_valid == 1
+    assert evaluation_result.summary_metrics[0].num_cases_error == 0
+
+    case_result = evaluation_result.eval_case_results[0]
+    assert case_result.response_candidate_results is not None
+    assert len(case_result.response_candidate_results) == 1
+
+    metric_result = case_result.response_candidate_results[0].metric_results[
+        "my_custom_metric"
+    ]
+    assert metric_result.score is not None
+    assert metric_result.score > 0.2
+    assert metric_result.error_message is None
 
 
 pytestmark = pytest_helper.setup(

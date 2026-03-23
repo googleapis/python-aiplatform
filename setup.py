@@ -69,7 +69,8 @@ pipelines_extra_require = [
     "pyyaml>=5.3.1,<7",
 ]
 datasets_extra_require = [
-    "pyarrow >= 3.0.0, < 8.0.0; python_version<'3.11'",
+    "pyarrow >= 3.0.0, < 8.0.0; python_version<'3.10'",
+    "pyarrow >= 10.0.1; python_version=='3.10'",
     "pyarrow >= 10.0.1; python_version=='3.11'",
     "pyarrow >= 14.0.0; python_version>='3.12'",
 ]
@@ -169,6 +170,7 @@ agent_engines_extra_require = [
     "pydantic >= 2.11.1, < 3",
     "typing_extensions",
     "google-cloud-iam",
+    "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
 evaluation_extra_require = [

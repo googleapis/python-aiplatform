@@ -672,18 +672,24 @@ def get_dataset_converter(
         raise ValueError("Unsupported dataset schema: %s" % dataset_schema)
 
 
-def _get_first_part_text(content: genai_types.Content) -> str:
-    """Safely extracts text from the first part of a content."""
+def _get_content_text(content: genai_types.Content) -> str:
+    """Safely extracts text from all parts of a content.
+
+    If the content has multiple parts, text from all parts is concatenated.
+    If a part is not text, it is ignored. If no text parts are found,
+    an empty string is returned.
+    """
+    text_parts = []
     if (
         content
         and hasattr(content, "parts")
         and isinstance(content.parts, list)
         and content.parts
     ):
-        first_part = content.parts[0]
-        if hasattr(first_part, "text"):
-            return str(first_part.text)
-    return ""
+        for part in content.parts:
+            if hasattr(part, "text") and part.text is not None:
+                text_parts.append(str(part.text))
+    return "".join(text_parts)
 
 
 def _get_text_from_reference(
@@ -691,7 +697,7 @@ def _get_text_from_reference(
 ) -> Optional[str]:
     """Safely extracts text from a reference field."""
     if reference and hasattr(reference, "response") and reference.response:
-        return _get_first_part_text(reference.response)
+        return _get_content_text(reference.response)
     return None
 
 
@@ -703,8 +709,8 @@ def _validate_case_consistency(
 ) -> None:
     """Logs warnings if prompt or reference mismatches occur."""
     if base_case.prompt != current_case.prompt:
-        base_prompt_text_preview = _get_first_part_text(base_case.prompt)[:50]
-        current_prompt_text_preview = _get_first_part_text(current_case.prompt)[:50]
+        base_prompt_text_preview = _get_content_text(base_case.prompt)[:50]
+        current_prompt_text_preview = _get_content_text(current_case.prompt)[:50]
         logger.warning(
             "Prompt mismatch for case index %d between base dataset (0)"
             " and dataset %d. Using prompt from base. Base prompt"
@@ -786,9 +792,11 @@ def merge_evaluation_datasets(
 
         if base_eval_case.responses:
             candidate_responses.append(base_eval_case.responses[0])
+        elif base_eval_case.agent_data:
+            candidate_responses.append(_create_placeholder_response_candidate(""))
         else:
             logger.warning(
-                "No response found for base dataset (index 0) in case %s. "
+                "No response or agent data found for base dataset (index 0) in case %s. "
                 "Adding placeholder.",
                 case_idx,
             )
@@ -807,6 +815,8 @@ def merge_evaluation_datasets(
                 "system_instruction",
                 "conversation_history",
                 "intermediate_events",
+                "agent_data",
+                "agent_info",
             },
             exclude_none=True,
         )
@@ -830,6 +840,8 @@ def merge_evaluation_datasets(
                     "system_instruction",
                     "conversation_history",
                     "intermediate_events",
+                    "agent_data",
+                    "agent_info",
                 },
                 exclude_none=True,
             )
@@ -837,9 +849,12 @@ def merge_evaluation_datasets(
 
             if current_ds_eval_case.responses:
                 candidate_responses.append(current_ds_eval_case.responses[0])
+            elif current_ds_eval_case.agent_data:
+                candidate_responses.append(_create_placeholder_response_candidate(""))
             else:
                 logger.warning(
-                    "No response found for dataset %s in case %s. Adding placeholder.",
+                    "No response or agent data found for dataset %s in case %s. Adding"
+                    " placeholder.",
                     dataset_idx_offset,
                     case_idx,
                 )
@@ -854,11 +869,12 @@ def merge_evaluation_datasets(
             eval_case_id=base_eval_case.eval_case_id
             or "merged_eval_case_%s" % case_idx,
             prompt=base_eval_case.prompt,
-            responses=candidate_responses,
+            responses=candidate_responses if candidate_responses else None,
             reference=base_eval_case.reference,
             system_instruction=base_eval_case.system_instruction,
             conversation_history=base_eval_case.conversation_history,
-            agent_info=agent_info,
+            agent_info=agent_info or base_eval_case.agent_info,
+            agent_data=base_eval_case.agent_data,
             intermediate_events=base_eval_case.intermediate_events,
             **eval_case_custom_columns,
         )

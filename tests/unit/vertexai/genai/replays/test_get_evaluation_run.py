@@ -16,7 +16,6 @@
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai import types
-from google.genai import types as genai_types
 import datetime
 import pytest
 
@@ -25,13 +24,13 @@ def test_get_eval_run(client):
     """Tests that get_evaluation_run() returns a correctly structured EvaluationRun."""
     client._api_client._http_options.api_version = "v1beta1"
     evaluation_run_name = (
-        "projects/503583131166/locations/us-central1/evaluationRuns/5133048044039700480"
+        "projects/977012026409/locations/us-central1/evaluationRuns/3940878372367761408"
     )
     evaluation_run = client.evals.get_evaluation_run(
         name=evaluation_run_name, include_evaluation_items=True
     )
-    check_run_5133048044039700480(client, evaluation_run, evaluation_run_name)
-    check_run_5133048044039700480_evaluation_item_results(
+    check_run_3940878372367761408(client, evaluation_run, evaluation_run_name)
+    check_run_3940878372367761408_evaluation_item_results(
         client, evaluation_run, evaluation_run_name
     )
 
@@ -40,10 +39,10 @@ def test_get_eval_run_include_evaluation_items_false(client):
     """Tests that get_evaluation_run() returns a correctly structured EvaluationRun."""
     client._api_client._http_options.api_version = "v1beta1"
     evaluation_run_name = (
-        "projects/503583131166/locations/us-central1/evaluationRuns/5133048044039700480"
+        "projects/977012026409/locations/us-central1/evaluationRuns/3940878372367761408"
     )
     evaluation_run = client.evals.get_evaluation_run(name=evaluation_run_name)
-    check_run_5133048044039700480(client, evaluation_run, evaluation_run_name)
+    check_run_3940878372367761408(client, evaluation_run, evaluation_run_name)
     assert evaluation_run.evaluation_item_results is None
 
 
@@ -103,172 +102,58 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_get_eval_run_async(client):
     """Tests that get_evaluation_run() returns a correctly structured EvaluationRun."""
     client._api_client._http_options.api_version = "v1beta1"
-    eval_run_id = "5133048044039700480"
+    eval_run_id = "3940878372367761408"
     evaluation_run_name = (
-        f"projects/503583131166/locations/us-central1/evaluationRuns/{eval_run_id}"
+        f"projects/977012026409/locations/us-central1/evaluationRuns/{eval_run_id}"
     )
     evaluation_run = await client.aio.evals.get_evaluation_run(name=eval_run_id)
-    check_run_5133048044039700480(client, evaluation_run, evaluation_run_name)
+    check_run_3940878372367761408(client, evaluation_run, evaluation_run_name)
     assert evaluation_run.evaluation_item_results is None
 
 
-def check_run_5133048044039700480(
+def check_run_3940878372367761408(
     client, evaluation_run: types.EvaluationRun, evaluation_run_name: str
 ):
     assert isinstance(evaluation_run, types.EvaluationRun)
     assert evaluation_run.name == evaluation_run_name
-    assert evaluation_run.display_name == "sdk-test-1"
-    assert evaluation_run.metadata == {"pipeline_id": "4868043098678099968"}
+    assert (
+        evaluation_run.display_name
+        == "evaluation_run_9a464a39-6d40-4d4e-a5e2-a4ceabea4b15"
+    )
+    assert evaluation_run.metadata == {"pipeline_id": "8162140658019074048"}
     assert evaluation_run.create_time == datetime.datetime(
-        2025, 10, 21, 19, 25, 58, 669441, tzinfo=datetime.timezone.utc
+        2026, 3, 18, 1, 10, 13, 360535, tzinfo=datetime.timezone.utc
     )
     assert evaluation_run.completion_time == datetime.datetime(
-        2025, 10, 21, 19, 26, 15, 855568, tzinfo=datetime.timezone.utc
+        2026, 3, 18, 1, 11, 0, 448191, tzinfo=datetime.timezone.utc
     )
     assert evaluation_run.state == types.EvaluationRunState.SUCCEEDED
     assert evaluation_run.evaluation_set_snapshot == (
-        "projects/503583131166/locations/us-central1/evaluationSets/3122155626046685184"
+        "projects/977012026409/locations/us-central1/evaluationSets/3885168317211607040"
     )
     assert (
         evaluation_run.data_source.evaluation_set
-        == "projects/503583131166/locations/us-central1/evaluationSets/3122155626046685184"
+        == "projects/977012026409/locations/us-central1/evaluationSets/3991900109943078912"
     )
     assert evaluation_run.evaluation_run_results.evaluation_set == (
-        "projects/503583131166/locations/us-central1/evaluationSets/129513673658990592"
+        "projects/977012026409/locations/us-central1/evaluationSets/3885168317211607040"
     )
-    assert evaluation_run.inference_configs == {
-        "gemini-2.0-flash-001@default": types.EvaluationRunInferenceConfig(
-            agent_config=types.EvaluationRunAgentConfig(
-                developer_instruction={
-                    "parts": [{"text": "example agent developer instruction"}]
-                },
-                tools=[
-                    genai_types.Tool(
-                        function_declarations=[
-                            genai_types.FunctionDeclaration(
-                                name="check_chime",
-                                description="Check chime.",
-                                parameters={
-                                    "type": "OBJECT",
-                                    "properties": {
-                                        "nums": {
-                                            "type": "STRING",
-                                            "description": "List of numbers to be verified.",
-                                        }
-                                    },
-                                    "required": ["nums"],
-                                },
-                            ),
-                        ],
-                    )
-                ],
-            )
-        ),
-    }
-    assert evaluation_run.evaluation_run_results.summary_metrics == (
-        types.SummaryMetric(
-            metrics={
-                "gemini-2.0-flash-001@default/safety_v1/VARIANCE": 0.08950617055834077,
-                "gemini-2.0-flash-001@default/safety_v1/MAXIMUM": 1,
-                "gemini-2.0-flash-001@default/universal/AVERAGE": 0.7888888915379842,
-                "gemini-2.0-flash-001@default/universal/P90": 1,
-                "gemini-2.0-flash-001@default/safety_v1/MEDIAN": 1,
-                "gemini-2.0-flash-001@default/universal/P95": 1,
-                "gemini-2.0-flash-001@default/universal/VARIANCE": 0.08950617055834077,
-                "gemini-2.0-flash-001@default/universal/STANDARD_DEVIATION": 0.2991758188061675,
-                "gemini-2.0-flash-001@default/universal/MEDIAN": 1,
-                "gemini-2.0-flash-001@default/safety_v1/STANDARD_DEVIATION": 0.2991758188061675,
-                "gemini-2.0-flash-001@default/universal/MODE": 1,
-                "gemini-2.0-flash-001@default/safety_v1/MODE": 1,
-                "gemini-2.0-flash-001@default/safety_v1/MINIMUM": 0.3333333432674408,
-                "gemini-2.0-flash-001@default/safety_v1/P90": 1,
-                "gemini-2.0-flash-001@default/safety_v1/P95": 1,
-                "gemini-2.0-flash-001@default/universal/P99": 1,
-                "gemini-2.0-flash-001@default/safety_v1/AVERAGE": 0.7888888915379842,
-                "gemini-2.0-flash-001@default/universal/MINIMUM": 0.3333333432674408,
-                "gemini-2.0-flash-001@default/universal/MAXIMUM": 1,
-                "gemini-2.0-flash-001@default/safety_v1/P99": 1,
-            },
-            total_items=3,
-        )
-    )
+    assert evaluation_run.evaluation_run_results.summary_metrics.total_items == 2
     assert evaluation_run.error is None
 
 
-def check_run_5133048044039700480_evaluation_item_results(
+def check_run_3940878372367761408_evaluation_item_results(
     client, evaluation_run: types.EvaluationRun, evaluation_run_name: str
 ):
     eval_result = evaluation_run.evaluation_item_results
     assert isinstance(eval_result, types.EvaluationResult)
     assert eval_result.summary_metrics == [
         types.AggregatedMetricResult(
-            metric_name="safety_v1",
-            mean_score=0.7888888915379842,
-            stdev_score=0.2991758188061675,
-        ),
-        types.AggregatedMetricResult(
-            metric_name="universal",
-            mean_score=0.7888888915379842,
-            stdev_score=0.2991758188061675,
+            metric_name="general_quality_v1",
+            mean_score=0.13333333656191826,
+            stdev_score=0.03333333507180214,
         ),
     ]
-    # Check the agent info.
-    assert eval_result.agent_info == types.evals.AgentInfo(
-        name="gemini-2.0-flash-001@default",
-        instruction="example agent developer instruction",
-        description=None,
-        tool_declarations=[
-            genai_types.Tool(
-                function_declarations=[
-                    genai_types.FunctionDeclaration(
-                        name="check_chime",
-                        description="Check chime.",
-                        parameters={
-                            "type": "OBJECT",
-                            "properties": {
-                                "nums": {
-                                    "type": "STRING",
-                                    "description": "List of numbers to be verified.",
-                                }
-                            },
-                            "required": ["nums"],
-                        },
-                    ),
-                ],
-            )
-        ],
-    )
-    # Check the first eval case result.
-    eval_case_result = eval_result.eval_case_results[0]
-    assert isinstance(eval_case_result, types.EvalCaseResult)
-    # Check the response candidate results.
-    response_candidate_result = eval_case_result.response_candidate_results[0]
-    assert response_candidate_result.response_index == 0
-    universal_metric_result = response_candidate_result.metric_results["universal"]
-    assert isinstance(universal_metric_result, types.EvalCaseMetricResult)
-    assert universal_metric_result.metric_name == "universal"
-    assert universal_metric_result.score > 0
-    assert universal_metric_result.explanation is None
-    # Check the first rubric verdict.
-    rubric_verdict_0 = universal_metric_result.rubric_verdicts[0]
-    assert isinstance(rubric_verdict_0, types.evals.RubricVerdict)
-    assert rubric_verdict_0.evaluated_rubric == types.evals.Rubric(
-        content=types.evals.RubricContent(
-            property=types.evals.RubricContentProperty(
-                description="The response is in English."
-            )
-        ),
-        importance="HIGH",
-        type="LANGUAGE:PRIMARY_RESPONSE_LANGUAGE",
-    )
-    assert rubric_verdict_0.reasoning is not None
-    assert rubric_verdict_0.verdict is True
-    # Check the first evaluation dataset.
-    eval_dataset = eval_result.evaluation_dataset[0]
-    assert isinstance(eval_dataset, types.EvaluationDataset)
-    assert eval_dataset.candidate_name == "gemini-2.0-flash-001@default"
-    assert eval_dataset.eval_dataset_df.shape[0] == 3
-    assert eval_dataset.eval_dataset_df.shape[1] > 3
 
 
 pytestmark = pytest_helper.setup(
