@@ -23,18 +23,23 @@ from google.cloud.aiplatform_v1beta1 import (
     ImportRagFilesRequest,
     ImportRagFilesResponse,
     JiraSource as GapicJiraSource,
+    MetadataValue as GapicMetadataValue,
     RagContexts,
     RagCorpus as GapicRagCorpus,
+    RagDataSchema as GapicRagDataSchema,
     RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
     RagFile as GapicRagFile,
     RagManagedDbConfig as GapicRagManagedDbConfig,
+    RagMetadataSchemaDetails as GapicRagMetadataSchemaDetails,
+    RagMetadata as GapicRagMetadata,
     RagVectorDbConfig as GapicRagVectorDbConfig,
     RetrieveContextsResponse,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
+    UserSpecifiedMetadata as GapicUserSpecifiedMetadata,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
@@ -54,15 +59,19 @@ from vertexai.preview.rag import (
     LlmParserConfig,
     LlmRanker,
     MemoryCorpus,
+    MetadataValue,
     Pinecone,
     RagCorpus,
     RagCorpusTypeConfig,
+    RagDataSchema,
     RagEmbeddingModelConfig,
     RagEngineConfig,
     RagFile,
     RagManagedDb,
     RagManagedDbConfig,
     RagManagedVertexVectorSearch,
+    RagMetadata,
+    RagMetadataSchemaDetails,
     RagResource,
     RagRetrievalConfig,
     RagVectorDbConfig,
@@ -76,6 +85,7 @@ from vertexai.preview.rag import (
     SlackChannelsSource,
     Spanner,
     Unprovisioned,
+    UserSpecifiedMetadata,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -1145,4 +1155,55 @@ TEST_RAG_RETRIEVAL_CONFIG_LLM_RANKER = RagRetrievalConfig(
     top_k=2,
     filter=Filter(vector_distance_threshold=0.5),
     ranking=Ranking(llm_ranker=LlmRanker(model_name="test-model-name")),
+)
+
+# RagMetadata and RagDataSchema
+TEST_RAG_DATA_SCHEMA_ID = "test-data-schema-id"
+TEST_RAG_DATA_SCHEMA_RESOURCE_NAME = (
+    f"{TEST_RAG_CORPUS_RESOURCE_NAME}/ragDataSchemas/{TEST_RAG_DATA_SCHEMA_ID}"
+)
+TEST_RAG_METADATA_ID = "test-metadata-id"
+TEST_RAG_METADATA_RESOURCE_NAME = (
+    f"{TEST_RAG_FILE_RESOURCE_NAME}/ragMetadata/{TEST_RAG_METADATA_ID}"
+)
+
+TEST_GAPIC_RAG_DATA_SCHEMA = GapicRagDataSchema(
+    name=TEST_RAG_DATA_SCHEMA_RESOURCE_NAME,
+    key="key1",
+    schema_details=GapicRagMetadataSchemaDetails(
+        type=GapicRagMetadataSchemaDetails.DataType.STRING,
+        search_strategy=GapicRagMetadataSchemaDetails.SearchStrategy(
+            search_strategy_type=GapicRagMetadataSchemaDetails.SearchStrategy.SearchStrategyType.EXACT_SEARCH
+        ),
+        granularity=GapicRagMetadataSchemaDetails.Granularity.GRANULARITY_FILE_LEVEL,
+    ),
+)
+
+TEST_RAG_DATA_SCHEMA = RagDataSchema(
+    name=TEST_RAG_DATA_SCHEMA_RESOURCE_NAME,
+    key="key1",
+    schema_details=RagMetadataSchemaDetails(
+        type="STRING",
+        search_strategy=RagMetadataSchemaDetails.SearchStrategy(
+            search_strategy_type="EXACT_SEARCH"
+        ),
+        granularity="GRANULARITY_FILE_LEVEL",
+    ),
+)
+
+TEST_GAPIC_RAG_METADATA = GapicRagMetadata(
+    name=TEST_RAG_METADATA_RESOURCE_NAME,
+    user_specified_metadata=GapicUserSpecifiedMetadata(
+        key="key1",
+        value=GapicMetadataValue(str_value="value1"),
+    ),
+)
+
+TEST_RAG_METADATA = RagMetadata(
+    name=TEST_RAG_METADATA_RESOURCE_NAME,
+    user_specified_metadata=UserSpecifiedMetadata(
+        values={
+            "key1": MetadataValue(string_value="value1"),
+        }
+    ),
 )
