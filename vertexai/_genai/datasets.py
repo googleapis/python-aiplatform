@@ -831,8 +831,7 @@ class Datasets(_api_module.BaseModule):
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
-                or "project.dataset.table". If a table already exists with the
-                given table id, it will be overwritten. Note that the BigQuery
+                or "project.dataset.table". Note that the BigQuery
                 dataset must already exist and be in the same location as the
                 multimodal dataset. If not provided, a generated table id will
                 be created in the `vertex_datasets` dataset (e.g.
@@ -876,13 +875,89 @@ class Datasets(_api_module.BaseModule):
         )
         with bigframes.connect(session_options) as session:
             temp_bigframes_df = session.read_pandas(dataframe)
-            temp_table_id = temp_bigframes_df.to_gbq()
-        client = bigquery.Client(project=project, credentials=credentials)
-        copy_job = client.copy_table(
-            sources=temp_table_id,
-            destination=target_table_id,
+            client = bigquery.Client(project=project, credentials=credentials)
+            _datasets_utils.save_dataframe_to_bigquery(
+                temp_bigframes_df,
+                target_table_id,
+                client,
+            )
+
+        return self.create_from_bigquery(
+            multimodal_dataset=multimodal_dataset.model_copy(
+                update={
+                    "metadata": types.SchemaTablesDatasetMetadata(
+                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
+                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
+                                uri=f"bq://{target_table_id}"
+                            )
+                        )
+                    )
+                }
+            ),
+            config=config,
         )
-        copy_job.result()
+
+    def create_from_bigframes(
+        self,
+        *,
+        dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+        target_table_id: Optional[str] = None,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Creates a multimodal dataset from a bigframes dataframe.
+
+        Args:
+            dataframe (bigframes.pandas.DataFrame):
+                The BigFrames dataframe that will be used for the created
+                dataset.
+            multimodal_dataset:
+                Required. A representation of a multimodal dataset.
+            target_table_id (str):
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". Note that the BigQuery
+                dataset must already exist and be in the same location as the
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
+            config:
+                Optional. A configuration for creating the multimodal dataset. If not
+                provided, the default configuration will be used.
+
+        Returns:
+            dataset (MultimodalDataset):
+                The created multimodal dataset.
+        """
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        elif not multimodal_dataset:
+            multimodal_dataset = types.MultimodalDataset()
+
+        bigquery = _datasets_utils._try_import_bigquery()
+        project = self._api_client.project
+        location = self._api_client.location
+        credentials = self._api_client._credentials
+
+        if target_table_id:
+            target_table_id = _datasets_utils._normalize_and_validate_table_id(
+                table_id=target_table_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        else:
+            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
+
+        client = bigquery.Client(project=project, credentials=credentials)
+        _datasets_utils.save_dataframe_to_bigquery(
+            dataframe,
+            target_table_id,
+            client,
+        )
 
         return self.create_from_bigquery(
             multimodal_dataset=multimodal_dataset.model_copy(
@@ -1907,8 +1982,7 @@ class AsyncDatasets(_api_module.BaseModule):
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
-                or "project.dataset.table". If a table already exists with the
-                given table id, it will be overwritten. Note that the BigQuery
+                or "project.dataset.table". Note that the BigQuery
                 dataset must already exist and be in the same location as the
                 multimodal dataset. If not provided, a generated table id will
                 be created in the `vertex_datasets` dataset (e.g.
@@ -1952,13 +2026,91 @@ class AsyncDatasets(_api_module.BaseModule):
         )
         with bigframes.connect(session_options) as session:
             temp_bigframes_df = session.read_pandas(dataframe)
-            temp_table_id = temp_bigframes_df.to_gbq()
-        client = bigquery.Client(project=project, credentials=credentials)
-        copy_job = client.copy_table(
-            sources=temp_table_id,
-            destination=target_table_id,
+            client = bigquery.Client(project=project, credentials=credentials)
+            await _datasets_utils.save_dataframe_to_bigquery_async(
+                temp_bigframes_df,
+                target_table_id,
+                client,
+            )
+
+        return await self.create_from_bigquery(
+            multimodal_dataset=multimodal_dataset.model_copy(
+                update={
+                    "metadata": types.SchemaTablesDatasetMetadata(
+                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
+                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
+                                uri=f"bq://{target_table_id}"
+                            )
+                        )
+                    )
+                }
+            ),
+            config=config,
         )
-        copy_job.result()
+
+    async def create_from_bigframes(
+        self,
+        *,
+        dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+        target_table_id: Optional[str] = None,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Creates a multimodal dataset from a bigframes dataframe.
+
+        Args:
+            dataframe (bigframes.pandas.DataFrame):
+                The BigFrames dataframe that will be used for the created
+                dataset.
+            multimodal_dataset:
+                Required. A representation of a multimodal dataset.
+            target_table_id (str):
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". Note that the BigQuery
+                dataset must already exist and be in the same location as the
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
+            config:
+                Optional. A configuration for creating the multimodal dataset. If not
+                provided, the default configuration will be used.
+
+        Returns:
+            dataset (MultimodalDataset):
+                The created multimodal dataset.
+        """
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        elif not multimodal_dataset:
+            multimodal_dataset = types.MultimodalDataset()
+
+        bigquery = _datasets_utils._try_import_bigquery()
+        project = self._api_client.project
+        location = self._api_client.location
+        credentials = self._api_client._credentials
+
+        if target_table_id:
+            target_table_id = (
+                await _datasets_utils._normalize_and_validate_table_id_async(
+                    table_id=target_table_id,
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                )
+            )
+        else:
+            dataset_id = await _datasets_utils._create_default_bigquery_dataset_if_not_exists_async(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
+
+        client = bigquery.Client(project=project, credentials=credentials)
+        await _datasets_utils.save_dataframe_to_bigquery_async(
+            dataframe,
+            target_table_id,
+            client,
+        )
 
         return await self.create_from_bigquery(
             multimodal_dataset=multimodal_dataset.model_copy(

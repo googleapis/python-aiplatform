@@ -14,12 +14,14 @@
 #
 """Utility functions for multimodal dataset."""
 
+import asyncio
 from typing import Any, Type, TypeVar
 import uuid
 
 import google.auth.credentials
 from vertexai._genai.types import common
 from pydantic import BaseModel
+
 
 METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/multimodal_1.0.0.yaml"
@@ -169,14 +171,48 @@ def _normalize_and_validate_table_id(
     return f"{table_ref.project}.{table_ref.dataset_id}.{table_ref.table_id}"
 
 
+async def _normalize_and_validate_table_id_async(
+    *,
+    table_id: str,
+    project: str,
+    location: str,
+    credentials: google.auth.credentials.Credentials,
+) -> str:
+    bigquery = _try_import_bigquery()
+
+    table_ref = bigquery.TableReference.from_string(table_id, default_project=project)
+    if table_ref.project != project:
+        raise ValueError(
+            "The BigQuery table "
+            f"`{table_ref.project}.{table_ref.dataset_id}.{table_ref.table_id}`"
+            " must be in the same project as the multimodal dataset."
+            f" The multimodal dataset is in `{project}`, but the BigQuery table"
+            f" is in `{table_ref.project}`."
+        )
+
+    dataset_ref = bigquery.DatasetReference(
+        project=table_ref.project, dataset_id=table_ref.dataset_id
+    )
+    client = bigquery.Client(project=project, credentials=credentials)
+    bq_dataset = await asyncio.to_thread(client.get_dataset, dataset_ref=dataset_ref)
+    if not _bq_dataset_location_allowed(location, bq_dataset.location):
+        raise ValueError(
+            "The BigQuery dataset"
+            f" `{dataset_ref.project}.{dataset_ref.dataset_id}` must be in the"
+            " same location as the multimodal dataset. The multimodal dataset"
+            f" is in `{location}`, but the BigQuery dataset is in"
+            f" `{bq_dataset.location}`."
+        )
+    return f"{table_ref.project}.{table_ref.dataset_id}.{table_ref.table_id}"
+
+
 def _create_default_bigquery_dataset_if_not_exists(
     *,
     project: str,
     location: str,
     credentials: google.auth.credentials.Credentials,
 ) -> str:
-    # Loading bigquery lazily to avoid auto-loading it when importing vertexai
-    from google.cloud import bigquery  # pylint: disable=g-import-not-at-top
+    bigquery = _try_import_bigquery()
 
     bigquery_client = bigquery.Client(project=project, credentials=credentials)
     location_str = location.lower().replace("-", "_")
@@ -189,5 +225,55 @@ def _create_default_bigquery_dataset_if_not_exists(
     return f"{dataset_id.project}.{dataset_id.dataset_id}"
 
 
+async def _create_default_bigquery_dataset_if_not_exists_async(
+    *,
+    project: str,
+    location: str,
+    credentials: google.auth.credentials.Credentials,
+) -> str:
+    bigquery = _try_import_bigquery()
+
+    bigquery_client = bigquery.Client(project=project, credentials=credentials)
+    location_str = location.lower().replace("-", "_")
+    dataset_id = bigquery.DatasetReference(
+        project, f"{_DEFAULT_BQ_DATASET_PREFIX}_{location_str}"
+    )
+    dataset = bigquery.Dataset(dataset_ref=dataset_id)
+    dataset.location = location
+    await asyncio.to_thread(bigquery_client.create_dataset, dataset, exists_ok=True)
+    return f"{dataset_id.project}.{dataset_id.dataset_id}"
+
+
 def _generate_target_table_id(dataset_id: str) -> str:
     return f"{dataset_id}.{_DEFAULT_BQ_TABLE_PREFIX}_{str(uuid.uuid4())}"
+
+
+def save_dataframe_to_bigquery(
+    dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
+    target_table_id: str,
+    bq_client: "bigquery.Client",  # type: ignore # noqa: F821
+) -> None:
+    # `to_gbq` does not support cross-region use cases. We use `copy_table` as a workaround.
+    temp_table_id = dataframe.to_gbq()
+    copy_job = bq_client.copy_table(
+        sources=temp_table_id,
+        destination=target_table_id,
+    )
+    copy_job.result()
+    bq_client.delete_table(temp_table_id)
+
+
+async def save_dataframe_to_bigquery_async(
+    dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
+    target_table_id: str,
+    bq_client: "bigquery.Client",  # type: ignore # noqa: F821
+) -> None:
+    # `to_gbq` does not support cross-region use cases. We use `copy_table` as a workaround.
+    temp_table_id = await asyncio.to_thread(dataframe.to_gbq)
+    copy_job = await asyncio.to_thread(
+        bq_client.copy_table,
+        sources=temp_table_id,
+        destination=target_table_id,
+    )
+    await asyncio.to_thread(copy_job.result)
+    await asyncio.to_thread(bq_client.delete_table, temp_table_id)
