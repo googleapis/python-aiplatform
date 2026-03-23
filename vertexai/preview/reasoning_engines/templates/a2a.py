@@ -212,6 +212,28 @@ class A2aAgent:
         self.rest_handler = None
         self.task_store = None
         self.agent_executor = None
+        self._set_agent_framework()
+
+    def _set_agent_framework(self):
+        """Best effort detection of the underlying agent framework."""
+        self.agent_framework = "a2a"
+        agent_executor_builder = self._tmpl_attrs.get("agent_executor_builder")
+        if agent_executor_builder:
+            try:
+                from google.adk.a2a.executor.a2a_agent_executor import (
+                    A2aAgentExecutor as AdkAgentExecutor,
+                )
+                # It's unlikely that the builder does any heavy lifting, so this
+                # shouldn't throw any exception.
+                executor = agent_executor_builder(
+                    **self._tmpl_attrs.get("agent_executor_kwargs")
+                )
+                if isinstance(executor, AdkAgentExecutor):  # type: ignore
+                    # A2aAgentExecutor presence indicates a Google ADK agent
+                    # since it requires a `google.adk.runners.Runner` to instantiate.
+                    self.agent_framework = "a2a-google-adk"
+            except Exception:
+                pass
 
     def clone(self) -> "A2aAgent":
         """Clones the A2A agent."""
