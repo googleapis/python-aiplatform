@@ -84,7 +84,7 @@ except ImportError:
 _thread_local_data = threading.local()
 
 MAX_WORKERS = 100
-AGENT_MAX_WORKERS = 10
+AGENT_MAX_WORKERS = 20
 CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
@@ -2036,7 +2036,7 @@ async def _execute_local_agent_run_with_retry_async(
                 )
                 if attempt == max_retries - 1:
                     return {"error": f"Resource exhausted after retries: {e}"}
-                time.sleep(2**attempt)
+                await asyncio.sleep(2**attempt)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error(
                     "Unexpected error during generate_content on attempt %d/%d: %s",
@@ -2047,7 +2047,7 @@ async def _execute_local_agent_run_with_retry_async(
 
                 if attempt == max_retries - 1:
                     return {"error": f"Failed after retries: {e}"}
-                time.sleep(1)
+                await asyncio.sleep(1)
         return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 
