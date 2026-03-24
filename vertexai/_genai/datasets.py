@@ -1101,7 +1101,9 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> str:
         """Assemble the dataset into a BigQuery table.
@@ -1112,9 +1114,9 @@ class Datasets(_api_module.BaseModule):
           name:
             Required. The name of the dataset to assemble. The name should be in
             the format of "projects/{project}/locations/{location}/datasets/{dataset}".
-          template_config:
-            Optional. The template config to use to assemble the dataset. If
-            not provided, the template config attached to the dataset will be
+          gemini_request_read_config:
+            Optional. The read config to use to assemble the dataset. If
+            not provided, the read config attached to the dataset will be
             used.
           config:
             Optional. A configuration for assembling the dataset. If not
@@ -1130,9 +1132,7 @@ class Datasets(_api_module.BaseModule):
 
         operation = self._assemble_multimodal_dataset(
             name=name,
-            gemini_request_read_config={
-                "template_config": template_config,
-            },
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1146,7 +1146,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningResourceUsageAssessmentResult:
         """Assess the tuning resources required for a given model.
@@ -1158,11 +1160,11 @@ class Datasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
-          template_config:
-            Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+            Optional. The read config used to assemble the dataset
             before assessing the tuning resources. If not provided, the
-            template config attached to the dataset will be used. Required
-            if no template config is attached to the dataset.
+            read config attached to the dataset will be used. Required
+            if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning resources. If not
             provided, the default configuration will be used.
@@ -1181,9 +1183,7 @@ class Datasets(_api_module.BaseModule):
             tuning_resource_usage_assessment_config=types.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1201,7 +1201,9 @@ class Datasets(_api_module.BaseModule):
         dataset_name: str,
         model_name: str,
         dataset_usage: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of tuning a given
@@ -1217,11 +1219,11 @@ class Datasets(_api_module.BaseModule):
           dataset_usage:
               Required. The dataset usage to assess the tuning validity for.
               Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the tuning validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning validity. If not
             provided, the default configuration will be used.
@@ -1243,9 +1245,7 @@ class Datasets(_api_module.BaseModule):
                 model_name=model_name,
                 dataset_usage=dataset_usage,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1262,7 +1262,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionResourceUsageAssessmentResult:
         """Assess the batch prediction resources required for a given model.
@@ -1274,16 +1276,11 @@ class Datasets(_api_module.BaseModule):
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction resources. If not provided,
-              the template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
-          template_config:
-              Optional. The template config used to assemble the dataset
-              before assessing the batch prediction resources. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              the read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
               Optional. A configuration for assessing the batch prediction
               resources. If not provided, the default configuration will be
@@ -1307,9 +1304,7 @@ class Datasets(_api_module.BaseModule):
             batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1326,7 +1321,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of batch prediction
@@ -1340,11 +1337,11 @@ class Datasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the batch prediction validity.
             If not provided, the default configuration will be used.
@@ -1366,9 +1363,7 @@ class Datasets(_api_module.BaseModule):
             batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -2252,7 +2247,9 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> str:
         """Assemble the dataset into a BigQuery table.
@@ -2263,9 +2260,9 @@ class AsyncDatasets(_api_module.BaseModule):
           name:
             Required. The name of the dataset to assemble. The name should be in
             the format of "projects/{project}/locations/{location}/datasets/{dataset}".
-          template_config:
-            Optional. The template config to use to assemble the dataset. If
-            not provided, the template config attached to the dataset will be
+          gemini_request_read_config:
+            Optional. The read config to use to assemble the dataset. If
+            not provided, the read config attached to the dataset will be
             used.
           config:
             Optional. A configuration for assembling the dataset. If not
@@ -2281,9 +2278,7 @@ class AsyncDatasets(_api_module.BaseModule):
 
         operation = await self._assemble_multimodal_dataset(
             name=name,
-            gemini_request_read_config={
-                "template_config": template_config,
-            },
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2297,7 +2292,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningResourceUsageAssessmentResult:
         """Assess the tuning resources required for a given model.
@@ -2309,11 +2306,11 @@ class AsyncDatasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
-          template_config:
-            Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+            Optional. The read config used to assemble the dataset
             before assessing the tuning resources. If not provided, the
-            template config attached to the dataset will be used. Required
-            if no template config is attached to the dataset.
+            read config attached to the dataset will be used. Required
+            if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning resources. If not
             provided, the default configuration will be used.
@@ -2332,9 +2329,7 @@ class AsyncDatasets(_api_module.BaseModule):
             tuning_resource_usage_assessment_config=types.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2352,7 +2347,9 @@ class AsyncDatasets(_api_module.BaseModule):
         dataset_name: str,
         model_name: str,
         dataset_usage: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of tuning a given
@@ -2368,11 +2365,11 @@ class AsyncDatasets(_api_module.BaseModule):
           dataset_usage:
               Required. The dataset usage to assess the tuning validity for.
               Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the tuning validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning validity. If not
             provided, the default configuration will be used.
@@ -2394,9 +2391,7 @@ class AsyncDatasets(_api_module.BaseModule):
                 model_name=model_name,
                 dataset_usage=dataset_usage,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2413,7 +2408,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionResourceUsageAssessmentResult:
         """Assess the batch prediction resources required for a given model.
@@ -2425,16 +2422,11 @@ class AsyncDatasets(_api_module.BaseModule):
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction resources. If not provided,
-              the template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
-          template_config:
-              Optional. The template config used to assemble the dataset
-              before assessing the batch prediction resources. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              the read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
               Optional. A configuration for assessing the batch prediction
               resources. If not provided, the default configuration will be
@@ -2458,9 +2450,7 @@ class AsyncDatasets(_api_module.BaseModule):
             batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2477,7 +2467,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of batch prediction
@@ -2491,11 +2483,11 @@ class AsyncDatasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the batch prediction validity.
             If not provided, the default configuration will be used.
@@ -2517,9 +2509,7 @@ class AsyncDatasets(_api_module.BaseModule):
             batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
