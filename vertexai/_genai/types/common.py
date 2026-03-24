@@ -399,10 +399,7 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     CREATED = "CREATED"
     """The memory was created."""
     UPDATED = "UPDATED"
-    """The memory was updated.
-
-      The `fact` field may not be updated if the existing fact is still accurate.
-      """
+    """The memory was updated. The `fact` field may not be updated if the existing fact is still accurate."""
     DELETED = "DELETED"
     """The memory was deleted."""
 
