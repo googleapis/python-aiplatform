@@ -43,6 +43,7 @@ from .common import _CustomJobParameters
 from .common import _CustomJobParameters
 from .common import _DeleteAgentEngineMemoryRequestParameters
 from .common import _DeleteAgentEngineRequestParameters
+from .common import _DeleteAgentEngineRuntimeRevisionRequestParameters
 from .common import _DeleteAgentEngineSandboxRequestParameters
 from .common import _DeleteAgentEngineSessionRequestParameters
 from .common import _DeleteAgentEngineTaskRequestParameters
@@ -61,6 +62,7 @@ from .common import _GetAgentEngineMemoryRequestParameters
 from .common import _GetAgentEngineMemoryRevisionRequestParameters
 from .common import _GetAgentEngineOperationParameters
 from .common import _GetAgentEngineRequestParameters
+from .common import _GetAgentEngineRuntimeRevisionRequestParameters
 from .common import _GetAgentEngineSandboxOperationParameters
 from .common import _GetAgentEngineSandboxRequestParameters
 from .common import _GetAgentEngineSessionOperationParameters
@@ -71,6 +73,7 @@ from .common import _GetCustomJobParameters
 from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
+from .common import _GetDeleteAgentEngineRuntimeRevisionOperationParameters
 from .common import _GetEvaluationItemParameters
 from .common import _GetEvaluationMetricParameters
 from .common import _GetEvaluationRunParameters
@@ -80,6 +83,7 @@ from .common import _GetMultimodalDatasetParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
 from .common import _ListAgentEngineRequestParameters
+from .common import _ListAgentEngineRuntimeRevisionsRequestParameters
 from .common import _ListAgentEngineSandboxesRequestParameters
 from .common import _ListAgentEngineSessionEventsRequestParameters
 from .common import _ListAgentEngineSessionsRequestParameters
@@ -93,6 +97,7 @@ from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
+from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
 from .common import _RetrieveMemoryProfilesRequestParameters
@@ -135,6 +140,9 @@ from .common import AgentEnginePurgeMemoriesOperationOrDict
 from .common import AgentEngineRollbackMemoryOperation
 from .common import AgentEngineRollbackMemoryOperationDict
 from .common import AgentEngineRollbackMemoryOperationOrDict
+from .common import AgentEngineRuntimeRevision
+from .common import AgentEngineRuntimeRevisionDict
+from .common import AgentEngineRuntimeRevisionOrDict
 from .common import AgentEngineSandboxOperation
 from .common import AgentEngineSandboxOperationDict
 from .common import AgentEngineSandboxOperationOrDict
@@ -292,6 +300,12 @@ from .common import DeleteAgentEngineMemoryOperationOrDict
 from .common import DeleteAgentEngineOperation
 from .common import DeleteAgentEngineOperationDict
 from .common import DeleteAgentEngineOperationOrDict
+from .common import DeleteAgentEngineRuntimeRevisionConfig
+from .common import DeleteAgentEngineRuntimeRevisionConfigDict
+from .common import DeleteAgentEngineRuntimeRevisionConfigOrDict
+from .common import DeleteAgentEngineRuntimeRevisionOperation
+from .common import DeleteAgentEngineRuntimeRevisionOperationDict
+from .common import DeleteAgentEngineRuntimeRevisionOperationOrDict
 from .common import DeleteAgentEngineSandboxConfig
 from .common import DeleteAgentEngineSandboxConfigDict
 from .common import DeleteAgentEngineSandboxConfigOrDict
@@ -505,6 +519,9 @@ from .common import GetAgentEngineMemoryRevisionConfigOrDict
 from .common import GetAgentEngineOperationConfig
 from .common import GetAgentEngineOperationConfigDict
 from .common import GetAgentEngineOperationConfigOrDict
+from .common import GetAgentEngineRuntimeRevisionConfig
+from .common import GetAgentEngineRuntimeRevisionConfigDict
+from .common import GetAgentEngineRuntimeRevisionConfigOrDict
 from .common import GetAgentEngineSandboxConfig
 from .common import GetAgentEngineSandboxConfigDict
 from .common import GetAgentEngineSandboxConfigOrDict
@@ -517,6 +534,9 @@ from .common import GetAgentEngineTaskConfigOrDict
 from .common import GetDatasetOperationConfig
 from .common import GetDatasetOperationConfigDict
 from .common import GetDatasetOperationConfigOrDict
+from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfig
+from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigDict
+from .common import GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict
 from .common import GetEvaluationItemConfig
 from .common import GetEvaluationItemConfigDict
 from .common import GetEvaluationItemConfigOrDict
@@ -560,6 +580,9 @@ from .common import ListAgentEngineMemoryRevisionsConfigOrDict
 from .common import ListAgentEngineMemoryRevisionsResponse
 from .common import ListAgentEngineMemoryRevisionsResponseDict
 from .common import ListAgentEngineMemoryRevisionsResponseOrDict
+from .common import ListAgentEngineRuntimeRevisionsConfig
+from .common import ListAgentEngineRuntimeRevisionsConfigDict
+from .common import ListAgentEngineRuntimeRevisionsConfigOrDict
 from .common import ListAgentEngineSandboxesConfig
 from .common import ListAgentEngineSandboxesConfigDict
 from .common import ListAgentEngineSandboxesConfigOrDict
@@ -614,6 +637,9 @@ from .common import ListReasoningEnginesMemoriesResponseOrDict
 from .common import ListReasoningEnginesResponse
 from .common import ListReasoningEnginesResponseDict
 from .common import ListReasoningEnginesResponseOrDict
+from .common import ListReasoningEnginesRuntimeRevisionsResponse
+from .common import ListReasoningEnginesRuntimeRevisionsResponseDict
+from .common import ListReasoningEnginesRuntimeRevisionsResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
@@ -808,6 +834,9 @@ from .common import PythonPackageSpecOrDict
 from .common import QueryAgentEngineConfig
 from .common import QueryAgentEngineConfigDict
 from .common import QueryAgentEngineConfigOrDict
+from .common import QueryAgentEngineRuntimeRevisionConfig
+from .common import QueryAgentEngineRuntimeRevisionConfigDict
+from .common import QueryAgentEngineRuntimeRevisionConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
@@ -838,6 +867,9 @@ from .common import ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict
 from .common import ReasoningEngineContextSpecOrDict
 from .common import ReasoningEngineDict
 from .common import ReasoningEngineOrDict
+from .common import ReasoningEngineRuntimeRevision
+from .common import ReasoningEngineRuntimeRevisionDict
+from .common import ReasoningEngineRuntimeRevisionOrDict
 from .common import ReasoningEngineSpec
 from .common import ReasoningEngineSpecContainerSpec
 from .common import ReasoningEngineSpecContainerSpecDict
@@ -1788,15 +1820,15 @@ __all__ = [
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
-    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest",
-    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict",
-    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict",
     "ReasoningEngineTrafficConfigTrafficSplitManualTarget",
     "ReasoningEngineTrafficConfigTrafficSplitManualTargetDict",
     "ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict",
     "ReasoningEngineTrafficConfigTrafficSplitManual",
     "ReasoningEngineTrafficConfigTrafficSplitManualDict",
     "ReasoningEngineTrafficConfigTrafficSplitManualOrDict",
+    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest",
+    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict",
+    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict",
     "ReasoningEngineTrafficConfig",
     "ReasoningEngineTrafficConfigDict",
     "ReasoningEngineTrafficConfigOrDict",
@@ -1956,6 +1988,30 @@ __all__ = [
     "ListAgentEngineMemoryRevisionsResponse",
     "ListAgentEngineMemoryRevisionsResponseDict",
     "ListAgentEngineMemoryRevisionsResponseOrDict",
+    "GetAgentEngineRuntimeRevisionConfig",
+    "GetAgentEngineRuntimeRevisionConfigDict",
+    "GetAgentEngineRuntimeRevisionConfigOrDict",
+    "ReasoningEngineRuntimeRevision",
+    "ReasoningEngineRuntimeRevisionDict",
+    "ReasoningEngineRuntimeRevisionOrDict",
+    "ListAgentEngineRuntimeRevisionsConfig",
+    "ListAgentEngineRuntimeRevisionsConfigDict",
+    "ListAgentEngineRuntimeRevisionsConfigOrDict",
+    "ListReasoningEnginesRuntimeRevisionsResponse",
+    "ListReasoningEnginesRuntimeRevisionsResponseDict",
+    "ListReasoningEnginesRuntimeRevisionsResponseOrDict",
+    "DeleteAgentEngineRuntimeRevisionConfig",
+    "DeleteAgentEngineRuntimeRevisionConfigDict",
+    "DeleteAgentEngineRuntimeRevisionConfigOrDict",
+    "DeleteAgentEngineRuntimeRevisionOperation",
+    "DeleteAgentEngineRuntimeRevisionOperationDict",
+    "DeleteAgentEngineRuntimeRevisionOperationOrDict",
+    "GetDeleteAgentEngineRuntimeRevisionOperationConfig",
+    "GetDeleteAgentEngineRuntimeRevisionOperationConfigDict",
+    "GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict",
+    "QueryAgentEngineRuntimeRevisionConfig",
+    "QueryAgentEngineRuntimeRevisionConfigDict",
+    "QueryAgentEngineRuntimeRevisionConfigOrDict",
     "SandboxEnvironmentSpecCodeExecutionEnvironment",
     "SandboxEnvironmentSpecCodeExecutionEnvironmentDict",
     "SandboxEnvironmentSpecCodeExecutionEnvironmentOrDict",
@@ -2301,6 +2357,9 @@ __all__ = [
     "OptimizeJobConfig",
     "OptimizeJobConfigDict",
     "OptimizeJobConfigOrDict",
+    "AgentEngineRuntimeRevision",
+    "AgentEngineRuntimeRevisionDict",
+    "AgentEngineRuntimeRevisionOrDict",
     "A2aTaskState",
     "State",
     "Strategy",
@@ -2390,6 +2449,11 @@ __all__ = [
     "_PurgeAgentEngineMemoriesRequestParameters",
     "_GetAgentEngineMemoryRevisionRequestParameters",
     "_ListAgentEngineMemoryRevisionsRequestParameters",
+    "_GetAgentEngineRuntimeRevisionRequestParameters",
+    "_ListAgentEngineRuntimeRevisionsRequestParameters",
+    "_DeleteAgentEngineRuntimeRevisionRequestParameters",
+    "_GetDeleteAgentEngineRuntimeRevisionOperationParameters",
+    "_QueryAgentEngineRuntimeRevisionRequestParameters",
     "_CreateAgentEngineSandboxRequestParameters",
     "_DeleteAgentEngineSandboxRequestParameters",
     "_ExecuteCodeAgentEngineSandboxRequestParameters",

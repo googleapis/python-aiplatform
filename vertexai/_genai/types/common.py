@@ -7720,45 +7720,27 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
 
-class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest(_common.BaseModel):
-    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
-
-    pass
-
-
-class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict(TypedDict, total=False):
-    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
-
-    pass
-
-
-ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict = Union[
-    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest,
-    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict,
-]
-
-
 class ReasoningEngineTrafficConfigTrafficSplitManualTarget(_common.BaseModel):
     """A single target for the traffic split, specifying a Runtime Revision and the percentage of traffic to send to it."""
 
-    percent: Optional[int] = Field(
-        default=None,
-        description="""Required. Specifies percent of the traffic to this Runtime Revision.""",
-    )
     runtime_revision_name: Optional[str] = Field(
         default=None,
         description="""Required. The Runtime Revision name to which to send this portion of traffic, if traffic allocation is by Runtime Revision.""",
+    )
+    percent: Optional[int] = Field(
+        default=None,
+        description="""Required. Specifies percent of the traffic to this Runtime Revision.""",
     )
 
 
 class ReasoningEngineTrafficConfigTrafficSplitManualTargetDict(TypedDict, total=False):
     """A single target for the traffic split, specifying a Runtime Revision and the percentage of traffic to send to it."""
 
-    percent: Optional[int]
-    """Required. Specifies percent of the traffic to this Runtime Revision."""
-
     runtime_revision_name: Optional[str]
     """Required. The Runtime Revision name to which to send this portion of traffic, if traffic allocation is by Runtime Revision."""
+
+    percent: Optional[int]
+    """Required. Specifies percent of the traffic to this Runtime Revision."""
 
 
 ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict = Union[
@@ -7791,33 +7773,51 @@ ReasoningEngineTrafficConfigTrafficSplitManualOrDict = Union[
 ]
 
 
+class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest(_common.BaseModel):
+    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    pass
+
+
+class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict(TypedDict, total=False):
+    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    pass
+
+
+ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest,
+    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict,
+]
+
+
 class ReasoningEngineTrafficConfig(_common.BaseModel):
     """Traffic distribution configuration."""
 
-    traffic_split_always_latest: Optional[
-        ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest
-    ] = Field(
-        default=None,
-        description="""Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision.""",
-    )
     traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManual] = (
         Field(
             default=None,
             description="""Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each.""",
         )
     )
+    traffic_split_always_latest: Optional[
+        ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest
+    ] = Field(
+        default=None,
+        description="""Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision.""",
+    )
 
 
 class ReasoningEngineTrafficConfigDict(TypedDict, total=False):
     """Traffic distribution configuration."""
 
+    traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManualDict]
+    """Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
     traffic_split_always_latest: Optional[
         ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict
     ]
     """Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
-
-    traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManualDict]
-    """Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
 
 
 ReasoningEngineTrafficConfigOrDict = Union[
@@ -8775,6 +8775,10 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         description="""The update mask to apply. For the `FieldMask` definition, see
       https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
     )
+    traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
+        default=None,
+        description="""Traffic distribution configuration for the Reasoning Engine.""",
+    )
 
 
 class UpdateAgentEngineConfigDict(TypedDict, total=False):
@@ -8914,6 +8918,9 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
       https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
+
+    traffic_config: Optional[ReasoningEngineTrafficConfigDict]
+    """Traffic distribution configuration for the Reasoning Engine."""
 
 
 UpdateAgentEngineConfigOrDict = Union[
@@ -11149,6 +11156,402 @@ class ListAgentEngineMemoryRevisionsResponseDict(TypedDict, total=False):
 
 ListAgentEngineMemoryRevisionsResponseOrDict = Union[
     ListAgentEngineMemoryRevisionsResponse, ListAgentEngineMemoryRevisionsResponseDict
+]
+
+
+class GetAgentEngineRuntimeRevisionConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Runtime Revision."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineRuntimeRevisionConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Runtime Revision."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineRuntimeRevisionConfigOrDict = Union[
+    GetAgentEngineRuntimeRevisionConfig, GetAgentEngineRuntimeRevisionConfigDict
+]
+
+
+class _GetAgentEngineRuntimeRevisionRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine runtime revision."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine runtime revision."""
+    )
+    config: Optional[GetAgentEngineRuntimeRevisionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineRuntimeRevisionRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine runtime revision."""
+
+    name: Optional[str]
+    """Name of the agent engine runtime revision."""
+
+    config: Optional[GetAgentEngineRuntimeRevisionConfigDict]
+    """"""
+
+
+_GetAgentEngineRuntimeRevisionRequestParametersOrDict = Union[
+    _GetAgentEngineRuntimeRevisionRequestParameters,
+    _GetAgentEngineRuntimeRevisionRequestParametersDict,
+]
+
+
+class ReasoningEngineRuntimeRevision(_common.BaseModel):
+    """A runtime revision."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the ReasoningEngineRuntimeRevision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/runtimeRevisions/{runtime_revision}`""",
+    )
+    spec: Optional[ReasoningEngineSpec] = Field(
+        default=None,
+        description="""Immutable. Configurations of the ReasoningEngineRuntimeRevision. Contains only revision specific fields.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this ReasoningEngineRuntimeRevision was created.""",
+    )
+    state: Optional[State] = Field(
+        default=None, description="""Output only. The state of the revision."""
+    )
+
+
+class ReasoningEngineRuntimeRevisionDict(TypedDict, total=False):
+    """A runtime revision."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the ReasoningEngineRuntimeRevision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/runtimeRevisions/{runtime_revision}`"""
+
+    spec: Optional[ReasoningEngineSpecDict]
+    """Immutable. Configurations of the ReasoningEngineRuntimeRevision. Contains only revision specific fields."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ReasoningEngineRuntimeRevision was created."""
+
+    state: Optional[State]
+    """Output only. The state of the revision."""
+
+
+ReasoningEngineRuntimeRevisionOrDict = Union[
+    ReasoningEngineRuntimeRevision, ReasoningEngineRuntimeRevisionDict
+]
+
+
+class ListAgentEngineRuntimeRevisionsConfig(_common.BaseModel):
+    """Config for listing reasoning engine runtime revisions."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+
+
+class ListAgentEngineRuntimeRevisionsConfigDict(TypedDict, total=False):
+    """Config for listing reasoning engine runtime revisions."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+
+ListAgentEngineRuntimeRevisionsConfigOrDict = Union[
+    ListAgentEngineRuntimeRevisionsConfig, ListAgentEngineRuntimeRevisionsConfigDict
+]
+
+
+class _ListAgentEngineRuntimeRevisionsRequestParameters(_common.BaseModel):
+    """Parameters for listing reasoning engine runtime revisions."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the reasoning engine."""
+    )
+    config: Optional[ListAgentEngineRuntimeRevisionsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineRuntimeRevisionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing reasoning engine runtime revisions."""
+
+    name: Optional[str]
+    """Name of the reasoning engine."""
+
+    config: Optional[ListAgentEngineRuntimeRevisionsConfigDict]
+    """"""
+
+
+_ListAgentEngineRuntimeRevisionsRequestParametersOrDict = Union[
+    _ListAgentEngineRuntimeRevisionsRequestParameters,
+    _ListAgentEngineRuntimeRevisionsRequestParametersDict,
+]
+
+
+class ListReasoningEnginesRuntimeRevisionsResponse(_common.BaseModel):
+    """Response for listing agent engine runtime revisions."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    reasoning_engine_runtime_revisions: Optional[
+        list[ReasoningEngineRuntimeRevision]
+    ] = Field(
+        default=None, description="""List of reasoning engine runtime revisions."""
+    )
+
+
+class ListReasoningEnginesRuntimeRevisionsResponseDict(TypedDict, total=False):
+    """Response for listing agent engine runtime revisions."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    reasoning_engine_runtime_revisions: Optional[
+        list[ReasoningEngineRuntimeRevisionDict]
+    ]
+    """List of reasoning engine runtime revisions."""
+
+
+ListReasoningEnginesRuntimeRevisionsResponseOrDict = Union[
+    ListReasoningEnginesRuntimeRevisionsResponse,
+    ListReasoningEnginesRuntimeRevisionsResponseDict,
+]
+
+
+class DeleteAgentEngineRuntimeRevisionConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Runtime Revision."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class DeleteAgentEngineRuntimeRevisionConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Runtime Revision."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+DeleteAgentEngineRuntimeRevisionConfigOrDict = Union[
+    DeleteAgentEngineRuntimeRevisionConfig, DeleteAgentEngineRuntimeRevisionConfigDict
+]
+
+
+class _DeleteAgentEngineRuntimeRevisionRequestParameters(_common.BaseModel):
+    """Parameters for deleting agent engine runtime revisions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine runtime revision to delete.""",
+    )
+    config: Optional[DeleteAgentEngineRuntimeRevisionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineRuntimeRevisionRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting agent engine runtime revisions."""
+
+    name: Optional[str]
+    """Name of the agent engine runtime revision to delete."""
+
+    config: Optional[DeleteAgentEngineRuntimeRevisionConfigDict]
+    """"""
+
+
+_DeleteAgentEngineRuntimeRevisionRequestParametersOrDict = Union[
+    _DeleteAgentEngineRuntimeRevisionRequestParameters,
+    _DeleteAgentEngineRuntimeRevisionRequestParametersDict,
+]
+
+
+class DeleteAgentEngineRuntimeRevisionOperation(_common.BaseModel):
+    """Operation for deleting agent engine runtime revisions."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteAgentEngineRuntimeRevisionOperationDict(TypedDict, total=False):
+    """Operation for deleting agent engine runtime revisions."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteAgentEngineRuntimeRevisionOperationOrDict = Union[
+    DeleteAgentEngineRuntimeRevisionOperation,
+    DeleteAgentEngineRuntimeRevisionOperationDict,
+]
+
+
+class GetDeleteAgentEngineRuntimeRevisionOperationConfig(_common.BaseModel):
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetDeleteAgentEngineRuntimeRevisionOperationConfigDict(TypedDict, total=False):
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetDeleteAgentEngineRuntimeRevisionOperationConfigOrDict = Union[
+    GetDeleteAgentEngineRuntimeRevisionOperationConfig,
+    GetDeleteAgentEngineRuntimeRevisionOperationConfigDict,
+]
+
+
+class _GetDeleteAgentEngineRuntimeRevisionOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation that deletes a agent engine runtime revision."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetDeleteAgentEngineRuntimeRevisionOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetDeleteAgentEngineRuntimeRevisionOperationParametersDict(
+    TypedDict, total=False
+):
+    """Parameters for getting an operation that deletes a agent engine runtime revision."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetDeleteAgentEngineRuntimeRevisionOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetDeleteAgentEngineRuntimeRevisionOperationParametersOrDict = Union[
+    _GetDeleteAgentEngineRuntimeRevisionOperationParameters,
+    _GetDeleteAgentEngineRuntimeRevisionOperationParametersDict,
+]
+
+
+class QueryAgentEngineRuntimeRevisionConfig(_common.BaseModel):
+    """Config for querying agent engine runtime revisions."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    class_method: Optional[str] = Field(
+        default=None, description="""The class method to call."""
+    )
+    input: Optional[dict[str, Any]] = Field(
+        default=None, description="""The input to the class method."""
+    )
+    include_all_fields: Optional[bool] = Field(default=False, description="""""")
+
+
+class QueryAgentEngineRuntimeRevisionConfigDict(TypedDict, total=False):
+    """Config for querying agent engine runtime revisions."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    class_method: Optional[str]
+    """The class method to call."""
+
+    input: Optional[dict[str, Any]]
+    """The input to the class method."""
+
+    include_all_fields: Optional[bool]
+    """"""
+
+
+QueryAgentEngineRuntimeRevisionConfigOrDict = Union[
+    QueryAgentEngineRuntimeRevisionConfig, QueryAgentEngineRuntimeRevisionConfigDict
+]
+
+
+class _QueryAgentEngineRuntimeRevisionRequestParameters(_common.BaseModel):
+    """Parameters for querying agent engine runtime revisions."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine runtime revision."""
+    )
+    config: Optional[QueryAgentEngineRuntimeRevisionConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _QueryAgentEngineRuntimeRevisionRequestParametersDict(TypedDict, total=False):
+    """Parameters for querying agent engine runtime revisions."""
+
+    name: Optional[str]
+    """Name of the agent engine runtime revision."""
+
+    config: Optional[QueryAgentEngineRuntimeRevisionConfigDict]
+    """"""
+
+
+_QueryAgentEngineRuntimeRevisionRequestParametersOrDict = Union[
+    _QueryAgentEngineRuntimeRevisionRequestParameters,
+    _QueryAgentEngineRuntimeRevisionRequestParametersDict,
 ]
 
 
@@ -16521,37 +16924,6 @@ class AgentEngine(_common.BaseModel):
         self.api_client.delete(name=self.api_resource.name, force=force, config=config)  # type: ignore[union-attr]
 
 
-RubricContentProperty = evals_types.RubricContentProperty
-RubricContentPropertyDict = evals_types.RubricContentPropertyDict
-RubricContentPropertyDictOrDict = evals_types.RubricContentPropertyOrDict
-
-RubricContent = evals_types.RubricContent
-RubricContentDict = evals_types.RubricContentDict
-RubricContentDictOrDict = evals_types.RubricContentOrDict
-
-Rubric = evals_types.Rubric
-RubricDict = evals_types.RubricDict
-RubricDictOrDict = evals_types.RubricOrDict
-
-RubricVerdict = evals_types.RubricVerdict
-RubricVerdictDict = evals_types.RubricVerdictDict
-RubricVerdictDictOrDict = evals_types.RubricVerdictOrDict
-
-CandidateResult = evals_types.CandidateResult
-CandidateResultDict = evals_types.CandidateResultDict
-CandidateResultDictOrDict = evals_types.CandidateResultOrDict
-
-Event = evals_types.Event
-EventDict = evals_types.EventDict
-EventDictOrDict = evals_types.EventOrDict
-
-Message = evals_types.Message
-MessageDict = evals_types.MessageDict
-MessageDictOrDict = evals_types.MessageOrDict
-
-Importance = evals_types.Importance
-
-
 class AgentEngineDict(TypedDict, total=False):
     """An agent engine instance."""
 
@@ -16765,6 +17137,9 @@ class AgentEngineConfig(_common.BaseModel):
     container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
         default=None, description="""The container spec for the Agent Engine."""
     )
+    traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
+        default=None, description="""The traffic config for the Agent Engine."""
+    )
     agent_gateway_config: Optional[
         ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
     ] = Field(
@@ -16944,6 +17319,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
     """The container spec for the Agent Engine."""
+
+    traffic_config: Optional[ReasoningEngineTrafficConfigDict]
+    """The traffic config for the Agent Engine."""
 
     agent_gateway_config: Optional[
         ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
@@ -17556,3 +17934,100 @@ class OptimizeJobConfigDict(TypedDict, total=False):
 
 
 OptimizeJobConfigOrDict = Union[OptimizeJobConfig, OptimizeJobConfigDict]
+
+
+class AgentEngineRuntimeRevision(_common.BaseModel):
+    """An agent engine runtime revision instance."""
+
+    api_client: Optional[Any] = Field(
+        default=None, description="""The underlying API client."""
+    )
+    api_async_client: Optional[Any] = Field(
+        default=None,
+        description="""The underlying API client for asynchronous operations.""",
+    )
+    api_resource: Optional[ReasoningEngineRuntimeRevision] = Field(
+        default=None,
+        description="""The underlying API resource (i.e. ReasoningEngineRuntimeRevision).""",
+    )
+
+    # Allows dynamic binding of methods based on the registered operations.
+    model_config = ConfigDict(extra="allow")
+
+    def __repr__(self) -> str:
+        return (
+            f"AgentEngineRuntimeRevision(api_resource.name='{self.api_resource.name}')"
+            if self.api_resource is not None
+            else "AgentEngineRuntimeRevision(api_resource.name=None)"
+        )
+
+    def operation_schemas(self) -> Optional[list[Dict[str, Any]]]:
+        """Returns the schemas of all registered operations for the agent."""
+        if not isinstance(self.api_resource, ReasoningEngineRuntimeRevision):
+            raise ValueError("api_resource is not initialized.")
+        if not self.api_resource.spec:
+            raise ValueError("api_resource.spec is not initialized.")
+        return self.api_resource.spec.class_methods
+
+    def delete(
+        self,
+        config: Optional[DeleteAgentEngineRuntimeRevisionConfigOrDict] = None,
+    ) -> None:
+        """Deletes the agent engine runtime revision.
+
+        Args:
+          config (DeleteAgentEngineRuntimeRevisionConfig):
+              Optional. Additional configurations for deleting the Agent Engine Runtime Revision.
+        """
+        if not isinstance(self.api_resource, ReasoningEngineRuntimeRevision):
+            raise ValueError("api_resource is not initialized.")
+        self.api_client.delete(name=self.api_resource.name, config=config)  # type: ignore[union-attr]
+
+
+RubricContentProperty = evals_types.RubricContentProperty
+RubricContentPropertyDict = evals_types.RubricContentPropertyDict
+RubricContentPropertyDictOrDict = evals_types.RubricContentPropertyOrDict
+
+RubricContent = evals_types.RubricContent
+RubricContentDict = evals_types.RubricContentDict
+RubricContentDictOrDict = evals_types.RubricContentOrDict
+
+Rubric = evals_types.Rubric
+RubricDict = evals_types.RubricDict
+RubricDictOrDict = evals_types.RubricOrDict
+
+RubricVerdict = evals_types.RubricVerdict
+RubricVerdictDict = evals_types.RubricVerdictDict
+RubricVerdictDictOrDict = evals_types.RubricVerdictOrDict
+
+CandidateResult = evals_types.CandidateResult
+CandidateResultDict = evals_types.CandidateResultDict
+CandidateResultDictOrDict = evals_types.CandidateResultOrDict
+
+Event = evals_types.Event
+EventDict = evals_types.EventDict
+EventDictOrDict = evals_types.EventOrDict
+
+Message = evals_types.Message
+MessageDict = evals_types.MessageDict
+MessageDictOrDict = evals_types.MessageOrDict
+
+Importance = evals_types.Importance
+
+
+class AgentEngineRuntimeRevisionDict(TypedDict, total=False):
+    """An agent engine runtime revision instance."""
+
+    api_client: Optional[Any]
+    """The underlying API client."""
+
+    api_async_client: Optional[Any]
+    """The underlying API client for asynchronous operations."""
+
+    api_resource: Optional[ReasoningEngineRuntimeRevisionDict]
+    """The underlying API resource (i.e. ReasoningEngineRuntimeRevision)."""
+
+
+AgentEngineRuntimeRevisionOrDict = Union[
+    AgentEngineRuntimeRevision, AgentEngineRuntimeRevisionDict
+]
