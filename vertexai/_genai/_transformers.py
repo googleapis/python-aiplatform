@@ -73,9 +73,11 @@ def t_metrics(
             metric_payload_item["custom_code_execution_spec"] = {
                 "evaluation_function": metric.remote_custom_function
             }
-        # Pointwise metrics
+        # LLM-based metrics
         elif hasattr(metric, "prompt_template") and metric.prompt_template:
-            llm_based_spec = {"metric_prompt_template": metric.prompt_template}
+            llm_based_spec: dict[str, Any] = {
+                "metric_prompt_template": metric.prompt_template
+            }
             system_instruction = getv(metric, ["judge_model_system_instruction"])
             if system_instruction:
                 llm_based_spec["system_instruction"] = system_instruction
@@ -87,6 +89,26 @@ def t_metrics(
                 llm_based_spec["custom_output_format_config"] = {
                     "return_raw_output": return_raw_output
                 }
+
+            autorater_config: dict[str, Any] = {}
+            if hasattr(metric, "judge_model") and metric.judge_model:
+                autorater_config["autorater_model"] = metric.judge_model
+            if (
+                hasattr(metric, "judge_model_generation_config")
+                and metric.judge_model_generation_config
+            ):
+                autorater_config["generation_config"] = (
+                    metric.judge_model_generation_config
+                )
+            if (
+                hasattr(metric, "judge_model_sampling_count")
+                and metric.judge_model_sampling_count
+            ):
+                autorater_config["sampling_count"] = metric.judge_model_sampling_count
+
+            if autorater_config:
+                llm_based_spec["judge_autorater_config"] = autorater_config
+
             metric_payload_item["llm_based_metric_spec"] = llm_based_spec
         elif getattr(metric, "metric_resource_name", None) is not None:
             # Safe pass
@@ -179,7 +201,7 @@ def t_metric_for_registry(
     elif (hasattr(metric, "prompt_template") and metric.prompt_template) or (
         hasattr(metric, "rubric_group_name") and metric.rubric_group_name
     ):
-        llm_based_spec = {}
+        llm_based_spec: dict[str, Any] = {}
 
         if hasattr(metric, "prompt_template") and metric.prompt_template:
             llm_based_spec["metric_prompt_template"] = metric.prompt_template
@@ -189,6 +211,23 @@ def t_metric_for_registry(
         rubric_group_name = getv(metric, ["rubric_group_name"])
         if rubric_group_name:
             llm_based_spec["rubric_group_key"] = rubric_group_name
+
+        autorater_config: dict[str, Any] = {}
+        if hasattr(metric, "judge_model") and metric.judge_model:
+            autorater_config["autorater_model"] = metric.judge_model
+        if (
+            hasattr(metric, "judge_model_generation_config")
+            and metric.judge_model_generation_config
+        ):
+            autorater_config["generation_config"] = metric.judge_model_generation_config
+        if (
+            hasattr(metric, "judge_model_sampling_count")
+            and metric.judge_model_sampling_count
+        ):
+            autorater_config["sampling_count"] = metric.judge_model_sampling_count
+
+        if autorater_config:
+            llm_based_spec["judge_autorater_config"] = autorater_config
 
         metric_payload_item["llm_based_metric_spec"] = llm_based_spec
 

@@ -359,20 +359,86 @@ def test_evaluation_metric_resource_name(client):
     client._api_client._http_options.base_url = (
         "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
     )
+    tone_check_metric = types.LLMMetric(
+        name="tone_check",
+        prompt_template="""
+    # Instruction
+    You are a professional writing evaluator. Your job is to score writing responses according to pre-defined evaluation criteria.
+
+    # Criteria
+    Analyze the tone of the response based on these two criteria:
+    1. Professionalism: The response should use appropriate language and maintain a business-like demeanor.
+    2. Empathy: The response should acknowledge the user's feelings and show understanding.
+
+    # Input
+    Prompt: {agent_data.turns[0].events[0]}
+    Response: {agent_data.turns[0].events[1]}
+
+    # Output Format
+    Respond in a JSON format with the following schema:
+    {
+        "type": "OBJECT",
+        "properties": {
+            "score": {"type": "NUMBER"},
+            "explanation": {"type": "STRING"},
+        },
+        "required": ["score", "explanation"],
+    }
+    Return the JSON format output in a string representation of a Python dictionary directly, without strings like '```json' or '```'.
+
+    The output would include the following fields:
+    score: based on your evaluation, the score should be a number based on the rating rubrics.
+    explanation: your explanation for the score rating, in one line.
+
+    ## Example Output Format:
+    {"score" : -1, "explanation": "Here is the reason that the response is given a score of -1 based on the rating rubric."}
+    {"score" : 3, "explanation": "Here is the reason that the response is given a score of 3 based on the rating rubric."}
+    {"score" : 0, "explanation": "Here is the reason that the response is given a score of 0 based on the rating rubric."}
+    {"score" : 5, "explanation": "Here is the reason that the response is given a score of 5 based on the rating rubric."}
+    """,
+    )
     metric_resource_name = client.evals.create_evaluation_metric(
-        display_name="test_metric",
-        description="test_description",
-        metric=types.RubricMetric.GENERAL_QUALITY,
+        metric=tone_check_metric,
     )
     assert isinstance(metric_resource_name, str)
     assert re.match(
         r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$",
         metric_resource_name,
     )
+    agent_data = types.evals.AgentData(
+        turns=[
+            types.evals.ConversationTurn(
+                turn_index=0,
+                events=[
+                    types.evals.AgentEvent(
+                        author="user",
+                        content=genai_types.Content(
+                            role="user",
+                            parts=[
+                                genai_types.Part(
+                                    text=("Write a simple story about a dinosaur")
+                                )
+                            ],
+                        ),
+                    ),
+                    types.evals.AgentEvent(
+                        author="model",
+                        content=genai_types.Content(
+                            role="model",
+                            parts=[
+                                genai_types.Part(
+                                    text="Once upon a time, there was a T-Rex named Rexy."
+                                )
+                            ],
+                        ),
+                    ),
+                ],
+            ),
+        ],
+    )
     byor_df = pd.DataFrame(
         {
-            "prompt": ["Write a simple story about a dinosaur"],
-            "response": ["Once upon a time, there was a T-Rex named Rexy."],
+            "agent_data": [agent_data],
         }
     )
     metric = types.Metric(

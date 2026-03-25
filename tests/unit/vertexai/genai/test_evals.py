@@ -146,12 +146,7 @@ def mock_eval_dependencies(mock_api_client_fixture):
                         rouge_metric_values=[genai_types.RougeMetricValue(score=0.8)]
                     )
                 )
-            elif "pointwise_metric_input" in metric_config:
-                return vertexai_genai_types.EvaluateInstancesResponse(
-                    pointwise_metric_result=genai_types.PointwiseMetricResult(
-                        score=0.9, explanation="Mocked LLM explanation"
-                    )
-                )
+
             elif "comet_input" in metric_config:
                 return vertexai_genai_types.EvaluateInstancesResponse(
                     comet_result=vertexai_genai_types.CometResult(score=0.75)
@@ -3725,6 +3720,134 @@ class TestSessionInput:
         assert session_input.state == {"key": "value"}
 
 
+@pytest.mark.usefixtures("google_auth_mock")
+class TestBuildEvaluationInstance:
+    def setup_method(self):
+        importlib.reload(aiplatform_initializer)
+        importlib.reload(aiplatform)
+        importlib.reload(vertexai)
+        importlib.reload(vertexai_genai_types)
+        importlib.reload(_evals_data_converters)
+        importlib.reload(_evals_metric_handlers)
+
+        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        self.mock_api_client = mock.Mock(spec=client.Client)
+        self.mock_evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+    def test_build_evaluation_instance_basic_filtering_and_fields(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="test_quality",
+            prompt_template="Eval: {prompt} with {response}. Context: {custom_context}. Ref: {reference}",
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(
+                parts=[genai_types.Part(text="User prompt text")]
+            ),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="Model response text")]
+                    )
+                )
+            ],
+            reference=vertexai_genai_types.ResponseCandidate(
+                response=genai_types.Content(
+                    parts=[genai_types.Part(text="Ground truth text")]
+                )
+            ),
+            custom_context="Custom context value.",
+            extra_field_not_in_template="This should be excluded.",
+            eval_case_id="case-123",
+        )
+
+        response_content = _evals_metric_handlers._get_response_from_eval_case(
+            eval_case, 0, metric.name
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, response_content, prompt_template=metric.prompt_template
+        )
+
+        assert instance.prompt.contents.contents[0].parts[0].text == "User prompt text"
+        assert (
+            instance.response.contents.contents[0].parts[0].text
+            == "Model response text"
+        )
+        assert (
+            instance.reference.contents.contents[0].parts[0].text == "Ground truth text"
+        )
+        assert (
+            instance.other_data.map_instance["custom_context"]
+            .contents.contents[0]
+            .parts[0]
+            .text
+            == "Custom context value."
+        )
+        assert "extra_field_not_in_template" not in instance.other_data.map_instance
+
+    def test_build_evaluation_instance_various_field_types(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="test_various_fields",
+            prompt_template="{prompt}{response}{conversation_history}{system_instruction}{dict_field}{list_field}{int_field}{bool_field}",
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="The Prompt")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="The Response")]
+                    )
+                )
+            ],
+            conversation_history=[
+                vertexai_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
+                    )
+                ),
+                vertexai_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
+                    )
+                ),
+            ],
+            system_instruction=genai_types.Content(
+                parts=[genai_types.Part(text="System instructions here.")],
+                role="system",
+            ),
+            dict_field={"key1": "val1", "key2": [1, 2]},
+            list_field=["a", "b", {"c": 3}],
+            int_field=42,
+            bool_field=True,
+        )
+
+        response_content = _evals_metric_handlers._get_response_from_eval_case(
+            eval_case, 0, metric.name
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, response_content, prompt_template=metric.prompt_template
+        )
+
+        other_data = instance.other_data.map_instance
+        assert (
+            other_data["dict_field"].contents.contents[0].parts[0].text
+            == '{"key1": "val1", "key2": [1, 2]}'
+        )
+        assert (
+            other_data["list_field"].contents.contents[0].parts[0].text
+            == '["a", "b", {"c": 3}]'
+        )
+        assert other_data["int_field"].contents.contents[0].parts[0].text == "42"
+        assert other_data["bool_field"].contents.contents[0].parts[0].text == "True"
+        assert (
+            other_data["conversation_history"].contents.contents[0].parts[0].text
+            == "user: Turn 1 user\nmodel: Turn 1 model"
+        )
+        assert (
+            other_data["system_instruction"].contents.contents[0].parts[0].text
+            == "System instructions here."
+        )
+
+
 class TestMetric:
     """Unit tests for the Metric class."""
 
@@ -4587,12 +4710,10 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case,
-                eval_case.prompt,
-                eval_case.responses[0].response,
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
         assert "agent1" in agent_data.agents
@@ -4623,11 +4744,7 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
-        )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(eval_case)
 
         assert agent_data.agents is None
         assert (
@@ -4652,11 +4769,7 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
-        )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(eval_case)
 
         assert agent_data.agents is None
         assert agent_data.turns[0].events[0].content is None
@@ -4683,13 +4796,13 @@ class TestPredefinedMetricHandler:
             agent_info=agent_info,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
-        assert agent_data.turns is None
+        assert len(agent_data.turns[0].events) == 2
 
     def test_eval_case_to_agent_data_agent_info_empty_tools(self):
         agent_info = vertexai_genai_types.evals.AgentInfo(
@@ -4713,10 +4826,10 @@ class TestPredefinedMetricHandler:
             intermediate_events=None,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
         assert agent_data.agents["agent1"].instruction == "instruction1"
@@ -4742,10 +4855,10 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
         assert agent_data.agents is None
@@ -4900,168 +5013,6 @@ class TestRunAdkUserSimulation:
             user_id="user_simulation_default_user",
             state={},
         )
-
-
-@pytest.mark.usefixtures("google_auth_mock")
-class TestLLMMetricHandlerPayload:
-    def setup_method(self):
-        importlib.reload(aiplatform_initializer)
-        importlib.reload(aiplatform)
-        importlib.reload(vertexai)
-        importlib.reload(vertexai_genai_types)
-        importlib.reload(_evals_data_converters)
-        importlib.reload(_evals_metric_handlers)
-
-        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        self.mock_api_client = mock.Mock(spec=client.Client)
-        self.mock_evals_module = evals.Evals(api_client_=self.mock_api_client)
-
-    def test_build_request_payload_basic_filtering_and_fields(self):
-        metric = vertexai_genai_types.LLMMetric(
-            name="test_quality",
-            prompt_template="Eval: {prompt} with {response}. Context: {custom_context}. Ref: {reference}",
-        )
-        handler = _evals_metric_handlers.LLMMetricHandler(
-            module=self.mock_evals_module, metric=metric
-        )
-        eval_case = vertexai_genai_types.EvalCase(
-            prompt=genai_types.Content(
-                parts=[genai_types.Part(text="User prompt text")]
-            ),
-            responses=[
-                vertexai_genai_types.ResponseCandidate(
-                    response=genai_types.Content(
-                        parts=[genai_types.Part(text="Model response text")]
-                    )
-                )
-            ],
-            reference=vertexai_genai_types.ResponseCandidate(
-                response=genai_types.Content(
-                    parts=[genai_types.Part(text="Ground truth text")]
-                )
-            ),
-            custom_context="Custom context value.",
-            extra_field_not_in_template="This should be excluded.",
-            eval_case_id="case-123",
-        )
-
-        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-
-        expected_content_map = {
-            "prompt": _create_content_dump("User prompt text"),
-            "response": _create_content_dump("Model response text"),
-            "custom_context": _create_content_dump("Custom context value."),
-            "reference": _create_content_dump("Ground truth text"),
-        }
-        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
-            "content_map_instance"
-        ]["values"]
-
-        assert actual_content_map_dict == expected_content_map
-        assert "extra_field_not_in_template" not in actual_content_map_dict
-        assert "eval_case_id" not in actual_content_map_dict
-
-    def test_build_request_payload_various_field_types(self):
-        metric = vertexai_genai_types.LLMMetric(
-            name="test_various_fields",
-            prompt_template="{prompt}{response}{conversation_history}{system_instruction}{dict_field}{list_field}{int_field}{bool_field}",
-        )
-        handler = _evals_metric_handlers.LLMMetricHandler(
-            module=self.mock_evals_module, metric=metric
-        )
-        eval_case = vertexai_genai_types.EvalCase(
-            prompt=genai_types.Content(parts=[genai_types.Part(text="The Prompt")]),
-            responses=[
-                vertexai_genai_types.ResponseCandidate(
-                    response=genai_types.Content(
-                        parts=[genai_types.Part(text="The Response")]
-                    )
-                )
-            ],
-            conversation_history=[
-                vertexai_genai_types.evals.Message(
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
-                    )
-                ),
-                vertexai_genai_types.evals.Message(
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
-                    )
-                ),
-            ],
-            system_instruction=genai_types.Content(
-                parts=[genai_types.Part(text="System instructions here.")]
-            ),
-            dict_field={"key1": "val1", "key2": [1, 2]},
-            list_field=["a", "b", {"c": 3}],
-            int_field=42,
-            bool_field=True,
-        )
-
-        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
-            "content_map_instance"
-        ]["values"]
-
-        expected_texts = {
-            "prompt": "The Prompt",
-            "response": "The Response",
-            "conversation_history": "user: Turn 1 user\nmodel: Turn 1 model",
-            "system_instruction": "System instructions here.",
-            "dict_field": json.dumps({"key1": "val1", "key2": [1, 2]}),
-            "list_field": json.dumps(["a", "b", {"c": 3}]),
-            "int_field": "42",
-            "bool_field": "True",
-        }
-        expected_content_map = {
-            key: _create_content_dump(text) for key, text in expected_texts.items()
-        }
-
-        assert actual_content_map_dict == expected_content_map
-
-    def test_build_request_payload_optional_metric_configs_set(self):
-        metric = vertexai_genai_types.LLMMetric(
-            name="test_optional_configs",
-            prompt_template="{prompt}{response}",
-            judge_model="gemini-1.5-pro",
-            judge_model_sampling_count=5,
-            judge_model_system_instruction="You are a fair judge.",
-            return_raw_output=True,
-        )
-        handler = _evals_metric_handlers.LLMMetricHandler(
-            module=self.mock_evals_module, metric=metric
-        )
-        eval_case = vertexai_genai_types.EvalCase(
-            prompt=genai_types.Content(parts=[genai_types.Part(text="p")]),
-            responses=[
-                vertexai_genai_types.ResponseCandidate(
-                    response=genai_types.Content(parts=[genai_types.Part(text="r")])
-                )
-            ],
-        )
-
-        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-
-        expected_content_map = {
-            "prompt": _create_content_dump("p"),
-            "response": _create_content_dump("r"),
-        }
-        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
-            "content_map_instance"
-        ]["values"]
-        assert actual_content_map_dict == expected_content_map
-
-        metric_spec_payload = payload["pointwise_metric_input"]["metric_spec"]
-        assert (
-            metric_spec_payload["custom_output_format_config"]["return_raw_output"]
-            is True
-        )
-        assert metric_spec_payload["system_instruction"] == "You are a fair judge."
-
-        autorater_config_payload = payload["autorater_config"]
-        assert autorater_config_payload["autorater_model"] == "gemini-1.5-pro"
-        assert autorater_config_payload["sampling_count"] == 5
 
     def test_merge_with_invalid_prompt_type(self):
         raw_dataset_1 = [
@@ -5360,27 +5311,42 @@ class TestEvalsRunEvaluation:
             name="text_quality", prompt_template="Evaluate: {response}"
         )
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[llm_metric],
-        )
-        assert isinstance(result, vertexai_genai_types.EvaluationResult)
-        assert result.evaluation_dataset == [input_dataset]
-        assert len(result.summary_metrics) == 1
-        summary_metric = result.summary_metrics[0]
-        assert summary_metric.metric_name == "text_quality"
-        assert summary_metric.mean_score == 0.9
-        case_result = result.eval_case_results[0]
-        candidate_result = case_result.response_candidate_results[0]
-        assert (
-            candidate_result.metric_results["text_quality"].explanation
-            == "Mocked LLM explanation"
-        )
+        with mock.patch(
+            "vertexai._genai.evals.Evals._evaluate_instances"
+        ) as mock_evaluate_instances_unified:
+            mock_evaluate_instances_unified.return_value = (
+                vertexai_genai_types.EvaluateInstancesResponse(
+                    metric_results=[
+                        vertexai_genai_types.MetricResult(
+                            score=0.9,
+                            explanation="Mocked LLM explanation",
+                            error=None,
+                            rubric_verdicts=[],
+                        )
+                    ]
+                )
+            )
 
-        mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
-        call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
-        assert "pointwise_metric_input" in call_args[1]["metric_config"]
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[llm_metric],
+            )
+            assert isinstance(result, vertexai_genai_types.EvaluationResult)
+            assert result.evaluation_dataset == [input_dataset]
+            assert len(result.summary_metrics) == 1
+            summary_metric = result.summary_metrics[0]
+            assert summary_metric.metric_name == "text_quality"
+            assert summary_metric.mean_score == 0.9
+            case_result = result.eval_case_results[0]
+            candidate_result = case_result.response_candidate_results[0]
+            assert (
+                candidate_result.metric_results["text_quality"].explanation
+                == "Mocked LLM explanation"
+            )
+
+            mock_evaluate_instances_unified.assert_called_once()
+            mock_eval_dependencies["mock_evaluate_instances"].assert_not_called()
 
     def test_execute_evaluation_hallucination_metric(self, mock_api_client_fixture):
         dataset_df = pd.DataFrame(
@@ -5719,21 +5685,37 @@ class TestEvalsRunEvaluation:
             name="fluency", version="v1"
         )
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[lazy_metric_instance],
-        )
+        with mock.patch(
+            "vertexai._genai.evals.Evals._evaluate_instances"
+        ) as mock_evaluate_instances_unified:
+            mock_evaluate_instances_unified.return_value = (
+                vertexai_genai_types.EvaluateInstancesResponse(
+                    metric_results=[
+                        vertexai_genai_types.MetricResult(
+                            score=0.9,
+                            explanation="Mocked LLM explanation",
+                            error=None,
+                            rubric_verdicts=[],
+                        )
+                    ]
+                )
+            )
 
-        mock_eval_dependencies["mock_fetch_prebuilt_metric"].assert_called_once_with(
-            mock_api_client_fixture
-        )
-        assert isinstance(result, vertexai_genai_types.EvaluationResult)
-        assert result.evaluation_dataset == [input_dataset]
-        assert len(result.summary_metrics) == 1
-        summary_metric = result.summary_metrics[0]
-        assert summary_metric.metric_name == "fluency"
-        assert summary_metric.mean_score == 0.9
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[lazy_metric_instance],
+            )
+
+            mock_eval_dependencies[
+                "mock_fetch_prebuilt_metric"
+            ].assert_called_once_with(mock_api_client_fixture)
+            assert isinstance(result, vertexai_genai_types.EvaluationResult)
+            assert result.evaluation_dataset == [input_dataset]
+            assert len(result.summary_metrics) == 1
+            summary_metric = result.summary_metrics[0]
+            assert summary_metric.metric_name == "fluency"
+            assert summary_metric.mean_score == 0.9
 
     def test_execute_evaluation_prebuilt_metric_via_loader(
         self, mock_api_client_fixture, mock_eval_dependencies
@@ -5747,21 +5729,37 @@ class TestEvalsRunEvaluation:
 
         prebuilt_metric = vertexai_genai_types.RubricMetric.FLUENCY
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[prebuilt_metric],
-        )
+        with mock.patch(
+            "vertexai._genai.evals.Evals._evaluate_instances"
+        ) as mock_evaluate_instances_unified:
+            mock_evaluate_instances_unified.return_value = (
+                vertexai_genai_types.EvaluateInstancesResponse(
+                    metric_results=[
+                        vertexai_genai_types.MetricResult(
+                            score=0.9,
+                            explanation="Mocked LLM explanation",
+                            error=None,
+                            rubric_verdicts=[],
+                        )
+                    ]
+                )
+            )
 
-        mock_eval_dependencies["mock_fetch_prebuilt_metric"].assert_called_once_with(
-            mock_api_client_fixture
-        )
-        assert isinstance(result, vertexai_genai_types.EvaluationResult)
-        assert result.evaluation_dataset == [input_dataset]
-        assert len(result.summary_metrics) == 1
-        summary_metric = result.summary_metrics[0]
-        assert summary_metric.metric_name == "fluency"
-        assert summary_metric.mean_score == 0.9
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[prebuilt_metric],
+            )
+
+            mock_eval_dependencies[
+                "mock_fetch_prebuilt_metric"
+            ].assert_called_once_with(mock_api_client_fixture)
+            assert isinstance(result, vertexai_genai_types.EvaluationResult)
+            assert result.evaluation_dataset == [input_dataset]
+            assert len(result.summary_metrics) == 1
+            summary_metric = result.summary_metrics[0]
+            assert summary_metric.metric_name == "fluency"
+            assert summary_metric.mean_score == 0.9
 
     def test_execute_evaluation_with_gcs_destination(
         self, mock_api_client_fixture, mock_eval_dependencies
