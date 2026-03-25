@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -87,12 +87,13 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -1384,6 +1385,7 @@ def test_create_session_non_empty_request_with_auto_populated_field():
     # if they meet the requirements of AIP 4235.
     request = session_service.CreateSessionRequest(
         parent="parent_value",
+        session_id="session_id_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -1396,6 +1398,7 @@ def test_create_session_non_empty_request_with_auto_populated_field():
         _, args, _ = call.mock_calls[0]
         assert args[0] == session_service.CreateSessionRequest(
             parent="parent_value",
+            session_id="session_id_value",
         )
 
 
@@ -1599,6 +1602,7 @@ def test_create_session_flattened():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -1610,6 +1614,9 @@ def test_create_session_flattened():
         assert arg == mock_val
         arg = args[0].session
         mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
+        assert arg == mock_val
+        arg = args[0].session_id
+        mock_val = "session_id_value"
         assert arg == mock_val
 
 
@@ -1627,6 +1634,7 @@ def test_create_session_flattened_error():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
 
@@ -1651,6 +1659,7 @@ async def test_create_session_flattened_async():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
         # Establish that the underlying call was made with the expected
@@ -1662,6 +1671,9 @@ async def test_create_session_flattened_async():
         assert arg == mock_val
         arg = args[0].session
         mock_val = gca_session.Session(expire_time=timestamp_pb2.Timestamp(seconds=751))
+        assert arg == mock_val
+        arg = args[0].session_id
+        mock_val = "session_id_value"
         assert arg == mock_val
 
 
@@ -1680,6 +1692,7 @@ async def test_create_session_flattened_error_async():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
 
@@ -4118,6 +4131,8 @@ def test_create_session_rest_required_fields(
     unset_fields = transport_class(
         credentials=ga_credentials.AnonymousCredentials()
     ).create_session._get_unset_required_fields(jsonified_request)
+    # Check that path parameters and body parameters are not mixing in.
+    assert not set(unset_fields) - set(("session_id",))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
@@ -4171,7 +4186,7 @@ def test_create_session_rest_unset_required_fields():
 
     unset_fields = transport.create_session._get_unset_required_fields({})
     assert set(unset_fields) == (
-        set(())
+        set(("sessionId",))
         & set(
             (
                 "parent",
@@ -4203,6 +4218,7 @@ def test_create_session_rest_flattened():
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
         mock_args.update(sample_request)
 
@@ -4242,6 +4258,7 @@ def test_create_session_rest_flattened_error(transport: str = "rest"):
             session=gca_session.Session(
                 expire_time=timestamp_pb2.Timestamp(seconds=751)
             ),
+            session_id="session_id_value",
         )
 
 
@@ -6020,6 +6037,7 @@ def test_create_session_rest_call_success(request_type):
         "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
+        "labels": {},
         "session_state": {"fields": {}},
         "user_id": "user_id_value",
     }
@@ -6497,6 +6515,7 @@ def test_update_session_rest_call_success(request_type):
         "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
+        "labels": {},
         "session_state": {"fields": {}},
         "user_id": "user_id_value",
     }
@@ -6978,6 +6997,17 @@ def test_append_event_rest_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -7042,6 +7072,8 @@ def test_append_event_rest_call_success(request_type):
                             "rag_chunk": {
                                 "text": "text_value",
                                 "page_span": {"first_page": 1060, "last_page": 944},
+                                "file_id": "file_id_value",
+                                "chunk_id": "chunk_id_value",
                             },
                             "uri": "uri_value",
                             "title": "title_value",
@@ -7095,7 +7127,10 @@ def test_append_event_rest_call_success(request_type):
             ],
             "branch": "branch_value",
             "custom_metadata": {},
+            "input_transcription": {"text": "text_value", "finished": True},
+            "output_transcription": {},
         },
+        "raw_event": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -8113,6 +8148,7 @@ async def test_create_session_rest_asyncio_call_success(request_type):
         "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
+        "labels": {},
         "session_state": {"fields": {}},
         "user_id": "user_id_value",
     }
@@ -8648,6 +8684,7 @@ async def test_update_session_rest_asyncio_call_success(request_type):
         "create_time": {},
         "update_time": {},
         "display_name": "display_name_value",
+        "labels": {},
         "session_state": {"fields": {}},
         "user_id": "user_id_value",
     }
@@ -9189,6 +9226,17 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                         "id": "id_value",
                         "name": "name_value",
                         "args": {"fields": {}},
+                        "partial_args": [
+                            {
+                                "null_value": 0,
+                                "number_value": 0.1285,
+                                "string_value": "string_value_value",
+                                "bool_value": True,
+                                "json_path": "json_path_value",
+                                "will_continue": True,
+                            }
+                        ],
+                        "will_continue": True,
                     },
                     "function_response": {
                         "id": "id_value",
@@ -9253,6 +9301,8 @@ async def test_append_event_rest_asyncio_call_success(request_type):
                             "rag_chunk": {
                                 "text": "text_value",
                                 "page_span": {"first_page": 1060, "last_page": 944},
+                                "file_id": "file_id_value",
+                                "chunk_id": "chunk_id_value",
                             },
                             "uri": "uri_value",
                             "title": "title_value",
@@ -9306,7 +9356,10 @@ async def test_append_event_rest_asyncio_call_success(request_type):
             ],
             "branch": "branch_value",
             "custom_metadata": {},
+            "input_transcription": {"text": "text_value", "finished": True},
+            "output_transcription": {},
         },
+        "raw_event": {},
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

@@ -19,14 +19,14 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
-from google.api import httpbody_pb2  # type: ignore
 from google.cloud.aiplatform_v1.types import content as gca_content
 from google.cloud.aiplatform_v1.types import explanation
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import types
 from google.cloud.aiplatform_v1.types import usage_metadata as gca_usage_metadata
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api.httpbody_pb2 as httpbody_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -1028,7 +1028,39 @@ class GenerateContentResponse(proto.Message):
             candidates_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
                 Output only. List of modalities that were
                 returned in the response.
+            tool_use_prompt_tokens_details (MutableSequence[google.cloud.aiplatform_v1.types.ModalityTokenCount]):
+                Output only. A detailed breakdown by modality
+                of the token counts from the results of tool
+                executions, which are provided back to the model
+                as input.
+            traffic_type (google.cloud.aiplatform_v1.types.GenerateContentResponse.UsageMetadata.TrafficType):
+                Output only. The traffic type for this
+                request.
         """
+
+        class TrafficType(proto.Enum):
+            r"""The type of traffic that this request was processed with,
+            indicating which quota is consumed.
+
+            Values:
+                TRAFFIC_TYPE_UNSPECIFIED (0):
+                    Unspecified request traffic type.
+                ON_DEMAND (1):
+                    The request was processed using Pay-As-You-Go
+                    quota.
+                ON_DEMAND_PRIORITY (3):
+                    Type for Priority Pay-As-You-Go traffic.
+                ON_DEMAND_FLEX (4):
+                    Type for Flex traffic.
+                PROVISIONED_THROUGHPUT (2):
+                    Type for Provisioned Throughput traffic.
+            """
+
+            TRAFFIC_TYPE_UNSPECIFIED = 0
+            ON_DEMAND = 1
+            ON_DEMAND_PRIORITY = 3
+            ON_DEMAND_FLEX = 4
+            PROVISIONED_THROUGHPUT = 2
 
         prompt_token_count: int = proto.Field(
             proto.INT32,
@@ -1070,6 +1102,18 @@ class GenerateContentResponse(proto.Message):
                 number=11,
                 message=gca_content.ModalityTokenCount,
             )
+        )
+        tool_use_prompt_tokens_details: MutableSequence[
+            gca_content.ModalityTokenCount
+        ] = proto.RepeatedField(
+            proto.MESSAGE,
+            number=12,
+            message=gca_content.ModalityTokenCount,
+        )
+        traffic_type: "GenerateContentResponse.UsageMetadata.TrafficType" = proto.Field(
+            proto.ENUM,
+            number=8,
+            enum="GenerateContentResponse.UsageMetadata.TrafficType",
         )
 
     candidates: MutableSequence[gca_content.Candidate] = proto.RepeatedField(
@@ -1118,29 +1162,39 @@ class EmbedContentRequest(proto.Message):
             This field is a member of `oneof`_ ``_model``.
         content (google.cloud.aiplatform_v1.types.Content):
             Required. Input content to be embedded.
-            Required.
 
             This field is a member of `oneof`_ ``_content``.
         title (str):
-            Optional. An optional title for the text.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.title instead. The title for
+            the text.
 
             This field is a member of `oneof`_ ``_title``.
         task_type (google.cloud.aiplatform_v1.types.EmbedContentRequest.EmbeddingTaskType):
-            Optional. The task type of the embedding.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.task_type instead. The task type of the
+            embedding.
 
             This field is a member of `oneof`_ ``_task_type``.
         output_dimensionality (int):
-            Optional. Optional reduced dimension for the
-            output embedding. If set, excessive values in
-            the output embedding are truncated from the end.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.output_dimensionality instead. Reduced
+            dimension for the output embedding. If set, excessive values
+            in the output embedding are truncated from the end.
 
             This field is a member of `oneof`_ ``_output_dimensionality``.
         auto_truncate (bool):
-            Optional. Whether to silently truncate the
-            input content if it's longer than the maximum
-            sequence length.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.auto_truncate instead. Whether to
+            silently truncate the input content if it's longer than the
+            maximum sequence length.
 
             This field is a member of `oneof`_ ``_auto_truncate``.
+        embed_content_config (google.cloud.aiplatform_v1.types.EmbedContentRequest.EmbedContentConfig):
+            Optional. Configuration for the EmbedContent
+            request.
+
+            This field is a member of `oneof`_ ``_embed_content_config``.
     """
 
     class EmbeddingTaskType(proto.Enum):
@@ -1186,6 +1240,82 @@ class EmbedContentRequest(proto.Message):
         FACT_VERIFICATION = 8
         CODE_RETRIEVAL_QUERY = 9
 
+    class EmbedContentConfig(proto.Message):
+        r"""Configurations for the EmbedContent API.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            title (str):
+                Optional. The title for the text.
+
+                Only applicable to text-only embedding models.
+
+                This field is a member of `oneof`_ ``_title``.
+            task_type (google.cloud.aiplatform_v1.types.EmbedContentRequest.EmbeddingTaskType):
+                Optional. The task type of the embedding.
+
+                Only applicable to text-only embedding models.
+
+                This field is a member of `oneof`_ ``_task_type``.
+            auto_truncate (bool):
+                Optional. Whether to silently truncate the
+                input content if it's longer than the maximum
+                sequence length.
+
+                Only applicable to text-only embedding models.
+
+                This field is a member of `oneof`_ ``_auto_truncate``.
+            output_dimensionality (int):
+                Optional. Reduced dimension for the output
+                embedding. If set, excessive values in the
+                output embedding are truncated from the end.
+
+                This field is a member of `oneof`_ ``_output_dimensionality``.
+            document_ocr (bool):
+                Optional. Whether to enable OCR for document
+                content.
+
+                This field is a member of `oneof`_ ``_document_ocr``.
+            audio_track_extraction (bool):
+                Optional. Whether to extract audio from video
+                content.
+
+                This field is a member of `oneof`_ ``_audio_track_extraction``.
+        """
+
+        title: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        task_type: "EmbedContentRequest.EmbeddingTaskType" = proto.Field(
+            proto.ENUM,
+            number=2,
+            optional=True,
+            enum="EmbedContentRequest.EmbeddingTaskType",
+        )
+        auto_truncate: bool = proto.Field(
+            proto.BOOL,
+            number=3,
+            optional=True,
+        )
+        output_dimensionality: int = proto.Field(
+            proto.INT32,
+            number=4,
+            optional=True,
+        )
+        document_ocr: bool = proto.Field(
+            proto.BOOL,
+            number=5,
+            optional=True,
+        )
+        audio_track_extraction: bool = proto.Field(
+            proto.BOOL,
+            number=6,
+            optional=True,
+        )
+
     model: str = proto.Field(
         proto.STRING,
         number=1,
@@ -1218,6 +1348,12 @@ class EmbedContentRequest(proto.Message):
         number=7,
         optional=True,
     )
+    embed_content_config: EmbedContentConfig = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        optional=True,
+        message=EmbedContentConfig,
+    )
 
 
 class EmbedContentResponse(proto.Message):
@@ -1229,7 +1365,7 @@ class EmbedContentResponse(proto.Message):
             The embedding generated from the input
             content.
         usage_metadata (google.cloud.aiplatform_v1.types.UsageMetadata):
-            Metadata about the response(s).
+            Usage metadata about the response(s).
         truncated (bool):
             Whether the input content was truncated
             before generating the embedding.

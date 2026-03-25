@@ -19,7 +19,8 @@ import functools
 import importlib
 import json
 import logging
-from typing import Any, Iterator, Optional, Union
+import typing
+from typing import Any, Iterator, List, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -30,6 +31,11 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import _agent_engines_utils
 from . import types
+
+if typing.TYPE_CHECKING:
+    from . import memory_revisions as memory_revisions_module
+
+    _ = memory_revisions_module
 
 
 logger = logging.getLogger("vertexai_genai.memories")
@@ -78,7 +84,14 @@ def _AgentEngineMemoryConfig_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
+
+    if getv(from_object, ["memory_id"]) is not None:
+        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
 
     return to_object
 
@@ -98,13 +111,7 @@ def _CreateAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _AgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _AgentEngineMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -116,9 +123,6 @@ def _DeleteAgentEngineMemoryRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -157,7 +161,11 @@ def _GenerateAgentEngineMemoriesConfig_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
 
     if getv(from_object, ["metadata_merge_strategy"]) is not None:
         setv(
@@ -202,12 +210,8 @@ def _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _GenerateAgentEngineMemoriesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _GenerateAgentEngineMemoriesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -223,9 +227,6 @@ def _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -239,9 +240,6 @@ def _GetAgentEngineMemoryOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -252,9 +250,6 @@ def _GetAgentEngineMemoryRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -289,13 +284,7 @@ def _ListAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _ListAgentEngineMemoryConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -311,11 +300,15 @@ def _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
     if getv(from_object, ["filter"]) is not None:
         setv(to_object, ["filter"], getv(from_object, ["filter"]))
 
+    if getv(from_object, ["filter_groups"]) is not None:
+        setv(
+            to_object,
+            ["filterGroups"],
+            [item for item in getv(from_object, ["filter_groups"])],
+        )
+
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -365,12 +358,8 @@ def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _RetrieveAgentEngineMemoriesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _RetrieveAgentEngineMemoriesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -386,9 +375,6 @@ def _RollbackAgentEngineMemoryRequestParameters_to_vertex(
 
     if getv(from_object, ["target_revision_id"]) is not None:
         setv(to_object, ["targetRevisionId"], getv(from_object, ["target_revision_id"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -434,7 +420,14 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
         )
 
     if getv(from_object, ["metadata"]) is not None:
-        setv(parent_object, ["metadata"], getv(from_object, ["metadata"]))
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
+
+    if getv(from_object, ["memory_id"]) is not None:
+        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -459,12 +452,8 @@ def _UpdateAgentEngineMemoryRequestParameters_to_vertex(
         setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _UpdateAgentEngineMemoryConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _UpdateAgentEngineMemoryConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -1066,7 +1055,8 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[list[types.MemoryConjunctionFilterOrDict]] = None,
         force: Optional[bool] = None,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -1077,6 +1067,7 @@ class Memories(_api_module.BaseModule):
         parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )
@@ -1124,7 +1115,7 @@ class Memories(_api_module.BaseModule):
     _revisions = None
 
     @property
-    def revisions(self):
+    def revisions(self) -> "memory_revisions_module.MemoryRevisions":
         if self._revisions is None:
             try:
                 # We need to lazy load the revisions module to handle the
@@ -1138,7 +1129,7 @@ class Memories(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._revisions.MemoryRevisions(self._api_client)
+        return self._revisions.MemoryRevisions(self._api_client)  # type: ignore[no-any-return]
 
     def create(
         self,
@@ -1378,7 +1369,8 @@ class Memories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[List[types.MemoryConjunctionFilter]] = None,
         force: bool = False,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -1388,7 +1380,11 @@ class Memories(_api_module.BaseModule):
             name (str):
                 Required. The name of the Agent Engine to purge memories from.
             filter (str):
-                Required. The standard list filter to determine which memories to purge.
+                Optional. The standard list filter to determine which memories to purge.
+            filter_groups (list[MemoryConjunctionFilter]):
+                Optional. Metadata filters that will be applied to the memories'
+                `metadata` using OR logic. Filters are defined using disjunctive
+                normal form (OR of ANDs).
             force (bool):
                 Optional. Whether to force the purge operation. If false, the
                 operation will be staged but not executed.
@@ -1406,6 +1402,7 @@ class Memories(_api_module.BaseModule):
         operation = self._purge(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )
@@ -2036,7 +2033,8 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[list[types.MemoryConjunctionFilterOrDict]] = None,
         force: Optional[bool] = None,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -2047,6 +2045,7 @@ class AsyncMemories(_api_module.BaseModule):
         parameter_model = types._PurgeAgentEngineMemoriesRequestParameters(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )
@@ -2096,7 +2095,7 @@ class AsyncMemories(_api_module.BaseModule):
     _revisions = None
 
     @property
-    def revisions(self):
+    def revisions(self) -> "memory_revisions_module.AsyncMemoryRevisions":
         if self._revisions is None:
             try:
                 # We need to lazy load the revisions module to handle the
@@ -2110,7 +2109,7 @@ class AsyncMemories(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._revisions.AsyncMemoryRevisions(self._api_client)
+        return self._revisions.AsyncMemoryRevisions(self._api_client)  # type: ignore[no-any-return]
 
     async def create(
         self,
@@ -2350,7 +2349,8 @@ class AsyncMemories(_api_module.BaseModule):
         self,
         *,
         name: str,
-        filter: str,
+        filter: Optional[str] = None,
+        filter_groups: Optional[List[types.MemoryConjunctionFilter]] = None,
         force: bool = False,
         config: Optional[types.PurgeAgentEngineMemoriesConfigOrDict] = None,
     ) -> types.AgentEnginePurgeMemoriesOperation:
@@ -2360,7 +2360,11 @@ class AsyncMemories(_api_module.BaseModule):
             name (str):
                 Required. The name of the Agent Engine to purge memories from.
             filter (str):
-                Required. The standard list filter to determine which memories to purge.
+                Optional. The standard list filter to determine which memories to purge.
+            filter_groups (list[MemoryConjunctionFilter]):
+                Optional. Metadata filters that will be applied to the memories'
+                `metadata` using OR logic. Filters are defined using disjunctive
+                normal form (OR of ANDs).
             force (bool):
                 Optional. Whether to force the purge operation. If false, the
                 operation will be staged but not executed.
@@ -2378,6 +2382,7 @@ class AsyncMemories(_api_module.BaseModule):
         operation = await self._purge(
             name=name,
             filter=filter,
+            filter_groups=filter_groups,
             force=force,
             config=config,
         )

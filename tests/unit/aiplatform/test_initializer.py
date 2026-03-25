@@ -306,10 +306,16 @@ class TestInit:
         assert client._transport._host == f"https://{constants.API_BASE_PATH}"
 
     def test_create_client_with_global_location_and_grpc_transport(self):
-        with pytest.raises(ValueError):
-            initializer.global_config.init(
-                project=_TEST_PROJECT, location="global", api_transport="grpc"
-            )
+        initializer.global_config.init(
+            project=_TEST_PROJECT, location="global", api_transport="grpc"
+        )
+        client = initializer.global_config.create_client(
+            client_class=utils.PredictionClientWithOverride
+        )
+        assert initializer.global_config.location == "global"
+        assert initializer.global_config._api_transport == "grpc"
+        assert isinstance(client, utils.PredictionClientWithOverride)
+        assert client._transport._host == f"{constants.API_BASE_PATH}:443"
 
     def test_create_client_with_api_key_and_grpc_transport(self):
         with pytest.raises(ValueError):

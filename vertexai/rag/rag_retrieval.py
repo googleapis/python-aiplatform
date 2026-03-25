@@ -67,10 +67,10 @@ def retrieval_query(
         parent_override: Optional. The resource path of the parent.
         api_path_override: Optional. The base API endpoint to use for the request.
         rag_resources: A list of RagResource. It can be used to specify corpus
-            only or ragfiles. Currently only support one corpus or multiple files
-            from one corpus. In the future we may open up multiple corpora support.
+          only or ragfiles. Currently only support one corpus or multiple files
+          from one corpus. In the future we may open up multiple corpora support.
         rag_retrieval_config: Optional. The config containing the retrieval
-            parameters, including similarity_top_k and vector_distance_threshold
+          parameters, including similarity_top_k and vector_distance_threshold
 
     Returns:
         RetrieveContextsResonse.
@@ -169,5 +169,314 @@ def retrieval_query(
         response = client.retrieve_contexts(request=request)
     except Exception as e:
         raise RuntimeError("Failed in retrieving contexts due to: ", e) from e
+
+    return response
+
+
+async def async_retrieve_contexts(
+    text: str,
+    parent_override: Optional[str] = None,
+    api_path_override: Optional[str] = None,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+) -> aiplatform_v1.RetrieveContextsResponse:
+    """Retrieve top k relevant docs/chunks asynchronously.
+
+    Example usage:
+    ```
+    import vertexai
+
+    vertexai.init(project="my-project")
+
+    config = vertexai.rag.RagRetrievalConfig(
+        top_k=2,
+    )
+
+    results = await vertexai.rag.async_retrieve_contexts(
+        text="Why is the sky blue?",
+        rag_resources=[vertexai.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: Required. The query in text format to get relevant contexts.
+        parent_override: Optional. The parent resource name to use for the API
+          request. If not specified, the parent is determined from the global
+          configuration.
+        api_path_override: Optional. The API path override to use for the API
+          request. If not specified, the path is determined from the global
+          configuration.
+        rag_resources: Optional. A list of RagResource. It can be used to specify
+          corpus only or ragfiles. Currently only support one corpus or multiple
+          files from one corpus. In the future we may open up multiple corpora
+          support.
+        rag_retrieval_config: Optional. The config containing the retrieval
+          parameters, including top_k.
+
+    Returns:
+        RetrieveContextsResponse.
+    """
+    if parent_override:
+        parent = parent_override
+    else:
+        parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_async_client(
+        api_path_override=api_path_override
+    )
+
+    if not rag_resources:
+        raise ValueError("rag_resources must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client(
+        api_path_override=api_path_override
+    )
+
+    gapic_rag_resources = []
+    for rag_resource in rag_resources:
+        name = rag_resource.rag_corpus
+        if data_client.parse_rag_corpus_path(name):
+            rag_corpus_name = name
+        elif re.match("^{}$".format(_gapic_utils._VALID_RESOURCE_NAME_REGEX), name):
+            rag_corpus_name = parent + "/ragCorpora/" + name
+        else:
+            raise ValueError(
+                f"Invalid RagCorpus name: {name}. Proper format should be:"
+                " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+            )
+        gapic_rag_resources.append(
+            aiplatform_v1.VertexRagStore.RagResource(
+                rag_corpus=rag_corpus_name,
+                rag_file_ids=rag_resource.rag_file_ids,
+            )
+        )
+
+    vertex_rag_store = aiplatform_v1.VertexRagStore(
+        rag_resources=gapic_rag_resources,
+    )
+
+    # If rag_retrieval_config is not specified, set it to default values.
+    if not rag_retrieval_config:
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+    else:
+        # If rag_retrieval_config is specified, check for missing parameters.
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+        api_retrieval_config.top_k = rag_retrieval_config.top_k
+        # Set vector_distance_threshold to config value if specified
+        if rag_retrieval_config.filter:
+            # Check if both vector_distance_threshold and vector_similarity_threshold
+            # are specified.
+            if (
+                rag_retrieval_config.filter
+                and rag_retrieval_config.filter.vector_distance_threshold
+                and rag_retrieval_config.filter.vector_similarity_threshold
+            ):
+                raise ValueError(
+                    "Only one of vector_distance_threshold or"
+                    " vector_similarity_threshold can be specified at a time"
+                    " in rag_retrieval_config."
+                )
+            api_retrieval_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+            api_retrieval_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrieval_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrieval_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+
+    query = aiplatform_v1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrieval_config,
+    )
+
+    vertex_rag_store.rag_retrieval_config = api_retrieval_config
+
+    tool = aiplatform_v1.Tool(
+        retrieval=aiplatform_v1.Retrieval(
+            vertex_rag_store=vertex_rag_store,
+        )
+    )
+
+    request = aiplatform_v1.AsyncRetrieveContextsRequest(
+        parent=parent,
+        query=query,
+        tools=[tool],
+    )
+    try:
+        response_lro = await client.async_retrieve_contexts(request=request)
+        response = await response_lro.result()
+    except Exception as e:
+        raise RuntimeError(
+            "Failed in retrieving contexts asynchronously due to: ", e
+        ) from e
+
+    return response
+
+
+def ask_contexts(
+    text: str,
+    parent_override: Optional[str] = None,
+    api_path_override: Optional[str] = None,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+) -> aiplatform_v1.AskContextsResponse:
+    """Ask questions on top k relevant docs/chunks.
+
+    Example usage:
+    ```
+    import vertexai
+
+    vertexai.init(project="my-project")
+
+    config = vertexai.rag.RagRetrievalConfig(
+        top_k=2,
+    )
+
+    results = vertexai.rag.ask_contexts(
+        text="Why is the sky blue?",
+        rag_resources=[vertexai.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: Required. The query in text format to get relevant contexts.
+        parent_override: Optional. The parent resource name to use for the API
+          request. If not specified, the parent is determined from the global
+          configuration.
+        api_path_override: Optional. The API path override to use for the API
+          request. If not specified, the path is determined from the global
+          configuration.
+        rag_resources: Optional. A list of RagResource. It can be used to specify
+          corpus only or ragfiles. Currently only support one corpus or multiple
+          files from one corpus. In the future we may open up multiple corpora
+          support.
+        rag_retrieval_config: Optional. The config containing the retrieval
+          parameters, including top_k.
+
+    Returns:
+        AskContextsResponse.
+    """
+    if parent_override:
+        parent = parent_override
+    else:
+        parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_client(api_path_override=api_path_override)
+
+    if not rag_resources:
+        raise ValueError("rag_resources must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client(
+        api_path_override=api_path_override
+    )
+
+    gapic_rag_resources = []
+    for rag_resource in rag_resources:
+        name = rag_resource.rag_corpus
+        if data_client.parse_rag_corpus_path(name):
+            rag_corpus_name = name
+        elif re.match("^{}$".format(_gapic_utils._VALID_RESOURCE_NAME_REGEX), name):
+            rag_corpus_name = parent + "/ragCorpora/" + name
+        else:
+            raise ValueError(
+                f"Invalid RagCorpus name: {name}. Proper format should be:"
+                " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+            )
+        gapic_rag_resources.append(
+            aiplatform_v1.VertexRagStore.RagResource(
+                rag_corpus=rag_corpus_name,
+                rag_file_ids=rag_resource.rag_file_ids,
+            )
+        )
+
+    vertex_rag_store = aiplatform_v1.VertexRagStore(
+        rag_resources=gapic_rag_resources,
+    )
+
+    # If rag_retrieval_config is not specified, set it to default values.
+    if not rag_retrieval_config:
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+    else:
+        # If rag_retrieval_config is specified, check for missing parameters.
+        api_retrieval_config = aiplatform_v1.RagRetrievalConfig()
+        api_retrieval_config.top_k = rag_retrieval_config.top_k
+        # Set vector_distance_threshold to config value if specified
+        if rag_retrieval_config.filter:
+            # Check if both vector_distance_threshold and vector_similarity_threshold
+            # are specified.
+            if (
+                rag_retrieval_config.filter
+                and rag_retrieval_config.filter.vector_distance_threshold
+                and rag_retrieval_config.filter.vector_similarity_threshold
+            ):
+                raise ValueError(
+                    "Only one of vector_distance_threshold or"
+                    " vector_similarity_threshold can be specified at a time"
+                    " in rag_retrieval_config."
+                )
+            api_retrieval_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+            api_retrieval_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrieval_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrieval_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+
+    query = aiplatform_v1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrieval_config,
+    )
+
+    vertex_rag_store.rag_retrieval_config = api_retrieval_config
+
+    tool = aiplatform_v1.Tool(
+        retrieval=aiplatform_v1.Retrieval(
+            vertex_rag_store=vertex_rag_store,
+        )
+    )
+
+    request = aiplatform_v1.AskContextsRequest(
+        parent=parent,
+        query=query,
+        tools=[tool],
+    )
+    try:
+        response = client.ask_contexts(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in asking contexts due to: ", e) from e
 
     return response

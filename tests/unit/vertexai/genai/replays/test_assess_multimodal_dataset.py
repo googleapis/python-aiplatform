@@ -52,18 +52,93 @@ def test_assess_tuning_resources(client):
     response = client.datasets.assess_tuning_resources(
         dataset_name=DATASET,
         model_name="gemini-2.5-flash-001",
-        template_config=types.GeminiTemplateConfig(
-            gemini_example=types.GeminiExample(
-                contents=[
-                    {
-                        "role": "user",
-                        "parts": [{"text": "What is the capital of {name}?"}],
-                    }
-                ],
-            ),
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        }
+                    ],
+                ),
+            )
         ),
     )
     assert isinstance(response, types.TuningResourceUsageAssessmentResult)
+
+
+def test_assess_tuning_validity(client):
+    response = client.datasets.assess_tuning_validity(
+        dataset_name=DATASET,
+        dataset_usage="SFT_VALIDATION",
+        model_name="gemini-2.5-flash-001",
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [{"text": "{capital}"}],
+                        },
+                    ],
+                ),
+            )
+        ),
+    )
+    assert isinstance(response, types.TuningValidationAssessmentResult)
+
+
+def test_assess_batch_prediction_resources(client):
+    response = client.datasets.assess_batch_prediction_resources(
+        dataset_name=DATASET,
+        model_name="gemini-2.5-flash-001",
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [{"text": "{capital}"}],
+                        },
+                    ],
+                ),
+            )
+        ),
+    )
+    assert isinstance(response, types.BatchPredictionResourceUsageAssessmentResult)
+
+
+def test_assess_batch_prediction_validity(client):
+    response = client.datasets.assess_batch_prediction_validity(
+        dataset_name=DATASET,
+        model_name="gemini-2.5-flash-001",
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [{"text": "{capital}"}],
+                        },
+                    ],
+                ),
+            )
+        ),
+    )
+    assert isinstance(response, types.BatchPredictionValidationAssessmentResult)
 
 
 pytestmark = pytest_helper.setup(
@@ -88,7 +163,7 @@ async def test_assess_dataset_async(client):
                         {
                             "role": "user",
                             "parts": [{"text": "What is the capital of {name}?"}],
-                        }
+                        },
                     ],
                 ),
             ),
@@ -102,15 +177,93 @@ async def test_assess_tuning_resources_async(client):
     response = await client.aio.datasets.assess_tuning_resources(
         dataset_name=DATASET,
         model_name="gemini-2.5-flash-001",
-        template_config=types.GeminiTemplateConfig(
-            gemini_example=types.GeminiExample(
-                contents=[
-                    {
-                        "role": "user",
-                        "parts": [{"text": "What is the capital of {name}?"}],
-                    }
-                ],
-            ),
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        }
+                    ],
+                ),
+            )
         ),
     )
     assert isinstance(response, types.TuningResourceUsageAssessmentResult)
+
+
+@pytest.mark.asyncio
+async def test_assess_tuning_validity_async(client):
+    response = await client.aio.datasets.assess_tuning_validity(
+        dataset_name=DATASET,
+        dataset_usage="SFT_VALIDATION",
+        model_name="gemini-2.5-flash-001",
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [{"text": "{capital}"}],
+                        },
+                    ],
+                ),
+            )
+        ),
+    )
+    assert isinstance(response, types.TuningValidationAssessmentResult)
+
+
+@pytest.mark.asyncio
+async def test_assess_batch_prediction_resources_async(client):
+    response = await client.aio.datasets.assess_batch_prediction_resources(
+        dataset_name=DATASET,
+        model_name="gemini-2.5-flash-001",
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [{"text": "{capital}"}],
+                        },
+                    ],
+                ),
+            )
+        ),
+    )
+    assert isinstance(response, types.BatchPredictionResourceUsageAssessmentResult)
+
+
+@pytest.mark.asyncio
+async def test_assess_batch_prediction_validity_async(client):
+    response = await client.aio.datasets.assess_batch_prediction_validity(
+        dataset_name=DATASET,
+        model_name="gemini-2.5-flash-001",
+        gemini_request_read_config=types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    contents=[
+                        {
+                            "role": "user",
+                            "parts": [{"text": "What is the capital of {name}?"}],
+                        },
+                        {
+                            "role": "model",
+                            "parts": [{"text": "{capital}"}],
+                        },
+                    ],
+                ),
+            )
+        ),
+    )
+    assert isinstance(response, types.BatchPredictionValidationAssessmentResult)

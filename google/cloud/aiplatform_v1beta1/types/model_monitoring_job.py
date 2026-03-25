@@ -23,9 +23,9 @@ from google.cloud.aiplatform_v1beta1.types import job_state
 from google.cloud.aiplatform_v1beta1.types import (
     model_monitoring_spec as gca_model_monitoring_spec,
 )
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
-from google.type import interval_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
+import google.type.interval_pb2 as interval_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

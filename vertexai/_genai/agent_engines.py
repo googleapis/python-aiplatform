@@ -19,6 +19,7 @@ import datetime
 import importlib
 import json
 import logging
+import typing
 from typing import Any, AsyncIterator, Iterator, Optional, Sequence, Tuple, Union
 from urllib.parse import urlencode
 import warnings
@@ -33,10 +34,72 @@ from google.genai.pagers import Pager
 from . import _agent_engines_utils
 from . import types
 
+if typing.TYPE_CHECKING:
+    from . import sessions as sessions_module
+    from . import memories as memories_module
+    from . import a2a_tasks as a2a_tasks_module
+
+    _ = sessions_module
+    __ = memories_module
+    ___ = a2a_tasks_module
+
 
 logger = logging.getLogger("vertexai_genai.agentengines")
 
 logger.setLevel(logging.INFO)
+
+
+def _CheckQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["retrieve_result"]) is not None:
+        setv(parent_object, ["retrieveResult"], getv(from_object, ["retrieve_result"]))
+
+    return to_object
+
+
+def _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _CheckQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _CheckQueryJobResult_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(parent_object, ["operationName"]) is not None:
+        setv(to_object, ["operation_name"], getv(parent_object, ["operationName"]))
+
+    if getv(parent_object, ["outputGcsUri"]) is not None:
+        setv(to_object, ["output_gcs_uri"], getv(parent_object, ["outputGcsUri"]))
+
+    if getv(parent_object, ["status"]) is not None:
+        setv(to_object, ["status"], getv(parent_object, ["status"]))
+
+    if getv(parent_object, ["result"]) is not None:
+        setv(to_object, ["result"], getv(parent_object, ["result"]))
+
+    return to_object
 
 
 def _CreateAgentEngineConfig_to_vertex(
@@ -109,13 +172,7 @@ def _CreateAgentEngineRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _CreateAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -131,9 +188,6 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -147,9 +201,6 @@ def _GetAgentEngineOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -160,9 +211,6 @@ def _GetAgentEngineRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -191,11 +239,7 @@ def _ListAgentEngineRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
-        )
+        _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -227,10 +271,41 @@ def _QueryAgentEngineRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
+        _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _RunQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["input_gcs_uri"]) is not None:
+        setv(parent_object, ["inputGcsUri"], getv(from_object, ["input_gcs_uri"]))
+
+    if getv(from_object, ["output_gcs_uri"]) is not None:
+        setv(parent_object, ["outputGcsUri"], getv(from_object, ["output_gcs_uri"]))
+
+    return to_object
+
+
+def _RunQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
-            _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            _RunQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
         )
 
     return to_object
@@ -314,18 +389,125 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _UpdateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _UpdateAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
 class AgentEngines(_api_module.BaseModule):
+
+    def _check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:checkQueryJob".format_map(request_url_dict)
+            else:
+                path = "{name}:checkQueryJob"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CheckQueryJobResult._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types._RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Run a query job on an agent engine.
+        """
+
+        parameter_model = types._RunQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
@@ -698,12 +880,28 @@ class AgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _a2a_tasks = None
     _memories = None
     _sandboxes = None
     _sessions = None
 
     @property
-    def memories(self) -> Any:
+    def a2a_tasks(self) -> "a2a_tasks_module.A2aTasks":
+        if self._a2a_tasks is None:
+            try:
+                # We need to lazy load the a2a_tasks module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._a2a_tasks = importlib.import_module(".a2a_tasks", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.a2a_tasks' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._a2a_tasks.A2aTasks(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def memories(self) -> "memories_module.Memories":
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -715,7 +913,7 @@ class AgentEngines(_api_module.BaseModule):
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._memories.Memories(self._api_client)
+        return self._memories.Memories(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def sandboxes(self) -> Any:
@@ -733,7 +931,7 @@ class AgentEngines(_api_module.BaseModule):
         return self._sandboxes.Sandboxes(self._api_client)
 
     @property
-    def sessions(self) -> Any:
+    def sessions(self) -> "sessions_module.Sessions":
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -745,7 +943,7 @@ class AgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._sessions.Sessions(self._api_client)
+        return self._sessions.Sessions(self._api_client)  # type: ignore[no-any-return]
 
     def _list_pager(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
@@ -757,12 +955,216 @@ class AgentEngines(_api_module.BaseModule):
             config,
         )
 
+    def check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """Checks a query job on an agent engine and optionally returns the results.
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (CheckQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the check_query_job. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - retrieve_result: Whether to retrieve the results of the query job.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+        import json
+
+        if config is None:
+            config = types.CheckQueryJobAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.CheckQueryJobAgentEngineConfig(**config)
+
+        raw_response = self._api_client.request("get", name, {})
+        if hasattr(raw_response, "body"):
+            operation = (
+                json.loads(raw_response.body)
+                if isinstance(raw_response.body, str)
+                else raw_response.body
+            )
+        else:
+            operation = raw_response
+
+        status = "RUNNING"
+        if isinstance(operation, dict):
+            if operation.get("done"):
+                status = "FAILED" if operation.get("error") else "SUCCESS"
+
+            response_dict = operation.get("response", {})
+            output_gcs_uri = response_dict.get("outputGcsUri") or response_dict.get(
+                "output_gcs_uri"
+            )
+            error = operation.get("error")
+        else:
+            if getattr(operation, "done", False):
+                status = "FAILED" if getattr(operation, "error", None) else "SUCCESS"
+
+            response_obj = getattr(operation, "response", None)
+            if isinstance(response_obj, dict):
+                output_gcs_uri = response_obj.get("outputGcsUri") or response_obj.get(
+                    "output_gcs_uri"
+                )
+            else:
+                output_gcs_uri = (
+                    getattr(
+                        response_obj,
+                        "output_gcs_uri",
+                        getattr(response_obj, "outputGcsUri", None),
+                    )
+                    if response_obj
+                    else None
+                )
+            error = getattr(operation, "error", None)
+
+        result_str = None
+        if status == "SUCCESS" and config.retrieve_result and output_gcs_uri:
+            storage_client = storage.Client(
+                project=self._api_client.project,
+                credentials=self._api_client._credentials,
+            )
+            bucket_name = output_gcs_uri.replace("gs://", "").split("/")[0]
+            blob_name = output_gcs_uri.replace(f"gs://{bucket_name}/", "")
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            if blob.exists():
+                result_str = blob.download_as_string().decode("utf-8")
+            else:
+                raise ValueError(
+                    f"Failed to retrieve blob results for {output_gcs_uri}"
+                )
+
+        elif status == "FAILED" and error:
+            result_str = str(error)
+
+        return types.CheckQueryJobResult(
+            operation_name=name,
+            output_gcs_uri=output_gcs_uri,
+            status=status,
+            result=result_str,
+        )
+
     def _is_lightweight_creation(
         self, agent: Any, config: types.AgentEngineConfig
     ) -> bool:
-        if agent or config.source_packages or config.developer_connect_source:
+        if (
+            agent
+            or config.source_packages
+            or config.developer_connect_source
+            or config.agent_config_source
+        ):
             return False
         return True
+
+    def run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.RunQueryJobResult:
+        """Launches a long-running query job on an Agent Engine
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (RunQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the async query. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - query: The query to send to the agent engine.
+                  - gcs_bucket: The GCS bucket path to use for the query.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+        from google.api_core import exceptions
+        import uuid
+
+        if config is None:
+            config = types.RunQueryJobAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.RunQueryJobAgentEngineConfig(**config)
+
+        if not config.query:
+            raise ValueError("`query` is required in the config object.")
+        if not config.gcs_bucket:
+            raise ValueError("`gcs_bucket` is required in the config object.")
+
+        api_resource = self._get(name=name)
+
+        is_supported = False
+        if (
+            api_resource.spec
+            and api_resource.spec.deployment_spec
+            and api_resource.spec.deployment_spec.env
+        ):
+            for env in api_resource.spec.deployment_spec.env:
+                if env.name in [
+                    "INPUT_GCS_URI",
+                    "OUTPUT_GCS_URI",
+                    "input_gcs_uri",
+                    "output_gcs_uri",
+                ]:
+                    is_supported = True
+                    break
+
+        if not is_supported:
+            raise ValueError(
+                "Your ReasoningEngine does not support long running queries, "
+                "please update your ReasoningEngine and try again."
+            )
+
+        gcs_bucket = config.gcs_bucket.rstrip("/")
+
+        storage_client = storage.Client(
+            project=self._api_client.project, credentials=self._api_client._credentials
+        )
+
+        # Handle creating the bucket if it does not exist
+        bucket_name = gcs_bucket.replace("gs://", "").split("/")[0]
+        bucket = storage_client.bucket(bucket_name)
+
+        try:
+            bucket_exists = bucket.exists()
+        except exceptions.Forbidden as e:
+            raise ValueError(
+                f"Permission denied to check existence of bucket '{bucket_name}'. "
+                "The service account may lack 'storage.buckets.get' permission."
+            ) from e
+
+        if not bucket_exists:
+            try:
+                bucket.create()
+            except exceptions.Forbidden as e:
+                raise ValueError(
+                    f"Permission denied to create bucket '{bucket_name}'. "
+                    "The service account may lack 'storage.buckets.create' permission."
+                ) from e
+
+        job_uuid = uuid.uuid4().hex
+        input_blob_name = f"input_{job_uuid}.json"
+        input_gcs_uri = f"{gcs_bucket}/{input_blob_name}"
+        blob = bucket.blob(input_blob_name)
+        blob.upload_from_string(config.query)
+
+        output_blob_name = f"output_{job_uuid}.json"
+        output_gcs_uri = f"{gcs_bucket}/{output_blob_name}"
+
+        new_config = types._RunQueryJobAgentEngineConfig(
+            input_gcs_uri=input_gcs_uri,
+            output_gcs_uri=output_gcs_uri,
+        )
+
+        # Proceed with sending the async query via the auto-generated method
+        operation = self._run_query_job(name=name, config=new_config)
+
+        return types.RunQueryJobResult(
+            job_name=operation.name,
+            input_gcs_uri=input_gcs_uri,
+            output_gcs_uri=output_gcs_uri,
+        )
 
     def get(
         self,
@@ -911,6 +1313,9 @@ class AgentEngines(_api_module.BaseModule):
             developer_connect_source = json.loads(
                 developer_connect_source.model_dump_json()
             )
+        agent_config_source = config.agent_config_source
+        if agent_config_source is not None:
+            agent_config_source = json.loads(agent_config_source.model_dump_json())
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -948,6 +1353,8 @@ class AgentEngines(_api_module.BaseModule):
             agent_framework=config.agent_framework,
             python_version=config.python_version,
             build_options=config.build_options,
+            image_spec=config.image_spec,
+            agent_config_source=agent_config_source,
         )
         operation = self._create(config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -987,7 +1394,7 @@ class AgentEngines(_api_module.BaseModule):
             # If the user did not provide an agent_engine (e.g. lightweight
             # provisioning), it will not have any API methods registered.
             agent_engine = self._register_api_methods(agent_engine=agent_engine)
-        return agent_engine
+        return agent_engine  # type: ignore[no-any-return]
 
     def _set_source_code_spec(
         self,
@@ -1004,16 +1411,22 @@ class AgentEngines(_api_module.BaseModule):
         requirements_file: Optional[str] = None,
         sys_version: str,
         build_options: Optional[dict[str, list[str]]] = None,
-    ):
+        image_spec: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
+        ] = None,
+        agent_config_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+        ] = None,
+    ) -> None:
         """Sets source_code_spec for agent engine inside the `spec`."""
-        source_code_spec = {}
-        if source_packages:
+        source_code_spec = types.ReasoningEngineSpecSourceCodeSpecDict()
+        if source_packages and not agent_config_source:
             source_packages = _agent_engines_utils._validate_packages_or_raise(
                 packages=source_packages,
                 build_options=build_options,
             )
             update_masks.append("spec.source_code_spec.inline_source.source_archive")
-            source_code_spec["inline_source"] = {
+            source_code_spec["inline_source"] = {  # type: ignore[typeddict-item]
                 "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
                     source_packages=source_packages
                 )
@@ -1023,16 +1436,79 @@ class AgentEngines(_api_module.BaseModule):
             source_code_spec["developer_connect_source"] = {
                 "config": developer_connect_source
             }
-        else:
+        elif not agent_config_source:
             raise ValueError(
-                "Please specify one of `source_packages` or `developer_connect_source`."
+                "Please specify one of `source_packages`, `developer_connect_source`, "
+                "or `agent_config_source`."
             )
+        if class_methods is None:
+            raise ValueError(
+                "`class_methods` must be specified if `source_packages`, "
+                "`developer_connect_source`, or `agent_config_source` is specified."
+            )
+        update_masks.append("spec.class_methods")
+        class_methods_spec_list = (
+            _agent_engines_utils._class_methods_to_class_methods_spec(
+                class_methods=class_methods
+            )
+        )
+        spec["class_methods"] = [
+            _agent_engines_utils._to_dict(class_method_spec)
+            for class_method_spec in class_methods_spec_list
+        ]
+        if image_spec is not None:
+            if entrypoint_module or entrypoint_object or requirements_file:
+                raise ValueError(
+                    "`image_spec` cannot be specified alongside `entrypoint_module`, "
+                    "`entrypoint_object`, or `requirements_file`, as they are "
+                    "mutually exclusive."
+                )
+            if agent_config_source:
+                raise ValueError(
+                    "`image_spec` cannot be specified alongside `agent_config_source`, "
+                    "as they are mutually exclusive."
+                )
+            update_masks.append("spec.source_code_spec.image_spec")
+            source_code_spec["image_spec"] = image_spec
+            spec["source_code_spec"] = source_code_spec
             return
 
         update_masks.append("spec.source_code_spec.python_spec.version")
-        python_spec = {
+        python_spec: types.ReasoningEngineSpecSourceCodeSpecPythonSpecDict = {
             "version": sys_version,
         }
+        if agent_config_source is not None:
+            if entrypoint_module or entrypoint_object:
+                logger.warning(
+                    "`entrypoint_module` and `entrypoint_object` are ignored when "
+                    "`agent_config_source` is specified, as they are pre-defined."
+                )
+            if source_packages:
+                source_packages = _agent_engines_utils._validate_packages_or_raise(
+                    packages=source_packages,
+                    build_options=build_options,
+                )
+                update_masks.append(
+                    "spec.source_code_spec.agent_config_source.inline_source.source_archive"
+                )
+                agent_config_source["inline_source"] = {  # type: ignore[typeddict-item]
+                    "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
+                        source_packages=source_packages
+                    )
+                }
+            update_masks.append("spec.source_code_spec.agent_config_source")
+            source_code_spec["agent_config_source"] = agent_config_source
+
+            if requirements_file is not None:
+                update_masks.append(
+                    "spec.source_code_spec.python_spec.requirements_file"
+                )
+                python_spec["requirements_file"] = requirements_file
+            source_code_spec["python_spec"] = python_spec
+
+            spec["source_code_spec"] = source_code_spec
+            return
+
         if not entrypoint_module:
             raise ValueError(
                 "`entrypoint_module` must be specified if `source_packages` or `developer_connect_source` is specified."
@@ -1051,21 +1527,6 @@ class AgentEngines(_api_module.BaseModule):
         source_code_spec["python_spec"] = python_spec
         spec["source_code_spec"] = source_code_spec
 
-        if class_methods is None:
-            raise ValueError(
-                "`class_methods` must be specified if `source_packages` or `developer_connect_source` is specified."
-            )
-        update_masks.append("spec.class_methods")
-        class_methods_spec_list = (
-            _agent_engines_utils._class_methods_to_class_methods_spec(
-                class_methods=class_methods
-            )
-        )
-        spec["class_methods"] = [
-            _agent_engines_utils._to_dict(class_method_spec)
-            for class_method_spec in class_methods_spec_list
-        ]
-
     def _set_package_spec(
         self,
         *,
@@ -1079,7 +1540,7 @@ class AgentEngines(_api_module.BaseModule):
         class_methods: Optional[Sequence[dict[str, Any]]] = None,
         sys_version: str,
         build_options: Optional[dict[str, list[str]]] = None,
-    ):
+    ) -> None:
         """Sets package spec for agent engine."""
         project = self._api_client.project
         if project is None:
@@ -1114,7 +1575,7 @@ class AgentEngines(_api_module.BaseModule):
         )
         # Update the package spec.
         update_masks.append("spec.package_spec.pickle_object_gcs_uri")
-        package_spec = {
+        package_spec: types.ReasoningEngineSpecPackageSpecDict = {
             "python_version": sys_version,
             "pickle_object_gcs_uri": "{}/{}/{}".format(
                 staging_bucket,
@@ -1193,6 +1654,12 @@ class AgentEngines(_api_module.BaseModule):
         agent_framework: Optional[str] = None,
         python_version: Optional[str] = None,
         build_options: Optional[dict[str, list[str]]] = None,
+        image_spec: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
+        ] = None,
+        agent_config_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+        ] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1265,7 +1732,12 @@ class AgentEngines(_api_module.BaseModule):
                 sys_version=sys_version,
                 build_options=build_options,
             )
-        elif source_packages or developer_connect_source:
+        elif (
+            source_packages
+            or developer_connect_source
+            or image_spec
+            or agent_config_source
+        ):
             agent_engine_spec = {}
             self._set_source_code_spec(
                 spec=agent_engine_spec,
@@ -1278,17 +1750,29 @@ class AgentEngines(_api_module.BaseModule):
                 requirements_file=requirements_file,
                 sys_version=sys_version,
                 build_options=build_options,
+                image_spec=image_spec,
+                agent_config_source=agent_config_source,
+            )
+
+        is_deployment_spec_updated = (
+            env_vars is not None
+            or psc_interface_config is not None
+            or min_instances is not None
+            or max_instances is not None
+            or resource_limits is not None
+            or container_concurrency is not None
+        )
+        if agent_engine_spec is None and is_deployment_spec_updated:
+            raise ValueError(
+                "To update `env_vars`, `psc_interface_config`, `min_instances`, "
+                "`max_instances`, `resource_limits`, or `container_concurrency`, "
+                "you must also provide the `agent` variable or the source code "
+                "options (`source_packages`, `developer_connect_source` or "
+                "`agent_config_source`)."
             )
 
         if agent_engine_spec is not None:
-            if (
-                env_vars is not None
-                or psc_interface_config is not None
-                or min_instances is not None
-                or max_instances is not None
-                or resource_limits is not None
-                or container_concurrency is not None
-            ):
+            if is_deployment_spec_updated:
                 (
                     deployment_spec,
                     deployment_update_masks,
@@ -1318,6 +1802,18 @@ class AgentEngines(_api_module.BaseModule):
                     agent=agent,
                 )
             )
+
+            if hasattr(agent, "agent_card"):
+                agent_card = getattr(agent, "agent_card")
+                if agent_card:
+                    try:
+                        agent_engine_spec["agent_card"] = agent_card.model_dump(
+                            exclude_none=True
+                        )
+                    except TypeError as e:
+                        raise ValueError(
+                            f"Failed to convert agent card to dict (serialization error): {e}"
+                        ) from e
             update_masks.append("spec.agent_framework")
 
         if identity_type is not None or service_account is not None:
@@ -1429,10 +1925,10 @@ class AgentEngines(_api_module.BaseModule):
             _agent_engines_utils._register_api_methods_or_raise(
                 agent_engine=agent_engine,
                 wrap_operation_fn={
-                    "": _agent_engines_utils._wrap_query_operation,
-                    "async": _agent_engines_utils._wrap_async_query_operation,
-                    "stream": _agent_engines_utils._wrap_stream_query_operation,
-                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,
+                    "": _agent_engines_utils._wrap_query_operation,  # type: ignore[dict-item]
+                    "async": _agent_engines_utils._wrap_async_query_operation,  # type: ignore[dict-item]
+                    "stream": _agent_engines_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
+                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
                     "a2a_extension": _agent_engines_utils._wrap_a2a_operation,
                 },
             )
@@ -1534,6 +2030,9 @@ class AgentEngines(_api_module.BaseModule):
             developer_connect_source = json.loads(
                 developer_connect_source.model_dump_json()
             )
+        agent_config_source = config.agent_config_source
+        if agent_config_source is not None:
+            agent_config_source = json.loads(agent_config_source.model_dump_json())
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -1569,6 +2068,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_framework=config.agent_framework,
             python_version=config.python_version,
             build_options=config.build_options,
+            agent_config_source=agent_config_source,
         )
         operation = self._update(name=name, config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -1598,7 +2098,7 @@ class AgentEngines(_api_module.BaseModule):
             raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
         if agent_engine.api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)
-        return agent_engine
+        return agent_engine  # type: ignore[no-any-return]
 
     def _stream_query(
         self, *, name: str, config: Optional[types.QueryAgentEngineConfigOrDict] = None
@@ -1925,6 +2425,123 @@ class AgentEngines(_api_module.BaseModule):
 
 
 class AsyncAgentEngines(_api_module.BaseModule):
+
+    async def _check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:checkQueryJob".format_map(request_url_dict)
+            else:
+                path = "{name}:checkQueryJob"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CheckQueryJobResult._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types._RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Run a query job on an agent engine.
+        """
+
+        parameter_model = types._RunQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
@@ -2311,6 +2928,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _a2a_tasks = None
     _memories = None
     _sessions = None
 
@@ -2343,7 +2961,22 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return operation
 
     @property
-    def memories(self):
+    def a2a_tasks(self) -> "a2a_tasks_module.AsyncA2aTasks":
+        if self._a2a_tasks is None:
+            try:
+                # We need to lazy load the a2a_tasks module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._a2a_tasks = importlib.import_module(".a2a_tasks", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.a2a_tasks' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._a2a_tasks.AsyncA2aTasks(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def memories(self) -> "memories_module.AsyncMemories":
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -2355,10 +2988,10 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._memories.AsyncMemories(self._api_client)
+        return self._memories.AsyncMemories(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    def sessions(self):
+    def sessions(self) -> "sessions_module.AsyncSessions":
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -2370,7 +3003,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._sessions.AsyncSessions(self._api_client)
+        return self._sessions.AsyncSessions(self._api_client)  # type: ignore[no-any-return]
 
     async def append_session_event(
         self,
@@ -2390,7 +3023,13 @@ class AsyncAgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return await self.sessions.events.append(name=name, config=config)
+        return await self.sessions.events.append(
+            name=name,
+            author=author,
+            invocation_id=invocation_id,
+            timestamp=timestamp,
+            config=config,
+        )
 
     async def delete_memory(
         self,

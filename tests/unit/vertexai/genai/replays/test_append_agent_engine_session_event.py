@@ -41,6 +41,9 @@ def test_append_session_event(client):
             },
             "error_code": "test-error-code",
             "error_message": "test-error-message",
+            "raw_event": {
+                "test-key": "test-value",
+            },
         },
     )
 

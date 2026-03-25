@@ -42,6 +42,15 @@ def test_purge_memories(client):
             scope={"user_id": "456"},
             config={"wait_for_completion": True},
         )
+        client.agent_engines.memories.create(
+            name=agent_engine.api_resource.name,
+            fact="memory_fact_4",
+            scope={"user_id": "456"},
+            config={
+                "wait_for_completion": True,
+                "metadata": {"my_key": {"string_value": "my_value"}},
+            },
+        )
         operation = client.agent_engines.memories.purge(
             name=agent_engine.api_resource.name,
             filter="scope.user_id=123",
@@ -58,7 +67,7 @@ def test_purge_memories(client):
                     )
                 )
             )
-            == 3
+            == 4
         )
         # Now, actually purge the memories.
         operation = client.agent_engines.memories.purge(
@@ -69,6 +78,29 @@ def test_purge_memories(client):
         )
         assert operation.done
         assert operation.response.purge_count == 2
+        assert (
+            len(
+                list(
+                    client.agent_engines.memories.list(
+                        name=agent_engine.api_resource.name
+                    )
+                )
+            )
+            == 2
+        )
+        # Purge memories using filter groups.
+        operation = client.agent_engines.memories.purge(
+            name=agent_engine.api_resource.name,
+            force=True,
+            filter_groups=[
+                {"filters": [{"key": "my_key", "value": {"string_value": "my_value"}}]}
+            ],
+            config={
+                "wait_for_completion": True,
+            },
+        )
+        assert operation.done
+        assert operation.response.purge_count == 1
         assert (
             len(
                 list(

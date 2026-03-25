@@ -61,8 +61,6 @@ except ImportError:  # pragma: NO COVER
 
 _LOGGER = std_logging.getLogger(__name__)
 
-from google.api_core import operation as gac_operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1beta1.services.session_service import pagers
 from google.cloud.aiplatform_v1beta1.types import operation as gca_operation
 from google.cloud.aiplatform_v1beta1.types import session
@@ -72,11 +70,13 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api_core.operation as gac_operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 from .transports.base import SessionServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc import SessionServiceGrpcTransport
 from .transports.grpc_asyncio import SessionServiceGrpcAsyncIOTransport
@@ -838,6 +838,7 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
         *,
         parent: Optional[str] = None,
         session: Optional[gca_session.Session] = None,
+        session_id: Optional[str] = None,
         retry: OptionalRetry = gapic_v1.method.DEFAULT,
         timeout: Union[float, object] = gapic_v1.method.DEFAULT,
         metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
@@ -896,6 +897,20 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
                 This corresponds to the ``session`` field
                 on the ``request`` instance; if ``request`` is provided, this
                 should not be set.
+            session_id (str):
+                Optional. The user defined ID to use for session, which
+                will become the final component of the session resource
+                name. If not provided, Vertex AI will generate a value
+                for this ID.
+
+                This value may be up to 63 characters, and valid
+                characters are ``[a-z0-9-]``. The first character must
+                be a letter, and the last character must be a letter or
+                number.
+
+                This corresponds to the ``session_id`` field
+                on the ``request`` instance; if ``request`` is provided, this
+                should not be set.
             retry (google.api_core.retry.Retry): Designation of what errors, if any,
                 should be retried.
             timeout (float): The timeout for this request.
@@ -917,7 +932,7 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
         # Create or coerce a protobuf request object.
         # - Quick check: If we got a request object, we should *not* have
         #   gotten any keyword arguments that map to the request.
-        flattened_params = [parent, session]
+        flattened_params = [parent, session, session_id]
         has_flattened_params = (
             len([param for param in flattened_params if param is not None]) > 0
         )
@@ -937,6 +952,8 @@ class SessionServiceClient(metaclass=SessionServiceClientMeta):
                 request.parent = parent
             if session is not None:
                 request.session = session
+            if session_id is not None:
+                request.session_id = session_id
 
         # Wrap the RPC method; this adds retry and timeout information,
         # and friendly error handling.

@@ -20,6 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
+from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.aiplatform_v1beta1.types import vertex_rag_data
 
@@ -37,6 +38,11 @@ __protobuf__ = proto.module(
         "CorroborateContentResponse",
         "Fact",
         "Claim",
+        "AskContextsRequest",
+        "AskContextsResponse",
+        "AsyncRetrieveContextsRequest",
+        "AsyncRetrieveContextsResponse",
+        "AsyncRetrieveContextsOperationMetadata",
     },
 )
 
@@ -610,6 +616,123 @@ class Claim(proto.Message):
         proto.FLOAT,
         number=4,
         optional=True,
+    )
+
+
+class AskContextsRequest(proto.Message):
+    r"""Agentic Retrieval Ask API for RAG. Request message for
+    [VertexRagService.AskContexts][google.cloud.aiplatform.v1beta1.VertexRagService.AskContexts].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location from which to
+            retrieve RagContexts. The users must have permission to make
+            a call in the project. Format:
+            ``projects/{project}/locations/{location}``.
+        query (google.cloud.aiplatform_v1beta1.types.RagQuery):
+            Required. Single RAG retrieve query.
+        tools (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tool]):
+            Optional. The tools to use for AskContexts.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    query: "RagQuery" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagQuery",
+    )
+    tools: MutableSequence[tool.Tool] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=tool.Tool,
+    )
+
+
+class AskContextsResponse(proto.Message):
+    r"""Response message for
+    [VertexRagService.AskContexts][google.cloud.aiplatform.v1beta1.VertexRagService.AskContexts].
+
+    Attributes:
+        response (str):
+            The Retrieval Response.
+        contexts (google.cloud.aiplatform_v1beta1.types.RagContexts):
+            The contexts of the query.
+    """
+
+    response: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    contexts: "RagContexts" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagContexts",
+    )
+
+
+class AsyncRetrieveContextsRequest(proto.Message):
+    r"""Request message for
+    [VertexRagService.AsyncRetrieveContexts][google.cloud.aiplatform.v1beta1.VertexRagService.AsyncRetrieveContexts].
+
+    Attributes:
+        parent (str):
+            Required. The resource name of the Location from which to
+            retrieve RagContexts. The users must have permission to make
+            a call in the project. Format:
+            ``projects/{project}/locations/{location}``.
+        query (google.cloud.aiplatform_v1beta1.types.RagQuery):
+            Required. Single RAG retrieve query.
+        tools (MutableSequence[google.cloud.aiplatform_v1beta1.types.Tool]):
+            Optional. The tools to use for AskContexts.
+    """
+
+    parent: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    query: "RagQuery" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="RagQuery",
+    )
+    tools: MutableSequence[tool.Tool] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=3,
+        message=tool.Tool,
+    )
+
+
+class AsyncRetrieveContextsResponse(proto.Message):
+    r"""Response message for
+    [VertexRagService.AsyncRetrieveContexts][google.cloud.aiplatform.v1beta1.VertexRagService.AsyncRetrieveContexts].
+
+    Attributes:
+        contexts (google.cloud.aiplatform_v1beta1.types.RagContexts):
+            The contexts of the query.
+    """
+
+    contexts: "RagContexts" = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message="RagContexts",
+    )
+
+
+class AsyncRetrieveContextsOperationMetadata(proto.Message):
+    r"""Metadata for AsyncRetrieveContextsOperation.
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1beta1.types.GenericOperationMetadata):
+            The operation generic information.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
     )
 
 

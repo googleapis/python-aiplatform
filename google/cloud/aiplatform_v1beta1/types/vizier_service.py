@@ -21,7 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import study as gca_study
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

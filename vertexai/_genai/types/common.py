@@ -91,17 +91,54 @@ logger = logging.getLogger("vertexai_genai.types")
 MetricSubclass = TypeVar("MetricSubclass", bound="Metric")
 
 
-class PairwiseChoice(_common.CaseInSensitiveEnum):
-    """Output only. Pairwise metric choice."""
+class A2aTaskState(_common.CaseInSensitiveEnum):
+    """Output only. The state of the task. The state of a new task is SUBMITTED by default. The state of a task can only be updated via AppendA2aTaskEvents API."""
 
-    PAIRWISE_CHOICE_UNSPECIFIED = "PAIRWISE_CHOICE_UNSPECIFIED"
-    """Unspecified prediction choice."""
-    BASELINE = "BASELINE"
-    """Baseline prediction wins"""
-    CANDIDATE = "CANDIDATE"
-    """Candidate prediction wins"""
-    TIE = "TIE"
-    """Winner cannot be determined"""
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """Task state unspecified. Default value if not set."""
+    SUBMITTED = "SUBMITTED"
+    """Task is submitted and waiting to be processed."""
+    WORKING = "WORKING"
+    """Task is actively being processed."""
+    COMPLETED = "COMPLETED"
+    """Task is finished."""
+    CANCELLED = "CANCELLED"
+    """Task is cancelled."""
+    FAILED = "FAILED"
+    """Task has failed."""
+    REJECTED = "REJECTED"
+    """Task is rejected by the system."""
+    INPUT_REQUIRED = "INPUT_REQUIRED"
+    """Task requires input from the user."""
+    AUTH_REQUIRED = "AUTH_REQUIRED"
+    """Task requires auth (e.g. OAuth) from the user."""
+    PAUSED = "PAUSED"
+    """Task is paused."""
+
+
+class State(_common.CaseInSensitiveEnum):
+    """The new state of the task."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """Task state unspecified. Default value if not set."""
+    SUBMITTED = "SUBMITTED"
+    """Task is submitted and waiting to be processed."""
+    WORKING = "WORKING"
+    """Task is actively being processed."""
+    COMPLETED = "COMPLETED"
+    """Task is finished."""
+    CANCELLED = "CANCELLED"
+    """Task is cancelled."""
+    FAILED = "FAILED"
+    """Task has failed."""
+    REJECTED = "REJECTED"
+    """Task is rejected by the system."""
+    INPUT_REQUIRED = "INPUT_REQUIRED"
+    """Task requires input from the user."""
+    AUTH_REQUIRED = "AUTH_REQUIRED"
+    """Task requires auth (e.g. OAuth) from the user."""
+    PAUSED = "PAUSED"
+    """Task is paused."""
 
 
 class Strategy(_common.CaseInSensitiveEnum):
@@ -206,6 +243,21 @@ class JobState(_common.CaseInSensitiveEnum):
     """The job is partially succeeded, some results may be missing due to errors."""
 
 
+class ManagedTopicEnum(_common.CaseInSensitiveEnum):
+    """The managed memory topic."""
+
+    MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
+    """Unspecified topic. This value should not be used."""
+    USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
+    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
+    USER_PREFERENCES = "USER_PREFERENCES"
+    """Stated or implied likes, dislikes, preferred styles, or patterns."""
+    KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
+    """Important milestones or conclusions within the dialogue."""
+    EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
+    """Information that the user explicitly requested to remember or forget."""
+
+
 class IdentityType(_common.CaseInSensitiveEnum):
     """The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
 
@@ -226,21 +278,6 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
     """Stable agent server mode. This mode has everything stable and well-tested features agent engine offers."""
     EXPERIMENTAL = "EXPERIMENTAL"
     """Experimental agent server mode. This mode contains experimental features."""
-
-
-class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """The managed memory topic."""
-
-    MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
-    """Unspecified topic. This value should not be used."""
-    USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
-    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
-    USER_PREFERENCES = "USER_PREFERENCES"
-    """Stated or implied likes, dislikes, preferred styles, or patterns."""
-    KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
-    """Important milestones or conclusions within the dialogue."""
-    EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
-    """Information that the user explicitly requested to remember or forget."""
 
 
 class Operator(_common.CaseInSensitiveEnum):
@@ -276,21 +313,15 @@ class MachineConfig(_common.CaseInSensitiveEnum):
     """The default value: milligcu 4000, memory 4 Gib"""
 
 
-class State(_common.CaseInSensitiveEnum):
-    """Output only. The runtime state of the SandboxEnvironment."""
+class Framework(_common.CaseInSensitiveEnum):
+    """Framework used to build the application."""
 
-    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
-    """The default value. This value is unused."""
-    STATE_PROVISIONING = "STATE_PROVISIONING"
-    """Runtime resources are being allocated for the sandbox environment."""
-    STATE_RUNNING = "STATE_RUNNING"
-    """Sandbox runtime is ready for serving."""
-    STATE_DEPROVISIONING = "STATE_DEPROVISIONING"
-    """Sandbox runtime is halted, performing tear down tasks."""
-    STATE_TERMINATED = "STATE_TERMINATED"
-    """Sandbox has terminated with underlying runtime failure."""
-    STATE_DELETED = "STATE_DELETED"
-    """Sandbox runtime has been deleted."""
+    FRAMEWORK_UNSPECIFIED = "FRAMEWORK_UNSPECIFIED"
+    """Unspecified framework."""
+    REACT = "REACT"
+    """React framework."""
+    ANGULAR = "ANGULAR"
+    """Angular framework."""
 
 
 class EvaluationItemType(_common.CaseInSensitiveEnum):
@@ -311,32 +342,6 @@ class SamplingMethod(_common.CaseInSensitiveEnum):
     """Sampling method is unspecified."""
     RANDOM = "RANDOM"
     """Sampling method is random."""
-
-
-class RubricContentType(_common.CaseInSensitiveEnum):
-    """Specifies the type of rubric content to generate."""
-
-    PROPERTY = "PROPERTY"
-    """Generate rubrics based on properties."""
-    NL_QUESTION_ANSWER = "NL_QUESTION_ANSWER"
-    """Generate rubrics in an NL question answer format."""
-    PYTHON_CODE_ASSERTION = "PYTHON_CODE_ASSERTION"
-    """Generate rubrics in a unit test format."""
-
-
-class ComputationBasedMetricType(_common.CaseInSensitiveEnum):
-    """Represents the type of the computation based metric."""
-
-    COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED = (
-        "COMPUTATION_BASED_METRIC_TYPE_UNSPECIFIED"
-    )
-    """Computation based metric type is unspecified."""
-    EXACT_MATCH = "EXACT_MATCH"
-    """Exact match metric."""
-    BLEU = "BLEU"
-    """BLEU metric."""
-    ROUGE = "ROUGE"
-    """ROUGE metric."""
 
 
 class EvaluationRunState(_common.CaseInSensitiveEnum):
@@ -394,10 +399,7 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     CREATED = "CREATED"
     """The memory was created."""
     UPDATED = "UPDATED"
-    """The memory was updated.
-
-      The `fact` field may not be updated if the existing fact is still accurate.
-      """
+    """The memory was updated. The `fact` field may not be updated if the existing fact is still accurate."""
     DELETED = "DELETED"
     """The memory was deleted."""
 
@@ -418,6 +420,811 @@ class OptimizationMethod(_common.CaseInSensitiveEnum):
     """The default data driven Vertex AI Prompt Optimizer."""
     OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
     """The data driven prompt optimizer designer for prompts from Android core API."""
+
+
+class GetAgentEngineTaskConfig(_common.BaseModel):
+    """Config for getting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for getting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineTaskConfigOrDict = Union[
+    GetAgentEngineTaskConfig, GetAgentEngineTaskConfigDict
+]
+
+
+class _GetAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for getting an agent engine task."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine task."""
+    )
+    config: Optional[GetAgentEngineTaskConfig] = Field(default=None, description="""""")
+
+
+class _GetAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting an agent engine task."""
+
+    name: Optional[str]
+    """Name of the agent engine task."""
+
+    config: Optional[GetAgentEngineTaskConfigDict]
+    """"""
+
+
+_GetAgentEngineTaskRequestParametersOrDict = Union[
+    _GetAgentEngineTaskRequestParameters, _GetAgentEngineTaskRequestParametersDict
+]
+
+
+class TaskArtifact(_common.BaseModel):
+    """The artifact of the task event."""
+
+    artifact_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique identifier of the artifact within the task. This id is provided by the creator of the artifact.""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Optional. A human readable description of the artifact.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The human-readable name of the artifact provided by the creator.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Additional metadata for the artifact. For A2A, the URIs of the extensions that were used to produce this artifact will be stored here.""",
+    )
+    parts: Optional[list[genai_types.Part]] = Field(
+        default=None, description="""The parts of the artifact."""
+    )
+
+
+class TaskArtifactDict(TypedDict, total=False):
+    """The artifact of the task event."""
+
+    artifact_id: Optional[str]
+    """Required. The unique identifier of the artifact within the task. This id is provided by the creator of the artifact."""
+
+    description: Optional[str]
+    """Optional. A human readable description of the artifact."""
+
+    display_name: Optional[str]
+    """Optional. The human-readable name of the artifact provided by the creator."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Additional metadata for the artifact. For A2A, the URIs of the extensions that were used to produce this artifact will be stored here."""
+
+    parts: Optional[list[genai_types.PartDict]]
+    """The parts of the artifact."""
+
+
+TaskArtifactOrDict = Union[TaskArtifact, TaskArtifactDict]
+
+
+class TaskOutput(_common.BaseModel):
+    """The output of the task event."""
+
+    artifacts: Optional[list[TaskArtifact]] = Field(
+        default=None, description="""The artifacts of the task event."""
+    )
+
+
+class TaskOutputDict(TypedDict, total=False):
+    """The output of the task event."""
+
+    artifacts: Optional[list[TaskArtifactDict]]
+    """The artifacts of the task event."""
+
+
+TaskOutputOrDict = Union[TaskOutput, TaskOutputDict]
+
+
+class TaskMessage(_common.BaseModel):
+    """The message of the task event."""
+
+    message_id: Optional[str] = Field(
+        default=None, description="""Required. The unique identifier of the message."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. A2A message may have extension_uris or reference_task_ids. They will be stored under metadata.""",
+    )
+    parts: Optional[list[genai_types.Part]] = Field(
+        default=None, description="""The parts of the message."""
+    )
+    role: Optional[str] = Field(
+        default=None,
+        description="""Required. The role of the sender of the message. e.g. "user", "agent".""",
+    )
+
+
+class TaskMessageDict(TypedDict, total=False):
+    """The message of the task event."""
+
+    message_id: Optional[str]
+    """Required. The unique identifier of the message."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. A2A message may have extension_uris or reference_task_ids. They will be stored under metadata."""
+
+    parts: Optional[list[genai_types.PartDict]]
+    """The parts of the message."""
+
+    role: Optional[str]
+    """Required. The role of the sender of the message. e.g. "user", "agent"."""
+
+
+TaskMessageOrDict = Union[TaskMessage, TaskMessageDict]
+
+
+class TaskStatusDetails(_common.BaseModel):
+    """The status details of the task event."""
+
+    task_message: Optional[TaskMessage] = Field(
+        default=None, description="""The status of the task event."""
+    )
+
+
+class TaskStatusDetailsDict(TypedDict, total=False):
+    """The status details of the task event."""
+
+    task_message: Optional[TaskMessageDict]
+    """The status of the task event."""
+
+
+TaskStatusDetailsOrDict = Union[TaskStatusDetails, TaskStatusDetailsDict]
+
+
+class A2aTask(_common.BaseModel):
+    """A task."""
+
+    context_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. A generic identifier for grouping related tasks (e.g., session_id, workflow_id).""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Output only. The creation timestamp of the task."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""Optional. Arbitrary, user-defined metadata."""
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`""",
+    )
+    next_event_sequence_number: Optional[int] = Field(
+        default=None,
+        description="""Output only. The next event sequence number to be appended to the task. This value starts at 1 and is guaranteed to be monotonically increasing.""",
+    )
+    output: Optional[TaskOutput] = Field(
+        default=None, description="""Optional. The final output of the task."""
+    )
+    state: Optional[A2aTaskState] = Field(
+        default=None,
+        description="""Output only. The state of the task. The state of a new task is SUBMITTED by default. The state of a task can only be updated via AppendA2aTaskEvents API.""",
+    )
+    status_details: Optional[TaskStatusDetails] = Field(
+        default=None, description="""Optional. The status details of the task."""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The last update timestamp of the task.""",
+    )
+
+
+class A2aTaskDict(TypedDict, total=False):
+    """A task."""
+
+    context_id: Optional[str]
+    """Optional. A generic identifier for grouping related tasks (e.g., session_id, workflow_id)."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. The creation timestamp of the task."""
+
+    metadata: Optional[dict[str, Any]]
+    """Optional. Arbitrary, user-defined metadata."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the task. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/a2aTasks/{a2a_task}`"""
+
+    next_event_sequence_number: Optional[int]
+    """Output only. The next event sequence number to be appended to the task. This value starts at 1 and is guaranteed to be monotonically increasing."""
+
+    output: Optional[TaskOutputDict]
+    """Optional. The final output of the task."""
+
+    state: Optional[A2aTaskState]
+    """Output only. The state of the task. The state of a new task is SUBMITTED by default. The state of a task can only be updated via AppendA2aTaskEvents API."""
+
+    status_details: Optional[TaskStatusDetailsDict]
+    """Optional. The status details of the task."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. The last update timestamp of the task."""
+
+
+A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
+
+
+class ListAgentEngineTasksConfig(_common.BaseModel):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`.""",
+    )
+
+
+class ListAgentEngineTasksConfigDict(TypedDict, total=False):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`."""
+
+
+ListAgentEngineTasksConfigOrDict = Union[
+    ListAgentEngineTasksConfig, ListAgentEngineTasksConfigDict
+]
+
+
+class _ListAgentEngineTasksRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
+    )
+    config: Optional[ListAgentEngineTasksConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineTasksRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the agent engine."""
+
+    config: Optional[ListAgentEngineTasksConfigDict]
+    """"""
+
+
+_ListAgentEngineTasksRequestParametersOrDict = Union[
+    _ListAgentEngineTasksRequestParameters, _ListAgentEngineTasksRequestParametersDict
+]
+
+
+class ListAgentEngineTasksResponse(_common.BaseModel):
+    """Response for listing agent engine tasks."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    a2aTasks: Optional[list[A2aTask]] = Field(
+        default=None, description="""List of agent engine tasks."""
+    )
+
+
+class ListAgentEngineTasksResponseDict(TypedDict, total=False):
+    """Response for listing agent engine tasks."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    a2aTasks: Optional[list[A2aTaskDict]]
+    """List of agent engine tasks."""
+
+
+ListAgentEngineTasksResponseOrDict = Union[
+    ListAgentEngineTasksResponse, ListAgentEngineTasksResponseDict
+]
+
+
+class CreateAgentEngineTaskConfig(_common.BaseModel):
+    """Config for creating a Session."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    context_id: Optional[str] = Field(
+        default=None, description="""The context id of the task to create."""
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None, description="""The metadata of the task to create."""
+    )
+    status_details: Optional[TaskStatusDetails] = Field(
+        default=None, description="""The status details of the task to create."""
+    )
+    output: Optional[TaskOutput] = Field(
+        default=None, description="""The output of the task to create."""
+    )
+
+
+class CreateAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for creating a Session."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    context_id: Optional[str]
+    """The context id of the task to create."""
+
+    metadata: Optional[dict[str, Any]]
+    """The metadata of the task to create."""
+
+    status_details: Optional[TaskStatusDetailsDict]
+    """The status details of the task to create."""
+
+    output: Optional[TaskOutputDict]
+    """The output of the task to create."""
+
+
+CreateAgentEngineTaskConfigOrDict = Union[
+    CreateAgentEngineTaskConfig, CreateAgentEngineTaskConfigDict
+]
+
+
+class _CreateAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for creating Agent Engine Tasks."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to create the task under.""",
+    )
+    a2a_task_id: Optional[str] = Field(
+        default=None, description="""The ID of the task."""
+    )
+    config: Optional[CreateAgentEngineTaskConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating Agent Engine Tasks."""
+
+    name: Optional[str]
+    """Name of the agent engine to create the task under."""
+
+    a2a_task_id: Optional[str]
+    """The ID of the task."""
+
+    config: Optional[CreateAgentEngineTaskConfigDict]
+    """"""
+
+
+_CreateAgentEngineTaskRequestParametersOrDict = Union[
+    _CreateAgentEngineTaskRequestParameters, _CreateAgentEngineTaskRequestParametersDict
+]
+
+
+class TaskMetadataChange(_common.BaseModel):
+    """An event representing a change to the task's top-level metadata. example: metadata_change: { new_metadata: { "name": "My task", } update_mask: { paths: "name" } }"""
+
+    new_metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. The complete state of the metadata object *after* the change.""",
+    )
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""Optional. A field mask indicating which paths in the Struct were changed. If not set, all fields will be updated. go/aip-internal/cloud-standard/2412""",
+    )
+
+
+class TaskMetadataChangeDict(TypedDict, total=False):
+    """An event representing a change to the task's top-level metadata. example: metadata_change: { new_metadata: { "name": "My task", } update_mask: { paths: "name" } }"""
+
+    new_metadata: Optional[dict[str, Any]]
+    """Required. The complete state of the metadata object *after* the change."""
+
+    update_mask: Optional[str]
+    """Optional. A field mask indicating which paths in the Struct were changed. If not set, all fields will be updated. go/aip-internal/cloud-standard/2412"""
+
+
+TaskMetadataChangeOrDict = Union[TaskMetadataChange, TaskMetadataChangeDict]
+
+
+class TaskArtifactChange(_common.BaseModel):
+    """Describes changes to the artifact list."""
+
+    added_artifacts: Optional[list[TaskArtifact]] = Field(
+        default=None,
+        description="""Optional. A list of brand-new artifacts created in this event.""",
+    )
+    deleted_artifact_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. A list of artifact IDs that were removed in this event.""",
+    )
+    updated_artifacts: Optional[list[TaskArtifact]] = Field(
+        default=None,
+        description="""Optional. A list of existing artifacts that were modified in this event.""",
+    )
+
+
+class TaskArtifactChangeDict(TypedDict, total=False):
+    """Describes changes to the artifact list."""
+
+    added_artifacts: Optional[list[TaskArtifactDict]]
+    """Optional. A list of brand-new artifacts created in this event."""
+
+    deleted_artifact_ids: Optional[list[str]]
+    """Optional. A list of artifact IDs that were removed in this event."""
+
+    updated_artifacts: Optional[list[TaskArtifactDict]]
+    """Optional. A list of existing artifacts that were modified in this event."""
+
+
+TaskArtifactChangeOrDict = Union[TaskArtifactChange, TaskArtifactChangeDict]
+
+
+class TaskOutputChange(_common.BaseModel):
+    """An event representing a change to the task's outputs."""
+
+    task_artifact_change: Optional[TaskArtifactChange] = Field(
+        default=None,
+        description="""Required. A granular change to the list of artifacts.""",
+    )
+
+
+class TaskOutputChangeDict(TypedDict, total=False):
+    """An event representing a change to the task's outputs."""
+
+    task_artifact_change: Optional[TaskArtifactChangeDict]
+    """Required. A granular change to the list of artifacts."""
+
+
+TaskOutputChangeOrDict = Union[TaskOutputChange, TaskOutputChangeDict]
+
+
+class TaskStateChange(_common.BaseModel):
+    """A message representing a change in a task's state."""
+
+    new_state: Optional[State] = Field(
+        default=None, description="""Required. The new state of the task."""
+    )
+
+
+class TaskStateChangeDict(TypedDict, total=False):
+    """A message representing a change in a task's state."""
+
+    new_state: Optional[State]
+    """Required. The new state of the task."""
+
+
+TaskStateChangeOrDict = Union[TaskStateChange, TaskStateChangeDict]
+
+
+class TaskStatusDetailsChange(_common.BaseModel):
+    """Represents a change to the task's status details."""
+
+    new_task_status: Optional[TaskStatusDetails] = Field(
+        default=None,
+        description="""Required. The complete state of the task's status *after* the change.""",
+    )
+
+
+class TaskStatusDetailsChangeDict(TypedDict, total=False):
+    """Represents a change to the task's status details."""
+
+    new_task_status: Optional[TaskStatusDetailsDict]
+    """Required. The complete state of the task's status *after* the change."""
+
+
+TaskStatusDetailsChangeOrDict = Union[
+    TaskStatusDetailsChange, TaskStatusDetailsChangeDict
+]
+
+
+class TaskEventData(_common.BaseModel):
+    """Data for a TaskEvent."""
+
+    metadata_change: Optional[TaskMetadataChange] = Field(
+        default=None, description="""Optional. A change to the task's metadata."""
+    )
+    output_change: Optional[TaskOutputChange] = Field(
+        default=None, description="""Optional. A change to the task's final outputs."""
+    )
+    state_change: Optional[TaskStateChange] = Field(
+        default=None, description="""Optional. A change in the task's state."""
+    )
+    status_details_change: Optional[TaskStatusDetailsChange] = Field(
+        default=None,
+        description="""Optional. A change to the framework-specific status details.""",
+    )
+
+
+class TaskEventDataDict(TypedDict, total=False):
+    """Data for a TaskEvent."""
+
+    metadata_change: Optional[TaskMetadataChangeDict]
+    """Optional. A change to the task's metadata."""
+
+    output_change: Optional[TaskOutputChangeDict]
+    """Optional. A change to the task's final outputs."""
+
+    state_change: Optional[TaskStateChangeDict]
+    """Optional. A change in the task's state."""
+
+    status_details_change: Optional[TaskStatusDetailsChangeDict]
+    """Optional. A change to the framework-specific status details."""
+
+
+TaskEventDataOrDict = Union[TaskEventData, TaskEventDataDict]
+
+
+class TaskEvent(_common.BaseModel):
+    """A task event."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None, description="""Output only. The create time of the event."""
+    )
+    event_data: Optional[TaskEventData] = Field(
+        default=None, description="""Required. The delta associated with the event."""
+    )
+    event_sequence_number: Optional[int] = Field(
+        default=None,
+        description="""Required. The sequence number of the event. This is used to uniquely identify the event within the task and order events chronologically. This is a id generated by the SDK.""",
+    )
+
+
+class TaskEventDict(TypedDict, total=False):
+    """A task event."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. The create time of the event."""
+
+    event_data: Optional[TaskEventDataDict]
+    """Required. The delta associated with the event."""
+
+    event_sequence_number: Optional[int]
+    """Required. The sequence number of the event. This is used to uniquely identify the event within the task and order events chronologically. This is a id generated by the SDK."""
+
+
+TaskEventOrDict = Union[TaskEvent, TaskEventDict]
+
+
+class AppendAgentEngineTaskEventConfig(_common.BaseModel):
+    """Config for appending Agent Engine task events."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class AppendAgentEngineTaskEventConfigDict(TypedDict, total=False):
+    """Config for appending Agent Engine task events."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+AppendAgentEngineTaskEventConfigOrDict = Union[
+    AppendAgentEngineTaskEventConfig, AppendAgentEngineTaskEventConfigDict
+]
+
+
+class _AppendAgentEngineTaskEventRequestParameters(_common.BaseModel):
+    """Parameters for appending Agent Engine task events."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the Agent Engine task to append the events to.""",
+    )
+    task_events: Optional[list[TaskEvent]] = Field(
+        default=None, description="""The events to append to the task."""
+    )
+    config: Optional[AppendAgentEngineTaskEventConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _AppendAgentEngineTaskEventRequestParametersDict(TypedDict, total=False):
+    """Parameters for appending Agent Engine task events."""
+
+    name: Optional[str]
+    """Name of the Agent Engine task to append the events to."""
+
+    task_events: Optional[list[TaskEventDict]]
+    """The events to append to the task."""
+
+    config: Optional[AppendAgentEngineTaskEventConfigDict]
+    """"""
+
+
+_AppendAgentEngineTaskEventRequestParametersOrDict = Union[
+    _AppendAgentEngineTaskEventRequestParameters,
+    _AppendAgentEngineTaskEventRequestParametersDict,
+]
+
+
+class AppendAgentEngineTaskEventResponse(_common.BaseModel):
+    """Response for appending Agent Engine task events."""
+
+    pass
+
+
+class AppendAgentEngineTaskEventResponseDict(TypedDict, total=False):
+    """Response for appending Agent Engine task events."""
+
+    pass
+
+
+AppendAgentEngineTaskEventResponseOrDict = Union[
+    AppendAgentEngineTaskEventResponse, AppendAgentEngineTaskEventResponseDict
+]
+
+
+class ListAgentEngineTaskEventsConfig(_common.BaseModel):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`.""",
+    )
+
+
+class ListAgentEngineTaskEventsConfigDict(TypedDict, total=False):
+    """Config for listing agent engine tasks."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending order.
+      Use "desc" after a field name for descending.
+      If this field is omitted, the default ordering is `create_time` descending.
+      More detail in [AIP-132](https://google.aip.dev/132).
+
+      Supported fields:
+       * `create_time`
+       * `update_time`
+
+      Example: `create_time desc`."""
+
+
+ListAgentEngineTaskEventsConfigOrDict = Union[
+    ListAgentEngineTaskEventsConfig, ListAgentEngineTaskEventsConfigDict
+]
+
+
+class _ListAgentEngineTaskEventsRequestParameters(_common.BaseModel):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine task."""
+    )
+    config: Optional[ListAgentEngineTaskEventsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineTaskEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing agent engines."""
+
+    name: Optional[str]
+    """Name of the Agent Engine task."""
+
+    config: Optional[ListAgentEngineTaskEventsConfigDict]
+    """"""
+
+
+_ListAgentEngineTaskEventsRequestParametersOrDict = Union[
+    _ListAgentEngineTaskEventsRequestParameters,
+    _ListAgentEngineTaskEventsRequestParametersDict,
+]
+
+
+class ListAgentEngineTaskEventsResponse(_common.BaseModel):
+    """Response for listing Agent Engine tasks events."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    taskEvents: Optional[list[TaskEvent]] = Field(
+        default=None, description="""List of Agent Engine task events."""
+    )
+
+
+class ListAgentEngineTaskEventsResponseDict(TypedDict, total=False):
+    """Response for listing Agent Engine tasks events."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    taskEvents: Optional[list[TaskEventDict]]
+    """List of Agent Engine task events."""
+
+
+ListAgentEngineTaskEventsResponseOrDict = Union[
+    ListAgentEngineTaskEventsResponse, ListAgentEngineTaskEventsResponseDict
+]
 
 
 class CreateEvaluationItemConfig(_common.BaseModel):
@@ -473,7 +1280,10 @@ _CreateEvaluationItemParametersOrDict = Union[
 
 
 class PromptTemplateData(_common.BaseModel):
-    """Message to hold a prompt template and the values to populate the template."""
+    """Holds data for a prompt template.
+
+    Message to hold a prompt template and the values to populate the template.
+    """
 
     values: Optional[dict[str, genai_types.Content]] = Field(
         default=None, description="""The values for fields in the prompt template."""
@@ -481,7 +1291,10 @@ class PromptTemplateData(_common.BaseModel):
 
 
 class PromptTemplateDataDict(TypedDict, total=False):
-    """Message to hold a prompt template and the values to populate the template."""
+    """Holds data for a prompt template.
+
+    Message to hold a prompt template and the values to populate the template.
+    """
 
     values: Optional[dict[str, genai_types.ContentDict]]
     """The values for fields in the prompt template."""
@@ -501,6 +1314,10 @@ class EvaluationPrompt(_common.BaseModel):
     prompt_template_data: Optional[PromptTemplateData] = Field(
         default=None, description="""Prompt template data."""
     )
+    user_scenario: Optional[evals_types.UserScenario] = Field(
+        default=None,
+        description="""User scenario to help simulate multi-turn agent run results.""",
+    )
 
 
 class EvaluationPromptDict(TypedDict, total=False):
@@ -514,6 +1331,9 @@ class EvaluationPromptDict(TypedDict, total=False):
 
     prompt_template_data: Optional[PromptTemplateDataDict]
     """Prompt template data."""
+
+    user_scenario: Optional[evals_types.UserScenario]
+    """User scenario to help simulate multi-turn agent run results."""
 
 
 EvaluationPromptOrDict = Union[EvaluationPrompt, EvaluationPromptDict]
@@ -535,6 +1355,13 @@ class CandidateResponse(_common.BaseModel):
         default=None,
         description="""Intermediate events (such as tool calls and responses) that led to the final response.""",
     )
+    agent_data: Optional[evals_types.AgentData] = Field(
+        default=None,
+        description="""Represents the complete execution trace of an anget conversation,
+      which can involve single or multiple agents. This field is used to
+      provide the full output of an agent's run, including all turns and
+      events, for direct evaluation.""",
+    )
 
 
 class CandidateResponseDict(TypedDict, total=False):
@@ -551,6 +1378,12 @@ class CandidateResponseDict(TypedDict, total=False):
 
     events: Optional[list[genai_types.ContentDict]]
     """Intermediate events (such as tool calls and responses) that led to the final response."""
+
+    agent_data: Optional[evals_types.AgentData]
+    """Represents the complete execution trace of an anget conversation,
+      which can involve single or multiple agents. This field is used to
+      provide the full output of an agent's run, including all turns and
+      events, for direct evaluation."""
 
 
 CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
@@ -739,6 +1572,473 @@ class EvaluationItemDict(TypedDict, total=False):
 EvaluationItemOrDict = Union[EvaluationItem, EvaluationItemDict]
 
 
+class Metric(_common.BaseModel):
+    """The metric used for evaluation."""
+
+    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
+    custom_function: Optional[Callable[..., Any]] = Field(
+        default=None,
+        description="""The custom function that defines the end-to-end logic for metric computation.""",
+    )
+    prompt_template: Optional[str] = Field(
+        default=None, description="""The prompt template for the metric."""
+    )
+    judge_model_system_instruction: Optional[str] = Field(
+        default=None, description="""The system instruction for the judge model."""
+    )
+    return_raw_output: Optional[bool] = Field(
+        default=None,
+        description="""Whether to return the raw output from the judge model.""",
+    )
+    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
+        default=None,
+        description="""The parse and reduce function for the judge model.""",
+    )
+    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
+        default=None,
+        description="""The aggregate summary function for the judge model.""",
+    )
+    remote_custom_function: Optional[str] = Field(
+        default=None,
+        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
+    )
+    judge_model: Optional[str] = Field(
+        default=None, description="""The judge model for the metric."""
+    )
+    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
+        default=None,
+        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
+    )
+    judge_model_sampling_count: Optional[int] = Field(
+        default=None, description="""The sampling count for the judge model."""
+    )
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""The rubric group name for the rubric-based metric.""",
+    )
+    metric_spec_parameters: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional steering instruction parameters for the automated predefined metric.""",
+    )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
+
+    # Allow extra fields to support metric-specific config fields.
+    model_config = ConfigDict(extra="allow")
+
+    _is_predefined: bool = PrivateAttr(default=False)
+    """A boolean indicating whether the metric is predefined."""
+
+    _config_source: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the source of the metric configuration."""
+
+    _version: Optional[str] = PrivateAttr(default=None)
+    """An optional string indicating the version of the metric."""
+
+    @model_validator(mode="after")
+    @classmethod
+    def validate_name(cls, model: "Metric") -> "Metric":
+        if not model.name:
+            raise ValueError("Metric name cannot be empty.")
+        model.name = model.name.lower()
+        return model
+
+    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
+        """Dumps the metric object to a YAML file.
+
+        Args:
+            file_path: The path to the YAML file.
+            version: Optional version string to include in the YAML output.
+
+        Raises:
+            ImportError: If the pyyaml library is not installed.
+        """
+        if yaml is None:
+            raise ImportError(
+                "YAML serialization requires the pyyaml library. Please install"
+                " it using 'pip install google-cloud-aiplatform[evaluation]'."
+            )
+
+        fields_to_exclude = {
+            field_name
+            for field_name, field_info in self.model_fields.items()
+            if self.__getattribute__(field_name) is not None
+            and isinstance(self.__getattribute__(field_name), Callable)
+        }
+
+        data_to_dump = self.model_dump(
+            exclude_unset=True,
+            exclude_none=True,
+            mode="json",
+            exclude=fields_to_exclude if fields_to_exclude else None,
+        )
+
+        if version:
+            data_to_dump["version"] = version
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+
+
+class LLMMetric(Metric):
+    """A metric that uses LLM-as-a-judge for evaluation."""
+
+    rubric_group_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
+    )
+
+    @field_validator("prompt_template", mode="before")
+    @classmethod
+    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
+        """Validates prompt template to be a non-empty string."""
+        if value is None:
+            raise ValueError("Prompt template cannot be empty.")
+        if isinstance(value, MetricPromptBuilder):
+            value = str(value)
+        if not value.strip():
+            raise ValueError("Prompt template cannot be an empty string.")
+        return value
+
+    @field_validator("judge_model_sampling_count")
+    @classmethod
+    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
+        """Validates judge_model_sampling_count to be between 1 and 32."""
+        if value is not None and (value < 1 or value > 32):
+            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
+        return value
+
+    @classmethod
+    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
+        """Loads a metric configuration from a YAML or JSON file.
+
+        This method allows for the creation of an LLMMetric instance from a
+        local file path or a Google Cloud Storage (GCS) URI. It will automatically
+        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
+
+        Args:
+            config_path: The local path or GCS URI (e.g., 'gs://bucket/metric.yaml')
+                to the metric configuration file.
+            client: Optional. The Vertex AI client instance to use for authentication.
+                If not provided, Application Default Credentials (ADC) will be used.
+
+        Returns:
+            An instance of LLMMetric configured with the loaded data.
+
+        Raises:
+            ValueError: If the file path is invalid or the file content cannot be parsed.
+            ImportError: If a required library like 'PyYAML' or 'google-cloud-storage' is not installed.
+            IOError: If the file cannot be read from the specified path.
+        """
+        file_extension = os.path.splitext(config_path)[1].lower()
+        if file_extension not in [".yaml", ".yml", ".json"]:
+            raise ValueError(
+                "Unsupported file extension for metric config. Must be .yaml, .yml, or .json"
+            )
+
+        content_str: str
+        if config_path.startswith("gs://"):
+            try:
+                from google.cloud import storage  # type: ignore[attr-defined]
+
+                storage_client = storage.Client(
+                    credentials=client._api_client._credentials if client else None
+                )
+                path_without_prefix = config_path[len("gs://") :]
+                bucket_name, blob_path = path_without_prefix.split("/", 1)
+
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_path)
+                content_str = blob.download_as_bytes().decode("utf-8")
+            except ImportError as e:
+                raise ImportError(
+                    "Reading from GCS requires the 'google-cloud-storage' library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
+                ) from e
+            except Exception as e:
+                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
+        else:
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    content_str = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Local configuration file not found at: {config_path}"
+                )
+            except Exception as e:
+                raise IOError(f"Failed to read local file {config_path}: {e}") from e
+
+        data: Dict[str, Any]
+
+        if file_extension in [".yaml", ".yml"]:
+            if yaml is None:
+                raise ImportError(
+                    "YAML parsing requires the pyyaml library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
+                )
+            data = yaml.safe_load(content_str)
+        elif file_extension == ".json":
+            data = json.loads(content_str)
+
+        if not isinstance(data, dict):
+            raise ValueError("Metric config content did not parse into a dictionary.")
+
+        return cls.model_validate(data)
+
+
+class MetricDict(TypedDict, total=False):
+    """The metric used for evaluation."""
+
+    name: Optional[str]
+    """The name of the metric."""
+
+    custom_function: Optional[Callable[..., Any]]
+    """The custom function that defines the end-to-end logic for metric computation."""
+
+    prompt_template: Optional[str]
+    """The prompt template for the metric."""
+
+    judge_model_system_instruction: Optional[str]
+    """The system instruction for the judge model."""
+
+    return_raw_output: Optional[bool]
+    """Whether to return the raw output from the judge model."""
+
+    parse_and_reduce_fn: Optional[Callable[..., Any]]
+    """The parse and reduce function for the judge model."""
+
+    aggregate_summary_fn: Optional[Callable[..., Any]]
+    """The aggregate summary function for the judge model."""
+
+    remote_custom_function: Optional[str]
+    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
+
+    judge_model: Optional[str]
+    """The judge model for the metric."""
+
+    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
+    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
+
+    judge_model_sampling_count: Optional[int]
+    """The sampling count for the judge model."""
+
+    rubric_group_name: Optional[str]
+    """The rubric group name for the rubric-based metric."""
+
+    metric_spec_parameters: Optional[dict[str, Any]]
+    """Optional steering instruction parameters for the automated predefined metric."""
+
+    metric_resource_name: Optional[str]
+    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
+
+MetricOrDict = Union[Metric, MetricDict]
+
+
+class CreateEvaluationMetricConfig(_common.BaseModel):
+    """Config for creating an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CreateEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for creating an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CreateEvaluationMetricConfigOrDict = Union[
+    CreateEvaluationMetricConfig, CreateEvaluationMetricConfigDict
+]
+
+
+class _CreateEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for creating an evaluation metric."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-defined name of the evaluation metric.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """,
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the evaluation metric."""
+    )
+    metric: Optional[Metric] = Field(
+        default=None,
+        description="""The metric configuration of the evaluation metric.""",
+    )
+    config: Optional[CreateEvaluationMetricConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for creating an evaluation metric."""
+
+    display_name: Optional[str]
+    """The user-defined name of the evaluation metric.
+
+      The display name can be up to 128 characters long and can comprise any
+      UTF-8 characters.
+      """
+
+    description: Optional[str]
+    """The description of the evaluation metric."""
+
+    metric: Optional[MetricDict]
+    """The metric configuration of the evaluation metric."""
+
+    config: Optional[CreateEvaluationMetricConfigDict]
+    """"""
+
+
+_CreateEvaluationMetricParametersOrDict = Union[
+    _CreateEvaluationMetricParameters, _CreateEvaluationMetricParametersDict
+]
+
+
+class CustomCodeExecutionSpec(_common.BaseModel):
+    """Specifies a metric using remote Python function execution.
+
+    This metric is computed by running user-defined Python functions remotely.
+    """
+
+    evaluation_function: Optional[str] = Field(
+        default=None,
+        description="""Required. Python function. Expected user to define the following function, e.g.: def evaluate(instance: dict[str, Any]) -> float: Please include this function signature in the code snippet. Instance is the evaluation instance, any fields populated in the instance are available to the function as instance[field_name]. Example: Example input: ``` instance= EvaluationInstance( response=EvaluationInstance.InstanceData(text="The answer is 4."), reference=EvaluationInstance.InstanceData(text="4") ) ``` Example converted input: ``` { 'response': {'text': 'The answer is 4.'}, 'reference': {'text': '4'} } ``` Example python function: ``` def evaluate(instance: dict[str, Any]) -> float: if instance'response' == instance'reference': return 1.0 return 0.0 ``` CustomCodeExecutionSpec is also supported in Batch Evaluation (EvalDataset RPC) and Tuning Evaluation. Each line in the input jsonl file will be converted to dict[str, Any] and passed to the evaluation function.""",
+    )
+    remote_custom_function: Optional[str] = Field(
+        default=None,
+        description="""A string representing a user-defined function for evaluation.
+  Expected user to define the following function, e.g.:
+    def evaluate(instance: dict[str, Any]) -> float:
+  Please include this function signature in the code snippet.
+  Instance is the evaluation instance, any fields populated in the instance
+  are available to the function as instance[field_name].""",
+    )
+
+
+class CustomCodeExecutionSpecDict(TypedDict, total=False):
+    """Specifies a metric using remote Python function execution.
+
+    This metric is computed by running user-defined Python functions remotely.
+    """
+
+    evaluation_function: Optional[str]
+    """Required. Python function. Expected user to define the following function, e.g.: def evaluate(instance: dict[str, Any]) -> float: Please include this function signature in the code snippet. Instance is the evaluation instance, any fields populated in the instance are available to the function as instance[field_name]. Example: Example input: ``` instance= EvaluationInstance( response=EvaluationInstance.InstanceData(text="The answer is 4."), reference=EvaluationInstance.InstanceData(text="4") ) ``` Example converted input: ``` { 'response': {'text': 'The answer is 4.'}, 'reference': {'text': '4'} } ``` Example python function: ``` def evaluate(instance: dict[str, Any]) -> float: if instance'response' == instance'reference': return 1.0 return 0.0 ``` CustomCodeExecutionSpec is also supported in Batch Evaluation (EvalDataset RPC) and Tuning Evaluation. Each line in the input jsonl file will be converted to dict[str, Any] and passed to the evaluation function."""
+
+    remote_custom_function: Optional[str]
+    """A string representing a user-defined function for evaluation.
+  Expected user to define the following function, e.g.:
+    def evaluate(instance: dict[str, Any]) -> float:
+  Please include this function signature in the code snippet.
+  Instance is the evaluation instance, any fields populated in the instance
+  are available to the function as instance[field_name]."""
+
+
+CustomCodeExecutionSpecOrDict = Union[
+    CustomCodeExecutionSpec, CustomCodeExecutionSpecDict
+]
+
+
+class UnifiedMetric(_common.BaseModel):
+    """The unified metric used for evaluation."""
+
+    bleu_spec: Optional[genai_types.BleuSpec] = Field(
+        default=None, description="""The Bleu metric spec."""
+    )
+    rouge_spec: Optional[genai_types.RougeSpec] = Field(
+        default=None, description="""The rouge metric spec."""
+    )
+    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpec] = Field(
+        default=None, description="""The pointwise metric spec."""
+    )
+    llm_based_metric_spec: Optional[genai_types.LLMBasedMetricSpec] = Field(
+        default=None, description="""The spec for an LLM based metric."""
+    )
+    custom_code_execution_spec: Optional[CustomCodeExecutionSpec] = Field(
+        default=None, description="""The spec for a custom code execution metric."""
+    )
+    predefined_metric_spec: Optional[genai_types.PredefinedMetricSpec] = Field(
+        default=None, description="""The spec for a pre-defined metric."""
+    )
+    computation_based_metric_spec: Optional[genai_types.ComputationBasedMetricSpec] = (
+        Field(default=None, description="""The spec for a computation based metric.""")
+    )
+
+
+class UnifiedMetricDict(TypedDict, total=False):
+    """The unified metric used for evaluation."""
+
+    bleu_spec: Optional[genai_types.BleuSpecDict]
+    """The Bleu metric spec."""
+
+    rouge_spec: Optional[genai_types.RougeSpecDict]
+    """The rouge metric spec."""
+
+    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpecDict]
+    """The pointwise metric spec."""
+
+    llm_based_metric_spec: Optional[genai_types.LLMBasedMetricSpecDict]
+    """The spec for an LLM based metric."""
+
+    custom_code_execution_spec: Optional[CustomCodeExecutionSpecDict]
+    """The spec for a custom code execution metric."""
+
+    predefined_metric_spec: Optional[genai_types.PredefinedMetricSpecDict]
+    """The spec for a pre-defined metric."""
+
+    computation_based_metric_spec: Optional[genai_types.ComputationBasedMetricSpecDict]
+    """The spec for a computation based metric."""
+
+
+UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]
+
+
+class EvaluationMetric(_common.BaseModel):
+    """Represents an evaluation metric."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The resource name of the evaluation metric."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The user-friendly display name for the EvaluationMetric.""",
+    )
+    description: Optional[str] = Field(
+        default=None, description="""The description of the EvaluationMetric."""
+    )
+    metric: Optional[UnifiedMetric] = Field(
+        default=None,
+        description="""The metric configuration of the evaluation metric.""",
+    )
+
+
+class EvaluationMetricDict(TypedDict, total=False):
+    """Represents an evaluation metric."""
+
+    name: Optional[str]
+    """The resource name of the evaluation metric."""
+
+    display_name: Optional[str]
+    """The user-friendly display name for the EvaluationMetric."""
+
+    description: Optional[str]
+    """The description of the EvaluationMetric."""
+
+    metric: Optional[UnifiedMetricDict]
+    """The metric configuration of the evaluation metric."""
+
+
+EvaluationMetricOrDict = Union[EvaluationMetric, EvaluationMetricDict]
+
+
 class SamplingConfig(_common.BaseModel):
     """Sampling config for a BigQuery request set."""
 
@@ -831,249 +2131,6 @@ EvaluationRunDataSourceOrDict = Union[
 ]
 
 
-class PredefinedMetricSpec(_common.BaseModel):
-    """Spec for predefined metric."""
-
-    metric_spec_name: Optional[str] = Field(
-        default=None,
-        description="""The name of a pre-defined metric, such as "instruction_following_v1" or
-      "text_quality_v1".""",
-    )
-    metric_spec_parameters: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The parameters needed to run the pre-defined metric.""",
-    )
-
-
-class PredefinedMetricSpecDict(TypedDict, total=False):
-    """Spec for predefined metric."""
-
-    metric_spec_name: Optional[str]
-    """The name of a pre-defined metric, such as "instruction_following_v1" or
-      "text_quality_v1"."""
-
-    metric_spec_parameters: Optional[dict[str, Any]]
-    """The parameters needed to run the pre-defined metric."""
-
-
-PredefinedMetricSpecOrDict = Union[PredefinedMetricSpec, PredefinedMetricSpecDict]
-
-
-class RubricGenerationSpec(_common.BaseModel):
-    """Spec for generating rubrics."""
-
-    prompt_template: Optional[str] = Field(
-        default=None,
-        description="""Template for the prompt used to generate rubrics.
-      The details should be updated based on the most-recent recipe requirements.""",
-    )
-    generator_model_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None,
-        description="""Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation.""",
-    )
-    rubric_content_type: Optional[RubricContentType] = Field(
-        default=None, description="""The type of rubric content to be generated."""
-    )
-    rubric_type_ontology: Optional[list[str]] = Field(
-        default=None,
-        description="""An optional, pre-defined list of allowed types for generated rubrics.
-      If this field is provided, it implies `include_rubric_type` should be true,
-      and the generated rubric types should be chosen from this ontology.""",
-    )
-
-
-class RubricGenerationSpecDict(TypedDict, total=False):
-    """Spec for generating rubrics."""
-
-    prompt_template: Optional[str]
-    """Template for the prompt used to generate rubrics.
-      The details should be updated based on the most-recent recipe requirements."""
-
-    generator_model_config: Optional[genai_types.AutoraterConfigDict]
-    """Configuration for the model used in rubric generation.
-      Configs including sampling count and base model can be specified here.
-      Flipping is not supported for rubric generation."""
-
-    rubric_content_type: Optional[RubricContentType]
-    """The type of rubric content to be generated."""
-
-    rubric_type_ontology: Optional[list[str]]
-    """An optional, pre-defined list of allowed types for generated rubrics.
-      If this field is provided, it implies `include_rubric_type` should be true,
-      and the generated rubric types should be chosen from this ontology."""
-
-
-RubricGenerationSpecOrDict = Union[RubricGenerationSpec, RubricGenerationSpecDict]
-
-
-class LLMBasedMetricSpec(_common.BaseModel):
-    """Specification for an LLM based metric."""
-
-    metric_prompt_template: Optional[str] = Field(
-        default=None, description="""Template for the prompt sent to the judge model."""
-    )
-    system_instruction: Optional[str] = Field(
-        default=None, description="""System instruction for the judge model."""
-    )
-    judge_autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None,
-        description="""Optional configuration for the judge LLM (Autorater).""",
-    )
-    rubric_group_key: Optional[str] = Field(
-        default=None,
-        description="""Use a pre-defined group of rubrics associated with the input.
-      Refers to a key in the rubric_groups map of EvaluationInstance.""",
-    )
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpec] = Field(
-        default=None,
-        description="""Dynamically generate rubrics using a predefined spec.""",
-    )
-    rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
-        default=None,
-        description="""Dynamically generate rubrics using this specification.""",
-    )
-
-
-class LLMBasedMetricSpecDict(TypedDict, total=False):
-    """Specification for an LLM based metric."""
-
-    metric_prompt_template: Optional[str]
-    """Template for the prompt sent to the judge model."""
-
-    system_instruction: Optional[str]
-    """System instruction for the judge model."""
-
-    judge_autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """Optional configuration for the judge LLM (Autorater)."""
-
-    rubric_group_key: Optional[str]
-    """Use a pre-defined group of rubrics associated with the input.
-      Refers to a key in the rubric_groups map of EvaluationInstance."""
-
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpecDict]
-    """Dynamically generate rubrics using a predefined spec."""
-
-    rubric_generation_spec: Optional[RubricGenerationSpecDict]
-    """Dynamically generate rubrics using this specification."""
-
-
-LLMBasedMetricSpecOrDict = Union[LLMBasedMetricSpec, LLMBasedMetricSpecDict]
-
-
-class CustomCodeExecutionSpec(_common.BaseModel):
-    """Specificies a metric that is computed by running user-defined Python functions remotely."""
-
-    remote_custom_function: Optional[str] = Field(
-        default=None,
-        description="""A string representing a user-defined function for evaluation.
-  Expected user to define the following function, e.g.:
-    def evaluate(instance: dict[str, Any]) -> float:
-  Please include this function signature in the code snippet.
-  Instance is the evaluation instance, any fields populated in the instance
-  are available to the function as instance[field_name].""",
-    )
-
-
-class CustomCodeExecutionSpecDict(TypedDict, total=False):
-    """Specificies a metric that is computed by running user-defined Python functions remotely."""
-
-    remote_custom_function: Optional[str]
-    """A string representing a user-defined function for evaluation.
-  Expected user to define the following function, e.g.:
-    def evaluate(instance: dict[str, Any]) -> float:
-  Please include this function signature in the code snippet.
-  Instance is the evaluation instance, any fields populated in the instance
-  are available to the function as instance[field_name]."""
-
-
-CustomCodeExecutionSpecOrDict = Union[
-    CustomCodeExecutionSpec, CustomCodeExecutionSpecDict
-]
-
-
-class ComputationBasedMetricSpec(_common.BaseModel):
-    """Specification for a computation based metric."""
-
-    type: Optional[ComputationBasedMetricType] = Field(
-        default=None, description="""The type of the computation based metric."""
-    )
-    parameters: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}.""",
-    )
-
-
-class ComputationBasedMetricSpecDict(TypedDict, total=False):
-    """Specification for a computation based metric."""
-
-    type: Optional[ComputationBasedMetricType]
-    """The type of the computation based metric."""
-
-    parameters: Optional[dict[str, Any]]
-    """A map of parameters for the metric. ROUGE example: {"rouge_type": "rougeL", "split_summaries": True, "use_stemmer": True}. BLEU example: {"use_effective_order": True}."""
-
-
-ComputationBasedMetricSpecOrDict = Union[
-    ComputationBasedMetricSpec, ComputationBasedMetricSpecDict
-]
-
-
-class UnifiedMetric(_common.BaseModel):
-    """The unified metric used for evaluation."""
-
-    bleu_spec: Optional[genai_types.BleuSpec] = Field(
-        default=None, description="""The Bleu metric spec."""
-    )
-    rouge_spec: Optional[genai_types.RougeSpec] = Field(
-        default=None, description="""The rouge metric spec."""
-    )
-    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpec] = Field(
-        default=None, description="""The pointwise metric spec."""
-    )
-    llm_based_metric_spec: Optional[LLMBasedMetricSpec] = Field(
-        default=None, description="""The spec for an LLM based metric."""
-    )
-    custom_code_execution_spec: Optional[CustomCodeExecutionSpec] = Field(
-        default=None, description="""The spec for a custom code execution metric."""
-    )
-    predefined_metric_spec: Optional[PredefinedMetricSpec] = Field(
-        default=None, description="""The spec for a pre-defined metric."""
-    )
-    computation_based_metric_spec: Optional[ComputationBasedMetricSpec] = Field(
-        default=None, description="""The spec for a computation based metric."""
-    )
-
-
-class UnifiedMetricDict(TypedDict, total=False):
-    """The unified metric used for evaluation."""
-
-    bleu_spec: Optional[genai_types.BleuSpecDict]
-    """The Bleu metric spec."""
-
-    rouge_spec: Optional[genai_types.RougeSpecDict]
-    """The rouge metric spec."""
-
-    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpecDict]
-    """The pointwise metric spec."""
-
-    llm_based_metric_spec: Optional[LLMBasedMetricSpecDict]
-    """The spec for an LLM based metric."""
-
-    custom_code_execution_spec: Optional[CustomCodeExecutionSpecDict]
-    """The spec for a custom code execution metric."""
-
-    predefined_metric_spec: Optional[PredefinedMetricSpecDict]
-    """The spec for a pre-defined metric."""
-
-    computation_based_metric_spec: Optional[ComputationBasedMetricSpecDict]
-    """The spec for a computation based metric."""
-
-
-UnifiedMetricOrDict = Union[UnifiedMetric, UnifiedMetricDict]
-
-
 class EvaluationRunMetric(_common.BaseModel):
     """The metric used for evaluation run."""
 
@@ -1082,6 +2139,10 @@ class EvaluationRunMetric(_common.BaseModel):
     )
     metric_config: Optional[UnifiedMetric] = Field(
         default=None, description="""The unified metric used for evaluation run."""
+    )
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
     )
 
 
@@ -1094,8 +2155,53 @@ class EvaluationRunMetricDict(TypedDict, total=False):
     metric_config: Optional[UnifiedMetricDict]
     """The unified metric used for evaluation run."""
 
+    metric_resource_name: Optional[str]
+    """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
 
 EvaluationRunMetricOrDict = Union[EvaluationRunMetric, EvaluationRunMetricDict]
+
+
+class EvaluationRunPromptTemplate(_common.BaseModel):
+    """Prompt template used for inference.
+
+    Only one of `prompt_template` or `gcs_uri` should be set. If both are
+    provided, an error will be raised.
+    """
+
+    prompt_template: Optional[str] = Field(
+        default=None,
+        description="""Inline prompt template. Template variables should be in the format
+      "{var_name}". Only one of `prompt_template` or `gcs_uri` should be set.""",
+    )
+    gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Prompt template stored in Cloud Storage. Format:
+      "gs://my-bucket/file-name.txt". Only one of `prompt_template` or `gcs_uri`
+      should be set.""",
+    )
+
+
+class EvaluationRunPromptTemplateDict(TypedDict, total=False):
+    """Prompt template used for inference.
+
+    Only one of `prompt_template` or `gcs_uri` should be set. If both are
+    provided, an error will be raised.
+    """
+
+    prompt_template: Optional[str]
+    """Inline prompt template. Template variables should be in the format
+      "{var_name}". Only one of `prompt_template` or `gcs_uri` should be set."""
+
+    gcs_uri: Optional[str]
+    """Prompt template stored in Cloud Storage. Format:
+      "gs://my-bucket/file-name.txt". Only one of `prompt_template` or `gcs_uri`
+      should be set."""
+
+
+EvaluationRunPromptTemplateOrDict = Union[
+    EvaluationRunPromptTemplate, EvaluationRunPromptTemplateDict
+]
 
 
 class EvaluationRunConfig(_common.BaseModel):
@@ -1111,6 +2217,9 @@ class EvaluationRunConfig(_common.BaseModel):
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
         default=None, description="""The autorater config for the evaluation run."""
     )
+    prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
+        default=None, description="""The prompt template used for inference."""
+    )
 
 
 class EvaluationRunConfigDict(TypedDict, total=False):
@@ -1125,8 +2234,131 @@ class EvaluationRunConfigDict(TypedDict, total=False):
     autorater_config: Optional[genai_types.AutoraterConfigDict]
     """The autorater config for the evaluation run."""
 
+    prompt_template: Optional[EvaluationRunPromptTemplateDict]
+    """The prompt template used for inference."""
+
 
 EvaluationRunConfigOrDict = Union[EvaluationRunConfig, EvaluationRunConfigDict]
+
+
+class EvaluationRunAgentConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.Content] = Field(
+        default=None, description="""The developer instruction for the agent."""
+    )
+    tools: Optional[list[genai_types.Tool]] = Field(
+        default=None, description="""The tools available to the agent."""
+    )
+
+
+class EvaluationRunAgentConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Agent config for an evaluation run.
+    """
+
+    developer_instruction: Optional[genai_types.ContentDict]
+    """The developer instruction for the agent."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """The tools available to the agent."""
+
+
+EvaluationRunAgentConfigOrDict = Union[
+    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
+]
+
+
+class AgentRunConfig(_common.BaseModel):
+    """Configuration for an Agent Run."""
+
+    session_input: Optional[evals_types.SessionInput] = Field(
+        default=None, description="""The session input to get agent running results."""
+    )
+    agent_engine: Optional[str] = Field(
+        default=None, description="""The resource name of the Agent Engine."""
+    )
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None,
+        description="""Used for multi-turn agent run.
+        Contains configuration for a user simulator that
+        uses an LLM to generate messages on behalf of the user.""",
+    )
+
+
+class AgentRunConfigDict(TypedDict, total=False):
+    """Configuration for an Agent Run."""
+
+    session_input: Optional[evals_types.SessionInput]
+    """The session input to get agent running results."""
+
+    agent_engine: Optional[str]
+    """The resource name of the Agent Engine."""
+
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    """Used for multi-turn agent run.
+        Contains configuration for a user simulator that
+        uses an LLM to generate messages on behalf of the user."""
+
+
+AgentRunConfigOrDict = Union[AgentRunConfig, AgentRunConfigDict]
+
+
+class EvaluationRunInferenceConfig(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfig] = Field(
+        default=None, description="""The agent config."""
+    )
+    model: Optional[str] = Field(
+        default=None,
+        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+    )
+    prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
+        default=None, description="""The prompt template used for inference."""
+    )
+    agent_run_config: Optional[AgentRunConfig] = Field(
+        default=None,
+        description="""Configuration for Agent Run in evaluation management service.""",
+    )
+    agent_configs: Optional[dict[str, evals_types.AgentConfig]] = Field(
+        default=None,
+        description="""A map of agent IDs to their respective agent config.""",
+    )
+
+
+class EvaluationRunInferenceConfigDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Configuration that describes an agent.
+    """
+
+    agent_config: Optional[EvaluationRunAgentConfigDict]
+    """The agent config."""
+
+    model: Optional[str]
+    """The fully qualified name of the publisher model or endpoint to use for inference."""
+
+    prompt_template: Optional[EvaluationRunPromptTemplateDict]
+    """The prompt template used for inference."""
+
+    agent_run_config: Optional[AgentRunConfigDict]
+    """Configuration for Agent Run in evaluation management service."""
+
+    agent_configs: Optional[dict[str, evals_types.AgentConfig]]
+    """A map of agent IDs to their respective agent config."""
+
+
+EvaluationRunInferenceConfigOrDict = Union[
+    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
+]
 
 
 class CreateEvaluationRunConfig(_common.BaseModel):
@@ -1161,7 +2393,7 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
         default=None, description=""""""
     )
     labels: Optional[dict[str, str]] = Field(default=None, description="""""")
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfig"]] = Field(
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfig]] = Field(
         default=None, description=""""""
     )
     config: Optional[CreateEvaluationRunConfig] = Field(
@@ -1187,7 +2419,7 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     labels: Optional[dict[str, str]]
     """"""
 
-    inference_configs: Optional[dict[str, "EvaluationRunInferenceConfigDict"]]
+    inference_configs: Optional[dict[str, EvaluationRunInferenceConfigDict]]
     """"""
 
     config: Optional[CreateEvaluationRunConfigDict]
@@ -1302,7 +2534,7 @@ EvalCaseMetricResultOrDict = Union[EvalCaseMetricResult, EvalCaseMetricResultDic
 
 
 class ResponseCandidateResult(_common.BaseModel):
-    """Aggregated metric results for a single response candidate of an EvalCase."""
+    """Aggregated metric results for a single response candidate."""
 
     response_index: Optional[int] = Field(
         default=None,
@@ -1315,7 +2547,7 @@ class ResponseCandidateResult(_common.BaseModel):
 
 
 class ResponseCandidateResultDict(TypedDict, total=False):
-    """Aggregated metric results for a single response candidate of an EvalCase."""
+    """Aggregated metric results for a single response candidate."""
 
     response_index: Optional[int]
     """Index of the response candidate this result pertains to."""
@@ -1492,6 +2724,14 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation.""",
     )
+    agent_data: Optional[evals_types.AgentData] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The agent data of the agent under evaluation.""",
+    )
+    user_scenario: Optional[evals_types.UserScenario] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. The user scenario for the evaluation case.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -1526,57 +2766,25 @@ class EvalCaseDict(TypedDict, total=False):
     agent_info: Optional[evals_types.AgentInfo]
     """This field is experimental and may change in future versions. The agent info of the agent under evaluation. This can be extended for multi-agent evaluation."""
 
+    agent_data: Optional[evals_types.AgentData]
+    """This field is experimental and may change in future versions. The agent data of the agent under evaluation."""
+
+    user_scenario: Optional[evals_types.UserScenario]
+    """This field is experimental and may change in future versions. The user scenario for the evaluation case."""
+
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
-
-
-class GcsSource(_common.BaseModel):
-    """Cloud storage source holds the dataset.
-
-    Currently only one Cloud Storage file path is supported.
-    """
-
-    uris: Optional[list[str]] = Field(
-        default=None,
-        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
-    )
-
-
-class GcsSourceDict(TypedDict, total=False):
-    """Cloud storage source holds the dataset.
-
-    Currently only one Cloud Storage file path is supported.
-    """
-
-    uris: Optional[list[str]]
-    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
-
-
-GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
-
-
-class BigQuerySource(_common.BaseModel):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str] = Field(
-        default=None,
-        description="""Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`.""",
-    )
-
-
-class BigQuerySourceDict(TypedDict, total=False):
-    """The BigQuery location for the input content."""
-
-    input_uri: Optional[str]
-    """Required. BigQuery URI to a table, up to 2000 characters long. Accepted forms: * BigQuery path. For example: `bq://projectId.bqDatasetId.bqTableId`."""
-
-
-BigQuerySourceOrDict = Union[BigQuerySource, BigQuerySourceDict]
 
 
 class EvaluationDataset(_common.BaseModel):
     """The dataset used for evaluation."""
 
+    bigquery_source: Optional[genai_types.BigQuerySource] = Field(
+        default=None, description="""The BigQuery source for the evaluation dataset."""
+    )
+    gcs_source: Optional[genai_types.GcsSource] = Field(
+        default=None, description="""The GCS source for the evaluation dataset."""
+    )
     eval_cases: Optional[list[EvalCase]] = Field(
         default=None, description="""The evaluation cases to be evaluated."""
     )
@@ -1587,12 +2795,6 @@ class EvaluationDataset(_common.BaseModel):
     candidate_name: Optional[str] = Field(
         default=None,
         description="""The name of the candidate model or agent for this evaluation dataset.""",
-    )
-    gcs_source: Optional[GcsSource] = Field(
-        default=None, description="""The GCS source for the evaluation dataset."""
-    )
-    bigquery_source: Optional[BigQuerySource] = Field(
-        default=None, description="""The BigQuery source for the evaluation dataset."""
     )
 
     @model_validator(mode="before")
@@ -1669,6 +2871,12 @@ class EvaluationDataset(_common.BaseModel):
 class EvaluationDatasetDict(TypedDict, total=False):
     """The dataset used for evaluation."""
 
+    bigquery_source: Optional[genai_types.BigQuerySourceDict]
+    """The BigQuery source for the evaluation dataset."""
+
+    gcs_source: Optional[genai_types.GcsSourceDict]
+    """The GCS source for the evaluation dataset."""
+
     eval_cases: Optional[list[EvalCaseDict]]
     """The evaluation cases to be evaluated."""
 
@@ -1677,12 +2885,6 @@ class EvaluationDatasetDict(TypedDict, total=False):
 
     candidate_name: Optional[str]
     """The name of the candidate model or agent for this evaluation dataset."""
-
-    gcs_source: Optional[GcsSourceDict]
-    """The GCS source for the evaluation dataset."""
-
-    bigquery_source: Optional[BigQuerySourceDict]
-    """The BigQuery source for the evaluation dataset."""
 
 
 EvaluationDatasetOrDict = Union[EvaluationDataset, EvaluationDatasetDict]
@@ -1789,71 +2991,6 @@ class EvaluationResultDict(TypedDict, total=False):
 
 
 EvaluationResultOrDict = Union[EvaluationResult, EvaluationResultDict]
-
-
-class EvaluationRunAgentConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.Content] = Field(
-        default=None, description="""The developer instruction for the agent."""
-    )
-    tools: Optional[list[genai_types.Tool]] = Field(
-        default=None, description="""The tools available to the agent."""
-    )
-
-
-class EvaluationRunAgentConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Agent config for an evaluation run.
-    """
-
-    developer_instruction: Optional[genai_types.ContentDict]
-    """The developer instruction for the agent."""
-
-    tools: Optional[list[genai_types.ToolDict]]
-    """The tools available to the agent."""
-
-
-EvaluationRunAgentConfigOrDict = Union[
-    EvaluationRunAgentConfig, EvaluationRunAgentConfigDict
-]
-
-
-class EvaluationRunInferenceConfig(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfig] = Field(
-        default=None, description="""The agent config."""
-    )
-    model: Optional[str] = Field(
-        default=None,
-        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
-    )
-
-
-class EvaluationRunInferenceConfigDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Configuration that describes an agent.
-    """
-
-    agent_config: Optional[EvaluationRunAgentConfigDict]
-    """The agent config."""
-
-    model: Optional[str]
-    """The fully qualified name of the publisher model or endpoint to use for inference."""
-
-
-EvaluationRunInferenceConfigOrDict = Union[
-    EvaluationRunInferenceConfig, EvaluationRunInferenceConfigDict
-]
 
 
 class EvaluationRun(_common.BaseModel):
@@ -2737,7 +3874,7 @@ class RubricBasedMetricSpec(_common.BaseModel):
       This refers to a key in the `rubric_groups` map of
       `RubricEnhancedContents`.""",
     )
-    rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
+    rubric_generation_spec: Optional[genai_types.RubricGenerationSpec] = Field(
         default=None,
         description="""Dynamically generate rubrics for evaluation using this specification.""",
     )
@@ -2761,7 +3898,7 @@ class RubricBasedMetricSpecDict(TypedDict, total=False):
       This refers to a key in the `rubric_groups` map of
       `RubricEnhancedContents`."""
 
-    rubric_generation_spec: Optional[RubricGenerationSpecDict]
+    rubric_generation_spec: Optional[genai_types.RubricGenerationSpecDict]
     """Dynamically generate rubrics for evaluation using this specification."""
 
 
@@ -2815,7 +3952,10 @@ RubricEnhancedContentsOrDict = Union[RubricEnhancedContents, RubricEnhancedConte
 
 
 class RubricBasedMetricInstance(_common.BaseModel):
-    """Defines an instance for Rubric-based metrics, allowing various input formats."""
+    """Defines an instance for Rubric-based metrics.
+
+    This class allows various input formats.
+    """
 
     json_instance: Optional[str] = Field(
         default=None,
@@ -2833,7 +3973,10 @@ class RubricBasedMetricInstance(_common.BaseModel):
 
 
 class RubricBasedMetricInstanceDict(TypedDict, total=False):
-    """Defines an instance for Rubric-based metrics, allowing various input formats."""
+    """Defines an instance for Rubric-based metrics.
+
+    This class allows various input formats.
+    """
 
     json_instance: Optional[str]
     """Specify evaluation fields and their string values in JSON format."""
@@ -2875,260 +4018,31 @@ class RubricBasedMetricInputDict(TypedDict, total=False):
 RubricBasedMetricInputOrDict = Union[RubricBasedMetricInput, RubricBasedMetricInputDict]
 
 
-class Metric(_common.BaseModel):
-    """The metric used for evaluation."""
+class MetricSource(_common.BaseModel):
+    """The metric source used for evaluation."""
 
-    name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable[..., Any]] = Field(
+    metric: Optional[Metric] = Field(
+        default=None, description="""Inline metric config."""
+    )
+    metric_resource_name: Optional[str] = Field(
         default=None,
-        description="""The custom function that defines the end-to-end logic for metric computation.""",
-    )
-    remote_custom_function: Optional[str] = Field(
-        default=None,
-        description="""The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service.""",
-    )
-    prompt_template: Optional[str] = Field(
-        default=None, description="""The prompt template for the metric."""
-    )
-    judge_model: Optional[str] = Field(
-        default=None, description="""The judge model for the metric."""
-    )
-    judge_model_generation_config: Optional[genai_types.GenerationConfig] = Field(
-        default=None,
-        description="""The generation config for the judge LLM (temperature, top_k, top_p, etc).""",
-    )
-    judge_model_sampling_count: Optional[int] = Field(
-        default=None, description="""The sampling count for the judge model."""
-    )
-    judge_model_system_instruction: Optional[str] = Field(
-        default=None, description="""The system instruction for the judge model."""
-    )
-    return_raw_output: Optional[bool] = Field(
-        default=None,
-        description="""Whether to return the raw output from the judge model.""",
-    )
-    parse_and_reduce_fn: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The parse and reduce function for the judge model.""",
-    )
-    aggregate_summary_fn: Optional[Callable[..., Any]] = Field(
-        default=None,
-        description="""The aggregate summary function for the judge model.""",
-    )
-    rubric_group_name: Optional[str] = Field(
-        default=None,
-        description="""The rubric group name for the rubric-based metric.""",
-    )
-    metric_spec_parameters: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Optional steering instruction parameters for the automated predefined metric.""",
+        description="""Resource name for registered metric. Example:
+      projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
     )
 
-    # Allow extra fields to support metric-specific config fields.
-    model_config = ConfigDict(extra="allow")
 
-    _is_predefined: bool = PrivateAttr(default=False)
-    """A boolean indicating whether the metric is predefined."""
+class MetricSourceDict(TypedDict, total=False):
+    """The metric source used for evaluation."""
 
-    _config_source: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the source of the metric configuration."""
+    metric: Optional[MetricDict]
+    """Inline metric config."""
 
-    _version: Optional[str] = PrivateAttr(default=None)
-    """An optional string indicating the version of the metric."""
-
-    @model_validator(mode="after")
-    @classmethod
-    def validate_name(cls, model: "Metric") -> "Metric":
-        if not model.name:
-            raise ValueError("Metric name cannot be empty.")
-        model.name = model.name.lower()
-        return model
-
-    def to_yaml_file(self, file_path: str, version: Optional[str] = None) -> None:
-        """Dumps the metric object to a YAML file.
-
-        Args:
-            file_path: The path to the YAML file.
-            version: Optional version string to include in the YAML output.
-
-        Raises:
-            ImportError: If the pyyaml library is not installed.
-        """
-        if yaml is None:
-            raise ImportError(
-                "YAML serialization requires the pyyaml library. Please install"
-                " it using 'pip install google-cloud-aiplatform[evaluation]'."
-            )
-
-        fields_to_exclude = {
-            field_name
-            for field_name, field_info in self.model_fields.items()
-            if self.__getattribute__(field_name) is not None
-            and isinstance(self.__getattribute__(field_name), Callable)
-        }
-
-        data_to_dump = self.model_dump(
-            exclude_unset=True,
-            exclude_none=True,
-            mode="json",
-            exclude=fields_to_exclude if fields_to_exclude else None,
-        )
-
-        if version:
-            data_to_dump["version"] = version
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+    metric_resource_name: Optional[str]
+    """Resource name for registered metric. Example:
+      projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
 
 
-class LLMMetric(Metric):
-    """A metric that uses LLM-as-a-judge for evaluation."""
-
-    rubric_group_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
-    )
-
-    @field_validator("prompt_template", mode="before")
-    @classmethod
-    def validate_prompt_template(cls, value: Union[str, "MetricPromptBuilder"]) -> str:
-        """Validates prompt template to be a non-empty string."""
-        if value is None:
-            raise ValueError("Prompt template cannot be empty.")
-        if isinstance(value, MetricPromptBuilder):
-            value = str(value)
-        if not value.strip():
-            raise ValueError("Prompt template cannot be an empty string.")
-        return value
-
-    @field_validator("judge_model_sampling_count")
-    @classmethod
-    def validate_judge_model_sampling_count(cls, value: Optional[int]) -> Optional[int]:
-        """Validates judge_model_sampling_count to be between 1 and 32."""
-        if value is not None and (value < 1 or value > 32):
-            raise ValueError("judge_model_sampling_count must be between 1 and 32.")
-        return value
-
-    @classmethod
-    def load(cls, config_path: str, client: Optional[Any] = None) -> "LLMMetric":
-        """Loads a metric configuration from a YAML or JSON file.
-
-        This method allows for the creation of an LLMMetric instance from a
-        local file path or a Google Cloud Storage (GCS) URI. It will automatically
-        detect the file type (.yaml, .yml, or .json) and parse it accordingly.
-
-        Args:
-            config_path: The local path or GCS URI (e.g., 'gs://bucket/metric.yaml')
-                to the metric configuration file.
-            client: Optional. The Vertex AI client instance to use for authentication.
-                If not provided, Application Default Credentials (ADC) will be used.
-
-        Returns:
-            An instance of LLMMetric configured with the loaded data.
-
-        Raises:
-            ValueError: If the file path is invalid or the file content cannot be parsed.
-            ImportError: If a required library like 'PyYAML' or 'google-cloud-storage' is not installed.
-            IOError: If the file cannot be read from the specified path.
-        """
-        file_extension = os.path.splitext(config_path)[1].lower()
-        if file_extension not in [".yaml", ".yml", ".json"]:
-            raise ValueError(
-                "Unsupported file extension for metric config. Must be .yaml, .yml, or .json"
-            )
-
-        content_str: str
-        if config_path.startswith("gs://"):
-            try:
-                from google.cloud import storage  # type: ignore[attr-defined]
-
-                storage_client = storage.Client(
-                    credentials=client._api_client._credentials if client else None
-                )
-                path_without_prefix = config_path[len("gs://") :]
-                bucket_name, blob_path = path_without_prefix.split("/", 1)
-
-                bucket = storage_client.bucket(bucket_name)
-                blob = bucket.blob(blob_path)
-                content_str = blob.download_as_bytes().decode("utf-8")
-            except ImportError as e:
-                raise ImportError(
-                    "Reading from GCS requires the 'google-cloud-storage' library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
-                ) from e
-            except Exception as e:
-                raise IOError(f"Failed to read from GCS path {config_path}: {e}") from e
-        else:
-            try:
-                with open(config_path, "r", encoding="utf-8") as f:
-                    content_str = f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    f"Local configuration file not found at: {config_path}"
-                )
-            except Exception as e:
-                raise IOError(f"Failed to read local file {config_path}: {e}") from e
-
-        data: Dict[str, Any]
-
-        if file_extension in [".yaml", ".yml"]:
-            if yaml is None:
-                raise ImportError(
-                    "YAML parsing requires the pyyaml library. Please install it with 'pip install google-cloud-aiplatform[evaluation]'."
-                )
-            data = yaml.safe_load(content_str)
-        elif file_extension == ".json":
-            data = json.loads(content_str)
-
-        if not isinstance(data, dict):
-            raise ValueError("Metric config content did not parse into a dictionary.")
-
-        return cls.model_validate(data)
-
-
-class MetricDict(TypedDict, total=False):
-    """The metric used for evaluation."""
-
-    name: Optional[str]
-    """The name of the metric."""
-
-    custom_function: Optional[Callable[..., Any]]
-    """The custom function that defines the end-to-end logic for metric computation."""
-
-    remote_custom_function: Optional[str]
-    """The evaluation function for the custom code execution metric. This custom code is run remotely in the evaluation service."""
-
-    prompt_template: Optional[str]
-    """The prompt template for the metric."""
-
-    judge_model: Optional[str]
-    """The judge model for the metric."""
-
-    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
-    """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
-
-    judge_model_sampling_count: Optional[int]
-    """The sampling count for the judge model."""
-
-    judge_model_system_instruction: Optional[str]
-    """The system instruction for the judge model."""
-
-    return_raw_output: Optional[bool]
-    """Whether to return the raw output from the judge model."""
-
-    parse_and_reduce_fn: Optional[Callable[..., Any]]
-    """The parse and reduce function for the judge model."""
-
-    aggregate_summary_fn: Optional[Callable[..., Any]]
-    """The aggregate summary function for the judge model."""
-
-    rubric_group_name: Optional[str]
-    """The rubric group name for the rubric-based metric."""
-
-    metric_spec_parameters: Optional[dict[str, Any]]
-    """Optional steering instruction parameters for the automated predefined metric."""
-
-
-MetricOrDict = Union[Metric, MetricDict]
+MetricSourceOrDict = Union[MetricSource, MetricSourceDict]
 
 
 class _EvaluateInstancesRequestParameters(_common.BaseModel):
@@ -3166,13 +4080,16 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     metrics: Optional[list[Metric]] = Field(
         default=None,
         description="""The metrics used for evaluation.
-  Currently, we only support evaluating a single metric. If multiple metrics
+      Currently, we only support evaluating a single metric. If multiple metrics
   are provided, only the first one will be evaluated.""",
     )
     instance: Optional[EvaluationInstance] = Field(
         default=None, description="""The instance to be evaluated."""
     )
     config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
+    metric_sources: Optional[list[MetricSource]] = Field(
+        default=None, description="""The metrics used for evaluation."""
+    )
 
 
 class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
@@ -3213,7 +4130,7 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
     metrics: Optional[list[MetricDict]]
     """The metrics used for evaluation.
-  Currently, we only support evaluating a single metric. If multiple metrics
+      Currently, we only support evaluating a single metric. If multiple metrics
   are provided, only the first one will be evaluated."""
 
     instance: Optional[EvaluationInstanceDict]
@@ -3221,6 +4138,9 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
 
     config: Optional[EvaluateInstancesConfigDict]
     """"""
+
+    metric_sources: Optional[list[MetricSourceDict]]
+    """The metrics used for evaluation."""
 
 
 _EvaluateInstancesRequestParametersOrDict = Union[
@@ -3266,6 +4186,60 @@ class MetricResultDict(TypedDict, total=False):
 MetricResultOrDict = Union[MetricResult, MetricResultDict]
 
 
+class BleuResults(_common.BaseModel):
+    """Result of evaluating a bleu metric."""
+
+    bleu_metric_values: Optional[list[genai_types.BleuMetricValue]] = Field(
+        default=None, description="""Output only. Bleu metric values."""
+    )
+
+
+class BleuResultsDict(TypedDict, total=False):
+    """Result of evaluating a bleu metric."""
+
+    bleu_metric_values: Optional[list[genai_types.BleuMetricValueDict]]
+    """Output only. Bleu metric values."""
+
+
+BleuResultsOrDict = Union[BleuResults, BleuResultsDict]
+
+
+class ExactMatchResults(_common.BaseModel):
+    """Result of evaluating an exact match metric."""
+
+    exact_match_metric_values: Optional[list[genai_types.ExactMatchMetricValue]] = (
+        Field(default=None, description="""Output only. Exact match metric values.""")
+    )
+
+
+class ExactMatchResultsDict(TypedDict, total=False):
+    """Result of evaluating an exact match metric."""
+
+    exact_match_metric_values: Optional[list[genai_types.ExactMatchMetricValueDict]]
+    """Output only. Exact match metric values."""
+
+
+ExactMatchResultsOrDict = Union[ExactMatchResults, ExactMatchResultsDict]
+
+
+class RougeResults(_common.BaseModel):
+    """Result of evaluating a rouge metric."""
+
+    rouge_metric_values: Optional[list[genai_types.RougeMetricValue]] = Field(
+        default=None, description="""Output only. Rouge metric values."""
+    )
+
+
+class RougeResultsDict(TypedDict, total=False):
+    """Result of evaluating a rouge metric."""
+
+    rouge_metric_values: Optional[list[genai_types.RougeMetricValueDict]]
+    """Output only. Rouge metric values."""
+
+
+RougeResultsOrDict = Union[RougeResults, RougeResultsDict]
+
+
 class RubricBasedMetricResult(_common.BaseModel):
     """Result for a rubric-based metric."""
 
@@ -3293,42 +4267,6 @@ RubricBasedMetricResultOrDict = Union[
 ]
 
 
-class BleuMetricValue(_common.BaseModel):
-    """Bleu metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None, description="""Output only. Bleu score."""
-    )
-
-
-class BleuMetricValueDict(TypedDict, total=False):
-    """Bleu metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. Bleu score."""
-
-
-BleuMetricValueOrDict = Union[BleuMetricValue, BleuMetricValueDict]
-
-
-class BleuResults(_common.BaseModel):
-    """Results for bleu metric."""
-
-    bleu_metric_values: Optional[list[BleuMetricValue]] = Field(
-        default=None, description="""Output only. Bleu metric values."""
-    )
-
-
-class BleuResultsDict(TypedDict, total=False):
-    """Results for bleu metric."""
-
-    bleu_metric_values: Optional[list[BleuMetricValueDict]]
-    """Output only. Bleu metric values."""
-
-
-BleuResultsOrDict = Union[BleuResults, BleuResultsDict]
-
-
 class CometResult(_common.BaseModel):
     """Spec for Comet result - calculates the comet score for the given instance using the version specified in the spec."""
 
@@ -3348,42 +4286,6 @@ class CometResultDict(TypedDict, total=False):
 CometResultOrDict = Union[CometResult, CometResultDict]
 
 
-class ExactMatchMetricValue(_common.BaseModel):
-    """Exact match metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None, description="""Output only. Exact match score."""
-    )
-
-
-class ExactMatchMetricValueDict(TypedDict, total=False):
-    """Exact match metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. Exact match score."""
-
-
-ExactMatchMetricValueOrDict = Union[ExactMatchMetricValue, ExactMatchMetricValueDict]
-
-
-class ExactMatchResults(_common.BaseModel):
-    """Results for exact match metric."""
-
-    exact_match_metric_values: Optional[list[ExactMatchMetricValue]] = Field(
-        default=None, description="""Output only. Exact match metric values."""
-    )
-
-
-class ExactMatchResultsDict(TypedDict, total=False):
-    """Results for exact match metric."""
-
-    exact_match_metric_values: Optional[list[ExactMatchMetricValueDict]]
-    """Output only. Exact match metric values."""
-
-
-ExactMatchResultsOrDict = Union[ExactMatchResults, ExactMatchResultsDict]
-
-
 class MetricxResult(_common.BaseModel):
     """Spec for MetricX result - calculates the MetricX score for the given instance using the version specified in the spec."""
 
@@ -3401,140 +4303,6 @@ class MetricxResultDict(TypedDict, total=False):
 
 
 MetricxResultOrDict = Union[MetricxResult, MetricxResultDict]
-
-
-class RawOutput(_common.BaseModel):
-    """Raw output."""
-
-    raw_output: Optional[list[str]] = Field(
-        default=None, description="""Output only. Raw output string."""
-    )
-
-
-class RawOutputDict(TypedDict, total=False):
-    """Raw output."""
-
-    raw_output: Optional[list[str]]
-    """Output only. Raw output string."""
-
-
-RawOutputOrDict = Union[RawOutput, RawOutputDict]
-
-
-class CustomOutput(_common.BaseModel):
-    """Spec for custom output."""
-
-    raw_outputs: Optional[RawOutput] = Field(
-        default=None, description="""Output only. List of raw output strings."""
-    )
-
-
-class CustomOutputDict(TypedDict, total=False):
-    """Spec for custom output."""
-
-    raw_outputs: Optional[RawOutputDict]
-    """Output only. List of raw output strings."""
-
-
-CustomOutputOrDict = Union[CustomOutput, CustomOutputDict]
-
-
-class PairwiseMetricResult(_common.BaseModel):
-    """Spec for pairwise metric result."""
-
-    custom_output: Optional[CustomOutput] = Field(
-        default=None, description="""Output only. Spec for custom output."""
-    )
-    explanation: Optional[str] = Field(
-        default=None,
-        description="""Output only. Explanation for pairwise metric score.""",
-    )
-    pairwise_choice: Optional[PairwiseChoice] = Field(
-        default=None, description="""Output only. Pairwise metric choice."""
-    )
-
-
-class PairwiseMetricResultDict(TypedDict, total=False):
-    """Spec for pairwise metric result."""
-
-    custom_output: Optional[CustomOutputDict]
-    """Output only. Spec for custom output."""
-
-    explanation: Optional[str]
-    """Output only. Explanation for pairwise metric score."""
-
-    pairwise_choice: Optional[PairwiseChoice]
-    """Output only. Pairwise metric choice."""
-
-
-PairwiseMetricResultOrDict = Union[PairwiseMetricResult, PairwiseMetricResultDict]
-
-
-class PointwiseMetricResult(_common.BaseModel):
-    """Spec for pointwise metric result."""
-
-    custom_output: Optional[CustomOutput] = Field(
-        default=None, description="""Output only. Spec for custom output."""
-    )
-    explanation: Optional[str] = Field(
-        default=None,
-        description="""Output only. Explanation for pointwise metric score.""",
-    )
-    score: Optional[float] = Field(
-        default=None, description="""Output only. Pointwise metric score."""
-    )
-
-
-class PointwiseMetricResultDict(TypedDict, total=False):
-    """Spec for pointwise metric result."""
-
-    custom_output: Optional[CustomOutputDict]
-    """Output only. Spec for custom output."""
-
-    explanation: Optional[str]
-    """Output only. Explanation for pointwise metric score."""
-
-    score: Optional[float]
-    """Output only. Pointwise metric score."""
-
-
-PointwiseMetricResultOrDict = Union[PointwiseMetricResult, PointwiseMetricResultDict]
-
-
-class RougeMetricValue(_common.BaseModel):
-    """Rouge metric value for an instance."""
-
-    score: Optional[float] = Field(
-        default=None, description="""Output only. Rouge score."""
-    )
-
-
-class RougeMetricValueDict(TypedDict, total=False):
-    """Rouge metric value for an instance."""
-
-    score: Optional[float]
-    """Output only. Rouge score."""
-
-
-RougeMetricValueOrDict = Union[RougeMetricValue, RougeMetricValueDict]
-
-
-class RougeResults(_common.BaseModel):
-    """Results for rouge metric."""
-
-    rouge_metric_values: Optional[list[RougeMetricValue]] = Field(
-        default=None, description="""Output only. Rouge metric values."""
-    )
-
-
-class RougeResultsDict(TypedDict, total=False):
-    """Results for rouge metric."""
-
-    rouge_metric_values: Optional[list[RougeMetricValueDict]]
-    """Output only. Rouge metric values."""
-
-
-RougeResultsOrDict = Union[RougeResults, RougeResultsDict]
 
 
 class ToolCallValidMetricValue(_common.BaseModel):
@@ -3727,10 +4495,10 @@ class EvaluateInstancesResponse(_common.BaseModel):
     metricx_result: Optional[MetricxResult] = Field(
         default=None, description="""Result for Metricx metric."""
     )
-    pairwise_metric_result: Optional[PairwiseMetricResult] = Field(
+    pairwise_metric_result: Optional[genai_types.PairwiseMetricResult] = Field(
         default=None, description="""Result for pairwise metric."""
     )
-    pointwise_metric_result: Optional[PointwiseMetricResult] = Field(
+    pointwise_metric_result: Optional[genai_types.PointwiseMetricResult] = Field(
         default=None, description="""Generic metrics. Result for pointwise metric."""
     )
     rouge_results: Optional[RougeResults] = Field(
@@ -3773,10 +4541,10 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     metricx_result: Optional[MetricxResultDict]
     """Result for Metricx metric."""
 
-    pairwise_metric_result: Optional[PairwiseMetricResultDict]
+    pairwise_metric_result: Optional[genai_types.PairwiseMetricResultDict]
     """Result for pairwise metric."""
 
-    pointwise_metric_result: Optional[PointwiseMetricResultDict]
+    pointwise_metric_result: Optional[genai_types.PointwiseMetricResultDict]
     """Generic metrics. Result for pointwise metric."""
 
     rouge_results: Optional[RougeResultsDict]
@@ -3797,6 +4565,84 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
 
 EvaluateInstancesResponseOrDict = Union[
     EvaluateInstancesResponse, EvaluateInstancesResponseDict
+]
+
+
+class GenerateUserScenariosConfig(_common.BaseModel):
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GenerateUserScenariosConfigDict(TypedDict, total=False):
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GenerateUserScenariosConfigOrDict = Union[
+    GenerateUserScenariosConfig, GenerateUserScenariosConfigDict
+]
+
+
+class _GenerateUserScenariosParameters(_common.BaseModel):
+    """Parameters for GenerateUserScenarios."""
+
+    location: Optional[str] = Field(default=None, description="""""")
+    agents: Optional[dict[str, evals_types.AgentConfig]] = Field(
+        default=None, description=""""""
+    )
+    root_agent_id: Optional[str] = Field(default=None, description="""""")
+    user_scenario_generation_config: Optional[
+        evals_types.UserScenarioGenerationConfig
+    ] = Field(default=None, description="""""")
+    config: Optional[GenerateUserScenariosConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GenerateUserScenariosParametersDict(TypedDict, total=False):
+    """Parameters for GenerateUserScenarios."""
+
+    location: Optional[str]
+    """"""
+
+    agents: Optional[dict[str, evals_types.AgentConfig]]
+    """"""
+
+    root_agent_id: Optional[str]
+    """"""
+
+    user_scenario_generation_config: Optional[evals_types.UserScenarioGenerationConfig]
+    """"""
+
+    config: Optional[GenerateUserScenariosConfigDict]
+    """"""
+
+
+_GenerateUserScenariosParametersOrDict = Union[
+    _GenerateUserScenariosParameters, _GenerateUserScenariosParametersDict
+]
+
+
+class GenerateUserScenariosResponse(_common.BaseModel):
+    """Response message for DataFoundryService.GenerateUserScenarios."""
+
+    user_scenarios: Optional[list[evals_types.UserScenario]] = Field(
+        default=None, description=""""""
+    )
+
+
+class GenerateUserScenariosResponseDict(TypedDict, total=False):
+    """Response message for DataFoundryService.GenerateUserScenarios."""
+
+    user_scenarios: Optional[list[evals_types.UserScenario]]
+    """"""
+
+
+GenerateUserScenariosResponseOrDict = Union[
+    GenerateUserScenariosResponse, GenerateUserScenariosResponseDict
 ]
 
 
@@ -3825,20 +4671,26 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.""",
     )
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpec] = Field(
-        default=None,
-        description="""Specification for using the rubric generation configs of a pre-defined
+    predefined_rubric_generation_spec: Optional[genai_types.PredefinedMetricSpec] = (
+        Field(
+            default=None,
+            description="""Specification for using the rubric generation configs of a pre-defined
           metric, e.g. "generic_quality_v1" and "instruction_following_v1".
           Some of the configs may be only used in rubric generation and not
           supporting evaluation, e.g. "fully_customized_generic_quality_v1".
           If this field is set, the `rubric_generation_spec` field will be ignored.
           """,
+        )
     )
-    rubric_generation_spec: Optional[RubricGenerationSpec] = Field(
+    rubric_generation_spec: Optional[genai_types.RubricGenerationSpec] = Field(
         default=None,
         description="""Specification for how the rubrics should be generated.""",
     )
     config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
+    metric_resource_name: Optional[str] = Field(
+        default=None,
+        description="""Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored.""",
+    )
 
 
 class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
@@ -3847,7 +4699,7 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     contents: Optional[list[genai_types.ContentDict]]
     """The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
 
-    predefined_rubric_generation_spec: Optional[PredefinedMetricSpecDict]
+    predefined_rubric_generation_spec: Optional[genai_types.PredefinedMetricSpecDict]
     """Specification for using the rubric generation configs of a pre-defined
           metric, e.g. "generic_quality_v1" and "instruction_following_v1".
           Some of the configs may be only used in rubric generation and not
@@ -3855,11 +4707,14 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
           If this field is set, the `rubric_generation_spec` field will be ignored.
           """
 
-    rubric_generation_spec: Optional[RubricGenerationSpecDict]
+    rubric_generation_spec: Optional[genai_types.RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
 
     config: Optional[RubricGenerationConfigDict]
     """"""
+
+    metric_resource_name: Optional[str]
+    """Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored."""
 
 
 _GenerateInstanceRubricsRequestOrDict = Union[
@@ -3884,6 +4739,50 @@ class GenerateInstanceRubricsResponseDict(TypedDict, total=False):
 
 GenerateInstanceRubricsResponseOrDict = Union[
     GenerateInstanceRubricsResponse, GenerateInstanceRubricsResponseDict
+]
+
+
+class GetEvaluationMetricConfig(_common.BaseModel):
+    """Config for getting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for getting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetEvaluationMetricConfigOrDict = Union[
+    GetEvaluationMetricConfig, GetEvaluationMetricConfigDict
+]
+
+
+class _GetEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for getting an evaluation metric."""
+
+    metric_resource_name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetEvaluationMetricConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for getting an evaluation metric."""
+
+    metric_resource_name: Optional[str]
+    """"""
+
+    config: Optional[GetEvaluationMetricConfigDict]
+    """"""
+
+
+_GetEvaluationMetricParametersOrDict = Union[
+    _GetEvaluationMetricParameters, _GetEvaluationMetricParametersDict
 ]
 
 
@@ -4006,6 +4905,79 @@ class _GetEvaluationItemParametersDict(TypedDict, total=False):
 
 _GetEvaluationItemParametersOrDict = Union[
     _GetEvaluationItemParameters, _GetEvaluationItemParametersDict
+]
+
+
+class ListEvaluationMetricsConfig(_common.BaseModel):
+    """Config for listing evaluation metrics."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ListEvaluationMetricsConfigDict(TypedDict, total=False):
+    """Config for listing evaluation metrics."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+ListEvaluationMetricsConfigOrDict = Union[
+    ListEvaluationMetricsConfig, ListEvaluationMetricsConfigDict
+]
+
+
+class _ListEvaluationMetricsParameters(_common.BaseModel):
+    """Parameters for listing evaluation metrics."""
+
+    config: Optional[ListEvaluationMetricsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListEvaluationMetricsParametersDict(TypedDict, total=False):
+    """Parameters for listing evaluation metrics."""
+
+    config: Optional[ListEvaluationMetricsConfigDict]
+    """"""
+
+
+_ListEvaluationMetricsParametersOrDict = Union[
+    _ListEvaluationMetricsParameters, _ListEvaluationMetricsParametersDict
+]
+
+
+class ListEvaluationMetricsResponse(_common.BaseModel):
+    """Response for listing evaluation metrics."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    evaluation_metrics: Optional[list[EvaluationMetric]] = Field(
+        default=None,
+        description="""List of evaluation metrics.
+      """,
+    )
+
+
+class ListEvaluationMetricsResponseDict(TypedDict, total=False):
+    """Response for listing evaluation metrics."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    evaluation_metrics: Optional[list[EvaluationMetricDict]]
+    """List of evaluation metrics.
+      """
+
+
+ListEvaluationMetricsResponseOrDict = Union[
+    ListEvaluationMetricsResponse, ListEvaluationMetricsResponseDict
 ]
 
 
@@ -4354,7 +5326,7 @@ class MachineSpec(_common.BaseModel):
 
     accelerator_count: Optional[int] = Field(
         default=None,
-        description="""The number of accelerators to attach to the machine.""",
+        description="""The number of accelerators to attach to the machine. For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled.""",
     )
     accelerator_type: Optional[AcceleratorType] = Field(
         default=None,
@@ -4367,6 +5339,10 @@ class MachineSpec(_common.BaseModel):
     machine_type: Optional[str] = Field(
         default=None,
         description="""Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.""",
+    )
+    min_gpu_driver_version: Optional[str] = Field(
+        default=None,
+        description="""Optional. Immutable. The minimum GPU driver version that this machine requires. For example, "535.104.06". If not specified, the default GPU driver version will be used by the underlying infrastructure.""",
     )
     multihost_gpu_node_count: Optional[int] = Field(
         default=None,
@@ -4386,7 +5362,7 @@ class MachineSpecDict(TypedDict, total=False):
     """Specification of a single machine."""
 
     accelerator_count: Optional[int]
-    """The number of accelerators to attach to the machine."""
+    """The number of accelerators to attach to the machine. For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled."""
 
     accelerator_type: Optional[AcceleratorType]
     """Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count."""
@@ -4396,6 +5372,9 @@ class MachineSpecDict(TypedDict, total=False):
 
     machine_type: Optional[str]
     """Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required."""
+
+    min_gpu_driver_version: Optional[str]
+    """Optional. Immutable. The minimum GPU driver version that this machine requires. For example, "535.104.06". If not specified, the default GPU driver version will be used by the underlying infrastructure."""
 
     multihost_gpu_node_count: Optional[int]
     """Optional. Immutable. The number of nodes per replica for multihost GPU deployments."""
@@ -4823,404 +5802,157 @@ _GetCustomJobParametersOrDict = Union[
 ]
 
 
-class SecretRef(_common.BaseModel):
-    """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
+class CheckQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for async querying agent engines."""
 
-    secret: Optional[str] = Field(
-        default=None,
-        description="""Required. The name of the secret in Cloud Secret Manager. Format: {secret_name}.""",
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
     )
-    version: Optional[str] = Field(
+    retrieve_result: Optional[bool] = Field(
         default=None,
-        description="""The Cloud Secret Manager secret version. Can be 'latest' for the latest version, an integer for a specific version, or a version alias.""",
-    )
-
-
-class SecretRefDict(TypedDict, total=False):
-    """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
-
-    secret: Optional[str]
-    """Required. The name of the secret in Cloud Secret Manager. Format: {secret_name}."""
-
-    version: Optional[str]
-    """The Cloud Secret Manager secret version. Can be 'latest' for the latest version, an integer for a specific version, or a version alias."""
-
-
-SecretRefOrDict = Union[SecretRef, SecretRefDict]
-
-
-class SecretEnvVar(_common.BaseModel):
-    """Represents an environment variable where the value is a secret in Cloud Secret Manager."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""Required. Name of the secret environment variable.""",
-    )
-    secret_ref: Optional[SecretRef] = Field(
-        default=None,
-        description="""Required. Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable.""",
+        description="""Whether to retrieve the results of the query job.""",
     )
 
 
-class SecretEnvVarDict(TypedDict, total=False):
-    """Represents an environment variable where the value is a secret in Cloud Secret Manager."""
+class CheckQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for async querying agent engines."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    retrieve_result: Optional[bool]
+    """Whether to retrieve the results of the query job."""
+
+
+CheckQueryJobAgentEngineConfigOrDict = Union[
+    CheckQueryJobAgentEngineConfig, CheckQueryJobAgentEngineConfigDict
+]
+
+
+class _CheckQueryJobAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for async querying agent engines."""
+
+    name: Optional[str] = Field(default=None, description="""Name of the query job.""")
+    config: Optional[CheckQueryJobAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CheckQueryJobAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for async querying agent engines."""
 
     name: Optional[str]
-    """Required. Name of the secret environment variable."""
+    """Name of the query job."""
 
-    secret_ref: Optional[SecretRefDict]
-    """Required. Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
-
-
-SecretEnvVarOrDict = Union[SecretEnvVar, SecretEnvVarDict]
+    config: Optional[CheckQueryJobAgentEngineConfigDict]
+    """"""
 
 
-class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
-    """The specification of a Reasoning Engine deployment."""
-
-    agent_server_mode: Optional[AgentServerMode] = Field(
-        default=None, description="""The agent server mode."""
-    )
-    container_concurrency: Optional[int] = Field(
-        default=None,
-        description="""Optional. The maximum number of concurrent requests that can be handled by the application. Defaults to 8.""",
-    )
-    env: Optional[list[EnvVar]] = Field(
-        default=None,
-        description="""Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API.""",
-    )
-    max_instances: Optional[int] = Field(
-        default=None,
-        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].""",
-    )
-    min_instances: Optional[int] = Field(
-        default=None,
-        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1.""",
-    )
-    psc_interface_config: Optional[PscInterfaceConfig] = Field(
-        default=None, description="""Optional. Configuration for PSC-I."""
-    )
-    resource_limits: Optional[dict[str, str]] = Field(
-        default=None,
-        description="""Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * For supported 'memory' values and syntax, go to https://cloud.google.com/run/docs/configuring/memory-limits""",
-    )
-    secret_env: Optional[list[SecretEnvVar]] = Field(
-        default=None,
-        description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
-    )
-
-
-class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
-    """The specification of a Reasoning Engine deployment."""
-
-    agent_server_mode: Optional[AgentServerMode]
-    """The agent server mode."""
-
-    container_concurrency: Optional[int]
-    """Optional. The maximum number of concurrent requests that can be handled by the application. Defaults to 8."""
-
-    env: Optional[list[EnvVarDict]]
-    """Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API."""
-
-    max_instances: Optional[int]
-    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
-
-    min_instances: Optional[int]
-    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1."""
-
-    psc_interface_config: Optional[PscInterfaceConfigDict]
-    """Optional. Configuration for PSC-I."""
-
-    resource_limits: Optional[dict[str, str]]
-    """Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * For supported 'memory' values and syntax, go to https://cloud.google.com/run/docs/configuring/memory-limits"""
-
-    secret_env: Optional[list[SecretEnvVarDict]]
-    """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
-
-
-ReasoningEngineSpecDeploymentSpecOrDict = Union[
-    ReasoningEngineSpecDeploymentSpec, ReasoningEngineSpecDeploymentSpecDict
+_CheckQueryJobAgentEngineRequestParametersOrDict = Union[
+    _CheckQueryJobAgentEngineRequestParameters,
+    _CheckQueryJobAgentEngineRequestParametersDict,
 ]
 
 
-class ReasoningEngineSpecPackageSpec(_common.BaseModel):
-    """User-provided package specification, containing pickled object and package requirements."""
+class CheckQueryJobResult(_common.BaseModel):
+    """Result of checking a query job."""
 
-    dependency_files_gcs_uri: Optional[str] = Field(
-        default=None,
-        description="""Optional. The Cloud Storage URI of the dependency files in tar.gz format.""",
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
     )
-    pickle_object_gcs_uri: Optional[str] = Field(
-        default=None,
-        description="""Optional. The Cloud Storage URI of the pickled python object.""",
+    operation_name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine operation."""
     )
-    python_version: Optional[str] = Field(
-        default=None,
-        description="""Optional. The Python version. Currently support 3.8, 3.9, 3.10, 3.11. If not specified, default value is 3.10.""",
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
     )
-    requirements_gcs_uri: Optional[str] = Field(
-        default=None,
-        description="""Optional. The Cloud Storage URI of the `requirements.txt` file""",
+    status: Optional[str] = Field(
+        default=None, description="""Status of the operation."""
+    )
+    result: Optional[str] = Field(
+        default=None, description="""JSON result of the operation."""
     )
 
 
-class ReasoningEngineSpecPackageSpecDict(TypedDict, total=False):
-    """User-provided package specification, containing pickled object and package requirements."""
+class CheckQueryJobResultDict(TypedDict, total=False):
+    """Result of checking a query job."""
 
-    dependency_files_gcs_uri: Optional[str]
-    """Optional. The Cloud Storage URI of the dependency files in tar.gz format."""
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
 
-    pickle_object_gcs_uri: Optional[str]
-    """Optional. The Cloud Storage URI of the pickled python object."""
+    operation_name: Optional[str]
+    """Name of the agent engine operation."""
 
-    python_version: Optional[str]
-    """Optional. The Python version. Currently support 3.8, 3.9, 3.10, 3.11. If not specified, default value is 3.10."""
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
 
-    requirements_gcs_uri: Optional[str]
-    """Optional. The Cloud Storage URI of the `requirements.txt` file"""
+    status: Optional[str]
+    """Status of the operation."""
+
+    result: Optional[str]
+    """JSON result of the operation."""
 
 
-ReasoningEngineSpecPackageSpecOrDict = Union[
-    ReasoningEngineSpecPackageSpec, ReasoningEngineSpecPackageSpecDict
+CheckQueryJobResultOrDict = Union[CheckQueryJobResult, CheckQueryJobResultDict]
+
+
+class _RunQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for running a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    input_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the input file."""
+    )
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
+    )
+
+
+class _RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for running a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    input_gcs_uri: Optional[str]
+    """The GCS URI of the input file."""
+
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
+
+
+_RunQueryJobAgentEngineConfigOrDict = Union[
+    _RunQueryJobAgentEngineConfig, _RunQueryJobAgentEngineConfigDict
 ]
 
 
-class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(_common.BaseModel):
-    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
+class _RunQueryJobAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for running a query job on an agent engine."""
 
-    This includes the repository, revision, and directory to use.
-    """
-
-    dir: Optional[str] = Field(
-        default=None,
-        description="""Required. Directory, relative to the source root, in which to run the build.""",
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine."""
     )
-    git_repository_link: Optional[str] = Field(
-        default=None,
-        description="""Required. The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`.""",
-    )
-    revision: Optional[str] = Field(
-        default=None,
-        description="""Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.""",
+    config: Optional[_RunQueryJobAgentEngineConfig] = Field(
+        default=None, description=""""""
     )
 
 
-class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict(
-    TypedDict, total=False
-):
-    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
+class _RunQueryJobAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for running a query job on an agent engine."""
 
-    This includes the repository, revision, and directory to use.
-    """
+    name: Optional[str]
+    """Name of the agent engine."""
 
-    dir: Optional[str]
-    """Required. Directory, relative to the source root, in which to run the build."""
-
-    git_repository_link: Optional[str]
-    """Required. The Developer Connect Git repository link, formatted as `projects/*/locations/*/connections/*/gitRepositoryLink/*`."""
-
-    revision: Optional[str]
-    """Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref."""
+    config: Optional[_RunQueryJobAgentEngineConfigDict]
+    """"""
 
 
-ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig,
-    ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict,
+_RunQueryJobAgentEngineRequestParametersOrDict = Union[
+    _RunQueryJobAgentEngineRequestParameters,
+    _RunQueryJobAgentEngineRequestParametersDict,
 ]
-
-
-class ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(_common.BaseModel):
-    """Specifies source code to be fetched from a Git repository managed through the Developer Connect service."""
-
-    config: Optional[ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig] = Field(
-        default=None,
-        description="""Required. The Developer Connect configuration thats defines the specific repository, revision, and directory to use as the source code root.""",
-    )
-
-
-class ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict(
-    TypedDict, total=False
-):
-    """Specifies source code to be fetched from a Git repository managed through the Developer Connect service."""
-
-    config: Optional[ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict]
-    """Required. The Developer Connect configuration thats defines the specific repository, revision, and directory to use as the source code root."""
-
-
-ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource,
-    ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict,
-]
-
-
-class ReasoningEngineSpecSourceCodeSpecInlineSource(_common.BaseModel):
-    """Specifies source code provided as a byte stream."""
-
-    source_archive: Optional[bytes] = Field(
-        default=None,
-        description="""Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file.""",
-    )
-
-
-class ReasoningEngineSpecSourceCodeSpecInlineSourceDict(TypedDict, total=False):
-    """Specifies source code provided as a byte stream."""
-
-    source_archive: Optional[bytes]
-    """Required. Input only. The application source code archive, provided as a compressed tarball (.tar.gz) file."""
-
-
-ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpecInlineSource,
-    ReasoningEngineSpecSourceCodeSpecInlineSourceDict,
-]
-
-
-class ReasoningEngineSpecSourceCodeSpecPythonSpec(_common.BaseModel):
-    """Specification for running a Python application from source."""
-
-    entrypoint_module: Optional[str] = Field(
-        default=None,
-        description="""Optional. The Python module to load as the entrypoint, specified as a fully qualified module name. For example: path.to.agent. If not specified, defaults to "agent". The project root will be added to Python sys.path, allowing imports to be specified relative to the root.""",
-    )
-    entrypoint_object: Optional[str] = Field(
-        default=None,
-        description="""Optional. The name of the callable object within the `entrypoint_module` to use as the application If not specified, defaults to "root_agent".""",
-    )
-    requirements_file: Optional[str] = Field(
-        default=None,
-        description="""Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt".""",
-    )
-    version: Optional[str] = Field(
-        default=None,
-        description="""Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified, default value is 3.10.""",
-    )
-
-
-class ReasoningEngineSpecSourceCodeSpecPythonSpecDict(TypedDict, total=False):
-    """Specification for running a Python application from source."""
-
-    entrypoint_module: Optional[str]
-    """Optional. The Python module to load as the entrypoint, specified as a fully qualified module name. For example: path.to.agent. If not specified, defaults to "agent". The project root will be added to Python sys.path, allowing imports to be specified relative to the root."""
-
-    entrypoint_object: Optional[str]
-    """Optional. The name of the callable object within the `entrypoint_module` to use as the application If not specified, defaults to "root_agent"."""
-
-    requirements_file: Optional[str]
-    """Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt"."""
-
-    version: Optional[str]
-    """Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13. If not specified, default value is 3.10."""
-
-
-ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpecPythonSpec,
-    ReasoningEngineSpecSourceCodeSpecPythonSpecDict,
-]
-
-
-class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
-    """Specification for deploying from source code."""
-
-    developer_connect_source: Optional[
-        ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
-    ] = Field(
-        default=None,
-        description="""Source code is in a Git repository managed by Developer Connect.""",
-    )
-    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
-        default=None, description="""Source code is provided directly in the request."""
-    )
-    python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpec] = Field(
-        default=None, description="""Configuration for a Python application."""
-    )
-
-
-class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
-    """Specification for deploying from source code."""
-
-    developer_connect_source: Optional[
-        ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
-    ]
-    """Source code is in a Git repository managed by Developer Connect."""
-
-    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
-    """Source code is provided directly in the request."""
-
-    python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpecDict]
-    """Configuration for a Python application."""
-
-
-ReasoningEngineSpecSourceCodeSpecOrDict = Union[
-    ReasoningEngineSpecSourceCodeSpec, ReasoningEngineSpecSourceCodeSpecDict
-]
-
-
-class ReasoningEngineSpec(_common.BaseModel):
-    """The specification of an agent engine."""
-
-    agent_framework: Optional[str] = Field(
-        default=None,
-        description="""Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom".""",
-    )
-    class_methods: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="""Optional. Declarations for object class methods in OpenAPI specification format.""",
-    )
-    deployment_spec: Optional[ReasoningEngineSpecDeploymentSpec] = Field(
-        default=None,
-        description="""Optional. The specification of a Reasoning Engine deployment.""",
-    )
-    effective_identity: Optional[str] = Field(
-        default=None,
-        description="""Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)""",
-    )
-    identity_type: Optional[IdentityType] = Field(
-        default=None,
-        description="""Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.""",
-    )
-    package_spec: Optional[ReasoningEngineSpecPackageSpec] = Field(
-        default=None,
-        description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified.""",
-    )
-    service_account: Optional[str] = Field(
-        default=None,
-        description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
-    )
-    source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpec] = Field(
-        default=None,
-        description="""Deploy from source code files with a defined entrypoint.""",
-    )
-
-
-class ReasoningEngineSpecDict(TypedDict, total=False):
-    """The specification of an agent engine."""
-
-    agent_framework: Optional[str]
-    """Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"."""
-
-    class_methods: Optional[list[dict[str, Any]]]
-    """Optional. Declarations for object class methods in OpenAPI specification format."""
-
-    deployment_spec: Optional[ReasoningEngineSpecDeploymentSpecDict]
-    """Optional. The specification of a Reasoning Engine deployment."""
-
-    effective_identity: Optional[str]
-    """Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)"""
-
-    identity_type: Optional[IdentityType]
-    """Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
-
-    package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
-    """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified."""
-
-    service_account: Optional[str]
-    """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
-
-    source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpecDict]
-    """Deploy from source code files with a defined entrypoint."""
-
-
-ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
 
 class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent(
@@ -5465,6 +6197,10 @@ MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
 class MemoryBankCustomizationConfig(_common.BaseModel):
     """Configuration for organizing memories for a particular scope."""
 
+    enable_third_person_memories: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+    )
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExample]
     ] = Field(
@@ -5479,14 +6215,13 @@ class MemoryBankCustomizationConfig(_common.BaseModel):
         default=None,
         description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
     )
-    enable_third_person_memories: Optional[bool] = Field(
-        default=None,
-        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
-    )
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
     """Configuration for organizing memories for a particular scope."""
+
+    enable_third_person_memories: Optional[bool]
+    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
 
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
@@ -5498,9 +6233,6 @@ class MemoryBankCustomizationConfigDict(TypedDict, total=False):
 
     scope_keys: Optional[list[str]]
     """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
-
-    enable_third_person_memories: Optional[bool]
-    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
 
 
 MemoryBankCustomizationConfigOrDict = Union[
@@ -5645,6 +6377,10 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for how to customize Memory Bank behavior for a particular scope.""",
     )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""If true, no memory revisions will be created for any requests to the Memory Bank.""",
+    )
     generation_config: Optional[
         ReasoningEngineContextSpecMemoryBankConfigGenerationConfig
     ] = Field(
@@ -5661,10 +6397,6 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
     )
-    disable_memory_revisions: Optional[bool] = Field(
-        default=None,
-        description="""If true, no memory revisions will be created for any requests to the Memory Bank.""",
-    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -5672,6 +6404,9 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
 
     customization_configs: Optional[list[MemoryBankCustomizationConfigDict]]
     """Optional. Configuration for how to customize Memory Bank behavior for a particular scope."""
+
+    disable_memory_revisions: Optional[bool]
+    """If true, no memory revisions will be created for any requests to the Memory Bank."""
 
     generation_config: Optional[
         ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict
@@ -5685,9 +6420,6 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
 
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
     """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
-
-    disable_memory_revisions: Optional[bool]
-    """If true, no memory revisions will be created for any requests to the Memory Bank."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
@@ -5715,6 +6447,638 @@ class ReasoningEngineContextSpecDict(TypedDict, total=False):
 ReasoningEngineContextSpecOrDict = Union[
     ReasoningEngineContextSpec, ReasoningEngineContextSpecDict
 ]
+
+
+class SecretRef(_common.BaseModel):
+    """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
+
+    secret: Optional[str] = Field(
+        default=None,
+        description="""Required. The name of the secret in Cloud Secret Manager. Format: {secret_name}.""",
+    )
+    version: Optional[str] = Field(
+        default=None,
+        description="""The Cloud Secret Manager secret version. Can be 'latest' for the latest version, an integer for a specific version, or a version alias.""",
+    )
+
+
+class SecretRefDict(TypedDict, total=False):
+    """Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
+
+    secret: Optional[str]
+    """Required. The name of the secret in Cloud Secret Manager. Format: {secret_name}."""
+
+    version: Optional[str]
+    """The Cloud Secret Manager secret version. Can be 'latest' for the latest version, an integer for a specific version, or a version alias."""
+
+
+SecretRefOrDict = Union[SecretRef, SecretRefDict]
+
+
+class SecretEnvVar(_common.BaseModel):
+    """Represents an environment variable where the value is a secret in Cloud Secret Manager."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. Name of the secret environment variable.""",
+    )
+    secret_ref: Optional[SecretRef] = Field(
+        default=None,
+        description="""Required. Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable.""",
+    )
+
+
+class SecretEnvVarDict(TypedDict, total=False):
+    """Represents an environment variable where the value is a secret in Cloud Secret Manager."""
+
+    name: Optional[str]
+    """Required. Name of the secret environment variable."""
+
+    secret_ref: Optional[SecretRefDict]
+    """Required. Reference to a secret stored in the Cloud Secret Manager that will provide the value for this environment variable."""
+
+
+SecretEnvVarOrDict = Union[SecretEnvVar, SecretEnvVarDict]
+
+
+class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
+    """The specification of a Reasoning Engine deployment."""
+
+    agent_server_mode: Optional[AgentServerMode] = Field(
+        default=None, description="""The agent server mode."""
+    )
+    container_concurrency: Optional[int] = Field(
+        default=None,
+        description="""Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9.""",
+    )
+    env: Optional[list[EnvVar]] = Field(
+        default=None,
+        description="""Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API.""",
+    )
+    max_instances: Optional[int] = Field(
+        default=None,
+        description="""Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100].""",
+    )
+    min_instances: Optional[int] = Field(
+        default=None,
+        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10].""",
+    )
+    psc_interface_config: Optional[PscInterfaceConfig] = Field(
+        default=None, description="""Optional. Configuration for PSC-I."""
+    )
+    resource_limits: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on different memory values, go to https://cloud.google.com/run/docs/configuring/memory-limits""",
+    )
+    secret_env: Optional[list[SecretEnvVar]] = Field(
+        default=None,
+        description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
+    """The specification of a Reasoning Engine deployment."""
+
+    agent_server_mode: Optional[AgentServerMode]
+    """The agent server mode."""
+
+    container_concurrency: Optional[int]
+    """Optional. Concurrency for each container and agent server. Recommended value: 2 * cpu + 1. Defaults to 9."""
+
+    env: Optional[list[EnvVarDict]]
+    """Optional. Environment variables to be set with the Reasoning Engine deployment. The environment variables can be updated through the UpdateReasoningEngine API."""
+
+    max_instances: Optional[int]
+    """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
+
+    min_instances: Optional[int]
+    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10]."""
+
+    psc_interface_config: Optional[PscInterfaceConfigDict]
+    """Optional. Configuration for PSC-I."""
+
+    resource_limits: Optional[dict[str, str]]
+    """Optional. Resource limits for each container. Only 'cpu' and 'memory' keys are supported. Defaults to {"cpu": "4", "memory": "4Gi"}. * The only supported values for CPU are '1', '2', '4', '6' and '8'. For more information, go to https://cloud.google.com/run/docs/configuring/cpu. * The only supported values for memory are '1Gi', '2Gi', ... '32 Gi'. * For required cpu on different memory values, go to https://cloud.google.com/run/docs/configuring/memory-limits"""
+
+    secret_env: Optional[list[SecretEnvVarDict]]
+    """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
+
+
+ReasoningEngineSpecDeploymentSpecOrDict = Union[
+    ReasoningEngineSpecDeploymentSpec, ReasoningEngineSpecDeploymentSpecDict
+]
+
+
+class ReasoningEngineSpecPackageSpec(_common.BaseModel):
+    """User-provided package specification, containing pickled object and package requirements."""
+
+    dependency_files_gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Cloud Storage URI of the dependency files in tar.gz format.""",
+    )
+    pickle_object_gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Cloud Storage URI of the pickled python object.""",
+    )
+    python_version: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Python version. Supported values are 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10.""",
+    )
+    requirements_gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Cloud Storage URI of the `requirements.txt` file""",
+    )
+
+
+class ReasoningEngineSpecPackageSpecDict(TypedDict, total=False):
+    """User-provided package specification, containing pickled object and package requirements."""
+
+    dependency_files_gcs_uri: Optional[str]
+    """Optional. The Cloud Storage URI of the dependency files in tar.gz format."""
+
+    pickle_object_gcs_uri: Optional[str]
+    """Optional. The Cloud Storage URI of the pickled python object."""
+
+    python_version: Optional[str]
+    """Optional. The Python version. Supported values are 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10."""
+
+    requirements_gcs_uri: Optional[str]
+    """Optional. The Cloud Storage URI of the `requirements.txt` file"""
+
+
+ReasoningEngineSpecPackageSpecOrDict = Union[
+    ReasoningEngineSpecPackageSpec, ReasoningEngineSpecPackageSpecDict
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig(_common.BaseModel):
+    """Configuration for the Agent Development Kit (ADK)."""
+
+    json_config: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. The value of the ADK config in JSON format.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for the Agent Development Kit (ADK)."""
+
+    json_config: Optional[dict[str, Any]]
+    """Required. The value of the ADK config in JSON format."""
+
+
+ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig,
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecInlineSource(_common.BaseModel):
+    """Specifies source code provided as a byte stream."""
+
+    source_archive: Optional[bytes] = Field(
+        default=None,
+        description="""Required. Input only. The application source code archive. It must be a compressed tarball (.tar.gz) file.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecInlineSourceDict(TypedDict, total=False):
+    """Specifies source code provided as a byte stream."""
+
+    source_archive: Optional[bytes]
+    """Required. Input only. The application source code archive. It must be a compressed tarball (.tar.gz) file."""
+
+
+ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecInlineSource,
+    ReasoningEngineSpecSourceCodeSpecInlineSourceDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSource(_common.BaseModel):
+    """Specification for the deploying from agent config."""
+
+    adk_config: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig
+    ] = Field(default=None, description="""Required. The ADK configuration.""")
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
+        default=None,
+        description="""Optional. Any additional files needed to interpret the config. If a `requirements.txt` file is present in the `inline_source`, the corresponding packages will be installed. If no `requirements.txt` file is present in `inline_source`, then the latest version of `google-adk` will be installed for interpreting the ADK config.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict(TypedDict, total=False):
+    """Specification for the deploying from agent config."""
+
+    adk_config: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict
+    ]
+    """Required. The ADK configuration."""
+
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
+    """Optional. Any additional files needed to interpret the config. If a `requirements.txt` file is present in the `inline_source`, the corresponding packages will be installed. If no `requirements.txt` file is present in `inline_source`, then the latest version of `google-adk` will be installed for interpreting the ADK config."""
+
+
+ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSource,
+    ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig(_common.BaseModel):
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
+
+    This includes the repository, revision, and directory to use.
+    """
+
+    git_repository_link: Optional[str] = Field(
+        default=None,
+        description="""Required. The Developer Connect Git repository link, formatted as `projects/{project_id}/locations/{location_id}/connections/{connection_id}/gitRepositoryLink/{repository_link_id}`.""",
+    )
+    dir: Optional[str] = Field(
+        default=None,
+        description="""Required. Directory, relative to the source root, in which to run the build.""",
+    )
+    revision: Optional[str] = Field(
+        default=None,
+        description="""Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict(
+    TypedDict, total=False
+):
+    """Specifies the configuration for fetching source code from a Git repository that is managed by Developer Connect.
+
+    This includes the repository, revision, and directory to use.
+    """
+
+    git_repository_link: Optional[str]
+    """Required. The Developer Connect Git repository link, formatted as `projects/{project_id}/locations/{location_id}/connections/{connection_id}/gitRepositoryLink/{repository_link_id}`."""
+
+    dir: Optional[str]
+    """Required. Directory, relative to the source root, in which to run the build."""
+
+    revision: Optional[str]
+    """Required. The revision to fetch from the Git repository such as a branch, a tag, a commit SHA, or any Git ref."""
+
+
+ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig,
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource(_common.BaseModel):
+    """Specifies source code to be fetched from a Git repository managed through the Developer Connect service."""
+
+    config: Optional[ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig] = Field(
+        default=None,
+        description="""Required. The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict(
+    TypedDict, total=False
+):
+    """Specifies source code to be fetched from a Git repository managed through the Developer Connect service."""
+
+    config: Optional[ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict]
+    """Required. The Developer Connect configuration that defines the specific repository, revision, and directory to use as the source code root."""
+
+
+ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource,
+    ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
+    """The image spec for building an image (within a single build step).
+
+    It is based on the config file (i.e. Dockerfile) in the source directory.
+    """
+
+    build_args: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Build arguments to be used. They will be passed through --build-arg flags.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecImageSpecDict(TypedDict, total=False):
+    """The image spec for building an image (within a single build step).
+
+    It is based on the config file (i.e. Dockerfile) in the source directory.
+    """
+
+    build_args: Optional[dict[str, str]]
+    """Optional. Build arguments to be used. They will be passed through --build-arg flags."""
+
+
+ReasoningEngineSpecSourceCodeSpecImageSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecImageSpec,
+    ReasoningEngineSpecSourceCodeSpecImageSpecDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpecPythonSpec(_common.BaseModel):
+    """Specification for running a Python application from source."""
+
+    entrypoint_module: Optional[str] = Field(
+        default=None,
+        description="""Optional. The Python module to load as the entrypoint, specified as a fully qualified module name. For example: path.to.agent. If not specified, defaults to "agent". The project root will be added to Python sys.path, allowing imports to be specified relative to the root. This field should not be set if the source is `agent_config_source`.""",
+    )
+    entrypoint_object: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the callable object within the `entrypoint_module` to use as the application If not specified, defaults to "root_agent". This field should not be set if the source is `agent_config_source`.""",
+    )
+    requirements_file: Optional[str] = Field(
+        default=None,
+        description="""Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt".""",
+    )
+    version: Optional[str] = Field(
+        default=None,
+        description="""Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10.""",
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecPythonSpecDict(TypedDict, total=False):
+    """Specification for running a Python application from source."""
+
+    entrypoint_module: Optional[str]
+    """Optional. The Python module to load as the entrypoint, specified as a fully qualified module name. For example: path.to.agent. If not specified, defaults to "agent". The project root will be added to Python sys.path, allowing imports to be specified relative to the root. This field should not be set if the source is `agent_config_source`."""
+
+    entrypoint_object: Optional[str]
+    """Optional. The name of the callable object within the `entrypoint_module` to use as the application If not specified, defaults to "root_agent". This field should not be set if the source is `agent_config_source`."""
+
+    requirements_file: Optional[str]
+    """Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt"."""
+
+    version: Optional[str]
+    """Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10."""
+
+
+ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpecPythonSpec,
+    ReasoningEngineSpecSourceCodeSpecPythonSpecDict,
+]
+
+
+class ReasoningEngineSpecSourceCodeSpec(_common.BaseModel):
+    """Specification for deploying from source code."""
+
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSource
+    ] = Field(
+        default=None, description="""Source code is generated from the agent config."""
+    )
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource
+    ] = Field(
+        default=None,
+        description="""Source code is in a Git repository managed by Developer Connect.""",
+    )
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for building an image with custom config file.""",
+    )
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSource] = Field(
+        default=None, description="""Source code is provided directly in the request."""
+    )
+    python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpec] = Field(
+        default=None, description="""Configuration for a Python application."""
+    )
+
+
+class ReasoningEngineSpecSourceCodeSpecDict(TypedDict, total=False):
+    """Specification for deploying from source code."""
+
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+    ]
+    """Source code is generated from the agent config."""
+
+    developer_connect_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict
+    ]
+    """Source code is in a Git repository managed by Developer Connect."""
+
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
+    """Optional. Configuration for building an image with custom config file."""
+
+    inline_source: Optional[ReasoningEngineSpecSourceCodeSpecInlineSourceDict]
+    """Source code is provided directly in the request."""
+
+    python_spec: Optional[ReasoningEngineSpecSourceCodeSpecPythonSpecDict]
+    """Configuration for a Python application."""
+
+
+ReasoningEngineSpecSourceCodeSpecOrDict = Union[
+    ReasoningEngineSpecSourceCodeSpec, ReasoningEngineSpecSourceCodeSpecDict
+]
+
+
+class ReasoningEngineSpec(_common.BaseModel):
+    """The specification of an agent engine."""
+
+    agent_card: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. The A2A Agent Card for the agent (if available). It follows the specification at https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-agent-card.""",
+    )
+    agent_framework: Optional[str] = Field(
+        default=None,
+        description="""Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom".""",
+    )
+    class_methods: Optional[list[dict[str, Any]]] = Field(
+        default=None,
+        description="""Optional. Declarations for object class methods in OpenAPI specification format.""",
+    )
+    deployment_spec: Optional[ReasoningEngineSpecDeploymentSpec] = Field(
+        default=None,
+        description="""Optional. The specification of a Reasoning Engine deployment.""",
+    )
+    effective_identity: Optional[str] = Field(
+        default=None,
+        description="""Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)""",
+    )
+    identity_type: Optional[IdentityType] = Field(
+        default=None,
+        description="""Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
+    package_spec: Optional[ReasoningEngineSpecPackageSpec] = Field(
+        default=None,
+        description="""Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified.""",
+    )
+    service_account: Optional[str] = Field(
+        default=None,
+        description="""Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used.""",
+    )
+    source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpec] = Field(
+        default=None,
+        description="""Deploy from source code files with a defined entrypoint.""",
+    )
+
+
+class ReasoningEngineSpecDict(TypedDict, total=False):
+    """The specification of an agent engine."""
+
+    agent_card: Optional[dict[str, Any]]
+    """Optional. The A2A Agent Card for the agent (if available). It follows the specification at https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-agent-card."""
+
+    agent_framework: Optional[str]
+    """Optional. The OSS agent framework used to develop the agent. Currently supported values: "google-adk", "langchain", "langgraph", "ag2", "llama-index", "custom"."""
+
+    class_methods: Optional[list[dict[str, Any]]]
+    """Optional. Declarations for object class methods in OpenAPI specification format."""
+
+    deployment_spec: Optional[ReasoningEngineSpecDeploymentSpecDict]
+    """Optional. The specification of a Reasoning Engine deployment."""
+
+    effective_identity: Optional[str]
+    """Output only. The identity to use for the Reasoning Engine. It can contain one of the following values: * service-{project}@gcp-sa-aiplatform-re.googleapis.com (for SERVICE_AGENT identity type) * {name}@{project}.gserviceaccount.com (for SERVICE_ACCOUNT identity type) * agents.global.{org}.system.id.goog/resources/aiplatform/projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine} (for AGENT_IDENTITY identity type)"""
+
+    identity_type: Optional[IdentityType]
+    """Optional. The identity type to use for the Reasoning Engine. If not specified, the `service_account` field will be used if set, otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
+    package_spec: Optional[ReasoningEngineSpecPackageSpecDict]
+    """Optional. User provided package spec of the ReasoningEngine. Ignored when users directly specify a deployment image through `deployment_spec.first_party_image_override`, but keeping the field_behavior to avoid introducing breaking changes. The `deployment_source` field should not be set if `package_spec` is specified."""
+
+    service_account: Optional[str]
+    """Optional. The service account that the Reasoning Engine artifact runs as. It should have "roles/storage.objectViewer" for reading the user project's Cloud Storage and "roles/aiplatform.user" for using Vertex extensions. If not specified, the Vertex AI Reasoning Engine Service Agent in the project will be used."""
+
+    source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpecDict]
+    """Deploy from source code files with a defined entrypoint."""
+
+
+ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
+
+
+class ReasoningEngine(_common.BaseModel):
+    """An agent engine."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
+    )
+    context_spec: Optional[ReasoningEngineContextSpec] = Field(
+        default=None,
+        description="""Optional. Configuration for how Agent Engine sub-resources should manage context.""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this ReasoningEngine was created.""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""Optional. The description of the ReasoningEngine.""",
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the ReasoningEngine.""",
+    )
+    etag: Optional[str] = Field(
+        default=None,
+        description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
+    )
+    labels: Optional[dict[str, str]] = Field(
+        default=None, description="""Labels for the ReasoningEngine."""
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`""",
+    )
+    spec: Optional[ReasoningEngineSpec] = Field(
+        default=None, description="""Optional. Configurations of the ReasoningEngine"""
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this ReasoningEngine was most recently updated.""",
+    )
+
+
+class ReasoningEngineDict(TypedDict, total=False):
+    """An agent engine."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
+
+    context_spec: Optional[ReasoningEngineContextSpecDict]
+    """Optional. Configuration for how Agent Engine sub-resources should manage context."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ReasoningEngine was created."""
+
+    description: Optional[str]
+    """Optional. The description of the ReasoningEngine."""
+
+    display_name: Optional[str]
+    """Required. The display name of the ReasoningEngine."""
+
+    etag: Optional[str]
+    """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
+
+    labels: Optional[dict[str, str]]
+    """Labels for the ReasoningEngine."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`"""
+
+    spec: Optional[ReasoningEngineSpecDict]
+    """Optional. Configurations of the ReasoningEngine"""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this ReasoningEngine was most recently updated."""
+
+
+ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
+
+
+class AgentEngineOperation(_common.BaseModel):
+    """Operation that has an agent engine as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[ReasoningEngine] = Field(
+        default=None, description="""The created Agent Engine."""
+    )
+
+
+class AgentEngineOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[ReasoningEngineDict]
+    """The created Agent Engine."""
+
+
+AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDict]
 
 
 class CreateAgentEngineConfig(_common.BaseModel):
@@ -6018,132 +7382,6 @@ class _CreateAgentEngineRequestParametersDict(TypedDict, total=False):
 _CreateAgentEngineRequestParametersOrDict = Union[
     _CreateAgentEngineRequestParameters, _CreateAgentEngineRequestParametersDict
 ]
-
-
-class ReasoningEngine(_common.BaseModel):
-    """An agent engine."""
-
-    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
-        default=None,
-        description="""Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key.""",
-    )
-    context_spec: Optional[ReasoningEngineContextSpec] = Field(
-        default=None,
-        description="""Optional. Configuration for how Agent Engine sub-resources should manage context.""",
-    )
-    create_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this ReasoningEngine was created.""",
-    )
-    description: Optional[str] = Field(
-        default=None,
-        description="""Optional. The description of the ReasoningEngine.""",
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Required. The display name of the ReasoningEngine.""",
-    )
-    etag: Optional[str] = Field(
-        default=None,
-        description="""Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens.""",
-    )
-    labels: Optional[dict[str, str]] = Field(
-        default=None, description="""Labels for the ReasoningEngine."""
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`""",
-    )
-    spec: Optional[ReasoningEngineSpec] = Field(
-        default=None, description="""Optional. Configurations of the ReasoningEngine"""
-    )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this ReasoningEngine was most recently updated.""",
-    )
-
-
-class ReasoningEngineDict(TypedDict, total=False):
-    """An agent engine."""
-
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
-    """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
-
-    context_spec: Optional[ReasoningEngineContextSpecDict]
-    """Optional. Configuration for how Agent Engine sub-resources should manage context."""
-
-    create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this ReasoningEngine was created."""
-
-    description: Optional[str]
-    """Optional. The description of the ReasoningEngine."""
-
-    display_name: Optional[str]
-    """Required. The display name of the ReasoningEngine."""
-
-    etag: Optional[str]
-    """Optional. Used to perform consistent read-modify-write updates. If not set, a blind "overwrite" update happens."""
-
-    labels: Optional[dict[str, str]]
-    """Labels for the ReasoningEngine."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the ReasoningEngine. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}`"""
-
-    spec: Optional[ReasoningEngineSpecDict]
-    """Optional. Configurations of the ReasoningEngine"""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this ReasoningEngine was most recently updated."""
-
-
-ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
-
-
-class AgentEngineOperation(_common.BaseModel):
-    """Operation that has an agent engine as a response."""
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[ReasoningEngine] = Field(
-        default=None, description="""The created Agent Engine."""
-    )
-
-
-class AgentEngineOperationDict(TypedDict, total=False):
-    """Operation that has an agent engine as a response."""
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[ReasoningEngineDict]
-    """The created Agent Engine."""
-
-
-AgentEngineOperationOrDict = Union[AgentEngineOperation, AgentEngineOperationDict]
 
 
 class DeleteAgentEngineConfig(_common.BaseModel):
@@ -6811,29 +8049,29 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 class MemoryMetadataValue(_common.BaseModel):
     """The metadata values for memories."""
 
+    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
+    double_value: Optional[float] = Field(default=None, description="""Double value.""")
+    string_value: Optional[str] = Field(default=None, description="""String value.""")
     timestamp_value: Optional[datetime.datetime] = Field(
         default=None,
         description="""Timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
     )
-    double_value: Optional[float] = Field(default=None, description="""Double value.""")
-    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
-    string_value: Optional[str] = Field(default=None, description="""String value.""")
 
 
 class MemoryMetadataValueDict(TypedDict, total=False):
     """The metadata values for memories."""
 
-    timestamp_value: Optional[datetime.datetime]
-    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
+    bool_value: Optional[bool]
+    """Boolean value."""
 
     double_value: Optional[float]
     """Double value."""
 
-    bool_value: Optional[bool]
-    """Boolean value."""
-
     string_value: Optional[str]
     """String value."""
+
+    timestamp_value: Optional[datetime.datetime]
+    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
 
 
 MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
@@ -6884,6 +8122,10 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
+    memory_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -6923,6 +8165,9 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+
+    memory_id: Optional[str]
+    """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -6985,26 +8230,6 @@ _CreateAgentEngineMemoryRequestParametersOrDict = Union[
 class Memory(_common.BaseModel):
     """A memory."""
 
-    expire_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
-    )
-    ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
-    )
-    revision_expire_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
-    )
-    revision_ttl: Optional[str] = Field(
-        default=None,
-        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
-    )
-    disable_memory_revisions: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Input only. If true, no revision will be created for this request.""",
-    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp when this Memory was created.""",
@@ -7012,51 +8237,60 @@ class Memory(_common.BaseModel):
     description: Optional[str] = Field(
         default=None, description="""Optional. Description of the Memory."""
     )
+    disable_memory_revisions: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Input only. If true, no revision will be created for this request.""",
+    )
     display_name: Optional[str] = Field(
         default=None, description="""Optional. Display name of the Memory."""
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
     )
     fact: Optional[str] = Field(
         default=None,
         description="""Required. Semantic knowledge extracted from the source content.""",
     )
+    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+        default=None,
+        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+    )
     name: Optional[str] = Field(
         default=None,
         description="""Identifier. The resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`""",
+    )
+    revision_expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+    )
+    revision_labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Input only. The labels to apply to the Memory Revision created as a result of this request.""",
+    )
+    revision_ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
         description="""Required. Immutable. The scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'.""",
     )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when this Memory was most recently updated.""",
-    )
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None, description="""Optional. The Topics of the Memory."""
     )
-    metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
+    ttl: Optional[str] = Field(
         default=None,
-        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Memory was most recently updated.""",
     )
 
 
 class MemoryDict(TypedDict, total=False):
     """A memory."""
-
-    expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
-
-    ttl: Optional[str]
-    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
-
-    revision_expire_time: Optional[datetime.datetime]
-    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
-
-    revision_ttl: Optional[str]
-    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
-
-    disable_memory_revisions: Optional[bool]
-    """Optional. Input only. If true, no revision will be created for this request."""
 
     create_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory was created."""
@@ -7064,26 +8298,44 @@ class MemoryDict(TypedDict, total=False):
     description: Optional[str]
     """Optional. Description of the Memory."""
 
+    disable_memory_revisions: Optional[bool]
+    """Optional. Input only. If true, no revision will be created for this request."""
+
     display_name: Optional[str]
     """Optional. Display name of the Memory."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
 
     fact: Optional[str]
     """Required. Semantic knowledge extracted from the source content."""
 
+    metadata: Optional[dict[str, MemoryMetadataValueDict]]
+    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+
     name: Optional[str]
     """Identifier. The resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`"""
+
+    revision_expire_time: Optional[datetime.datetime]
+    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+
+    revision_labels: Optional[dict[str, str]]
+    """Optional. Input only. The labels to apply to the Memory Revision created as a result of this request."""
+
+    revision_ttl: Optional[str]
+    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
 
     scope: Optional[dict[str, str]]
     """Required. Immutable. The scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'."""
 
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory was most recently updated."""
-
     topics: Optional[list[MemoryTopicIdDict]]
     """Optional. The Topics of the Memory."""
 
-    metadata: Optional[dict[str, MemoryMetadataValueDict]]
-    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Memory was most recently updated."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -7901,16 +9153,16 @@ RetrieveMemoriesRequestSimpleRetrievalParamsOrDict = Union[
 class MemoryFilter(_common.BaseModel):
     """Filter to apply when retrieving memories."""
 
-    op: Optional[Operator] = Field(
+    key: Optional[str] = Field(
         default=None,
-        description="""Operator to apply to the filter. If not set, then EQUAL will be used.""",
+        description="""Key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
     )
     negate: Optional[bool] = Field(
         default=None, description="""If true, the filter will be negated."""
     )
-    key: Optional[str] = Field(
+    op: Optional[Operator] = Field(
         default=None,
-        description="""Key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
+        description="""Operator to apply to the filter. If not set, then EQUAL will be used.""",
     )
     value: Optional[MemoryMetadataValue] = Field(
         default=None, description="""Value to compare to."""
@@ -7920,14 +9172,14 @@ class MemoryFilter(_common.BaseModel):
 class MemoryFilterDict(TypedDict, total=False):
     """Filter to apply when retrieving memories."""
 
-    op: Optional[Operator]
-    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+    key: Optional[str]
+    """Key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
 
     negate: Optional[bool]
     """If true, the filter will be negated."""
 
-    key: Optional[str]
-    """Key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
+    op: Optional[Operator]
+    """Operator to apply to the filter. If not set, then EQUAL will be used."""
 
     value: Optional[MemoryMetadataValueDict]
     """Value to compare to."""
@@ -8294,6 +9546,10 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
+    memory_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -8338,6 +9594,9 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+
+    memory_id: Optional[str]
+    """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -8440,6 +9699,23 @@ class _PurgeAgentEngineMemoriesRequestParameters(_common.BaseModel):
         description="""The standard list filter to determine which memories to purge.
       More detail in [AIP-160](https://google.aip.dev/160).""",
     )
+    filter_groups: Optional[list[MemoryConjunctionFilter]] = Field(
+        default=None,
+        description="""Metadata filters that will be applied to the memories'
+      `metadata` using OR logic. Filters are defined using disjunctive normal
+      form (OR of ANDs).
+
+      For example:
+      `filter_groups: [{filters: [{key: "author", value: {string_value: "agent
+      `123"}, op: EQUAL}]}, {filters: [{key: "label", value: {string_value:
+      "travel"}, op: EQUAL}, {key: "author", value: {string_value: "agent 321"},
+      op: EQUAL}]}]`
+
+      would be equivalent to the logical expression:
+      `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
+      metadata.author = "agent 321"))`.
+      """,
+    )
     force: Optional[bool] = Field(
         default=None,
         description="""If true, the memories will actually be purged. If false, the purge request will be validated but not executed.""",
@@ -8458,6 +9734,22 @@ class _PurgeAgentEngineMemoriesRequestParametersDict(TypedDict, total=False):
     filter: Optional[str]
     """The standard list filter to determine which memories to purge.
       More detail in [AIP-160](https://google.aip.dev/160)."""
+
+    filter_groups: Optional[list[MemoryConjunctionFilterDict]]
+    """Metadata filters that will be applied to the memories'
+      `metadata` using OR logic. Filters are defined using disjunctive normal
+      form (OR of ANDs).
+
+      For example:
+      `filter_groups: [{filters: [{key: "author", value: {string_value: "agent
+      `123"}, op: EQUAL}]}, {filters: [{key: "label", value: {string_value:
+      "travel"}, op: EQUAL}, {key: "author", value: {string_value: "agent 321"},
+      op: EQUAL}]}]`
+
+      would be equivalent to the logical expression:
+      `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
+      metadata.author = "agent 321"))`.
+      """
 
     force: Optional[bool]
     """If true, the memories will actually be purged. If false, the purge request will be validated but not executed."""
@@ -8608,10 +9900,6 @@ IntermediateExtractedMemoryOrDict = Union[
 class MemoryRevision(_common.BaseModel):
     """A memory revision."""
 
-    name: Optional[str] = Field(
-        default=None,
-        description="""Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
-    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp when this Memory Revision was created.""",
@@ -8619,6 +9907,10 @@ class MemoryRevision(_common.BaseModel):
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp of when this resource is considered expired.""",
+    )
+    extracted_memories: Optional[list[IntermediateExtractedMemory]] = Field(
+        default=None,
+        description="""Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
     )
     fact: Optional[str] = Field(
         default=None,
@@ -8628,17 +9920,14 @@ class MemoryRevision(_common.BaseModel):
         default=None,
         description="""Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
     )
-    extracted_memories: Optional[list[IntermediateExtractedMemory]] = Field(
+    name: Optional[str] = Field(
         default=None,
-        description="""Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
+        description="""Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
     )
 
 
 class MemoryRevisionDict(TypedDict, total=False):
     """A memory revision."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
 
     create_time: Optional[datetime.datetime]
     """Output only. Timestamp when this Memory Revision was created."""
@@ -8646,14 +9935,17 @@ class MemoryRevisionDict(TypedDict, total=False):
     expire_time: Optional[datetime.datetime]
     """Output only. Timestamp of when this resource is considered expired."""
 
+    extracted_memories: Optional[list[IntermediateExtractedMemoryDict]]
+    """Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
+
     fact: Optional[str]
     """Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation."""
 
     labels: Optional[dict[str, str]]
     """Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
 
-    extracted_memories: Optional[list[IntermediateExtractedMemoryDict]]
-    """Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
+    name: Optional[str]
+    """Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
 
 
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]
@@ -9547,35 +10839,36 @@ _CreateAgentEngineSessionRequestParametersOrDict = Union[
 class Session(_common.BaseModel):
     """A session."""
 
-    expire_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input.""",
-    )
-    ttl: Optional[str] = Field(
-        default=None, description="""Optional. Input only. The TTL for this session."""
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
-    )
     create_time: Optional[datetime.datetime] = Field(
         default=None,
         description="""Output only. Timestamp when the session was created.""",
     )
-    update_time: Optional[datetime.datetime] = Field(
-        default=None,
-        description="""Output only. Timestamp when the session was updated.""",
-    )
     display_name: Optional[str] = Field(
         default=None, description="""Optional. The display name of the session."""
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input. The minimum value is 24 hours from the time of creation.""",
     )
     labels: Optional[dict[str, str]] = Field(
         default=None,
         description="""The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
     )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'.""",
+    )
     session_state: Optional[dict[str, Any]] = Field(
         default=None,
         description="""Optional. Session specific memory which stores key conversation points.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for this session. The minimum value is 24 hours.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the session was updated.""",
     )
     user_id: Optional[str] = Field(
         default=None,
@@ -9586,29 +10879,29 @@ class Session(_common.BaseModel):
 class SessionDict(TypedDict, total=False):
     """A session."""
 
-    expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input."""
-
-    ttl: Optional[str]
-    """Optional. Input only. The TTL for this session."""
-
-    name: Optional[str]
-    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
-
     create_time: Optional[datetime.datetime]
     """Output only. Timestamp when the session was created."""
-
-    update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when the session was updated."""
 
     display_name: Optional[str]
     """Optional. The display name of the session."""
 
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this session is considered expired. This is *always* provided on output, regardless of what was sent on input. The minimum value is 24 hours from the time of creation."""
+
     labels: Optional[dict[str, str]]
     """The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
 
+    name: Optional[str]
+    """Identifier. The resource name of the session. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sessions/{session}'."""
+
     session_state: Optional[dict[str, Any]]
     """Optional. Session specific memory which stores key conversation points."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for this session. The minimum value is 24 hours."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the session was updated."""
 
     user_id: Optional[str]
     """Required. Immutable. String id provided by the user"""
@@ -10112,6 +11405,12 @@ class EventMetadata(_common.BaseModel):
         default=None,
         description="""Optional. Indicates whether the response from the model is complete. Only used for streaming mode.""",
     )
+    input_transcription: Optional[genai_types.Transcription] = Field(
+        default=None, description="""Optional. Audio transcription of user input."""
+    )
+    output_transcription: Optional[genai_types.Transcription] = Field(
+        default=None, description="""Optional. Audio transcription of model output."""
+    )
 
 
 class EventMetadataDict(TypedDict, total=False):
@@ -10137,6 +11436,12 @@ class EventMetadataDict(TypedDict, total=False):
 
     turn_complete: Optional[bool]
     """Optional. Indicates whether the response from the model is complete. Only used for streaming mode."""
+
+    input_transcription: Optional[genai_types.TranscriptionDict]
+    """Optional. Audio transcription of user input."""
+
+    output_transcription: Optional[genai_types.TranscriptionDict]
+    """Optional. Audio transcription of model output."""
 
 
 EventMetadataOrDict = Union[EventMetadata, EventMetadataDict]
@@ -10164,6 +11469,10 @@ class AppendAgentEngineSessionEventConfig(_common.BaseModel):
     event_metadata: Optional[EventMetadata] = Field(
         default=None, description="""Metadata relating to the session event."""
     )
+    raw_event: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Weakly typed raw event data in proto struct format.""",
+    )
 
 
 class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
@@ -10186,6 +11495,9 @@ class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
 
     event_metadata: Optional[EventMetadataDict]
     """Metadata relating to the session event."""
+
+    raw_event: Optional[dict[str, Any]]
+    """Weakly typed raw event data in proto struct format."""
 
 
 AppendAgentEngineSessionEventConfigOrDict = Union[
@@ -10356,6 +11668,10 @@ class SessionEvent(_common.BaseModel):
         default=None,
         description="""Required. Timestamp when the event was created on client side.""",
     )
+    raw_event: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Weakly typed raw event data in proto struct format.""",
+    )
 
 
 class SessionEventDict(TypedDict, total=False):
@@ -10387,6 +11703,9 @@ class SessionEventDict(TypedDict, total=False):
 
     timestamp: Optional[datetime.datetime]
     """Required. Timestamp when the event was created on client side."""
+
+    raw_event: Optional[dict[str, Any]]
+    """Optional. Weakly typed raw event data in proto struct format."""
 
 
 SessionEventOrDict = Union[SessionEvent, SessionEventDict]
@@ -10452,6 +11771,10 @@ class GeminiExample(_common.BaseModel):
     generation_config: Optional[genai_types.GenerationConfig] = Field(
         default=None, description="""Generation config for the Gemini example."""
     )
+    model_armor_config: Optional[genai_types.ModelArmorConfig] = Field(
+        default=None,
+        description="""Optional. Settings for prompt and response sanitization using the Model Armor service. If supplied, safety_settings must not be supplied.""",
+    )
 
 
 class GeminiExampleDict(TypedDict, total=False):
@@ -10483,6 +11806,9 @@ class GeminiExampleDict(TypedDict, total=False):
 
     generation_config: Optional[genai_types.GenerationConfigDict]
     """Generation config for the Gemini example."""
+
+    model_armor_config: Optional[genai_types.ModelArmorConfigDict]
+    """Optional. Settings for prompt and response sanitization using the Model Armor service. If supplied, safety_settings must not be supplied."""
 
 
 GeminiExampleOrDict = Union[GeminiExample, GeminiExampleDict]
@@ -10522,7 +11848,7 @@ class GeminiRequestReadConfig(_common.BaseModel):
     )
     assembled_request_column_name: Optional[str] = Field(
         default=None,
-        description="""Optional. Column name in the dataset table that contains already fully assembled Gemini requests.""",
+        description="""Column name in the underlying BigQuery table that contains already fully assembled Gemini requests.""",
     )
 
 
@@ -10533,7 +11859,7 @@ class GeminiRequestReadConfigDict(TypedDict, total=False):
     """Gemini request template with placeholders."""
 
     assembled_request_column_name: Optional[str]
-    """Optional. Column name in the dataset table that contains already fully assembled Gemini requests."""
+    """Column name in the underlying BigQuery table that contains already fully assembled Gemini requests."""
 
 
 GeminiRequestReadConfigOrDict = Union[
@@ -10857,6 +12183,10 @@ class SchemaTablesDatasetMetadata(_common.BaseModel):
         default=None,
         description="""The input config for multimodal dataset metadata.""",
     )
+    gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
+        default=None,
+        description="""The Gemini request read config for the multimodal dataset.""",
+    )
 
 
 class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
@@ -10864,6 +12194,9 @@ class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
     """The input config for multimodal dataset metadata."""
+
+    gemini_request_read_config: Optional[GeminiRequestReadConfigDict]
+    """The Gemini request read config for the multimodal dataset."""
 
 
 SchemaTablesDatasetMetadataOrDict = Union[
@@ -11430,6 +12763,79 @@ SchemaPromptSpecMultimodalPromptOrDict = Union[
 ]
 
 
+class SchemaPromptSpecAppBuilderDataLinkedResource(_common.BaseModel):
+    """A linked resource attached to the application by the user."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""A user-friendly name for the data source shown in the UI.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""The unique resource name of the data source. The format is determined by the 'type' field. For type "SAVED_PROMPT": projects/{project}/locations/{location}/datasets/{dataset} For type "AI_AGENT": projects/{project}/locations/{location}/agents/{agent}""",
+    )
+    type: Optional[str] = Field(
+        default=None,
+        description="""The type of the linked resource. e.g., "SAVED_PROMPT", "AI_AGENT" This string corresponds to the name of the LinkedResourceType enum member. See: google3/cloud/console/web/ai/platform/llm/prompts/build/services/specs_repository_service/linked_resources/linked_resource.ts""",
+    )
+
+
+class SchemaPromptSpecAppBuilderDataLinkedResourceDict(TypedDict, total=False):
+    """A linked resource attached to the application by the user."""
+
+    display_name: Optional[str]
+    """A user-friendly name for the data source shown in the UI."""
+
+    name: Optional[str]
+    """The unique resource name of the data source. The format is determined by the 'type' field. For type "SAVED_PROMPT": projects/{project}/locations/{location}/datasets/{dataset} For type "AI_AGENT": projects/{project}/locations/{location}/agents/{agent}"""
+
+    type: Optional[str]
+    """The type of the linked resource. e.g., "SAVED_PROMPT", "AI_AGENT" This string corresponds to the name of the LinkedResourceType enum member. See: google3/cloud/console/web/ai/platform/llm/prompts/build/services/specs_repository_service/linked_resources/linked_resource.ts"""
+
+
+SchemaPromptSpecAppBuilderDataLinkedResourceOrDict = Union[
+    SchemaPromptSpecAppBuilderDataLinkedResource,
+    SchemaPromptSpecAppBuilderDataLinkedResourceDict,
+]
+
+
+class SchemaPromptSpecAppBuilderData(_common.BaseModel):
+    """Defines data for an application builder."""
+
+    code_repository_state: Optional[str] = Field(
+        default=None,
+        description="""Serialized state of the code repository. This string will typically contain a JSON representation of the UI's CodeRepositoryService state (files, folders, content, and any metadata). The UI is responsible for serialization and deserialization.""",
+    )
+    framework: Optional[Framework] = Field(
+        default=None,
+        description="""Optional. Framework used to build the application.""",
+    )
+    linked_resources: Optional[list[SchemaPromptSpecAppBuilderDataLinkedResource]] = (
+        Field(
+            default=None,
+            description="""Linked resources attached to the application by the user.""",
+        )
+    )
+
+
+class SchemaPromptSpecAppBuilderDataDict(TypedDict, total=False):
+    """Defines data for an application builder."""
+
+    code_repository_state: Optional[str]
+    """Serialized state of the code repository. This string will typically contain a JSON representation of the UI's CodeRepositoryService state (files, folders, content, and any metadata). The UI is responsible for serialization and deserialization."""
+
+    framework: Optional[Framework]
+    """Optional. Framework used to build the application."""
+
+    linked_resources: Optional[list[SchemaPromptSpecAppBuilderDataLinkedResourceDict]]
+    """Linked resources attached to the application by the user."""
+
+
+SchemaPromptSpecAppBuilderDataOrDict = Union[
+    SchemaPromptSpecAppBuilderData, SchemaPromptSpecAppBuilderDataDict
+]
+
+
 class SchemaPromptSpecPartList(_common.BaseModel):
     """Represents a prompt spec part list."""
 
@@ -11455,6 +12861,9 @@ class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
 
     context: Optional[genai_types.Content] = Field(
         default=None, description="""Preamble: The context of the prompt."""
+    )
+    app_builder_data: Optional[SchemaPromptSpecAppBuilderData] = Field(
+        default=None, description="""Data for app builder use case."""
     )
     examples: Optional[list[SchemaPromptSpecPartList]] = Field(
         default=None,
@@ -11490,6 +12899,9 @@ class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
 
     context: Optional[genai_types.ContentDict]
     """Preamble: The context of the prompt."""
+
+    app_builder_data: Optional[SchemaPromptSpecAppBuilderDataDict]
+    """Data for app builder use case."""
 
     examples: Optional[list[SchemaPromptSpecPartListDict]]
     """Preamble: A set of examples for expected model response."""
@@ -13056,6 +14468,241 @@ class OptimizeResponseDict(TypedDict, total=False):
 OptimizeResponseOrDict = Union[OptimizeResponse, OptimizeResponseDict]
 
 
+class ContentMapContents(_common.BaseModel):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.Content]] = Field(
+        default=None, description="""Contents of the model input."""
+    )
+
+
+class ContentMapContentsDict(TypedDict, total=False):
+    """Map of placeholder in metric prompt template to contents of model input."""
+
+    contents: Optional[list[genai_types.ContentDict]]
+    """Contents of the model input."""
+
+
+ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
+
+
+class EvaluateMethodConfig(_common.BaseModel):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
+        default=None,
+        description="""The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset.""",
+    )
+    dest: Optional[str] = Field(
+        default=None, description="""The destination path for the evaluation results."""
+    )
+
+
+class EvaluateMethodConfigDict(TypedDict, total=False):
+    """Optional parameters for the evaluate method."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
+    """The schema to use for the dataset.
+      If not specified, the dataset schema will be inferred from the first
+      example in the dataset."""
+
+    dest: Optional[str]
+    """The destination path for the evaluation results."""
+
+
+EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
+
+
+class EvaluateDatasetConfig(_common.BaseModel):
+    """Config for evaluate instances."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class EvaluateDatasetConfigDict(TypedDict, total=False):
+    """Config for evaluate instances."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
+
+
+class EvaluateDatasetOperation(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetOperationDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[EvaluationDatasetDict]
+    """"""
+
+
+EvaluateDatasetOperationOrDict = Union[
+    EvaluateDatasetOperation, EvaluateDatasetOperationDict
+]
+
+
+class EvaluateDatasetRequestParameters(_common.BaseModel):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
+    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
+    output_config: Optional[genai_types.OutputConfig] = Field(
+        default=None, description=""""""
+    )
+    autorater_config: Optional[genai_types.AutoraterConfig] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
+
+
+class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
+    """Parameters for batch dataset evaluation."""
+
+    dataset: Optional[EvaluationDatasetDict]
+    """"""
+
+    metrics: Optional[list[MetricDict]]
+    """"""
+
+    output_config: Optional[genai_types.OutputConfigDict]
+    """"""
+
+    autorater_config: Optional[genai_types.AutoraterConfigDict]
+    """"""
+
+    config: Optional[EvaluateDatasetConfigDict]
+    """"""
+
+
+EvaluateDatasetRequestParametersOrDict = Union[
+    EvaluateDatasetRequestParameters, EvaluateDatasetRequestParametersDict
+]
+
+
+class ObservabilityEvalCase(_common.BaseModel):
+    """A single evaluation case instance for data stored in GCP Observability."""
+
+    input_src: Optional[str] = Field(
+        default=None,
+        description="""String containing the GCS reference to the GenAI input content.""",
+    )
+    output_src: Optional[str] = Field(
+        default=None,
+        description="""String containing the GCS reference to the GenAI response content.""",
+    )
+    system_instruction_src: Optional[str] = Field(
+        default=None,
+        description="""An optional string containing the GCS reference to the GenAI system instruction.""",
+    )
+    api_client: Optional[Any] = Field(
+        default=None, description="""The underlying API client."""
+    )
+
+
+class ObservabilityEvalCaseDict(TypedDict, total=False):
+    """A single evaluation case instance for data stored in GCP Observability."""
+
+    input_src: Optional[str]
+    """String containing the GCS reference to the GenAI input content."""
+
+    output_src: Optional[str]
+    """String containing the GCS reference to the GenAI response content."""
+
+    system_instruction_src: Optional[str]
+    """An optional string containing the GCS reference to the GenAI system instruction."""
+
+    api_client: Optional[Any]
+    """The underlying API client."""
+
+
+ObservabilityEvalCaseOrDict = Union[ObservabilityEvalCase, ObservabilityEvalCaseDict]
+
+
+class RubricGroup(_common.BaseModel):
+    """A group of rubrics.
+
+    Used for grouping rubrics based on a metric or a version.
+    """
+
+    group_id: Optional[str] = Field(
+        default=None, description="""Unique identifier for the group."""
+    )
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task".""",
+    )
+    rubrics: Optional[list[evals_types.Rubric]] = Field(
+        default=None, description="""Rubrics that are part of this group."""
+    )
+
+
+class RubricGroupDict(TypedDict, total=False):
+    """A group of rubrics.
+
+    Used for grouping rubrics based on a metric or a version.
+    """
+
+    group_id: Optional[str]
+    """Unique identifier for the group."""
+
+    display_name: Optional[str]
+    """Human-readable name for the group. This should be unique
+      within a given context if used for display or selection.
+      Example: "Instruction Following V1", "Content Quality - Summarization
+      Task"."""
+
+    rubrics: Optional[list[evals_types.Rubric]]
+    """Rubrics that are part of this group."""
+
+
+RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
+
+
 class PromptTemplate(_common.BaseModel):
     """A prompt template for creating prompts with variables."""
 
@@ -13464,6 +15111,11 @@ class EvalRunInferenceConfig(_common.BaseModel):
     generate_content_config: Optional[genai_types.GenerateContentConfig] = Field(
         default=None, description="""The config for the generate content call."""
     )
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None,
+        description="""Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
+      conversation plans, user simulation will be triggered.""",
+    )
 
 
 class EvalRunInferenceConfigDict(TypedDict, total=False):
@@ -13478,237 +15130,12 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
     generate_content_config: Optional[genai_types.GenerateContentConfigDict]
     """The config for the generate content call."""
 
+    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    """Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
+      conversation plans, user simulation will be triggered."""
+
 
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
-
-
-class ContentMapContents(_common.BaseModel):
-    """Map of placeholder in metric prompt template to contents of model input."""
-
-    contents: Optional[list[genai_types.Content]] = Field(
-        default=None, description="""Contents of the model input."""
-    )
-
-
-class ContentMapContentsDict(TypedDict, total=False):
-    """Map of placeholder in metric prompt template to contents of model input."""
-
-    contents: Optional[list[genai_types.ContentDict]]
-    """Contents of the model input."""
-
-
-ContentMapContentsOrDict = Union[ContentMapContents, ContentMapContentsDict]
-
-
-class EvaluateMethodConfig(_common.BaseModel):
-    """Optional parameters for the evaluate method."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = Field(
-        default=None,
-        description="""The schema to use for the dataset.
-      If not specified, the dataset schema will be inferred from the first
-      example in the dataset.""",
-    )
-    dest: Optional[str] = Field(
-        default=None, description="""The destination path for the evaluation results."""
-    )
-
-
-class EvaluateMethodConfigDict(TypedDict, total=False):
-    """Optional parameters for the evaluate method."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
-    """The schema to use for the dataset.
-      If not specified, the dataset schema will be inferred from the first
-      example in the dataset."""
-
-    dest: Optional[str]
-    """The destination path for the evaluation results."""
-
-
-EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
-
-
-class EvaluateDatasetConfig(_common.BaseModel):
-    """Config for evaluate instances."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-
-
-class EvaluateDatasetConfigDict(TypedDict, total=False):
-    """Config for evaluate instances."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-
-EvaluateDatasetConfigOrDict = Union[EvaluateDatasetConfig, EvaluateDatasetConfigDict]
-
-
-class EvaluateDatasetRequestParameters(_common.BaseModel):
-    """Parameters for batch dataset evaluation."""
-
-    dataset: Optional[EvaluationDataset] = Field(default=None, description="""""")
-    metrics: Optional[list[Metric]] = Field(default=None, description="""""")
-    output_config: Optional[genai_types.OutputConfig] = Field(
-        default=None, description=""""""
-    )
-    autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description=""""""
-    )
-    config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
-
-
-class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
-    """Parameters for batch dataset evaluation."""
-
-    dataset: Optional[EvaluationDatasetDict]
-    """"""
-
-    metrics: Optional[list[MetricDict]]
-    """"""
-
-    output_config: Optional[genai_types.OutputConfigDict]
-    """"""
-
-    autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """"""
-
-    config: Optional[EvaluateDatasetConfigDict]
-    """"""
-
-
-EvaluateDatasetRequestParametersOrDict = Union[
-    EvaluateDatasetRequestParameters, EvaluateDatasetRequestParametersDict
-]
-
-
-class EvaluateDatasetOperation(_common.BaseModel):
-
-    name: Optional[str] = Field(
-        default=None,
-        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
-    )
-    metadata: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
-    )
-    done: Optional[bool] = Field(
-        default=None,
-        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
-    )
-    error: Optional[dict[str, Any]] = Field(
-        default=None,
-        description="""The error result of the operation in case of failure or cancellation.""",
-    )
-    response: Optional[EvaluationDataset] = Field(default=None, description="""""")
-
-
-class EvaluateDatasetOperationDict(TypedDict, total=False):
-
-    name: Optional[str]
-    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
-
-    metadata: Optional[dict[str, Any]]
-    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
-
-    done: Optional[bool]
-    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
-
-    error: Optional[dict[str, Any]]
-    """The error result of the operation in case of failure or cancellation."""
-
-    response: Optional[EvaluationDatasetDict]
-    """"""
-
-
-EvaluateDatasetOperationOrDict = Union[
-    EvaluateDatasetOperation, EvaluateDatasetOperationDict
-]
-
-
-class ObservabilityEvalCase(_common.BaseModel):
-    """A single evaluation case instance for data stored in GCP Observability."""
-
-    input_src: Optional[str] = Field(
-        default=None,
-        description="""String containing the GCS reference to the GenAI input content.""",
-    )
-    output_src: Optional[str] = Field(
-        default=None,
-        description="""String containing the GCS reference to the GenAI response content.""",
-    )
-    system_instruction_src: Optional[str] = Field(
-        default=None,
-        description="""An optional string containing the GCS reference to the GenAI system instruction.""",
-    )
-    api_client: Optional[Any] = Field(
-        default=None, description="""The underlying API client."""
-    )
-
-
-class ObservabilityEvalCaseDict(TypedDict, total=False):
-    """A single evaluation case instance for data stored in GCP Observability."""
-
-    input_src: Optional[str]
-    """String containing the GCS reference to the GenAI input content."""
-
-    output_src: Optional[str]
-    """String containing the GCS reference to the GenAI response content."""
-
-    system_instruction_src: Optional[str]
-    """An optional string containing the GCS reference to the GenAI system instruction."""
-
-    api_client: Optional[Any]
-    """The underlying API client."""
-
-
-ObservabilityEvalCaseOrDict = Union[ObservabilityEvalCase, ObservabilityEvalCaseDict]
-
-
-class RubricGroup(_common.BaseModel):
-    """A group of rubrics, used for grouping rubrics based on a metric or a version."""
-
-    group_id: Optional[str] = Field(
-        default=None, description="""Unique identifier for the group."""
-    )
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""Human-readable name for the group. This should be unique
-      within a given context if used for display or selection.
-      Example: "Instruction Following V1", "Content Quality - Summarization
-      Task".""",
-    )
-    rubrics: Optional[list[evals_types.Rubric]] = Field(
-        default=None, description="""Rubrics that are part of this group."""
-    )
-
-
-class RubricGroupDict(TypedDict, total=False):
-    """A group of rubrics, used for grouping rubrics based on a metric or a version."""
-
-    group_id: Optional[str]
-    """Unique identifier for the group."""
-
-    display_name: Optional[str]
-    """Human-readable name for the group. This should be unique
-      within a given context if used for display or selection.
-      Example: "Instruction Following V1", "Content Quality - Summarization
-      Task"."""
-
-    rubrics: Optional[list[evals_types.Rubric]]
-    """Rubrics that are part of this group."""
-
-
-RubricGroupOrDict = Union[RubricGroup, RubricGroupDict]
 
 
 class AgentEngine(_common.BaseModel):
@@ -13997,6 +15424,14 @@ class AgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpec] = Field(
+        default=None, description="""The image spec for the Agent Engine."""
+    )
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSource
+    ] = Field(
+        default=None, description="""The agent config source for the Agent Engine."""
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -14160,8 +15595,109 @@ class AgentEngineConfigDict(TypedDict, total=False):
           subdirectory and the path must be added to `extra_packages`.
       """
 
+    image_spec: Optional[ReasoningEngineSpecSourceCodeSpecImageSpecDict]
+    """The image spec for the Agent Engine."""
+
+    agent_config_source: Optional[
+        ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+    ]
+    """The agent config source for the Agent Engine."""
+
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
+
+
+class RunQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for checking a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    query: Optional[str] = Field(
+        default=None, description="""The query to send to the agent engine."""
+    )
+    gcs_bucket: Optional[str] = Field(
+        default=None, description="""The GCS bucket to use for the query."""
+    )
+
+
+class RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for checking a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    query: Optional[str]
+    """The query to send to the agent engine."""
+
+    gcs_bucket: Optional[str]
+    """The GCS bucket to use for the query."""
+
+
+RunQueryJobAgentEngineConfigOrDict = Union[
+    RunQueryJobAgentEngineConfig, RunQueryJobAgentEngineConfigDict
+]
+
+
+class RunQueryJobResult(_common.BaseModel):
+    """Result of running a query job."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    job_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine operation to later check for status.""",
+    )
+    input_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the input file."""
+    )
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
+    )
+
+
+class RunQueryJobResultDict(TypedDict, total=False):
+    """Result of running a query job."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    job_name: Optional[str]
+    """Name of the agent engine operation to later check for status."""
+
+    input_gcs_uri: Optional[str]
+    """The GCS URI of the input file."""
+
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
+
+
+RunQueryJobResultOrDict = Union[RunQueryJobResult, RunQueryJobResultDict]
+
+
+class CheckQueryJobResponse(_common.BaseModel):
+    """Response from LRO."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    output_gcs_uri: Optional[str] = Field(
+        default=None, description="""The GCS URI of the output file."""
+    )
+
+
+class CheckQueryJobResponseDict(TypedDict, total=False):
+    """Response from LRO."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    output_gcs_uri: Optional[str]
+    """The GCS URI of the output file."""
+
+
+CheckQueryJobResponseOrDict = Union[CheckQueryJobResponse, CheckQueryJobResponseDict]
 
 
 class AssembleDataset(_common.BaseModel):
@@ -14207,6 +15743,27 @@ class BatchPredictionResourceUsageAssessmentResultDict(TypedDict, total=False):
 BatchPredictionResourceUsageAssessmentResultOrDict = Union[
     BatchPredictionResourceUsageAssessmentResult,
     BatchPredictionResourceUsageAssessmentResultDict,
+]
+
+
+class BatchPredictionValidationAssessmentResult(_common.BaseModel):
+    """Result of batch prediction validation assessment."""
+
+    errors: Optional[list[str]] = Field(
+        default=None, description="""The list of errors found in the dataset."""
+    )
+
+
+class BatchPredictionValidationAssessmentResultDict(TypedDict, total=False):
+    """Result of batch prediction validation assessment."""
+
+    errors: Optional[list[str]]
+    """The list of errors found in the dataset."""
+
+
+BatchPredictionValidationAssessmentResultOrDict = Union[
+    BatchPredictionValidationAssessmentResult,
+    BatchPredictionValidationAssessmentResultDict,
 ]
 
 

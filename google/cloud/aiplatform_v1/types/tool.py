@@ -20,8 +20,8 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import openapi
-from google.protobuf import struct_pb2  # type: ignore
-from google.type import latlng_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.type.latlng_pb2 as latlng_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -1107,12 +1107,21 @@ class FunctionCallingConfig(proto.Message):
                 Model will not predict any function calls.
                 Model behavior is same as when not passing any
                 function declarations.
+            VALIDATED (5):
+                Model is constrained to predict either function calls or
+                natural language response. If
+                [allowed_function_names][FunctionCallingConfig.allowed_function_names]
+                are set, the predicted function calls will be limited to any
+                one of ``allowed_function_names``, else the predicted
+                function calls will be any one of the provided
+                [FunctionDeclaration].
         """
 
         MODE_UNSPECIFIED = 0
         AUTO = 1
         ANY = 2
         NONE = 3
+        VALIDATED = 5
 
     mode: Mode = proto.Field(
         proto.ENUM,

@@ -27,7 +27,7 @@ from google.cloud.aiplatform_v1beta1.types import (
     feature_view_sync as gca_feature_view_sync,
 )
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

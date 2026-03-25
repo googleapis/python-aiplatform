@@ -41,19 +41,23 @@ if TYPE_CHECKING:
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
+genai_append_method = _api_client.append_library_version_headers
+
 
 def _add_tracking_headers(headers: dict[str, str]) -> None:
-    """Appends Vertex Gen AI modules tracking information to the request headers."""
+    """Adds Vertex Gen AI tracking headers."""
+    is_vertex = headers.get(
+        "x-goog-vertex-sdk"
+    ) == "true" or "vertex-genai-modules" in headers.get("user-agent", "")
+    if is_vertex:
+        tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
 
-    tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
+        headers["user-agent"] = tracking_label
+        headers["x-goog-api-client"] = tracking_label
 
-    user_agent = headers.get("user-agent", "")
-    if tracking_label not in user_agent:
-        headers["user-agent"] = f"{user_agent} {tracking_label}".strip()
-
-    api_client = headers.get("x-goog-api-client", "")
-    if tracking_label not in api_client:
-        headers["x-goog-api-client"] = f"{api_client} {tracking_label}".strip()
+        headers.pop("x-goog-vertex-sdk", None)
+    else:
+        genai_append_method(headers)
 
 
 _api_client.append_library_version_headers = _add_tracking_headers
@@ -95,10 +99,6 @@ class AsyncClient:
         return self._evals.AsyncEvals(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI prompt optimizer module is experimental, "
-        "and may change in future versions."
-    )
     def prompt_optimizer(self) -> "prompt_optimizer_module.AsyncPromptOptimizer":
         if self._prompt_optimizer is None:
             self._prompt_optimizer = importlib.import_module(
@@ -225,6 +225,11 @@ class Client:
         self._debug_config = debug_config or genai_client.DebugConfig()
         if isinstance(http_options, dict):
             http_options = types.HttpOptions(**http_options)
+        if http_options is None:
+            http_options = types.HttpOptions()
+        if http_options.headers is None:
+            http_options.headers = {}
+        http_options.headers["x-goog-vertex-sdk"] = "true"
 
         self._api_client = genai_client.Client._get_api_client(
             vertexai=True,
@@ -258,10 +263,6 @@ class Client:
         return self._evals.Evals(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI prompt optimizer module is experimental, and may change in future "
-        "versions."
-    )
     def prompt_optimizer(self) -> "prompt_optimizer_module.PromptOptimizer":
         if self._prompt_optimizer is None:
             self._prompt_optimizer = importlib.import_module(

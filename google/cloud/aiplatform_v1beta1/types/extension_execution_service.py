@@ -21,7 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
 from google.cloud.aiplatform_v1beta1.types import extension
-from google.protobuf import struct_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

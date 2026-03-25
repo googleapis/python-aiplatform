@@ -116,7 +116,10 @@ class DataFoundryServiceAsyncClient:
         Returns:
             DataFoundryServiceAsyncClient: The constructed client.
         """
-        return DataFoundryServiceClient.from_service_account_info.__func__(DataFoundryServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            DataFoundryServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(DataFoundryServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -132,7 +135,10 @@ class DataFoundryServiceAsyncClient:
         Returns:
             DataFoundryServiceAsyncClient: The constructed client.
         """
-        return DataFoundryServiceClient.from_service_account_file.__func__(DataFoundryServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            DataFoundryServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(DataFoundryServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

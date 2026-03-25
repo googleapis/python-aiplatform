@@ -32,7 +32,7 @@ def test_create_session_with_ttl(client):
             config=types.CreateAgentEngineSessionConfig(
                 display_name="my_session",
                 session_state={"foo": "bar"},
-                ttl="120s",
+                ttl="1200000s",
                 labels={"label_key": "label_value"},
             ),
         )
@@ -42,12 +42,13 @@ def test_create_session_with_ttl(client):
         assert operation.response.user_id == "test-user-123"
         assert operation.response.labels == {"label_key": "label_value"}
         assert operation.response.name.startswith(agent_engine.api_resource.name)
+        assert operation.done
         # Expire time is calculated by the server, so we only check that it is
         # within a reasonable range to avoid flakiness.
         assert (
-            operation.response.create_time + datetime.timedelta(seconds=119.5)
+            operation.response.create_time + datetime.timedelta(seconds=1199999.5)
             <= operation.response.expire_time
-            <= operation.response.create_time + datetime.timedelta(seconds=120.5)
+            <= operation.response.create_time + datetime.timedelta(seconds=1200000.5)
         )
     finally:
         # Clean up resources.
@@ -60,7 +61,7 @@ def test_create_session_with_expire_time(client):
         assert isinstance(agent_engine, types.AgentEngine)
         assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
         expire_time = datetime.datetime(
-            2026, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
+            2028, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
         )
 
         operation = client.agent_engines.sessions.create(
@@ -78,6 +79,7 @@ def test_create_session_with_expire_time(client):
         assert operation.response.user_id == "test-user-123"
         assert operation.response.name.startswith(agent_engine.api_resource.name)
         assert operation.response.expire_time == expire_time
+        assert operation.done
     finally:
         # Clean up resources.
         client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)

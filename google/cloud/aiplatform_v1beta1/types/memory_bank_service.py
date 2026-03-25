@@ -22,8 +22,8 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
 from google.cloud.aiplatform_v1beta1.types import memory_bank
 from google.cloud.aiplatform_v1beta1.types import operation
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -58,6 +58,14 @@ class CreateMemoryRequest(proto.Message):
             ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
         memory (google.cloud.aiplatform_v1beta1.types.Memory):
             Required. The Memory to be created.
+        memory_id (str):
+            Optional. The user defined ID to use for memory, which will
+            become the final component of the memory resource name. If
+            not provided, Vertex AI will generate a value for this ID.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9-]``. The first character must be a letter, and
+            the last character must be a letter or number.
     """
 
     parent: str = proto.Field(
@@ -68,6 +76,10 @@ class CreateMemoryRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=memory_bank.Memory,
+    )
+    memory_id: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 

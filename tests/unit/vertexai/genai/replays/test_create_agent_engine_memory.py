@@ -87,6 +87,30 @@ def test_create_memory_with_expire_time(client):
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
+def test_create_memory_with_custom_memory_id(client):
+    agent_engine = client.agent_engines.create()
+    assert isinstance(agent_engine, types.AgentEngine)
+    assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+
+    operation = client.agent_engines.memories.create(
+        name=agent_engine.api_resource.name,
+        fact="memory_fact",
+        scope={"user_id": "123"},
+        config=types.AgentEngineMemoryConfig(
+            display_name="my_memory_fact", memory_id="my-memory-id"
+        ),
+    )
+    assert isinstance(operation, types.AgentEngineMemoryOperation)
+    assert operation.response.fact == "memory_fact"
+    assert operation.response.scope == {"user_id": "123"}
+    assert (
+        operation.response.name
+        == f"{agent_engine.api_resource.name}/memories/my-memory-id"
+    )
+    # Clean up resources.
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

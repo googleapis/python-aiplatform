@@ -16,7 +16,6 @@
 
 
 from tests.unit.vertexai.genai.replays import pytest_helper
-from vertexai._genai import types
 from google.genai import types as genai_types
 
 _TEST_RUBRIC_GENERATION_PROMPT = """SPECIAL INSTRUCTION: think silently. Silent thinking token budget: 16384.
@@ -157,7 +156,7 @@ def test_internal_method_generate_rubrics(client):
     ]
     response = client.evals._generate_rubrics(
         contents=test_contents,
-        rubric_generation_spec=types.RubricGenerationSpec(
+        rubric_generation_spec=genai_types.RubricGenerationSpec(
             prompt_template=_TEST_RUBRIC_GENERATION_PROMPT,
         ),
     )

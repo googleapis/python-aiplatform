@@ -45,8 +45,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation as gac_operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.deployment_resource_pool_service import pagers
 from google.cloud.aiplatform_v1.types import deployment_resource_pool
 from google.cloud.aiplatform_v1.types import (
@@ -61,9 +59,11 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.api_core.operation as gac_operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 from .transports.base import DeploymentResourcePoolServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import DeploymentResourcePoolServiceGrpcAsyncIOTransport
 from .client import DeploymentResourcePoolServiceClient
@@ -156,7 +156,12 @@ class DeploymentResourcePoolServiceAsyncClient:
         Returns:
             DeploymentResourcePoolServiceAsyncClient: The constructed client.
         """
-        return DeploymentResourcePoolServiceClient.from_service_account_info.__func__(DeploymentResourcePoolServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            DeploymentResourcePoolServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(
+            DeploymentResourcePoolServiceAsyncClient, info, *args, **kwargs
+        )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -172,7 +177,12 @@ class DeploymentResourcePoolServiceAsyncClient:
         Returns:
             DeploymentResourcePoolServiceAsyncClient: The constructed client.
         """
-        return DeploymentResourcePoolServiceClient.from_service_account_file.__func__(DeploymentResourcePoolServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            DeploymentResourcePoolServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(
+            DeploymentResourcePoolServiceAsyncClient, filename, *args, **kwargs
+        )
 
     from_service_account_json = from_service_account_file
 

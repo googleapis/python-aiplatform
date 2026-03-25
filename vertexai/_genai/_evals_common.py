@@ -25,7 +25,7 @@ import logging
 import os
 import threading
 import time
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union, cast
 import uuid
 
 from google.api_core import exceptions as api_exceptions
@@ -35,6 +35,7 @@ from google.genai._api_client import BaseApiClient
 from google.genai.models import Models
 import pandas as pd
 from tqdm import tqdm
+from pydantic import ValidationError
 
 from . import _evals_constant
 from . import _evals_data_converters
@@ -44,6 +45,9 @@ from . import _evals_utils
 from . import _gcs_utils
 from . import evals
 from . import types
+from . import _transformers as t
+
+logger = logging.getLogger(__name__)
 
 try:
     import litellm
@@ -54,24 +58,41 @@ try:
     from google.adk.agents import LlmAgent
     from google.adk.runners import Runner
     from google.adk.sessions import InMemorySessionService
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulator,
+    )
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulatorConfig,
+    )
+    from google.adk.evaluation.conversation_scenarios import ConversationScenario
+    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
+    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
 except ImportError:
+    logging.getLogger(__name__).warning(
+        "ADK is not installed. Please install it using" " 'pip install google-adk'"
+    )
     LlmAgent = None
     Runner = None
     InMemorySessionService = None
+    LlmBackedUserSimulator = None
+    LlmBackedUserSimulatorConfig = None
+    ConversationScenario = None
+    EvaluationGenerator = None
+    ADK_SessionInput = None
 
 
-logger = logging.getLogger(__name__)
 _thread_local_data = threading.local()
 
 MAX_WORKERS = 100
-AGENT_MAX_WORKERS = 10
+AGENT_MAX_WORKERS = 20
 CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
+AGENT_DATA = _evals_constant.AGENT_DATA
 
 
 @contextlib.contextmanager
-def _temp_logger_level(logger_name: str, level: int):
+def _temp_logger_level(logger_name: str, level: int) -> None:  # type: ignore[misc]
     """Temporarily sets the level of a logger."""
     logger_instance = logging.getLogger(logger_name)
     original_level = logger_instance.getEffectiveLevel()
@@ -95,7 +116,7 @@ def _get_api_client_with_location(
         location,
         api_client.location,
     )
-    return vertexai.Client(
+    return vertexai.Client(  # type: ignore[no-any-return]
         project=api_client.project,
         location=location,
         credentials=api_client._credentials,
@@ -258,6 +279,208 @@ def _extract_contents_for_inference(
         return request_dict_or_raw_text
 
 
+def _resolve_dataset(
+    api_client: BaseApiClient,
+    dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
+    dest: str,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
+) -> types.EvaluationRunDataSource:
+    """Resolves dataset for the evaluation run."""
+    if isinstance(dataset, types.EvaluationDataset):
+        candidate_name = _get_candidate_name(dataset, parsed_agent_info)
+        eval_df = dataset.eval_dataset_df
+        if eval_df is None and dataset.eval_cases:
+            rows = []
+            for case in dataset.eval_cases:
+                row: dict[str, Any] = {}
+                if case.prompt:
+                    row[_evals_constant.PROMPT] = (
+                        _evals_data_converters._get_content_text(case.prompt)
+                    )
+
+                if (
+                    case.responses
+                    and len(case.responses) > 0
+                    and case.responses[0].response
+                ):
+                    row[_evals_constant.RESPONSE] = (
+                        _evals_data_converters._get_content_text(
+                            case.responses[0].response
+                        )
+                    )
+
+                if case.reference and case.reference.response:
+                    row[_evals_constant.REFERENCE] = (
+                        _evals_data_converters._get_content_text(
+                            case.reference.response
+                        )
+                    )
+
+                if case.agent_data:
+                    row[AGENT_DATA] = case.agent_data
+
+                if case.intermediate_events:
+                    row[_evals_constant.INTERMEDIATE_EVENTS] = [
+                        {CONTENT: event.content}
+                        for event in case.intermediate_events
+                        if event.content
+                    ]
+
+                if case.user_scenario:
+                    if case.user_scenario.starting_prompt:
+                        row[_evals_constant.STARTING_PROMPT] = (
+                            case.user_scenario.starting_prompt
+                        )
+                    if case.user_scenario.conversation_plan:
+                        row[_evals_constant.CONVERSATION_PLAN] = (
+                            case.user_scenario.conversation_plan
+                        )
+
+                rows.append(row)
+            eval_df = pd.DataFrame(rows)
+
+        eval_set = _create_evaluation_set_from_dataframe(
+            api_client,
+            dest,
+            eval_df,
+            candidate_name,
+        )
+        dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+    return dataset
+
+
+def _get_default_prompt_template(
+    api_client: BaseApiClient,
+    inference_config: types.EvaluationRunInferenceConfigOrDict,
+    dataset: types.EvaluationRunDataSource,
+) -> Any:
+    """Resolves prompt template data for the evaluation run."""
+    if isinstance(inference_config, dict):
+        if inference_config.get("prompt_template"):
+            return inference_config["prompt_template"]
+    elif inference_config.prompt_template:
+        return inference_config.prompt_template
+
+    try:
+        evals_module = evals.Evals(api_client_=api_client)
+        eval_set = evals_module.get_evaluation_set(name=dataset.evaluation_set)
+        if eval_set and eval_set.evaluation_items:
+            eval_item = evals_module.get_evaluation_item(
+                name=eval_set.evaluation_items[0]
+            )
+            if (
+                eval_item
+                and eval_item.evaluation_request
+                and eval_item.evaluation_request.prompt
+                and eval_item.evaluation_request.prompt.prompt_template_data
+            ):
+                if (
+                    "prompt"
+                    in eval_item.evaluation_request.prompt.prompt_template_data.values
+                ):
+                    return "{prompt}"
+    except Exception as e:
+        logger.warning("Failed to get prompt template from evaluation set: %s", e)
+    return None
+
+
+def _resolve_inference_configs(
+    api_client: BaseApiClient,
+    dataset: types.EvaluationRunDataSource,
+    inference_configs: Optional[
+        dict[str, types.EvaluationRunInferenceConfigOrDict]
+    ] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
+) -> Optional[dict[str, types.EvaluationRunInferenceConfigOrDict]]:
+    """Resolves inference configs for the evaluation run."""
+    # Resolve agent config
+    if parsed_agent_info and parsed_agent_info.name:
+        if inference_configs is None:
+            inference_configs = {}
+
+        # We might have used "candidate-1" as a placeholder key in the caller,
+        # let's migrate it to the agent name, or if it doesn't exist, just create it.
+        if "candidate-1" in inference_configs:
+            inference_configs[parsed_agent_info.name] = inference_configs.pop(
+                "candidate-1"
+            )
+
+        if parsed_agent_info.name not in inference_configs:
+            inference_configs[parsed_agent_info.name] = (
+                types.EvaluationRunInferenceConfig(
+                    agent_configs=parsed_agent_info.agents
+                )
+            )
+        else:
+            config = inference_configs[parsed_agent_info.name]
+            if isinstance(config, dict):
+                config["agent_configs"] = parsed_agent_info.agents
+            else:
+                config.agent_configs = parsed_agent_info.agents
+
+    # Resolve prompt template data
+    if inference_configs:
+        for inference_config in inference_configs.values():
+            prompt_template_val = (
+                inference_config.get("prompt_template")
+                if isinstance(inference_config, dict)
+                else inference_config.prompt_template
+            )
+            if not prompt_template_val:
+                default_prompt_template = _get_default_prompt_template(
+                    api_client, inference_config, dataset
+                )
+                if default_prompt_template:
+                    prompt_template_to_set = default_prompt_template
+                    if not isinstance(
+                        default_prompt_template, types.EvaluationRunPromptTemplate
+                    ):
+                        prompt_template_to_set = types.EvaluationRunPromptTemplate(
+                            prompt_template=default_prompt_template
+                        )
+                    if isinstance(inference_config, dict):
+                        inference_config["prompt_template"] = (
+                            prompt_template_to_set.model_dump(exclude_none=True)
+                        )
+                    else:
+                        inference_config.prompt_template = (
+                            prompt_template_to_set.model_dump(exclude_none=True)
+                        )
+    return inference_configs
+
+
+def _add_evaluation_run_labels(
+    labels: Optional[dict[str, str]] = None,
+    agent: Optional[str] = None,
+) -> Optional[dict[str, str]]:
+    """Adds labels to the evaluation run."""
+    if agent:
+        labels = labels or {}
+        labels["vertex-ai-evaluation-agent-engine-id"] = agent.split(
+            "reasoningEngines/"
+        )[-1]
+    return labels
+
+
+def _get_candidate_name(
+    dataset: types.EvaluationDataset,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
+) -> Optional[str]:
+    """Internal helper to get candidate name."""
+    if parsed_agent_info is not None and (
+        dataset.candidate_name
+        and parsed_agent_info
+        and parsed_agent_info.name
+        and dataset.candidate_name != parsed_agent_info.name
+    ):
+        logger.warning(
+            "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
+        )
+    elif dataset.candidate_name is None and parsed_agent_info:
+        return parsed_agent_info.name
+    return dataset.candidate_name or None
+
+
 def _execute_inference_concurrently(
     api_client: BaseApiClient,
     prompt_dataset: pd.DataFrame,
@@ -267,6 +490,7 @@ def _execute_inference_concurrently(
     inference_fn: Optional[Callable[..., Any]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
     agent: Optional[LlmAgent] = None,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
         genai_types.GenerateContentResponse,
@@ -290,12 +514,15 @@ def _execute_inference_concurrently(
     ] = [None] * len(prompt_dataset)
     tasks = []
 
-    primary_prompt_column = (
-        "request" if "request" in prompt_dataset.columns else "prompt"
-    )
-    if primary_prompt_column not in prompt_dataset.columns:
+    if "request" in prompt_dataset.columns:
+        primary_prompt_column = "request"
+    elif "prompt" in prompt_dataset.columns:
+        primary_prompt_column = "prompt"
+    elif "starting_prompt" in prompt_dataset.columns:
+        primary_prompt_column = "starting_prompt"
+    else:
         raise ValueError(
-            "Dataset must contain either 'prompt' or 'request'."
+            "Dataset must contain either 'prompt', 'request', or 'starting_prompt'."
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
@@ -325,6 +552,7 @@ def _execute_inference_concurrently(
                         agent_arg,
                         inference_fn_arg,
                         api_client_arg,
+                        user_simulator_config_arg,
                     ) -> Any:
                         if agent_engine_arg:
                             if isinstance(agent_engine_arg, str):
@@ -343,6 +571,7 @@ def _execute_inference_concurrently(
                             return inference_fn_arg(
                                 row=row_arg,
                                 contents=contents_arg,
+                                user_simulator_config=user_simulator_config_arg,
                                 agent=agent_arg,
                             )
 
@@ -354,6 +583,7 @@ def _execute_inference_concurrently(
                         agent,
                         inference_fn,
                         api_client,
+                        user_simulator_config,
                     )
                 elif isinstance(model_or_fn, str):
                     generation_content_config = _build_generate_content_config(
@@ -545,10 +775,11 @@ def _run_inference_internal(
         if (
             "prompt" not in prompt_dataset.columns
             and "request" not in prompt_dataset.columns
+            and "starting_prompt" not in prompt_dataset.columns
         ):
             raise ValueError(
-                "Prompt dataset for Gemini model must contain either 'prompt' or"
-                " 'request' column for inference. "
+                "Prompt dataset for Gemini model must contain either 'prompt',"
+                " 'request' or 'starting_prompt' column for inference. "
                 f"Found columns: {prompt_dataset.columns.tolist()}"
             )
 
@@ -720,6 +951,128 @@ def _run_inference_internal(
     return results_df
 
 
+async def _run_adk_user_simulation(
+    row: pd.Series,
+    agent: LlmAgent,
+    config: Optional[types.evals.UserSimulatorConfig] = None,
+) -> list[dict[str, Any]]:
+    """Runs a multi-turn user simulation using ADK's EvaluationGenerator."""
+    starting_prompt = row.get("starting_prompt")
+    conversation_plan = row.get("conversation_plan")
+
+    if not starting_prompt or not conversation_plan:
+        raise ValueError(
+            "User simulation requires 'starting_prompt' and 'conversation_plan'"
+            " columns."
+        )
+
+    scenario = ConversationScenario(
+        starting_prompt=starting_prompt, conversation_plan=conversation_plan
+    )
+
+    user_simulator_kwargs: dict[str, Any] = {}
+    if config:
+        if config.model_name:
+            user_simulator_kwargs["model"] = config.model_name
+        if config.model_configuration is not None:
+            user_simulator_kwargs["model_configuration"] = (
+                config.model_configuration.model_dump(exclude_none=True)
+            )
+        if config.max_turn is not None:
+            user_simulator_kwargs["max_allowed_invocations"] = config.max_turn
+
+    user_simulator_config = LlmBackedUserSimulatorConfig(**user_simulator_kwargs)
+    user_simulator = LlmBackedUserSimulator(
+        conversation_scenario=scenario, config=user_simulator_config
+    )
+
+    try:
+        initial_session = _get_session_inputs(row)
+        app_name = initial_session.app_name or "user_simulation_app"
+        user_id = initial_session.user_id or "user_simulation_default_user"
+        state = initial_session.state or {}
+    except (KeyError, TypeError, ValueError):
+        app_name = "user_simulation_app"
+        user_id = "user_simulation_default_user"
+        state = {}
+
+    invocations = await EvaluationGenerator._generate_inferences_from_root_agent(  # pylint: disable=protected-access
+        root_agent=agent,
+        user_simulator=user_simulator,
+        reset_func=getattr(agent, "reset_data", None),
+        initial_session=ADK_SessionInput(
+            app_name=app_name,
+            user_id=user_id,
+            state=state,
+        ),
+    )
+
+    turns = []
+    for i, invocation in enumerate(invocations):
+        events = []
+        if invocation.user_content:
+            events.append(
+                {
+                    "author": "user",
+                    "content": invocation.user_content.model_dump(mode="json"),
+                    "event_time": datetime.datetime.fromtimestamp(
+                        invocation.creation_timestamp, tz=datetime.timezone.utc
+                    ),
+                }
+            )
+        if invocation.intermediate_data:
+            if (
+                hasattr(invocation.intermediate_data, "invocation_events")
+                and invocation.intermediate_data.invocation_events
+            ):
+                for ie in invocation.intermediate_data.invocation_events:
+                    events.append(
+                        {
+                            "author": ie.author,
+                            "content": (
+                                ie.content.model_dump(mode="json")
+                                if ie.content
+                                else None
+                            ),
+                            "event_time": datetime.datetime.fromtimestamp(
+                                invocation.creation_timestamp, tz=datetime.timezone.utc
+                            ),
+                        }
+                    )
+            elif hasattr(invocation.intermediate_data, "tool_uses"):
+                for tool_call in invocation.intermediate_data.tool_uses:
+                    events.append(
+                        {
+                            "author": "tool_call",
+                            "content": tool_call.model_dump(mode="json"),
+                            "event_time": datetime.datetime.fromtimestamp(
+                                invocation.creation_timestamp, tz=datetime.timezone.utc
+                            ),
+                        }
+                    )
+
+        if invocation.final_response:
+            events.append(
+                {
+                    "author": "agent",
+                    "content": invocation.final_response.model_dump(mode="json"),
+                    "event_time": datetime.datetime.fromtimestamp(
+                        invocation.creation_timestamp, tz=datetime.timezone.utc
+                    ),
+                }
+            )
+
+        turns.append(
+            {
+                "turn_index": i,
+                "turn_id": invocation.invocation_id or str(uuid.uuid4()),
+                "events": events,
+            }
+        )
+
+    return turns
+
+
 def _apply_prompt_template(
     df: pd.DataFrame, prompt_template: types.PromptTemplate
 ) -> None:
@@ -786,6 +1139,7 @@ def _execute_inference(
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
     location: Optional[str] = None,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> pd.DataFrame:
     """Executes inference on a given dataset using the specified model.
 
@@ -804,6 +1158,8 @@ def _execute_inference(
         prompt_template: The prompt template to use for inference.
         location: The location to use for the inference. If not specified, the
           location configured in the client will be used.
+        user_simulator_config: The configuration for the user simulator in
+          multi-turn agent scraping.
 
     Returns:
         A pandas DataFrame containing the inference results.
@@ -846,11 +1202,19 @@ def _execute_inference(
         elif callable(model):
             candidate_name = getattr(model, "__name__", None)
 
+        results_df = _drop_empty_columns(results_df)
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
             candidate_name=candidate_name,
         )
     elif agent_engine or agent:
+        candidate_name = None
+        if agent_engine:
+            candidate_name = "agent_engine_0"
+        elif agent:
+            agent_config = types.evals.AgentConfig.from_agent(agent)
+            candidate_name = agent_config.agent_id or "agent_0"
+
         if (
             agent_engine
             and not isinstance(agent_engine, str)
@@ -882,12 +1246,15 @@ def _execute_inference(
             agent_engine=agent_engine,
             agent=agent,
             prompt_dataset=prompt_dataset,
+            user_simulator_config=user_simulator_config,
         )
         end_time = time.time()
         logger.info("Agent Run completed in %.2f seconds.", end_time - start_time)
 
+        results_df = _drop_empty_columns(results_df)
         evaluation_dataset = types.EvaluationDataset(
             eval_dataset_df=results_df,
+            candidate_name=candidate_name,
         )
     else:
         raise ValueError("Either model, agent_engine or agent must be provided.")
@@ -911,7 +1278,9 @@ def _execute_inference(
                     file_type="jsonl",
                 )
                 logger.info("Results saved to GCS: %s", full_dest_path)
-                evaluation_dataset.gcs_source = types.GcsSource(uris=[full_dest_path])
+                evaluation_dataset.gcs_source = genai_types.GcsSource(
+                    uris=[full_dest_path]
+                )
             else:
                 results_df.to_json(full_dest_path, orient="records", lines=True)
                 logger.info("Results saved locally to: %s", full_dest_path)
@@ -973,8 +1342,10 @@ def _resolve_dataset_inputs(
     datasets_to_process = dataset
     logger.info("Processing %s dataset(s).", num_response_candidates)
 
-    loaded_raw_datasets: list[list[dict[str, Any]]] = []
-    schemas_for_merge: list[str] = []
+    if len(datasets_to_process) == 1 and datasets_to_process[0].eval_cases:
+        return datasets_to_process[0], 1
+
+    parsed_evaluation_datasets: list[types.EvaluationDataset] = []
 
     for i, ds_item in enumerate(datasets_to_process):
         if not isinstance(ds_item, types.EvaluationDataset):
@@ -988,9 +1359,13 @@ def _resolve_dataset_inputs(
                 f"Item at index {i} is not an EvaluationDataset: {type(ds_item)}"
             )
 
+        if ds_item.eval_cases:
+            logger.info("Dataset %d already contains eval_cases.", i)
+            parsed_evaluation_datasets.append(ds_item)
+            continue
+
         ds_source_for_loader = _get_dataset_source(ds_item)
         current_loaded_data = loader.load(ds_source_for_loader)
-        loaded_raw_datasets.append(current_loaded_data)
 
         if dataset_schema:
             current_schema = _evals_data_converters.EvalDatasetSchema(dataset_schema)
@@ -998,7 +1373,6 @@ def _resolve_dataset_inputs(
             current_schema = _evals_data_converters.auto_detect_dataset_schema(  # type: ignore[assignment]
                 current_loaded_data
             )
-        schemas_for_merge.append(current_schema)
 
         logger.info(
             "Dataset %d: Schema: %s. Using %s converter.",
@@ -1008,13 +1382,12 @@ def _resolve_dataset_inputs(
                 current_schema
             ).__class__.__name__,
         )
+        converter = _evals_data_converters.get_dataset_converter(current_schema)
+        parsed_evaluation_datasets.append(converter.convert(current_loaded_data))
 
-    processed_eval_dataset = (
-        _evals_data_converters.merge_response_datasets_into_canonical_format(
-            raw_datasets=loaded_raw_datasets,
-            schemas=schemas_for_merge,
-            agent_info=agent_info,
-        )
+    processed_eval_dataset = _evals_data_converters.merge_evaluation_datasets(
+        datasets=parsed_evaluation_datasets,
+        agent_info=agent_info,
     )
 
     if not processed_eval_dataset.eval_cases:
@@ -1023,7 +1396,7 @@ def _resolve_dataset_inputs(
 
 
 def _resolve_evaluation_run_metrics(
-    metrics: list[types.EvaluationRunMetric], api_client: Any
+    metrics: Union[list[types.EvaluationRunMetric], list[types.Metric]], api_client: Any
 ) -> list[types.EvaluationRunMetric]:
     """Resolves a list of evaluation run metric instances, loading RubricMetric if necessary."""
     if not metrics:
@@ -1041,8 +1414,8 @@ def _resolve_evaluation_run_metrics(
                     resolved_metrics_list.append(
                         types.EvaluationRunMetric(
                             metric=resolved_metric.name,
-                            metric_config=types.UnifiedMetric(
-                                predefined_metric_spec=types.PredefinedMetricSpec(
+                            metric_config=genai_types.UnifiedMetric(
+                                predefined_metric_spec=genai_types.PredefinedMetricSpec(
                                     metric_spec_name=resolved_metric.name,
                                 )
                             ),
@@ -1056,6 +1429,16 @@ def _resolve_evaluation_run_metrics(
                     e,
                 )
                 raise
+        elif isinstance(metric_instance, types.Metric):
+            config_dict = t.t_metrics([metric_instance])[0]
+            res_name = getattr(metric_instance, "metric_resource_name", None)
+            resolved_metrics_list.append(
+                types.EvaluationRunMetric(
+                    metric=metric_instance.name,
+                    metric_config=config_dict if config_dict else None,
+                    metric_resource_name=res_name,
+                )
+            )
         else:
             try:
                 metric_name_str = str(metric_instance)
@@ -1072,8 +1455,8 @@ def _resolve_evaluation_run_metrics(
                         resolved_metrics_list.append(
                             types.EvaluationRunMetric(
                                 metric=resolved_metric.name,
-                                metric_config=types.UnifiedMetric(
-                                    predefined_metric_spec=types.PredefinedMetricSpec(
+                                metric_config=genai_types.UnifiedMetric(
+                                    predefined_metric_spec=genai_types.PredefinedMetricSpec(
                                         metric_spec_name=resolved_metric.name,
                                     )
                                 ),
@@ -1286,78 +1669,144 @@ def _get_session_inputs(row: pd.Series) -> types.evals.SessionInput:
         )
 
 
-def _run_agent_internal(
-    api_client: BaseApiClient,
-    agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
-    prompt_dataset: pd.DataFrame,
-) -> pd.DataFrame:
-    """Runs an agent."""
-    raw_responses = _run_agent(
-        api_client=api_client,
-        agent_engine=agent_engine,
-        agent=agent,
-        prompt_dataset=prompt_dataset,
+def _is_multi_turn_agent_simulation(
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    prompt_dataset: pd.DataFrame = None,
+) -> bool:
+    """Checks if the agent run is a multi-turn user simulation."""
+    return (
+        user_simulator_config is not None
+        or "conversation_plan" in prompt_dataset.columns
     )
-    processed_intermediate_events = []
-    processed_responses = []
-    for resp_item in raw_responses:
-        intermediate_events_row: list[dict[str, Any]] = []
-        response_row = None
-        if isinstance(resp_item, list):
-            try:
-                response_row = resp_item[-1]["content"]["parts"][0]["text"]
-                for intermediate_event in resp_item[:-1]:
-                    intermediate_events_row.append(
-                        {
-                            "event_id": intermediate_event["id"],
-                            "content": intermediate_event["content"],
-                            "creation_timestamp": intermediate_event["timestamp"],
-                            "author": intermediate_event["author"],
-                        }
+
+
+def _process_multi_turn_agent_response(
+    resp_item: Any,
+    agent_data_agents: Optional[dict[str, Any]],
+) -> Optional[Union[str, dict[str, Any]]]:
+    """Processes a multi-turn agent response."""
+    if isinstance(resp_item, dict) and "error" in resp_item:
+        return json.dumps(resp_item)
+    return types.evals.AgentData(
+        turns=resp_item,
+        agents=agent_data_agents,
+    ).model_dump(exclude_unset=True)
+
+
+def _process_single_turn_agent_response(
+    resp_item: Any,
+    agent_data_agents: Optional[dict[str, Any]],
+) -> tuple[
+    Optional[Union[str, dict[str, Any]]],
+    list[dict[str, Any]],
+    Optional[Union[str, dict[str, Any]]],
+]:
+    """Processes a single-turn agent response."""
+    intermediate_events_row: list[dict[str, Any]] = []
+    response_row: Optional[Union[str, dict[str, Any]]] = None
+    agent_data_row: Optional[Union[str, dict[str, Any]]] = None
+
+    if isinstance(resp_item, list):
+        try:
+            response_row = resp_item[-1]["content"]["parts"][0]["text"]
+            for intermediate_event in resp_item[:-1]:
+                intermediate_events_row.append(
+                    {
+                        "event_id": intermediate_event.get("id"),
+                        "content": intermediate_event.get("content"),
+                        "creation_timestamp": intermediate_event.get("timestamp"),
+                        "author": intermediate_event.get("author"),
+                    }
+                )
+            # Construct AgentData natively for single-turn runs
+            agent_events = []
+            for event_dict in resp_item:
+                content_dict = event_dict.get("content")
+                content_obj = None
+                if content_dict:
+                    content_obj = genai_types.Content.model_validate(content_dict)
+
+                agent_events.append(
+                    types.evals.AgentEvent(
+                        author=event_dict.get("author", "model"),
+                        content=content_obj,
                     )
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                error_payload = {
-                    "error": (
-                        f"Failed to parse agent run response {str(resp_item)} to "
-                        f"intermediate events and final response: {e}"
-                    ),
-                }
-                response_row = json.dumps(error_payload)
-        else:
+                )
+
+            turn = types.evals.ConversationTurn(
+                turn_index=0,
+                turn_id="turn_0",
+                events=agent_events,
+            )
+            agent_data_row = types.evals.AgentData(
+                turns=[turn],
+                agents=agent_data_agents,
+            ).model_dump(exclude_unset=True)
+        except Exception as e:  # pylint: disable=broad-exception-caught
             error_payload = {
-                "error": "Unexpected response type from agent run",
-                "response_type": str(type(resp_item)),
-                "details": str(resp_item),
+                "error": (
+                    f"Failed to parse agent run response {str(resp_item)} to "
+                    f"agent data: {e}"
+                ),
             }
             response_row = json.dumps(error_payload)
-
-        processed_intermediate_events.append(intermediate_events_row)
-        processed_responses.append(response_row)
-
-    if len(processed_responses) != len(prompt_dataset) or len(
-        processed_responses
-    ) != len(processed_intermediate_events):
-        raise RuntimeError(
-            "Critical prompt/response/intermediate_events count mismatch: %d"
-            " prompts vs %d vs %d responses. This indicates an issue in response"
-            " collection."
-            % (
-                len(prompt_dataset),
-                len(processed_responses),
-                len(processed_intermediate_events),
-            )
-        )
-
-    results_df_responses_only = pd.DataFrame(
-        {
-            _evals_constant.INTERMEDIATE_EVENTS: processed_intermediate_events,
-            _evals_constant.RESPONSE: processed_responses,
+            agent_data_row = json.dumps(error_payload)
+    elif isinstance(resp_item, dict) and "error" in resp_item:
+        response_row = json.dumps(resp_item)
+    else:
+        error_payload = {
+            "error": "Unexpected response type from agent run",
+            "response_type": str(type(resp_item)),
+            "details": str(resp_item),
         }
-    )
+        response_row = json.dumps(error_payload)
+
+    return response_row, intermediate_events_row, agent_data_row
+
+
+def _create_agent_results_dataframe(
+    prompt_dataset: pd.DataFrame,
+    processed_responses: list[Any],
+    processed_intermediate_events: list[Any],
+    processed_agent_data: list[Any],
+    is_user_simulation: bool,
+) -> pd.DataFrame:
+    """Creates a DataFrame from the processed agent responses."""
+    df_dict: dict[str, Any] = {}
+    if is_user_simulation:
+        df_dict[AGENT_DATA] = processed_agent_data
+        if len(processed_agent_data) != len(prompt_dataset):
+            raise RuntimeError(
+                "Critical prompt/agent_data count mismatch: %d"
+                " prompts vs %d agent_data. This indicates an issue in response"
+                " collection."
+                % (
+                    len(prompt_dataset),
+                    len(processed_agent_data),
+                )
+            )
+    else:
+        df_dict[_evals_constant.INTERMEDIATE_EVENTS] = processed_intermediate_events
+        df_dict[_evals_constant.RESPONSE] = processed_responses
+        df_dict[AGENT_DATA] = processed_agent_data
+        if len(processed_responses) != len(prompt_dataset) or len(
+            processed_responses
+        ) != len(processed_intermediate_events):
+            raise RuntimeError(
+                "Critical prompt/response/intermediate_events count mismatch: %d"
+                " prompts vs %d vs %d responses. This indicates an issue in response"
+                " collection."
+                % (
+                    len(prompt_dataset),
+                    len(processed_responses),
+                    len(processed_intermediate_events),
+                )
+            )
+
+    results_df_raw = pd.DataFrame(df_dict)
 
     prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
-    results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
+    results_df_responses_only_indexed = results_df_raw.reset_index(drop=True)
 
     results_df = pd.concat(
         [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
@@ -1365,11 +1814,61 @@ def _run_agent_internal(
     return results_df
 
 
+def _run_agent_internal(
+    api_client: BaseApiClient,
+    agent_engine: Optional[Union[str, types.AgentEngine]],
+    agent: Optional[LlmAgent],
+    prompt_dataset: pd.DataFrame,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+) -> pd.DataFrame:
+    """Runs an agent."""
+    raw_responses = _run_agent(
+        api_client=api_client,
+        agent_engine=agent_engine,
+        agent=agent,
+        prompt_dataset=prompt_dataset,
+        user_simulator_config=user_simulator_config,
+    )
+    processed_intermediate_events = []
+    processed_responses = []
+    processed_agent_data = []
+    agent_data_agents = None
+    if agent:
+        agent_data_agents = types.evals.AgentData.get_agents_map(agent)
+
+    is_user_simulation = _is_multi_turn_agent_simulation(
+        user_simulator_config, prompt_dataset
+    )
+
+    for resp_item in raw_responses:
+        if is_user_simulation:
+            agent_data_row = _process_multi_turn_agent_response(
+                resp_item, agent_data_agents
+            )
+            processed_agent_data.append(agent_data_row)
+        else:
+            response_row, intermediate_events_row, agent_data_row = (
+                _process_single_turn_agent_response(resp_item, agent_data_agents)
+            )
+            processed_responses.append(response_row)
+            processed_intermediate_events.append(intermediate_events_row)
+            processed_agent_data.append(agent_data_row)
+
+    return _create_agent_results_dataframe(
+        prompt_dataset,
+        processed_responses,
+        processed_intermediate_events,
+        processed_agent_data,
+        is_user_simulation,
+    )
+
+
 def _run_agent(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
     agent: Optional[LlmAgent],
     prompt_dataset: pd.DataFrame,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
         list[dict[str, Any]],
@@ -1385,6 +1884,7 @@ def _run_agent(
             prompt_dataset=prompt_dataset,
             progress_desc="Agent Run",
             gemini_config=None,
+            user_simulator_config=None,
             inference_fn=_execute_agent_run_with_retry,
         )
     elif agent:
@@ -1394,6 +1894,7 @@ def _run_agent(
             prompt_dataset=prompt_dataset,
             progress_desc="Local Agent Run",
             gemini_config=None,
+            user_simulator_config=user_simulator_config,
             inference_fn=_execute_local_agent_run_with_retry,
         )
     else:
@@ -1461,10 +1962,13 @@ def _execute_local_agent_run_with_retry(
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent: LlmAgent,
     max_retries: int = 3,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt synchronously."""
     return asyncio.run(
-        _execute_local_agent_run_with_retry_async(row, contents, agent, max_retries)
+        _execute_local_agent_run_with_retry_async(
+            row, contents, agent, max_retries, user_simulator_config
+        )
     )
 
 
@@ -1473,8 +1977,18 @@ async def _execute_local_agent_run_with_retry_async(
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
     agent: LlmAgent,
     max_retries: int = 3,
+    user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt asynchronously."""
+
+    # Multi-turn agent scraping with user simulation.
+    if user_simulator_config or "conversation_plan" in row:
+        try:
+            return await _run_adk_user_simulation(row, agent, user_simulator_config)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            logger.error("Multi-turn agent run with user simulation failed: %s", e)
+            return {"error": f"Multi-turn agent run with user simulation failed: {e}"}
+
     session_inputs = _get_session_inputs(row)
     user_id = session_inputs.user_id
     session_id = str(uuid.uuid4())
@@ -1522,7 +2036,7 @@ async def _execute_local_agent_run_with_retry_async(
                 )
                 if attempt == max_retries - 1:
                     return {"error": f"Resource exhausted after retries: {e}"}
-                time.sleep(2**attempt)
+                await asyncio.sleep(2**attempt)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error(
                     "Unexpected error during generate_content on attempt %d/%d: %s",
@@ -1533,7 +2047,7 @@ async def _execute_local_agent_run_with_retry_async(
 
                 if attempt == max_retries - 1:
                     return {"error": f"Failed after retries: {e}"}
-                time.sleep(1)
+                await asyncio.sleep(1)
         return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 
@@ -1647,7 +2161,17 @@ def _convert_request_to_dataset_row(
         request.prompt.text if request.prompt and request.prompt.text else None
     )
     dict_row[_evals_constant.REFERENCE] = request.golden_response
+
+    if request.prompt and request.prompt.user_scenario:
+        dict_row[_evals_constant.STARTING_PROMPT] = (
+            request.prompt.user_scenario.starting_prompt
+        )
+        dict_row[_evals_constant.CONVERSATION_PLAN] = (
+            request.prompt.user_scenario.conversation_plan
+        )
+
     intermediate_events = []
+    agent_data = None
     if request.candidate_responses:
         for candidate in request.candidate_responses:
             if candidate.candidate is not None:
@@ -1662,8 +2186,27 @@ def _convert_request_to_dataset_row(
                             "content": content_dict,
                         }
                         intermediate_events.append(int_events_dict)
+        agent_data = request.candidate_responses[0].agent_data
+
     dict_row[_evals_constant.INTERMEDIATE_EVENTS] = intermediate_events
+    dict_row[_evals_constant.AGENT_DATA] = (
+        agent_data.model_dump() if agent_data else None
+    )
     return dict_row
+
+
+def _drop_empty_columns(df: "pd.DataFrame") -> "pd.DataFrame":
+    """Drops columns that are all None or all empty lists/dicts."""
+    if df is None or df.empty or pd is None:
+        return df
+
+    def is_empty(x: Any) -> bool:
+        if isinstance(x, (list, dict)):
+            return not x
+        return pd.isna(x)  # type: ignore[no-any-return]
+
+    cols_to_drop = [col for col in df.columns if df[col].apply(is_empty).all()]
+    return df.drop(columns=cols_to_drop)
 
 
 def _transform_dataframe(
@@ -1683,13 +2226,16 @@ def _transform_dataframe(
         col for col in df.columns if col not in _evals_constant.COMMON_DATASET_COLUMNS
     ]
 
-    eval_dfs = [
-        types.EvaluationDataset(
-            candidate_name=candidate,
-            eval_dataset_df=df.rename(columns={candidate: _evals_constant.RESPONSE}),
+    eval_dfs = []
+    for candidate in candidates:
+        temp_df = df.rename(columns={candidate: _evals_constant.RESPONSE})
+        temp_df = _drop_empty_columns(temp_df)
+        eval_dfs.append(
+            types.EvaluationDataset(
+                candidate_name=candidate,
+                eval_dataset_df=temp_df,
+            )
         )
-        for candidate in candidates
-    ]
     return eval_dfs
 
 
@@ -1750,12 +2296,17 @@ def _get_agent_info_from_inference_configs(
         else None
     )
     instruction = di.parts[0].text if di and di.parts and di.parts[0].text else None
+    tools = agent_config.tools if agent_config and agent_config.tools else None
+
     return types.evals.AgentInfo(
         name=candidate_names[0],
-        instruction=instruction,
-        tool_declarations=(
-            agent_config.tools if agent_config and agent_config.tools else None
-        ),
+        agents={
+            "agent_0": types.evals.AgentConfig(
+                instruction=instruction,
+                tools=tools,
+            )
+        },
+        root_agent_id="agent_0",
     )
 
 
@@ -1798,10 +2349,10 @@ def _convert_evaluation_run_results(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
+) -> Optional[types.EvaluationResult]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return []
+        return None
 
     evals_module = evals.Evals(api_client_=api_client)
     eval_set = evals_module.get_evaluation_set(
@@ -1823,10 +2374,10 @@ async def _convert_evaluation_run_results_async(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Union[list[types.EvaluationItem], types.EvaluationResult]:
+) -> Optional[types.EvaluationResult]:
     """Retrieves an EvaluationItem from the EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return []
+        return None
 
     evals_module = evals.AsyncEvals(api_client_=api_client)
     eval_set = await evals_module.get_evaluation_set(
@@ -1847,24 +2398,43 @@ async def _convert_evaluation_run_results_async(
 
 def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
     """Converts an object to a dictionary."""
+    if obj is None:
+        return obj
+    if isinstance(obj, (int, float, str, bool)):
+        return obj
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    if isinstance(obj, bytes):
+        return base64.b64encode(obj).decode("utf-8")
+    if isinstance(obj, (list, tuple)):
+        return [_object_to_dict(item) for item in obj]
+    if isinstance(obj, dict):
+        return {k: _object_to_dict(v) for k, v in obj.items()}
+
     if not hasattr(obj, "__dict__"):
-        return obj  # Not an object with attributes, return as is (e.g., int, str)
+        return obj  # Not an object with attributes, return as is (e.g., set)
 
     result: dict[str, Any] = {}
     for key, value in obj.__dict__.items():
         if value is None:
             continue
-        if isinstance(value, (int, float, str, bool)):
-            result[key] = value
-        elif isinstance(value, (list, tuple)):
-            result[key] = [_object_to_dict(item) for item in value]
-        elif isinstance(value, bytes):
-            result[key] = base64.b64encode(value).decode("utf-8")
-        elif hasattr(value, "__dict__"):  # Nested object
-            result[key] = _object_to_dict(value)
-        else:
-            result[key] = value  # Handle other types like sets, etc.
+        result[key] = _object_to_dict(value)
     return result
+
+
+def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Content]:
+    if isinstance(row[column], str):
+        return genai_types.Content(
+            parts=[genai_types.Part(text=row[column])],
+            role=_evals_constant.USER_AUTHOR,
+        )
+    elif isinstance(row[column], genai_types.Content):
+        return cast(genai_types.Content, row[column])
+    else:
+        raise ValueError(
+            f"{column} must be a string or a Content object. "
+            f"Got {type(row[column])}."
+        )
 
 
 def _create_evaluation_set_from_dataframe(
@@ -1885,29 +2455,89 @@ def _create_evaluation_set_from_dataframe(
             for event in row[_evals_constant.INTERMEDIATE_EVENTS]:
                 if CONTENT in event:
                     intermediate_events.append(event[CONTENT])
+
+        agent_data_obj = None
+        if _evals_constant.AGENT_DATA in row:
+            agent_data_val = row[AGENT_DATA]
+            if isinstance(agent_data_val, str):
+                try:
+                    agent_data_val = json.loads(agent_data_val)
+                except json.JSONDecodeError:
+                    pass
+            if isinstance(agent_data_val, dict):
+                try:
+                    agent_data_obj = types.evals.AgentData.model_validate(
+                        agent_data_val
+                    )
+                except ValidationError:
+                    pass
+            elif isinstance(agent_data_val, types.evals.AgentData):
+                agent_data_obj = agent_data_val
+
+        candidate_responses = []
+        if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
+            # Resolve the oneof conflict: prioritize agent_data over flat text
+            response_text = row.get(_evals_constant.RESPONSE) or None
+
+            if agent_data_obj and response_text:
+                logger.info(
+                    "Both 'response' and 'agent_data' columns found in the evaluation dataset. "
+                    "Prioritizing 'agent_data' and omitting 'response' text to satisfy "
+                    "CandidateResponse protobuf oneof constraints."
+                )
+                response_text = None
+
+            candidate_responses.append(
+                types.CandidateResponse(
+                    candidate=candidate_name or "Candidate 1",
+                    text=response_text,
+                    events=intermediate_events or None,
+                    agent_data=agent_data_obj,
+                )
+            )
+
+        prompt = None
+        if (
+            _evals_constant.STARTING_PROMPT in row
+            and _evals_constant.CONVERSATION_PLAN in row
+        ):
+            prompt = types.EvaluationPrompt(
+                user_scenario=types.evals.UserScenario(
+                    starting_prompt=row[_evals_constant.STARTING_PROMPT],
+                    conversation_plan=row[_evals_constant.CONVERSATION_PLAN],
+                )
+            )
+        elif _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+            values = {}
+            if _evals_constant.CONTEXT in row:
+                values[_evals_constant.CONTEXT] = _get_content(
+                    row, _evals_constant.CONTEXT
+                )
+            if _evals_constant.HISTORY in row:
+                values[_evals_constant.HISTORY] = _get_content(
+                    row, _evals_constant.HISTORY
+                )
+            if _evals_constant.PROMPT in row:
+                values[_evals_constant.PROMPT] = _get_content(
+                    row, _evals_constant.PROMPT
+                )
+            prompt = types.EvaluationPrompt(
+                prompt_template_data=types.PromptTemplateData(values=values)
+            )
+        elif _evals_constant.PROMPT in row:
+            prompt = types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
+
         eval_item_requests.append(
             types.EvaluationItemRequest(
-                prompt=(
-                    types.EvaluationPrompt(text=row[_evals_constant.PROMPT])
-                    if _evals_constant.PROMPT in row
-                    else None
-                ),
+                prompt=prompt or None,
                 golden_response=(
                     types.CandidateResponse(text=row[_evals_constant.REFERENCE])
                     if _evals_constant.REFERENCE in row
                     else None
                 ),
-                candidate_responses=[
-                    types.CandidateResponse(
-                        candidate=candidate_name or "Candidate 1",
-                        text=row.get(_evals_constant.RESPONSE, None),
-                        events=(
-                            intermediate_events
-                            if len(intermediate_events) > 0
-                            else None
-                        ),
-                    )
-                ],
+                candidate_responses=(
+                    candidate_responses if candidate_responses else None
+                ),
             )
         )
     logger.info("Writing evaluation item requests to GCS.")

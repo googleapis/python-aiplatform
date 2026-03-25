@@ -25,7 +25,7 @@ from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google import genai
-from google.cloud import iam_credentials_v1
+from google.cloud import iam_credentials_v1  # type: ignore[attr-defined]
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import types as genai_types
@@ -72,12 +72,8 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
         setv(to_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineSandboxConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _CreateAgentEngineSandboxConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -90,9 +86,6 @@ def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -108,9 +101,6 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
     if getv(from_object, ["inputs"]) is not None:
         setv(to_object, ["inputs"], [item for item in getv(from_object, ["inputs"])])
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -124,9 +114,6 @@ def _GetAgentEngineSandboxOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -137,9 +124,6 @@ def _GetAgentEngineSandboxRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -171,12 +155,8 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineSandboxesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineSandboxesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -540,6 +520,7 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
+        poll_interval_seconds: float = 0.1,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
         config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
     ) -> types.AgentEngineSandboxOperation:
@@ -549,6 +530,9 @@ class Sandboxes(_api_module.BaseModule):
             name (str):
                 Required. The name of the agent engine to create sandbox for.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}
+            poll_interval_seconds (float):
+                Optional. The interval in seconds to poll for sandbox creation
+                completion.
             spec (SandboxEnvironmentSpec):
                 Optional. The specification for the sandbox to create.
             config (CreateAgentEngineSandboxConfigOrDict):
@@ -582,7 +566,7 @@ class Sandboxes(_api_module.BaseModule):
                 operation = _agent_engines_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_sandbox_operation,
-                    poll_interval_seconds=0.1,
+                    poll_interval_seconds=poll_interval_seconds,
                 )
             # We need to make a call to get the sandbox because the operation
             # response might not contain the relevant fields.
@@ -666,20 +650,20 @@ class Sandboxes(_api_module.BaseModule):
         )
 
         output_chunks = []
-        for output in response.outputs:
-            if output.mime_type is None:
-                # if mime_type is not available, try to guess the mime_type from the file_name.
-                if (
-                    output.metadata is not None
-                    and output.metadata.attributes is not None
-                ):
-                    file_name = output.metadata.attributes.get("file_name", b"").decode(
-                        "utf-8"
-                    )
-                    mime_type, _ = mimetypes.guess_type(file_name)
-                    output.mime_type = mime_type
-
-            output_chunks.append(output)
+        if response.outputs is not None:
+            for output in response.outputs:
+                if output.mime_type is None:
+                    # if mime_type is not available, try to guess the mime_type from the file_name.
+                    if (
+                        output.metadata is not None
+                        and output.metadata.attributes is not None
+                    ):
+                        file_name = output.metadata.attributes.get(
+                            "file_name", b""
+                        ).decode("utf-8")
+                        mime_type, _ = mimetypes.guess_type(file_name)
+                        output.mime_type = mime_type
+                output_chunks.append(output)
 
         response = types.ExecuteSandboxEnvironmentResponse(outputs=output_chunks)
 
@@ -758,7 +742,7 @@ class Sandboxes(_api_module.BaseModule):
             payload=json.dumps(payload),
         )
         response = client.sign_jwt(request=request)
-        return response.signed_jwt
+        return response.signed_jwt  # type: ignore[no-any-return]
 
     def send_command(
         self,
@@ -766,7 +750,7 @@ class Sandboxes(_api_module.BaseModule):
         http_method: str,
         access_token: str,
         sandbox_environment: types.SandboxEnvironment,
-        path: str = None,
+        path: Optional[str] = None,
         query_params: Optional[dict[str, object]] = None,
         headers: Optional[dict[str, str]] = None,
         request_dict: Optional[dict[str, object]] = None,
