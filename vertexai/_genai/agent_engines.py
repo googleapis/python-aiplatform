@@ -1056,6 +1056,7 @@ class AgentEngines(_api_module.BaseModule):
             or config.source_packages
             or config.developer_connect_source
             or config.agent_config_source
+            or config.container_spec
         ):
             return False
         return True
@@ -1355,6 +1356,7 @@ class AgentEngines(_api_module.BaseModule):
             build_options=config.build_options,
             image_spec=config.image_spec,
             agent_config_source=agent_config_source,
+            container_spec=config.container_spec,
         )
         operation = self._create(config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -1660,6 +1662,7 @@ class AgentEngines(_api_module.BaseModule):
         agent_config_source: Optional[
             types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
         ] = None,
+        container_spec: Optional[types.ReasoningEngineSpecContainerSpecDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1714,6 +1717,19 @@ class AgentEngines(_api_module.BaseModule):
                 "Please specify only one of `source_packages` or `developer_connect_source` in `config`."
             )
 
+        if container_spec:
+            if agent:
+                raise ValueError(
+                    "If you have provided `container_spec` in `config`, please "
+                    "do not specify `agent` in `agent_engines.create()` or "
+                    "`agent_engines.update()`."
+                )
+            if source_packages or developer_connect_source:
+                raise ValueError(
+                    "If you have provided `container_spec` in `config`, please "
+                    "do not specify `source_packages` or `developer_connect_source` in `config`."
+                )
+
         agent_engine_spec: Any = None
         if agent:
             agent_engine_spec = {}
@@ -1753,6 +1769,24 @@ class AgentEngines(_api_module.BaseModule):
                 image_spec=image_spec,
                 agent_config_source=agent_config_source,
             )
+        elif container_spec:
+            agent_engine_spec = {}
+            if class_methods is None:
+                raise ValueError(
+                    "`class_methods` must be specified if `container_spec` is specified."
+                )
+            update_masks.append("spec.class_methods")
+            class_methods_spec_list = (
+                _agent_engines_utils._class_methods_to_class_methods_spec(
+                    class_methods=class_methods
+                )
+            )
+            agent_engine_spec["class_methods"] = [
+                _agent_engines_utils._to_dict(class_method_spec)
+                for class_method_spec in class_methods_spec_list
+            ]
+            update_masks.append("spec.container_spec")
+            agent_engine_spec["container_spec"] = container_spec
 
         is_deployment_spec_updated = (
             env_vars is not None
@@ -2039,6 +2073,14 @@ class AgentEngines(_api_module.BaseModule):
             raise DeprecationWarning(
                 "The `agent_engine` argument is deprecated. Please use `agent` instead."
             )
+        image_spec = config.image_spec
+        if image_spec is not None:
+            # Conversion to a dict for _create_config
+            image_spec = json.loads(image_spec.model_dump_json())
+        container_spec = config.container_spec
+        if container_spec is not None:
+            # Conversion to a dict for _create_config
+            container_spec = json.loads(container_spec.model_dump_json())
         agent = agent or agent_engine
         api_config = self._create_config(
             mode="update",
@@ -2068,7 +2110,9 @@ class AgentEngines(_api_module.BaseModule):
             agent_framework=config.agent_framework,
             python_version=config.python_version,
             build_options=config.build_options,
+            image_spec=image_spec,
             agent_config_source=agent_config_source,
+            container_spec=container_spec,
         )
         operation = self._update(name=name, config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
