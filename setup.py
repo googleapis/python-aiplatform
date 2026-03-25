@@ -181,7 +181,8 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm >= 1.72.4, != 1.77.2, != 1.77.3, != 1.77.4",
+    "litellm>=1.75.5, <=1.82.6",
+    # For LiteLLM tests. Upper bound pinned: versions 1.82.7+ compromised in supply chain attack.
 ]
 
 langchain_extra_require = [
