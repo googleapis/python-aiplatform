@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.143.0](https://github.com/googleapis/python-aiplatform/compare/v1.142.0...v1.143.0) (2026-03-25)
+
+
+### Features
+
+* Add AgentEngine Sessions module ([368a8f8](https://github.com/googleapis/python-aiplatform/commit/368a8f82c73a227b8fb90a36e6dfc1ff3ab91f53))
+* Add memory_id to Create Memory ([2167f36](https://github.com/googleapis/python-aiplatform/commit/2167f369a45ad1cfd0a701777dea4cdbc08810db))
+* Add RagMetadata and RagDataSchema management APIs ([4f0fdfe](https://github.com/googleapis/python-aiplatform/commit/4f0fdfe5a71e0a9fddfb86aa2c1ef5a492795f0c))
+* Add raw_event to Append Event ([2167f36](https://github.com/googleapis/python-aiplatform/commit/2167f369a45ad1cfd0a701777dea4cdbc08810db))
+* GenAI SDK client(multimodal) - Accept `gemini_request_read_config` instead of `template_config` in all functions. ([f138162](https://github.com/googleapis/python-aiplatform/commit/f138162e55e913c632c76a0762d911f795bffcd4))
+* GenAI SDK client(multimodal) - Support creating multimodal dataset from bigframe DataFrame ([9b7dc29](https://github.com/googleapis/python-aiplatform/commit/9b7dc2916c55a394e8beef7c02ad122147543846))
+
+
+### Bug Fixes
+
+* Exclude compromised LiteLLM versions from dependencies pin to 1.82.6 ([78966da](https://github.com/googleapis/python-aiplatform/commit/78966dac863b026db0b426f63dbff72271cdda10))
+* Fix rag resource parsing ([bc61708](https://github.com/googleapis/python-aiplatform/commit/bc6170819c35db80238a843d5d658f30e73630d3)), closes [#6442](https://github.com/googleapis/python-aiplatform/issues/6442)
+
 ## [1.142.0](https://github.com/googleapis/python-aiplatform/compare/v1.141.0...v1.142.0) (2026-03-20)
 
 
