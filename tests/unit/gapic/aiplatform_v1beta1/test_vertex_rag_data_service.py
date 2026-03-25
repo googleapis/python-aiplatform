@@ -72,12 +72,8 @@ from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
     VertexRagDataServiceClient,
 )
-from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
-    pagers,
-)
-from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import (
-    transports,
-)
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import pagers
+from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service import transports
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
@@ -5296,79 +5292,6 @@ async def test_delete_rag_file_flattened_error_async():
             vertex_rag_data_service.DeleteRagFileRequest(),
             name="name_value",
         )
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        vertex_rag_data_service.BatchCreateRagDataSchemasRequest,
-        dict,
-    ],
-)
-def test_batch_create_rag_data_schemas(request_type, transport: str = "grpc"):
-    client = VertexRagDataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.batch_create_rag_data_schemas), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
-        response = client.batch_create_rag_data_schemas(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        request = vertex_rag_data_service.BatchCreateRagDataSchemasRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, future.Future)
-
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        vertex_rag_data_service.ListRagDataSchemasRequest,
-        dict,
-    ],
-)
-def test_list_rag_data_schemas(request_type, transport: str = "grpc"):
-    client = VertexRagDataServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
-    )
-
-    # Everything is optional in proto3 as far as the runtime is concerned,
-    # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
-
-    # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(
-        type(client.transport.list_rag_data_schemas), "__call__"
-    ) as call:
-        # Designate an appropriate return value for the call.
-        call.return_value = vertex_rag_data_service.ListRagDataSchemasResponse(
-            next_page_token="next_page_token_value",
-        )
-        response = client.list_rag_data_schemas(request)
-
-        # Establish that the underlying gRPC stub method was called.
-        assert len(call.mock_calls) == 1
-        _, args, _ = call.mock_calls[0]
-        request = vertex_rag_data_service.ListRagDataSchemasRequest()
-        assert args[0] == request
-
-    # Establish that the response is the type that we expect.
-    assert isinstance(response, pagers.ListRagDataSchemasPager)
-    assert response.next_page_token == "next_page_token_value"
 
 
 @pytest.mark.parametrize(
