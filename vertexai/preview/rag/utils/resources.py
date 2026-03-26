@@ -25,6 +25,7 @@ from google.protobuf import timestamp_pb2
 DEPRECATION_DATE = "June 2025"
 
 
+#
 @dataclasses.dataclass
 class RagFile:
     """RAG file (output only).
@@ -736,3 +737,103 @@ class RagCorpus:
     vertex_ai_search_config: Optional[VertexAiSearchConfig] = None
     backend_config: Optional[RagVectorDbConfig] = None
     encryption_spec: Optional[EncryptionSpec] = None
+
+
+@dataclasses.dataclass
+class RagMetadataSchemaDetails:
+    """Data schema details indicates the data type and the data
+
+    struct corresponding to the key of user specified metadata.
+
+    Attributes:
+        type (str): Type of the metadata.
+        list_config (RagMetadataSchemaDetails.ListConfig): Config for List data
+          type.
+        granularity (str): The granularity associated with this RagMetadataSchema.
+        search_strategy (RagMetadataSchemaDetails.SearchStrategy): The search
+          strategy for the metadata value of the key.
+    """
+
+    @dataclasses.dataclass
+    class ListConfig:
+        """Config for List data type.
+
+        Attributes:
+            value_schema (RagMetadataSchemaDetails): The value's data type in the
+              list.
+        """
+
+        value_schema: Optional["RagMetadataSchemaDetails"] = None
+
+    @dataclasses.dataclass
+    class SearchStrategy:
+        """The search strategy for the metadata value of the key.
+
+        Attributes:
+            search_strategy_type (str): The search strategy type to be applied on
+              the metadata key.
+        """
+
+        search_strategy_type: Optional[str] = None
+
+    type: Optional[str] = None
+    list_config: Optional[ListConfig] = None
+    granularity: Optional[str] = None
+    search_strategy: Optional[SearchStrategy] = None
+
+
+@dataclasses.dataclass
+class RagDataSchema:
+    """The schema of the user specified metadata.
+
+    Attributes:
+        name (str): Identifier. Resource name of the data schema.
+        key (str): Required. The key of this data schema.
+        schema_details (RagMetadataSchemaDetails): The schema details mapping to
+          the key.
+    """
+
+    name: Optional[str] = None
+    key: Optional[str] = None
+    schema_details: Optional[RagMetadataSchemaDetails] = None
+
+
+@dataclasses.dataclass
+class MetadataValue:
+    """The value of metadata.
+
+    Attributes:
+        string_value (str): The string value.
+        int_value (int): The int value.
+        float_value (float): The float value.
+        bool_value (bool): The bool value.
+    """
+
+    string_value: Optional[str] = None
+    int_value: Optional[int] = None
+    float_value: Optional[float] = None
+    bool_value: Optional[bool] = None
+
+
+@dataclasses.dataclass
+class RagMetadata:
+    """Metadata for RagFile provided by users.
+
+    Attributes:
+        name (str): Identifier. Resource name of the RagMetadata.
+        user_specified_metadata (UserSpecifiedMetadata): User provided metadata.
+    """
+
+    name: Optional[str] = None
+    user_specified_metadata: Optional["UserSpecifiedMetadata"] = None
+
+
+@dataclasses.dataclass
+class UserSpecifiedMetadata:
+    """Metadata provided by users.
+
+    Attributes:
+        values (Dict[str, MetadataValue]): Required. The values of the metadata.
+    """
+
+    values: dict[str, MetadataValue]

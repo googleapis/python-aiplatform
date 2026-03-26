@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 """RAG data management SDK."""
-
+#
 from typing import Optional, Sequence, Union
 from google import auth
 from google.api_core import operation_async
@@ -24,7 +24,13 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform_v1beta1 import (
+    BatchCreateRagDataSchemasRequest,
+    BatchCreateRagMetadataRequest,
+    BatchDeleteRagDataSchemasRequest,
+    BatchDeleteRagMetadataRequest,
     CreateRagCorpusRequest,
+    CreateRagDataSchemaRequest,
+    CreateRagMetadataRequest,
     DeleteRagCorpusRequest,
     DeleteRagFileRequest,
     GetRagCorpusRequest,
@@ -32,14 +38,19 @@ from google.cloud.aiplatform_v1beta1 import (
     GetRagFileRequest,
     ImportRagFilesResponse,
     ListRagCorporaRequest,
+    ListRagDataSchemasRequest,
     ListRagFilesRequest,
+    ListRagMetadataRequest,
     RagCorpus as GapicRagCorpus,
     UpdateRagCorpusRequest,
     UpdateRagEngineConfigRequest,
+    UpdateRagMetadataRequest,
 )
 from google.cloud.aiplatform_v1beta1.services.vertex_rag_data_service.pagers import (
     ListRagCorporaPager,
+    ListRagDataSchemasPager,
     ListRagFilesPager,
+    ListRagMetadataPager,
 )
 from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
 from vertexai.preview.rag.utils import (
@@ -53,10 +64,12 @@ from vertexai.preview.rag.utils.resources import (
     Pinecone,
     RagCorpus,
     RagCorpusTypeConfig,
+    RagDataSchema,
     RagEngineConfig,
     RagFile,
     RagManagedDb,
     RagManagedVertexVectorSearch,
+    RagMetadata,
     RagVectorDbConfig,
     SharePointSources,
     SlackChannelsSource,
@@ -383,7 +396,6 @@ def delete_corpus(name: str) -> None:
     client = _gapic_utils.create_rag_data_service_client()
     try:
         client.delete_rag_corpus(request=request)
-        print("Successfully deleted the RagCorpus.")
     except Exception as e:
         raise RuntimeError("Failed in RagCorpus deletion due to: ", e) from e
     return None
@@ -1002,10 +1014,248 @@ def delete_file(name: str, corpus_name: Optional[str] = None) -> None:
     client = _gapic_utils.create_rag_data_service_client()
     try:
         client.delete_rag_file(request=request)
-        print("Successfully deleted the RagFile.")
     except Exception as e:
         raise RuntimeError("Failed in RagFile deletion due to: ", e) from e
     return None
+
+
+def batch_create_data_schemas(
+    corpus_name: str,
+    requests: Sequence[RagDataSchema],
+    timeout: int = 600,
+) -> Sequence[RagDataSchema]:
+    """Batch creates RagDataSchema resources.
+
+    Args:
+        corpus_name: The name of the RagCorpus resource to create the
+          RagDataSchemas in. Format:
+          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`` or
+          ``{rag_corpus}``.
+        requests: The RagDataSchemas to create.
+        timeout: Default is 600 seconds.
+
+    Returns:
+        Sequence of RagDataSchema.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    gapic_requests = []
+    for request in requests:
+        gapic_requests.append(
+            CreateRagDataSchemaRequest(
+                parent=corpus_name,
+                rag_data_schema=_gapic_utils.convert_rag_data_schema_to_gapic(request),
+            )
+        )
+    request = BatchCreateRagDataSchemasRequest(
+        parent=corpus_name,
+        requests=gapic_requests,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.batch_create_rag_data_schemas(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagDataSchema batch creation due to: ", e) from e
+    result = response.result(timeout=timeout)
+    if result.rag_data_schemas:
+        return [
+            _gapic_utils.convert_gapic_to_rag_data_schema(schema)
+            for schema in result.rag_data_schemas
+        ]
+    return []
+
+
+def batch_delete_data_schemas(
+    corpus_name: str,
+    names: Sequence[str],
+    timeout: int = 600,
+) -> None:
+    """Batch deletes RagDataSchema resources.
+
+    Args:
+        corpus_name: The name of the RagCorpus resource from which to delete the
+          RagDataSchemas. Format:
+          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`` or
+          ``{rag_corpus}``.
+        names: The RagDataSchema resource names to delete.
+        timeout: Default is 600 seconds.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    full_names = [
+        _gapic_utils.get_data_schema_name(name, corpus_name) for name in names
+    ]
+    request = BatchDeleteRagDataSchemasRequest(
+        parent=corpus_name,
+        names=full_names,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.batch_delete_rag_data_schemas(request=request)
+        response.result(timeout=timeout)
+    except Exception as e:
+        raise RuntimeError("Failed in RagDataSchema batch deletion due to: ", e) from e
+    return None
+
+
+def list_data_schemas(
+    corpus_name: str,
+    page_size: Optional[int] = None,
+    page_token: Optional[str] = None,
+) -> ListRagDataSchemasPager:
+    """Lists RagDataSchemas in an existing RagCorpus.
+
+    Args:
+        corpus_name: An existing RagCorpus name. Format:
+          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`` or
+          ``{rag_corpus}``.
+        page_size: The standard list page size.
+        page_token: The standard list page token.
+
+    Returns:
+        ListRagDataSchemasPager.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    request = ListRagDataSchemasRequest(
+        parent=corpus_name,
+        page_size=page_size,
+        page_token=page_token,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        pager = client.list_rag_data_schemas(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in listing the RagDataSchemas due to: ", e) from e
+    return pager
+
+
+def batch_create_metadata(
+    corpus_name: str,
+    file_name: str,
+    requests: Sequence[RagMetadata],
+    timeout: int = 600,
+) -> Sequence[RagMetadata]:
+    """Batch creates RagMetadata resources.
+
+    Args:
+        corpus_name: The name of the RagCorpus resource.
+        file_name: The name of the RagFile resource.
+        requests: The RagMetadata to create.
+        timeout: Default is 600 seconds.
+
+    Returns:
+        Sequence of RagMetadata.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    file_name = _gapic_utils.get_file_name(file_name, corpus_name)
+    gapic_requests = []
+    for request in requests:
+        gapic_requests.append(
+            CreateRagMetadataRequest(
+                parent=file_name,
+                rag_metadata=_gapic_utils.convert_rag_metadata_to_gapic(request),
+            )
+        )
+    request = BatchCreateRagMetadataRequest(
+        parent=file_name,
+        requests=gapic_requests,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.batch_create_rag_metadata(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagMetadata batch creation due to: ", e) from e
+    result = response.result(timeout=timeout)
+    if result.rag_metadata:
+        return [
+            _gapic_utils.convert_gapic_to_rag_metadata(metadata)
+            for metadata in result.rag_metadata
+        ]
+    return []
+
+
+def batch_delete_metadata(
+    corpus_name: str,
+    file_name: str,
+    names: Sequence[str],
+    timeout: int = 600,
+) -> None:
+    """Batch deletes RagMetadata resources.
+
+    Args:
+        corpus_name: The name of the RagCorpus resource.
+        file_name: The name of the RagFile resource.
+        names: The RagMetadata resource names to delete.
+        timeout: Default is 600 seconds.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    file_name = _gapic_utils.get_file_name(file_name, corpus_name)
+    full_names = [
+        _gapic_utils.get_metadata_name(name, corpus_name, file_name) for name in names
+    ]
+    request = BatchDeleteRagMetadataRequest(
+        parent=file_name,
+        names=full_names,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.batch_delete_rag_metadata(request=request)
+        response.result(timeout=timeout)
+    except Exception as e:
+        raise RuntimeError("Failed in RagMetadata batch deletion due to: ", e) from e
+    return None
+
+
+def list_metadata(
+    corpus_name: str,
+    file_name: str,
+    page_size: Optional[int] = None,
+    page_token: Optional[str] = None,
+) -> ListRagMetadataPager:
+    """Lists RagMetadata in an existing RagFile.
+
+    Args:
+        corpus_name: An existing RagCorpus name.
+        file_name: An existing RagFile name.
+        page_size: The standard list page size.
+        page_token: The standard list page token.
+
+    Returns:
+        ListRagMetadataPager.
+    """
+    corpus_name = _gapic_utils.get_corpus_name(corpus_name)
+    file_name = _gapic_utils.get_file_name(file_name, corpus_name)
+    request = ListRagMetadataRequest(
+        parent=file_name,
+        page_size=page_size,
+        page_token=page_token,
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        pager = client.list_rag_metadata(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in listing the RagMetadata due to: ", e) from e
+    return pager
+
+
+def update_metadata(
+    rag_metadata: RagMetadata,
+) -> RagMetadata:
+    """Updates a RagMetadata resource.
+
+    Args:
+        rag_metadata: The RagMetadata which replaces the resource on the server.
+
+    Returns:
+        RagMetadata.
+    """
+    request = UpdateRagMetadataRequest(
+        rag_metadata=_gapic_utils.convert_rag_metadata_to_gapic(rag_metadata),
+    )
+    client = _gapic_utils.create_rag_data_service_client()
+    try:
+        response = client.update_rag_metadata(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in RagMetadata update due to: ", e) from e
+    return _gapic_utils.convert_gapic_to_rag_metadata(response)
 
 
 def update_rag_engine_config(

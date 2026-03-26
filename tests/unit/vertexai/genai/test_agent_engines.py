@@ -1303,6 +1303,47 @@ class TestAgentEngineHelpers:
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
 
+    def test_create_agent_engine_config_with_container_spec(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            container_spec=container_spec,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["container_spec"] == container_spec
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+
+    def test_create_agent_engine_config_with_container_spec_and_others_raises(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        with pytest.raises(ValueError) as excinfo:
+            self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                container_spec=container_spec,
+                agent=self.test_agent,
+            )
+        assert "please do not specify `agent`" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                container_spec=container_spec,
+                source_packages=["."],
+            )
+        assert "please do not specify `source_packages`" in str(excinfo.value)
+
     @mock.patch.object(
         _agent_engines_utils,
         "_create_base64_encoded_tarball",
@@ -2074,6 +2115,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2177,6 +2219,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2279,6 +2322,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2450,6 +2494,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2547,6 +2592,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2866,6 +2912,151 @@ class TestAgentEngine:
                 None,
             )
 
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine(self, mock_uuid, get_mock, mock_storage_client):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            # Mock the GCS bucket and blob so we don't actually try to use GCS
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = False
+            mock_blob = mock.Mock()
+            mock_blob.exists.return_value = False
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            # mock uuid
+            mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+
+            # Mock _get to return a dummy resource
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            result = self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "gcs_bucket": "gs://my-input-bucket/",
+                },
+            )
+
+            # Verify bucket creation
+            assert mock_bucket.create.call_count == 1
+            # Verify file upload
+            mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/input_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
+                output_gcs_uri="gs://my-input-bucket/output_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
+            )
+
+            request_mock.assert_called_with(
+                "post",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:asyncQuery",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "inputGcsUri": "gs://my-input-bucket/input_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
+                    "outputGcsUri": "gs://my-input-bucket/output_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
+                },
+                None,
+            )
+
+    def test_run_query_job_agent_engine_missing_query(self):
+        with pytest.raises(
+            ValueError, match="`query` is required in the config object."
+        ):
+            self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={"gcs_bucket": "gs://my-input-bucket/"},
+            )
+
+    def test_run_query_job_agent_engine_missing_bucket(self):
+        with pytest.raises(
+            ValueError, match="`gcs_bucket` is required in the config object."
+        ):
+            self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={"query": _TEST_QUERY_PROMPT},
+            )
+
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    def test_run_query_job_agent_engine_missing_cloud_run_job(self, get_mock):
+        get_mock.return_value = _genai_types.ReasoningEngine(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            spec=_genai_types.ReasoningEngineSpec(
+                deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(env=[])
+            ),
+        )
+        with pytest.raises(
+            ValueError,
+            match="Your ReasoningEngine does not support long running queries, please update your ReasoningEngine and try again.",
+        ):
+            self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "gcs_bucket": "gs://my-input-bucket/",
+                },
+            )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine_bucket_creation_forbidden(
+        self, mock_uuid, get_mock, mock_storage_client
+    ):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            from google.api_core import exceptions as api_core_exceptions
+
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.side_effect = api_core_exceptions.Forbidden(
+                "403 GET Bucket"
+            )
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            with pytest.raises(
+                ValueError, match="Permission denied to check existence of bucket"
+            ):
+                self.client.agent_engines.run_query_job(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "gcs_bucket": "gs://my-input-bucket/",
+                    },
+                )
+
     def test_query_agent_engine_async(self):
         agent = self.client.agent_engines._register_api_methods(
             agent_engine=_genai_types.AgentEngine(
@@ -2897,6 +3088,143 @@ class TestAgentEngine:
                 },
                 None,
             )
+
+    def test_check_query_job_agent_engine(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+            with mock.patch("google.cloud.storage.Client") as mock_storage_client:
+                mock_bucket = mock.Mock()
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = True
+                mock_blob.download_as_string.return_value = b'{"success": true}'
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                result = self.client.agent_engines.check_query_job(
+                    name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    config={"retrieve_result": True},
+                )
+
+                assert result == _genai_types.CheckQueryJobResult(
+                    operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    status="SUCCESS",
+                    output_gcs_uri="gs://my-output-bucket/output.json",
+                    result='{"success": true}',
+                )
+                request_mock.assert_called_once_with(
+                    "get",
+                    "projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    {},
+                )
+
+    def test_check_query_job_agent_engine_running(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": false, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+
+            result = self.client.agent_engines.check_query_job(
+                name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                config={"retrieve_result": True},
+            )
+
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="RUNNING",
+                output_gcs_uri="gs://my-output-bucket/output.json",
+                result=None,
+            )
+
+    def test_check_query_job_agent_engine_failed(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body='{"done": true, "error": {"message": "Job failed with errors."}}',
+            )
+
+            result = self.client.agent_engines.check_query_job(
+                name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                config={"retrieve_result": True},
+            )
+
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="FAILED",
+                output_gcs_uri=None,
+                result="{'message': 'Job failed with errors.'}",
+            )
+
+    def test_check_query_job_agent_engine_no_retrieve(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+
+            result = self.client.agent_engines.check_query_job(
+                name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                config={"retrieve_result": False},
+            )
+
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="SUCCESS",
+                output_gcs_uri="gs://my-output-bucket/output.json",
+                result=None,
+            )
+
+    def test_check_query_job_agent_engine_blob_not_exists(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+
+            with mock.patch("google.cloud.storage.Client") as mock_storage_client:
+                mock_bucket = mock.Mock()
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = False
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                with pytest.raises(
+                    ValueError,
+                    match="Failed to retrieve blob results for gs://my-output-bucket/output.json",
+                ):
+                    self.client.agent_engines.check_query_job(
+                        name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                        config={"retrieve_result": True},
+                    )
 
     def test_query_agent_engine_stream(self):
         with mock.patch.object(

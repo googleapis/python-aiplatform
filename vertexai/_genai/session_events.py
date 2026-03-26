@@ -57,6 +57,9 @@ def _AppendAgentEngineSessionEventConfig_to_vertex(
     if getv(from_object, ["event_metadata"]) is not None:
         setv(parent_object, ["eventMetadata"], getv(from_object, ["event_metadata"]))
 
+    if getv(from_object, ["raw_event"]) is not None:
+        setv(parent_object, ["rawEvent"], getv(from_object, ["raw_event"]))
+
     return to_object
 
 

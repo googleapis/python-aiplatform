@@ -32,6 +32,8 @@ from vertexai.rag.rag_data import (
     upload_file,
 )
 from vertexai.rag.rag_retrieval import (
+    ask_contexts,
+    async_retrieve_contexts,
     retrieval_query,
 )
 from vertexai.rag.rag_store import (
@@ -107,6 +109,7 @@ __all__ = (
     "VertexRagStore",
     "VertexPredictionEndpoint",
     "VertexVectorSearch",
+    "ask_contexts",
     "create_corpus",
     "delete_corpus",
     "delete_file",
@@ -118,6 +121,7 @@ __all__ = (
     "list_corpora",
     "list_files",
     "retrieval_query",
+    "async_retrieve_contexts",
     "upload_file",
     "update_corpus",
     "update_rag_engine_config",

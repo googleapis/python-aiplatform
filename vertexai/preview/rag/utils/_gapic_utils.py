@@ -18,10 +18,13 @@ import re
 from typing import Any, Dict, Optional, Sequence, Union
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import (
+    VertexRagAsyncClientWithOverride,
     VertexRagClientWithOverride,
     VertexRagDataAsyncClientWithOverride,
     VertexRagDataClientWithOverride,
 )
+
+#
 from google.cloud.aiplatform_v1beta1 import (
     GoogleDriveSource,
     ImportRagFilesConfig,
@@ -42,27 +45,34 @@ from google.cloud.aiplatform_v1beta1 import (
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
+from google.cloud.aiplatform_v1beta1.types import (
+    vertex_rag_data as GapicRagDataTypes,
+)
 from vertexai.preview.rag.utils.resources import (
     ANN,
+    Basic,
     DocumentCorpus,
     EmbeddingModelConfig,
+    Enterprise,
     JiraSource,
     KNN,
     LayoutParserConfig,
     LlmParserConfig,
     MemoryCorpus,
+    MetadataValue,
     Pinecone,
     RagCorpus,
     RagCorpusTypeConfig,
+    RagDataSchema,
     RagEmbeddingModelConfig,
     RagEngineConfig,
     RagFile,
     RagManagedDb,
     RagManagedDbConfig,
     RagManagedVertexVectorSearch,
+    RagMetadata,
+    RagMetadataSchemaDetails,
     RagVectorDbConfig,
-    Basic,
-    Enterprise,
     Scaled,
     Serverless,
     SharePointSources,
@@ -70,6 +80,7 @@ from vertexai.preview.rag.utils.resources import (
     Spanner,
     TransformationConfig,
     Unprovisioned,
+    UserSpecifiedMetadata,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -99,6 +110,12 @@ def create_rag_data_service_async_client():
 def create_rag_service_client():
     return initializer.global_config.create_client(
         client_class=VertexRagClientWithOverride,
+    ).select_version("v1beta1")
+
+
+def create_rag_service_async_client():
+    return initializer.global_config.create_client(
+        client_class=VertexRagAsyncClientWithOverride,
     ).select_version("v1beta1")
 
 
@@ -413,6 +430,191 @@ def convert_gapic_to_rag_file(gapic_rag_file: GapicRagFile) -> RagFile:
     return rag_file
 
 
+def convert_gapic_to_rag_metadata(
+    gapic_rag_metadata: GapicRagDataTypes.RagMetadata,
+) -> RagMetadata:
+    """Convert Gapic RagMetadata to RagMetadata."""
+    return RagMetadata(
+        name=gapic_rag_metadata.name,
+        user_specified_metadata=convert_gapic_to_user_specified_metadata(
+            gapic_rag_metadata.user_specified_metadata
+        ),
+    )
+
+
+def convert_gapic_to_user_specified_metadata(
+    gapic_user_specified_metadata: GapicRagDataTypes.UserSpecifiedMetadata,
+) -> UserSpecifiedMetadata:
+    """Convert Gapic UserSpecifiedMetadata to UserSpecifiedMetadata."""
+    if not gapic_user_specified_metadata:
+        return None
+    return UserSpecifiedMetadata(
+        values={
+            gapic_user_specified_metadata.key: convert_gapic_to_metadata_value(
+                gapic_user_specified_metadata.value
+            )
+        }
+    )
+
+
+def convert_gapic_to_metadata_value(
+    gapic_metadata_value: GapicRagDataTypes.MetadataValue,
+) -> MetadataValue:
+    """Convert Gapic MetadataValue to MetadataValue."""
+    if not gapic_metadata_value:
+        return None
+    oneof_field = gapic_metadata_value._pb.WhichOneof("value")
+    if oneof_field == "str_value":
+        return MetadataValue(string_value=gapic_metadata_value.str_value)
+    elif oneof_field == "int_value":
+        return MetadataValue(int_value=gapic_metadata_value.int_value)
+    elif oneof_field == "float_value":
+        return MetadataValue(float_value=gapic_metadata_value.float_value)
+    elif oneof_field == "bool_value":
+        return MetadataValue(bool_value=gapic_metadata_value.bool_value)
+    return MetadataValue()
+
+
+def convert_rag_metadata_to_gapic(
+    rag_metadata: RagMetadata,
+) -> GapicRagDataTypes.RagMetadata:
+    """Convert RagMetadata to Gapic RagMetadata."""
+    return GapicRagDataTypes.RagMetadata(
+        name=rag_metadata.name,
+        user_specified_metadata=convert_user_specified_metadata_to_gapic(
+            rag_metadata.user_specified_metadata
+        ),
+    )
+
+
+def convert_user_specified_metadata_to_gapic(
+    user_specified_metadata: UserSpecifiedMetadata,
+) -> GapicRagDataTypes.UserSpecifiedMetadata:
+    """Convert UserSpecifiedMetadata to Gapic UserSpecifiedMetadata."""
+    if not user_specified_metadata:
+        return None
+    if user_specified_metadata.values:
+        if len(user_specified_metadata.values) > 1:
+            raise ValueError(
+                "Only one key-value pair is supported in UserSpecifiedMetadata."
+            )
+        key = list(user_specified_metadata.values.keys())[0]
+        return GapicRagDataTypes.UserSpecifiedMetadata(
+            key=key,
+            value=convert_metadata_value_to_gapic(user_specified_metadata.values[key]),
+        )
+    return GapicRagDataTypes.UserSpecifiedMetadata()
+
+
+def convert_metadata_value_to_gapic(
+    metadata_value: MetadataValue,
+) -> GapicRagDataTypes.MetadataValue:
+    """Convert MetadataValue to Gapic MetadataValue."""
+    if not metadata_value:
+        return None
+    if metadata_value.string_value is not None:
+        return GapicRagDataTypes.MetadataValue(str_value=metadata_value.string_value)
+    if metadata_value.int_value is not None:
+        return GapicRagDataTypes.MetadataValue(int_value=metadata_value.int_value)
+    if metadata_value.float_value is not None:
+        return GapicRagDataTypes.MetadataValue(float_value=metadata_value.float_value)
+    if metadata_value.bool_value is not None:
+        return GapicRagDataTypes.MetadataValue(bool_value=metadata_value.bool_value)
+    return GapicRagDataTypes.MetadataValue()
+
+
+def convert_gapic_to_rag_data_schema(
+    gapic_rag_data_schema: GapicRagDataTypes.RagDataSchema,
+) -> RagDataSchema:
+    """Convert Gapic RagDataSchema to RagDataSchema."""
+    return RagDataSchema(
+        name=gapic_rag_data_schema.name,
+        key=gapic_rag_data_schema.key,
+        schema_details=convert_gapic_to_rag_metadata_schema_details(
+            gapic_rag_data_schema.schema_details
+        ),
+    )
+
+
+def convert_gapic_to_rag_metadata_schema_details(
+    gapic_details: GapicRagDataTypes.RagMetadataSchemaDetails,
+) -> RagMetadataSchemaDetails:
+    """Convert Gapic RagMetadataSchemaDetails to RagMetadataSchemaDetails."""
+    if not gapic_details:
+        return None
+    list_config = None
+    if gapic_details.list_config:
+        list_config = RagMetadataSchemaDetails.ListConfig(
+            value_schema=convert_gapic_to_rag_metadata_schema_details(
+                gapic_details.list_config.value_schema
+            )
+        )
+    search_strategy = None
+    if gapic_details.search_strategy:
+        search_strategy = RagMetadataSchemaDetails.SearchStrategy(
+            search_strategy_type=GapicRagDataTypes.RagMetadataSchemaDetails.SearchStrategy.SearchStrategyType(
+                gapic_details.search_strategy.search_strategy_type
+            ).name
+        )
+    return RagMetadataSchemaDetails(
+        type=GapicRagDataTypes.RagMetadataSchemaDetails.DataType(
+            gapic_details.type_
+        ).name,
+        granularity=GapicRagDataTypes.RagMetadataSchemaDetails.Granularity(
+            gapic_details.granularity
+        ).name,
+        list_config=list_config,
+        search_strategy=search_strategy,
+    )
+
+
+def convert_rag_data_schema_to_gapic(
+    rag_data_schema: RagDataSchema,
+) -> GapicRagDataTypes.RagDataSchema:
+    """Convert RagDataSchema to Gapic RagDataSchema."""
+    return GapicRagDataTypes.RagDataSchema(
+        name=rag_data_schema.name,
+        key=rag_data_schema.key,
+        schema_details=convert_rag_metadata_schema_details_to_gapic(
+            rag_data_schema.schema_details
+        ),
+    )
+
+
+def convert_rag_metadata_schema_details_to_gapic(
+    details: RagMetadataSchemaDetails,
+) -> GapicRagDataTypes.RagMetadataSchemaDetails:
+    """Convert RagMetadataSchemaDetails to Gapic RagMetadataSchemaDetails."""
+    if not details:
+        return None
+    list_config = None
+    if details.list_config:
+        list_config = GapicRagDataTypes.RagMetadataSchemaDetails.ListConfig(
+            value_schema=convert_rag_metadata_schema_details_to_gapic(
+                details.list_config.value_schema
+            )
+        )
+    search_strategy = None
+    if details.search_strategy:
+        search_strategy = GapicRagDataTypes.RagMetadataSchemaDetails.SearchStrategy(
+            search_strategy_type=details.search_strategy.search_strategy_type
+        )
+    return GapicRagDataTypes.RagMetadataSchemaDetails(
+        type_=(
+            details.type
+            if details.type
+            else GapicRagDataTypes.RagMetadataSchemaDetails.DataType.DATA_TYPE_UNSPECIFIED
+        ),
+        granularity=(
+            details.granularity
+            if details.granularity
+            else GapicRagDataTypes.RagMetadataSchemaDetails.Granularity.GRANULARITY_UNSPECIFIED
+        ),
+        list_config=list_config,
+        search_strategy=search_strategy,
+    )
+
+
 def convert_json_to_rag_file(upload_rag_file_response: Dict[str, Any]) -> RagFile:
     """Converts a JSON response to a RagFile."""
     rag_file = RagFile(
@@ -721,7 +923,8 @@ def get_file_name(
         if not corpus_name:
             raise ValueError(
                 "corpus_name must be provided if name is a `{rag_file}`, not a "
-                "full resource name (`projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}`). "
+                "full resource name"
+                " (`projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}`). "
             )
         return client.rag_file_path(
             project=initializer.global_config.project,
@@ -731,8 +934,74 @@ def get_file_name(
         )
     else:
         raise ValueError(
-            "name must be of the format `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}` or `{rag_file}`"
+            "name must be of the format"
+            " `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}`"
+            " or `{rag_file}`"
         )
+
+
+def get_data_schema_name(
+    name: str,
+    corpus_name: str,
+) -> str:
+    """Get the full resource name for a RagDataSchema."""
+    if name:
+        if len(name.split("/")) == 8:
+            return name
+        elif re.match("^{}$".format(_VALID_RESOURCE_NAME_REGEX), name):
+            if not corpus_name:
+                raise ValueError(
+                    "corpus_name must be provided if name is a `{rag_data_schema}`,"
+                    " not a "
+                    "full resource name"
+                    " (`projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}`). "
+                )
+            return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}".format(
+                project=initializer.global_config.project,
+                location=initializer.global_config.location,
+                rag_corpus=get_corpus_name(corpus_name).split("/")[-1],
+                rag_data_schema=name,
+            )
+        else:
+            raise ValueError(
+                "name must be of the format"
+                " `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}`"
+                " or `{rag_data_schema}`"
+            )
+    return name
+
+
+def get_metadata_name(
+    name: str,
+    corpus_name: str,
+    file_name: str,
+) -> str:
+    """Get the full resource name for a RagMetadata."""
+    if name:
+        if len(name.split("/")) == 10:
+            return name
+        elif re.match("^{}$".format(_VALID_RESOURCE_NAME_REGEX), name):
+            if not corpus_name or not file_name:
+                raise ValueError(
+                    "corpus_name and file_name must be provided if name is a"
+                    " `{rag_metadata}`, not a "
+                    "full resource name"
+                    " (`projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}`). "
+                )
+            return "projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}".format(
+                project=initializer.global_config.project,
+                location=initializer.global_config.location,
+                rag_corpus=get_corpus_name(corpus_name).split("/")[-1],
+                rag_file=get_file_name(file_name, corpus_name).split("/")[-1],
+                rag_metadata=name,
+            )
+        else:
+            raise ValueError(
+                "name must be of the format"
+                " `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}`"
+                " or `{rag_metadata}`"
+            )
+    return name
 
 
 def set_corpus_type_config(
@@ -869,9 +1138,7 @@ def set_vector_db(
 ) -> None:
     """Sets the vector db configuration for the rag corpus."""
     if vector_db is None:
-        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
-            rag_managed_db=GapicRagVectorDbConfig.RagManagedDb(),
-        )
+        rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig()
     elif isinstance(vector_db, RagManagedDb):
         rag_corpus.rag_vector_db_config = GapicRagVectorDbConfig(
             rag_managed_db=_convert_rag_managed_db_to_gapic(vector_db)

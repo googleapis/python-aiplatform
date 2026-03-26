@@ -831,8 +831,7 @@ class Datasets(_api_module.BaseModule):
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
-                or "project.dataset.table". If a table already exists with the
-                given table id, it will be overwritten. Note that the BigQuery
+                or "project.dataset.table". Note that the BigQuery
                 dataset must already exist and be in the same location as the
                 multimodal dataset. If not provided, a generated table id will
                 be created in the `vertex_datasets` dataset (e.g.
@@ -876,13 +875,12 @@ class Datasets(_api_module.BaseModule):
         )
         with bigframes.connect(session_options) as session:
             temp_bigframes_df = session.read_pandas(dataframe)
-            temp_table_id = temp_bigframes_df.to_gbq()
-        client = bigquery.Client(project=project, credentials=credentials)
-        copy_job = client.copy_table(
-            sources=temp_table_id,
-            destination=target_table_id,
-        )
-        copy_job.result()
+            client = bigquery.Client(project=project, credentials=credentials)
+            _datasets_utils.save_dataframe_to_bigquery(
+                temp_bigframes_df,
+                target_table_id,
+                client,
+            )
 
         return self.create_from_bigquery(
             multimodal_dataset=multimodal_dataset.model_copy(
@@ -898,6 +896,110 @@ class Datasets(_api_module.BaseModule):
             ),
             config=config,
         )
+
+    def create_from_bigframes(
+        self,
+        *,
+        dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+        target_table_id: Optional[str] = None,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Creates a multimodal dataset from a bigframes dataframe.
+
+        Args:
+            dataframe (bigframes.pandas.DataFrame):
+                The BigFrames dataframe that will be used for the created
+                dataset.
+            multimodal_dataset:
+                Required. A representation of a multimodal dataset.
+            target_table_id (str):
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". Note that the BigQuery
+                dataset must already exist and be in the same location as the
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
+            config:
+                Optional. A configuration for creating the multimodal dataset. If not
+                provided, the default configuration will be used.
+
+        Returns:
+            dataset (MultimodalDataset):
+                The created multimodal dataset.
+        """
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        elif not multimodal_dataset:
+            multimodal_dataset = types.MultimodalDataset()
+
+        bigquery = _datasets_utils._try_import_bigquery()
+        project = self._api_client.project
+        location = self._api_client.location
+        credentials = self._api_client._credentials
+
+        if target_table_id:
+            target_table_id = _datasets_utils._normalize_and_validate_table_id(
+                table_id=target_table_id,
+                project=project,
+                location=location,
+                credentials=credentials,
+            )
+        else:
+            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
+
+        client = bigquery.Client(project=project, credentials=credentials)
+        _datasets_utils.save_dataframe_to_bigquery(
+            dataframe,
+            target_table_id,
+            client,
+        )
+
+        return self.create_from_bigquery(
+            multimodal_dataset=multimodal_dataset.model_copy(
+                update={
+                    "metadata": types.SchemaTablesDatasetMetadata(
+                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
+                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
+                                uri=f"bq://{target_table_id}"
+                            )
+                        )
+                    )
+                }
+            ),
+            config=config,
+        )
+
+    def to_bigframes(
+        self,
+        *,
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts a multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Args:
+          multimodal_dataset:
+            Required. A representation of a multimodal dataset.
+
+        Returns:
+          A BigFrames dataframe.
+        """
+        bigframes = _datasets_utils._try_import_bigframes()
+
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        elif not multimodal_dataset:
+            multimodal_dataset = types.MultimodalDataset()
+
+        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        return bigframes.pandas.read_gbq_table(uri.removeprefix("bq://"))
 
     def update_multimodal_dataset(
         self,
@@ -999,7 +1101,9 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> str:
         """Assemble the dataset into a BigQuery table.
@@ -1010,9 +1114,9 @@ class Datasets(_api_module.BaseModule):
           name:
             Required. The name of the dataset to assemble. The name should be in
             the format of "projects/{project}/locations/{location}/datasets/{dataset}".
-          template_config:
-            Optional. The template config to use to assemble the dataset. If
-            not provided, the template config attached to the dataset will be
+          gemini_request_read_config:
+            Optional. The read config to use to assemble the dataset. If
+            not provided, the read config attached to the dataset will be
             used.
           config:
             Optional. A configuration for assembling the dataset. If not
@@ -1028,9 +1132,7 @@ class Datasets(_api_module.BaseModule):
 
         operation = self._assemble_multimodal_dataset(
             name=name,
-            gemini_request_read_config={
-                "template_config": template_config,
-            },
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1044,7 +1146,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningResourceUsageAssessmentResult:
         """Assess the tuning resources required for a given model.
@@ -1056,11 +1160,11 @@ class Datasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
-          template_config:
-            Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+            Optional. The read config used to assemble the dataset
             before assessing the tuning resources. If not provided, the
-            template config attached to the dataset will be used. Required
-            if no template config is attached to the dataset.
+            read config attached to the dataset will be used. Required
+            if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning resources. If not
             provided, the default configuration will be used.
@@ -1079,9 +1183,7 @@ class Datasets(_api_module.BaseModule):
             tuning_resource_usage_assessment_config=types.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1099,7 +1201,9 @@ class Datasets(_api_module.BaseModule):
         dataset_name: str,
         model_name: str,
         dataset_usage: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of tuning a given
@@ -1115,11 +1219,11 @@ class Datasets(_api_module.BaseModule):
           dataset_usage:
               Required. The dataset usage to assess the tuning validity for.
               Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the tuning validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning validity. If not
             provided, the default configuration will be used.
@@ -1141,9 +1245,7 @@ class Datasets(_api_module.BaseModule):
                 model_name=model_name,
                 dataset_usage=dataset_usage,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1160,7 +1262,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionResourceUsageAssessmentResult:
         """Assess the batch prediction resources required for a given model.
@@ -1172,16 +1276,11 @@ class Datasets(_api_module.BaseModule):
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction resources. If not provided,
-              the template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
-          template_config:
-              Optional. The template config used to assemble the dataset
-              before assessing the batch prediction resources. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              the read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
               Optional. A configuration for assessing the batch prediction
               resources. If not provided, the default configuration will be
@@ -1205,9 +1304,7 @@ class Datasets(_api_module.BaseModule):
             batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1224,7 +1321,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of batch prediction
@@ -1238,11 +1337,11 @@ class Datasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the batch prediction validity.
             If not provided, the default configuration will be used.
@@ -1264,9 +1363,7 @@ class Datasets(_api_module.BaseModule):
             batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1880,8 +1977,7 @@ class AsyncDatasets(_api_module.BaseModule):
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
-                or "project.dataset.table". If a table already exists with the
-                given table id, it will be overwritten. Note that the BigQuery
+                or "project.dataset.table". Note that the BigQuery
                 dataset must already exist and be in the same location as the
                 multimodal dataset. If not provided, a generated table id will
                 be created in the `vertex_datasets` dataset (e.g.
@@ -1925,13 +2021,12 @@ class AsyncDatasets(_api_module.BaseModule):
         )
         with bigframes.connect(session_options) as session:
             temp_bigframes_df = session.read_pandas(dataframe)
-            temp_table_id = temp_bigframes_df.to_gbq()
-        client = bigquery.Client(project=project, credentials=credentials)
-        copy_job = client.copy_table(
-            sources=temp_table_id,
-            destination=target_table_id,
-        )
-        copy_job.result()
+            client = bigquery.Client(project=project, credentials=credentials)
+            await _datasets_utils.save_dataframe_to_bigquery_async(
+                temp_bigframes_df,
+                target_table_id,
+                client,
+            )
 
         return await self.create_from_bigquery(
             multimodal_dataset=multimodal_dataset.model_copy(
@@ -1946,6 +2041,114 @@ class AsyncDatasets(_api_module.BaseModule):
                 }
             ),
             config=config,
+        )
+
+    async def create_from_bigframes(
+        self,
+        *,
+        dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+        target_table_id: Optional[str] = None,
+        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+    ) -> types.MultimodalDataset:
+        """Creates a multimodal dataset from a bigframes dataframe.
+
+        Args:
+            dataframe (bigframes.pandas.DataFrame):
+                The BigFrames dataframe that will be used for the created
+                dataset.
+            multimodal_dataset:
+                Required. A representation of a multimodal dataset.
+            target_table_id (str):
+                Optional. The BigQuery table id where the dataframe will be
+                uploaded. The table id can be in the format of "dataset.table"
+                or "project.dataset.table". Note that the BigQuery
+                dataset must already exist and be in the same location as the
+                multimodal dataset. If not provided, a generated table id will
+                be created in the `vertex_datasets` dataset (e.g.
+                `project.vertex_datasets_us_central1.multimodal_dataset_4cbf7ffd`).
+            config:
+                Optional. A configuration for creating the multimodal dataset. If not
+                provided, the default configuration will be used.
+
+        Returns:
+            dataset (MultimodalDataset):
+                The created multimodal dataset.
+        """
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        elif not multimodal_dataset:
+            multimodal_dataset = types.MultimodalDataset()
+
+        bigquery = _datasets_utils._try_import_bigquery()
+        project = self._api_client.project
+        location = self._api_client.location
+        credentials = self._api_client._credentials
+
+        if target_table_id:
+            target_table_id = (
+                await _datasets_utils._normalize_and_validate_table_id_async(
+                    table_id=target_table_id,
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                )
+            )
+        else:
+            dataset_id = await _datasets_utils._create_default_bigquery_dataset_if_not_exists_async(
+                project=project, location=location, credentials=credentials
+            )
+            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
+
+        client = bigquery.Client(project=project, credentials=credentials)
+        await _datasets_utils.save_dataframe_to_bigquery_async(
+            dataframe,
+            target_table_id,
+            client,
+        )
+
+        return await self.create_from_bigquery(
+            multimodal_dataset=multimodal_dataset.model_copy(
+                update={
+                    "metadata": types.SchemaTablesDatasetMetadata(
+                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
+                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
+                                uri=f"bq://{target_table_id}"
+                            )
+                        )
+                    )
+                }
+            ),
+            config=config,
+        )
+
+    async def to_bigframes(
+        self,
+        *,
+        multimodal_dataset: types.MultimodalDatasetOrDict,
+    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts a multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Args:
+          multimodal_dataset:
+            Required. A representation of a multimodal dataset.
+
+        Returns:
+          A BigFrames dataframe.
+        """
+        bigframes = _datasets_utils._try_import_bigframes()
+
+        if isinstance(multimodal_dataset, dict):
+            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        elif not multimodal_dataset:
+            multimodal_dataset = types.MultimodalDataset()
+
+        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        return await asyncio.to_thread(
+            bigframes.pandas.read_gbq_table, uri.removeprefix("bq://")
         )
 
     async def update_multimodal_dataset(
@@ -2044,7 +2247,9 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> str:
         """Assemble the dataset into a BigQuery table.
@@ -2055,9 +2260,9 @@ class AsyncDatasets(_api_module.BaseModule):
           name:
             Required. The name of the dataset to assemble. The name should be in
             the format of "projects/{project}/locations/{location}/datasets/{dataset}".
-          template_config:
-            Optional. The template config to use to assemble the dataset. If
-            not provided, the template config attached to the dataset will be
+          gemini_request_read_config:
+            Optional. The read config to use to assemble the dataset. If
+            not provided, the read config attached to the dataset will be
             used.
           config:
             Optional. A configuration for assembling the dataset. If not
@@ -2073,9 +2278,7 @@ class AsyncDatasets(_api_module.BaseModule):
 
         operation = await self._assemble_multimodal_dataset(
             name=name,
-            gemini_request_read_config={
-                "template_config": template_config,
-            },
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2089,7 +2292,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningResourceUsageAssessmentResult:
         """Assess the tuning resources required for a given model.
@@ -2101,11 +2306,11 @@ class AsyncDatasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
-          template_config:
-            Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+            Optional. The read config used to assemble the dataset
             before assessing the tuning resources. If not provided, the
-            template config attached to the dataset will be used. Required
-            if no template config is attached to the dataset.
+            read config attached to the dataset will be used. Required
+            if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning resources. If not
             provided, the default configuration will be used.
@@ -2124,9 +2329,7 @@ class AsyncDatasets(_api_module.BaseModule):
             tuning_resource_usage_assessment_config=types.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2144,7 +2347,9 @@ class AsyncDatasets(_api_module.BaseModule):
         dataset_name: str,
         model_name: str,
         dataset_usage: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of tuning a given
@@ -2160,11 +2365,11 @@ class AsyncDatasets(_api_module.BaseModule):
           dataset_usage:
               Required. The dataset usage to assess the tuning validity for.
               Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the tuning validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning validity. If not
             provided, the default configuration will be used.
@@ -2186,9 +2391,7 @@ class AsyncDatasets(_api_module.BaseModule):
                 model_name=model_name,
                 dataset_usage=dataset_usage,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2205,7 +2408,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionResourceUsageAssessmentResult:
         """Assess the batch prediction resources required for a given model.
@@ -2217,16 +2422,11 @@ class AsyncDatasets(_api_module.BaseModule):
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction resources. If not provided,
-              the template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
-          template_config:
-              Optional. The template config used to assemble the dataset
-              before assessing the batch prediction resources. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              the read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
               Optional. A configuration for assessing the batch prediction
               resources. If not provided, the default configuration will be
@@ -2250,9 +2450,7 @@ class AsyncDatasets(_api_module.BaseModule):
             batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2269,7 +2467,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of batch prediction
@@ -2283,11 +2483,11 @@ class AsyncDatasets(_api_module.BaseModule):
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the batch prediction validity.
             If not provided, the default configuration will be used.
@@ -2309,9 +2509,7 @@ class AsyncDatasets(_api_module.BaseModule):
             batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(

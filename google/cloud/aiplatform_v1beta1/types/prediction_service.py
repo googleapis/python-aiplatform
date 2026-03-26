@@ -1254,29 +1254,39 @@ class EmbedContentRequest(proto.Message):
             This field is a member of `oneof`_ ``_model``.
         content (google.cloud.aiplatform_v1beta1.types.Content):
             Required. Input content to be embedded.
-            Required.
 
             This field is a member of `oneof`_ ``_content``.
         title (str):
-            Optional. An optional title for the text.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.title instead. The title for
+            the text.
 
             This field is a member of `oneof`_ ``_title``.
         task_type (google.cloud.aiplatform_v1beta1.types.EmbedContentRequest.EmbeddingTaskType):
-            Optional. The task type of the embedding.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.task_type instead. The task type of the
+            embedding.
 
             This field is a member of `oneof`_ ``_task_type``.
         output_dimensionality (int):
-            Optional. Optional reduced dimension for the
-            output embedding. If set, excessive values in
-            the output embedding are truncated from the end.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.output_dimensionality instead. Reduced
+            dimension for the output embedding. If set, excessive values
+            in the output embedding are truncated from the end.
 
             This field is a member of `oneof`_ ``_output_dimensionality``.
         auto_truncate (bool):
-            Optional. Whether to silently truncate the
-            input content if it's longer than the maximum
-            sequence length.
+            Optional. Deprecated: Please use
+            EmbedContentConfig.auto_truncate instead. Whether to
+            silently truncate the input content if it's longer than the
+            maximum sequence length.
 
             This field is a member of `oneof`_ ``_auto_truncate``.
+        embed_content_config (google.cloud.aiplatform_v1beta1.types.EmbedContentRequest.EmbedContentConfig):
+            Optional. Configuration for the EmbedContent
+            request.
+
+            This field is a member of `oneof`_ ``_embed_content_config``.
     """
 
     class EmbeddingTaskType(proto.Enum):
@@ -1322,6 +1332,82 @@ class EmbedContentRequest(proto.Message):
         FACT_VERIFICATION = 8
         CODE_RETRIEVAL_QUERY = 9
 
+    class EmbedContentConfig(proto.Message):
+        r"""Configurations for the EmbedContent API.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            title (str):
+                Optional. The title for the text.
+
+                Only applicable to text-only embedding models.
+
+                This field is a member of `oneof`_ ``_title``.
+            task_type (google.cloud.aiplatform_v1beta1.types.EmbedContentRequest.EmbeddingTaskType):
+                Optional. The task type of the embedding.
+
+                Only applicable to text-only embedding models.
+
+                This field is a member of `oneof`_ ``_task_type``.
+            auto_truncate (bool):
+                Optional. Whether to silently truncate the
+                input content if it's longer than the maximum
+                sequence length.
+
+                Only applicable to text-only embedding models.
+
+                This field is a member of `oneof`_ ``_auto_truncate``.
+            output_dimensionality (int):
+                Optional. Reduced dimension for the output
+                embedding. If set, excessive values in the
+                output embedding are truncated from the end.
+
+                This field is a member of `oneof`_ ``_output_dimensionality``.
+            document_ocr (bool):
+                Optional. Whether to enable OCR for document
+                content.
+
+                This field is a member of `oneof`_ ``_document_ocr``.
+            audio_track_extraction (bool):
+                Optional. Whether to extract audio from video
+                content.
+
+                This field is a member of `oneof`_ ``_audio_track_extraction``.
+        """
+
+        title: str = proto.Field(
+            proto.STRING,
+            number=1,
+            optional=True,
+        )
+        task_type: "EmbedContentRequest.EmbeddingTaskType" = proto.Field(
+            proto.ENUM,
+            number=2,
+            optional=True,
+            enum="EmbedContentRequest.EmbeddingTaskType",
+        )
+        auto_truncate: bool = proto.Field(
+            proto.BOOL,
+            number=3,
+            optional=True,
+        )
+        output_dimensionality: int = proto.Field(
+            proto.INT32,
+            number=4,
+            optional=True,
+        )
+        document_ocr: bool = proto.Field(
+            proto.BOOL,
+            number=5,
+            optional=True,
+        )
+        audio_track_extraction: bool = proto.Field(
+            proto.BOOL,
+            number=6,
+            optional=True,
+        )
+
     model: str = proto.Field(
         proto.STRING,
         number=1,
@@ -1354,6 +1440,12 @@ class EmbedContentRequest(proto.Message):
         number=7,
         optional=True,
     )
+    embed_content_config: EmbedContentConfig = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        optional=True,
+        message=EmbedContentConfig,
+    )
 
 
 class EmbedContentResponse(proto.Message):
@@ -1365,7 +1457,7 @@ class EmbedContentResponse(proto.Message):
             The embedding generated from the input
             content.
         usage_metadata (google.cloud.aiplatform_v1beta1.types.UsageMetadata):
-            Metadata about the response(s).
+            Usage metadata about the response(s).
         truncated (bool):
             Whether the input content was truncated
             before generating the embedding.

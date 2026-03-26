@@ -18,23 +18,49 @@
 
 import abc
 import datetime
-import pathlib
 import logging
+import pathlib
 import re
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Tuple, List
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar
 import uuid
-
-from google.protobuf import timestamp_pb2
 
 from google.api_core import client_options
 from google.api_core import gapic_v1
 from google.auth import credentials as auth_credentials
 from google.cloud import storage
-
 from google.cloud.aiplatform import compat
-from google.cloud.aiplatform.constants import base as constants
 from google.cloud.aiplatform import initializer
-
+from google.cloud.aiplatform.compat.services import (
+    dataset_service_client_v1,
+    deployment_resource_pool_service_client_v1,
+    endpoint_service_client_v1,
+    feature_online_store_admin_service_client_v1,
+    feature_online_store_service_client_v1,
+    feature_registry_service_client_v1,
+    featurestore_online_serving_service_client_v1,
+    featurestore_service_client_v1,
+    gen_ai_cache_service_client_v1,
+    index_endpoint_service_client_v1,
+    index_service_client_v1,
+    job_service_client_v1,
+    metadata_service_client_v1,
+    model_garden_service_client_v1,
+    model_service_client_v1,
+    persistent_resource_service_client_v1,
+    pipeline_service_client_v1,
+    prediction_service_async_client_v1,
+    prediction_service_client_v1,
+    reasoning_engine_execution_async_client_v1,
+    reasoning_engine_execution_service_client_v1,
+    reasoning_engine_service_client_v1,
+    schedule_service_client_v1,
+    tensorboard_service_client_v1,
+    vertex_rag_data_service_async_client_v1,
+    vertex_rag_data_service_client_v1,
+    vertex_rag_service_async_client_v1,
+    vertex_rag_service_client_v1,
+    vizier_service_client_v1,
+)
 from google.cloud.aiplatform.compat.services import (
     dataset_service_client_v1beta1,
     deployment_resource_pool_service_client_v1beta1,
@@ -48,62 +74,35 @@ from google.cloud.aiplatform.compat.services import (
     featurestore_online_serving_service_client_v1beta1,
     featurestore_service_client_v1beta1,
     gen_ai_cache_service_client_v1beta1,
-    index_service_client_v1beta1,
     index_endpoint_service_client_v1beta1,
+    index_service_client_v1beta1,
     job_service_client_v1beta1,
     match_service_client_v1beta1,
     metadata_service_client_v1beta1,
-    model_service_client_v1beta1,
+    model_garden_service_client_v1beta1,
     model_monitoring_service_client_v1beta1,
+    model_service_client_v1beta1,
+    persistent_resource_service_client_v1beta1,
     pipeline_service_client_v1beta1,
-    prediction_service_client_v1beta1,
     prediction_service_async_client_v1beta1,
+    prediction_service_client_v1beta1,
+    reasoning_engine_execution_service_client_v1beta1,
+    reasoning_engine_service_client_v1beta1,
     schedule_service_client_v1beta1,
     tensorboard_service_client_v1beta1,
-    vizier_service_client_v1beta1,
-    model_garden_service_client_v1beta1,
-    persistent_resource_service_client_v1beta1,
-    reasoning_engine_service_client_v1beta1,
-    reasoning_engine_execution_service_client_v1beta1,
     vertex_rag_data_service_async_client_v1beta1,
     vertex_rag_data_service_client_v1beta1,
+    vertex_rag_service_async_client_v1beta1,
     vertex_rag_service_client_v1beta1,
+    vizier_service_client_v1beta1,
 )
-from google.cloud.aiplatform.compat.services import (
-    dataset_service_client_v1,
-    deployment_resource_pool_service_client_v1,
-    endpoint_service_client_v1,
-    feature_online_store_admin_service_client_v1,
-    feature_online_store_service_client_v1,
-    feature_registry_service_client_v1,
-    featurestore_online_serving_service_client_v1,
-    featurestore_service_client_v1,
-    gen_ai_cache_service_client_v1,
-    index_service_client_v1,
-    index_endpoint_service_client_v1,
-    job_service_client_v1,
-    metadata_service_client_v1,
-    model_garden_service_client_v1,
-    model_service_client_v1,
-    pipeline_service_client_v1,
-    prediction_service_client_v1,
-    prediction_service_async_client_v1,
-    reasoning_engine_service_client_v1,
-    reasoning_engine_execution_service_client_v1,
-    reasoning_engine_execution_async_client_v1,
-    schedule_service_client_v1,
-    tensorboard_service_client_v1,
-    vizier_service_client_v1,
-    persistent_resource_service_client_v1,
-    vertex_rag_data_service_async_client_v1,
-    vertex_rag_data_service_client_v1,
-    vertex_rag_service_client_v1,
-)
-
 from google.cloud.aiplatform.compat.types import (
     accelerator_type as gca_accelerator_type,
     reservation_affinity_v1 as gca_reservation_affinity_v1,
 )
+from google.cloud.aiplatform.constants import base as constants
+
+from google.protobuf import timestamp_pb2
 
 VertexAiServiceClient = TypeVar(
     "VertexAiServiceClient",
@@ -1053,7 +1052,25 @@ class VertexRagClientWithOverride(ClientWithOverride):
     _default_version = compat.DEFAULT_VERSION
     _version_map = (
         (compat.V1, vertex_rag_service_client_v1.VertexRagServiceClient),
-        (compat.V1BETA1, vertex_rag_service_client_v1beta1.VertexRagServiceClient),
+        (
+            compat.V1BETA1,
+            vertex_rag_service_client_v1beta1.VertexRagServiceClient,
+        ),
+    )
+
+
+class VertexRagAsyncClientWithOverride(ClientWithOverride):
+    _is_temporary = True
+    _default_version = compat.DEFAULT_VERSION
+    _version_map = (
+        (
+            compat.V1,
+            vertex_rag_service_async_client_v1.VertexRagServiceAsyncClient,
+        ),
+        (
+            compat.V1BETA1,
+            vertex_rag_service_async_client_v1beta1.VertexRagServiceAsyncClient,
+        ),
     )
 
 

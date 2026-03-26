@@ -14,7 +14,9 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import sys
 from unittest import mock
+
 from google.cloud import bigquery
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import _datasets_utils
@@ -22,15 +24,11 @@ from vertexai._genai import types
 import pandas as pd
 import pytest
 
+
 METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/multimodal_1.0.0.yaml"
 )
 BIGQUERY_TABLE_NAME = "vertex-sdk-dev.multimodal_dataset.test-table"
-
-
-@pytest.fixture
-def is_replay_mode(request):
-    return request.config.getoption("--mode") in ["replay", "tap"]
 
 
 @pytest.fixture
@@ -161,6 +159,52 @@ def test_create_dataset_from_pandas(client, is_replay_mode):
         pd.testing.assert_frame_equal(rows.to_dataframe(), dataframe)
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 10), reason="bigframes requires python 3.10 or higher"
+)
+@pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
+def test_create_dataset_from_bigframes(client, is_replay_mode):
+    import bigframes.pandas
+
+    dataframe = pd.DataFrame(
+        {
+            "col1": ["col1"],
+            "col2": ["col2"],
+        }
+    )
+    if is_replay_mode:
+        bf_dataframe = mock.MagicMock()
+        bf_dataframe.to_gbq.return_value = "temp_table_id"
+    else:
+        bf_dataframe = bigframes.pandas.DataFrame(dataframe)
+
+    dataset = client.datasets.create_from_bigframes(
+        dataframe=bf_dataframe,
+        target_table_id=BIGQUERY_TABLE_NAME,
+        multimodal_dataset={
+            "display_name": "test-from-bigframes",
+        },
+    )
+
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigframes"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+    if not is_replay_mode:
+        bigquery_client = bigquery.Client(
+            project=client._api_client.project,
+            location=client._api_client.location,
+            credentials=client._api_client._credentials,
+        )
+        rows = bigquery_client.list_rows(
+            dataset.metadata.input_config.bigquery_source.uri[5:]
+        )
+        pd.testing.assert_frame_equal(
+            rows.to_dataframe(), dataframe, check_index_type=False
+        )
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -279,3 +323,50 @@ async def test_create_dataset_from_pandas_async(client, is_replay_mode):
             dataset.metadata.input_config.bigquery_source.uri[5:]
         )
         pd.testing.assert_frame_equal(rows.to_dataframe(), dataframe)
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 10), reason="bigframes requires python 3.10 or higher"
+)
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
+async def test_create_dataset_from_bigframes_async(client, is_replay_mode):
+    import bigframes.pandas
+
+    dataframe = pd.DataFrame(
+        {
+            "col1": ["col1"],
+            "col2": ["col2"],
+        }
+    )
+    if is_replay_mode:
+        bf_dataframe = mock.MagicMock()
+        bf_dataframe.to_gbq.return_value = "temp_table_id"
+    else:
+        bf_dataframe = bigframes.pandas.DataFrame(dataframe)
+
+    dataset = await client.aio.datasets.create_from_bigframes(
+        dataframe=bf_dataframe,
+        target_table_id=BIGQUERY_TABLE_NAME,
+        multimodal_dataset={
+            "display_name": "test-from-bigframes",
+        },
+    )
+
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigframes"
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+    if not is_replay_mode:
+        bigquery_client = bigquery.Client(
+            project=client._api_client.project,
+            location=client._api_client.location,
+            credentials=client._api_client._credentials,
+        )
+        rows = bigquery_client.list_rows(
+            dataset.metadata.input_config.bigquery_source.uri[5:]
+        )
+        pd.testing.assert_frame_equal(
+            rows.to_dataframe(), dataframe, check_index_type=False
+        )

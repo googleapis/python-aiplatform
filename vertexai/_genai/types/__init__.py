@@ -26,6 +26,7 @@ from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AppendAgentEngineTaskEventRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
+from .common import _CheckQueryJobAgentEngineRequestParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
@@ -34,6 +35,7 @@ from .common import _CreateAgentEngineTaskRequestParameters
 from .common import _CreateDatasetParameters
 from .common import _CreateDatasetVersionParameters
 from .common import _CreateEvaluationItemParameters
+from .common import _CreateEvaluationMetricParameters
 from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
 from .common import _CreateMultimodalDatasetParameters
@@ -68,6 +70,7 @@ from .common import _GetDatasetOperationParameters
 from .common import _GetDatasetParameters
 from .common import _GetDatasetVersionParameters
 from .common import _GetEvaluationItemParameters
+from .common import _GetEvaluationMetricParameters
 from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetMultimodalDatasetOperationParameters
@@ -82,6 +85,7 @@ from .common import _ListAgentEngineTaskEventsRequestParameters
 from .common import _ListAgentEngineTasksRequestParameters
 from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
+from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
@@ -90,6 +94,10 @@ from .common import _QueryAgentEngineRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
 from .common import _RollbackAgentEngineMemoryRequestParameters
+from .common import _RunQueryJobAgentEngineConfig
+from .common import _RunQueryJobAgentEngineConfigDict
+from .common import _RunQueryJobAgentEngineConfigOrDict
+from .common import _RunQueryJobAgentEngineRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
@@ -173,42 +181,35 @@ from .common import BatchPredictionValidationAssessmentResultOrDict
 from .common import BigQueryRequestSet
 from .common import BigQueryRequestSetDict
 from .common import BigQueryRequestSetOrDict
-from .common import BigQuerySource
-from .common import BigQuerySourceDict
-from .common import BigQuerySourceOrDict
 from .common import BleuInput
 from .common import BleuInputDict
 from .common import BleuInputOrDict
 from .common import BleuInstance
 from .common import BleuInstanceDict
 from .common import BleuInstanceOrDict
-from .common import BleuMetricValue
-from .common import BleuMetricValueDict
-from .common import BleuMetricValueOrDict
 from .common import BleuResults
 from .common import BleuResultsDict
 from .common import BleuResultsOrDict
-from .common import Blob
-from .common import BlobDict
-from .common import BlobOrDict
 from .common import CandidateResponse
 from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
 from .common import CandidateResult
 from .common import CandidateResultDict
+from .common import CheckQueryJobAgentEngineConfig
+from .common import CheckQueryJobAgentEngineConfigDict
+from .common import CheckQueryJobAgentEngineConfigOrDict
+from .common import CheckQueryJobResponse
+from .common import CheckQueryJobResponseDict
+from .common import CheckQueryJobResponseOrDict
+from .common import CheckQueryJobResult
+from .common import CheckQueryJobResultDict
+from .common import CheckQueryJobResultOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
-from .common import CodeExecutionResult
-from .common import CodeExecutionResultDict
-from .common import CodeExecutionResultOrDict
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
-from .common import ComputationBasedMetricSpec
-from .common import ComputationBasedMetricSpecDict
-from .common import ComputationBasedMetricSpecOrDict
-from .common import ComputationBasedMetricType
 from .common import ContainerSpec
 from .common import ContainerSpecDict
 from .common import ContainerSpecOrDict
@@ -239,6 +240,9 @@ from .common import CreateDatasetVersionConfigOrDict
 from .common import CreateEvaluationItemConfig
 from .common import CreateEvaluationItemConfigDict
 from .common import CreateEvaluationItemConfigOrDict
+from .common import CreateEvaluationMetricConfig
+from .common import CreateEvaluationMetricConfigDict
+from .common import CreateEvaluationMetricConfigOrDict
 from .common import CreateEvaluationRunConfig
 from .common import CreateEvaluationRunConfigDict
 from .common import CreateEvaluationRunConfigOrDict
@@ -263,9 +267,6 @@ from .common import CustomJobOrDict
 from .common import CustomJobSpec
 from .common import CustomJobSpecDict
 from .common import CustomJobSpecOrDict
-from .common import CustomOutput
-from .common import CustomOutputDict
-from .common import CustomOutputOrDict
 from .common import Dataset
 from .common import DatasetDict
 from .common import DatasetOperation
@@ -363,6 +364,9 @@ from .common import EvaluationItemResult
 from .common import EvaluationItemResultDict
 from .common import EvaluationItemResultOrDict
 from .common import EvaluationItemType
+from .common import EvaluationMetric
+from .common import EvaluationMetricDict
+from .common import EvaluationMetricOrDict
 from .common import EvaluationPrompt
 from .common import EvaluationPromptDict
 from .common import EvaluationPromptOrDict
@@ -414,47 +418,19 @@ from .common import ExactMatchInputOrDict
 from .common import ExactMatchInstance
 from .common import ExactMatchInstanceDict
 from .common import ExactMatchInstanceOrDict
-from .common import ExactMatchMetricValue
-from .common import ExactMatchMetricValueDict
-from .common import ExactMatchMetricValueOrDict
 from .common import ExactMatchResults
 from .common import ExactMatchResultsDict
 from .common import ExactMatchResultsOrDict
 from .common import ExactMatchSpec
 from .common import ExactMatchSpecDict
 from .common import ExactMatchSpecOrDict
-from .common import ExecutableCode
-from .common import ExecutableCodeDict
-from .common import ExecutableCodeOrDict
 from .common import ExecuteCodeAgentEngineSandboxConfig
 from .common import ExecuteCodeAgentEngineSandboxConfigDict
 from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
 from .common import ExecuteSandboxEnvironmentResponse
 from .common import ExecuteSandboxEnvironmentResponseDict
 from .common import ExecuteSandboxEnvironmentResponseOrDict
-from .common import FileData
-from .common import FileDataDict
-from .common import FileDataOrDict
 from .common import Framework
-from .common import FunctionCall
-from .common import FunctionCallDict
-from .common import FunctionCallOrDict
-from .common import FunctionResponse
-from .common import FunctionResponseBlob
-from .common import FunctionResponseBlobDict
-from .common import FunctionResponseBlobOrDict
-from .common import FunctionResponseDict
-from .common import FunctionResponseFileData
-from .common import FunctionResponseFileDataDict
-from .common import FunctionResponseFileDataOrDict
-from .common import FunctionResponseOrDict
-from .common import FunctionResponsePart
-from .common import FunctionResponsePartDict
-from .common import FunctionResponsePartOrDict
-from .common import FunctionResponseScheduling
-from .common import GcsSource
-from .common import GcsSourceDict
-from .common import GcsSourceOrDict
 from .common import GeminiExample
 from .common import GeminiExampleDict
 from .common import GeminiExampleOrDict
@@ -525,6 +501,9 @@ from .common import GetDatasetOperationConfigOrDict
 from .common import GetEvaluationItemConfig
 from .common import GetEvaluationItemConfigDict
 from .common import GetEvaluationItemConfigOrDict
+from .common import GetEvaluationMetricConfig
+from .common import GetEvaluationMetricConfigDict
+from .common import GetEvaluationMetricConfigOrDict
 from .common import GetEvaluationRunConfig
 from .common import GetEvaluationRunConfigDict
 from .common import GetEvaluationRunConfigOrDict
@@ -589,6 +568,12 @@ from .common import ListDatasetsResponseOrDict
 from .common import ListDatasetVersionsResponse
 from .common import ListDatasetVersionsResponseDict
 from .common import ListDatasetVersionsResponseOrDict
+from .common import ListEvaluationMetricsConfig
+from .common import ListEvaluationMetricsConfigDict
+from .common import ListEvaluationMetricsConfigOrDict
+from .common import ListEvaluationMetricsResponse
+from .common import ListEvaluationMetricsResponseDict
+from .common import ListEvaluationMetricsResponseOrDict
 from .common import ListMultimodalDatasetsConfig
 from .common import ListMultimodalDatasetsConfigDict
 from .common import ListMultimodalDatasetsConfigOrDict
@@ -607,9 +592,6 @@ from .common import ListReasoningEnginesResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
-from .common import LLMBasedMetricSpec
-from .common import LLMBasedMetricSpecDict
-from .common import LLMBasedMetricSpecOrDict
 from .common import LLMMetric
 from .common import LustreMount
 from .common import LustreMountDict
@@ -622,7 +604,6 @@ from .common import ManagedTopicEnum
 from .common import MapInstance
 from .common import MapInstanceDict
 from .common import MapInstanceOrDict
-from .common import MediaResolution
 from .common import Memory
 from .common import MemoryBankCustomizationConfig
 from .common import MemoryBankCustomizationConfigDict
@@ -694,12 +675,12 @@ from .common import MetricPromptBuilder
 from .common import MetricResult
 from .common import MetricResultDict
 from .common import MetricResultOrDict
+from .common import MetricSource
+from .common import MetricSourceDict
+from .common import MetricSourceOrDict
 from .common import MetricxResult
 from .common import MetricxResultDict
 from .common import MetricxResultOrDict
-from .common import ModelArmorConfig
-from .common import ModelArmorConfigDict
-from .common import ModelArmorConfigOrDict
 from .common import MultimodalDataset
 from .common import MultimodalDatasetDict
 from .common import MultimodalDatasetOperation
@@ -727,39 +708,19 @@ from .common import OptimizeResponseEndpointDict
 from .common import OptimizeResponseEndpointOrDict
 from .common import OptimizeResponseOrDict
 from .common import OptimizeTarget
-from .common import Outcome
-from .common import PairwiseChoice
 from .common import PairwiseMetricInput
 from .common import PairwiseMetricInputDict
 from .common import PairwiseMetricInputOrDict
 from .common import PairwiseMetricInstance
 from .common import PairwiseMetricInstanceDict
 from .common import PairwiseMetricInstanceOrDict
-from .common import PairwiseMetricResult
-from .common import PairwiseMetricResultDict
-from .common import PairwiseMetricResultOrDict
 from .common import ParsedResponseUnion
-from .common import Part
-from .common import PartDict
-from .common import PartialArg
-from .common import PartialArgDict
-from .common import PartialArgOrDict
-from .common import PartMediaResolution
-from .common import PartMediaResolutionDict
-from .common import PartMediaResolutionOrDict
-from .common import PartOrDict
 from .common import PointwiseMetricInput
 from .common import PointwiseMetricInputDict
 from .common import PointwiseMetricInputOrDict
 from .common import PointwiseMetricInstance
 from .common import PointwiseMetricInstanceDict
 from .common import PointwiseMetricInstanceOrDict
-from .common import PointwiseMetricResult
-from .common import PointwiseMetricResultDict
-from .common import PointwiseMetricResultOrDict
-from .common import PredefinedMetricSpec
-from .common import PredefinedMetricSpecDict
-from .common import PredefinedMetricSpecOrDict
 from .common import Prompt
 from .common import PromptData
 from .common import PromptDataDict
@@ -800,9 +761,6 @@ from .common import QueryAgentEngineConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
-from .common import RawOutput
-from .common import RawOutputDict
-from .common import RawOutputOrDict
 from .common import ReasoningEngine
 from .common import ReasoningEngineContextSpec
 from .common import ReasoningEngineContextSpecDict
@@ -831,6 +789,9 @@ from .common import ReasoningEngineContextSpecOrDict
 from .common import ReasoningEngineDict
 from .common import ReasoningEngineOrDict
 from .common import ReasoningEngineSpec
+from .common import ReasoningEngineSpecContainerSpec
+from .common import ReasoningEngineSpecContainerSpecDict
+from .common import ReasoningEngineSpecContainerSpecOrDict
 from .common import ReasoningEngineSpecDeploymentSpec
 from .common import ReasoningEngineSpecDeploymentSpecDict
 from .common import ReasoningEngineSpecDeploymentSpecOrDict
@@ -902,9 +863,6 @@ from .common import RougeInputOrDict
 from .common import RougeInstance
 from .common import RougeInstanceDict
 from .common import RougeInstanceOrDict
-from .common import RougeMetricValue
-from .common import RougeMetricValueDict
-from .common import RougeMetricValueOrDict
 from .common import RougeResults
 from .common import RougeResultsDict
 from .common import RougeResultsOrDict
@@ -925,7 +883,6 @@ from .common import RubricContent
 from .common import RubricContentDict
 from .common import RubricContentProperty
 from .common import RubricContentPropertyDict
-from .common import RubricContentType
 from .common import RubricDict
 from .common import RubricEnhancedContents
 from .common import RubricEnhancedContentsDict
@@ -933,14 +890,17 @@ from .common import RubricEnhancedContentsOrDict
 from .common import RubricGenerationConfig
 from .common import RubricGenerationConfigDict
 from .common import RubricGenerationConfigOrDict
-from .common import RubricGenerationSpec
-from .common import RubricGenerationSpecDict
-from .common import RubricGenerationSpecOrDict
 from .common import RubricGroup
 from .common import RubricGroupDict
 from .common import RubricGroupOrDict
 from .common import RubricVerdict
 from .common import RubricVerdictDict
+from .common import RunQueryJobAgentEngineConfig
+from .common import RunQueryJobAgentEngineConfigDict
+from .common import RunQueryJobAgentEngineConfigOrDict
+from .common import RunQueryJobResult
+from .common import RunQueryJobResultDict
+from .common import RunQueryJobResultOrDict
 from .common import SamplingConfig
 from .common import SamplingConfigDict
 from .common import SamplingConfigOrDict
@@ -1179,9 +1139,6 @@ from .common import UpdateMultimodalDatasetConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
-from .common import VideoMetadata
-from .common import VideoMetadataDict
-from .common import VideoMetadataOrDict
 from .common import WinRateStats
 from .common import WinRateStatsDict
 from .common import WinRateStatsOrDict
@@ -1193,45 +1150,6 @@ __all__ = [
     "GetAgentEngineTaskConfig",
     "GetAgentEngineTaskConfigDict",
     "GetAgentEngineTaskConfigOrDict",
-    "PartMediaResolution",
-    "PartMediaResolutionDict",
-    "PartMediaResolutionOrDict",
-    "CodeExecutionResult",
-    "CodeExecutionResultDict",
-    "CodeExecutionResultOrDict",
-    "ExecutableCode",
-    "ExecutableCodeDict",
-    "ExecutableCodeOrDict",
-    "FileData",
-    "FileDataDict",
-    "FileDataOrDict",
-    "PartialArg",
-    "PartialArgDict",
-    "PartialArgOrDict",
-    "FunctionCall",
-    "FunctionCallDict",
-    "FunctionCallOrDict",
-    "FunctionResponseBlob",
-    "FunctionResponseBlobDict",
-    "FunctionResponseBlobOrDict",
-    "FunctionResponseFileData",
-    "FunctionResponseFileDataDict",
-    "FunctionResponseFileDataOrDict",
-    "FunctionResponsePart",
-    "FunctionResponsePartDict",
-    "FunctionResponsePartOrDict",
-    "FunctionResponse",
-    "FunctionResponseDict",
-    "FunctionResponseOrDict",
-    "Blob",
-    "BlobDict",
-    "BlobOrDict",
-    "VideoMetadata",
-    "VideoMetadataDict",
-    "VideoMetadataOrDict",
-    "Part",
-    "PartDict",
-    "PartOrDict",
     "TaskArtifact",
     "TaskArtifactDict",
     "TaskArtifactOrDict",
@@ -1310,6 +1228,21 @@ __all__ = [
     "EvaluationItem",
     "EvaluationItemDict",
     "EvaluationItemOrDict",
+    "Metric",
+    "MetricDict",
+    "MetricOrDict",
+    "CreateEvaluationMetricConfig",
+    "CreateEvaluationMetricConfigDict",
+    "CreateEvaluationMetricConfigOrDict",
+    "CustomCodeExecutionSpec",
+    "CustomCodeExecutionSpecDict",
+    "CustomCodeExecutionSpecOrDict",
+    "UnifiedMetric",
+    "UnifiedMetricDict",
+    "UnifiedMetricOrDict",
+    "EvaluationMetric",
+    "EvaluationMetricDict",
+    "EvaluationMetricOrDict",
     "SamplingConfig",
     "SamplingConfigDict",
     "SamplingConfigOrDict",
@@ -1319,24 +1252,6 @@ __all__ = [
     "EvaluationRunDataSource",
     "EvaluationRunDataSourceDict",
     "EvaluationRunDataSourceOrDict",
-    "PredefinedMetricSpec",
-    "PredefinedMetricSpecDict",
-    "PredefinedMetricSpecOrDict",
-    "RubricGenerationSpec",
-    "RubricGenerationSpecDict",
-    "RubricGenerationSpecOrDict",
-    "LLMBasedMetricSpec",
-    "LLMBasedMetricSpecDict",
-    "LLMBasedMetricSpecOrDict",
-    "CustomCodeExecutionSpec",
-    "CustomCodeExecutionSpecDict",
-    "CustomCodeExecutionSpecOrDict",
-    "ComputationBasedMetricSpec",
-    "ComputationBasedMetricSpecDict",
-    "ComputationBasedMetricSpecOrDict",
-    "UnifiedMetric",
-    "UnifiedMetricDict",
-    "UnifiedMetricOrDict",
     "EvaluationRunMetric",
     "EvaluationRunMetricDict",
     "EvaluationRunMetricOrDict",
@@ -1385,12 +1300,6 @@ __all__ = [
     "EvalCase",
     "EvalCaseDict",
     "EvalCaseOrDict",
-    "BigQuerySource",
-    "BigQuerySourceDict",
-    "BigQuerySourceOrDict",
-    "GcsSource",
-    "GcsSourceDict",
-    "GcsSourceOrDict",
     "EvaluationDataset",
     "EvaluationDatasetDict",
     "EvaluationDatasetOrDict",
@@ -1502,51 +1411,30 @@ __all__ = [
     "RubricBasedMetricInput",
     "RubricBasedMetricInputDict",
     "RubricBasedMetricInputOrDict",
-    "Metric",
-    "MetricDict",
-    "MetricOrDict",
+    "MetricSource",
+    "MetricSourceDict",
+    "MetricSourceOrDict",
     "MetricResult",
     "MetricResultDict",
     "MetricResultOrDict",
-    "RubricBasedMetricResult",
-    "RubricBasedMetricResultDict",
-    "RubricBasedMetricResultOrDict",
-    "BleuMetricValue",
-    "BleuMetricValueDict",
-    "BleuMetricValueOrDict",
     "BleuResults",
     "BleuResultsDict",
     "BleuResultsOrDict",
-    "CometResult",
-    "CometResultDict",
-    "CometResultOrDict",
-    "ExactMatchMetricValue",
-    "ExactMatchMetricValueDict",
-    "ExactMatchMetricValueOrDict",
     "ExactMatchResults",
     "ExactMatchResultsDict",
     "ExactMatchResultsOrDict",
-    "MetricxResult",
-    "MetricxResultDict",
-    "MetricxResultOrDict",
-    "RawOutput",
-    "RawOutputDict",
-    "RawOutputOrDict",
-    "CustomOutput",
-    "CustomOutputDict",
-    "CustomOutputOrDict",
-    "PairwiseMetricResult",
-    "PairwiseMetricResultDict",
-    "PairwiseMetricResultOrDict",
-    "PointwiseMetricResult",
-    "PointwiseMetricResultDict",
-    "PointwiseMetricResultOrDict",
-    "RougeMetricValue",
-    "RougeMetricValueDict",
-    "RougeMetricValueOrDict",
     "RougeResults",
     "RougeResultsDict",
     "RougeResultsOrDict",
+    "RubricBasedMetricResult",
+    "RubricBasedMetricResultDict",
+    "RubricBasedMetricResultOrDict",
+    "CometResult",
+    "CometResultDict",
+    "CometResultOrDict",
+    "MetricxResult",
+    "MetricxResultDict",
+    "MetricxResultOrDict",
     "ToolCallValidMetricValue",
     "ToolCallValidMetricValueDict",
     "ToolCallValidMetricValueOrDict",
@@ -1574,18 +1462,21 @@ __all__ = [
     "EvaluateInstancesResponse",
     "EvaluateInstancesResponseDict",
     "EvaluateInstancesResponseOrDict",
-    "RubricGenerationConfig",
-    "RubricGenerationConfigDict",
-    "RubricGenerationConfigOrDict",
-    "GenerateInstanceRubricsResponse",
-    "GenerateInstanceRubricsResponseDict",
-    "GenerateInstanceRubricsResponseOrDict",
     "GenerateUserScenariosConfig",
     "GenerateUserScenariosConfigDict",
     "GenerateUserScenariosConfigOrDict",
     "GenerateUserScenariosResponse",
     "GenerateUserScenariosResponseDict",
     "GenerateUserScenariosResponseOrDict",
+    "RubricGenerationConfig",
+    "RubricGenerationConfigDict",
+    "RubricGenerationConfigOrDict",
+    "GenerateInstanceRubricsResponse",
+    "GenerateInstanceRubricsResponseDict",
+    "GenerateInstanceRubricsResponseOrDict",
+    "GetEvaluationMetricConfig",
+    "GetEvaluationMetricConfigDict",
+    "GetEvaluationMetricConfigOrDict",
     "GetEvaluationRunConfig",
     "GetEvaluationRunConfigDict",
     "GetEvaluationRunConfigOrDict",
@@ -1595,6 +1486,12 @@ __all__ = [
     "GetEvaluationItemConfig",
     "GetEvaluationItemConfigDict",
     "GetEvaluationItemConfigOrDict",
+    "ListEvaluationMetricsConfig",
+    "ListEvaluationMetricsConfigDict",
+    "ListEvaluationMetricsConfigOrDict",
+    "ListEvaluationMetricsResponse",
+    "ListEvaluationMetricsResponseDict",
+    "ListEvaluationMetricsResponseOrDict",
     "OptimizeConfig",
     "OptimizeConfigDict",
     "OptimizeConfigOrDict",
@@ -1646,45 +1543,15 @@ __all__ = [
     "VertexBaseConfig",
     "VertexBaseConfigDict",
     "VertexBaseConfigOrDict",
-    "SecretRef",
-    "SecretRefDict",
-    "SecretRefOrDict",
-    "SecretEnvVar",
-    "SecretEnvVarDict",
-    "SecretEnvVarOrDict",
-    "ReasoningEngineSpecDeploymentSpec",
-    "ReasoningEngineSpecDeploymentSpecDict",
-    "ReasoningEngineSpecDeploymentSpecOrDict",
-    "ReasoningEngineSpecPackageSpec",
-    "ReasoningEngineSpecPackageSpecDict",
-    "ReasoningEngineSpecPackageSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict",
-    "ReasoningEngineSpecSourceCodeSpecInlineSource",
-    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSource",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict",
-    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict",
-    "ReasoningEngineSpecSourceCodeSpecImageSpec",
-    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
-    "ReasoningEngineSpecSourceCodeSpec",
-    "ReasoningEngineSpecSourceCodeSpecDict",
-    "ReasoningEngineSpecSourceCodeSpecOrDict",
-    "ReasoningEngineSpec",
-    "ReasoningEngineSpecDict",
-    "ReasoningEngineSpecOrDict",
+    "CheckQueryJobAgentEngineConfig",
+    "CheckQueryJobAgentEngineConfigDict",
+    "CheckQueryJobAgentEngineConfigOrDict",
+    "CheckQueryJobResult",
+    "CheckQueryJobResultDict",
+    "CheckQueryJobResultOrDict",
+    "_RunQueryJobAgentEngineConfig",
+    "_RunQueryJobAgentEngineConfigDict",
+    "_RunQueryJobAgentEngineConfigOrDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEvent",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict",
     "MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict",
@@ -1730,15 +1597,57 @@ __all__ = [
     "ReasoningEngineContextSpec",
     "ReasoningEngineContextSpecDict",
     "ReasoningEngineContextSpecOrDict",
-    "CreateAgentEngineConfig",
-    "CreateAgentEngineConfigDict",
-    "CreateAgentEngineConfigOrDict",
+    "SecretRef",
+    "SecretRefDict",
+    "SecretRefOrDict",
+    "SecretEnvVar",
+    "SecretEnvVarDict",
+    "SecretEnvVarOrDict",
+    "ReasoningEngineSpecDeploymentSpec",
+    "ReasoningEngineSpecDeploymentSpecDict",
+    "ReasoningEngineSpecDeploymentSpecOrDict",
+    "ReasoningEngineSpecPackageSpec",
+    "ReasoningEngineSpecPackageSpecDict",
+    "ReasoningEngineSpecPackageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfig",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceAdkConfigOrDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSource",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecInlineSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSource",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecAgentConfigSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfig",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigOrDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSource",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceDict",
+    "ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpec",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecImageSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpec",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict",
+    "ReasoningEngineSpecSourceCodeSpec",
+    "ReasoningEngineSpecSourceCodeSpecDict",
+    "ReasoningEngineSpecSourceCodeSpecOrDict",
+    "ReasoningEngineSpecContainerSpec",
+    "ReasoningEngineSpecContainerSpecDict",
+    "ReasoningEngineSpecContainerSpecOrDict",
+    "ReasoningEngineSpec",
+    "ReasoningEngineSpecDict",
+    "ReasoningEngineSpecOrDict",
     "ReasoningEngine",
     "ReasoningEngineDict",
     "ReasoningEngineOrDict",
     "AgentEngineOperation",
     "AgentEngineOperationDict",
     "AgentEngineOperationOrDict",
+    "CreateAgentEngineConfig",
+    "CreateAgentEngineConfigDict",
+    "CreateAgentEngineConfigOrDict",
     "DeleteAgentEngineConfig",
     "DeleteAgentEngineConfigDict",
     "DeleteAgentEngineConfigOrDict",
@@ -1970,9 +1879,6 @@ __all__ = [
     "ListAgentEngineSessionEventsResponse",
     "ListAgentEngineSessionEventsResponseDict",
     "ListAgentEngineSessionEventsResponseOrDict",
-    "ModelArmorConfig",
-    "ModelArmorConfigDict",
-    "ModelArmorConfigOrDict",
     "GeminiExample",
     "GeminiExampleDict",
     "GeminiExampleOrDict",
@@ -2174,6 +2080,15 @@ __all__ = [
     "AgentEngineConfig",
     "AgentEngineConfigDict",
     "AgentEngineConfigOrDict",
+    "RunQueryJobAgentEngineConfig",
+    "RunQueryJobAgentEngineConfigDict",
+    "RunQueryJobAgentEngineConfigOrDict",
+    "RunQueryJobResult",
+    "RunQueryJobResultDict",
+    "RunQueryJobResultOrDict",
+    "CheckQueryJobResponse",
+    "CheckQueryJobResponseDict",
+    "CheckQueryJobResponseOrDict",
     "AssembleDataset",
     "AssembleDatasetDict",
     "AssembleDatasetOrDict",
@@ -2214,26 +2129,20 @@ __all__ = [
     "OptimizeJobConfigDict",
     "OptimizeJobConfigOrDict",
     "A2aTaskState",
-    "MediaResolution",
-    "Outcome",
-    "Language",
-    "FunctionResponseScheduling",
     "State",
-    "ComputationBasedMetricType",
-    "PairwiseChoice",
     "Strategy",
     "AcceleratorType",
     "Type",
     "JobState",
+    "ManagedTopicEnum",
     "IdentityType",
     "AgentServerMode",
-    "ManagedTopicEnum",
     "Operator",
+    "Language",
     "MachineConfig",
     "Framework",
     "EvaluationItemType",
     "SamplingMethod",
-    "RubricContentType",
     "EvaluationRunState",
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
@@ -2267,17 +2176,22 @@ __all__ = [
     "_AppendAgentEngineTaskEventRequestParameters",
     "_ListAgentEngineTaskEventsRequestParameters",
     "_CreateEvaluationItemParameters",
+    "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
     "_EvaluateInstancesRequestParameters",
-    "_GenerateInstanceRubricsRequest",
     "_GenerateUserScenariosParameters",
+    "_GenerateInstanceRubricsRequest",
+    "_GetEvaluationMetricParameters",
     "_GetEvaluationRunParameters",
     "_GetEvaluationSetParameters",
     "_GetEvaluationItemParameters",
+    "_ListEvaluationMetricsParameters",
     "_OptimizeRequestParameters",
     "_CustomJobParameters",
     "_GetCustomJobParameters",
+    "_CheckQueryJobAgentEngineRequestParameters",
+    "_RunQueryJobAgentEngineRequestParameters",
     "_CreateAgentEngineRequestParameters",
     "_DeleteAgentEngineRequestParameters",
     "_GetAgentEngineRequestParameters",

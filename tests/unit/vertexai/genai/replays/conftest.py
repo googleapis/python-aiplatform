@@ -125,6 +125,11 @@ def replays_prefix():
 
 
 @pytest.fixture
+def is_replay_mode(request):
+    return request.config.getoption("--mode") in ["replay", "tap"]
+
+
+@pytest.fixture
 def mock_agent_engine_create_path_exists():
     """Mocks os.path.exists to return True."""
     with mock.patch("os.path.exists", return_value=True) as mock_exists:

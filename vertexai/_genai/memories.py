@@ -90,6 +90,9 @@ def _AgentEngineMemoryConfig_to_vertex(
             {k: v for k, v in getv(from_object, ["metadata"]).items()},
         )
 
+    if getv(from_object, ["memory_id"]) is not None:
+        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
+
     return to_object
 
 
@@ -422,6 +425,9 @@ def _UpdateAgentEngineMemoryConfig_to_vertex(
             ["metadata"],
             {k: v for k, v in getv(from_object, ["metadata"]).items()},
         )
+
+    if getv(from_object, ["memory_id"]) is not None:
+        setv(parent_object, ["_query", "memoryId"], getv(from_object, ["memory_id"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
