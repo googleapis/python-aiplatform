@@ -1443,21 +1443,23 @@ class AgentEngines(_api_module.BaseModule):
                 "Please specify one of `source_packages`, `developer_connect_source`, "
                 "or `agent_config_source`."
             )
-        if class_methods is None:
+        if class_methods is not None:
+            update_masks.append("spec.class_methods")
+            class_methods_spec_list = (
+                _agent_engines_utils._class_methods_to_class_methods_spec(
+                    class_methods=class_methods
+                )
+            )
+            spec["class_methods"] = [
+                _agent_engines_utils._to_dict(class_method_spec)
+                for class_method_spec in class_methods_spec_list
+            ]
+        elif image_spec is None:
             raise ValueError(
                 "`class_methods` must be specified if `source_packages`, "
-                "`developer_connect_source`, or `agent_config_source` is specified."
+                "`developer_connect_source`, or `agent_config_source` is "
+                "specified without a Dockerfile or `image_spec`."
             )
-        update_masks.append("spec.class_methods")
-        class_methods_spec_list = (
-            _agent_engines_utils._class_methods_to_class_methods_spec(
-                class_methods=class_methods
-            )
-        )
-        spec["class_methods"] = [
-            _agent_engines_utils._to_dict(class_method_spec)
-            for class_method_spec in class_methods_spec_list
-        ]
         if image_spec is not None:
             if entrypoint_module or entrypoint_object or requirements_file:
                 raise ValueError(
@@ -1771,20 +1773,17 @@ class AgentEngines(_api_module.BaseModule):
             )
         elif container_spec:
             agent_engine_spec = {}
-            if class_methods is None:
-                raise ValueError(
-                    "`class_methods` must be specified if `container_spec` is specified."
+            if class_methods is not None:
+                update_masks.append("spec.class_methods")
+                class_methods_spec_list = (
+                    _agent_engines_utils._class_methods_to_class_methods_spec(
+                        class_methods=class_methods
+                    )
                 )
-            update_masks.append("spec.class_methods")
-            class_methods_spec_list = (
-                _agent_engines_utils._class_methods_to_class_methods_spec(
-                    class_methods=class_methods
-                )
-            )
-            agent_engine_spec["class_methods"] = [
-                _agent_engines_utils._to_dict(class_method_spec)
-                for class_method_spec in class_methods_spec_list
-            ]
+                agent_engine_spec["class_methods"] = [
+                    _agent_engines_utils._to_dict(class_method_spec)
+                    for class_method_spec in class_methods_spec_list
+                ]
             update_masks.append("spec.container_spec")
             agent_engine_spec["container_spec"] = container_spec
 
