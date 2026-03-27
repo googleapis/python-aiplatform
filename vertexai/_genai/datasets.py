@@ -846,23 +846,9 @@ class Datasets(_api_module.BaseModule):
             multimodal_dataset = types.MultimodalDataset()
 
         bigframes = _datasets_utils._try_import_bigframes()
-        bigquery = _datasets_utils._try_import_bigquery()
         project = self._api_client.project
         location = self._api_client.location
         credentials = self._api_client._credentials
-
-        if target_table_id:
-            target_table_id = _datasets_utils._normalize_and_validate_table_id(
-                table_id=target_table_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        else:
-            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
-                project=project, location=location, credentials=credentials
-            )
-            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -870,28 +856,12 @@ class Datasets(_api_module.BaseModule):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(dataframe)
-            client = bigquery.Client(project=project, credentials=credentials)
-            _datasets_utils.save_dataframe_to_bigquery(
-                temp_bigframes_df,
-                target_table_id,
-                client,
+            return self.create_from_bigframes(
+                dataframe=session.read_pandas(dataframe),
+                multimodal_dataset=multimodal_dataset,
+                target_table_id=target_table_id,
+                config=config,
             )
-
-        return self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
-        )
 
     def create_from_bigframes(
         self,
@@ -1987,25 +1957,9 @@ class AsyncDatasets(_api_module.BaseModule):
             multimodal_dataset = types.MultimodalDataset()
 
         bigframes = _datasets_utils._try_import_bigframes()
-        bigquery = _datasets_utils._try_import_bigquery()
         project = self._api_client.project
         location = self._api_client.location
         credentials = self._api_client._credentials
-
-        if target_table_id:
-            target_table_id = (
-                await _datasets_utils._normalize_and_validate_table_id_async(
-                    table_id=target_table_id,
-                    project=project,
-                    location=location,
-                    credentials=credentials,
-                )
-            )
-        else:
-            dataset_id = await _datasets_utils._create_default_bigquery_dataset_if_not_exists_async(
-                project=project, location=location, credentials=credentials
-            )
-            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -2013,28 +1967,12 @@ class AsyncDatasets(_api_module.BaseModule):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(dataframe)
-            client = bigquery.Client(project=project, credentials=credentials)
-            await _datasets_utils.save_dataframe_to_bigquery_async(
-                temp_bigframes_df,
-                target_table_id,
-                client,
+            return await self.create_from_bigframes(
+                dataframe=session.read_pandas(dataframe),
+                multimodal_dataset=multimodal_dataset,
+                target_table_id=target_table_id,
+                config=config,
             )
-
-        return await self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
-        )
 
     async def create_from_bigframes(
         self,
