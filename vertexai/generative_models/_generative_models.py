@@ -66,6 +66,7 @@ from vertexai._utils import warning_logs
 
 if TYPE_CHECKING:
     from vertexai.caching import CachedContent
+    from vertexai.preview import generative_models as preview_generative_models
 
 try:
     from PIL import Image as PIL_Image  # pylint: disable=g-import-not-at-top
@@ -2078,8 +2079,13 @@ class Tool:
         cls,
         retrieval: Union["grounding.Retrieval"],
     ) -> "Tool":
-        raw_tool = gapic_tool_types.Tool(retrieval=retrieval._raw_retrieval)
-        return cls._from_gapic(raw_tool=raw_tool)
+        # Late import to avoid circular dependency
+        from vertexai.preview import generative_models as preview_generative_models
+        raw_retrieval = retrieval._raw_retrieval
+        raw_tool = gapic_tool_types.Tool(retrieval=raw_retrieval)
+        response = cls._from_gapic(raw_tool=raw_tool)
+        response.retrieval = retrieval
+        return response
 
     @classmethod
     def from_google_search_retrieval(
@@ -2978,24 +2984,35 @@ class grounding:  # pylint: disable=invalid-name
 
         def __init__(
             self,
-            source: Union["grounding.VertexAISearch"],
+            source: Union["grounding.VertexAISearch", "grounding.VertexRagStore"],
             disable_attribution: Optional[bool] = None,
         ):
             """Initializes a Retrieval tool.
 
             Args:
-                source (VertexAISearch):
-                    Set to use data source powered by Vertex AI Search.
+                source (Union[VertexAISearch, VertexRagStore]):
+                    Set to use data source powered by Vertex AI Search or Vertex Rag Store.
                 disable_attribution (bool):
                     Deprecated. Disable using the result from this
                     tool in detecting grounding attribution. This
                     does not affect how the result is given to the
                     model for generation.
             """
-            self._raw_retrieval = gapic_tool_types.Retrieval(
-                vertex_ai_search=source._raw_vertex_ai_search,
-                disable_attribution=disable_attribution,
-            )
+            if isinstance(source, grounding.VertexAISearch):
+                self._raw_retrieval = gapic_tool_types.Retrieval(
+                    vertex_ai_search=source._raw_vertex_ai_search,
+                    disable_attribution=disable_attribution,
+                )
+            elif isinstance(source, grounding.VertexRagStore):
+                # Late import to avoid circular dependency
+                from vertexai.preview import generative_models as preview_generative_models
+                gapic_vertex_rag_store = preview_generative_models._preview_parse_vertex_rag_store_to_api(source)
+                self._raw_retrieval = gapic_tool_types.Retrieval(
+                    vertex_rag_store=gapic_vertex_rag_store,
+                    disable_attribution=disable_attribution,
+                )
+            else:
+                raise TypeError(f"Unexpected source type: {type(source)}")
 
     class VertexAISearch:
         r"""Retrieve from Vertex AI Search data store for grounding.
@@ -3033,6 +3050,29 @@ class grounding:  # pylint: disable=invalid-name
             self._raw_vertex_ai_search = gapic_tool_types.VertexAISearch(
                 datastore=datastore,
             )
+
+    class VertexRagStore:
+        """Retrieve from Vertex Rag Store for grounding.
+
+        Attributes:
+            rag_resources: A list of RagResource. It can be used to specify corpus
+              only or ragfiles. Currently only support one corpus or multiple files
+              from one corpus. In the future we may open up multiple corpora support.
+            rag_corpora: If rag_resources is not specified, use rag_corpora as a list
+              of rag corpora names. Deprecated. Use rag_resources instead.
+            rag_retrieval_config: Optional. The config containing the retrieval
+              parameters, including top_k, vector_distance_threshold, and alpha.
+        """
+
+        def __init__(
+            self,
+            rag_resources: Optional[List["preview_generative_models.rag.RagResource"]] = None,
+            rag_corpora: Optional[List[str]] = None,
+            rag_retrieval_config: Optional["preview_generative_models.rag.RagRetrievalConfig"] = None,
+        ):
+            self.rag_resources = rag_resources
+            self.rag_corpora = rag_corpora
+            self.rag_retrieval_config = rag_retrieval_config
 
 
 class preview_grounding(grounding):  # pylint: disable=invalid-name
