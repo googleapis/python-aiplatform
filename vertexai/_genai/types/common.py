@@ -12366,6 +12366,64 @@ class MultimodalDataset(_common.BaseModel):
         default=None, description="""The description of the multimodal dataset."""
     )
 
+    @property
+    def read_config(self) -> Optional[GeminiRequestReadConfig]:
+        """Gets the read config from the dataset metadata. Returns None if it's not set."""
+        if self.metadata is None or self.metadata.gemini_request_read_config is None:
+            return None
+        return self.metadata.gemini_request_read_config
+
+    def set_read_config(
+        self,
+        *,
+        read_config: GeminiRequestReadConfigOrDict,
+    ) -> None:
+        """Sets the read config in the dataset metadata."""
+        if isinstance(read_config, dict):
+            read_config = GeminiRequestReadConfig(**read_config)
+
+        if self.metadata is None:
+            self.metadata = SchemaTablesDatasetMetadata()
+        self.metadata.gemini_request_read_config = read_config
+
+    @property
+    def bigquery_uri(
+        self,
+    ) -> Optional[str]:
+        """Gets the bigquery uri from the dataset metadata. Returns None if it's not set."""
+        if (
+            self.metadata is None
+            or self.metadata.input_config is None
+            or self.metadata.input_config.bigquery_source is None
+        ):
+            return None
+        return str(self.metadata.input_config.bigquery_source.uri)
+
+    def set_bigquery_uri(
+        self,
+        bigquery_uri: str,
+    ) -> None:
+        """Sets the bigquery uri in the dataset metadata. Prepends 'bq://' if it's not already present."""
+        if not bigquery_uri.startswith("bq://"):
+            bigquery_uri = f"bq://{bigquery_uri}"
+        metadata = (
+            SchemaTablesDatasetMetadata() if self.metadata is None else self.metadata
+        )
+        input_config = (
+            SchemaTablesDatasetMetadataInputConfig()
+            if metadata.input_config is None
+            else metadata.input_config
+        )
+        bigquery_source = (
+            SchemaTablesDatasetMetadataBigQuerySource()
+            if input_config.bigquery_source is None
+            else input_config.bigquery_source
+        )
+        bigquery_source.uri = bigquery_uri
+        input_config.bigquery_source = bigquery_source
+        metadata.input_config = input_config
+        self.metadata = metadata
+
 
 class MultimodalDatasetDict(TypedDict, total=False):
     """Represents a multimodal dataset."""
