@@ -87,7 +87,8 @@ def create_agent_card(
         provided.
     """
     # pylint: disable=g-import-not-at-top
-    from a2a.types import AgentCard, AgentCapabilities, TransportProtocol
+    from a2a.types import AgentCard, AgentCapabilities, AgentInterface
+    from a2a.utils.constants import TransportProtocol, PROTOCOL_VERSION_CURRENT
 
     # Check if a dictionary was provided.
     if agent_card:
@@ -98,14 +99,20 @@ def create_agent_card(
         return AgentCard(
             name=agent_name,
             description=description,
-            url="http://localhost:9999/",
             version="1.0.0",
             default_input_modes=default_input_modes or ["text/plain"],
             default_output_modes=default_output_modes or ["application/json"],
-            capabilities=AgentCapabilities(streaming=streaming),
+            capabilities=AgentCapabilities(
+                streaming=streaming, extended_agent_card=True
+            ),
             skills=skills,
-            preferred_transport=TransportProtocol.http_json,  # Http Only.
-            supports_authenticated_extended_card=True,
+            supported_interfaces=[
+                AgentInterface(
+                    url="http://localhost:9999/",
+                    protocol_binding=TransportProtocol.HTTP_JSON,
+                    protocol_version=PROTOCOL_VERSION_CURRENT,
+                )
+            ],
         )
 
     # Raise an error if insufficient data is provided.
@@ -162,6 +169,22 @@ def default_a2a_agent() -> "A2aAgent":
     )
 
 
+def _is_version_enabled(agent_card: "AgentCard", version: str) -> bool:
+    """Checks if a specific version compatibility should be enabled for the A2aAgent."""
+    # pylint: disable=g-import-not-at-top
+    from a2a.utils.constants import TransportProtocol
+
+    if not getattr(agent_card, "supported_interfaces", None):
+        return False
+    for interface in agent_card.supported_interfaces:
+        if (
+            interface.protocol_version == version
+            and interface.protocol_binding == TransportProtocol.HTTP_JSON
+        ):
+            return True
+    return False
+
+
 class A2aAgent:
     """A class to initialize and set up an Agent-to-Agent application."""
 
@@ -183,14 +206,15 @@ class A2aAgent:
         """Initializes the A2A agent."""
         # pylint: disable=g-import-not-at-top
         from google.cloud.aiplatform import initializer
-        from a2a.types import TransportProtocol
+        from a2a.utils.constants import TransportProtocol
 
         if (
-            agent_card.preferred_transport
-            and agent_card.preferred_transport != TransportProtocol.http_json
+            agent_card.supported_interfaces
+            and agent_card.supported_interfaces[0].protocol_binding
+            != TransportProtocol.HTTP_JSON
         ):
             raise ValueError(
-                "Only HTTP+JSON is supported for preferred transport on agent card "
+                "Only HTTP+JSON is supported for the primary interface on agent card "
             )
 
         self._tmpl_attrs: dict[str, Any] = {
@@ -209,6 +233,7 @@ class A2aAgent:
             "extended_agent_card": extended_agent_card,
         }
         self.agent_card = agent_card
+        self.a2a_rest_adapters = []
         self.a2a_rest_adapter = None
         self.request_handler = None
         self.rest_handler = None
@@ -234,7 +259,6 @@ class A2aAgent:
         """Sets up the A2A application."""
         # pylint: disable=g-import-not-at-top
         from a2a.server.apps.rest.rest_adapter import RESTAdapter
-        from a2a.server.request_handlers.rest_handler import RESTHandler
         from a2a.server.request_handlers import DefaultRequestHandler
         from a2a.server.tasks import InMemoryTaskStore
 
@@ -246,7 +270,21 @@ class A2aAgent:
         agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", "test-agent-engine")
         version = "v1beta1"
 
-        self.agent_card.url = f"https://{location}-aiplatform.googleapis.com/{version}/projects/{project}/locations/{location}/reasoningEngines/{agent_engine_id}/a2a"
+        new_url = f"https://{location}-aiplatform.googleapis.com/{version}/projects/{project}/locations/{location}/reasoningEngines/{agent_engine_id}/a2a"
+        if not self.agent_card.supported_interfaces:
+            from a2a.types import AgentInterface
+            from a2a.utils.constants import TransportProtocol, PROTOCOL_VERSION_CURRENT
+
+            self.agent_card.supported_interfaces.append(
+                AgentInterface(
+                    url=new_url,
+                    protocol_binding=TransportProtocol.HTTP_JSON,
+                    protocol_version=PROTOCOL_VERSION_CURRENT,
+                )
+            )
+        else:
+            # primary interface must be HTTP+JSON
+            self.agent_card.supported_interfaces[0].url = new_url
         self._tmpl_attrs["agent_card"] = self.agent_card
 
         # Create the agent executor if a builder is provided.
@@ -288,45 +326,71 @@ class A2aAgent:
 
         # a2a_rest_adapter is used to register the A2A API routes in the
         # Reasoning Engine API router.
-        self.a2a_rest_adapter = RESTAdapter(
-            agent_card=self.agent_card,
-            http_handler=self._tmpl_attrs.get("request_handler"),
-            extended_agent_card=self._tmpl_attrs.get("extended_agent_card"),
-        )
+        if _is_version_enabled(self.agent_card, "1.0"):
+            self.a2a_rest_adapter = RESTAdapter(
+                agent_card=self.agent_card,
+                http_handler=self._tmpl_attrs.get("request_handler"),
+                extended_agent_card=self._tmpl_attrs.get("extended_agent_card"),
+            )
+            self.a2a_rest_adapters.append(self.a2a_rest_adapter)
 
-        # rest_handler is used to handle the A2A API requests.
-        self.rest_handler = RESTHandler(
-            agent_card=self.agent_card,
-            request_handler=self._tmpl_attrs.get("request_handler"),
-        )
+            # rest_handler is used to handle the A2A API requests.
+            self.rest_handler = self.a2a_rest_adapter.handler
+
+        # v0.3 handlers will be deprecated in the future.
+        if _is_version_enabled(self.agent_card, "0.3"):
+            from a2a.compat.v0_3.rest_adapter import REST03Adapter
+
+            adapter_03 = REST03Adapter(
+                agent_card=self.agent_card,
+                http_handler=self._tmpl_attrs.get("request_handler"),
+                extended_agent_card=self._tmpl_attrs.get("extended_agent_card"),
+            )
+            self.a2a_rest_adapters.append(adapter_03)
+
+    def _get_handler(self, kwargs: dict[str, Any]) -> Any:
+        handler = kwargs.get("rest_handler", getattr(self, "rest_handler", None))
+        if not handler:
+            raise NotImplementedError("rest_handler not available.")
+        return handler
+
+    def _get_adapter(self, kwargs: dict[str, Any]) -> Any:
+        adapter = kwargs.get("rest_adapter", getattr(self, "a2a_rest_adapter", None))
+        if not adapter:
+            raise NotImplementedError("rest_adapter not available.")
+        return adapter
 
     async def on_message_send(
         self,
         request: "Request",
         context: "ServerCallContext",
+        **kwargs,
     ) -> dict[str, Any]:
-        return await self.rest_handler.on_message_send(request, context)
+        return await self._get_handler(kwargs).on_message_send(request, context)
 
     async def on_cancel_task(
         self,
         request: "Request",
         context: "ServerCallContext",
+        **kwargs,
     ) -> dict[str, Any]:
-        return await self.rest_handler.on_cancel_task(request, context)
+        return await self._get_handler(kwargs).on_cancel_task(request, context)
 
     async def on_get_task(
         self,
         request: "Request",
         context: "ServerCallContext",
+        **kwargs,
     ) -> dict[str, Any]:
-        return await self.rest_handler.on_get_task(request, context)
+        return await self._get_handler(kwargs).on_get_task(request, context)
 
     async def handle_authenticated_agent_card(
         self,
         request: "Request",
         context: "ServerCallContext",
+        **kwargs,
     ) -> dict[str, Any]:
-        return await self.a2a_rest_adapter.handle_authenticated_agent_card(
+        return await self._get_adapter(kwargs).handle_authenticated_agent_card(
             request, context
         )
 
@@ -341,8 +405,11 @@ class A2aAgent:
         }
         if self.agent_card.capabilities and self.agent_card.capabilities.streaming:
             routes["a2a_extension"].append("on_message_send_stream")
-            routes["a2a_extension"].append("on_resubscribe_to_task")
-        if self.agent_card.supports_authenticated_extended_card:
+            routes["a2a_extension"].append("on_subscribe_to_task")
+        if (
+            self.agent_card.capabilities
+            and self.agent_card.capabilities.extended_agent_card
+        ):
             routes["a2a_extension"].append("handle_authenticated_agent_card")
         return routes
 
@@ -350,16 +417,70 @@ class A2aAgent:
         self,
         request: "Request",
         context: "ServerCallContext",
+        **kwargs,
     ) -> AsyncIterator[str]:
         """Handles A2A streaming requests via SSE."""
-        async for chunk in self.rest_handler.on_message_send_stream(request, context):
+        async for chunk in self._get_handler(kwargs).on_message_send_stream(
+            request, context
+        ):
             yield chunk
 
-    async def on_resubscribe_to_task(
+    async def on_subscribe_to_task(
         self,
         request: "Request",
         context: "ServerCallContext",
+        **kwargs,
     ) -> AsyncIterator[str]:
         """Handles A2A task resubscription requests via SSE."""
-        async for chunk in self.rest_handler.on_resubscribe_to_task(request, context):
+        async for chunk in self._get_handler(kwargs).on_subscribe_to_task(
+            request, context
+        ):
             yield chunk
+
+    def __getstate__(self):
+        """Serializes AgentCard proto to a dictionary."""
+        from google.protobuf import json_format
+        import json
+
+        state = self.__dict__.copy()
+
+        def _to_dict_if_proto(obj):
+            if hasattr(obj, "DESCRIPTOR"):
+                return {
+                    "__protobuf_AgentCard__": json.loads(json_format.MessageToJson(obj))
+                }
+            return obj
+
+        state["agent_card"] = _to_dict_if_proto(state.get("agent_card"))
+        if "_tmpl_attrs" in state:
+            tmpl_attrs = state["_tmpl_attrs"].copy()
+            tmpl_attrs["agent_card"] = _to_dict_if_proto(tmpl_attrs.get("agent_card"))
+            tmpl_attrs["extended_agent_card"] = _to_dict_if_proto(
+                tmpl_attrs.get("extended_agent_card")
+            )
+            state["_tmpl_attrs"] = tmpl_attrs
+
+        return state
+
+    def __setstate__(self, state):
+        """Deserializes AgentCard proto from a dictionary."""
+        from google.protobuf import json_format
+        from a2a.types import AgentCard
+
+        def _from_dict_if_proto(obj):
+            if isinstance(obj, dict) and "__protobuf_AgentCard__" in obj:
+                agent_card = AgentCard()
+                json_format.ParseDict(obj["__protobuf_AgentCard__"], agent_card)
+                return agent_card
+            return obj
+
+        state["agent_card"] = _from_dict_if_proto(state.get("agent_card"))
+        if "_tmpl_attrs" in state:
+            state["_tmpl_attrs"]["agent_card"] = _from_dict_if_proto(
+                state["_tmpl_attrs"].get("agent_card")
+            )
+            state["_tmpl_attrs"]["extended_agent_card"] = _from_dict_if_proto(
+                state["_tmpl_attrs"].get("extended_agent_card")
+            )
+
+        self.__dict__.update(state)
