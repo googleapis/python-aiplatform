@@ -2002,14 +2002,16 @@ class AsyncDatasets(_api_module.BaseModule):
         credentials = self._api_client._credentials
 
         if target_table_id:
-            target_table_id = _datasets_utils._normalize_and_validate_table_id(
-                table_id=target_table_id,
-                project=project,
-                location=location,
-                credentials=credentials,
+            target_table_id = (
+                await _datasets_utils._normalize_and_validate_table_id_async(
+                    table_id=target_table_id,
+                    project=project,
+                    location=location,
+                    credentials=credentials,
+                )
             )
         else:
-            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
+            dataset_id = await _datasets_utils._create_default_bigquery_dataset_if_not_exists_async(
                 project=project, location=location, credentials=credentials
             )
             target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
