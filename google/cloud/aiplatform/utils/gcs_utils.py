@@ -242,7 +242,8 @@ def generate_gcs_directory_for_pipeline_artifacts(
     """Gets or creates the GCS directory for Vertex Pipelines artifacts.
 
     Args:
-        project: Optional. Google Cloud Project that contains the staging bucket.
+        project: Optional. Google Cloud Project that contains the staging
+                 bucket.
         location: Optional. Google Cloud location to use for the staging bucket.
 
     Returns:
@@ -315,7 +316,8 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
         )
         # Giving the service account read and write access to the new bucket
         # Workaround for error: "Failed to create pipeline job. Error: Service account `NNNNNNNN-compute@developer.gserviceaccount.com`
-        # does not have `[storage.objects.get, storage.objects.create]` IAM permission(s) to the bucket `xxxxxxxx-vertex-pipelines-us-central1`.
+        # does not have
+        # `[storage.objects.get, storage.objects.create]` IAM permission(s) to the bucket `xxxxxxxx-vertex-pipelines-us-central1`.
         # Please either copy the files to the Google Cloud Storage bucket owned by your project, or grant the required IAM permission(s) to the service account."
         if not service_account:
             # Getting the project number to use in service account
