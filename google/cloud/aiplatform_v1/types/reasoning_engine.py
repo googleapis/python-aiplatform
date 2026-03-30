@@ -38,12 +38,22 @@ __protobuf__ = proto.module(
 class ReasoningEngineSpec(proto.Message):
     r"""ReasoningEngine configurations
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         source_code_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.SourceCodeSpec):
             Deploy from source code files with a defined
             entrypoint.
+
+            This field is a member of `oneof`_ ``deployment_source``.
+        container_spec (google.cloud.aiplatform_v1.types.ReasoningEngineSpec.ContainerSpec):
+            Deploy from a container image with a defined
+            entrypoint and commands.
 
             This field is a member of `oneof`_ ``deployment_source``.
         service_account (str):
@@ -390,11 +400,34 @@ class ReasoningEngineSpec(proto.Message):
             message="ReasoningEngineSpec.SourceCodeSpec.ImageSpec",
         )
 
+    class ContainerSpec(proto.Message):
+        r"""Specification for deploying from a container image.
+
+        Attributes:
+            image_uri (str):
+                Required. The Artifact Registry Docker image
+                URI (e.g.,
+                us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag)
+                of the container image that is to be run on each
+                worker replica.
+        """
+
+        image_uri: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     source_code_spec: SourceCodeSpec = proto.Field(
         proto.MESSAGE,
         number=11,
         oneof="deployment_source",
         message=SourceCodeSpec,
+    )
+    container_spec: ContainerSpec = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        oneof="deployment_source",
+        message=ContainerSpec,
     )
     service_account: str = proto.Field(
         proto.STRING,
