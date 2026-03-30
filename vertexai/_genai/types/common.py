@@ -10790,6 +10790,10 @@ class CreateAgentEngineSessionConfig(_common.BaseModel):
         default=None,
         description="""Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
     )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
 
 
 class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
@@ -10817,6 +10821,9 @@ class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
 
     labels: Optional[dict[str, str]]
     """Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    session_id: Optional[str]
+    """Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
 
 CreateAgentEngineSessionConfigOrDict = Union[
@@ -11267,6 +11274,10 @@ class UpdateAgentEngineSessionConfig(_common.BaseModel):
         default=None,
         description="""Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
     )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -11302,6 +11313,9 @@ class UpdateAgentEngineSessionConfigDict(TypedDict, total=False):
 
     labels: Optional[dict[str, str]]
     """Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    session_id: Optional[str]
+    """Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see

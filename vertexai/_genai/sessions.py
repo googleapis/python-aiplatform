@@ -64,6 +64,9 @@ def _CreateAgentEngineSessionConfig_to_vertex(
     if getv(from_object, ["labels"]) is not None:
         setv(parent_object, ["labels"], getv(from_object, ["labels"]))
 
+    if getv(from_object, ["session_id"]) is not None:
+        setv(parent_object, ["_query", "sessionId"], getv(from_object, ["session_id"]))
+
     return to_object
 
 
@@ -175,6 +178,9 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
 
     if getv(from_object, ["labels"]) is not None:
         setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["session_id"]) is not None:
+        setv(parent_object, ["_query", "sessionId"], getv(from_object, ["session_id"]))
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
