@@ -4829,6 +4829,7 @@ def test_create_reasoning_engine_rest_call_success(request_type):
                 },
                 "image_spec": {"build_args": {}},
             },
+            "container_spec": {"image_uri": "image_uri_value"},
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -5391,6 +5392,7 @@ def test_update_reasoning_engine_rest_call_success(request_type):
                 },
                 "image_spec": {"build_args": {}},
             },
+            "container_spec": {"image_uri": "image_uri_value"},
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -6575,6 +6577,7 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
                 },
                 "image_spec": {"build_args": {}},
             },
+            "container_spec": {"image_uri": "image_uri_value"},
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
@@ -7191,6 +7194,7 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
                 },
                 "image_spec": {"build_args": {}},
             },
+            "container_spec": {"image_uri": "image_uri_value"},
             "service_account": "service_account_value",
             "package_spec": {
                 "pickle_object_gcs_uri": "pickle_object_gcs_uri_value",
