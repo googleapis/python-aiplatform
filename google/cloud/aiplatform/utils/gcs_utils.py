@@ -17,6 +17,7 @@
 
 import datetime
 import glob
+import uuid
 
 # Version detection and compatibility layer for google-cloud-storage v2/v3
 from importlib.metadata import version as get_version
@@ -58,6 +59,8 @@ if _GCS_VERSION < Version("3.0.0"):
         FutureWarning,
         stacklevel=2,
     )
+
+_DEFAULT_STAGING_BUCKET_SALT = str(uuid.uuid4())
 
 
 def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
@@ -201,9 +204,14 @@ def stage_local_data_in_gcs(
         # Currently we only do this when staging_gcs_dir is not specified.
         # The buckets that we create are regional.
         # This prevents errors when some service required regional bucket.
-        # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...` is in location `us`. It must be in the same regional location as the service location `us-central1`."
-        # We are making the bucket name region-specific since the bucket is regional.
-        staging_bucket_name = project + "-vertex-staging-" + location
+        # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...`
+        # is in location `us`. It must be in the same regional location as the
+        # service location `us-central1`."
+        # We are making the bucket name region-specific since the bucket is
+        # regional.
+        staging_bucket_name = (
+            project + "-vertex-staging-" + location + "-" + _DEFAULT_STAGING_BUCKET_SALT
+        )[:63]
         client = storage.Client(project=project, credentials=credentials)
         staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
         if not staging_bucket.exists():
