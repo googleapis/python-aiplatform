@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.144.0](https://github.com/googleapis/python-aiplatform/compare/v1.143.0...v1.144.0) (2026-03-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* `create_from_bigquery` and `update_multimodal_dataset` no longer automatically prepend a missing `bq://` prefix for BigQuery URIs. When using the new function `MultimodalDataset.set_bigquery_uri` the prefix will still be added if needed.
+
+### Features
+
+* Add `metadata_filter` usage to all retrieval and generator methods in `rag_retrieval.py` ([841c597](https://github.com/googleapis/python-aiplatform/commit/841c597c35d9b6d4f101060284a89131a510a813))
+* Add container_spec to Reasoning Engine public protos ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+* Add container_spec to Reasoning Engine public protos ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+* Add support for container_spec in AgentEngines ([da663c0](https://github.com/googleapis/python-aiplatform/commit/da663c0d000deeb5663d53334abc1d997f3575b5))
+* GenAI SDK client(multimodal) - Add metadata helpers to `MultimodalDataset`. ([e164b19](https://github.com/googleapis/python-aiplatform/commit/e164b19e16356dc83e23ccd54c9bbe9f9649bad0))
+* Publish client batch config schema ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+* Refactor evaluation instance building and update LLM metric handler ([7a3b436](https://github.com/googleapis/python-aiplatform/commit/7a3b436bda89fd3931fa6fee30e6fed10489d200))
+* Update the interface for custom code execution metric while maintaining remote_custom_function support for backward compatibility ([f7733ec](https://github.com/googleapis/python-aiplatform/commit/f7733ec70f4128ecdb31811c2ff33dfb3132aa98))
+
+
+### Bug Fixes
+
+* Auto-created GCS staging bucket names are less predictable ([1a33ad9](https://github.com/googleapis/python-aiplatform/commit/1a33ad9a56c09892b12194b7cb8615b2739386ad))
+* GenAI SDK client(multimodal) - Replace blocking calls in `create_from_pandas` with async versions. ([2767273](https://github.com/googleapis/python-aiplatform/commit/27672738a12c8012534d6350d3315eff95bbbaa4))
+* Introduce timeout for outgoing A2A requests from AgentEngine ([78525d2](https://github.com/googleapis/python-aiplatform/commit/78525d20a1e2f183cabcde222e15db2756d40c2c))
+* Relax the requirement to specify class_methods if image_spec/container_spec is provided ([6f7b12c](https://github.com/googleapis/python-aiplatform/commit/6f7b12c40f5ae3099b997e99d899b0f5e618cfda))
+* Standardize on the app_name in AdkApp ([ee9fbe1](https://github.com/googleapis/python-aiplatform/commit/ee9fbe11c13bf3bb7fe7a70f1484882c056ff63f))
+
+
+### Documentation
+
+* Update API common type documentation ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+
+
+### Miscellaneous Chores
+
+* Release 1.144.0 ([2ad586d](https://github.com/googleapis/python-aiplatform/commit/2ad586d49a84ff51a96a338ceef7d4b771871d07))
+
 ## [1.143.0](https://github.com/googleapis/python-aiplatform/compare/v1.142.0...v1.143.0) (2026-03-25)
 
 
