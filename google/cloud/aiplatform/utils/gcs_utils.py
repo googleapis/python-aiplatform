@@ -45,7 +45,7 @@ try:
     _GCS_VERSION = Version(get_version("google-cloud-storage"))
 except Exception:
     # Fallback if version detection fails (should not happen in normal use)
-    _GCS_VERSION = Version("2.0.0")
+    _GCS_VERSION = Version("3.0.0")
 
 _USE_FROM_URI = _GCS_VERSION >= Version("3.0.0")
 
