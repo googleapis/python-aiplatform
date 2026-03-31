@@ -845,7 +845,7 @@ class CustomMetricHandler(MetricHandler[types.Metric]):
         score = None
         explanation = None
         try:
-            if self.metric.custom_function:
+            if self.metric.custom_function and callable(self.metric.custom_function):
                 custom_function_result = self.metric.custom_function(
                     instance_for_custom_fn
                 )
@@ -1058,10 +1058,10 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
     def __init__(self, module: "evals.Evals", metric: types.Metric):
         super().__init__(module=module, metric=metric)
 
-        if not self.metric.remote_custom_function:
+        if not self.metric.remote_custom_function and not self.metric.custom_function:
             raise ValueError(
                 f"CustomCodeExecutionMetricHandler for '{self.metric.name}' needs "
-                " Metric.remote_custom_function to be set."
+                " custom function to be set."
             )
 
     def _build_request_payload(
@@ -1310,7 +1310,17 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
 
 _METRIC_HANDLER_MAPPING = [
     (
-        lambda m: hasattr(m, "remote_custom_function") and m.remote_custom_function,
+        lambda m: (
+            # Recognize the user-facing class
+            isinstance(m, types.CodeExecutionMetric)
+            and (hasattr(m, "custom_function") and m.custom_function)
+        )
+        or (hasattr(m, "remote_custom_function") and m.remote_custom_function)
+        # Recognize base Metric objects that have been coerced by Pydantic
+        or (
+            isinstance(m, types.Metric)
+            and isinstance(getattr(m, "custom_function", None), str)
+        ),
         CustomCodeExecutionMetricHandler,
     ),
     (

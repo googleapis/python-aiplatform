@@ -370,3 +370,12 @@ class PrebuiltMetricLoader:
 
 PrebuiltMetric = PrebuiltMetricLoader()
 RubricMetric = PrebuiltMetric
+
+
+def CodeExecutionMetric(
+    name: str, custom_function: str, **kwargs: Any
+) -> "types.Metric":
+    """Instantiates a code execution metric."""
+    from . import types
+
+    return types.Metric(name=name, remote_custom_function=custom_function, **kwargs)

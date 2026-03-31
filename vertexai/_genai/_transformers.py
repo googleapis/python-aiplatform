@@ -73,6 +73,16 @@ def t_metrics(
             metric_payload_item["custom_code_execution_spec"] = {
                 "evaluation_function": metric.remote_custom_function
             }
+        elif (
+            isinstance(metric, types.CodeExecutionMetric)
+            or (
+                isinstance(metric, types.Metric)
+                and isinstance(getattr(metric, "custom_function", None), str)
+            )
+        ) and getattr(metric, "custom_function", None):
+            metric_payload_item["custom_code_execution_spec"] = {
+                "evaluation_function": metric.custom_function
+            }
         # LLM-based metrics
         elif hasattr(metric, "prompt_template") and metric.prompt_template:
             llm_based_spec: dict[str, Any] = {
@@ -195,6 +205,16 @@ def t_metric_for_registry(
     elif hasattr(metric, "remote_custom_function") and metric.remote_custom_function:
         metric_payload_item["custom_code_execution_spec"] = {
             "evaluation_function": metric.remote_custom_function
+        }
+    elif (
+        isinstance(metric, types.CodeExecutionMetric)
+        or (
+            isinstance(metric, types.Metric)
+            and isinstance(getattr(metric, "custom_function", None), str)
+        )
+    ) and getattr(metric, "custom_function", None):
+        metric_payload_item["custom_code_execution_spec"] = {
+            "evaluation_function": metric.custom_function
         }
 
     # Map LLM-based metrics to the new llm_based_metric_spec

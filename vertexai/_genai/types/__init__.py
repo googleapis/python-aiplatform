@@ -207,6 +207,7 @@ from .common import CheckQueryJobResultOrDict
 from .common import Chunk
 from .common import ChunkDict
 from .common import ChunkOrDict
+from .common import CodeExecutionMetric
 from .common import CometResult
 from .common import CometResultDict
 from .common import CometResultOrDict
@@ -2153,6 +2154,7 @@ __all__ = [
     "PromptDataDict",
     "PromptDataOrDict",
     "LLMMetric",
+    "CodeExecutionMetric",
     "MetricPromptBuilder",
     "RubricContentProperty",
     "RubricContentPropertyDict",

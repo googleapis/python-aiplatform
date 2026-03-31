@@ -1576,7 +1576,7 @@ class Metric(_common.BaseModel):
     """The metric used for evaluation."""
 
     name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable[..., Any]] = Field(
+    custom_function: Optional[Union[str, Callable[..., Any]]] = Field(
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
@@ -1680,6 +1680,26 @@ class Metric(_common.BaseModel):
 
         with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+
+
+class CodeExecutionMetric(Metric):
+    """A metric that executes custom Python code for evaluation."""
+
+    # You can use standard Pydantic Field syntax here because this is raw Python code
+    custom_function: Optional[str] = Field(
+        default=None,
+        description="""The Python function code to be executed on the server side.""",
+    )
+
+    # You can also add hand-written validators or methods here
+    @field_validator("custom_function")
+    @classmethod
+    def validate_code(cls, value: Optional[str]) -> Optional[str]:
+        if value and "def evaluate" not in value:
+            raise ValueError(
+                "custom_function must contain a 'def evaluate(instance):' signature."
+            )
+        return value
 
 
 class LLMMetric(Metric):
@@ -1792,7 +1812,7 @@ class MetricDict(TypedDict, total=False):
     name: Optional[str]
     """The name of the metric."""
 
-    custom_function: Optional[Callable[..., Any]]
+    custom_function: Optional[Union[str, Callable[..., Any]]]
     """The custom function that defines the end-to-end logic for metric computation."""
 
     prompt_template: Optional[str]
