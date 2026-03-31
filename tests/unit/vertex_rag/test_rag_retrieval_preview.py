@@ -224,6 +224,27 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
+    def test_retrieval_query_with_metadata_filter(self, retrieve_contexts_mock):
+        metadata_filter = 'doc.metadata.genre == "fiction"'
+        rag_retrieval_config = rag.RagRetrievalConfig(
+            top_k=10,
+            filter=rag.Filter(
+                vector_distance_threshold=0.5, metadata_filter=metadata_filter
+            ),
+        )
+        rag.retrieval_query(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=rag_retrieval_config,
+        )
+        retrieve_contexts_mock.assert_called_once()
+        args, kwargs = retrieve_contexts_mock.call_args
+        request = kwargs["request"]
+        assert (
+            request.query.rag_retrieval_config.filter.metadata_filter == metadata_filter
+        )
+
+    @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_corpora_config_llm_ranker_success(self):
         response = rag.retrieval_query(
             rag_corpora=[tc.TEST_RAG_CORPUS_ID],

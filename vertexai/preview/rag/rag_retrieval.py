@@ -246,6 +246,10 @@ def retrieval_query(
             api_retrival_config.filter.vector_similarity_threshold = (
                 rag_retrieval_config.filter.vector_similarity_threshold
             )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
 
         if (
             rag_retrieval_config.ranking
@@ -495,6 +499,10 @@ async def async_retrieve_contexts(
             api_retrival_config.ranking.llm_ranker.model_name = (
                 rag_retrieval_config.ranking.llm_ranker.model_name
             )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
 
     query = aiplatform_v1beta1.RagQuery(
         text=text,
@@ -741,6 +749,10 @@ def ask_contexts(
         elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
             api_retrival_config.ranking.llm_ranker.model_name = (
                 rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
             )
 
     query = aiplatform_v1beta1.RagQuery(

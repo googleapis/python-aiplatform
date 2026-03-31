@@ -790,12 +790,8 @@ class Datasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
@@ -850,23 +846,9 @@ class Datasets(_api_module.BaseModule):
             multimodal_dataset = types.MultimodalDataset()
 
         bigframes = _datasets_utils._try_import_bigframes()
-        bigquery = _datasets_utils._try_import_bigquery()
         project = self._api_client.project
         location = self._api_client.location
         credentials = self._api_client._credentials
-
-        if target_table_id:
-            target_table_id = _datasets_utils._normalize_and_validate_table_id(
-                table_id=target_table_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        else:
-            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
-                project=project, location=location, credentials=credentials
-            )
-            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -874,28 +856,12 @@ class Datasets(_api_module.BaseModule):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(dataframe)
-            client = bigquery.Client(project=project, credentials=credentials)
-            _datasets_utils.save_dataframe_to_bigquery(
-                temp_bigframes_df,
-                target_table_id,
-                client,
+            return self.create_from_bigframes(
+                dataframe=session.read_pandas(dataframe),
+                multimodal_dataset=multimodal_dataset,
+                target_table_id=target_table_id,
+                config=config,
             )
-
-        return self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
-        )
 
     def create_from_bigframes(
         self,
@@ -998,8 +964,11 @@ class Datasets(_api_module.BaseModule):
         elif not multimodal_dataset:
             multimodal_dataset = types.MultimodalDataset()
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        return bigframes.pandas.read_gbq_table(uri.removeprefix("bq://"))
+        if multimodal_dataset.bigquery_uri is None:
+            raise ValueError("Multimodal dataset bigquery source uri is not set.")
+        return bigframes.pandas.read_gbq_table(
+            multimodal_dataset.bigquery_uri.removeprefix("bq://")
+        )
 
     def update_multimodal_dataset(
         self,
@@ -1026,12 +995,8 @@ class Datasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
@@ -1936,12 +1901,8 @@ class AsyncDatasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
@@ -1996,23 +1957,9 @@ class AsyncDatasets(_api_module.BaseModule):
             multimodal_dataset = types.MultimodalDataset()
 
         bigframes = _datasets_utils._try_import_bigframes()
-        bigquery = _datasets_utils._try_import_bigquery()
         project = self._api_client.project
         location = self._api_client.location
         credentials = self._api_client._credentials
-
-        if target_table_id:
-            target_table_id = _datasets_utils._normalize_and_validate_table_id(
-                table_id=target_table_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        else:
-            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
-                project=project, location=location, credentials=credentials
-            )
-            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -2020,28 +1967,12 @@ class AsyncDatasets(_api_module.BaseModule):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(dataframe)
-            client = bigquery.Client(project=project, credentials=credentials)
-            await _datasets_utils.save_dataframe_to_bigquery_async(
-                temp_bigframes_df,
-                target_table_id,
-                client,
+            return await self.create_from_bigframes(
+                dataframe=session.read_pandas(dataframe),
+                multimodal_dataset=multimodal_dataset,
+                target_table_id=target_table_id,
+                config=config,
             )
-
-        return await self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
-        )
 
     async def create_from_bigframes(
         self,
@@ -2146,9 +2077,11 @@ class AsyncDatasets(_api_module.BaseModule):
         elif not multimodal_dataset:
             multimodal_dataset = types.MultimodalDataset()
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
+        if multimodal_dataset.bigquery_uri is None:
+            raise ValueError("Multimodal dataset bigquery source uri is missing.")
         return await asyncio.to_thread(
-            bigframes.pandas.read_gbq_table, uri.removeprefix("bq://")
+            bigframes.pandas.read_gbq_table,
+            multimodal_dataset.bigquery_uri.removeprefix("bq://"),
         )
 
     async def update_multimodal_dataset(
@@ -2172,12 +2105,8 @@ class AsyncDatasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:

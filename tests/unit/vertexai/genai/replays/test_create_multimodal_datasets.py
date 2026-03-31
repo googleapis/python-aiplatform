@@ -106,25 +106,6 @@ def test_create_dataset_from_bigquery(client):
     )
 
 
-def test_create_dataset_from_bigquery_without_bq_prefix(client):
-    dataset = client.datasets.create_from_bigquery(
-        multimodal_dataset={
-            "display_name": "test-from-bigquery",
-            "description": "test-description-from-bigquery",
-            "metadata": {
-                "inputConfig": {
-                    "bigquerySource": {"uri": BIGQUERY_TABLE_NAME},
-                },
-            },
-        },
-    )
-    assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.display_name == "test-from-bigquery"
-    assert dataset.metadata.input_config.bigquery_source.uri == (
-        f"bq://{BIGQUERY_TABLE_NAME}"
-    )
-
-
 @pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
 def test_create_dataset_from_pandas(client, is_replay_mode):
     dataframe = pd.DataFrame(
@@ -259,26 +240,6 @@ async def test_create_dataset_from_bigquery_async_with_timeout(client):
             "metadata": {
                 "inputConfig": {
                     "bigquerySource": {"uri": f"bq://{BIGQUERY_TABLE_NAME}"},
-                },
-            },
-        },
-    )
-    assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.display_name == "test-from-bigquery"
-    assert dataset.metadata.input_config.bigquery_source.uri == (
-        f"bq://{BIGQUERY_TABLE_NAME}"
-    )
-
-
-@pytest.mark.asyncio
-async def test_create_dataset_from_bigquery_async_without_bq_prefix(client):
-    dataset = await client.aio.datasets.create_from_bigquery(
-        multimodal_dataset={
-            "display_name": "test-from-bigquery",
-            "description": "test-description-from-bigquery",
-            "metadata": {
-                "inputConfig": {
-                    "bigquerySource": {"uri": BIGQUERY_TABLE_NAME},
                 },
             },
         },

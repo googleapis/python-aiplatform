@@ -44,10 +44,10 @@ def create_from_response(model_type: Type[T], response: dict[str, Any]) -> T:
     return model_type(**filtered_response)
 
 
-def multimodal_dataset_get_bigquery_uri(
+def validate_multimodal_dataset_bigquery_uri(
     multimodal_dataset: common.MultimodalDataset,
-) -> str:
-    """Gets the bigquery uri from a multimodal dataset or raises ValueError."""
+) -> None:
+    """Validates that a multimodal dataset has a bigquery uri or raises ValueError."""
     if (
         not hasattr(multimodal_dataset, "metadata")
         or multimodal_dataset.metadata is None
@@ -70,33 +70,12 @@ def multimodal_dataset_get_bigquery_uri(
         raise ValueError(
             "Multimodal dataset input config bigquery source uri is required."
         )
-    return str(multimodal_dataset.metadata.input_config.bigquery_source.uri)
-
-
-def multimodal_dataset_set_bigquery_uri(
-    multimodal_dataset: common.MultimodalDataset,
-    bigquery_uri: str,
-) -> None:
-    """Sets the bigquery uri from a multimodal dataset or raises ValueError."""
-    metadata = (
-        common.SchemaTablesDatasetMetadata()
-        if multimodal_dataset.metadata is None
-        else multimodal_dataset.metadata
-    )
-    input_config = (
-        common.SchemaTablesDatasetMetadataInputConfig()
-        if metadata.input_config is None
-        else metadata.input_config
-    )
-    bigquery_source = (
-        common.SchemaTablesDatasetMetadataBigQuerySource()
-        if input_config.bigquery_source is None
-        else input_config.bigquery_source
-    )
-    bigquery_source.uri = bigquery_uri
-    input_config.bigquery_source = bigquery_source
-    metadata.input_config = input_config
-    multimodal_dataset.metadata = metadata
+    if not str(multimodal_dataset.metadata.input_config.bigquery_source.uri).startswith(
+        "bq://"
+    ):
+        raise ValueError(
+            "Multimodal dataset bigquery source uri must start with 'bq://'."
+        )
 
 
 def _try_import_bigframes() -> Any:

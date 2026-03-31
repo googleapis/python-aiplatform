@@ -5087,7 +5087,7 @@ DnsPeeringConfigOrDict = Union[DnsPeeringConfig, DnsPeeringConfigDict]
 
 
 class PscInterfaceConfig(_common.BaseModel):
-    """The PSC interface config."""
+    """Configuration for PSC-I."""
 
     dns_peering_configs: Optional[list[DnsPeeringConfig]] = Field(
         default=None,
@@ -5100,7 +5100,7 @@ class PscInterfaceConfig(_common.BaseModel):
 
 
 class PscInterfaceConfigDict(TypedDict, total=False):
-    """The PSC interface config."""
+    """Configuration for PSC-I."""
 
     dns_peering_configs: Optional[list[DnsPeeringConfigDict]]
     """Optional. DNS peering configurations. When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS. The user must grant the dns.peer role to the Vertex AI Service Agent on the target project."""
@@ -6429,7 +6429,7 @@ ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
 
 
 class ReasoningEngineContextSpec(_common.BaseModel):
-    """The configuration for agent engine sub-resources to manage context."""
+    """Configuration for how Agent Engine sub-resources should manage context."""
 
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
         default=None,
@@ -6438,7 +6438,7 @@ class ReasoningEngineContextSpec(_common.BaseModel):
 
 
 class ReasoningEngineContextSpecDict(TypedDict, total=False):
-    """The configuration for agent engine sub-resources to manage context."""
+    """Configuration for how Agent Engine sub-resources should manage context."""
 
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
     """Optional. Specification for a Memory Bank, which manages memories for the Agent Engine."""
@@ -6756,10 +6756,7 @@ ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict = Union[
 
 
 class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
-    """The image spec for building an image (within a single build step).
-
-    It is based on the config file (i.e. Dockerfile) in the source directory.
-    """
+    """The image spec for building an image (within a single build step), based on the config file (i.e. Dockerfile) in the source directory."""
 
     build_args: Optional[dict[str, str]] = Field(
         default=None,
@@ -6768,10 +6765,7 @@ class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
 
 
 class ReasoningEngineSpecSourceCodeSpecImageSpecDict(TypedDict, total=False):
-    """The image spec for building an image (within a single build step).
-
-    It is based on the config file (i.e. Dockerfile) in the source directory.
-    """
+    """The image spec for building an image (within a single build step), based on the config file (i.e. Dockerfile) in the source directory."""
 
     build_args: Optional[dict[str, str]]
     """Optional. Build arguments to be used. They will be passed through --build-arg flags."""
@@ -6880,6 +6874,27 @@ ReasoningEngineSpecSourceCodeSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecContainerSpec(_common.BaseModel):
+    """Specification for deploying from a container image."""
+
+    image_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica.""",
+    )
+
+
+class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
+    """Specification for deploying from a container image."""
+
+    image_uri: Optional[str]
+    """Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica."""
+
+
+ReasoningEngineSpecContainerSpecOrDict = Union[
+    ReasoningEngineSpecContainerSpec, ReasoningEngineSpecContainerSpecDict
+]
+
+
 class ReasoningEngineSpec(_common.BaseModel):
     """The specification of an agent engine."""
 
@@ -6919,6 +6934,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Deploy from source code files with a defined entrypoint.""",
     )
+    container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
+        default=None,
+        description="""Deploy from a container image with a defined entrypoint and commands.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -6950,6 +6969,9 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 
     source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpecDict]
     """Deploy from source code files with a defined entrypoint."""
+
+    container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
+    """Deploy from a container image with a defined entrypoint and commands."""
 
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
@@ -12344,6 +12366,64 @@ class MultimodalDataset(_common.BaseModel):
         default=None, description="""The description of the multimodal dataset."""
     )
 
+    @property
+    def read_config(self) -> Optional[GeminiRequestReadConfig]:
+        """Gets the read config from the dataset metadata. Returns None if it's not set."""
+        if self.metadata is None or self.metadata.gemini_request_read_config is None:
+            return None
+        return self.metadata.gemini_request_read_config
+
+    def set_read_config(
+        self,
+        *,
+        read_config: GeminiRequestReadConfigOrDict,
+    ) -> None:
+        """Sets the read config in the dataset metadata."""
+        if isinstance(read_config, dict):
+            read_config = GeminiRequestReadConfig(**read_config)
+
+        if self.metadata is None:
+            self.metadata = SchemaTablesDatasetMetadata()
+        self.metadata.gemini_request_read_config = read_config
+
+    @property
+    def bigquery_uri(
+        self,
+    ) -> Optional[str]:
+        """Gets the bigquery uri from the dataset metadata. Returns None if it's not set."""
+        if (
+            self.metadata is None
+            or self.metadata.input_config is None
+            or self.metadata.input_config.bigquery_source is None
+        ):
+            return None
+        return str(self.metadata.input_config.bigquery_source.uri)
+
+    def set_bigquery_uri(
+        self,
+        bigquery_uri: str,
+    ) -> None:
+        """Sets the bigquery uri in the dataset metadata. Prepends 'bq://' if it's not already present."""
+        if not bigquery_uri.startswith("bq://"):
+            bigquery_uri = f"bq://{bigquery_uri}"
+        metadata = (
+            SchemaTablesDatasetMetadata() if self.metadata is None else self.metadata
+        )
+        input_config = (
+            SchemaTablesDatasetMetadataInputConfig()
+            if metadata.input_config is None
+            else metadata.input_config
+        )
+        bigquery_source = (
+            SchemaTablesDatasetMetadataBigQuerySource()
+            if input_config.bigquery_source is None
+            else input_config.bigquery_source
+        )
+        bigquery_source.uri = bigquery_uri
+        input_config.bigquery_source = bigquery_source
+        metadata.input_config = input_config
+        self.metadata = metadata
+
 
 class MultimodalDatasetDict(TypedDict, total=False):
     """Represents a multimodal dataset."""
@@ -15432,6 +15512,9 @@ class AgentEngineConfig(_common.BaseModel):
     ] = Field(
         default=None, description="""The agent config source for the Agent Engine."""
     )
+    container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
+        default=None, description="""The container spec for the Agent Engine."""
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -15602,6 +15685,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
         ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
     ]
     """The agent config source for the Agent Engine."""
+
+    container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
+    """The container spec for the Agent Engine."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

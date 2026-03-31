@@ -1303,6 +1303,47 @@ class TestAgentEngineHelpers:
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
 
+    def test_create_agent_engine_config_with_container_spec(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            container_spec=container_spec,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["container_spec"] == container_spec
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+
+    def test_create_agent_engine_config_with_container_spec_and_others_raises(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        with pytest.raises(ValueError) as excinfo:
+            self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                container_spec=container_spec,
+                agent=self.test_agent,
+            )
+        assert "please do not specify `agent`" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                container_spec=container_spec,
+                source_packages=["."],
+            )
+        assert "please do not specify `source_packages`" in str(excinfo.value)
+
     @mock.patch.object(
         _agent_engines_utils,
         "_create_base64_encoded_tarball",
@@ -2074,6 +2115,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2177,6 +2219,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2279,6 +2322,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2450,6 +2494,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2547,6 +2592,7 @@ class TestAgentEngine:
                 build_options=None,
                 image_spec=None,
                 agent_config_source=None,
+                container_spec=None,
             )
             request_mock.assert_called_with(
                 "post",
