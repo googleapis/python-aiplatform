@@ -179,6 +179,7 @@ async def async_retrieve_contexts(
     api_path_override: Optional[str] = None,
     rag_resources: Optional[List[resources.RagResource]] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
 ) -> aiplatform_v1.RetrieveContextsResponse:
     """Retrieve top k relevant docs/chunks asynchronously.
 
@@ -205,17 +206,18 @@ async def async_retrieve_contexts(
     Args:
         text: Required. The query in text format to get relevant contexts.
         parent_override: Optional. The parent resource name to use for the API
-          request. If not specified, the parent is determined from the global
-          configuration.
+            request. If not specified, the parent is determined from the global
+            configuration.
         api_path_override: Optional. The API path override to use for the API
-          request. If not specified, the path is determined from the global
-          configuration.
+            request. If not specified, the path is determined from the global
+            configuration.
         rag_resources: Optional. A list of RagResource. It can be used to specify
-          corpus only or ragfiles. Currently only support one corpus or multiple
-          files from one corpus. In the future we may open up multiple corpora
-          support.
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
         rag_retrieval_config: Optional. The config containing the retrieval
-          parameters, including top_k.
+            parameters, including top_k.
+        timeout: Optional. The timeout in seconds for the request.
 
     Returns:
         RetrieveContextsResponse.
@@ -320,7 +322,9 @@ async def async_retrieve_contexts(
         tools=[tool],
     )
     try:
-        response_lro = await client.async_retrieve_contexts(request=request)
+        response_lro = await client.async_retrieve_contexts(
+            request=request, timeout=timeout
+        )
         response = await response_lro.result()
     except Exception as e:
         raise RuntimeError(
@@ -336,6 +340,7 @@ def ask_contexts(
     api_path_override: Optional[str] = None,
     rag_resources: Optional[List[resources.RagResource]] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
 ) -> aiplatform_v1.AskContextsResponse:
     """Ask questions on top k relevant docs/chunks.
 
@@ -362,17 +367,18 @@ def ask_contexts(
     Args:
         text: Required. The query in text format to get relevant contexts.
         parent_override: Optional. The parent resource name to use for the API
-          request. If not specified, the parent is determined from the global
-          configuration.
+            request. If not specified, the parent is determined from the global
+            configuration.
         api_path_override: Optional. The API path override to use for the API
-          request. If not specified, the path is determined from the global
-          configuration.
+            request. If not specified, the path is determined from the global
+            configuration.
         rag_resources: Optional. A list of RagResource. It can be used to specify
-          corpus only or ragfiles. Currently only support one corpus or multiple
-          files from one corpus. In the future we may open up multiple corpora
-          support.
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
         rag_retrieval_config: Optional. The config containing the retrieval
-          parameters, including top_k.
+            parameters, including top_k.
+        timeout: Optional. The timeout in seconds for the request.
 
     Returns:
         AskContextsResponse.
@@ -475,7 +481,7 @@ def ask_contexts(
         tools=[tool],
     )
     try:
-        response = client.ask_contexts(request=request)
+        response = client.ask_contexts(request=request, timeout=timeout)
     except Exception as e:
         raise RuntimeError("Failed in asking contexts due to: ", e) from e
 

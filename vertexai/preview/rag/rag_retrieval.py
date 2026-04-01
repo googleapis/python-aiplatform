@@ -290,6 +290,7 @@ async def async_retrieve_contexts(
     vector_distance_threshold: Optional[float] = None,
     vector_search_alpha: Optional[float] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
 ) -> aiplatform_v1beta1.RetrieveContextsResponse:
     """Retrieve top k relevant docs/chunks asynchronously.
 
@@ -316,22 +317,23 @@ async def async_retrieve_contexts(
     Args:
         text: Required. The query in text format to get relevant contexts.
         rag_resources: Optional. A list of RagResource. It can be used to specify
-          corpus only or ragfiles. Currently only support one corpus or multiple
-          files from one corpus. In the future we may open up multiple corpora
-          support.
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
         rag_corpora: Optional. Deprecated. Please use rag_resources instead. A
-          list of RagCorpora resource names. Format:
-          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
-          Currently only support one corpus. In the future we may open up multiple
-          corpora support.
+            list of RagCorpora resource names. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            Currently only support one corpus. In the future we may open up multiple
+            corpora support.
         similarity_top_k: Optional. Deprecated. Please use
-          rag_retrieval_config.top_k instead.
+            rag_retrieval_config.top_k instead.
         vector_distance_threshold: Optional. Deprecated. Please use
-          rag_retrieval_config.filter.vector_distance_threshold instead.
+            rag_retrieval_config.filter.vector_distance_threshold instead.
         vector_search_alpha: Optional. Deprecated. Please use
-          rag_retrieval_config.hybrid_search.alpha instead.
+            rag_retrieval_config.hybrid_search.alpha instead.
         rag_retrieval_config: Optional. The config containing the retrieval
-          parameters, including top_k, vector_distance_threshold, and alpha.
+            parameters, including top_k, vector_distance_threshold, and alpha.
+        timeout: Optional. The timeout for the request in seconds. Default is 600.
 
     Returns:
         RetrieveContextsResponse.
@@ -523,7 +525,9 @@ async def async_retrieve_contexts(
         tools=[tool],
     )
     try:
-        response_lro = await client.async_retrieve_contexts(request=request)
+        response_lro = await client.async_retrieve_contexts(
+            request=request, timeout=timeout
+        )
         response = await response_lro.result()
     except Exception as e:
         raise RuntimeError(
@@ -541,6 +545,7 @@ def ask_contexts(
     vector_distance_threshold: Optional[float] = None,
     vector_search_alpha: Optional[float] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
 ) -> aiplatform_v1beta1.AskContextsResponse:
     """Ask questions on top k relevant docs/chunks.
 
@@ -567,22 +572,23 @@ def ask_contexts(
     Args:
         text: Required. The query in text format to get relevant contexts.
         rag_resources: Optional. A list of RagResource. It can be used to specify
-          corpus only or ragfiles. Currently only support one corpus or multiple
-          files from one corpus. In the future we may open up multiple corpora
-          support.
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
         rag_corpora: Optional. Deprecated. Please use rag_resources instead. A
-          list of RagCorpora resource names. Format:
-          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
-          Currently only support one corpus. In the future we may open up multiple
-          corpora support.
+            list of RagCorpora resource names. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            Currently only support one corpus. In the future we may open up multiple
+            corpora support.
         similarity_top_k: Optional. Deprecated. Please use
-          rag_retrieval_config.top_k instead.
+            rag_retrieval_config.top_k instead.
         vector_distance_threshold: Optional. Deprecated. Please use
-          rag_retrieval_config.filter.vector_distance_threshold instead.
+            rag_retrieval_config.filter.vector_distance_threshold instead.
         vector_search_alpha: Optional. Deprecated. Please use
-          rag_retrieval_config.hybrid_search.alpha instead.
+            rag_retrieval_config.hybrid_search.alpha instead.
         rag_retrieval_config: Optional. The config containing the retrieval
-          parameters, including top_k, vector_distance_threshold, and alpha.
+            parameters, including top_k, vector_distance_threshold, and alpha.
+        timeout: Optional. The timeout for the request in seconds. Default is 600.
 
     Returns:
         AskContextsResponse.
@@ -774,7 +780,7 @@ def ask_contexts(
         tools=[tool],
     )
     try:
-        response = client.ask_contexts(request=request)
+        response = client.ask_contexts(request=request, timeout=timeout)
     except Exception as e:
         raise RuntimeError("Failed in asking contexts due to: ", e) from e
 
