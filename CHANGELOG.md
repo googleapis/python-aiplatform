@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.145.0](https://github.com/googleapis/python-aiplatform/compare/v1.144.0...v1.145.0) (2026-04-01)
+
+
+### Features
+
+* Add session_id to Create Session to allow custom session id ([bea67c2](https://github.com/googleapis/python-aiplatform/commit/bea67c296637c06821df12494ba46b74de5cd2aa))
+* Eval SDK: Migrate model call method by genai SDK usage ([ff5e246](https://github.com/googleapis/python-aiplatform/commit/ff5e24659d399816c19c641674f85ef0c5e65b6b))
+* Eval SDK: Migrate model call method by genai SDK usage in preview foler ([ad36123](https://github.com/googleapis/python-aiplatform/commit/ad36123f6f9ae35cbe45bd925dde9458ee3cef00))
+* Limit metric registry support to only custom code execution metric and llm based metric in SDK ([c12aedc](https://github.com/googleapis/python-aiplatform/commit/c12aedcea7f778bc6cdfd1d871334ef504870c97))
+
+
+### Bug Fixes
+
+* Increase default timeout to 600 seconds for ask_contexts and async_retrieve_contexts in VertexRagServiceClient. ([3de2c1e](https://github.com/googleapis/python-aiplatform/commit/3de2c1eba1a16775085fb3c46b19ac9e8d5f5f22))
+
 ## [1.144.0](https://github.com/googleapis/python-aiplatform/compare/v1.143.0...v1.144.0) (2026-03-31)
 
 
