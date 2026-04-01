@@ -26,9 +26,12 @@ from vertexai.preview.evaluation.metrics import _base
 from vertexai.preview.evaluation.metrics import (
     custom_output_config as custom_output_config_class,
 )
+from google.cloud.aiplatform import base
 from vertexai.preview.evaluation.metrics import (
     metric_prompt_template as metric_prompt_template_base,
 )
+
+_LOGGER = base.Logger(__name__)
 
 
 class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-access
@@ -64,8 +67,8 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
     Usage Examples:
 
         ```
-        baseline_model = GenerativeModel("gemini-1.0-pro")
-        candidate_model = GenerativeModel("gemini-1.5-pro")
+        baseline_model = GenerativeModel("gemini-2.5-pro")
+        candidate_model = GenerativeModel("gemini-2.5-flash")
 
         pairwise_groundedness = PairwiseMetric(
             metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
@@ -96,7 +99,7 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
             metric_prompt_template_base.PairwiseMetricPromptTemplate, str
         ],
         baseline_model: Optional[
-            Union[generative_models.GenerativeModel, Callable[[str], str]]
+            Union[str, generative_models.GenerativeModel, Callable[[str], str]]
         ] = None,
         system_instruction: Optional[str] = None,
         autorater_config: Optional[gapic_eval_service_types.AutoraterConfig] = None,
@@ -124,6 +127,12 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
             autorater_config=autorater_config,
             custom_output_config=custom_output_config,
         )
+        if isinstance(baseline_model, generative_models.GenerativeModel):
+            _LOGGER.warning(
+                "vertexai.generative_models.GenerativeModel is deprecated for "
+                "evaluation and will be removed in June 2026. Please pass a "
+                "string model name instead."
+            )
         self._baseline_model = baseline_model
 
     @property

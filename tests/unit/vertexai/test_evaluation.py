@@ -2153,6 +2153,29 @@ class TestEvaluationErrors:
             )
             test_eval_task.evaluate()
 
+    @mock.patch("google.genai.Client")
+    def test_evaluate_model_genai(self, mock_client_class):
+        mock_client = mock.MagicMock()
+        mock_client.models.generate_content.return_value = mock.MagicMock(
+            text="test_response"
+        )
+        mock_client_class.return_value = mock_client
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_WITHOUT_RESPONSE,
+            metrics=[PointwisePreview.SUMMARIZATION_QUALITY],
+        )
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=_MOCK_SUMMARIZATION_QUALITY_RESULT_PREVIEW,
+        ):
+            test_result = test_eval_task.evaluate(
+                model="gemini-2.5-pro",
+                prompt_template="{instruction} test prompt template {context}",
+            )
+            assert mock_client.models.generate_content.call_count == 2
+            assert "summarization_quality/score" in test_result.metrics_table.columns
+
     def test_evaluate_duplicate_string_metric(self):
         metrics = [
             "exact_match",

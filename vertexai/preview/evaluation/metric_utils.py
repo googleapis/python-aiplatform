@@ -185,7 +185,7 @@ def _parse_required_inputs(
 
 def load(
     file_path: str,
-    baseline_model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
+    baseline_model: Optional[Union[str, GenerativeModel, Callable[[str], str]]] = None,
 ) -> Union[PointwiseMetric, PairwiseMetric, RubricBasedMetric]:
     """Loads a metric object from a YAML file.
 
@@ -206,7 +206,7 @@ def load(
 
 def loads(
     yaml_data: str,
-    baseline_model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
+    baseline_model: Optional[Union[str, GenerativeModel, Callable[[str], str]]] = None,
 ) -> Union[PointwiseMetric, PairwiseMetric, RubricBasedMetric]:
     """Loads a metric object from YAML data.
 

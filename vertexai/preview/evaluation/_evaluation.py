@@ -74,7 +74,7 @@ _SUCCESSFUL_FINISH_REASONS = [
 ]
 
 _RunnableType = Union[reasoning_engines.Queryable, Callable[[str], Dict[str, str]]]
-_ModelType = Union[generative_models.GenerativeModel, Callable[[str], str]]
+_ModelType = Union[str, generative_models.GenerativeModel, Callable[[str], str]]
 
 
 def _validate_metrics(metrics: List[Union[str, metrics_base._Metric]]) -> None:
@@ -399,7 +399,21 @@ def _run_model_inference(
         if constants.Dataset.PROMPT_COLUMN in evaluation_run_config.dataset.columns:
             t1 = time.perf_counter()
             if isinstance(model, generative_models.GenerativeModel):
+                _LOGGER.warning(
+                    "vertexai.generative_models.GenerativeModel is deprecated for "
+                    "evaluation and will be removed in June 2026. Please pass a "
+                    "string model name instead."
+                )
                 responses = _pre_eval_utils._generate_responses_from_gemini_model(
+                    model, evaluation_run_config.dataset
+                )
+                _pre_eval_utils.populate_eval_dataset_with_model_responses(
+                    responses,
+                    evaluation_run_config,
+                    is_baseline_model,
+                )
+            elif isinstance(model, str):
+                responses = _pre_eval_utils._generate_responses_from_genai_model(
                     model, evaluation_run_config.dataset
                 )
                 _pre_eval_utils.populate_eval_dataset_with_model_responses(
