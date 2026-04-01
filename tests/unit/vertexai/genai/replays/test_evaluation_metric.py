@@ -24,13 +24,12 @@ _TEST_LOCATION = "us-central1"
 
 def test_create_and_get_evaluation_metric(client):
     client._api_client._http_options.api_version = "v1beta1"
-    client._api_client._http_options.base_url = (
-        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
-    )
     result = client.evals.create_evaluation_metric(
         display_name="test_metric",
         description="test_description",
-        metric=types.RubricMetric.GENERAL_QUALITY,
+        metric=types.LLMMetric(
+            name="custom_llm_metric", prompt_template="test_prompt_template"
+        ),
     )
     assert isinstance(result, str)
     assert re.match(
@@ -44,9 +43,6 @@ def test_create_and_get_evaluation_metric(client):
 
 def test_list_evaluation_metrics(client):
     client._api_client._http_options.api_version = "v1beta1"
-    client._api_client._http_options.base_url = (
-        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
-    )
     response = client.evals.list_evaluation_metrics()
     assert isinstance(response, types.ListEvaluationMetricsResponse)
     assert len(response.evaluation_metrics) >= 0

@@ -187,22 +187,8 @@ def t_metric_for_registry(
     if metric_name:
         metric_name = metric_name.lower()
 
-    # Handle standard computation metrics
-    if metric_name == "exact_match":
-        metric_payload_item["exact_match_spec"] = {}
-    elif metric_name == "bleu":
-        metric_payload_item["bleu_spec"] = {}
-    elif metric_name and metric_name.startswith("rouge"):
-        rouge_type = metric_name.replace("_", "")
-        metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}
-    # API Pre-defined metrics
-    elif metric_name and metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS:
-        metric_payload_item["predefined_metric_spec"] = {
-            "metric_spec_name": metric_name,
-            "metric_spec_parameters": metric.metric_spec_parameters,
-        }
     # Custom Code Execution Metric
-    elif hasattr(metric, "remote_custom_function") and metric.remote_custom_function:
+    if hasattr(metric, "remote_custom_function") and metric.remote_custom_function:
         metric_payload_item["custom_code_execution_spec"] = {
             "evaluation_function": metric.remote_custom_function
         }
@@ -217,7 +203,7 @@ def t_metric_for_registry(
             "evaluation_function": metric.custom_function
         }
 
-    # Map LLM-based metrics to the new llm_based_metric_spec
+    # LLM-based metric
     elif (hasattr(metric, "prompt_template") and metric.prompt_template) or (
         hasattr(metric, "rubric_group_name") and metric.rubric_group_name
     ):
