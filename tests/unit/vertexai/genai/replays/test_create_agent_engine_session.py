@@ -85,6 +85,35 @@ def test_create_session_with_expire_time(client):
         client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
+def test_create_session_with_custom_session_id(client):
+    agent_engine = client.agent_engines.create()
+    try:
+        assert isinstance(agent_engine, types.AgentEngine)
+        assert isinstance(agent_engine.api_resource, types.ReasoningEngine)
+
+        operation = client.agent_engines.sessions.create(
+            name=agent_engine.api_resource.name,
+            user_id="test-user-123",
+            config=types.CreateAgentEngineSessionConfig(
+                display_name="my_session",
+                session_state={"foo": "bar"},
+                session_id="my-session-id",
+            ),
+        )
+        assert isinstance(operation, types.AgentEngineSessionOperation)
+        assert operation.response.display_name == "my_session"
+        assert operation.response.session_state == {"foo": "bar"}
+        assert operation.response.user_id == "test-user-123"
+        assert (
+            operation.response.name
+            == f"{agent_engine.api_resource.name}/sessions/my-session-id"
+        )
+        assert operation.done
+    finally:
+        # Clean up resources.
+        client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
