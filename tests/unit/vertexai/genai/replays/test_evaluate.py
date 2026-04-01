@@ -99,9 +99,6 @@ def test_evaluation_byor(client):
 
 def test_evaluation_agent_data(client):
     """Tests evaluate method with AgentData."""
-    client._api_client._http_options.base_url = (
-        "https://autopush-aiplatform.sandbox.googleapis.com/"
-    )
     client._api_client._http_options.api_version = "v1beta1"
 
     agent_data = types.evals.AgentData(
@@ -356,9 +353,6 @@ def test_evaluation_agent_data(client):
 def test_evaluation_metric_resource_name(client):
     """Tests with a metric resource name in types.Metric."""
     client._api_client._http_options.api_version = "v1beta1"
-    client._api_client._http_options.base_url = (
-        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
-    )
     tone_check_metric = types.LLMMetric(
         name="tone_check",
         prompt_template="""
