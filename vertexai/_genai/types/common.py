@@ -15736,8 +15736,14 @@ class RunQueryJobAgentEngineConfig(_common.BaseModel):
     query: Optional[str] = Field(
         default=None, description="""The query to send to the agent engine."""
     )
-    gcs_bucket: Optional[str] = Field(
-        default=None, description="""The GCS bucket to use for the query."""
+    output_gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The GCS URI to use for the output.
+      If it is a file, the system use this file to store the response.
+      If it represents a directory, the system automatically generate a file
+      for the response.
+      In both cases, the input query will be stored in the same directory under
+      the same file name prefix as the output file.""",
     )
 
 
@@ -15750,8 +15756,13 @@ class RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
     query: Optional[str]
     """The query to send to the agent engine."""
 
-    gcs_bucket: Optional[str]
-    """The GCS bucket to use for the query."""
+    output_gcs_uri: Optional[str]
+    """The GCS URI to use for the output.
+      If it is a file, the system use this file to store the response.
+      If it represents a directory, the system automatically generate a file
+      for the response.
+      In both cases, the input query will be stored in the same directory under
+      the same file name prefix as the output file."""
 
 
 RunQueryJobAgentEngineConfigOrDict = Union[

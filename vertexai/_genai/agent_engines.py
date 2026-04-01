@@ -1077,7 +1077,7 @@ class AgentEngines(_api_module.BaseModule):
                 the default configuration will be used. This can be used to specify
                 the following fields:
                   - query: The query to send to the agent engine.
-                  - gcs_bucket: The GCS bucket path to use for the query.
+                  - output_gcs_uri: The GCS URI to use for the output.
         """
         from google.cloud import storage  # type: ignore[attr-defined]
         from google.api_core import exceptions
@@ -1090,41 +1090,40 @@ class AgentEngines(_api_module.BaseModule):
 
         if not config.query:
             raise ValueError("`query` is required in the config object.")
-        if not config.gcs_bucket:
-            raise ValueError("`gcs_bucket` is required in the config object.")
+        if not config.output_gcs_uri:
+            raise ValueError("`output_gcs_uri` is required in the config object.")
 
-        api_resource = self._get(name=name)
+        output_gcs_uri = config.output_gcs_uri
+        is_file = False
+        last_part = ""
+        if not output_gcs_uri.endswith("/"):
+            last_part = output_gcs_uri.split("/")[-1]
+            if "." in last_part:
+                is_file = True
 
-        is_supported = False
-        if (
-            api_resource.spec
-            and api_resource.spec.deployment_spec
-            and api_resource.spec.deployment_spec.env
-        ):
-            for env in api_resource.spec.deployment_spec.env:
-                if env.name in [
-                    "INPUT_GCS_URI",
-                    "OUTPUT_GCS_URI",
-                    "input_gcs_uri",
-                    "output_gcs_uri",
-                ]:
-                    is_supported = True
-                    break
-
-        if not is_supported:
-            raise ValueError(
-                "Your ReasoningEngine does not support long running queries, "
-                "please update your ReasoningEngine and try again."
-            )
-
-        gcs_bucket = config.gcs_bucket.rstrip("/")
+        if is_file:
+            path_parts = output_gcs_uri.split("/")
+            file_name = path_parts[-1]
+            base_uri = "/".join(path_parts[:-1])
+            name_parts = file_name.rsplit(".", 1)
+            if len(name_parts) == 2:
+                name_part, ext = name_parts[0], "." + name_parts[1]
+            else:
+                name_part = name_parts[0]
+                ext = ""
+            input_gcs_uri = f"{base_uri}/{name_part}_input{ext}"
+        else:
+            job_uuid = uuid.uuid4().hex
+            gcs_path = output_gcs_uri.rstrip("/")
+            input_gcs_uri = f"{gcs_path}/{job_uuid}_input.json"
+            output_gcs_uri = f"{gcs_path}/{job_uuid}_output.json"
 
         storage_client = storage.Client(
             project=self._api_client.project, credentials=self._api_client._credentials
         )
 
         # Handle creating the bucket if it does not exist
-        bucket_name = gcs_bucket.replace("gs://", "").split("/")[0]
+        bucket_name = config.output_gcs_uri.replace("gs://", "").split("/")[0]
         bucket = storage_client.bucket(bucket_name)
 
         try:
@@ -1144,14 +1143,9 @@ class AgentEngines(_api_module.BaseModule):
                     "The service account may lack 'storage.buckets.create' permission."
                 ) from e
 
-        job_uuid = uuid.uuid4().hex
-        input_blob_name = f"input_{job_uuid}.json"
-        input_gcs_uri = f"{gcs_bucket}/{input_blob_name}"
+        input_blob_name = input_gcs_uri.replace(f"gs://{bucket_name}/", "")
         blob = bucket.blob(input_blob_name)
         blob.upload_from_string(config.query)
-
-        output_blob_name = f"output_{job_uuid}.json"
-        output_gcs_uri = f"{gcs_bucket}/{output_blob_name}"
 
         new_config = types._RunQueryJobAgentEngineConfig(
             input_gcs_uri=input_gcs_uri,

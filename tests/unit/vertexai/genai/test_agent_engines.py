@@ -2948,7 +2948,7 @@ class TestAgentEngine:
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                 config={
                     "query": _TEST_QUERY_PROMPT,
-                    "gcs_bucket": "gs://my-input-bucket/",
+                    "output_gcs_uri": "gs://my-input-bucket/",
                 },
             )
 
@@ -2959,8 +2959,8 @@ class TestAgentEngine:
 
             assert result == _genai_types.RunQueryJobResult(
                 job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
-                input_gcs_uri="gs://my-input-bucket/input_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
-                output_gcs_uri="gs://my-input-bucket/output_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
+                input_gcs_uri="gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                output_gcs_uri="gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
             )
 
             request_mock.assert_called_with(
@@ -2968,8 +2968,8 @@ class TestAgentEngine:
                 f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:asyncQuery",
                 {
                     "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
-                    "inputGcsUri": "gs://my-input-bucket/input_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
-                    "outputGcsUri": "gs://my-input-bucket/output_b92b9b89-4585-4146-8ee5-22fe99802a8e.json",
+                    "inputGcsUri": "gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                    "outputGcsUri": "gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
                 },
                 None,
             )
@@ -2980,36 +2980,16 @@ class TestAgentEngine:
         ):
             self.client.agent_engines.run_query_job(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-                config={"gcs_bucket": "gs://my-input-bucket/"},
+                config={"output_gcs_uri": "gs://my-input-bucket/"},
             )
 
-    def test_run_query_job_agent_engine_missing_bucket(self):
+    def test_run_query_job_agent_engine_missing_uri(self):
         with pytest.raises(
-            ValueError, match="`gcs_bucket` is required in the config object."
+            ValueError, match="`output_gcs_uri` is required in the config object."
         ):
             self.client.agent_engines.run_query_job(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                 config={"query": _TEST_QUERY_PROMPT},
-            )
-
-    @mock.patch.object(agent_engines.AgentEngines, "_get")
-    def test_run_query_job_agent_engine_missing_cloud_run_job(self, get_mock):
-        get_mock.return_value = _genai_types.ReasoningEngine(
-            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-            spec=_genai_types.ReasoningEngineSpec(
-                deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(env=[])
-            ),
-        )
-        with pytest.raises(
-            ValueError,
-            match="Your ReasoningEngine does not support long running queries, please update your ReasoningEngine and try again.",
-        ):
-            self.client.agent_engines.run_query_job(
-                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
-                config={
-                    "query": _TEST_QUERY_PROMPT,
-                    "gcs_bucket": "gs://my-input-bucket/",
-                },
             )
 
     @mock.patch("google.cloud.storage.Client")
@@ -3053,9 +3033,102 @@ class TestAgentEngine:
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
                     config={
                         "query": _TEST_QUERY_PROMPT,
-                        "gcs_bucket": "gs://my-input-bucket/",
+                        "output_gcs_uri": "gs://my-input-bucket/",
                     },
                 )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine_file_uri(
+        self, mock_uuid, get_mock, mock_storage_client
+    ):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = True
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            result = self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "output_gcs_uri": "gs://my-input-bucket/path/output.json",
+                },
+            )
+
+            mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+            mock_bucket.blob.assert_called_with("path/output_input.json")
+
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/path/output_input.json",
+                output_gcs_uri="gs://my-input-bucket/path/output.json",
+            )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine_directory_no_slash(
+        self, mock_uuid, get_mock, mock_storage_client
+    ):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = True
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            result = self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "output_gcs_uri": "gs://my-input-bucket/path",
+                },
+            )
+
+            mock_bucket.blob.assert_called_with(
+                "path/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json"
+            )
+
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                output_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
+            )
 
     def test_query_agent_engine_async(self):
         agent = self.client.agent_engines._register_api_methods(
