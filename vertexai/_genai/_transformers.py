@@ -119,6 +119,14 @@ def t_metrics(
             if autorater_config:
                 llm_based_spec["judge_autorater_config"] = autorater_config
 
+            result_parsing_function = getv(metric, ["result_parsing_function"])
+            if result_parsing_function:
+                llm_based_spec["result_parser_config"] = {
+                    "custom_code_parser_config": {
+                        "parsing_function": result_parsing_function
+                    }
+                }
+
             metric_payload_item["llm_based_metric_spec"] = llm_based_spec
         elif getattr(metric, "metric_resource_name", None) is not None:
             # Safe pass
@@ -234,6 +242,14 @@ def t_metric_for_registry(
 
         if autorater_config:
             llm_based_spec["judge_autorater_config"] = autorater_config
+
+        result_parsing_function = getv(metric, ["result_parsing_function"])
+        if result_parsing_function:
+            llm_based_spec["result_parser_config"] = {
+                "custom_code_parser_config": {
+                    "parsing_function": result_parsing_function
+                }
+            }
 
         metric_payload_item["llm_based_metric_spec"] = llm_based_spec
 

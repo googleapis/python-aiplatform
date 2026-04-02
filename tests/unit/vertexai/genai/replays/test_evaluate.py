@@ -355,41 +355,41 @@ def test_evaluation_metric_resource_name(client):
     client._api_client._http_options.api_version = "v1beta1"
     tone_check_metric = types.LLMMetric(
         name="tone_check",
-        prompt_template="""
-    # Instruction
-    You are a professional writing evaluator. Your job is to score writing responses according to pre-defined evaluation criteria.
+        prompt_template="""Analyze the tone of the response based on these two criteria:\n
+          1. Professionalism: The response should use appropriate language and maintain a business-like demeanor.\n
+          2. Empathy: The response should acknowledge the user's feelings and show understanding.\n\n
+          Prompt: {agent_data.turns[0].events[0]}
+          Response: {agent_data.turns[0].events[1]}
+          Return ONLY a JSON list of objects for these two properties:
+          [{"property": "Professionalism", "verdict": true, "reasoning": "..."},
+          {"property": "Empathy", "verdict": true, "reasoning": "..."}]
+        """,
+        result_parsing_function="""
+import json, re
+def parse_results(responses):
+    text = responses[0]
+    # Use robust regex to find the JSON list block
+    match = re.search("[\\[].*[]]", text, re.DOTALL)
+    if not match: return {"score": 0.0, "explanation": "No valid JSON found"}
 
-    # Criteria
-    Analyze the tone of the response based on these two criteria:
-    1. Professionalism: The response should use appropriate language and maintain a business-like demeanor.
-    2. Empathy: The response should acknowledge the user's feelings and show understanding.
+    try:
+        data = json.loads(match.group(0))
+        # Calculate an overall score (e.g., average of verdicts)
+        passed_count = sum(1 for r in data if r.get("verdict", False))
+        total_count = len(data)
+        score = passed_count / total_count if total_count > 0 else 0.0
 
-    # Input
-    Prompt: {agent_data.turns[0].events[0]}
-    Response: {agent_data.turns[0].events[1]}
+        # Consolidate reasoning into a single explanation string
+        explanation = "\\n".join([f"{r.get('property')}: {r.get('reasoning')}" for r in data])
 
-    # Output Format
-    Respond in a JSON format with the following schema:
-    {
-        "type": "OBJECT",
-        "properties": {
-            "score": {"type": "NUMBER"},
-            "explanation": {"type": "STRING"},
-        },
-        "required": ["score", "explanation"],
-    }
-    Return the JSON format output in a string representation of a Python dictionary directly, without strings like '```json' or '```'.
-
-    The output would include the following fields:
-    score: based on your evaluation, the score should be a number based on the rating rubrics.
-    explanation: your explanation for the score rating, in one line.
-
-    ## Example Output Format:
-    {"score" : -1, "explanation": "Here is the reason that the response is given a score of -1 based on the rating rubric."}
-    {"score" : 3, "explanation": "Here is the reason that the response is given a score of 3 based on the rating rubric."}
-    {"score" : 0, "explanation": "Here is the reason that the response is given a score of 0 based on the rating rubric."}
-    {"score" : 5, "explanation": "Here is the reason that the response is given a score of 5 based on the rating rubric."}
-    """,
+        # IMPORTANT: Return a dictionary, not a list
+        return {
+            "score": float(score),
+            "explanation": explanation
+        }
+    except Exception as e:
+        return {"score": 0.0, "explanation": f"Parsing failed: {str(e)}"}
+""",
     )
     metric_resource_name = client.evals.create_evaluation_metric(
         metric=tone_check_metric,
