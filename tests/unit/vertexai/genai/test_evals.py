@@ -2013,6 +2013,23 @@ class TestEvalsMetricHandlers:
         ]
         assert _evals_metric_handlers._has_tool_call(events)
 
+    def test_has_tool_call_with_agent_event(self):
+        events = [
+            vertexai_genai_types.evals.AgentEvent(
+                author="model",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            )
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestRunAgentInternal:
@@ -4892,9 +4909,52 @@ class TestPredefinedMetricHandler:
         handler._build_request_payload(eval_case, response_index=0)
         mock_warning.assert_called_once_with(
             "Metric 'tool_use_quality_v1' requires tool usage in "
-            "'intermediate_events', but no tool usage was found for case %s.",
+            "'intermediate_events' or 'agent_data', but no tool usage was found for case %s.",
             "case-no-tool-call",
         )
+
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_build_request_payload_tool_use_quality_v1_with_agent_data_tool_call(
+        self, mock_warning, mock_api_client_fixture
+    ):
+        """Tests that PredefinedMetricHandler does not warn if tool call is in agent_data."""
+        metric = vertexai_genai_types.Metric(name="tool_use_quality_v1")
+        handler = _evals_metric_handlers.PredefinedMetricHandler(
+            module=evals.Evals(api_client_=mock_api_client_fixture), metric=metric
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            eval_case_id="case-with-agent-data-tool-call",
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_data=vertexai_genai_types.evals.AgentData(
+                turns=[
+                    vertexai_genai_types.evals.ConversationTurn(
+                        turn_index=0,
+                        turn_id="turn_0",
+                        events=[
+                            vertexai_genai_types.evals.AgentEvent(
+                                author="model",
+                                content=genai_types.Content(
+                                    parts=[
+                                        genai_types.Part(
+                                            function_call=genai_types.FunctionCall(
+                                                name="search", args={}
+                                            )
+                                        )
+                                    ]
+                                ),
+                            )
+                        ],
+                    )
+                ]
+            ),
+        )
+        handler._build_request_payload(eval_case, response_index=0)
+        mock_warning.assert_not_called()
 
 
 @pytest.mark.usefixtures("google_auth_mock")

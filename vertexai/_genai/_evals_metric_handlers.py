@@ -42,12 +42,12 @@ _MAX_RETRIES = 3
 T = TypeVar("T", types.Metric, types.MetricSource, types.LLMMetric)
 
 
-def _has_tool_call(intermediate_events: Optional[list[types.evals.Event]]) -> bool:
-    """Checks if any event in intermediate_events has a function call."""
-    if not intermediate_events:
+def _has_tool_call(events: Optional[list[Any]]) -> bool:
+    """Checks if any event in events has a function call."""
+    if not events:
         return False
-    for event in intermediate_events:
-        if event.content and event.content.parts:
+    for event in events:
+        if getattr(event, "content", None) and getattr(event.content, "parts", None):
             for part in event.content.parts:
                 if hasattr(part, "function_call") and part.function_call:
                     return True
@@ -922,10 +922,20 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             )
 
         if self.metric.name == "tool_use_quality_v1":
-            if not _has_tool_call(eval_case.intermediate_events):
+            has_tool_call = _has_tool_call(eval_case.intermediate_events)
+
+            # Check agent_data for tool calls if intermediate_events is empty
+            agent_data = getattr(eval_case, "agent_data", None)
+            if not has_tool_call and agent_data:
+                for turn in agent_data.turns or []:
+                    if _has_tool_call(turn.events):
+                        has_tool_call = True
+                        break
+
+            if not has_tool_call:
                 logger.warning(
                     "Metric 'tool_use_quality_v1' requires tool usage in "
-                    "'intermediate_events', but no tool usage was found for case %s.",
+                    "'intermediate_events' or 'agent_data', but no tool usage was found for case %s.",
                     eval_case.eval_case_id,
                 )
 
