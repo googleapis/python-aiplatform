@@ -85,6 +85,7 @@ def test_create_with_context_spec(client):
             }
         ],
         "enable_third_person_memories": True,
+        "consolidation_config": {"revisions_per_candidate_count": 5},
     }
     memory_bank_customization_config = types.MemoryBankCustomizationConfig(
         **customization_config

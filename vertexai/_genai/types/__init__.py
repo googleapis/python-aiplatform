@@ -607,6 +607,9 @@ from .common import MapInstanceDict
 from .common import MapInstanceOrDict
 from .common import Memory
 from .common import MemoryBankCustomizationConfig
+from .common import MemoryBankCustomizationConfigConsolidationConfig
+from .common import MemoryBankCustomizationConfigConsolidationConfigDict
+from .common import MemoryBankCustomizationConfigConsolidationConfigOrDict
 from .common import MemoryBankCustomizationConfigDict
 from .common import MemoryBankCustomizationConfigGenerateMemoriesExample
 from .common import (
@@ -1577,6 +1580,9 @@ __all__ = [
     "MemoryBankCustomizationConfigMemoryTopic",
     "MemoryBankCustomizationConfigMemoryTopicDict",
     "MemoryBankCustomizationConfigMemoryTopicOrDict",
+    "MemoryBankCustomizationConfigConsolidationConfig",
+    "MemoryBankCustomizationConfigConsolidationConfigDict",
+    "MemoryBankCustomizationConfigConsolidationConfigOrDict",
     "MemoryBankCustomizationConfig",
     "MemoryBankCustomizationConfigDict",
     "MemoryBankCustomizationConfigOrDict",

@@ -6214,6 +6214,28 @@ MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
 ]
 
 
+class MemoryBankCustomizationConfigConsolidationConfig(_common.BaseModel):
+    """Represents configuration for customizing how memories are consolidated."""
+
+    revisions_per_candidate_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Represents the maximum number of revisions to consider for each candidate memory. If not set, then the default value (1) will be used, which means that only the latest revision will be considered.""",
+    )
+
+
+class MemoryBankCustomizationConfigConsolidationConfigDict(TypedDict, total=False):
+    """Represents configuration for customizing how memories are consolidated."""
+
+    revisions_per_candidate_count: Optional[int]
+    """Optional. Represents the maximum number of revisions to consider for each candidate memory. If not set, then the default value (1) will be used, which means that only the latest revision will be considered."""
+
+
+MemoryBankCustomizationConfigConsolidationConfigOrDict = Union[
+    MemoryBankCustomizationConfigConsolidationConfig,
+    MemoryBankCustomizationConfigConsolidationConfigDict,
+]
+
+
 class MemoryBankCustomizationConfig(_common.BaseModel):
     """Configuration for organizing memories for a particular scope."""
 
@@ -6235,6 +6257,12 @@ class MemoryBankCustomizationConfig(_common.BaseModel):
         default=None,
         description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
     )
+    consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfig] = (
+        Field(
+            default=None,
+            description="""Optional. Represents configuration for customizing how memories are consolidated together.""",
+        )
+    )
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
@@ -6253,6 +6281,9 @@ class MemoryBankCustomizationConfigDict(TypedDict, total=False):
 
     scope_keys: Optional[list[str]]
     """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+    consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfigDict]
+    """Optional. Represents configuration for customizing how memories are consolidated together."""
 
 
 MemoryBankCustomizationConfigOrDict = Union[
