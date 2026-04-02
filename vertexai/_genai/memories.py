@@ -329,6 +329,9 @@ def _RetrieveAgentEngineMemoriesConfig_to_vertex(
             [item for item in getv(from_object, ["filter_groups"])],
         )
 
+    if getv(from_object, ["memory_types"]) is not None:
+        setv(parent_object, ["memoryTypes"], getv(from_object, ["memory_types"]))
+
     return to_object
 
 

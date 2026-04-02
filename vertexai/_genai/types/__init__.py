@@ -661,9 +661,13 @@ from .common import MemoryOrDict
 from .common import MemoryRevision
 from .common import MemoryRevisionDict
 from .common import MemoryRevisionOrDict
+from .common import MemoryStructuredContent
+from .common import MemoryStructuredContentDict
+from .common import MemoryStructuredContentOrDict
 from .common import MemoryTopicId
 from .common import MemoryTopicIdDict
 from .common import MemoryTopicIdOrDict
+from .common import MemoryType
 from .common import Message
 from .common import MessageDict
 from .common import Metadata
@@ -1682,6 +1686,9 @@ __all__ = [
     "AgentEngineMemoryConfig",
     "AgentEngineMemoryConfigDict",
     "AgentEngineMemoryConfigOrDict",
+    "MemoryStructuredContent",
+    "MemoryStructuredContentDict",
+    "MemoryStructuredContentOrDict",
     "Memory",
     "MemoryDict",
     "MemoryOrDict",
@@ -2138,6 +2145,7 @@ __all__ = [
     "ManagedTopicEnum",
     "IdentityType",
     "AgentServerMode",
+    "MemoryType",
     "Operator",
     "Language",
     "MachineConfig",
