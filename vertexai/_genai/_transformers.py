@@ -20,6 +20,7 @@ from typing import Any
 from google.genai._common import get_value_by_path as getv
 
 from . import _evals_constant
+from . import _evals_data_converters
 from . import types
 
 _METRIC_RES_NAME_RE = r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$"
@@ -257,3 +258,118 @@ def t_metric_for_registry(
         raise ValueError(f"Unsupported metric type: {metric_name}")
 
     return metric_payload_item
+
+
+def t_inline_results(
+    eval_results: list[Any],
+) -> list[dict[str, Any]]:
+    """Transforms a list of SDK EvaluationResults into API EvaluationResults."""
+    api_results: list[dict[str, Any]] = []
+
+    for eval_result in eval_results:
+        metadata = getv(eval_result, ["metadata"])
+        candidate_names = getv(metadata, ["candidate_names"]) if metadata else []
+        candidate_names = candidate_names or []
+
+        eval_dataset = getv(eval_result, ["evaluation_dataset"])
+        eval_cases: list[Any] = []
+        if isinstance(eval_dataset, list) and eval_dataset:
+            eval_cases = getv(eval_dataset[0], ["eval_cases"]) or []
+
+        eval_case_results = getv(eval_result, ["eval_case_results"]) or []
+
+        for case_result in eval_case_results:
+            case_idx = getv(case_result, ["eval_case_index"]) or 0
+
+            eval_case = None
+            if 0 <= case_idx < len(eval_cases):
+                eval_case = eval_cases[case_idx]
+
+            prompt_payload = {}
+            if eval_case:
+                agent_data = getv(eval_case, ["agent_data"])
+                prompt = getv(eval_case, ["prompt"])
+
+                if agent_data:
+                    if hasattr(agent_data, "model_dump"):
+                        prompt_payload["agent_data"] = agent_data.model_dump()
+                    else:
+                        prompt_payload["agent_data"] = agent_data
+                elif prompt:
+                    text = _evals_data_converters._get_content_text(
+                        prompt
+                    )  # pylint: disable=protected-access
+                    if text:
+                        prompt_payload["text"] = str(text)
+
+            cand_results = getv(case_result, ["response_candidate_results"]) or []
+            for resp_cand_result in cand_results:
+                resp_idx = getv(resp_cand_result, ["response_index"]) or 0
+                cand_name = f"candidate-{resp_idx}"
+                if 0 <= resp_idx < len(candidate_names):
+                    cand_name = candidate_names[resp_idx]
+
+                metric_results = getv(resp_cand_result, ["metric_results"]) or {}
+
+                for metric_name, metric_res in metric_results.items():
+                    api_rubric_verdicts: list[dict[str, Any]] = []
+                    rubric_verdicts = getv(metric_res, ["rubric_verdicts"]) or []
+
+                    for verdict in rubric_verdicts:
+                        verdict_dict: dict[str, Any] = {}
+                        eval_rubric = getv(verdict, ["evaluated_rubric"])
+
+                        if eval_rubric:
+                            rubric_content = getv(eval_rubric, ["content"])
+                            if rubric_content:
+                                text = getv(rubric_content, ["text"])
+                                prop = getv(rubric_content, ["property"])
+
+                                content_dict: dict[str, Any] = {}
+                                if text:
+                                    content_dict["text"] = str(text)
+                                if prop:
+                                    desc = getv(prop, ["description"])
+                                    if desc:
+                                        content_dict["property"] = {
+                                            "description": str(desc)
+                                        }
+                                verdict_dict["evaluated_rubric"] = {
+                                    "content": content_dict
+                                }
+
+                        score = getv(verdict, ["score"])
+                        if score is not None:
+                            verdict_dict["score"] = float(score)
+
+                        explanation = getv(verdict, ["explanation"])
+                        if explanation:
+                            verdict_dict["explanation"] = str(explanation)
+
+                        if verdict_dict:
+                            api_rubric_verdicts.append(verdict_dict)
+
+                    score = getv(metric_res, ["score"])
+                    explanation = getv(metric_res, ["explanation"])
+
+                    candidate_result_payload: dict[str, Any] = {
+                        "candidate": str(cand_name),
+                        "metric": str(metric_name),
+                    }
+                    if score is not None:
+                        candidate_result_payload["score"] = float(score)
+                    if explanation:
+                        candidate_result_payload["explanation"] = str(explanation)
+                    if api_rubric_verdicts:
+                        candidate_result_payload["rubric_verdicts"] = (
+                            api_rubric_verdicts
+                        )
+
+                    api_eval_result = {
+                        "request": {"prompt": prompt_payload},
+                        "metric": str(metric_name),
+                        "candidate_results": [candidate_result_payload],
+                    }
+                    api_results.append(api_eval_result)
+
+    return api_results

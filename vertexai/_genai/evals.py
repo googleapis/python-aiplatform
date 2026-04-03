@@ -595,6 +595,36 @@ def _GenerateInstanceRubricsRequest_to_vertex(
     return to_object
 
 
+def _GenerateLossClustersParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["location"]) is not None:
+        setv(to_object, ["location"], getv(from_object, ["location"]))
+
+    if getv(from_object, ["evaluation_set"]) is not None:
+        setv(to_object, ["evaluationSet"], getv(from_object, ["evaluation_set"]))
+
+    if getv(from_object, ["inline_results"]) is not None:
+        setv(
+            to_object,
+            ["inlineResults", "evaluationResults"],
+            [
+                item
+                for item in t.t_inline_results(getv(from_object, ["inline_results"]))
+            ],
+        )
+
+    if getv(from_object, ["configs"]) is not None:
+        setv(to_object, ["configs"], [item for item in getv(from_object, ["configs"])])
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _GenerateUserScenariosParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -1262,6 +1292,65 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _generate_loss_clusters(
+        self,
+        *,
+        location: Optional[str] = None,
+        evaluation_set: Optional[str] = None,
+        inline_results: Optional[list[types.EvaluationResultOrDict]] = None,
+        configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        config: Optional[types.GenerateLossClustersConfigOrDict] = None,
+    ) -> types.GenerateLossClustersOperation:
+        """
+        Generates loss clusters from evaluation results.
+        """
+
+        parameter_model = types._GenerateLossClustersParameters(
+            location=location,
+            evaluation_set=evaluation_set,
+            inline_results=inline_results,
+            configs=configs,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateLossClusters".format_map(request_url_dict)
+            else:
+                path = ":generateLossClusters"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateLossClustersOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 
@@ -2827,6 +2916,67 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict, kwargs=parameter_model.model_dump()
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _generate_loss_clusters(
+        self,
+        *,
+        location: Optional[str] = None,
+        evaluation_set: Optional[str] = None,
+        inline_results: Optional[list[types.EvaluationResultOrDict]] = None,
+        configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        config: Optional[types.GenerateLossClustersConfigOrDict] = None,
+    ) -> types.GenerateLossClustersOperation:
+        """
+        Generates loss clusters from evaluation results.
+        """
+
+        parameter_model = types._GenerateLossClustersParameters(
+            location=location,
+            evaluation_set=evaluation_set,
+            inline_results=inline_results,
+            configs=configs,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateLossClusters".format_map(request_url_dict)
+            else:
+                path = ":generateLossClusters"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateLossClustersOperation._from_response(
             response=response_dict, kwargs=parameter_model.model_dump()
         )
 

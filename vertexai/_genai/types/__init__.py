@@ -52,6 +52,7 @@ from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
+from .common import _GenerateLossClustersParameters
 from .common import _GenerateUserScenariosParameters
 from .common import _GetAgentEngineGenerateMemoriesOperationParameters
 from .common import _GetAgentEngineMemoryOperationParameters
@@ -431,6 +432,9 @@ from .common import ExecuteCodeAgentEngineSandboxConfigOrDict
 from .common import ExecuteSandboxEnvironmentResponse
 from .common import ExecuteSandboxEnvironmentResponseDict
 from .common import ExecuteSandboxEnvironmentResponseOrDict
+from .common import FailedRubric
+from .common import FailedRubricDict
+from .common import FailedRubricOrDict
 from .common import Framework
 from .common import GeminiExample
 from .common import GeminiExampleDict
@@ -447,6 +451,15 @@ from .common import GenerateAgentEngineMemoriesConfigOrDict
 from .common import GenerateInstanceRubricsResponse
 from .common import GenerateInstanceRubricsResponseDict
 from .common import GenerateInstanceRubricsResponseOrDict
+from .common import GenerateLossClustersConfig
+from .common import GenerateLossClustersConfigDict
+from .common import GenerateLossClustersConfigOrDict
+from .common import GenerateLossClustersOperation
+from .common import GenerateLossClustersOperationDict
+from .common import GenerateLossClustersOperationOrDict
+from .common import GenerateLossClustersResponse
+from .common import GenerateLossClustersResponseDict
+from .common import GenerateLossClustersResponseOrDict
 from .common import GenerateMemoriesRequestDirectContentsSource
 from .common import GenerateMemoriesRequestDirectContentsSourceDict
 from .common import GenerateMemoriesRequestDirectContentsSourceEvent
@@ -594,6 +607,21 @@ from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
 from .common import LLMMetric
+from .common import LossAnalysisConfig
+from .common import LossAnalysisConfigDict
+from .common import LossAnalysisConfigOrDict
+from .common import LossAnalysisResult
+from .common import LossAnalysisResultDict
+from .common import LossAnalysisResultOrDict
+from .common import LossCluster
+from .common import LossClusterDict
+from .common import LossClusterOrDict
+from .common import LossExample
+from .common import LossExampleDict
+from .common import LossExampleOrDict
+from .common import LossTaxonomyEntry
+from .common import LossTaxonomyEntryDict
+from .common import LossTaxonomyEntryOrDict
 from .common import LustreMount
 from .common import LustreMountDict
 from .common import LustreMountOrDict
@@ -1472,6 +1500,33 @@ __all__ = [
     "GenerateUserScenariosResponse",
     "GenerateUserScenariosResponseDict",
     "GenerateUserScenariosResponseOrDict",
+    "LossAnalysisConfig",
+    "LossAnalysisConfigDict",
+    "LossAnalysisConfigOrDict",
+    "GenerateLossClustersConfig",
+    "GenerateLossClustersConfigDict",
+    "GenerateLossClustersConfigOrDict",
+    "LossTaxonomyEntry",
+    "LossTaxonomyEntryDict",
+    "LossTaxonomyEntryOrDict",
+    "FailedRubric",
+    "FailedRubricDict",
+    "FailedRubricOrDict",
+    "LossExample",
+    "LossExampleDict",
+    "LossExampleOrDict",
+    "LossCluster",
+    "LossClusterDict",
+    "LossClusterOrDict",
+    "LossAnalysisResult",
+    "LossAnalysisResultDict",
+    "LossAnalysisResultOrDict",
+    "GenerateLossClustersResponse",
+    "GenerateLossClustersResponseDict",
+    "GenerateLossClustersResponseOrDict",
+    "GenerateLossClustersOperation",
+    "GenerateLossClustersOperationDict",
+    "GenerateLossClustersOperationOrDict",
     "RubricGenerationConfig",
     "RubricGenerationConfigDict",
     "RubricGenerationConfigOrDict",
@@ -2189,6 +2244,7 @@ __all__ = [
     "_CreateEvaluationSetParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateUserScenariosParameters",
+    "_GenerateLossClustersParameters",
     "_GenerateInstanceRubricsRequest",
     "_GetEvaluationMetricParameters",
     "_GetEvaluationRunParameters",

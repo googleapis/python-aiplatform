@@ -4666,6 +4666,353 @@ GenerateUserScenariosResponseOrDict = Union[
 ]
 
 
+class LossAnalysisConfig(_common.BaseModel):
+    """Configuration for the loss analysis job."""
+
+    metric: Optional[str] = Field(
+        default=None,
+        description="""Required. The metric to analyze (e.g., "multi_turn_tool_use_quality_v1").""",
+    )
+    candidate: Optional[str] = Field(
+        default=None,
+        description="""Required. The candidate model/agent to analyze (e.g., "gemini-3.1-pro-preview"). This targets the specific CandidateResult within the EvaluationResult.""",
+    )
+    predefined_taxonomy: Optional[str] = Field(
+        default=None,
+        description="""Optional. The identifier for the pre-defined taxonomy to use (e.g., "agent_taxonomy_v1", "tool_use_v2"). If not specified, the service may select a default based on the metric.""",
+    )
+    max_top_cluster_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Limits the analysis to the top N clusters. If not specified or set to 0, all clusters are returned.""",
+    )
+
+
+class LossAnalysisConfigDict(TypedDict, total=False):
+    """Configuration for the loss analysis job."""
+
+    metric: Optional[str]
+    """Required. The metric to analyze (e.g., "multi_turn_tool_use_quality_v1")."""
+
+    candidate: Optional[str]
+    """Required. The candidate model/agent to analyze (e.g., "gemini-3.1-pro-preview"). This targets the specific CandidateResult within the EvaluationResult."""
+
+    predefined_taxonomy: Optional[str]
+    """Optional. The identifier for the pre-defined taxonomy to use (e.g., "agent_taxonomy_v1", "tool_use_v2"). If not specified, the service may select a default based on the metric."""
+
+    max_top_cluster_count: Optional[int]
+    """Optional. Limits the analysis to the top N clusters. If not specified or set to 0, all clusters are returned."""
+
+
+LossAnalysisConfigOrDict = Union[LossAnalysisConfig, LossAnalysisConfigDict]
+
+
+class GenerateLossClustersConfig(_common.BaseModel):
+    """Config for generating loss clusters."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GenerateLossClustersConfigDict(TypedDict, total=False):
+    """Config for generating loss clusters."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GenerateLossClustersConfigOrDict = Union[
+    GenerateLossClustersConfig, GenerateLossClustersConfigDict
+]
+
+
+class _GenerateLossClustersParameters(_common.BaseModel):
+    """Parameters for GenerateLossClusters."""
+
+    location: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the Location. Format: `projects/{project}/locations/{location}`.""",
+    )
+    evaluation_set: Optional[str] = Field(
+        default=None,
+        description="""Reference to a persisted EvaluationSet. The service will read items from this set.""",
+    )
+    inline_results: Optional[list[EvaluationResult]] = Field(
+        default=None,
+        description="""Inline evaluation results. Useful for ephemeral analysis in notebooks/SDKs where data isn't persisted.""",
+    )
+    configs: Optional[list[LossAnalysisConfig]] = Field(
+        default=None,
+        description="""Configuration for the analysis algorithm. Analysis for multiple metrics and multiple candidates could be specified.""",
+    )
+    config: Optional[GenerateLossClustersConfig] = Field(
+        default=None, description="""Config for generating loss clusters."""
+    )
+
+
+class _GenerateLossClustersParametersDict(TypedDict, total=False):
+    """Parameters for GenerateLossClusters."""
+
+    location: Optional[str]
+    """The resource name of the Location. Format: `projects/{project}/locations/{location}`."""
+
+    evaluation_set: Optional[str]
+    """Reference to a persisted EvaluationSet. The service will read items from this set."""
+
+    inline_results: Optional[list[EvaluationResultDict]]
+    """Inline evaluation results. Useful for ephemeral analysis in notebooks/SDKs where data isn't persisted."""
+
+    configs: Optional[list[LossAnalysisConfigDict]]
+    """Configuration for the analysis algorithm. Analysis for multiple metrics and multiple candidates could be specified."""
+
+    config: Optional[GenerateLossClustersConfigDict]
+    """Config for generating loss clusters."""
+
+
+_GenerateLossClustersParametersOrDict = Union[
+    _GenerateLossClustersParameters, _GenerateLossClustersParametersDict
+]
+
+
+class LossTaxonomyEntry(_common.BaseModel):
+    """A specific entry in the loss pattern taxonomy."""
+
+    l1_category: Optional[str] = Field(
+        default=None,
+        description="""The primary category of the loss (e.g., "Hallucination", "Tool Calling").""",
+    )
+    l2_category: Optional[str] = Field(
+        default=None,
+        description="""The secondary category of the loss (e.g., "Hallucination of Action", "Incorrect Tool Selection").""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""A detailed description of this loss pattern. Example: "The agent verbally confirms an action without executing the tool." """,
+    )
+
+
+class LossTaxonomyEntryDict(TypedDict, total=False):
+    """A specific entry in the loss pattern taxonomy."""
+
+    l1_category: Optional[str]
+    """The primary category of the loss (e.g., "Hallucination", "Tool Calling")."""
+
+    l2_category: Optional[str]
+    """The secondary category of the loss (e.g., "Hallucination of Action", "Incorrect Tool Selection")."""
+
+    description: Optional[str]
+    """A detailed description of this loss pattern. Example: "The agent verbally confirms an action without executing the tool." """
+
+
+LossTaxonomyEntryOrDict = Union[LossTaxonomyEntry, LossTaxonomyEntryDict]
+
+
+class FailedRubric(_common.BaseModel):
+    """A specific failed rubric and the associated analysis."""
+
+    rubric_id: Optional[str] = Field(
+        default=None,
+        description="""The unique ID of the rubric (if available from the metric source).""",
+    )
+    classification_rationale: Optional[str] = Field(
+        default=None,
+        description="""The rationale provided by the Loss Analysis Classifier for why this failure maps to this specific Loss Cluster.""",
+    )
+
+
+class FailedRubricDict(TypedDict, total=False):
+    """A specific failed rubric and the associated analysis."""
+
+    rubric_id: Optional[str]
+    """The unique ID of the rubric (if available from the metric source)."""
+
+    classification_rationale: Optional[str]
+    """The rationale provided by the Loss Analysis Classifier for why this failure maps to this specific Loss Cluster."""
+
+
+FailedRubricOrDict = Union[FailedRubric, FailedRubricDict]
+
+
+class LossExample(_common.BaseModel):
+    """A specific example of a loss pattern."""
+
+    evaluation_item: Optional[str] = Field(
+        default=None,
+        description="""Reference to the persisted EvalItem resource name. Format: projects/.../locations/.../evaluationItems/{item_id}.""",
+    )
+    evaluation_result: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The full evaluation result object provided inline. Used when the analysis is performed on ephemeral data.""",
+    )
+    failed_rubrics: Optional[list[FailedRubric]] = Field(
+        default=None,
+        description="""The specific rubric(s) that failed and caused this example to be classified here. An example might fail multiple rubrics, but only specific ones trigger this loss pattern.""",
+    )
+
+
+class LossExampleDict(TypedDict, total=False):
+    """A specific example of a loss pattern."""
+
+    evaluation_item: Optional[str]
+    """Reference to the persisted EvalItem resource name. Format: projects/.../locations/.../evaluationItems/{item_id}."""
+
+    evaluation_result: Optional[dict[str, Any]]
+    """The full evaluation result object provided inline. Used when the analysis is performed on ephemeral data."""
+
+    failed_rubrics: Optional[list[FailedRubricDict]]
+    """The specific rubric(s) that failed and caused this example to be classified here. An example might fail multiple rubrics, but only specific ones trigger this loss pattern."""
+
+
+LossExampleOrDict = Union[LossExample, LossExampleDict]
+
+
+class LossCluster(_common.BaseModel):
+    """A semantic grouping of failures (e.g., "Hallucination of Action")."""
+
+    cluster_id: Optional[str] = Field(
+        default=None,
+        description="""Unique identifier for the loss cluster within the scope of the analysis result.""",
+    )
+    taxonomy_entry: Optional[LossTaxonomyEntry] = Field(
+        default=None,
+        description="""The structured definition of the loss taxonomy for this cluster.""",
+    )
+    item_count: Optional[int] = Field(
+        default=None,
+        description="""The total number of EvaluationItems falling into this cluster.""",
+    )
+    examples: Optional[list[LossExample]] = Field(
+        default=None,
+        description="""A list of examples that belong to this cluster. This links the cluster back to the specific EvaluationItems and Rubrics.""",
+    )
+
+
+class LossClusterDict(TypedDict, total=False):
+    """A semantic grouping of failures (e.g., "Hallucination of Action")."""
+
+    cluster_id: Optional[str]
+    """Unique identifier for the loss cluster within the scope of the analysis result."""
+
+    taxonomy_entry: Optional[LossTaxonomyEntryDict]
+    """The structured definition of the loss taxonomy for this cluster."""
+
+    item_count: Optional[int]
+    """The total number of EvaluationItems falling into this cluster."""
+
+    examples: Optional[list[LossExampleDict]]
+    """A list of examples that belong to this cluster. This links the cluster back to the specific EvaluationItems and Rubrics."""
+
+
+LossClusterOrDict = Union[LossCluster, LossClusterDict]
+
+
+class LossAnalysisResult(_common.BaseModel):
+    """The top-level result for loss analysis."""
+
+    config: Optional[LossAnalysisConfig] = Field(
+        default=None,
+        description="""The configuration used to generate this analysis.""",
+    )
+    analysis_time: Optional[str] = Field(
+        default=None, description="""The timestamp when this analysis was performed."""
+    )
+    clusters: Optional[list[LossCluster]] = Field(
+        default=None, description="""The list of identified loss clusters."""
+    )
+
+
+class LossAnalysisResultDict(TypedDict, total=False):
+    """The top-level result for loss analysis."""
+
+    config: Optional[LossAnalysisConfigDict]
+    """The configuration used to generate this analysis."""
+
+    analysis_time: Optional[str]
+    """The timestamp when this analysis was performed."""
+
+    clusters: Optional[list[LossClusterDict]]
+    """The list of identified loss clusters."""
+
+
+LossAnalysisResultOrDict = Union[LossAnalysisResult, LossAnalysisResultDict]
+
+
+class GenerateLossClustersResponse(_common.BaseModel):
+    """Response message for EvaluationAnalyticsService.GenerateLossClusters."""
+
+    analysis_time: Optional[str] = Field(
+        default=None, description="""The timestamp when this analysis was completed."""
+    )
+    results: Optional[list[LossAnalysisResult]] = Field(
+        default=None,
+        description="""The analysis results, one per config provided in the request.""",
+    )
+
+
+class GenerateLossClustersResponseDict(TypedDict, total=False):
+    """Response message for EvaluationAnalyticsService.GenerateLossClusters."""
+
+    analysis_time: Optional[str]
+    """The timestamp when this analysis was completed."""
+
+    results: Optional[list[LossAnalysisResultDict]]
+    """The analysis results, one per config provided in the request."""
+
+
+GenerateLossClustersResponseOrDict = Union[
+    GenerateLossClustersResponse, GenerateLossClustersResponseDict
+]
+
+
+class GenerateLossClustersOperation(_common.BaseModel):
+    """Long-running operation for generating loss clusters."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[GenerateLossClustersResponse] = Field(
+        default=None,
+        description="""Response message for EvaluationAnalyticsService.GenerateLossClusters.""",
+    )
+
+
+class GenerateLossClustersOperationDict(TypedDict, total=False):
+    """Long-running operation for generating loss clusters."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[GenerateLossClustersResponseDict]
+    """Response message for EvaluationAnalyticsService.GenerateLossClusters."""
+
+
+GenerateLossClustersOperationOrDict = Union[
+    GenerateLossClustersOperation, GenerateLossClustersOperationDict
+]
+
+
 class RubricGenerationConfig(_common.BaseModel):
     """Config for generating rubrics."""
 

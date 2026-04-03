@@ -34,8 +34,10 @@ from vertexai._genai import _evals_visualization
 from vertexai._genai import _evals_metric_loaders
 from vertexai._genai import _gcs_utils
 from vertexai._genai import _observability_data_converter
+from vertexai._genai import _transformers
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
+from vertexai._genai.types import common as common_types
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
@@ -216,6 +218,51 @@ class TestGetApiClientWithLocation:
             mock_api_client_fixture, new_location
         )
         mock_vertexai_client.assert_not_called()
+
+
+class TestTransformers:
+    """Unit tests for transformers."""
+
+    def test_t_inline_results(self):
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "tool_use_quality": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed tool use",
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            prompt=genai_types.Content(
+                                parts=[genai_types.Part(text="test prompt")]
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(candidate_names=["gemini-pro"]),
+        )
+
+        payload = _transformers.t_inline_results([eval_result])
+
+        assert len(payload) == 1
+        assert payload[0]["metric"] == "tool_use_quality"
+        assert payload[0]["request"]["prompt"]["text"] == "test prompt"
+        assert len(payload[0]["candidate_results"]) == 1
+        assert payload[0]["candidate_results"][0]["candidate"] == "gemini-pro"
+        assert payload[0]["candidate_results"][0]["score"] == 0.0
 
 
 class TestEvals:
@@ -1754,7 +1801,7 @@ class TestEvalsRunInference:
         self,
         mock_api_client_fixture,
     ):
-        """Tests inference with LiteLLM where the row contains an chat completion request body."""
+        """Tests inference with LiteLLM where the row contains a chat completion request body."""
         with mock.patch(
             "vertexai._genai._evals_common.litellm"
         ) as mock_litellm, mock.patch(
