@@ -538,6 +538,16 @@ _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT = (
     _genai_types.IdentityType.SERVICE_ACCOUNT
 )
 _TEST_AGENT_ENGINE_ENCRYPTION_SPEC = {"kms_key_name": "test-kms-key"}
+_TEST_AGENT_GATEWAY_CONFIG = {
+    "client_to_agent_config": {
+        "agent_gateway": "projects/test-target-project/locations/us-central1/agentGateways/"
+        "test-client-to-agent-gateway",
+    },
+    "agent_to_anywhere_config": {
+        "agent_gateway": "projects/test-target-project/locations/us-central1/agentGateways/"
+        "test-agent-to-anywhere-gateway",
+    },
+}
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -981,6 +991,7 @@ class TestAgentEngineHelpers:
             container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
             encryption_spec=_TEST_AGENT_ENGINE_ENCRYPTION_SPEC,
             python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            agent_gateway_config=_TEST_AGENT_GATEWAY_CONFIG,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1021,6 +1032,7 @@ class TestAgentEngineHelpers:
             config["spec"]["identity_type"]
             == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
         )
+        assert config["spec"]["agent_gateway_config"] == _TEST_AGENT_GATEWAY_CONFIG
 
     @mock.patch.object(
         _agent_engines_utils,
@@ -1413,6 +1425,7 @@ class TestAgentEngineHelpers:
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
             identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
             python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            agent_gateway_config=_TEST_AGENT_GATEWAY_CONFIG,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1447,6 +1460,7 @@ class TestAgentEngineHelpers:
             config["spec"]["identity_type"]
             == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
         )
+        assert config["spec"]["agent_gateway_config"] == _TEST_AGENT_GATEWAY_CONFIG
         assert config["update_mask"] == ",".join(
             [
                 "display_name",
@@ -1458,6 +1472,7 @@ class TestAgentEngineHelpers:
                 "spec.deployment_spec.env",
                 "spec.deployment_spec.secret_env",
                 "spec.agent_framework",
+                "spec.agent_gateway_config",
                 "spec.identity_type",
                 "spec.service_account",
             ]
@@ -2116,6 +2131,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                agent_gateway_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2220,6 +2236,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                agent_gateway_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2323,6 +2340,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                agent_gateway_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2495,6 +2513,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                agent_gateway_config=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2593,6 +2612,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                agent_gateway_config=None,
             )
             request_mock.assert_called_with(
                 "post",

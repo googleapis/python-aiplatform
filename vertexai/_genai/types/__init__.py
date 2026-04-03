@@ -536,6 +536,12 @@ from .common import IntermediateExtractedMemory
 from .common import IntermediateExtractedMemoryDict
 from .common import IntermediateExtractedMemoryOrDict
 from .common import JobState
+from .common import KeepAliveProbe
+from .common import KeepAliveProbeDict
+from .common import KeepAliveProbeHttpGet
+from .common import KeepAliveProbeHttpGetDict
+from .common import KeepAliveProbeHttpGetOrDict
+from .common import KeepAliveProbeOrDict
 from .common import Language
 from .common import ListAgentEngineConfig
 from .common import ListAgentEngineConfigDict
@@ -825,6 +831,27 @@ from .common import ReasoningEngineSpecContainerSpec
 from .common import ReasoningEngineSpecContainerSpecDict
 from .common import ReasoningEngineSpecContainerSpecOrDict
 from .common import ReasoningEngineSpecDeploymentSpec
+from .common import ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict,
+)
+from .common import (
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict,
+)
+from .common import ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+from .common import ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict
 from .common import ReasoningEngineSpecDeploymentSpecDict
 from .common import ReasoningEngineSpecDeploymentSpecOrDict
 from .common import ReasoningEngineSpecDict
@@ -856,6 +883,18 @@ from .common import ReasoningEngineSpecSourceCodeSpecOrDict
 from .common import ReasoningEngineSpecSourceCodeSpecPythonSpec
 from .common import ReasoningEngineSpecSourceCodeSpecPythonSpecDict
 from .common import ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict
+from .common import ReasoningEngineTrafficConfig
+from .common import ReasoningEngineTrafficConfigDict
+from .common import ReasoningEngineTrafficConfigOrDict
+from .common import ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest
+from .common import ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict
+from .common import ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict
+from .common import ReasoningEngineTrafficConfigTrafficSplitManual
+from .common import ReasoningEngineTrafficConfigTrafficSplitManualDict
+from .common import ReasoningEngineTrafficConfigTrafficSplitManualOrDict
+from .common import ReasoningEngineTrafficConfigTrafficSplitManualTarget
+from .common import ReasoningEngineTrafficConfigTrafficSplitManualTargetDict
+from .common import ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict
 from .common import ReservationAffinity
 from .common import ReservationAffinityDict
 from .common import ReservationAffinityOrDict
@@ -1665,6 +1704,21 @@ __all__ = [
     "SecretEnvVar",
     "SecretEnvVarDict",
     "SecretEnvVarOrDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfig",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict",
+    "ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict",
+    "KeepAliveProbeHttpGet",
+    "KeepAliveProbeHttpGetDict",
+    "KeepAliveProbeHttpGetOrDict",
+    "KeepAliveProbe",
+    "KeepAliveProbeDict",
+    "KeepAliveProbeOrDict",
     "ReasoningEngineSpecDeploymentSpec",
     "ReasoningEngineSpecDeploymentSpecDict",
     "ReasoningEngineSpecDeploymentSpecOrDict",
@@ -1701,6 +1755,18 @@ __all__ = [
     "ReasoningEngineSpec",
     "ReasoningEngineSpecDict",
     "ReasoningEngineSpecOrDict",
+    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest",
+    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict",
+    "ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict",
+    "ReasoningEngineTrafficConfigTrafficSplitManualTarget",
+    "ReasoningEngineTrafficConfigTrafficSplitManualTargetDict",
+    "ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict",
+    "ReasoningEngineTrafficConfigTrafficSplitManual",
+    "ReasoningEngineTrafficConfigTrafficSplitManualDict",
+    "ReasoningEngineTrafficConfigTrafficSplitManualOrDict",
+    "ReasoningEngineTrafficConfig",
+    "ReasoningEngineTrafficConfigDict",
+    "ReasoningEngineTrafficConfigOrDict",
     "ReasoningEngine",
     "ReasoningEngineDict",
     "ReasoningEngineOrDict",
