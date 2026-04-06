@@ -1178,7 +1178,8 @@ class AdkApp:
         if not self._tmpl_attrs.get("runner"):
             self.set_up()
         if not session_id:
-            session = await self.async_create_session(user_id=user_id)
+            state = first_request.get("state")
+            session = await self.async_create_session(user_id=user_id, state=state)
             session_id = session.id
         run_config = _validate_run_config(run_config)
 
