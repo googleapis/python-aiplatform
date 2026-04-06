@@ -42,7 +42,7 @@ class PointwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acc
     Usage Examples:
 
         ```
-        candidate_model = GenerativeModel("gemini-1.5-pro")
+        candidate_model = "gemini-2.5-pro"
         eval_dataset = pd.DataFrame({
             "prompt"  : [...],
         })
