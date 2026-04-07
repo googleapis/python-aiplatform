@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.146.0](https://github.com/googleapis/python-aiplatform/compare/v1.145.0...v1.146.0) (2026-04-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* `to_bigframes` has been removed from the datasets module and moved into the `MultimodalDataset` class. Instead of `dataframe = client.datasets.to_bigframes(multimodal_dataset=multimodal_dataset)`, use `dataframe = multimodal_dataset.to_bigframes()` to create a BigFrame instance from a multimodal dataset.
+
+### Features
+
+* Add consolidation customization to Memory Bank ([a8948c4](https://github.com/googleapis/python-aiplatform/commit/a8948c4dfcc65b73ea579b93f8c36baa65817f25))
+* Add support for custom result parsing in LLM-based evaluation metrics ([3e0ddff](https://github.com/googleapis/python-aiplatform/commit/3e0ddff2f5c306d601bf325618b9136f7713ff68))
+* GenAI Client(evals) - add core data models and code-gen mapping for auto-loss analysis ([09794ba](https://github.com/googleapis/python-aiplatform/commit/09794ba83746377b1a94ed00f7c41f6b9d647cd6))
+* GenAI Client(evals):  Apply default user persona 'Evaluator' in multi-turn agent scraping ([7002dc5](https://github.com/googleapis/python-aiplatform/commit/7002dc5452032d3189eabae9b0952decd73fb8eb))
+* In run_query_job, rename gcs_bucket to gcs_uri and allow the case that user sets the filename for the output. ([f302d1f](https://github.com/googleapis/python-aiplatform/commit/f302d1f99b79b862a61a41c729ae56a22307bf11))
+* Pass state from first bidi_stream_query request to async_create_session ([37b5a0f](https://github.com/googleapis/python-aiplatform/commit/37b5a0f796984e3af69f8036ca235e096d64e7d1))
+
+
+### Miscellaneous Chores
+
+* GenAI SDK client(multimodal) - Move `to_bigframes` method to `MultimodalDataset` class. ([6874b8d](https://github.com/googleapis/python-aiplatform/commit/6874b8db7adfa4022972e0eba2c3ccaffd523cf2))
+* Release 1.146.0 ([aab457d](https://github.com/googleapis/python-aiplatform/commit/aab457dcf8f0552b0e378c5b4d693e4aa8a2e2f1))
+
 ## [1.145.0](https://github.com/googleapis/python-aiplatform/compare/v1.144.0...v1.145.0) (2026-04-01)
 
 
