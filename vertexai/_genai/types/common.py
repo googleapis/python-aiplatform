@@ -12836,6 +12836,25 @@ class MultimodalDataset(_common.BaseModel):
         metadata.input_config = input_config
         self.metadata = metadata
 
+    def to_bigframes(
+        self,
+    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts the multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Returns:
+          A BigFrames dataframe.
+        """
+        from .. import _datasets_utils
+
+        bigframes = _datasets_utils._try_import_bigframes()
+
+        if self.bigquery_uri is None:
+            raise ValueError("Multimodal dataset bigquery source uri is not set.")
+        return bigframes.pandas.read_gbq_table(self.bigquery_uri.removeprefix("bq://"))
+
 
 class MultimodalDatasetDict(TypedDict, total=False):
     """Represents a multimodal dataset."""

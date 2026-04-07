@@ -940,36 +940,6 @@ class Datasets(_api_module.BaseModule):
             config=config,
         )
 
-    def to_bigframes(
-        self,
-        *,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
-    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
-        """Converts a multimodal dataset to a BigFrames dataframe.
-
-        This is the preferred method to inspect the multimodal dataset in a
-        notebook.
-
-        Args:
-          multimodal_dataset:
-            Required. A representation of a multimodal dataset.
-
-        Returns:
-          A BigFrames dataframe.
-        """
-        bigframes = _datasets_utils._try_import_bigframes()
-
-        if isinstance(multimodal_dataset, dict):
-            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        elif not multimodal_dataset:
-            multimodal_dataset = types.MultimodalDataset()
-
-        if multimodal_dataset.bigquery_uri is None:
-            raise ValueError("Multimodal dataset bigquery source uri is not set.")
-        return bigframes.pandas.read_gbq_table(
-            multimodal_dataset.bigquery_uri.removeprefix("bq://")
-        )
-
     def update_multimodal_dataset(
         self,
         *,
@@ -2051,37 +2021,6 @@ class AsyncDatasets(_api_module.BaseModule):
                 }
             ),
             config=config,
-        )
-
-    async def to_bigframes(
-        self,
-        *,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
-    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
-        """Converts a multimodal dataset to a BigFrames dataframe.
-
-        This is the preferred method to inspect the multimodal dataset in a
-        notebook.
-
-        Args:
-          multimodal_dataset:
-            Required. A representation of a multimodal dataset.
-
-        Returns:
-          A BigFrames dataframe.
-        """
-        bigframes = _datasets_utils._try_import_bigframes()
-
-        if isinstance(multimodal_dataset, dict):
-            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        elif not multimodal_dataset:
-            multimodal_dataset = types.MultimodalDataset()
-
-        if multimodal_dataset.bigquery_uri is None:
-            raise ValueError("Multimodal dataset bigquery source uri is missing.")
-        return await asyncio.to_thread(
-            bigframes.pandas.read_gbq_table,
-            multimodal_dataset.bigquery_uri.removeprefix("bq://"),
         )
 
     async def update_multimodal_dataset(

@@ -13,8 +13,26 @@
 # limitations under the License.
 #
 """Tests for multimodal datasets."""
+from unittest import mock
 
+from vertexai._genai import _datasets_utils
 from vertexai._genai import types
+import pytest
+
+
+@pytest.fixture
+def mock_import_bigframes():
+    with mock.patch.object(
+        _datasets_utils, "_try_import_bigframes"
+    ) as mock_import_bigframes:
+        mock_read_gbq_table_result = mock.MagicMock()
+        mock_read_gbq_table_result.sql = "SELECT * FROM `project.dataset.table`"
+
+        bigframes = mock.MagicMock()
+        bigframes.pandas.read_gbq_table.return_value = mock_read_gbq_table_result
+
+        mock_import_bigframes.return_value = bigframes
+        yield mock_import_bigframes
 
 
 class TestMultimodalDataset:
@@ -125,4 +143,15 @@ class TestMultimodalDataset:
         assert (
             dataset.metadata.gemini_request_read_config.assembled_request_column_name
             == "test_column"
+        )
+
+    def test_to_bigframes(self, mock_import_bigframes):
+        dataset = types.MultimodalDataset()
+        dataset.set_bigquery_uri("bq://project.dataset.table")
+
+        df = dataset.to_bigframes()
+
+        assert "project.dataset.table" in df.sql
+        mock_import_bigframes.return_value.pandas.read_gbq_table.assert_called_once_with(
+            "project.dataset.table"
         )
