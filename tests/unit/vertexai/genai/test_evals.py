@@ -5054,7 +5054,9 @@ class TestRunAdkUserSimulation:
         assert turn["events"][1]["content"] == {"text": "agent msg"}
 
         mock_scenario_cls.assert_called_once_with(
-            starting_prompt="start", conversation_plan="plan"
+            starting_prompt="start",
+            conversation_plan="plan",
+            user_persona="EVALUATOR",
         )
         mock_session_input_cls.assert_called_once()
 
@@ -5113,7 +5115,9 @@ class TestRunAdkUserSimulation:
         await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         mock_scenario_cls.assert_called_once_with(
-            starting_prompt="start", conversation_plan="plan"
+            starting_prompt="start",
+            conversation_plan="plan",
+            user_persona="EVALUATOR",
         )
         mock_session_input_cls.assert_called_once_with(
             app_name="user_simulation_app",
