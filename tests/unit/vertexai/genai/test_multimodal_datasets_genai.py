@@ -17,6 +17,7 @@ from unittest import mock
 
 from vertexai._genai import _datasets_utils
 from vertexai._genai import types
+from google.genai import types as genai_types
 import pytest
 
 
@@ -155,3 +156,63 @@ class TestMultimodalDataset:
         mock_import_bigframes.return_value.pandas.read_gbq_table.assert_called_once_with(
             "project.dataset.table"
         )
+
+
+class TestGeminiRequestReadConfig:
+    def test_single_turn_template(self):
+        read_config = types.GeminiRequestReadConfig.single_turn_template(
+            model="gemini-1.5-flash",
+            prompt="test_prompt",
+            response="test_response",
+            system_instruction="test_system_instruction",
+            cached_content="test_cached_content",
+            tools=[{"function_declarations": [{"name": "test_tool"}]}],
+            tool_config={"function_calling_config": {"mode": "ANY"}},
+            safety_settings=[{"category": "HARM_CATEGORY_DANGEROUS_CONTENT"}],
+            generation_config={"temperature": 0.5},
+            field_mapping={"test_placeholder": "test_column"},
+        )
+
+        expected_read_config = types.GeminiRequestReadConfig(
+            template_config=types.GeminiTemplateConfig(
+                gemini_example=types.GeminiExample(
+                    model="gemini-1.5-flash",
+                    contents=[
+                        genai_types.Content(
+                            role="user",
+                            parts=[genai_types.Part.from_text(text="test_prompt")],
+                        ),
+                        genai_types.Content(
+                            role="model",
+                            parts=[genai_types.Part.from_text(text="test_response")],
+                        ),
+                    ],
+                    system_instruction=genai_types.Content(
+                        parts=[
+                            genai_types.Part.from_text(text="test_system_instruction")
+                        ],
+                    ),
+                    cached_content="test_cached_content",
+                    tools=[
+                        genai_types.Tool(
+                            function_declarations=[
+                                genai_types.FunctionDeclaration(name="test_tool")
+                            ]
+                        )
+                    ],
+                    tool_config=genai_types.ToolConfig(
+                        function_calling_config=genai_types.FunctionCallingConfig(
+                            mode="ANY"
+                        )
+                    ),
+                    safety_settings=[
+                        genai_types.SafetySetting(
+                            category="HARM_CATEGORY_DANGEROUS_CONTENT"
+                        )
+                    ],
+                    generation_config=genai_types.GenerationConfig(temperature=0.5),
+                ),
+                field_mapping={"test_placeholder": "test_column"},
+            ),
+        )
+        assert read_config == expected_read_config

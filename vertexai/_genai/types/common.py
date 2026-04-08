@@ -12583,6 +12583,92 @@ class GeminiRequestReadConfig(_common.BaseModel):
         description="""Column name in the underlying BigQuery table that contains already fully assembled Gemini requests.""",
     )
 
+    @classmethod
+    def single_turn_template(
+        cls,
+        *,
+        prompt: str,
+        response: Optional[str] = None,
+        system_instruction: Optional[str] = None,
+        model: Optional[str] = None,
+        cached_content: Optional[str] = None,
+        tools: Optional[list[Union[genai_types.Tool, dict[str, Any]]]] = None,
+        tool_config: Optional[Union[genai_types.ToolConfig, dict[str, Any]]] = None,
+        safety_settings: Optional[
+            list[Union[genai_types.SafetySetting, dict[str, Any]]]
+        ] = None,
+        generation_config: Optional[
+            Union[genai_types.GenerationConfig, dict[str, Any]]
+        ] = None,
+        field_mapping: Optional[dict[str, str]] = None,
+    ) -> "GeminiRequestReadConfig":
+        """Constructs a GeminiRequestReadConfig object for single-turn cases.
+
+        Example:
+            read_config = GeminiRequestReadConfig.single_turn_template(
+                    prompt="Which flower is this {flower_image}?",
+                    response="This is a {label}.",
+                    system_instruction="You are a botanical classifier."
+            )
+
+        Args:
+            prompt: Required. User input.
+            response: Optional. Model response to user input.
+            system_instruction: Optional. System instructions for the model.
+            model: Optional. The model to use for the GeminiExample.
+            cached_content: Optional. The cached content to use for the GeminiExample.
+            tools: Optional. The tools to use for the GeminiExample.
+            tool_config: Optional. The tool config to use for the GeminiExample.
+            safety_settings: Optional. The safety settings to use for the GeminiExample.
+            generation_config: Optional. The generation config to use for the GeminiExample.
+            field_mapping: Optional. Mapping of placeholders to dataset columns.
+
+        Returns:
+            A GeminiRequestReadConfig object.
+        """
+        contents = []
+        contents.append(
+            genai_types.Content(
+                role="user",
+                parts=[
+                    genai_types.Part.from_text(text=prompt),
+                ],
+            )
+        )
+        if response:
+            contents.append(
+                genai_types.Content(
+                    role="model",
+                    parts=[
+                        genai_types.Part.from_text(text=response),
+                    ],
+                )
+            )
+
+        system_instruction_content = None
+        if system_instruction:
+            system_instruction_content = genai_types.Content(
+                parts=[
+                    genai_types.Part.from_text(text=system_instruction),
+                ],
+            )
+
+        return cls(
+            template_config=GeminiTemplateConfig(
+                gemini_example=GeminiExample(
+                    model=model,
+                    contents=contents,
+                    system_instruction=system_instruction_content,
+                    cached_content=cached_content,
+                    tools=tools,
+                    tool_config=tool_config,
+                    safety_settings=safety_settings,
+                    generation_config=generation_config,
+                ),
+                field_mapping=field_mapping,
+            ),
+        )
+
 
 class GeminiRequestReadConfigDict(TypedDict, total=False):
     """Represents the config for reading Gemini requests."""
