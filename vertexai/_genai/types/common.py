@@ -12190,17 +12190,14 @@ class GeminiExample(_common.BaseModel):
     cached_content: Optional[str] = Field(
         default=None, description="""Cached content for the Gemini example."""
     )
-    tools: Optional[genai_types.Tool] = Field(
+    tools: Optional[list[genai_types.Tool]] = Field(
         default=None, description="""Tools for the Gemini example."""
     )
     tool_config: Optional[genai_types.ToolConfig] = Field(
         default=None, description="""Tools for the Gemini example."""
     )
-    safety_settings: Optional[genai_types.SafetySetting] = Field(
+    safety_settings: Optional[list[genai_types.SafetySetting]] = Field(
         default=None, description="""Safety settings for the Gemini example."""
-    )
-    labels: Optional[dict[str, str]] = Field(
-        default=None, description="""Labels for the Gemini example."""
     )
     generation_config: Optional[genai_types.GenerationConfig] = Field(
         default=None, description="""Generation config for the Gemini example."""
@@ -12226,17 +12223,14 @@ class GeminiExampleDict(TypedDict, total=False):
     cached_content: Optional[str]
     """Cached content for the Gemini example."""
 
-    tools: Optional[genai_types.ToolDict]
+    tools: Optional[list[genai_types.ToolDict]]
     """Tools for the Gemini example."""
 
     tool_config: Optional[genai_types.ToolConfigDict]
     """Tools for the Gemini example."""
 
-    safety_settings: Optional[genai_types.SafetySettingDict]
+    safety_settings: Optional[list[genai_types.SafetySettingDict]]
     """Safety settings for the Gemini example."""
-
-    labels: Optional[dict[str, str]]
-    """Labels for the Gemini example."""
 
     generation_config: Optional[genai_types.GenerationConfigDict]
     """Generation config for the Gemini example."""
