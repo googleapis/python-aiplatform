@@ -152,6 +152,7 @@ _SUPPORTED_AGENT_FRAMEWORKS = frozenset(
         "ag2",
         "llama-index",
         "custom",
+        "a2a",
     ]
 )
 _DEFAULT_ASYNC_METHOD_NAME = "async_query"

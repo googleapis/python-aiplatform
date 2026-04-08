@@ -165,6 +165,8 @@ def default_a2a_agent() -> "A2aAgent":
 class A2aAgent:
     """A class to initialize and set up an Agent-to-Agent application."""
 
+    agent_framework = "a2a"
+
     # TODO: Add instrumentation for the A2A agent.
     def __init__(
         self,
