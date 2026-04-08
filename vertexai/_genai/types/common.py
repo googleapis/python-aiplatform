@@ -244,18 +244,18 @@ class JobState(_common.CaseInSensitiveEnum):
 
 
 class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """The managed memory topic."""
+    """Represents the managed memory topic."""
 
     MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
-    """Unspecified topic. This value should not be used."""
+    """Represents an unspecified topic. This value should not be used."""
     USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
-    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
+    """Represents significant personal information about the User like first names, relationships, hobbies, important dates."""
     USER_PREFERENCES = "USER_PREFERENCES"
-    """Stated or implied likes, dislikes, preferred styles, or patterns."""
+    """Represents stated or implied likes, dislikes, preferred styles, or patterns."""
     KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
-    """Important milestones or conclusions within the dialogue."""
+    """Represents important milestones or conclusions within the dialogue."""
     EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
-    """Information that the user explicitly requested to remember or forget."""
+    """Represents information that the user explicitly requested to remember or forget."""
 
 
 class IdentityType(_common.CaseInSensitiveEnum):
@@ -281,10 +281,10 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
 
 
 class Operator(_common.CaseInSensitiveEnum):
-    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+    """Represents the operator to apply to the filter. If not set, then EQUAL will be used."""
 
     OPERATOR_UNSPECIFIED = "OPERATOR_UNSPECIFIED"
-    """Unspecified operator. Defaults to EQUAL."""
+    """Represents an unspecified operator. Defaults to EQUAL."""
     EQUAL = "EQUAL"
     """Equal to."""
     GREATER_THAN = "GREATER_THAN"
@@ -621,6 +621,14 @@ class A2aTask(_common.BaseModel):
         default=None,
         description="""Output only. The last update timestamp of the task.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this task is considered expired. This is *always* provided on output, and is calculated based on the `ttl` if set on the request""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]""",
+    )
 
 
 class A2aTaskDict(TypedDict, total=False):
@@ -652,6 +660,12 @@ class A2aTaskDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. The last update timestamp of the task."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this task is considered expired. This is *always* provided on output, and is calculated based on the `ttl` if set on the request"""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]"""
 
 
 A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
@@ -6328,7 +6342,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEven
     """The conversation source event for generating memories."""
 
     content: Optional[genai_types.Content] = Field(
-        default=None, description="""Required. The content of the event."""
+        default=None, description="""Required. Represents the content of the event."""
     )
 
 
@@ -6338,7 +6352,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEven
     """The conversation source event for generating memories."""
 
     content: Optional[genai_types.ContentDict]
-    """Required. The content of the event."""
+    """Required. Represents the content of the event."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict = (
@@ -6360,7 +6374,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource(
         ]
     ] = Field(
         default=None,
-        description="""Optional. The input conversation events for the example.""",
+        description="""Optional. Represents the input conversation events for the example.""",
     )
 
 
@@ -6374,7 +6388,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict
             MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict
         ]
     ]
-    """Optional. The input conversation events for the example."""
+    """Optional. Represents the input conversation events for the example."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = Union[
@@ -6387,10 +6401,11 @@ class MemoryTopicId(_common.BaseModel):
     """The topic ID for a memory."""
 
     custom_memory_topic_label: Optional[str] = Field(
-        default=None, description="""Optional. The custom memory topic label."""
+        default=None,
+        description="""Optional. Represents the custom memory topic label.""",
     )
     managed_memory_topic: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Optional. The managed memory topic."""
+        default=None, description="""Optional. Represents the managed memory topic."""
     )
 
 
@@ -6398,10 +6413,10 @@ class MemoryTopicIdDict(TypedDict, total=False):
     """The topic ID for a memory."""
 
     custom_memory_topic_label: Optional[str]
-    """Optional. The custom memory topic label."""
+    """Optional. Represents the custom memory topic label."""
 
     managed_memory_topic: Optional[ManagedTopicEnum]
-    """Optional. The managed memory topic."""
+    """Optional. Represents the managed memory topic."""
 
 
 MemoryTopicIdOrDict = Union[MemoryTopicId, MemoryTopicIdDict]
@@ -6413,11 +6428,12 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
     """A memory generated by the operation."""
 
     fact: Optional[str] = Field(
-        default=None, description="""Required. The fact to generate a memory from."""
+        default=None,
+        description="""Required. Represents the fact to generate a memory from.""",
     )
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None,
-        description="""Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
+        description="""Optional. Represents the list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
     )
 
 
@@ -6427,10 +6443,10 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
     """A memory generated by the operation."""
 
     fact: Optional[str]
-    """Required. The fact to generate a memory from."""
+    """Required. Represents the fact to generate a memory from."""
 
     topics: Optional[list[MemoryTopicIdDict]]
-    """Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
+    """Optional. Represents the list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
@@ -6449,7 +6465,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExample(_common.BaseModel):
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory]
     ] = Field(
         default=None,
-        description="""Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
+        description="""Optional. Represents the memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
     )
 
 
@@ -6464,7 +6480,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleDict(TypedDict, total=
     generated_memories: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict]
     ]
-    """Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
+    """Optional. Represents the memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
@@ -6477,11 +6493,11 @@ class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseMode
     """A custom memory topic defined by the developer."""
 
     label: Optional[str] = Field(
-        default=None, description="""Required. The label of the topic."""
+        default=None, description="""Required. Represents the label of the topic."""
     )
     description: Optional[str] = Field(
         default=None,
-        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+        description="""Required. Represents the description of the memory topic. This should explain what information should be extracted for this topic.""",
     )
 
 
@@ -6491,10 +6507,10 @@ class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
     """A custom memory topic defined by the developer."""
 
     label: Optional[str]
-    """Required. The label of the topic."""
+    """Required. Represents the label of the topic."""
 
     description: Optional[str]
-    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+    """Required. Represents the description of the memory topic. This should explain what information should be extracted for this topic."""
 
 
 MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
@@ -6507,7 +6523,7 @@ class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseMod
     """A managed memory topic defined by the system."""
 
     managed_topic_enum: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Required. The managed topic."""
+        default=None, description="""Required. Represents the managed topic."""
     )
 
 
@@ -6517,7 +6533,7 @@ class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
     """A managed memory topic defined by the system."""
 
     managed_topic_enum: Optional[ManagedTopicEnum]
-    """Required. The managed topic."""
+    """Required. Represents the managed topic."""
 
 
 MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
@@ -6584,25 +6600,25 @@ MemoryBankCustomizationConfigConsolidationConfigOrDict = Union[
 
 
 class MemoryBankCustomizationConfig(_common.BaseModel):
-    """Configuration for organizing memories for a particular scope."""
+    """Represents configuration for organizing natural language memories for a particular scope."""
 
     enable_third_person_memories: Optional[bool] = Field(
         default=None,
-        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+        description="""Optional. Indicates whether the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
     )
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExample]
     ] = Field(
         default=None,
-        description="""Optional. Examples of how to generate memories for a particular scope.""",
+        description="""Optional. Provides examples of how to generate memories for a particular scope.""",
     )
     memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
         default=None,
-        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+        description="""Optional. Represents topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
     )
     scope_keys: Optional[list[str]] = Field(
         default=None,
-        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+        description="""Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
     )
     consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfig] = (
         Field(
@@ -6613,21 +6629,21 @@ class MemoryBankCustomizationConfig(_common.BaseModel):
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
-    """Configuration for organizing memories for a particular scope."""
+    """Represents configuration for organizing natural language memories for a particular scope."""
 
     enable_third_person_memories: Optional[bool]
-    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
+    """Optional. Indicates whether the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
 
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
     ]
-    """Optional. Examples of how to generate memories for a particular scope."""
+    """Optional. Provides examples of how to generate memories for a particular scope."""
 
     memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
-    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+    """Optional. Represents topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
 
     scope_keys: Optional[list[str]]
-    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+    """Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
 
     consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfigDict]
     """Optional. Represents configuration for customizing how memories are consolidated together."""
@@ -6643,7 +6659,7 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseMod
 
     model: Optional[str] = Field(
         default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+        description="""Optional. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
     )
 
 
@@ -6653,7 +6669,7 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
     """Configuration for how to generate memories."""
 
     model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+    """Optional. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
@@ -6899,6 +6915,147 @@ class SecretEnvVarDict(TypedDict, total=False):
 SecretEnvVarOrDict = Union[SecretEnvVar, SecretEnvVarDict]
 
 
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(
+    _common.BaseModel
+):
+    """Configuration for traffic originating from a Reasoning Engine."""
+
+    agent_gateway: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Agent Gateway for outbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `AGENT_TO_ANYWHERE`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for traffic originating from a Reasoning Engine."""
+
+    agent_gateway: Optional[str]
+    """Required. The resource name of the Agent Gateway for outbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `AGENT_TO_ANYWHERE`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`"""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict,
+]
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(
+    _common.BaseModel
+):
+    """Configuration for traffic targeting a Reasoning Engine."""
+
+    agent_gateway: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Agent Gateway to use for inbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `CLIENT_TO_AGENT`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for traffic targeting a Reasoning Engine."""
+
+    agent_gateway: Optional[str]
+    """Required. The resource name of the Agent Gateway to use for inbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `CLIENT_TO_AGENT`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`"""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict,
+]
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfig(_common.BaseModel):
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    agent_to_anywhere_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for traffic originating from the Reasoning Engine. When unset, outgoing traffic is not routed through an Agent Gateway.""",
+    )
+    client_to_agent_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for traffic targeting the Reasoning Engine. When unset, incoming traffic is not routed through an Agent Gateway.""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict(TypedDict, total=False):
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    agent_to_anywhere_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict
+    ]
+    """Optional. Configuration for traffic originating from the Reasoning Engine. When unset, outgoing traffic is not routed through an Agent Gateway."""
+
+    client_to_agent_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict
+    ]
+    """Optional. Configuration for traffic targeting the Reasoning Engine. When unset, incoming traffic is not routed through an Agent Gateway."""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict,
+]
+
+
+class KeepAliveProbeHttpGet(_common.BaseModel):
+    """Specifies the HTTP GET configuration for the probe."""
+
+    path: Optional[str] = Field(
+        default=None,
+        description="""Required. Specifies the path of the HTTP GET request (e.g., `"/is_busy"`).""",
+    )
+    port: Optional[int] = Field(
+        default=None,
+        description="""Optional. Specifies the port number on the container to which the request is sent.""",
+    )
+
+
+class KeepAliveProbeHttpGetDict(TypedDict, total=False):
+    """Specifies the HTTP GET configuration for the probe."""
+
+    path: Optional[str]
+    """Required. Specifies the path of the HTTP GET request (e.g., `"/is_busy"`)."""
+
+    port: Optional[int]
+    """Optional. Specifies the port number on the container to which the request is sent."""
+
+
+KeepAliveProbeHttpGetOrDict = Union[KeepAliveProbeHttpGet, KeepAliveProbeHttpGetDict]
+
+
+class KeepAliveProbe(_common.BaseModel):
+    """Represents the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
+
+    http_get: Optional[KeepAliveProbeHttpGet] = Field(
+        default=None,
+        description="""Optional. Specifies the HTTP GET configuration for the probe.""",
+    )
+    max_seconds: Optional[int] = Field(
+        default=None,
+        description="""Optional. Specifies the maximum duration (in seconds) to keep the instance alive via this probe. Can be a maximum of 3600 seconds (1 hour).""",
+    )
+
+
+class KeepAliveProbeDict(TypedDict, total=False):
+    """Represents the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
+
+    http_get: Optional[KeepAliveProbeHttpGetDict]
+    """Optional. Specifies the HTTP GET configuration for the probe."""
+
+    max_seconds: Optional[int]
+    """Optional. Specifies the maximum duration (in seconds) to keep the instance alive via this probe. Can be a maximum of 3600 seconds (1 hour)."""
+
+
+KeepAliveProbeOrDict = Union[KeepAliveProbe, KeepAliveProbeDict]
+
+
 class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     """The specification of a Reasoning Engine deployment."""
 
@@ -6932,6 +7089,16 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
         default=None,
         description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Agent Gateway configuration for the Reasoning Engine deployment.""",
+    )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings.""",
+    )
 
 
 class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
@@ -6960,6 +7127,14 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
 
     secret_env: Optional[list[SecretEnvVarDict]]
     """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Optional. Agent Gateway configuration for the Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
 
 
 ReasoningEngineSpecDeploymentSpecOrDict = Union[
@@ -7375,6 +7550,111 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
 
 
+class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest(_common.BaseModel):
+    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    pass
+
+
+class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict(TypedDict, total=False):
+    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    pass
+
+
+ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest,
+    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict,
+]
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManualTarget(_common.BaseModel):
+    """A single target for the traffic split, specifying a Runtime Revision and the percentage of traffic to send to it."""
+
+    percent: Optional[int] = Field(
+        default=None,
+        description="""Required. Specifies percent of the traffic to this Runtime Revision.""",
+    )
+    runtime_revision_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The Runtime Revision name to which to send this portion of traffic, if traffic allocation is by Runtime Revision.""",
+    )
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManualTargetDict(TypedDict, total=False):
+    """A single target for the traffic split, specifying a Runtime Revision and the percentage of traffic to send to it."""
+
+    percent: Optional[int]
+    """Required. Specifies percent of the traffic to this Runtime Revision."""
+
+    runtime_revision_name: Optional[str]
+    """Required. The Runtime Revision name to which to send this portion of traffic, if traffic allocation is by Runtime Revision."""
+
+
+ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitManualTarget,
+    ReasoningEngineTrafficConfigTrafficSplitManualTargetDict,
+]
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManual(_common.BaseModel):
+    """Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
+    targets: Optional[list[ReasoningEngineTrafficConfigTrafficSplitManualTarget]] = (
+        Field(
+            default=None,
+            description="""A list of traffic targets for the Runtimes Revisions. The sum of percentages must equal to 100.""",
+        )
+    )
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManualDict(TypedDict, total=False):
+    """Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
+    targets: Optional[list[ReasoningEngineTrafficConfigTrafficSplitManualTargetDict]]
+    """A list of traffic targets for the Runtimes Revisions. The sum of percentages must equal to 100."""
+
+
+ReasoningEngineTrafficConfigTrafficSplitManualOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitManual,
+    ReasoningEngineTrafficConfigTrafficSplitManualDict,
+]
+
+
+class ReasoningEngineTrafficConfig(_common.BaseModel):
+    """Traffic distribution configuration."""
+
+    traffic_split_always_latest: Optional[
+        ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest
+    ] = Field(
+        default=None,
+        description="""Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision.""",
+    )
+    traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManual] = (
+        Field(
+            default=None,
+            description="""Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each.""",
+        )
+    )
+
+
+class ReasoningEngineTrafficConfigDict(TypedDict, total=False):
+    """Traffic distribution configuration."""
+
+    traffic_split_always_latest: Optional[
+        ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict
+    ]
+    """Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManualDict]
+    """Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
+
+ReasoningEngineTrafficConfigOrDict = Union[
+    ReasoningEngineTrafficConfig, ReasoningEngineTrafficConfigDict
+]
+
+
 class ReasoningEngine(_common.BaseModel):
     """An agent engine."""
 
@@ -7416,6 +7696,10 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this ReasoningEngine was most recently updated.""",
     )
+    traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
+        default=None,
+        description="""Optional. Traffic distribution configuration for the Reasoning Engine.""",
+    )
 
 
 class ReasoningEngineDict(TypedDict, total=False):
@@ -7450,6 +7734,9 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when this ReasoningEngine was most recently updated."""
+
+    traffic_config: Optional[ReasoningEngineTrafficConfigDict]
+    """Optional. Traffic distribution configuration for the Reasoning Engine."""
 
 
 ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
@@ -8469,12 +8756,18 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 class MemoryMetadataValue(_common.BaseModel):
     """The metadata values for memories."""
 
-    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
-    double_value: Optional[float] = Field(default=None, description="""Double value.""")
-    string_value: Optional[str] = Field(default=None, description="""String value.""")
+    bool_value: Optional[bool] = Field(
+        default=None, description="""Represents a boolean value."""
+    )
+    double_value: Optional[float] = Field(
+        default=None, description="""Represents a double value."""
+    )
+    string_value: Optional[str] = Field(
+        default=None, description="""Represents a string value."""
+    )
     timestamp_value: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
+        description="""Represents a timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
     )
 
 
@@ -8482,16 +8775,16 @@ class MemoryMetadataValueDict(TypedDict, total=False):
     """The metadata values for memories."""
 
     bool_value: Optional[bool]
-    """Boolean value."""
+    """Represents a boolean value."""
 
     double_value: Optional[float]
-    """Double value."""
+    """Represents a double value."""
 
     string_value: Optional[str]
-    """String value."""
+    """Represents a string value."""
 
     timestamp_value: Optional[datetime.datetime]
-    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
+    """Represents a timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
 
 
 MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
@@ -8652,60 +8945,62 @@ class Memory(_common.BaseModel):
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when this Memory was created.""",
+        description="""Output only. Represents the timestamp when this Memory was created.""",
     )
     description: Optional[str] = Field(
-        default=None, description="""Optional. Description of the Memory."""
+        default=None,
+        description="""Optional. Represents the description of the Memory.""",
     )
     disable_memory_revisions: Optional[bool] = Field(
         default=None,
-        description="""Optional. Input only. If true, no revision will be created for this request.""",
+        description="""Optional. Input only. Indicates whether no revision will be created for this request.""",
     )
     display_name: Optional[str] = Field(
-        default=None, description="""Optional. Display name of the Memory."""
+        default=None,
+        description="""Optional. Represents the display name of the Memory.""",
     )
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
+        description="""Optional. Represents the timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
     )
     fact: Optional[str] = Field(
         default=None,
-        description="""Required. Semantic knowledge extracted from the source content.""",
+        description="""Optional. Represents semantic knowledge extracted from the source content.""",
     )
     metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
         default=None,
-        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+        description="""Optional. Represents user-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`""",
+        description="""Identifier. Represents the resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`""",
     )
     revision_expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+        description="""Optional. Input only. Represents the timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
     )
     revision_labels: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Optional. Input only. The labels to apply to the Memory Revision created as a result of this request.""",
+        description="""Optional. Input only. Represents the labels to apply to the Memory Revision created as a result of this request.""",
     )
     revision_ttl: Optional[str] = Field(
         default=None,
-        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+        description="""Optional. Input only. Represents the TTL for the revision. The expiration time is computed: now + TTL.""",
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Required. Immutable. The scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'.""",
+        description="""Required. Immutable. Represents the scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'.""",
     )
     topics: Optional[list[MemoryTopicId]] = Field(
-        default=None, description="""Optional. The Topics of the Memory."""
+        default=None, description="""Optional. Represents the Topics of the Memory."""
     )
     ttl: Optional[str] = Field(
         default=None,
-        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
+        description="""Optional. Input only. Represents the TTL for this resource. The expiration time is computed: now + TTL.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when this Memory was most recently updated.""",
+        description="""Output only. Represents the timestamp when this Memory was most recently updated.""",
     )
 
 
@@ -8713,49 +9008,49 @@ class MemoryDict(TypedDict, total=False):
     """A memory."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory was created."""
+    """Output only. Represents the timestamp when this Memory was created."""
 
     description: Optional[str]
-    """Optional. Description of the Memory."""
+    """Optional. Represents the description of the Memory."""
 
     disable_memory_revisions: Optional[bool]
-    """Optional. Input only. If true, no revision will be created for this request."""
+    """Optional. Input only. Indicates whether no revision will be created for this request."""
 
     display_name: Optional[str]
-    """Optional. Display name of the Memory."""
+    """Optional. Represents the display name of the Memory."""
 
     expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
+    """Optional. Represents the timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
 
     fact: Optional[str]
-    """Required. Semantic knowledge extracted from the source content."""
+    """Optional. Represents semantic knowledge extracted from the source content."""
 
     metadata: Optional[dict[str, MemoryMetadataValueDict]]
-    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+    """Optional. Represents user-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
     name: Optional[str]
-    """Identifier. The resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`"""
+    """Identifier. Represents the resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`"""
 
     revision_expire_time: Optional[datetime.datetime]
-    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+    """Optional. Input only. Represents the timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
 
     revision_labels: Optional[dict[str, str]]
-    """Optional. Input only. The labels to apply to the Memory Revision created as a result of this request."""
+    """Optional. Input only. Represents the labels to apply to the Memory Revision created as a result of this request."""
 
     revision_ttl: Optional[str]
-    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+    """Optional. Input only. Represents the TTL for the revision. The expiration time is computed: now + TTL."""
 
     scope: Optional[dict[str, str]]
-    """Required. Immutable. The scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'."""
+    """Required. Immutable. Represents the scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'."""
 
     topics: Optional[list[MemoryTopicIdDict]]
-    """Optional. The Topics of the Memory."""
+    """Optional. Represents the Topics of the Memory."""
 
     ttl: Optional[str]
-    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
+    """Optional. Input only. Represents the TTL for this resource. The expiration time is computed: now + TTL."""
 
     update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory was most recently updated."""
+    """Output only. Represents the timestamp when this Memory was most recently updated."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -9575,17 +9870,17 @@ class MemoryFilter(_common.BaseModel):
 
     key: Optional[str] = Field(
         default=None,
-        description="""Key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
+        description="""Represents the key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
     )
     negate: Optional[bool] = Field(
-        default=None, description="""If true, the filter will be negated."""
+        default=None, description="""Indicates whether the filter will be negated."""
     )
     op: Optional[Operator] = Field(
         default=None,
-        description="""Operator to apply to the filter. If not set, then EQUAL will be used.""",
+        description="""Represents the operator to apply to the filter. If not set, then EQUAL will be used.""",
     )
     value: Optional[MemoryMetadataValue] = Field(
-        default=None, description="""Value to compare to."""
+        default=None, description="""Represents the value to compare to."""
     )
 
 
@@ -9593,16 +9888,16 @@ class MemoryFilterDict(TypedDict, total=False):
     """Filter to apply when retrieving memories."""
 
     key: Optional[str]
-    """Key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
+    """Represents the key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
 
     negate: Optional[bool]
-    """If true, the filter will be negated."""
+    """Indicates whether the filter will be negated."""
 
     op: Optional[Operator]
-    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+    """Represents the operator to apply to the filter. If not set, then EQUAL will be used."""
 
     value: Optional[MemoryMetadataValueDict]
-    """Value to compare to."""
+    """Represents the value to compare to."""
 
 
 MemoryFilterOrDict = Union[MemoryFilter, MemoryFilterDict]
@@ -9612,7 +9907,8 @@ class MemoryConjunctionFilter(_common.BaseModel):
     """The conjunction filter for memories."""
 
     filters: Optional[list[MemoryFilter]] = Field(
-        default=None, description="""Filters that will combined using AND logic."""
+        default=None,
+        description="""Represents filters that will be combined using AND logic.""",
     )
 
 
@@ -9620,7 +9916,7 @@ class MemoryConjunctionFilterDict(TypedDict, total=False):
     """The conjunction filter for memories."""
 
     filters: Optional[list[MemoryFilterDict]]
-    """Filters that will combined using AND logic."""
+    """Represents filters that will be combined using AND logic."""
 
 
 MemoryConjunctionFilterOrDict = Union[
@@ -10301,7 +10597,8 @@ class IntermediateExtractedMemory(_common.BaseModel):
     """An extracted memory that is the intermediate result before consolidation."""
 
     fact: Optional[str] = Field(
-        default=None, description="""Output only. The fact of the extracted memory."""
+        default=None,
+        description="""Output only. Represents the fact of the extracted memory.""",
     )
 
 
@@ -10309,7 +10606,7 @@ class IntermediateExtractedMemoryDict(TypedDict, total=False):
     """An extracted memory that is the intermediate result before consolidation."""
 
     fact: Optional[str]
-    """Output only. The fact of the extracted memory."""
+    """Output only. Represents the fact of the extracted memory."""
 
 
 IntermediateExtractedMemoryOrDict = Union[
@@ -10322,27 +10619,27 @@ class MemoryRevision(_common.BaseModel):
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when this Memory Revision was created.""",
+        description="""Output only. Represents the timestamp when this Memory Revision was created.""",
     )
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp of when this resource is considered expired.""",
+        description="""Output only. Represents the timestamp of when this resource is considered expired.""",
     )
     extracted_memories: Optional[list[IntermediateExtractedMemory]] = Field(
         default=None,
-        description="""Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
+        description="""Output only. Represents the extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
     )
     fact: Optional[str] = Field(
         default=None,
-        description="""Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation.""",
+        description="""Output only. Represents the fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation.""",
     )
     labels: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
+        description="""Output only. Represents the labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
+        description="""Identifier. Represents the resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
     )
 
 
@@ -10350,22 +10647,22 @@ class MemoryRevisionDict(TypedDict, total=False):
     """A memory revision."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory Revision was created."""
+    """Output only. Represents the timestamp when this Memory Revision was created."""
 
     expire_time: Optional[datetime.datetime]
-    """Output only. Timestamp of when this resource is considered expired."""
+    """Output only. Represents the timestamp of when this resource is considered expired."""
 
     extracted_memories: Optional[list[IntermediateExtractedMemoryDict]]
-    """Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
+    """Output only. Represents the extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
 
     fact: Optional[str]
-    """Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation."""
+    """Output only. Represents the fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation."""
 
     labels: Optional[dict[str, str]]
-    """Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
+    """Output only. Represents the labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
 
     name: Optional[str]
-    """Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
+    """Identifier. Represents the resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
 
 
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]
@@ -10632,6 +10929,10 @@ class SandboxEnvironmentConnectionInfo(_common.BaseModel):
         default=None,
         description="""Output only. The internal IP address of the SandboxEnvironment.""",
     )
+    sandbox_hostname: Optional[str] = Field(
+        default=None,
+        description="""Output only. The hostname of the SandboxEnvironment.""",
+    )
 
 
 class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
@@ -10645,6 +10946,9 @@ class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
 
     sandbox_internal_ip: Optional[str]
     """Output only. The internal IP address of the SandboxEnvironment."""
+
+    sandbox_hostname: Optional[str]
+    """Output only. The hostname of the SandboxEnvironment."""
 
 
 SandboxEnvironmentConnectionInfoOrDict = Union[
