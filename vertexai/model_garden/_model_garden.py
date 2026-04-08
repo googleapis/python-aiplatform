@@ -1120,6 +1120,7 @@ class CustomModel:
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        system_labels: Optional[Dict[str, str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         enable_private_service_connect: bool = False,
@@ -1164,6 +1165,7 @@ class CustomModel:
               name of the reservation.
                 Format:
                   'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            system_labels (Dict[str, str]): Optional. System labels for Model Garden deployments.
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             enable_private_service_connect (bool): Whether to enable private service
@@ -1186,6 +1188,7 @@ class CustomModel:
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
+            system_labels=system_labels,
             endpoint_display_name=endpoint_display_name,
             model_display_name=model_display_name,
             enable_private_service_connect=enable_private_service_connect,
@@ -1211,6 +1214,7 @@ class CustomModel:
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        system_labels: Optional[Dict[str, str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -1255,6 +1259,7 @@ class CustomModel:
               name of the reservation.
                 Format:
                   'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            system_labels (Dict[str, str]): Optional. System labels for Model Garden deployments.
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             enable_private_service_connect (bool): Whether to enable private service
@@ -1289,6 +1294,8 @@ class CustomModel:
             request.endpoint_config.endpoint_display_name = endpoint_display_name
         if model_display_name:
             request.model_config.model_display_name = model_display_name
+        if system_labels:
+            request.deploy_config.system_labels = system_labels
 
         if enable_private_service_connect and psc_project_allow_list:
             request.endpoint_config.private_service_connect_config = (
