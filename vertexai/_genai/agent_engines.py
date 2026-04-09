@@ -49,6 +49,47 @@ logger = logging.getLogger("vertexai_genai.agentengines")
 logger.setLevel(logging.INFO)
 
 
+def _CancelQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
+def _CancelQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(to_object, ["operationName"], getv(from_object, ["operation_name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _CancelQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _CancelQueryJobResult_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    return to_object
+
+
 def _CheckQueryJobAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -396,15 +437,88 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
 
 class AgentEngines(_api_module.BaseModule):
 
+    def _cancel_query_job(
+        self,
+        *,
+        name: str,
+        operation_name: str,
+        config: Optional[types.CancelQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CancelQueryJobResult:
+        """Cancels a long-running query job on an Agent Engine."""
+
+        parameter_model = types._CancelQueryJobAgentEngineRequestParameters(
+            name=name,
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CancelQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:cancelAsyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:cancelAsyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CancelQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CancelQueryJobResult._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _check_query_job(
         self,
         *,
         name: str,
         config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
     ) -> types.CheckQueryJobResult:
-        """
-        Query an Agent Engine asynchronously.
-        """
+        """Query an Agent Engine asynchronously."""
 
         parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
             name=name,
@@ -1106,6 +1220,17 @@ class AgentEngines(_api_module.BaseModule):
             self._list,
             self._list(config=config),
             config,
+        )
+
+    def cancel_query_job(
+        self,
+        *,
+        name: str,
+        operation_name: str,
+        config: Optional[types.CancelQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CancelQueryJobResult:
+        return self._cancel_query_job(
+            name=name, operation_name=operation_name, config=config
         )
 
     def check_query_job(

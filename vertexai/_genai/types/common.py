@@ -6277,6 +6277,78 @@ class CheckQueryJobResultDict(TypedDict, total=False):
 CheckQueryJobResultOrDict = Union[CheckQueryJobResult, CheckQueryJobResultDict]
 
 
+class CancelQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for canceling a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CancelQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for canceling a query job on an agent engine."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CancelQueryJobAgentEngineConfigOrDict = Union[
+    CancelQueryJobAgentEngineConfig, CancelQueryJobAgentEngineConfigDict
+]
+
+
+class _CancelQueryJobAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for canceling a query job on an agent engine."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the reasoning engine resource."""
+    )
+    operation_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the longrunning operation returned from run_query_job.""",
+    )
+    config: Optional[CancelQueryJobAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CancelQueryJobAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for canceling a query job on an agent engine."""
+
+    name: Optional[str]
+    """Name of the reasoning engine resource."""
+
+    operation_name: Optional[str]
+    """Name of the longrunning operation returned from run_query_job."""
+
+    config: Optional[CancelQueryJobAgentEngineConfigDict]
+    """"""
+
+
+_CancelQueryJobAgentEngineRequestParametersOrDict = Union[
+    _CancelQueryJobAgentEngineRequestParameters,
+    _CancelQueryJobAgentEngineRequestParametersDict,
+]
+
+
+class CancelQueryJobResult(_common.BaseModel):
+    """Result of canceling a query job."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CancelQueryJobResultDict(TypedDict, total=False):
+    """Result of canceling a query job."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CancelQueryJobResultOrDict = Union[CancelQueryJobResult, CancelQueryJobResultDict]
+
+
 class _RunQueryJobAgentEngineConfig(_common.BaseModel):
     """Config for running a query job on an agent engine."""
 
