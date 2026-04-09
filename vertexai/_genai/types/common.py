@@ -422,6 +422,52 @@ class OptimizationMethod(_common.CaseInSensitiveEnum):
     """The data driven prompt optimizer designer for prompts from Android core API."""
 
 
+class DeleteAgentEngineTaskConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteAgentEngineTaskConfigOrDict = Union[
+    DeleteAgentEngineTaskConfig, DeleteAgentEngineTaskConfigDict
+]
+
+
+class _DeleteAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for deleting an agent engine task."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine task."""
+    )
+    config: Optional[DeleteAgentEngineTaskConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting an agent engine task."""
+
+    name: Optional[str]
+    """Name of the agent engine task."""
+
+    config: Optional[DeleteAgentEngineTaskConfigDict]
+    """"""
+
+
+_DeleteAgentEngineTaskRequestParametersOrDict = Union[
+    _DeleteAgentEngineTaskRequestParameters, _DeleteAgentEngineTaskRequestParametersDict
+]
+
+
 class GetAgentEngineTaskConfig(_common.BaseModel):
     """Config for getting an Agent Engine Task."""
 

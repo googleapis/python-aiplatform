@@ -80,6 +80,17 @@ def _CreateAgentEngineTaskRequestParameters_to_vertex(
     return to_object
 
 
+def _DeleteAgentEngineTaskRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
 def _GetAgentEngineTaskRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -127,6 +138,62 @@ def _ListAgentEngineTasksRequestParameters_to_vertex(
 
 
 class A2aTasks(_api_module.BaseModule):
+
+    def delete(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteAgentEngineTaskConfigOrDict] = None,
+    ) -> None:
+        """
+        Deletes an agent engine task.
+
+        Args:
+            name (str): Required. The name of the Agent Engine task to delete. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{task_id}`.
+            config (DeleteAgentEngineTaskConfig):
+                Optional. Additional configurations for deleting the Agent Engine task.
+
+        Returns:
+            None
+
+        """
+
+        parameter_model = types._DeleteAgentEngineTaskRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteAgentEngineTaskRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        self._api_client.request("delete", path, request_dict, http_options)
 
     def get(
         self,
@@ -422,6 +489,62 @@ class A2aTasks(_api_module.BaseModule):
 
 
 class AsyncA2aTasks(_api_module.BaseModule):
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteAgentEngineTaskConfigOrDict] = None,
+    ) -> None:
+        """
+        Deletes an agent engine task.
+
+        Args:
+            name (str): Required. The name of the Agent Engine task to delete. Format:
+                `projects/{project}/locations/{location}/reasoningEngines/{resource_id}/a2aTasks/{task_id}`.
+            config (DeleteAgentEngineTaskConfig):
+                Optional. Additional configurations for deleting the Agent Engine task.
+
+        Returns:
+            None
+
+        """
+
+        parameter_model = types._DeleteAgentEngineTaskRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _DeleteAgentEngineTaskRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        await self._api_client.async_request("delete", path, request_dict, http_options)
 
     async def get(
         self,

@@ -45,6 +45,7 @@ from .common import _DeleteAgentEngineMemoryRequestParameters
 from .common import _DeleteAgentEngineRequestParameters
 from .common import _DeleteAgentEngineSandboxRequestParameters
 from .common import _DeleteAgentEngineSessionRequestParameters
+from .common import _DeleteAgentEngineTaskRequestParameters
 from .common import _DeleteDatasetRequestParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
@@ -302,6 +303,9 @@ from .common import DeleteAgentEngineSessionConfigOrDict
 from .common import DeleteAgentEngineSessionOperation
 from .common import DeleteAgentEngineSessionOperationDict
 from .common import DeleteAgentEngineSessionOperationOrDict
+from .common import DeleteAgentEngineTaskConfig
+from .common import DeleteAgentEngineTaskConfigDict
+from .common import DeleteAgentEngineTaskConfigOrDict
 from .common import DeletePromptConfig
 from .common import DeletePromptConfigDict
 from .common import DeletePromptConfigOrDict
@@ -1218,6 +1222,9 @@ from .common import WorkerPoolSpecDict
 from .common import WorkerPoolSpecOrDict
 
 __all__ = [
+    "DeleteAgentEngineTaskConfig",
+    "DeleteAgentEngineTaskConfigDict",
+    "DeleteAgentEngineTaskConfigOrDict",
     "GetAgentEngineTaskConfig",
     "GetAgentEngineTaskConfigDict",
     "GetAgentEngineTaskConfigOrDict",
@@ -2299,6 +2306,7 @@ __all__ = [
     "MessageDict",
     "Importance",
     "ParsedResponseUnion",
+    "_DeleteAgentEngineTaskRequestParameters",
     "_GetAgentEngineTaskRequestParameters",
     "_ListAgentEngineTasksRequestParameters",
     "_CreateAgentEngineTaskRequestParameters",
