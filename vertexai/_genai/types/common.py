@@ -9428,6 +9428,10 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
         default=None,
         description="""Optional. The strategy to use when applying metadata to existing memories.""",
     )
+    allowed_topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. Restricts memory generation to a subset of memory topics.""",
+    )
 
 
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -9464,6 +9468,9 @@ class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
 
     metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy]
     """Optional. The strategy to use when applying metadata to existing memories."""
+
+    allowed_topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. Restricts memory generation to a subset of memory topics."""
 
 
 GenerateAgentEngineMemoriesConfigOrDict = Union[

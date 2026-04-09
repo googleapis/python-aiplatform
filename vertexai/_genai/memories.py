@@ -174,6 +174,13 @@ def _GenerateAgentEngineMemoriesConfig_to_vertex(
             getv(from_object, ["metadata_merge_strategy"]),
         )
 
+    if getv(from_object, ["allowed_topics"]) is not None:
+        setv(
+            parent_object,
+            ["allowedTopics"],
+            [item for item in getv(from_object, ["allowed_topics"])],
+        )
+
     return to_object
 
 
