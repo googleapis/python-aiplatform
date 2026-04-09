@@ -31,6 +31,7 @@ from typing_extensions import override
 
 from . import _evals_common
 from . import _evals_constant
+from . import _evals_utils
 from . import evals
 from . import types
 
@@ -1498,10 +1499,29 @@ class EvaluationRunConfig(_common.BaseModel):
     """The number of response candidates for the evaluation run."""
 
 
+def _rate_limited_get_metric_result(
+    rate_limiter: _evals_utils.RateLimiter,
+    handler: MetricHandler[Any],
+    eval_case: types.EvalCase,
+    response_index: int,
+) -> types.EvalCaseMetricResult:
+    """Wraps a handler's get_metric_result with rate limiting."""
+    rate_limiter.sleep_and_advance()
+    return handler.get_metric_result(eval_case, response_index)
+
+
 def compute_metrics_and_aggregate(
     evaluation_run_config: EvaluationRunConfig,
+    evaluation_service_qps: Optional[float] = None,
 ) -> types.EvaluationResult:
-    """Computes metrics and aggregates them for a given evaluation run config."""
+    """Computes metrics and aggregates them for a given evaluation run config.
+
+    Args:
+        evaluation_run_config: The configuration for the evaluation run.
+        evaluation_service_qps: Optional QPS limit for the evaluation service.
+            Defaults to _DEFAULT_EVAL_SERVICE_QPS (10). Users with higher
+            quotas can increase this value.
+    """
     metric_handlers = []
     all_futures = []
     results_by_case_response_metric: collections.defaultdict[
@@ -1510,6 +1530,12 @@ def compute_metrics_and_aggregate(
     submission_errors = []
     execution_errors = []
     case_indices_with_errors = set()
+
+    if evaluation_service_qps is not None and evaluation_service_qps <= 0:
+        raise ValueError("evaluation_service_qps must be a positive number.")
+    qps = evaluation_service_qps or _evals_utils._DEFAULT_EVAL_SERVICE_QPS
+    rate_limiter = _evals_utils.RateLimiter(rate=qps)
+    logger.info("Rate limiting evaluation service requests to %.1f QPS.", qps)
 
     for eval_metric in evaluation_run_config.metrics:
         metric_handlers.append(
@@ -1553,7 +1579,9 @@ def compute_metrics_and_aggregate(
                     for response_index in range(actual_num_candidates_for_case):
                         try:
                             future = executor.submit(
-                                metric_handler_instance.get_metric_result,
+                                _rate_limited_get_metric_result,
+                                rate_limiter,
+                                metric_handler_instance,
                                 eval_case,
                                 response_index,
                             )

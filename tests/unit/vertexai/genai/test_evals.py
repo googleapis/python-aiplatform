@@ -7044,3 +7044,53 @@ class TestCreateEvaluationSetFromDataFrame:
         candidate_response = candidate_responses[0]
         assert candidate_response["candidate"] == "test-candidate"
         assert candidate_response["agent_data"] == agent_data
+
+
+class TestRateLimiter:
+    """Tests for the RateLimiter class in _evals_utils."""
+
+    def test_rate_limiter_init(self):
+        """Tests that RateLimiter initializes correctly."""
+        limiter = _evals_utils.RateLimiter(rate=10.0)
+        assert limiter.seconds_per_event == pytest.approx(0.1)
+
+    def test_rate_limiter_invalid_rate(self):
+        """Tests that RateLimiter raises ValueError for non-positive rate."""
+        with pytest.raises(ValueError, match="Rate must be a positive number"):
+            _evals_utils.RateLimiter(rate=0)
+        with pytest.raises(ValueError, match="Rate must be a positive number"):
+            _evals_utils.RateLimiter(rate=-1)
+
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("time.monotonic")
+    def test_rate_limiter_sleep_and_advance(self, mock_monotonic, mock_sleep):
+        """Tests that sleep_and_advance properly throttles calls."""
+        # With rate=10 (0.1s interval):
+        # - __init__ at t=0: _next_allowed = 0.0
+        # - first call at t=0: no delay, _next_allowed = 0.1
+        # - second call at t=0.01: delay = 0.1 - 0.01 = 0.09
+        mock_monotonic.side_effect = [
+            0.0,  # __init__: time.monotonic()
+            0.0,  # first sleep_and_advance: now
+            0.01,  # second sleep_and_advance: now
+        ]
+        limiter = _evals_utils.RateLimiter(rate=10.0)
+        limiter.sleep_and_advance()  # First call - should not sleep
+        limiter.sleep_and_advance()  # Second call - should sleep
+        assert mock_sleep.call_count == 1
+        # Verify sleep was called with approximately the right delay
+        sleep_delay = mock_sleep.call_args[0][0]
+        assert 0.08 < sleep_delay <= 0.1
+
+    def test_rate_limiter_no_sleep_when_enough_time_passed(self):
+        """Tests that no sleep occurs when enough time has passed."""
+        import time as real_time
+
+        limiter = _evals_utils.RateLimiter(rate=1000.0)  # Very high rate
+        # With rate=1000, interval is 0.001s - should not sleep
+        start = real_time.time()
+        for _ in range(5):
+            limiter.sleep_and_advance()
+        elapsed = real_time.time() - start
+        # 5 calls at 1000 QPS should take ~0.005s, certainly under 1s
+        assert elapsed < 1.0

@@ -15453,6 +15453,12 @@ class EvaluateMethodConfig(_common.BaseModel):
     dest: Optional[str] = Field(
         default=None, description="""The destination path for the evaluation results."""
     )
+    evaluation_service_qps: Optional[float] = Field(
+        default=None,
+        description="""The rate limit (queries per second) for calls to the
+      evaluation service. Defaults to 10. Increase this value if your
+      project has a higher EvaluateInstances API quota.""",
+    )
 
 
 class EvaluateMethodConfigDict(TypedDict, total=False):
@@ -15468,6 +15474,11 @@ class EvaluateMethodConfigDict(TypedDict, total=False):
 
     dest: Optional[str]
     """The destination path for the evaluation results."""
+
+    evaluation_service_qps: Optional[float]
+    """The rate limit (queries per second) for calls to the
+      evaluation service. Defaults to 10. Increase this value if your
+      project has a higher EvaluateInstances API quota."""
 
 
 EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]

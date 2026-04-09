@@ -19,6 +19,7 @@ import asyncio
 import json
 import logging
 import os
+import threading
 import time
 from typing import Any, Optional, Union
 
@@ -38,12 +39,59 @@ logger = logging.getLogger(__name__)
 
 GCS_PREFIX = "gs://"
 BQ_PREFIX = "bq://"
+_DEFAULT_EVAL_SERVICE_QPS = 10
+
+
+class RateLimiter:
+    """Helper class for rate-limiting requests to Vertex AI to improve QoS.
+
+    Implements a token bucket algorithm to limit the rate at which API calls
+    can occur. Designed for cases where the batch size is always 1 for traffic
+    shaping and rate limiting.
+
+    Attributes:
+        seconds_per_event: The time interval (in seconds) between events to
+            maintain the desired rate.
+        last: The timestamp of the last event.
+        _lock: A lock to ensure thread safety.
+    """
+
+    def __init__(self, rate: float) -> None:
+        """Initializes the rate limiter.
+
+        Args:
+            rate: The number of queries allowed per second.
+
+        Raises:
+            ValueError: If the rate is not positive.
+        """
+        if not rate or rate <= 0:
+            raise ValueError("Rate must be a positive number")
+        self.seconds_per_event = 1.0 / rate
+        self._next_allowed = time.monotonic()
+        self._lock = threading.Lock()
+
+    def sleep_and_advance(self) -> None:
+        """Blocks the current thread until the next event can be admitted.
+
+        The lock is held only long enough to reserve a time slot. The
+        actual sleep happens outside the lock so that multiple threads
+        can be sleeping concurrently with staggered wake-up times.
+        """
+        with self._lock:
+            now = time.monotonic()
+            wait_until = max(now, self._next_allowed)
+            delay = wait_until - now
+            self._next_allowed = wait_until + self.seconds_per_event
+
+        if delay > 0:
+            time.sleep(delay)
 
 
 class EvalDatasetLoader:
     """A loader for datasets from various sources, using a shared client."""
 
-    def __init__(self, api_client: BaseApiClient):
+    def __init__(self, api_client: BaseApiClient) -> None:
         self.api_client = api_client
         self.gcs_utils = _gcs_utils.GcsUtils(self.api_client)
         self.bigquery_utils = _bigquery_utils.BigQueryUtils(self.api_client)

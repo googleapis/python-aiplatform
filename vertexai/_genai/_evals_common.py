@@ -1538,6 +1538,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
     location: Optional[str] = None,
+    evaluation_service_qps: Optional[float] = None,
     **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
@@ -1550,6 +1551,9 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         dest: The destination to save the evaluation results.
         location: The location to use for the evaluation. If not specified, the
           location configured in the client will be used.
+        evaluation_service_qps: The rate limit (queries per second) for calls
+          to the evaluation service. Defaults to 10. Increase this value if
+          your project has a higher EvaluateInstances API quota.
         **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
@@ -1625,7 +1629,8 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     logger.info("Running Metric Computation...")
     t1 = time.perf_counter()
     evaluation_result = _evals_metric_handlers.compute_metrics_and_aggregate(
-        evaluation_run_config
+        evaluation_run_config,
+        evaluation_service_qps=evaluation_service_qps,
     )
     t2 = time.perf_counter()
     logger.info("Evaluation took: %f seconds", t2 - t1)
