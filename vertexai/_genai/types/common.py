@@ -16011,6 +16011,10 @@ class EvalRunInferenceConfig(_common.BaseModel):
         description="""Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
       conversation plans, user simulation will be triggered.""",
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Opt-in flag to authorize cross-region routing for LLM models.""",
+    )
 
 
 class EvalRunInferenceConfigDict(TypedDict, total=False):
@@ -16028,6 +16032,9 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
     user_simulator_config: Optional[evals_types.UserSimulatorConfig]
     """Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
       conversation plans, user simulation will be triggered."""
+
+    allow_cross_region_model: Optional[bool]
+    """Opt-in flag to authorize cross-region routing for LLM models."""
 
 
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]

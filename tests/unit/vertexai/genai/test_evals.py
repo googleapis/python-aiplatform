@@ -20,6 +20,7 @@ import os
 import re
 import statistics
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -43,7 +44,6 @@ from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
-
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -755,27 +755,27 @@ class TestEvalsRunInference:
             mock_generate_content_response
         )
 
-        local_dest_dir = "/tmp/test/output_dir"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
+        with tempfile.TemporaryDirectory() as local_dest_dir:
+            config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
 
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=mock_df, config=config
-        )
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=mock_df, config=config
+            )
 
-        mock_makedirs.assert_called_once_with(local_dest_dir, exist_ok=True)
-        expected_save_path = os.path.join(local_dest_dir, "inference_results.jsonl")
-        mock_df_to_json.assert_called_once_with(
-            expected_save_path, orient="records", lines=True
-        )
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["local save"],
-                "response": ["local response"],
-            }
-        )
-        pd.testing.assert_frame_equal(inference_result.eval_dataset_df, expected_df)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            mock_makedirs.assert_called_once_with(local_dest_dir, exist_ok=True)
+            expected_save_path = os.path.join(local_dest_dir, "inference_results.jsonl")
+            mock_df_to_json.assert_called_once_with(
+                expected_save_path, orient="records", lines=True
+            )
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["local save"],
+                    "response": ["local response"],
+                }
+            )
+            pd.testing.assert_frame_equal(inference_result.eval_dataset_df, expected_df)
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -816,201 +816,199 @@ class TestEvalsRunInference:
             mock_generate_content_responses
         )
 
-        local_dest_dir = "/tmp/test_output_dir"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
+        with tempfile.TemporaryDirectory() as local_dest_dir:
+            config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
 
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=mock_df, config=config
-        )
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=mock_df, config=config
+            )
 
-        mock_models.return_value.generate_content.assert_has_calls(
-            [
-                mock.call(
-                    model="gemini-pro",
-                    contents="req 1",
-                    config=genai_types.GenerateContentConfig(),
+            mock_models.return_value.generate_content.assert_has_calls(
+                [
+                    mock.call(
+                        model="gemini-pro",
+                        contents="req 1",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                    mock.call(
+                        model="gemini-pro",
+                        contents="req 2",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                ],
+                any_order=True,
+            )
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["prompt 1", "prompt 2"],
+                    "request": ["req 1", "req 2"],
+                    "response": ["resp 1", "resp 2"],
+                }
+            )
+            pd.testing.assert_frame_equal(
+                inference_result.eval_dataset_df.sort_values(by="request").reset_index(
+                    drop=True
                 ),
-                mock.call(
-                    model="gemini-pro",
-                    contents="req 2",
-                    config=genai_types.GenerateContentConfig(),
-                ),
-            ],
-            any_order=True,
-        )
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["prompt 1", "prompt 2"],
-                "request": ["req 1", "req 2"],
-                "response": ["resp 1", "resp 2"],
-            }
-        )
-        pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="request").reset_index(
-                drop=True
-            ),
-            expected_df.sort_values(by="request").reset_index(drop=True),
-        )
+                expected_df.sort_values(by="request").reset_index(drop=True),
+            )
 
-        saved_file_path = os.path.join(local_dest_dir, "inference_results.jsonl")
-        with open(saved_file_path, "r") as f:
-            saved_records = [json.loads(line) for line in f]
-        expected_records = expected_df.to_dict(orient="records")
-        assert sorted(saved_records, key=lambda x: x["request"]) == sorted(
-            expected_records, key=lambda x: x["request"]
-        )
-        os.remove(saved_file_path)
-        os.rmdir(local_dest_dir)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            saved_file_path = os.path.join(local_dest_dir, "inference_results.jsonl")
+            with open(saved_file_path, "r") as f:
+                saved_records = [json.loads(line) for line in f]
+            expected_records = expected_df.to_dict(orient="records")
+            assert sorted(saved_records, key=lambda x: x["request"]) == sorted(
+                expected_records, key=lambda x: x["request"]
+            )
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_jsonl_file(self, mock_models):
-        local_src_path = "/tmp/input.jsonl"
-        input_records = [
-            {"prompt": "prompt 1", "other_col": "val 1"},
-            {"prompt": "prompt 2", "other_col": "val 2"},
-        ]
-        with open(local_src_path, "w") as f:
-            for record in input_records:
-                f.write(json.dumps(record) + "\n")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local_src_path = os.path.join(temp_dir, "input.jsonl")
+            input_records = [
+                {"prompt": "prompt 1", "other_col": "val 1"},
+                {"prompt": "prompt 2", "other_col": "val 2"},
+            ]
+            with open(local_src_path, "w") as f:
+                for record in input_records:
+                    f.write(json.dumps(record) + "\n")
 
-        mock_generate_content_responses = [
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 1")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 2")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-        ]
-        mock_models.return_value.generate_content.side_effect = (
-            mock_generate_content_responses
-        )
-
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=local_src_path
-        )
-
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["prompt 1", "prompt 2"],
-                "other_col": ["val 1", "val 2"],
-                "response": ["resp 1", "resp 2"],
-            }
-        )
-        pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
-                drop=True
-            ),
-            expected_df.sort_values(by="prompt").reset_index(drop=True),
-        )
-        mock_models.return_value.generate_content.assert_has_calls(
-            [
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 1",
-                    config=genai_types.GenerateContentConfig(),
+            mock_generate_content_responses = [
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 1")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 2",
-                    config=genai_types.GenerateContentConfig(),
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 2")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-            ],
-            any_order=True,
-        )
-        os.remove(local_src_path)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            ]
+            mock_models.return_value.generate_content.side_effect = (
+                mock_generate_content_responses
+            )
+
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=local_src_path
+            )
+
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["prompt 1", "prompt 2"],
+                    "other_col": ["val 1", "val 2"],
+                    "response": ["resp 1", "resp 2"],
+                }
+            )
+            pd.testing.assert_frame_equal(
+                inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                    drop=True
+                ),
+                expected_df.sort_values(by="prompt").reset_index(drop=True),
+            )
+            mock_models.return_value.generate_content.assert_has_calls(
+                [
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 1",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 2",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                ],
+                any_order=True,
+            )
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @pytest.mark.skip(reason="currently flakey")
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
-        local_src_path = "/tmp/input.csv"
-        input_df = pd.DataFrame(
-            {"prompt": ["prompt 1", "prompt 2"], "other_col": ["val 1", "val 2"]}
-        )
-        input_df.to_csv(local_src_path, index=False)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local_src_path = os.path.join(temp_dir, "input.csv")
+            input_df = pd.DataFrame(
+                {"prompt": ["prompt 1", "prompt 2"], "other_col": ["val 1", "val 2"]}
+            )
+            input_df.to_csv(local_src_path, index=False)
 
-        mock_generate_content_responses = [
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 1")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 2")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-        ]
-        mock_models.return_value.generate_content.side_effect = (
-            mock_generate_content_responses
-        )
-
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=local_src_path
-        )
-
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["prompt 1", "prompt 2"],
-                "other_col": ["val 1", "val 2"],
-                "response": ["resp 1", "resp 2"],
-            }
-        )
-        pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
-                drop=True
-            ),
-            expected_df.sort_values(by="prompt").reset_index(drop=True),
-        )
-        mock_models.return_value.generate_content.assert_has_calls(
-            [
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 1",
-                    config=genai_types.GenerateContentConfig(),
+            mock_generate_content_responses = [
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 1")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 2",
-                    config=genai_types.GenerateContentConfig(),
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 2")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-            ],
-            any_order=True,
-        )
-        os.remove(local_src_path)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            ]
+            mock_models.return_value.generate_content.side_effect = (
+                mock_generate_content_responses
+            )
+
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=local_src_path
+            )
+
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["prompt 1", "prompt 2"],
+                    "other_col": ["val 1", "val 2"],
+                    "response": ["resp 1", "resp 2"],
+                }
+            )
+            pd.testing.assert_frame_equal(
+                inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                    drop=True
+                ),
+                expected_df.sort_values(by="prompt").reset_index(drop=True),
+            )
+            mock_models.return_value.generate_content.assert_has_calls(
+                [
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 1",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 2",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                ],
+                any_order=True,
+            )
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -2079,6 +2077,99 @@ class TestEvalsMetricHandlers:
 
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestRunAgent:
+    """Unit tests for the _run_agent function."""
+
+    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
+    def test_run_agent_rewrites_gemini_3_model_name(
+        self, mock_execute_inference_concurrently, mock_api_client_fixture
+    ):
+        mock_execute_inference_concurrently.return_value = []
+        user_simulator_config = vertexai_genai_types.evals.UserSimulatorConfig(
+            model_name="gemini-3-preview"
+        )
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
+
+            def mock_execute(*args, **kwargs):
+                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "global"
+                return []
+
+            mock_execute_inference_concurrently.side_effect = mock_execute
+
+            _evals_common._run_agent(
+                api_client=mock_api_client_fixture,
+                agent_engine=mock.Mock(),
+                agent=None,
+                prompt_dataset=prompt_dataset,
+                user_simulator_config=user_simulator_config,
+                allow_cross_region_model=True,
+            )
+
+            assert (
+                user_simulator_config.model_name
+                == f"projects/{mock_api_client_fixture.project}/locations/global/publishers/google/models/gemini-3-preview"
+            )
+            assert os.environ.get("GOOGLE_CLOUD_LOCATION") == "us-central1"
+
+    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
+    def test_run_agent_raises_error_if_gemini_3_and_allow_cross_region_model_false(
+        self, mock_execute_inference_concurrently, mock_api_client_fixture
+    ):
+        user_simulator_config = vertexai_genai_types.evals.UserSimulatorConfig(
+            model_name="gemini-3-preview"
+        )
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
+
+            with pytest.raises(
+                ValueError,
+                match="The model 'gemini-3-preview' is currently only available in the 'global' region.",
+            ):
+                _evals_common._run_agent(
+                    api_client=mock_api_client_fixture,
+                    agent_engine=mock.Mock(),
+                    agent=None,
+                    prompt_dataset=prompt_dataset,
+                    user_simulator_config=user_simulator_config,
+                    allow_cross_region_model=False,
+                )
+
+    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
+    def test_run_agent_rewrites_gemini_3_model_name_empty_env(
+        self, mock_execute_inference_concurrently, mock_api_client_fixture
+    ):
+        mock_execute_inference_concurrently.return_value = []
+        user_simulator_config = vertexai_genai_types.evals.UserSimulatorConfig(
+            model_name="gemini-3-preview"
+        )
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        with mock.patch.dict(os.environ, clear=True):
+
+            def mock_execute(*args, **kwargs):
+                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "global"
+                return []
+
+            mock_execute_inference_concurrently.side_effect = mock_execute
+
+            _evals_common._run_agent(
+                api_client=mock_api_client_fixture,
+                agent_engine=mock.Mock(),
+                agent=None,
+                prompt_dataset=prompt_dataset,
+                user_simulator_config=user_simulator_config,
+                allow_cross_region_model=True,
+            )
+
+            assert (
+                user_simulator_config.model_name
+                == f"projects/{mock_api_client_fixture.project}/locations/global/publishers/google/models/gemini-3-preview"
+            )
+            assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+
+
 class TestRunAgentInternal:
     """Unit tests for the _run_agent_internal function."""
 

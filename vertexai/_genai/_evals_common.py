@@ -1143,6 +1143,7 @@ def _execute_inference(
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
     location: Optional[str] = None,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
 ) -> pd.DataFrame:
     """Executes inference on a given dataset using the specified model.
 
@@ -1250,6 +1251,7 @@ def _execute_inference(
             agent=agent,
             prompt_dataset=prompt_dataset,
             user_simulator_config=user_simulator_config,
+            allow_cross_region_model=allow_cross_region_model,
         )
         end_time = time.time()
         logger.info("Agent Run completed in %.2f seconds.", end_time - start_time)
@@ -1823,6 +1825,7 @@ def _run_agent_internal(
     agent: Optional[LlmAgent],
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
 ) -> pd.DataFrame:
     """Runs an agent."""
     raw_responses = _run_agent(
@@ -1831,6 +1834,7 @@ def _run_agent_internal(
         agent=agent,
         prompt_dataset=prompt_dataset,
         user_simulator_config=user_simulator_config,
+        allow_cross_region_model=allow_cross_region_model,
     )
     processed_intermediate_events = []
     processed_responses = []
@@ -1872,6 +1876,7 @@ def _run_agent(
     agent: Optional[LlmAgent],
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
 ) -> list[
     Union[
         list[dict[str, Any]],
@@ -1880,28 +1885,60 @@ def _run_agent(
     ]
 ]:
     """Internal helper to run inference using Gemini model with concurrency."""
-    if agent_engine:
-        return _execute_inference_concurrently(
-            api_client=api_client,
-            agent_engine=agent_engine,
-            prompt_dataset=prompt_dataset,
-            progress_desc="Agent Run",
-            gemini_config=None,
-            user_simulator_config=None,
-            inference_fn=_execute_agent_run_with_retry,
-        )
-    elif agent:
-        return _execute_inference_concurrently(
-            api_client=api_client,
-            agent=agent,
-            prompt_dataset=prompt_dataset,
-            progress_desc="Local Agent Run",
-            gemini_config=None,
-            user_simulator_config=user_simulator_config,
-            inference_fn=_execute_local_agent_run_with_retry,
-        )
-    else:
-        raise ValueError("Neither agent_engine nor agent is provided.")
+    original_location = os.environ.get("GOOGLE_CLOUD_LOCATION")
+    location_overridden = False
+
+    if user_simulator_config and user_simulator_config.model_name:
+        model_name = user_simulator_config.model_name
+        if model_name.startswith("gemini-3") and "/" not in model_name:
+            current_location = original_location or api_client.location or "us-central1"
+            if current_location != "global" and not allow_cross_region_model:
+                raise ValueError(
+                    f"The model '{model_name}' is currently only available in the"
+                    " 'global' region. Because this request originated in"
+                    f" '{current_location}', you must explicitly set "
+                    "allow_cross_region_model=True to allow your data to be routed outside"
+                    " of your request's region."
+                )
+
+            logger.warning(
+                "Model %s is only available in the global region. Routing to global.",
+                model_name,
+            )
+            user_simulator_config.model_name = f"projects/{api_client.project}/locations/global/publishers/google/models/{model_name}"
+            if original_location != "global":
+                os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
+                location_overridden = True
+
+    try:
+        if agent_engine:
+            return _execute_inference_concurrently(
+                api_client=api_client,
+                agent_engine=agent_engine,
+                prompt_dataset=prompt_dataset,
+                progress_desc="Agent Run",
+                gemini_config=None,
+                user_simulator_config=None,
+                inference_fn=_execute_agent_run_with_retry,
+            )
+        elif agent:
+            return _execute_inference_concurrently(
+                api_client=api_client,
+                agent=agent,
+                prompt_dataset=prompt_dataset,
+                progress_desc="Local Agent Run",
+                gemini_config=None,
+                user_simulator_config=user_simulator_config,
+                inference_fn=_execute_local_agent_run_with_retry,
+            )
+        else:
+            raise ValueError("Neither agent_engine nor agent is provided.")
+    finally:
+        if location_overridden:
+            if original_location is None:
+                del os.environ["GOOGLE_CLOUD_LOCATION"]
+            else:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = original_location
 
 
 def _execute_agent_run_with_retry(
