@@ -1318,7 +1318,9 @@ class AdkApp:
             raise RuntimeError(
                 "Session not found. Please create it using .create_session()"
             )
-        return session
+        if hasattr(session, "model_dump"):
+            return session.model_dump(mode="json")
+        return session.dict() if hasattr(session, "dict") else session
 
     def get_session(
         self,
@@ -1464,7 +1466,9 @@ class AdkApp:
             state=state,
             **kwargs,
         )
-        return session
+        if hasattr(session, "model_dump"):
+            return session.model_dump(mode="json")
+        return session.dict() if hasattr(session, "dict") else session
 
     def create_session(
         self,
