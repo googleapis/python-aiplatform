@@ -23,6 +23,10 @@ from vertexai._genai import (
     client as vertexai_genai_client_module,
 )
 from vertexai._genai import _agent_engines_utils
+from vertexai._genai.client import (
+    _GENAI_MODULES_TELEMETRY_HEADER,
+)
+from google.cloud.aiplatform import version as aip_version
 from google.cloud import storage, bigquery
 from google.genai import _replay_api_client
 from google.genai import types as genai_types
@@ -260,7 +264,10 @@ def client(use_vertex, replays_prefix, http_options, request):
         http_options = genai_types.HttpOptions()
     if http_options.headers is None:
         http_options.headers = {}
-    http_options.headers["x-goog-vertex-sdk"] = "true"
+
+    tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
+    http_options.headers["user-agent"] = tracking_label
+    http_options.headers["x-goog-api-client"] = tracking_label
 
     replay_client = _replay_api_client.ReplayApiClient(
         mode=mode,
