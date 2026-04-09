@@ -14,6 +14,7 @@
 #
 
 """Transformers module for Vertex addons."""
+import json
 import re
 from typing import Any
 
@@ -260,6 +261,134 @@ def t_metric_for_registry(
     return metric_payload_item
 
 
+_ALLOWED_PART_FIELDS = frozenset(
+    {
+        "text",
+        "inline_data",
+        "file_data",
+        "function_call",
+        "function_response",
+        "video_metadata",
+        "thought",
+        "thought_signature",
+        "code_execution_result",
+        "executable_code",
+        "media_resolution",
+    }
+)
+
+
+def _sanitize_agent_data(agent_data: dict[str, Any]) -> dict[str, Any]:
+    """Strips SDK-only fields from agent_data so the API accepts the payload.
+
+    The SDK's AgentData model may contain fields like 'tool_call',
+    'tool_response', 'part_metadata', and 'will_continue' that don't exist
+    in the API's AgentData / Content proto. This function recursively removes
+    them from content parts and keeps only API-recognized top-level fields.
+    """
+    if not isinstance(agent_data, dict):
+        return agent_data
+
+    sanitized: dict[str, Any] = {}
+    for key, value in agent_data.items():
+        if key == "turns" and isinstance(value, list):
+            sanitized["turns"] = [
+                _sanitize_turn(t) for t in value if isinstance(t, dict)
+            ]
+        elif key == "agents" and isinstance(value, dict):
+            sanitized["agents"] = {
+                k: _sanitize_agent_config(v) if isinstance(v, dict) else v
+                for k, v in value.items()
+            }
+        # Skip unknown top-level fields (e.g. "error" from failed agent runs).
+    return sanitized
+
+
+def _sanitize_agent_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes an AgentConfig dict, keeping only API-known fields."""
+    allowed = {
+        "agent_id",
+        "agent_type",
+        "description",
+        "instruction",
+        "tools",
+        "sub_agents",
+    }
+    return {k: v for k, v in config.items() if k in allowed}
+
+
+def _sanitize_turn(turn: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes a ConversationTurn dict."""
+    sanitized: dict[str, Any] = {}
+    for key, value in turn.items():
+        if key == "events" and isinstance(value, list):
+            sanitized["events"] = [
+                _sanitize_event(e) for e in value if isinstance(e, dict)
+            ]
+        else:
+            sanitized[key] = value
+    return sanitized
+
+
+def _sanitize_event(event: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes an AgentEvent dict."""
+    sanitized: dict[str, Any] = {}
+    for key, value in event.items():
+        if key == "content" and isinstance(value, dict):
+            sanitized["content"] = _sanitize_content(value)
+        elif key in ("author", "event_time", "state_delta", "active_tools"):
+            sanitized[key] = value
+        # Skip unknown event-level fields.
+    return sanitized
+
+
+def _sanitize_content(content: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes a Content dict, stripping unknown fields from parts."""
+    sanitized: dict[str, Any] = {}
+    for key, value in content.items():
+        if key == "parts" and isinstance(value, list):
+            sanitized["parts"] = [
+                _sanitize_part(p) for p in value if isinstance(p, dict)
+            ]
+        elif key == "role":
+            sanitized["role"] = value
+    return sanitized
+
+
+def _sanitize_part(part: dict[str, Any]) -> dict[str, Any]:
+    """Keeps only API-recognized fields in a Part dict."""
+    sanitized: dict[str, Any] = {}
+    for key, value in part.items():
+        if key in _ALLOWED_PART_FIELDS:
+            if key == "function_response" and isinstance(value, dict):
+                # Strip unknown sub-fields like 'will_continue'.
+                sanitized[key] = {
+                    k: v for k, v in value.items() if k in ("name", "id", "response")
+                }
+            else:
+                sanitized[key] = value
+    return sanitized
+
+
+def _extract_agent_data_from_df(
+    eval_dataset: Any,
+    case_idx: int,
+) -> Any:
+    """Extracts agent_data from a DataFrame-based EvaluationDataset by row index."""
+    if not eval_dataset:
+        return None
+    ds = eval_dataset[0] if isinstance(eval_dataset, list) else eval_dataset
+    df = getv(ds, ["eval_dataset_df"])
+    if df is None or not hasattr(df, "iloc"):
+        return None
+    if case_idx < 0 or case_idx >= len(df):
+        return None
+    row = df.iloc[case_idx]
+    if "agent_data" not in row or row["agent_data"] is None:
+        return None
+    return row["agent_data"]
+
+
 def t_inline_results(
     eval_results: list[Any],
 ) -> list[dict[str, Any]]:
@@ -285,14 +414,18 @@ def t_inline_results(
             if 0 <= case_idx < len(eval_cases):
                 eval_case = eval_cases[case_idx]
 
-            prompt_payload = {}
+            prompt_payload: dict[str, Any] = {}
             if eval_case:
                 agent_data = getv(eval_case, ["agent_data"])
                 prompt = getv(eval_case, ["prompt"])
 
                 if agent_data:
                     if hasattr(agent_data, "model_dump"):
-                        prompt_payload["agent_data"] = agent_data.model_dump()
+                        prompt_payload["agent_data"] = _sanitize_agent_data(
+                            agent_data.model_dump()
+                        )
+                    elif isinstance(agent_data, dict):
+                        prompt_payload["agent_data"] = _sanitize_agent_data(agent_data)
                     else:
                         prompt_payload["agent_data"] = agent_data
                 elif prompt:
@@ -301,6 +434,32 @@ def t_inline_results(
                     )  # pylint: disable=protected-access
                     if text:
                         prompt_payload["text"] = str(text)
+
+            # Fallback: extract agent_data from the DataFrame when eval_cases
+            # are not available (e.g., run_inference -> evaluate flow).
+            if not prompt_payload:
+                df_agent_data = _extract_agent_data_from_df(eval_dataset, case_idx)
+                if df_agent_data is not None:
+                    if hasattr(df_agent_data, "model_dump"):
+                        prompt_payload["agent_data"] = _sanitize_agent_data(
+                            df_agent_data.model_dump()
+                        )
+                    elif isinstance(df_agent_data, str):
+                        try:
+                            parsed = json.loads(df_agent_data)
+                            if isinstance(parsed, dict) and "error" in parsed:
+                                pass  # Skip error payloads from failed agent runs.
+                            else:
+                                prompt_payload["agent_data"] = _sanitize_agent_data(
+                                    parsed
+                                )
+                        except (json.JSONDecodeError, ValueError):
+                            pass
+                    elif isinstance(df_agent_data, dict):
+                        if "error" not in df_agent_data:
+                            prompt_payload["agent_data"] = _sanitize_agent_data(
+                                df_agent_data
+                            )
 
             cand_results = getv(case_result, ["response_candidate_results"]) or []
             for resp_cand_result in cand_results:

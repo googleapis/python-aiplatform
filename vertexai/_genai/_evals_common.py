@@ -1017,7 +1017,9 @@ async def _run_adk_user_simulation(
             events.append(
                 {
                     "author": "user",
-                    "content": invocation.user_content.model_dump(mode="json"),
+                    "content": invocation.user_content.model_dump(
+                        mode="json", exclude_none=True
+                    ),
                     "event_time": datetime.datetime.fromtimestamp(
                         invocation.creation_timestamp, tz=datetime.timezone.utc
                     ),
@@ -1033,7 +1035,7 @@ async def _run_adk_user_simulation(
                         {
                             "author": ie.author,
                             "content": (
-                                ie.content.model_dump(mode="json")
+                                ie.content.model_dump(mode="json", exclude_none=True)
                                 if ie.content
                                 else None
                             ),
@@ -1047,7 +1049,9 @@ async def _run_adk_user_simulation(
                     events.append(
                         {
                             "author": "tool_call",
-                            "content": tool_call.model_dump(mode="json"),
+                            "content": tool_call.model_dump(
+                                mode="json", exclude_none=True
+                            ),
                             "event_time": datetime.datetime.fromtimestamp(
                                 invocation.creation_timestamp, tz=datetime.timezone.utc
                             ),
@@ -1058,7 +1062,9 @@ async def _run_adk_user_simulation(
             events.append(
                 {
                     "author": "agent",
-                    "content": invocation.final_response.model_dump(mode="json"),
+                    "content": invocation.final_response.model_dump(
+                        mode="json", exclude_none=True
+                    ),
                     "event_time": datetime.datetime.fromtimestamp(
                         invocation.creation_timestamp, tz=datetime.timezone.utc
                     ),
@@ -2061,7 +2067,7 @@ async def _execute_local_agent_run_with_retry_async(
                     new_message=new_message_content,
                 ):
                     if event:
-                        event = event.model_dump()
+                        event = event.model_dump(exclude_none=True)
                     if event and CONTENT in event and PARTS in event[CONTENT]:
                         events.append(event)
                 return events

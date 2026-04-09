@@ -264,6 +264,310 @@ class TestTransformers:
         assert payload[0]["candidate_results"][0]["candidate"] == "gemini-pro"
         assert payload[0]["candidate_results"][0]["score"] == 0.0
 
+    def test_t_inline_results_sanitizes_agent_data(self):
+        """Tests that t_inline_results strips SDK-only fields from agent_data."""
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed",
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            agent_data=vertexai_genai_types.evals.AgentData(
+                                turns=[
+                                    vertexai_genai_types.evals.ConversationTurn(
+                                        turn_index=0,
+                                        turn_id="turn_0",
+                                        events=[
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="user",
+                                                content=genai_types.Content(
+                                                    role="user",
+                                                    parts=[
+                                                        genai_types.Part(text="Hello")
+                                                    ],
+                                                ),
+                                            ),
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="model",
+                                                content=genai_types.Content(
+                                                    role="model",
+                                                    parts=[
+                                                        genai_types.Part(
+                                                            function_call=genai_types.FunctionCall(
+                                                                name="search",
+                                                                args={"q": "test"},
+                                                            )
+                                                        )
+                                                    ],
+                                                ),
+                                            ),
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="model",
+                                                content=genai_types.Content(
+                                                    role="model",
+                                                    parts=[
+                                                        genai_types.Part(
+                                                            function_response=genai_types.FunctionResponse(
+                                                                name="search",
+                                                                response={
+                                                                    "result": "ok"
+                                                                },
+                                                            )
+                                                        )
+                                                    ],
+                                                ),
+                                            ),
+                                        ],
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        payload = _transformers.t_inline_results([eval_result])
+        assert len(payload) == 1
+
+        agent_data = payload[0]["request"]["prompt"]["agent_data"]
+        assert "turns" in agent_data
+        events = agent_data["turns"][0]["events"]
+        assert len(events) == 3
+
+        # Check text part is preserved
+        text_part = events[0]["content"]["parts"][0]
+        assert "text" in text_part
+        assert text_part["text"] == "Hello"
+
+        # Check function_call is preserved (API-recognized field)
+        fc_part = events[1]["content"]["parts"][0]
+        assert "function_call" in fc_part
+        assert fc_part["function_call"]["name"] == "search"
+        # SDK-only fields must NOT be present
+        assert "tool_call" not in fc_part
+        assert "tool_response" not in fc_part
+        assert "part_metadata" not in fc_part
+
+        # Check function_response is preserved but will_continue is stripped
+        fr_part = events[2]["content"]["parts"][0]
+        assert "function_response" in fr_part
+        assert fr_part["function_response"]["name"] == "search"
+        assert "will_continue" not in fr_part["function_response"]
+
+    def test_sanitize_agent_data_from_dataframe(self):
+        """Tests sanitization when agent_data comes from DataFrame (dict form)."""
+        # Simulate agent_data stored in DataFrame with SDK-only fields
+        raw_agent_data = {
+            "turns": [
+                {
+                    "turn_index": 0,
+                    "turn_id": "turn_0",
+                    "events": [
+                        {
+                            "author": "model",
+                            "content": {
+                                "role": "model",
+                                "parts": [
+                                    {
+                                        "function_call": {
+                                            "name": "find_flights",
+                                            "args": {"origin": "NYC"},
+                                        },
+                                        "tool_call": None,
+                                        "tool_response": None,
+                                        "part_metadata": None,
+                                    }
+                                ],
+                            },
+                        },
+                        {
+                            "author": "model",
+                            "content": {
+                                "role": "model",
+                                "parts": [
+                                    {
+                                        "function_response": {
+                                            "name": "find_flights",
+                                            "response": {"flights": []},
+                                            "will_continue": False,
+                                            "scheduling": None,
+                                        },
+                                    }
+                                ],
+                            },
+                        },
+                    ],
+                }
+            ],
+        }
+
+        sanitized = _transformers._sanitize_agent_data(raw_agent_data)
+
+        parts_0 = sanitized["turns"][0]["events"][0]["content"]["parts"][0]
+        assert "function_call" in parts_0
+        assert "tool_call" not in parts_0
+        assert "tool_response" not in parts_0
+        assert "part_metadata" not in parts_0
+
+        parts_1 = sanitized["turns"][0]["events"][1]["content"]["parts"][0]
+        assert "function_response" in parts_1
+        assert parts_1["function_response"]["name"] == "find_flights"
+        assert "will_continue" not in parts_1["function_response"]
+        assert "scheduling" not in parts_1["function_response"]
+
+    def test_sanitize_agent_data_skips_error_payload(self):
+        """Tests that error payloads from failed agent runs are stripped."""
+        error_data = {"error": "Multi-turn agent run with user simulation failed"}
+        sanitized = _transformers._sanitize_agent_data(error_data)
+        assert "error" not in sanitized
+        assert sanitized == {}
+
+    def test_t_inline_results_skips_error_agent_data_in_df(self):
+        """Tests that t_inline_results skips error agent_data from DataFrame."""
+        error_json = json.dumps({"error": "Agent run failed"})
+        df = pd.DataFrame(
+            {
+                "prompt": ["test"],
+                "agent_data": [error_json],
+            }
+        )
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "metric_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[common_types.EvaluationDataset(eval_dataset_df=df)],
+            metadata=common_types.EvaluationRunMetadata(candidate_names=["agent"]),
+        )
+        payload = _transformers.t_inline_results([eval_result])
+        assert len(payload) == 1
+        # The prompt should have no agent_data (error was skipped)
+        assert "agent_data" not in payload[0]["request"]["prompt"]
+
+
+class TestLossAnalysis:
+    """Unit tests for loss analysis types and visualization."""
+
+    def test_response_structure(self):
+        response = common_types.GenerateLossClustersResponse(
+            analysis_time="2026-04-01T10:00:00Z",
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    analysis_time="2026-04-01T10:00:00Z",
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="cluster-1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Tool Invocation",
+                                description="The agent failed to invoke a required tool.",
+                            ),
+                            item_count=3,
+                        ),
+                        common_types.LossCluster(
+                            cluster_id="cluster-2",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Hallucination",
+                                l2_category="Hallucination of Action",
+                                description="Verbally confirmed action without tool.",
+                            ),
+                            item_count=2,
+                        ),
+                    ],
+                )
+            ],
+        )
+        assert len(response.results) == 1
+        assert response.analysis_time == "2026-04-01T10:00:00Z"
+        result = response.results[0]
+        assert result.config.metric == "multi_turn_task_success_v1"
+        assert len(result.clusters) == 2
+        assert result.clusters[0].cluster_id == "cluster-1"
+        assert result.clusters[0].item_count == 3
+        assert result.clusters[1].cluster_id == "cluster-2"
+
+    def test_response_show_with_results(self, capsys):
+        response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="test_metric",
+                        candidate="test-candidate",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Cat1",
+                                l2_category="SubCat1",
+                            ),
+                            item_count=5,
+                        ),
+                    ],
+                )
+            ],
+        )
+        response.show()
+        captured = capsys.readouterr()
+        assert "test_metric" in captured.out
+        assert "c1" in captured.out
+
+    def test_loss_analysis_result_show(self, capsys):
+        result = common_types.LossAnalysisResult(
+            config=common_types.LossAnalysisConfig(
+                metric="test_metric",
+                candidate="test-candidate",
+            ),
+            clusters=[
+                common_types.LossCluster(
+                    cluster_id="c1",
+                    taxonomy_entry=common_types.LossTaxonomyEntry(
+                        l1_category="DirectCat",
+                        l2_category="DirectSubCat",
+                    ),
+                    item_count=7,
+                ),
+            ],
+        )
+        result.show()
+        captured = capsys.readouterr()
+        assert "test_metric" in captured.out
+        assert "c1" in captured.out
+
 
 class TestEvals:
     """Unit tests for the GenAI client."""
@@ -1568,7 +1872,7 @@ class TestEvalsRunInference:
         mock_runner_instance = mock_runner.return_value
         stream_run_return_value_1 = [
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "1",
                     "content": {"parts": [{"text": "intermediate1"}]},
                     "timestamp": 123,
@@ -1576,7 +1880,7 @@ class TestEvalsRunInference:
                 }
             ),
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "2",
                     "content": {"parts": [{"text": "agent response"}]},
                     "timestamp": 124,
@@ -1586,7 +1890,7 @@ class TestEvalsRunInference:
         ]
         stream_run_return_value_2 = [
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "3",
                     "content": {"parts": [{"text": "intermediate2"}]},
                     "timestamp": 125,
@@ -1594,7 +1898,7 @@ class TestEvalsRunInference:
                 }
             ),
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "4",
                     "content": {"parts": [{"text": "agent response 2"}]},
                     "timestamp": 126,
@@ -2405,9 +2709,15 @@ class TestRunAgentInternal:
             turn["events"][3]["content"]["parts"][0]["text"]
             == "There are no laptops matching your search."
         )
-        mock_invocation.user_content.model_dump.assert_called_with(mode="json")
-        mock_event_1.content.model_dump.assert_called_with(mode="json")
-        mock_invocation.final_response.model_dump.assert_called_with(mode="json")
+        mock_invocation.user_content.model_dump.assert_called_with(
+            mode="json", exclude_none=True
+        )
+        mock_event_1.content.model_dump.assert_called_with(
+            mode="json", exclude_none=True
+        )
+        mock_invocation.final_response.model_dump.assert_called_with(
+            mode="json", exclude_none=True
+        )
 
     @mock.patch.object(_evals_common, "_run_agent")
     def test_run_agent_internal_malformed_event(self, mock_run_agent):

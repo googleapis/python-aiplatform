@@ -15,9 +15,11 @@
 """Utility functions for evals."""
 
 import abc
+import asyncio
+import json
 import logging
 import os
-import json
+import time
 from typing import Any, Optional, Union
 
 from google.genai._api_client import BaseApiClient
@@ -364,6 +366,107 @@ def _postprocess_user_scenarios_response(
     return types.EvaluationDataset(
         eval_cases=eval_cases, eval_dataset_df=eval_dataset_df
     )
+
+
+def _display_loss_analysis_result(
+    result: types.LossAnalysisResult,
+) -> None:
+    """Displays a LossAnalysisResult as a formatted pandas DataFrame."""
+    metric = result.config.metric if result.config else None
+    candidate = result.config.candidate if result.config else None
+    rows: list[dict[str, Any]] = []
+    for cluster in result.clusters or []:
+        entry = cluster.taxonomy_entry
+        row = {
+            "metric": metric,
+            "candidate": candidate,
+            "cluster_id": cluster.cluster_id,
+            "l1_category": entry.l1_category if entry else None,
+            "l2_category": entry.l2_category if entry else None,
+            "description": entry.description if entry else None,
+            "item_count": cluster.item_count,
+        }
+        rows.append(row)
+
+    if not rows:
+        logger.info("No loss clusters found.")
+        return
+
+    df = pd.DataFrame(rows)
+    try:
+        from IPython.display import display  # pylint: disable=g-import-not-at-top
+
+        display(df)
+    except ImportError:
+        print(df.to_string())  # pylint: disable=print-function
+
+
+def _poll_operation(
+    api_client: BaseApiClient,
+    operation: types.GenerateLossClustersOperation,
+    poll_interval_seconds: float = 5.0,
+) -> types.GenerateLossClustersOperation:
+    """Polls a long-running operation until completion.
+
+    Args:
+        api_client: The API client to use for polling.
+        operation: The initial operation returned from the API call.
+        poll_interval_seconds: Time between polls.
+
+    Returns:
+        The completed operation.
+    """
+    if operation.done:
+        return operation
+    start_time = time.time()
+    while True:
+        response = api_client.request("get", operation.name, {}, None)
+        response_dict = {} if not response.body else json.loads(response.body)
+        polled = types.GenerateLossClustersOperation._from_response(
+            response=response_dict, kwargs={}
+        )
+        if polled.done:
+            return polled
+        elapsed = int(time.time() - start_time)
+        logger.info(
+            "Loss analysis operation still running... Elapsed time: %d seconds",
+            elapsed,
+        )
+        time.sleep(poll_interval_seconds)
+
+
+async def _poll_operation_async(
+    api_client: BaseApiClient,
+    operation: types.GenerateLossClustersOperation,
+    poll_interval_seconds: float = 5.0,
+) -> types.GenerateLossClustersOperation:
+    """Polls a long-running operation until completion (async).
+
+    Args:
+        api_client: The API client to use for polling.
+        operation: The initial operation returned from the API call.
+        poll_interval_seconds: Time between polls.
+
+    Returns:
+        The completed operation.
+    """
+    if operation.done:
+        return operation
+    start_time = time.time()
+    while True:
+        response = await api_client.async_request("get", operation.name, {}, None)
+        response_dict = {} if not response.body else json.loads(response.body)
+        polled = types.GenerateLossClustersOperation._from_response(
+            response=response_dict, kwargs={}
+        )
+        if polled.done:
+            return polled
+        elapsed = int(time.time() - start_time)
+        logger.info(
+            "Loss analysis operation still running... Elapsed time: %d seconds",
+            elapsed,
+        )
+        await asyncio.sleep(poll_interval_seconds)
 
 
 def _validate_dataset_agent_data(

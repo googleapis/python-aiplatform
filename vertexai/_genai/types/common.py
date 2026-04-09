@@ -4980,6 +4980,12 @@ class LossAnalysisResult(_common.BaseModel):
         default=None, description="""The list of identified loss clusters."""
     )
 
+    def show(self) -> None:
+        """Shows the loss analysis result as a formatted pandas DataFrame."""
+        from .. import _evals_utils
+
+        _evals_utils._display_loss_analysis_result(self)
+
 
 class LossAnalysisResultDict(TypedDict, total=False):
     """The top-level result for loss analysis."""
@@ -5007,6 +5013,11 @@ class GenerateLossClustersResponse(_common.BaseModel):
         default=None,
         description="""The analysis results, one per config provided in the request.""",
     )
+
+    def show(self) -> None:
+        """Shows all loss analysis results."""
+        for result in self.results or []:
+            result.show()
 
 
 class GenerateLossClustersResponseDict(TypedDict, total=False):

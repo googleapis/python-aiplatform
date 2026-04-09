@@ -2680,6 +2680,57 @@ class Evals(_api_module.BaseModule):
         return _evals_utils._postprocess_user_scenarios_response(response)
 
     @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_loss_clusters module is experimental, "
+        "and may change in future versions."
+    )
+    def generate_loss_clusters(
+        self,
+        *,
+        eval_result: types.EvaluationResult,
+        config: types.LossAnalysisConfigOrDict,
+    ) -> types.GenerateLossClustersResponse:
+        """Generates loss clusters from evaluation results.
+
+        Analyzes "Pass/Fail" signals from rubric-based autoraters and groups
+        them into semantic "Loss Patterns" (e.g., "Hallucination of Action").
+
+        This method calls the GenerateLossClusters LRO and polls until
+        completion, returning the results directly.
+
+        Args:
+            eval_result: The EvaluationResult object returned from
+                client.evals.evaluate().
+            config: Configuration for the loss analysis, specifying the
+                metric and candidate to analyze. Can be a LossAnalysisConfig
+                object or a dict.
+
+        Returns:
+            A GenerateLossClustersResponse containing the analysis results.
+            Call .show() to visualize, or access .results for individual
+            LossAnalysisResult objects (each with their own .show()).
+        """
+        parsed_config = (
+            types.LossAnalysisConfig.model_validate(config)
+            if isinstance(config, dict)
+            else config
+        )
+        operation = self._generate_loss_clusters(
+            inline_results=[eval_result],
+            configs=[parsed_config],
+        )
+        completed = _evals_utils._poll_operation(
+            api_client=self._api_client,
+            operation=operation,
+        )
+        if completed.error:
+            raise RuntimeError(f"Loss analysis operation failed: {completed.error}")
+        if completed.response is None:
+            raise RuntimeError(
+                "Loss analysis operation completed but returned no response."
+            )
+        return completed.response
+
+    @_common.experimental_warning(
         "The Vertex SDK GenAI evals.create_evaluation_metric method is experimental, "
         "and may change in future versions."
     )
@@ -4178,6 +4229,57 @@ class AsyncEvals(_api_module.BaseModule):
             user_scenario_generation_config=config,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_loss_clusters module is experimental, "
+        "and may change in future versions."
+    )
+    async def generate_loss_clusters(
+        self,
+        *,
+        eval_result: types.EvaluationResult,
+        config: types.LossAnalysisConfigOrDict,
+    ) -> types.GenerateLossClustersResponse:
+        """Generates loss clusters from evaluation results.
+
+        Analyzes "Pass/Fail" signals from rubric-based autoraters and groups
+        them into semantic "Loss Patterns" (e.g., "Hallucination of Action").
+
+        This method calls the GenerateLossClusters LRO and polls until
+        completion, returning the results directly.
+
+        Args:
+            eval_result: The EvaluationResult object returned from
+                client.evals.evaluate().
+            config: Configuration for the loss analysis, specifying the
+                metric and candidate to analyze. Can be a LossAnalysisConfig
+                object or a dict.
+
+        Returns:
+            A GenerateLossClustersResponse containing the analysis results.
+            Call .show() to visualize, or access .results for individual
+            LossAnalysisResult objects (each with their own .show()).
+        """
+        parsed_config = (
+            types.LossAnalysisConfig.model_validate(config)
+            if isinstance(config, dict)
+            else config
+        )
+        operation = await self._generate_loss_clusters(
+            inline_results=[eval_result],
+            configs=[parsed_config],
+        )
+        completed = await _evals_utils._poll_operation_async(
+            api_client=self._api_client,
+            operation=operation,
+        )
+        if completed.error:
+            raise RuntimeError(f"Loss analysis operation failed: {completed.error}")
+        if completed.response is None:
+            raise RuntimeError(
+                "Loss analysis operation completed but returned no response."
+            )
+        return completed.response
 
     @_common.experimental_warning(
         "The Vertex SDK GenAI evals.create_evaluation_metric module is experimental, "
