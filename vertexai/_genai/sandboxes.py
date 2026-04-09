@@ -629,6 +629,23 @@ class Sandboxes(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _snapshots = None
+
+    @property
+    def snapshots(self) -> Any:
+        if self._snapshots is None:
+            try:
+                self._snapshots = __import__("importlib").import_module(
+                    ".sandbox_snapshots", __package__
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.sandboxes.sandbox_snapshots' module requires "
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[sandbox_snapshots]"
+                ) from e
+        return self._snapshots.SandboxSnapshots(self._api_client)  # type: ignore[attr-defined, no-any-return]
+
     def create(
         self,
         *,

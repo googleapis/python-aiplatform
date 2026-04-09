@@ -40,6 +40,7 @@ from .common import _CreateEvaluationMetricParameters
 from .common import _CreateEvaluationRunParameters
 from .common import _CreateEvaluationSetParameters
 from .common import _CreateMultimodalDatasetParameters
+from .common import _CreateSandboxEnvironmentSnapshotRequestParameters
 from .common import _CustomJobParameters
 from .common import _CustomJobParameters
 from .common import _DeleteAgentEngineMemoryRequestParameters
@@ -51,6 +52,7 @@ from .common import _DeleteDatasetRequestParameters
 from .common import _DeleteEvaluationMetricParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
+from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _GenerateAgentEngineMemoriesRequestParameters
@@ -79,6 +81,7 @@ from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetMultimodalDatasetOperationParameters
 from .common import _GetMultimodalDatasetParameters
+from .common import _GetSandboxEnvironmentSnapshotRequestParameters
 from .common import _IngestEventsRequestParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
@@ -92,6 +95,7 @@ from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
+from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
@@ -238,6 +242,9 @@ from .common import CreateAgentEngineConfigOrDict
 from .common import CreateAgentEngineSandboxConfig
 from .common import CreateAgentEngineSandboxConfigDict
 from .common import CreateAgentEngineSandboxConfigOrDict
+from .common import CreateAgentEngineSandboxSnapshotConfig
+from .common import CreateAgentEngineSandboxSnapshotConfigDict
+from .common import CreateAgentEngineSandboxSnapshotConfigOrDict
 from .common import CreateAgentEngineSessionConfig
 from .common import CreateAgentEngineSessionConfigDict
 from .common import CreateAgentEngineSessionConfigOrDict
@@ -331,6 +338,12 @@ from .common import DeletePromptOperationOrDict
 from .common import DeletePromptVersionOperation
 from .common import DeletePromptVersionOperationDict
 from .common import DeletePromptVersionOperationOrDict
+from .common import DeleteSandboxEnvironmentSnapshotConfig
+from .common import DeleteSandboxEnvironmentSnapshotConfigDict
+from .common import DeleteSandboxEnvironmentSnapshotConfigOrDict
+from .common import DeleteSandboxEnvironmentSnapshotOperation
+from .common import DeleteSandboxEnvironmentSnapshotOperationDict
+from .common import DeleteSandboxEnvironmentSnapshotOperationOrDict
 from .common import DiskSpec
 from .common import DiskSpecDict
 from .common import DiskSpecOrDict
@@ -550,6 +563,9 @@ from .common import GetMultimodalDatasetOperationConfigOrDict
 from .common import GetPromptConfig
 from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
+from .common import GetSandboxEnvironmentSnapshotConfig
+from .common import GetSandboxEnvironmentSnapshotConfigDict
+from .common import GetSandboxEnvironmentSnapshotConfigOrDict
 from .common import IdentityType
 from .common import Importance
 from .common import IngestEventsConfig
@@ -641,6 +657,12 @@ from .common import ListReasoningEnginesResponseOrDict
 from .common import ListReasoningEnginesSessionsResponse
 from .common import ListReasoningEnginesSessionsResponseDict
 from .common import ListReasoningEnginesSessionsResponseOrDict
+from .common import ListSandboxEnvironmentSnapshotsConfig
+from .common import ListSandboxEnvironmentSnapshotsConfigDict
+from .common import ListSandboxEnvironmentSnapshotsConfigOrDict
+from .common import ListSandboxEnvironmentSnapshotsResponse
+from .common import ListSandboxEnvironmentSnapshotsResponseDict
+from .common import ListSandboxEnvironmentSnapshotsResponseOrDict
 from .common import LLMMetric
 from .common import LossAnalysisConfig
 from .common import LossAnalysisConfigDict
@@ -804,6 +826,7 @@ from .common import PointwiseMetricInputOrDict
 from .common import PointwiseMetricInstance
 from .common import PointwiseMetricInstanceDict
 from .common import PointwiseMetricInstanceOrDict
+from .common import PostSnapshotAction
 from .common import Prompt
 from .common import PromptData
 from .common import PromptDataDict
@@ -1033,6 +1056,9 @@ from .common import SandboxEnvironmentConnectionInfoDict
 from .common import SandboxEnvironmentConnectionInfoOrDict
 from .common import SandboxEnvironmentDict
 from .common import SandboxEnvironmentOrDict
+from .common import SandboxEnvironmentSnapshot
+from .common import SandboxEnvironmentSnapshotDict
+from .common import SandboxEnvironmentSnapshotOrDict
 from .common import SandboxEnvironmentSpec
 from .common import SandboxEnvironmentSpecCodeExecutionEnvironment
 from .common import SandboxEnvironmentSpecCodeExecutionEnvironmentDict
@@ -2064,6 +2090,27 @@ __all__ = [
     "ListAgentEngineSandboxesResponse",
     "ListAgentEngineSandboxesResponseDict",
     "ListAgentEngineSandboxesResponseOrDict",
+    "CreateAgentEngineSandboxSnapshotConfig",
+    "CreateAgentEngineSandboxSnapshotConfigDict",
+    "CreateAgentEngineSandboxSnapshotConfigOrDict",
+    "SandboxEnvironmentSnapshot",
+    "SandboxEnvironmentSnapshotDict",
+    "SandboxEnvironmentSnapshotOrDict",
+    "DeleteSandboxEnvironmentSnapshotConfig",
+    "DeleteSandboxEnvironmentSnapshotConfigDict",
+    "DeleteSandboxEnvironmentSnapshotConfigOrDict",
+    "DeleteSandboxEnvironmentSnapshotOperation",
+    "DeleteSandboxEnvironmentSnapshotOperationDict",
+    "DeleteSandboxEnvironmentSnapshotOperationOrDict",
+    "GetSandboxEnvironmentSnapshotConfig",
+    "GetSandboxEnvironmentSnapshotConfigDict",
+    "GetSandboxEnvironmentSnapshotConfigOrDict",
+    "ListSandboxEnvironmentSnapshotsConfig",
+    "ListSandboxEnvironmentSnapshotsConfigDict",
+    "ListSandboxEnvironmentSnapshotsConfigOrDict",
+    "ListSandboxEnvironmentSnapshotsResponse",
+    "ListSandboxEnvironmentSnapshotsResponseDict",
+    "ListSandboxEnvironmentSnapshotsResponseOrDict",
     "CreateAgentEngineSessionConfig",
     "CreateAgentEngineSessionConfigDict",
     "CreateAgentEngineSessionConfigOrDict",
@@ -2371,6 +2418,7 @@ __all__ = [
     "Operator",
     "Language",
     "MachineConfig",
+    "PostSnapshotAction",
     "Framework",
     "EvaluationItemType",
     "SamplingMethod",
@@ -2456,6 +2504,10 @@ __all__ = [
     "_GetAgentEngineSandboxRequestParameters",
     "_ListAgentEngineSandboxesRequestParameters",
     "_GetAgentEngineSandboxOperationParameters",
+    "_CreateSandboxEnvironmentSnapshotRequestParameters",
+    "_DeleteSandboxEnvironmentSnapshotRequestParameters",
+    "_GetSandboxEnvironmentSnapshotRequestParameters",
+    "_ListSandboxEnvironmentSnapshotsRequestParameters",
     "_CreateAgentEngineSessionRequestParameters",
     "_DeleteAgentEngineSessionRequestParameters",
     "_GetAgentEngineSessionRequestParameters",
