@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.147.0](https://github.com/googleapis/python-aiplatform/compare/v1.146.0...v1.147.0) (2026-04-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* The labels field has been removed from GeminiExample. The tools and safety_settings fields have been turned into lists.
+
+### Features
+
+* Add system_labels parameter to Model Garden deploy methods. ([a196cda](https://github.com/googleapis/python-aiplatform/commit/a196cda777b8f6d9136a7f0b0d7264d09dab1ba9))
+* Add the delete method for the Agent Engine Task Store Service ([2f2a211](https://github.com/googleapis/python-aiplatform/commit/2f2a211a54109e8b5701c0868b1a459a59cac626))
+* GenAI Client(evals):  Route gemini-3 model traffic to global region in local agent scraping ([e2e81c9](https://github.com/googleapis/python-aiplatform/commit/e2e81c99b46fef3978655fc480edd5c39f098fd6))
+* GenAI SDK client(multimodal) - Add single_turn_template helper to GeminiRequestReadConfig. ([0e5037d](https://github.com/googleapis/python-aiplatform/commit/0e5037d31bd6566756dd79ba8606d7fdeb9b54ae))
+* Set agent_framework for A2aAgent class. ([a8085e5](https://github.com/googleapis/python-aiplatform/commit/a8085e50741471fa5c17a5b36b69adaab1da4f25))
+
+
+### Bug Fixes
+
+* Add SDK workaround for double-wrapped Any response in async_retrieve_contexts. ([bd4983b](https://github.com/googleapis/python-aiplatform/commit/bd4983b488a3181578c552482af6ec78e8aa408e))
+* GenAI SDK client(multimodal) - Fix inconsistencies between the GeminiExample class definition and API type. ([fad250e](https://github.com/googleapis/python-aiplatform/commit/fad250e700cc676ce66d20ca1c410829788a251c))
+
+
+### Miscellaneous Chores
+
+* Release 1.147.0 ([4a11370](https://github.com/googleapis/python-aiplatform/commit/4a113706f1ad9a105b0b04a6cdace9e31942d6e7))
+
 ## [1.146.0](https://github.com/googleapis/python-aiplatform/compare/v1.145.0...v1.146.0) (2026-04-07)
 
 
