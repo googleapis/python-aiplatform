@@ -2687,7 +2687,9 @@ class Evals(_api_module.BaseModule):
         self,
         *,
         eval_result: types.EvaluationResult,
-        config: types.LossAnalysisConfigOrDict,
+        metric: Optional[Union[str, types.MetricOrDict]] = None,
+        candidate: Optional[str] = None,
+        config: Optional[types.LossAnalysisConfigOrDict] = None,
     ) -> types.GenerateLossClustersResponse:
         """Generates loss clusters from evaluation results.
 
@@ -2697,26 +2699,51 @@ class Evals(_api_module.BaseModule):
         This method calls the GenerateLossClusters LRO and polls until
         completion, returning the results directly.
 
+        If ``metric`` or ``candidate`` are not provided, they will be
+        auto-inferred from ``eval_result`` when unambiguous (i.e., when the
+        eval result contains exactly one metric or one candidate). For
+        multi-metric or multi-candidate evaluations, provide them explicitly.
+
+        Available candidate names can be found in
+        ``eval_result.metadata.candidate_names``.
+
+        Note: This API is only available in the ``global`` region.
+
         Args:
             eval_result: The EvaluationResult object returned from
                 client.evals.evaluate().
-            config: Configuration for the loss analysis, specifying the
-                metric and candidate to analyze. Can be a LossAnalysisConfig
-                object or a dict.
+            metric: The metric to analyze. Can be a metric name string
+                (e.g., "multi_turn_task_success_v1"), a Metric object, or a
+                RubricMetric enum (e.g., types.RubricMetric.MULTI_TURN_TASK_SUCCESS).
+                If not provided and config does not specify it, auto-inferred
+                from eval_result.
+            candidate: The candidate to analyze. If not provided and config
+                does not specify it, auto-inferred from eval_result.
+            config: Optional LossAnalysisConfig with additional options
+                (predefined_taxonomy, max_top_cluster_count). Can also
+                specify metric/candidate, but explicit arguments take
+                precedence.
 
         Returns:
             A GenerateLossClustersResponse containing the analysis results.
             Call .show() to visualize, or access .results for individual
             LossAnalysisResult objects (each with their own .show()).
         """
+        metric_name = _evals_utils._resolve_metric_name(metric)
         parsed_config = (
             types.LossAnalysisConfig.model_validate(config)
             if isinstance(config, dict)
             else config
         )
+        resolved_config = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result,
+            config=parsed_config,
+            metric=metric_name,
+            candidate=candidate,
+        )
         operation = self._generate_loss_clusters(
             inline_results=[eval_result],
-            configs=[parsed_config],
+            configs=[resolved_config],
         )
         completed = _evals_utils._poll_operation(
             api_client=self._api_client,
@@ -4238,7 +4265,9 @@ class AsyncEvals(_api_module.BaseModule):
         self,
         *,
         eval_result: types.EvaluationResult,
-        config: types.LossAnalysisConfigOrDict,
+        metric: Optional[Union[str, types.MetricOrDict]] = None,
+        candidate: Optional[str] = None,
+        config: Optional[types.LossAnalysisConfigOrDict] = None,
     ) -> types.GenerateLossClustersResponse:
         """Generates loss clusters from evaluation results.
 
@@ -4248,26 +4277,51 @@ class AsyncEvals(_api_module.BaseModule):
         This method calls the GenerateLossClusters LRO and polls until
         completion, returning the results directly.
 
+        If ``metric`` or ``candidate`` are not provided, they will be
+        auto-inferred from ``eval_result`` when unambiguous (i.e., when the
+        eval result contains exactly one metric or one candidate). For
+        multi-metric or multi-candidate evaluations, provide them explicitly.
+
+        Available candidate names can be found in
+        ``eval_result.metadata.candidate_names``.
+
+        Note: This API is only available in the ``global`` region.
+
         Args:
             eval_result: The EvaluationResult object returned from
                 client.evals.evaluate().
-            config: Configuration for the loss analysis, specifying the
-                metric and candidate to analyze. Can be a LossAnalysisConfig
-                object or a dict.
+            metric: The metric to analyze. Can be a metric name string
+                (e.g., "multi_turn_task_success_v1"), a Metric object, or a
+                RubricMetric enum (e.g., types.RubricMetric.MULTI_TURN_TASK_SUCCESS).
+                If not provided and config does not specify it, auto-inferred
+                from eval_result.
+            candidate: The candidate to analyze. If not provided and config
+                does not specify it, auto-inferred from eval_result.
+            config: Optional LossAnalysisConfig with additional options
+                (predefined_taxonomy, max_top_cluster_count). Can also
+                specify metric/candidate, but explicit arguments take
+                precedence.
 
         Returns:
             A GenerateLossClustersResponse containing the analysis results.
             Call .show() to visualize, or access .results for individual
             LossAnalysisResult objects (each with their own .show()).
         """
+        metric_name = _evals_utils._resolve_metric_name(metric)
         parsed_config = (
             types.LossAnalysisConfig.model_validate(config)
             if isinstance(config, dict)
             else config
         )
+        resolved_config = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result,
+            config=parsed_config,
+            metric=metric_name,
+            candidate=candidate,
+        )
         operation = await self._generate_loss_clusters(
             inline_results=[eval_result],
-            configs=[parsed_config],
+            configs=[resolved_config],
         )
         completed = await _evals_utils._poll_operation_async(
             api_client=self._api_client,

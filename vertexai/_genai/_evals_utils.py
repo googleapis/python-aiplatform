@@ -449,6 +449,148 @@ def _display_loss_analysis_result(
         print(df.to_string())  # pylint: disable=print-function
 
 
+def _resolve_metric_name(
+    metric: Optional[Any],
+) -> Optional[str]:
+    """Extracts a metric name string from a metric argument.
+
+    Accepts a string, a Metric object, or a LazyLoadedPrebuiltMetric
+    (RubricMetric) and returns the metric name as a string.
+
+    For LazyLoadedPrebuiltMetric (e.g., RubricMetric.MULTI_TURN_TASK_SUCCESS),
+    this resolves to the API metric spec name (e.g.,
+    "multi_turn_task_success_v1") so it matches the keys in eval results.
+
+    Args:
+        metric: A metric name string, Metric object, RubricMetric enum value, or
+          None.
+
+    Returns:
+        The metric name as a string, or None if metric is None.
+    """
+    if metric is None:
+        return None
+    if isinstance(metric, str):
+        return metric
+    # LazyLoadedPrebuiltMetric: resolve to versioned API spec name.
+    if hasattr(metric, "_get_api_metric_spec_name"):
+        spec_name: Optional[str] = metric._get_api_metric_spec_name()
+        if spec_name:
+            return spec_name
+    # Metric objects and other types with a .name attribute.
+    if hasattr(metric, "name"):
+        return str(metric.name)
+    return str(metric)
+
+
+def _resolve_loss_analysis_config(
+    eval_result: types.EvaluationResult,
+    config: Optional[types.LossAnalysisConfig] = None,
+    metric: Optional[str] = None,
+    candidate: Optional[str] = None,
+) -> types.LossAnalysisConfig:
+    """Resolves and validates the LossAnalysisConfig for generate_loss_clusters.
+
+    Auto-infers `metric` and `candidate` from the EvaluationResult when not
+    explicitly provided. Validates that provided values exist in the eval result.
+
+    Args:
+        eval_result: The EvaluationResult from client.evals.evaluate().
+        config: Optional explicit LossAnalysisConfig. If provided, metric and
+          candidate from config take precedence over the separate arguments.
+        metric: Optional metric name override.
+        candidate: Optional candidate name override.
+
+    Returns:
+        A resolved LossAnalysisConfig with metric and candidate populated.
+
+    Raises:
+        ValueError: If metric/candidate cannot be inferred or are invalid.
+    """
+    # Start from config if provided, otherwise create a new one.
+    if config is not None:
+        resolved_metric = metric or config.metric
+        resolved_candidate = candidate or config.candidate
+        resolved_config = config.model_copy(
+            update={"metric": resolved_metric, "candidate": resolved_candidate}
+        )
+    else:
+        resolved_config = types.LossAnalysisConfig(metric=metric, candidate=candidate)
+
+    # Collect available metric names from the eval result.
+    available_metrics: set[str] = set()
+    if eval_result.eval_case_results:
+        for case_result in eval_result.eval_case_results:
+            for resp_cand in case_result.response_candidate_results or []:
+                for m_name in (resp_cand.metric_results or {}).keys():
+                    available_metrics.add(m_name)
+
+    # Collect available candidate names from metadata.
+    available_candidates: list[str] = []
+    if eval_result.metadata and eval_result.metadata.candidate_names:
+        available_candidates = list(eval_result.metadata.candidate_names)
+
+    # Auto-infer metric if not provided.
+    if not resolved_config.metric:
+        if len(available_metrics) == 1:
+            resolved_config = resolved_config.model_copy(
+                update={"metric": next(iter(available_metrics))}
+            )
+        elif len(available_metrics) == 0:
+            raise ValueError(
+                "Cannot infer metric: no metric results found in eval_result."
+                " Please provide metric explicitly via"
+                " config=types.LossAnalysisConfig(metric='...')."
+            )
+        else:
+            raise ValueError(
+                "Cannot infer metric: multiple metrics found in eval_result:"
+                f" {sorted(available_metrics)}. Please provide metric"
+                " explicitly via config=types.LossAnalysisConfig(metric='...')."
+            )
+
+    # Validate metric if provided explicitly.
+    if available_metrics and resolved_config.metric not in available_metrics:
+        raise ValueError(
+            f"Metric '{resolved_config.metric}' not found in eval_result."
+            f" Available metrics: {sorted(available_metrics)}."
+        )
+
+    # Auto-infer candidate if not provided.
+    if not resolved_config.candidate:
+        if len(available_candidates) == 1:
+            resolved_config = resolved_config.model_copy(
+                update={"candidate": available_candidates[0]}
+            )
+        elif len(available_candidates) == 0:
+            # Fallback: use default candidate naming convention from SDK.
+            resolved_config = resolved_config.model_copy(
+                update={"candidate": "candidate_1"}
+            )
+            logger.warning(
+                "No candidate names found in eval_result.metadata."
+                " Defaulting to 'candidate_1'. If this is incorrect, provide"
+                " candidate explicitly via"
+                " config=types.LossAnalysisConfig(candidate='...')."
+            )
+        else:
+            raise ValueError(
+                "Cannot infer candidate: multiple candidates found in"
+                f" eval_result: {available_candidates}. Please provide"
+                " candidate explicitly via"
+                " config=types.LossAnalysisConfig(candidate='...')."
+            )
+
+    # Validate candidate if provided explicitly and candidates are known.
+    if available_candidates and resolved_config.candidate not in available_candidates:
+        raise ValueError(
+            f"Candidate '{resolved_config.candidate}' not found in"
+            f" eval_result. Available candidates: {available_candidates}."
+        )
+
+    return resolved_config
+
+
 def _poll_operation(
     api_client: BaseApiClient,
     operation: types.GenerateLossClustersOperation,

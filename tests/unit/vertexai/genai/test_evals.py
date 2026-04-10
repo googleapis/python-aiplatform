@@ -569,6 +569,170 @@ class TestLossAnalysis:
         assert "c1" in captured.out
 
 
+def _make_eval_result(
+    metrics=None,
+    candidate_names=None,
+):
+    """Helper to create an EvaluationResult with the given metrics and candidates."""
+    metrics = metrics or ["task_success_v1"]
+    candidate_names = candidate_names or ["agent-1"]
+
+    metric_results = {}
+    for m in metrics:
+        metric_results[m] = common_types.EvalCaseMetricResult(metric_name=m)
+
+    eval_case_results = [
+        common_types.EvalCaseResult(
+            eval_case_index=0,
+            response_candidate_results=[
+                common_types.ResponseCandidateResult(
+                    response_index=0,
+                    metric_results=metric_results,
+                )
+            ],
+        )
+    ]
+    metadata = common_types.EvaluationRunMetadata(
+        candidate_names=candidate_names,
+    )
+    return common_types.EvaluationResult(
+        eval_case_results=eval_case_results,
+        metadata=metadata,
+    )
+
+
+class TestResolveMetricName:
+    """Unit tests for _resolve_metric_name."""
+
+    def test_none_returns_none(self):
+        assert _evals_utils._resolve_metric_name(None) is None
+
+    def test_string_passes_through(self):
+        assert _evals_utils._resolve_metric_name("task_success_v1") == "task_success_v1"
+
+    def test_metric_object_extracts_name(self):
+        metric = common_types.Metric(name="multi_turn_task_success_v1")
+        assert _evals_utils._resolve_metric_name(metric) == "multi_turn_task_success_v1"
+
+    def test_object_with_name_attr(self):
+        """Tests that any object with a .name attribute works (e.g., LazyLoadedPrebuiltMetric)."""
+
+        class FakeMetric:
+            name = "tool_use_quality_v1"
+
+        assert _evals_utils._resolve_metric_name(FakeMetric()) == "tool_use_quality_v1"
+
+    def test_lazy_loaded_prebuilt_metric_resolves_versioned_name(self):
+        """Tests that LazyLoadedPrebuiltMetric resolves to the versioned API spec name."""
+
+        class FakeLazyMetric:
+            name = "MULTI_TURN_TASK_SUCCESS"
+
+            def _get_api_metric_spec_name(self):
+                return "multi_turn_task_success_v1"
+
+        assert (
+            _evals_utils._resolve_metric_name(FakeLazyMetric())
+            == "multi_turn_task_success_v1"
+        )
+
+    def test_lazy_loaded_prebuilt_metric_falls_back_to_name(self):
+        """Tests fallback to .name when _get_api_metric_spec_name returns None."""
+
+        class FakeLazyMetricNoSpec:
+            name = "CUSTOM_METRIC"
+
+            def _get_api_metric_spec_name(self):
+                return None
+
+        assert (
+            _evals_utils._resolve_metric_name(FakeLazyMetricNoSpec()) == "CUSTOM_METRIC"
+        )
+
+
+class TestResolveLossAnalysisConfig:
+    """Unit tests for _resolve_loss_analysis_config."""
+
+    def test_auto_infer_single_metric_and_candidate(self):
+        eval_result = _make_eval_result(
+            metrics=["task_success_v1"], candidate_names=["agent-1"]
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+        assert resolved.metric == "task_success_v1"
+        assert resolved.candidate == "agent-1"
+
+    def test_explicit_metric_and_candidate(self):
+        eval_result = _make_eval_result(
+            metrics=["m1", "m2"], candidate_names=["c1", "c2"]
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result, metric="m1", candidate="c2"
+        )
+        assert resolved.metric == "m1"
+        assert resolved.candidate == "c2"
+
+    def test_config_provides_metric_and_candidate(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1"])
+        config = common_types.LossAnalysisConfig(
+            metric="m1", candidate="c1", predefined_taxonomy="my_taxonomy"
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result, config=config
+        )
+        assert resolved.metric == "m1"
+        assert resolved.candidate == "c1"
+        assert resolved.predefined_taxonomy == "my_taxonomy"
+
+    def test_explicit_args_override_config(self):
+        eval_result = _make_eval_result(
+            metrics=["m1", "m2"], candidate_names=["c1", "c2"]
+        )
+        config = common_types.LossAnalysisConfig(metric="m1", candidate="c1")
+        resolved = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result, config=config, metric="m2", candidate="c2"
+        )
+        assert resolved.metric == "m2"
+        assert resolved.candidate == "c2"
+
+    def test_error_multiple_metrics_no_explicit(self):
+        eval_result = _make_eval_result(metrics=["m1", "m2"], candidate_names=["c1"])
+        with pytest.raises(ValueError, match="multiple metrics"):
+            _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+
+    def test_error_multiple_candidates_no_explicit(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1", "c2"])
+        with pytest.raises(ValueError, match="multiple candidates"):
+            _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+
+    def test_error_invalid_metric(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1"])
+        with pytest.raises(ValueError, match="not found in eval_result"):
+            _evals_utils._resolve_loss_analysis_config(
+                eval_result=eval_result, metric="nonexistent"
+            )
+
+    def test_error_invalid_candidate(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1"])
+        with pytest.raises(ValueError, match="not found in eval_result"):
+            _evals_utils._resolve_loss_analysis_config(
+                eval_result=eval_result, candidate="nonexistent"
+            )
+
+    def test_no_candidates_defaults_to_candidate_1(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=[])
+        eval_result = eval_result.model_copy(
+            update={"metadata": common_types.EvaluationRunMetadata()}
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+        assert resolved.metric == "m1"
+        assert resolved.candidate == "candidate_1"
+
+    def test_no_eval_case_results_raises(self):
+        eval_result = common_types.EvaluationResult()
+        with pytest.raises(ValueError, match="no metric results"):
+            _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+
+
 class TestEvals:
     """Unit tests for the GenAI client."""
 
