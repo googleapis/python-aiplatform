@@ -7993,6 +7993,12 @@ class CreateAgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -8123,6 +8129,11 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -8640,6 +8651,12 @@ class UpdateAgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -8775,6 +8792,11 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -16412,6 +16434,12 @@ class AgentEngineConfig(_common.BaseModel):
     container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
         default=None, description="""The container spec for the Agent Engine."""
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -16585,6 +16613,11 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
     """The container spec for the Agent Engine."""
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

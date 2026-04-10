@@ -163,6 +163,13 @@ def _CreateAgentEngineConfig_to_vertex(
     if getv(from_object, ["python_version"]) is not None:
         setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
 
+    if getv(from_object, ["agent_gateway_config"]) is not None:
+        setv(
+            parent_object,
+            ["agentGatewayConfig"],
+            getv(from_object, ["agent_gateway_config"]),
+        )
+
     return to_object
 
 
@@ -371,6 +378,13 @@ def _UpdateAgentEngineConfig_to_vertex(
 
     if getv(from_object, ["python_version"]) is not None:
         setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
+
+    if getv(from_object, ["agent_gateway_config"]) is not None:
+        setv(
+            parent_object,
+            ["agentGatewayConfig"],
+            getv(from_object, ["agent_gateway_config"]),
+        )
 
     if getv(from_object, ["update_mask"]) is not None:
         setv(
@@ -1485,6 +1499,7 @@ class AgentEngines(_api_module.BaseModule):
             service_account=config.service_account,
             context_spec=context_spec,
             psc_interface_config=config.psc_interface_config,
+            agent_gateway_config=config.agent_gateway_config,
             min_instances=config.min_instances,
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
@@ -1787,6 +1802,9 @@ class AgentEngines(_api_module.BaseModule):
         service_account: Optional[str] = None,
         context_spec: Optional[types.ReasoningEngineContextSpecDict] = None,
         psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
+        agent_gateway_config: Optional[
+            types.ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+        ] = None,
         min_instances: Optional[int] = None,
         max_instances: Optional[int] = None,
         resource_limits: Optional[dict[str, str]] = None,
@@ -1937,6 +1955,7 @@ class AgentEngines(_api_module.BaseModule):
         is_deployment_spec_updated = (
             env_vars is not None
             or psc_interface_config is not None
+            or agent_gateway_config is not None
             or min_instances is not None
             or max_instances is not None
             or resource_limits is not None
@@ -1959,6 +1978,7 @@ class AgentEngines(_api_module.BaseModule):
                 ) = self._generate_deployment_spec_or_raise(
                     env_vars=env_vars,
                     psc_interface_config=psc_interface_config,
+                    agent_gateway_config=agent_gateway_config,
                     min_instances=min_instances,
                     max_instances=max_instances,
                     resource_limits=resource_limits,
@@ -2021,6 +2041,9 @@ class AgentEngines(_api_module.BaseModule):
         *,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
         psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
+        agent_gateway_config: Optional[
+            types.ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+        ] = None,
         min_instances: Optional[int] = None,
         max_instances: Optional[int] = None,
         resource_limits: Optional[dict[str, str]] = None,
@@ -2045,6 +2068,9 @@ class AgentEngines(_api_module.BaseModule):
         if psc_interface_config:
             deployment_spec["psc_interface_config"] = psc_interface_config
             update_masks.append("spec.deployment_spec.psc_interface_config")
+        if agent_gateway_config:
+            deployment_spec["agent_gateway_config"] = agent_gateway_config
+            update_masks.append("spec.deployment_spec.agent_gateway_config")
         if min_instances is not None:
             if not 0 <= min_instances <= 10:
                 raise ValueError(
@@ -2242,6 +2268,7 @@ class AgentEngines(_api_module.BaseModule):
             service_account=config.service_account,
             context_spec=context_spec,
             psc_interface_config=config.psc_interface_config,
+            agent_gateway_config=config.agent_gateway_config,
             min_instances=config.min_instances,
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,

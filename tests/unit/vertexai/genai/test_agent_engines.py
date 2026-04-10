@@ -526,6 +526,20 @@ _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG = {
         }
     ],
 }
+_TEST_AGENT_ENGINE_AGENT_GATEWAY_CONFIG = {
+    "client_to_agent_config": {
+        "agent_gateway": (
+            "projects/test-project/locations/us-central1/agentGateways/"
+            "test-client-to-agent-gateway"
+        ),
+    },
+    "agent_to_anywhere_config": {
+        "agent_gateway": (
+            "projects/test-project/locations/us-central1/agentGateways/"
+            "test-agent-to-anywhere-gateway"
+        ),
+    },
+}
 _TEST_AGENT_ENGINE_MIN_INSTANCES = 2
 _TEST_AGENT_ENGINE_MAX_INSTANCES = 4
 _TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
@@ -975,6 +989,7 @@ class TestAgentEngineHelpers:
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
             identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
             psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            agent_gateway_config=_TEST_AGENT_ENGINE_AGENT_GATEWAY_CONFIG,
             min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
             max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
             resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
@@ -1006,6 +1021,7 @@ class TestAgentEngineHelpers:
                 },
             ],
             "psc_interface_config": _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            "agent_gateway_config": _TEST_AGENT_ENGINE_AGENT_GATEWAY_CONFIG,
             "min_instances": _TEST_AGENT_ENGINE_MIN_INSTANCES,
             "max_instances": _TEST_AGENT_ENGINE_MAX_INSTANCES,
             "resource_limits": _TEST_AGENT_ENGINE_RESOURCE_LIMITS,
@@ -2097,6 +2113,7 @@ class TestAgentEngine:
                 identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -2201,6 +2218,7 @@ class TestAgentEngine:
                 identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -2304,6 +2322,7 @@ class TestAgentEngine:
                 identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -2476,6 +2495,7 @@ class TestAgentEngine:
                 identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -2573,6 +2593,7 @@ class TestAgentEngine:
                 service_account=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
