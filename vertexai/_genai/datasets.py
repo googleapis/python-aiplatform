@@ -933,9 +933,14 @@ class Datasets(_api_module.BaseModule):
         elif not config:
             config = types.CreateMultimodalDatasetConfig()
 
+        display_name = (
+            multimodal_dataset.display_name
+            if multimodal_dataset.display_name is not None
+            else _datasets_utils.generate_multimodal_dataset_display_name()
+        )
         multimodal_dataset_operation = self._create_multimodal_dataset(
             config=config,
-            display_name=multimodal_dataset.display_name,
+            display_name=display_name,
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
             metadata=multimodal_dataset.metadata,
         )
@@ -2150,9 +2155,14 @@ class AsyncDatasets(_api_module.BaseModule):
         elif not config:
             config = types.CreateMultimodalDatasetConfig()
 
+        display_name = (
+            multimodal_dataset.display_name
+            if multimodal_dataset.display_name is not None
+            else _datasets_utils.generate_multimodal_dataset_display_name()
+        )
         multimodal_dataset_operation = await self._create_multimodal_dataset(
             config=config,
-            display_name=multimodal_dataset.display_name,
+            display_name=display_name,
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
             metadata=multimodal_dataset.metadata,
         )

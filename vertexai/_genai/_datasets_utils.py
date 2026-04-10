@@ -15,6 +15,7 @@
 """Utility functions for multimodal dataset."""
 
 import asyncio
+import datetime
 from typing import Any, Type, TypeVar
 import uuid
 
@@ -225,6 +226,11 @@ async def _create_default_bigquery_dataset_if_not_exists_async(
 
 def _generate_target_table_id(dataset_id: str) -> str:
     return f"{dataset_id}.{_DEFAULT_BQ_TABLE_PREFIX}_{str(uuid.uuid4())}"
+
+
+def generate_multimodal_dataset_display_name() -> str:
+    """Generates a display name with a timestamp."""
+    return f"MultimodalDataset {datetime.datetime.now().isoformat(sep=' ')}"
 
 
 def save_dataframe_to_bigquery(
