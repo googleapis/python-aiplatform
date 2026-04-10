@@ -19,6 +19,7 @@ import collections
 from concurrent import futures
 import json
 import logging
+import random
 import statistics
 import time
 from typing import Any, Callable, Generic, Optional, TypeVar, Union
@@ -37,10 +38,72 @@ from . import types
 
 
 logger = logging.getLogger(__name__)
-_MAX_RETRIES = 3
+_MAX_RETRIES = 5
+# HTTP status codes that are safe to retry with backoff.
+_RETRYABLE_STATUS_CODES = frozenset(
+    {
+        408,  # RequestTimeout (DEADLINE_EXCEEDED)
+        409,  # Conflict / Aborted (ABORTED)
+        429,  # TooManyRequests / ResourceExhausted (RESOURCE_EXHAUSTED)
+        499,  # Client Closed Request (CANCELLED)
+        500,  # InternalServerError (INTERNAL)
+        502,  # BadGateway
+        503,  # ServiceUnavailable (UNAVAILABLE)
+        504,  # GatewayTimeout (DEADLINE_EXCEEDED)
+    }
+)
 
-
+R = TypeVar("R")
 T = TypeVar("T", types.Metric, types.MetricSource, types.LLMMetric)
+
+
+def _call_with_retry(
+    fn: Callable[[], R],
+    metric_name: str,
+) -> R:
+    """Calls ``fn()`` with exponential backoff + jitter on retryable errors.
+
+    Retries up to ``_MAX_RETRIES`` times on errors whose HTTP status code is
+    in ``_RETRYABLE_STATUS_CODES`` (Aborted, DeadlineExceeded,
+    ResourceExhausted, ServiceUnavailable, Cancelled). Non-retryable errors
+    are re-raised immediately. If all retries are exhausted the last
+    exception is re-raised so the caller can decide how to handle it.
+
+    Args:
+        fn: A zero-argument callable that performs the API call.
+        metric_name: Name of the metric, used for log messages.
+
+    Returns:
+        The return value of ``fn()``.
+
+    Raises:
+        genai_errors.APIError: If all retries are exhausted or the error is
+            not retryable.
+    """
+    for attempt in range(_MAX_RETRIES):
+        try:
+            return fn()
+        except genai_errors.APIError as e:
+            if e.code in _RETRYABLE_STATUS_CODES:
+                backoff = 2**attempt + random.uniform(0, 1)
+                logger.warning(
+                    "Retryable error (code=%s) on attempt %d/%d for metric"
+                    " '%s': %s. Retrying in %.1f seconds...",
+                    e.code,
+                    attempt + 1,
+                    _MAX_RETRIES,
+                    metric_name,
+                    e,
+                    backoff,
+                )
+                if attempt == _MAX_RETRIES - 1:
+                    raise
+                time.sleep(backoff)
+            else:
+                raise
+    raise genai_errors.APIError(
+        code=504, response_json={"message": "Retries exhausted"}
+    )
 
 
 def _has_tool_call(events: Optional[list[Any]]) -> bool:
@@ -345,9 +408,12 @@ class ComputationMetricHandler(MetricHandler[types.Metric]):
             metric_name,
             eval_case.model_dump(exclude_none=True),
         )
-        response = self.module.evaluate_instances(
-            metric_config=self._build_request_payload(eval_case, response_index)
-        ).model_dump(exclude_none=True)
+        response = _call_with_retry(
+            lambda: self.module.evaluate_instances(
+                metric_config=self._build_request_payload(eval_case, response_index)
+            ).model_dump(exclude_none=True),
+            metric_name,
+        )
         logger.debug("response: %s", response)
         score = None
         for _, result_value in response.items():
@@ -460,8 +526,11 @@ class TranslationMetricHandler(MetricHandler[types.Metric]):
             metric_name,
             eval_case,
         )
-        api_response = self.module.evaluate_instances(
-            metric_config=self._build_request_payload(eval_case, response_index)
+        api_response = _call_with_retry(
+            lambda: self.module.evaluate_instances(
+                metric_config=self._build_request_payload(eval_case, response_index)
+            ),
+            metric_name,
         )
         logger.debug("API Response: %s", api_response)
 
@@ -679,18 +748,13 @@ class LLMMetricHandler(MetricHandler[types.LLMMetric]):
             instance = _build_evaluation_instance(
                 eval_case, response_content, prompt_template=self.metric.prompt_template
             )
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metrics=[self.metric],
-                        instance=instance,
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429 and attempt < _MAX_RETRIES - 1:
-                        time.sleep(2**attempt)
-                        continue
-                    raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=instance,
+                ),
+                self.metric_name,
+            )
 
             if api_response and api_response.metric_results:
                 result = api_response.metric_results[0]
@@ -977,32 +1041,14 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metrics=[self.metric],
-                        instance=payload.get("instance"),
-                        autorater_config=payload.get("autorater_config"),
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429:
-                        logger.warning(
-                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                            " seconds...",
-                            attempt + 1,
-                            _MAX_RETRIES,
-                            e,
-                            2**attempt,
-                        )
-                        if attempt == _MAX_RETRIES - 1:
-                            return types.EvalCaseMetricResult(
-                                metric_name=metric_name,
-                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
-                            )
-                        time.sleep(2**attempt)
-                    else:
-                        raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=payload.get("instance"),
+                    autorater_config=payload.get("autorater_config"),
+                ),
+                metric_name,
+            )
 
             if (
                 api_response
@@ -1116,31 +1162,13 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metrics=[self.metric],
-                        instance=payload.get("instance"),
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429:
-                        logger.warning(
-                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                            " seconds...",
-                            attempt + 1,
-                            _MAX_RETRIES,
-                            e,
-                            2**attempt,
-                        )
-                        if attempt == _MAX_RETRIES - 1:
-                            return types.EvalCaseMetricResult(
-                                metric_name=metric_name,
-                                error_message=f"Resource exhausted after {_MAX_RETRIES} retries: {e}",
-                            )
-                        time.sleep(2**attempt)
-                    else:
-                        raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=payload.get("instance"),
+                ),
+                metric_name,
+            )
 
             if (
                 api_response
@@ -1260,32 +1288,14 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
 
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metric_sources=[metric_source],
-                        instance=payload.get("instance"),
-                        autorater_config=payload.get("autorater_config"),
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429:
-                        logger.warning(
-                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                            " seconds...",
-                            attempt + 1,
-                            _MAX_RETRIES,
-                            e,
-                            2**attempt,
-                        )
-                        if attempt == _MAX_RETRIES - 1:
-                            return types.EvalCaseMetricResult(
-                                metric_name=metric_name,
-                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
-                            )
-                        time.sleep(2**attempt)
-                    else:
-                        raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metric_sources=[metric_source],
+                    instance=payload.get("instance"),
+                    autorater_config=payload.get("autorater_config"),
+                ),
+                metric_name,
+            )
 
             if api_response and api_response.metric_results:
                 result_data = api_response.metric_results[0]

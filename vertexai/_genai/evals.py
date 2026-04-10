@@ -2024,6 +2024,9 @@ class Evals(_api_module.BaseModule):
             - dataset_schema: Schema to use for the dataset. If not specified, the
               dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
+            - evaluation_service_qps: The rate limit (queries per second) for
+              calls to the evaluation service. Defaults to 10. Increase this
+              value if your project has a higher EvaluateInstances API quota.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
         Returns:
@@ -2065,6 +2068,7 @@ class Evals(_api_module.BaseModule):
             dataset_schema=config.dataset_schema,
             dest=config.dest,
             location=location,
+            evaluation_service_qps=getattr(config, "evaluation_service_qps", None),
             **kwargs,
         )
 

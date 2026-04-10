@@ -6668,6 +6668,8 @@ class TestEvalsRunEvaluation:
             genai_errors.ClientError(code=429, response_json=error_response_json),
             genai_errors.ClientError(code=429, response_json=error_response_json),
             genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
         ]
 
         result = _evals_common._execute_evaluation(
@@ -6676,18 +6678,13 @@ class TestEvalsRunEvaluation:
             metrics=[metric],
         )
 
-        assert mock_private_evaluate_instances.call_count == 3
-        assert mock_sleep.call_count == 2
+        assert mock_private_evaluate_instances.call_count == 5
+        assert mock_sleep.call_count == 4
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "summarization_quality"
         assert summary_metric.mean_score is None
         assert summary_metric.num_cases_error == 1
-        assert (
-            "Judge model resource exhausted after 3 retries"
-        ) in result.eval_case_results[0].response_candidate_results[0].metric_results[
-            "summarization_quality"
-        ].error_message
 
 
 class TestEvaluationDataset:
@@ -7258,3 +7255,134 @@ class TestRateLimiter:
         elapsed = real_time.time() - start
         # 5 calls at 1000 QPS should take ~0.005s, certainly under 1s
         assert elapsed < 1.0
+
+
+class TestCallWithRetry:
+    """Tests for the shared _call_with_retry helper."""
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_success_on_first_try(self, mock_sleep):
+        """Tests that _call_with_retry returns immediately on success."""
+        fn = mock.Mock(return_value="success")
+        result = _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert result == "success"
+        assert fn.call_count == 1
+        assert mock_sleep.call_count == 0
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_success_after_retries(self, mock_sleep):
+        """Tests that _call_with_retry succeeds after transient failures."""
+        error_json = {"error": {"code": 429, "message": "exhausted"}}
+        fn = mock.Mock(
+            side_effect=[
+                genai_errors.ClientError(code=429, response_json=error_json),
+                genai_errors.ClientError(code=429, response_json=error_json),
+                "success",
+            ]
+        )
+        result = _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert result == "success"
+        assert fn.call_count == 3
+        assert mock_sleep.call_count == 2
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_raises_after_max_retries(self, mock_sleep):
+        """Tests that _call_with_retry raises after exhausting retries."""
+        error_json = {"error": {"code": 429, "message": "exhausted"}}
+        fn = mock.Mock(
+            side_effect=genai_errors.ClientError(code=429, response_json=error_json)
+        )
+        with pytest.raises(genai_errors.ClientError):
+            _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert fn.call_count == 5  # _MAX_RETRIES
+        assert mock_sleep.call_count == 4
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_retries_on_server_error(self, mock_sleep):
+        """Tests retry on 503 ServiceUnavailable (ServerError)."""
+        error_json = {"error": {"code": 503, "message": "unavailable"}}
+        fn = mock.Mock(
+            side_effect=[
+                genai_errors.ServerError(code=503, response_json=error_json),
+                "success",
+            ]
+        )
+        result = _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert result == "success"
+        assert fn.call_count == 2
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_no_retry_on_non_retryable(self, mock_sleep):
+        """Tests that non-retryable errors are raised immediately."""
+        error_json = {"error": {"code": 400, "message": "bad request"}}
+        fn = mock.Mock(
+            side_effect=genai_errors.ClientError(code=400, response_json=error_json)
+        )
+        with pytest.raises(genai_errors.ClientError):
+            _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert fn.call_count == 1
+        assert mock_sleep.call_count == 0
+
+
+class TestComputationMetricRetry:
+    """Tests for retry behavior in ComputationMetricHandler."""
+
+    @mock.patch.object(
+        _evals_metric_handlers.ComputationMetricHandler,
+        "SUPPORTED_COMPUTATION_METRICS",
+        frozenset(["bleu"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    # fmt: off
+    @mock.patch(
+        "vertexai._genai.evals.Evals.evaluate_instances"
+    )
+    # fmt: on
+    def test_computation_metric_retry_on_resource_exhausted(
+        self,
+        mock_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        """Tests that ComputationMetricHandler retries on 429."""
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "reference": "Test reference",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        metric = vertexai_genai_types.Metric(name="bleu")
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": "Resource exhausted.",
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        mock_bleu_result = mock.MagicMock()
+        mock_bleu_result.model_dump.return_value = {
+            "bleu_results": {"bleu_metric_values": [{"score": 0.85}]}
+        }
+        mock_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            mock_bleu_result,
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "bleu"
+        assert summary_metric.mean_score == 0.85
