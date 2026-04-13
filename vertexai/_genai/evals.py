@@ -2759,6 +2759,9 @@ class Evals(_api_module.BaseModule):
             raise RuntimeError(
                 "Loss analysis operation completed but returned no response."
             )
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            completed.response, eval_result
+        )
         return completed.response
 
     @_common.experimental_warning(
@@ -4337,6 +4340,9 @@ class AsyncEvals(_api_module.BaseModule):
             raise RuntimeError(
                 "Loss analysis operation completed but returned no response."
             )
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            completed.response, eval_result
+        )
         return completed.response
 
     @_common.experimental_warning(

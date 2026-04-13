@@ -4981,10 +4981,10 @@ class LossAnalysisResult(_common.BaseModel):
     )
 
     def show(self) -> None:
-        """Shows the loss analysis result as a formatted pandas DataFrame."""
-        from .. import _evals_utils
+        """Shows the loss analysis result with rich HTML visualization."""
+        from .. import _evals_visualization
 
-        _evals_utils._display_loss_analysis_result(self)
+        _evals_visualization.display_loss_analysis_result(self)
 
 
 class LossAnalysisResultDict(TypedDict, total=False):
@@ -5015,9 +5015,10 @@ class GenerateLossClustersResponse(_common.BaseModel):
     )
 
     def show(self) -> None:
-        """Shows all loss analysis results."""
-        for result in self.results or []:
-            result.show()
+        """Shows the loss pattern analysis report with rich HTML visualization."""
+        from .. import _evals_visualization
+
+        _evals_visualization.display_loss_clusters_response(self)
 
 
 class GenerateLossClustersResponseDict(TypedDict, total=False):

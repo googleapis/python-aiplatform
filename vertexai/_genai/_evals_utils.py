@@ -591,6 +591,244 @@ def _resolve_loss_analysis_config(
     return resolved_config
 
 
+def _build_rubric_description_map(
+    eval_result: types.EvaluationResult,
+) -> dict[str, str]:
+    """Builds a rubric_id -> description map from the EvaluationResult."""
+    rubric_map: dict[str, str] = {}
+    for case_result in eval_result.eval_case_results or []:
+        for resp_cand in case_result.response_candidate_results or []:
+            for metric_res in (resp_cand.metric_results or {}).values():
+                for verdict in metric_res.rubric_verdicts or []:
+                    rubric = verdict.evaluated_rubric
+                    if rubric and rubric.rubric_id and rubric.content:
+                        if (
+                            rubric.content.property
+                            and rubric.content.property.description
+                        ):
+                            rubric_map[rubric.rubric_id] = (
+                                rubric.content.property.description
+                            )
+    return rubric_map
+
+
+def _extract_scenario_preview_from_dict(
+    eval_result_dict: dict[str, Any],
+) -> Optional[str]:
+    """Extracts the first user message from an evaluation_result dict.
+
+    Handles both snake_case (SDK-side) and camelCase (API echo-back) keys.
+    """
+    request = eval_result_dict.get("request")
+    if not request:
+        return None
+    prompt = request.get("prompt")
+    if not prompt:
+        return None
+    # Try agent_data (snake_case or camelCase)
+    agent_data = prompt.get("agent_data") or prompt.get("agentData")
+    if agent_data and isinstance(agent_data, dict):
+        turns = agent_data.get("turns", [])
+        for turn in turns:
+            events = turn.get("events", [])
+            for event in events:
+                author = event.get("author", "")
+                content = event.get("content")
+                if author.lower() == "user" and content and isinstance(content, dict):
+                    parts = content.get("parts", [])
+                    for part in parts:
+                        text = str(part.get("text", "")).strip()
+                        if text:
+                            if len(text) > 150:
+                                return text[:150] + "..."
+                            return text
+    # Try simple prompt path
+    parts = prompt.get("parts", [])
+    for part in parts:
+        text = str(part.get("text", "")).strip()
+        if text:
+            if len(text) > 150:
+                return text[:150] + "..."
+            return text
+    return None
+
+
+def _extract_scenario_from_agent_data(agent_data: Any) -> Optional[str]:
+    """Extracts the first user message from an AgentData object or dict."""
+    if agent_data is None:
+        return None
+    if hasattr(agent_data, "model_dump"):
+        agent_data = agent_data.model_dump()
+    if isinstance(agent_data, str):
+        try:
+            agent_data = json.loads(agent_data)
+        except (json.JSONDecodeError, ValueError):
+            return None
+    if not isinstance(agent_data, dict):
+        return None
+    turns = agent_data.get("turns", [])
+    if not isinstance(turns, list):
+        return None
+    for turn in turns:
+        if not isinstance(turn, dict):
+            continue
+        events = turn.get("events", [])
+        if not isinstance(events, list):
+            continue
+        for event in events:
+            if not isinstance(event, dict):
+                continue
+            author = event.get("author", "")
+            if not isinstance(author, str) or author.lower() != "user":
+                continue
+            content = event.get("content")
+            if not content or not isinstance(content, dict):
+                continue
+            parts = content.get("parts", [])
+            if not isinstance(parts, list):
+                continue
+            for part in parts:
+                if not isinstance(part, dict):
+                    continue
+                text = str(part.get("text", "")).strip()
+                if text:
+                    if len(text) > 150:
+                        return text[:150] + "..."
+                    return text
+    return None
+
+
+def _truncate_scenario(text: str, max_len: int = 150) -> str:
+    """Truncates a scenario preview to max_len characters."""
+    text = text.strip()
+    if len(text) > max_len:
+        return text[:max_len] + "..."
+    return text
+
+
+def _build_scenario_preview_list(
+    eval_result: types.EvaluationResult,
+) -> list[Optional[str]]:
+    """Builds an ordered list of scenario previews from the EvaluationResult.
+
+    Returns one scenario preview per eval_case_result, in the same order as
+    eval_case_results. This extracts the first user message from the original
+    SDK EvaluationResult (via eval_cases or DataFrame), rather than relying
+    on the API echo-back which may not preserve the request data.
+
+    Extraction priority per eval case:
+    1. eval_case.agent_data → first user message in turns
+    2. eval_case.user_scenario.starting_prompt
+    3. eval_case.prompt → text content
+    4. DataFrame agent_data column → first user message
+    5. DataFrame starting_prompt column
+    """
+    eval_dataset = eval_result.evaluation_dataset
+    eval_cases: list[Any] = []
+    if isinstance(eval_dataset, list) and eval_dataset:
+        eval_cases = getv(eval_dataset[0], ["eval_cases"]) or []
+
+    eval_case_results = eval_result.eval_case_results or []
+    scenarios: list[Optional[str]] = []
+
+    for case_result in eval_case_results:
+        case_idx = case_result.eval_case_index or 0
+        scenario: Optional[str] = None
+
+        eval_case = None
+        if 0 <= case_idx < len(eval_cases):
+            eval_case = eval_cases[case_idx]
+
+        if eval_case:
+            # 1. Try agent_data (populated after run_inference)
+            agent_data = getv(eval_case, ["agent_data"])
+            if agent_data:
+                scenario = _extract_scenario_from_agent_data(agent_data)
+
+            # 2. Try user_scenario.starting_prompt (from
+            #    generate_conversation_scenarios)
+            if scenario is None:
+                user_scenario = getv(eval_case, ["user_scenario"])
+                if user_scenario:
+                    starting_prompt = getv(user_scenario, ["starting_prompt"])
+                    if starting_prompt and isinstance(starting_prompt, str):
+                        scenario = _truncate_scenario(starting_prompt)
+
+            # 3. Try prompt text
+            if scenario is None:
+                prompt = getv(eval_case, ["prompt"])
+                if prompt:
+                    from . import _evals_data_converters
+
+                    text = _evals_data_converters._get_content_text(prompt)
+                    if text:
+                        scenario = _truncate_scenario(str(text))
+
+        # 4. Fallback: extract agent_data from DataFrame
+        if scenario is None and eval_dataset:
+            df_agent_data = _transformers._extract_agent_data_from_df(
+                eval_dataset, case_idx
+            )
+            if df_agent_data is not None:
+                scenario = _extract_scenario_from_agent_data(df_agent_data)
+
+        # 5. Fallback: extract starting_prompt from DataFrame
+        if scenario is None and eval_dataset:
+            ds = eval_dataset[0] if isinstance(eval_dataset, list) else eval_dataset
+            df = getv(ds, ["eval_dataset_df"])
+            if df is not None and hasattr(df, "iloc"):
+                if 0 <= case_idx < len(df):
+                    row = df.iloc[case_idx]
+                    sp = row.get("starting_prompt")
+                    if sp and isinstance(sp, str) and sp.strip():
+                        scenario = _truncate_scenario(sp)
+
+        scenarios.append(scenario)
+
+    return scenarios
+
+
+def _enrich_loss_response_with_rubric_descriptions(
+    response: types.GenerateLossClustersResponse,
+    eval_result: types.EvaluationResult,
+) -> None:
+    """Enriches loss response with rubric descriptions and scenario previews.
+
+    Rubric descriptions and scenario previews are extracted from the original
+    SDK EvaluationResult object, because the API echo-back in
+    LossExample.evaluation_result may not preserve all request data (e.g.,
+    agent_data turns with user messages).
+    """
+    rubric_map = _build_rubric_description_map(eval_result)
+    scenario_list = _build_scenario_preview_list(eval_result)
+    logger.debug(
+        "Enriching loss response: %d scenarios extracted, %d rubric" " descriptions",
+        sum(1 for s in scenario_list if s),
+        len(rubric_map),
+    )
+    for result in response.results or []:
+        for cluster in result.clusters or []:
+            for example in cluster.examples or []:
+                if example.evaluation_result is None:
+                    example.evaluation_result = {}
+                if rubric_map:
+                    example.evaluation_result["rubric_descriptions"] = rubric_map
+                # Try extracting scenario from the API echo-back first
+                if "scenario_preview" not in example.evaluation_result:
+                    scenario = _extract_scenario_preview_from_dict(
+                        example.evaluation_result
+                    )
+                    if scenario:
+                        example.evaluation_result["scenario_preview"] = scenario
+                # Fallback: match against scenarios from original eval_result
+                if "scenario_preview" not in example.evaluation_result:
+                    if scenario_list:
+                        for s in scenario_list:
+                            if s:
+                                example.evaluation_result["scenario_preview"] = s
+                                break
+
+
 def _poll_operation(
     api_client: BaseApiClient,
     operation: types.GenerateLossClustersOperation,

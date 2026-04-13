@@ -1491,6 +1491,314 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
     display.display(display.HTML(html_content))
 
 
+def _get_loss_analysis_html(loss_analysis_json: str) -> str:
+    """Returns self-contained HTML for loss pattern analysis visualization."""
+    payload_b64 = _encode_to_base64(loss_analysis_json)
+    return textwrap.dedent(
+        f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Loss Pattern Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <style>
+        body {{ font-family: 'Roboto', 'Helvetica', sans-serif; margin: 2em; background-color: #f8f9fa; color: #202124; }}
+        .container {{ max-width: 1200px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }}
+        h1, h2, h3 {{ color: #3c4043; }}
+        h1 {{ border-bottom: 2px solid #4285F4; padding-bottom: 8px; }}
+        h2 {{ border-bottom: 1px solid #dadce0; padding-bottom: 8px; }}
+        table {{ border-collapse: collapse; width: 100%; margin: 1em 0; }}
+        th, td {{ border: 1px solid #dadce0; padding: 12px; text-align: left; vertical-align: top; }}
+        th {{ background-color: #f2f2f2; font-weight: 500; }}
+        details {{ border: 1px solid #dadce0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #fff; }}
+        summary {{ font-weight: 500; font-size: 1.1em; cursor: pointer; }}
+
+        .metric-header {{ display: flex; align-items: baseline; gap: 12px; margin-bottom: 4px; }}
+        .metric-label {{ color: #1a73e8; font-weight: 600; font-size: 1.1em; }}
+        .candidate-label {{ color: #5f6368; font-size: 0.95em; }}
+        .item-count {{ font-weight: bold; font-size: 16px; color: #1a73e8; }}
+
+        .cluster-card {{ background: #fff; border: 1px solid #dadce0; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow: hidden; }}
+        .cluster-summary {{ list-style: none; cursor: pointer; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; margin: 0; outline: none; }}
+        .cluster-summary::-webkit-details-marker {{ display: none; }}
+        .cluster-card[open] .cluster-summary {{ border-bottom: 1px solid #dadce0; }}
+
+        .cluster-name {{ display: flex; align-items: center; font-weight: 600; color: #3c4043; font-size: 14px; }}
+        .cluster-name::before {{ content: '\\25B6'; font-size: 0.8em; margin-right: 8px; transition: transform 0.2s; color: #5f6368; }}
+        .cluster-card[open] .cluster-name::before {{ transform: rotate(90deg); }}
+
+        .l1-pill {{ display: inline-block; background-color: #e8f0fe; color: #1967d2; border-radius: 16px; padding: 2px 10px; font-size: 0.85em; font-weight: 500; margin-right: 6px; }}
+        .cluster-body {{ padding: 16px; }}
+        .cluster-description {{ color: #5f6368; font-size: 0.95em; margin-bottom: 12px; line-height: 1.5; }}
+
+        .example-card {{ background: #f8f9fa; border: 1px solid #eee; border-radius: 6px; padding: 12px; margin-bottom: 8px; }}
+        .example-label {{ font-weight: 600; font-size: 0.9em; color: #3c4043; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #eee; }}
+        .example-scenario {{ background: #e8f0fe; border-radius: 6px; padding: 8px 12px; margin: 6px 0; font-size: 0.9em; color: #1967d2; display: flex; align-items: flex-start; gap: 6px; }}
+        .example-scenario-icon {{ flex-shrink: 0; margin-top: 1px; }}
+        .example-scenario-text {{ word-break: break-word; }}
+        .example-rubric {{ display: inline-block; background-color: #fce8e6; color: #c5221f; border-radius: 12px; padding: 2px 10px; font-size: 0.85em; font-weight: 500; margin-right: 6px; margin-bottom: 4px; }}
+        .example-rationale {{ color: #5f6368; font-size: 0.9em; line-height: 1.5; margin-top: 6px; background: #f1f1f1; padding: 8px 12px; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; }}
+        .example-section-label {{ font-size: 0.8em; font-weight: 500; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 8px; }}
+        .rubric-description {{ color: #5f6368; font-size: 0.9em; margin: 4px 0 6px 0; line-height: 1.4; }}
+        .examples-details {{ border: none; padding: 0; margin-top: 8px; }}
+        .examples-details > summary {{ font-size: 0.95em; color: #1a73e8; cursor: pointer; }}
+        .no-data {{ color: #5f6368; font-style: italic; padding: 16px; text-align: center; }}
+    </style>
+</head>
+<body>
+<div class="container">
+<div id="loss-analysis-root"></div>
+</div>
+<script>
+(function() {{
+    var data = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob("{payload_b64}"), c => c.charCodeAt(0))));
+
+    const root = document.getElementById('loss-analysis-root');
+    const results = data.results || [];
+
+    if (results.length === 0) {{
+        root.innerHTML = '<h1>Loss Pattern Analysis</h1><p class="no-data">No loss analysis results found.</p>';
+        return;
+    }}
+
+    let html = '<h1>Loss Pattern Analysis</h1>';
+
+    // Summary table
+    if (results.length > 0) {{
+        html += '<h2>Analysis Summary</h2><table><thead><tr><th>Metric</th><th>Candidate</th><th>Clusters</th><th>Total Failed Items</th></tr></thead><tbody>';
+        results.forEach(r => {{
+            const cfg = r.config || {{}};
+            const clusters = r.clusters || [];
+            const totalItems = clusters.reduce((sum, c) => sum + (c.item_count || 0), 0);
+            html += '<tr>';
+            html += '<td>' + DOMPurify.sanitize(cfg.metric || 'N/A') + '</td>';
+            html += '<td>' + DOMPurify.sanitize(cfg.candidate || 'N/A') + '</td>';
+            html += '<td>' + clusters.length + '</td>';
+            html += '<td class="item-count">' + totalItems + '</td>';
+            html += '</tr>';
+        }});
+        html += '</tbody></table>';
+    }}
+
+    // Per-result detail sections
+    results.forEach((r, ri) => {{
+        const cfg = r.config || {{}};
+        const clusters = r.clusters || [];
+        const totalItems = clusters.reduce((sum, c) => sum + (c.item_count || 0), 0);
+
+        html += '<h2>';
+        html += '<span class="metric-label">' + DOMPurify.sanitize(cfg.metric || 'Unknown Metric') + '</span>';
+        if (cfg.candidate) html += ' <span class="candidate-label">/ ' + DOMPurify.sanitize(cfg.candidate) + '</span>';
+        html += '</h2>';
+
+        if (clusters.length === 0) {{
+            html += '<p class="no-data">No loss clusters found for this metric.</p>';
+            return;
+        }}
+
+        // Sort clusters by item_count descending
+        clusters.sort((a, b) => (b.item_count || 0) - (a.item_count || 0));
+
+        // Cluster detail cards
+        clusters.forEach((c, ci) => {{
+            const entry = c.taxonomy_entry || {{}};
+            const examples = c.examples || [];
+            const isFirst = ci === 0;
+            const count = c.item_count || 0;
+            const pct = totalItems > 0 ? Math.round(count / totalItems * 100) : 0;
+
+            html += '<details class="cluster-card"' + (isFirst ? ' open' : '') + '>';
+            html += '<summary class="cluster-summary">';
+            html += '<div class="cluster-name">';
+            html += '<span class="l1-pill">' + DOMPurify.sanitize(entry.l1_category || '') + '</span> ';
+            html += DOMPurify.sanitize(entry.l2_category || 'Cluster ' + (ci + 1));
+            html += '</div>';
+            html += '<span class="item-count">' + count + ' items (' + pct + '%)</span>';
+            html += '</summary>';
+
+            html += '<div class="cluster-body">';
+
+            if (entry.description) {{
+                html += '<div class="cluster-description">' + DOMPurify.sanitize(entry.description) + '</div>';
+            }}
+
+            // Examples section
+            if (examples.length > 0) {{
+                const exLabel = examples.length < count
+                    ? 'Examples (' + examples.length + ' of ' + count + ')'
+                    : 'Examples (' + examples.length + ')';
+                html += '<details class="examples-details">';
+                html += '<summary>' + exLabel + '</summary>';
+                html += '<div style="margin-top: 8px;">';
+                examples.forEach((ex, ei) => {{
+                    html += '<div class="example-card">';
+                    html += '<div class="example-label">Example ' + (ei + 1) + '</div>';
+                    const scenario = (ex.evaluation_result && ex.evaluation_result.scenario_preview) || extractScenarioPreview(ex);
+                    if (scenario) {{
+                        html += '<div class="example-section-label">Scenario</div>';
+                        html += '<div class="example-scenario">';
+                        html += '<span class="example-scenario-icon">';
+                        html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+                        html += '</span>';
+                        html += '<span class="example-scenario-text">' + DOMPurify.sanitize(scenario) + '</span>';
+                        html += '</div>';
+                    }}
+                    const rubrics = ex.failed_rubrics || [];
+                    if (rubrics.length > 0) {{
+                        html += '<div class="example-section-label">Failed Rubrics</div>';
+                        html += '<div style="margin-top: 4px;">';
+                        const rubricDescMap = (ex.evaluation_result && ex.evaluation_result.rubric_descriptions) || {{}};
+                        rubrics.forEach(fr => {{
+                            const rubricDesc = fr.rubric_id ? (rubricDescMap[fr.rubric_id] || lookupRubricDescription(ex, fr.rubric_id)) : null;
+                            if (rubricDesc) {{
+                                html += '<div class="rubric-description"><span class="example-rubric">Fail</span> ' + DOMPurify.sanitize(rubricDesc) + '</div>';
+                            }} else if (fr.rubric_id) {{
+                                html += '<div class="rubric-description"><span class="example-rubric">Fail</span> ' + DOMPurify.sanitize(fr.rubric_id) + '</div>';
+                            }}
+                            if (fr.classification_rationale) {{
+                                html += '<div class="example-section-label" style="margin-top: 6px;">Rationale</div>';
+                                html += '<div class="example-rationale">' + DOMPurify.sanitize(fr.classification_rationale) + '</div>';
+                            }}
+                        }});
+                        html += '</div>';
+                    }}
+                    html += '</div>';
+                }});
+                html += '</div></details>';
+            }}
+
+            html += '</div></details>';
+        }});
+    }});
+
+    root.innerHTML = html;
+
+    function lookupRubricDescription(ex, rubricId) {{
+        // Look up the rubric description from evaluation_result.candidate_results
+        // by matching rubric_id in rubric_verdicts.evaluated_rubric.
+        // Handles both snake_case (SDK-side) and camelCase (API echo-back) keys.
+        const er = ex.evaluation_result;
+        if (!er) return null;
+        const candidateResults = er.candidate_results || er.candidateResults;
+        if (!candidateResults) return null;
+        for (const cr of candidateResults) {{
+            const verdicts = cr.rubric_verdicts || cr.rubricVerdicts || [];
+            for (const v of verdicts) {{
+                const evalRubric = v.evaluated_rubric || v.evaluatedRubric;
+                if (!evalRubric) continue;
+                const rid = evalRubric.rubric_id || evalRubric.rubricId;
+                if (rid === rubricId) {{
+                    const content = evalRubric.content;
+                    if (content) {{
+                        if (content.property && content.property.description) {{
+                            return content.property.description;
+                        }}
+                        if (content.text) return content.text;
+                    }}
+                }}
+            }}
+        }}
+        return null;
+    }}
+
+    function extractScenarioPreview(ex) {{
+        // Extract the first user message from evaluation_result as a scenario preview.
+        // Handles both snake_case (SDK-side) and camelCase (API echo-back) keys.
+        const er = ex.evaluation_result;
+        if (!er) return null;
+        const prompt = er.request && er.request.prompt;
+        if (!prompt) return null;
+        // Try agent_data path (snake_case or camelCase)
+        const agentData = prompt.agent_data || prompt.agentData;
+        if (agentData && agentData.turns) {{
+            for (const turn of agentData.turns) {{
+                if (!turn.events) continue;
+                for (const event of turn.events) {{
+                    const role = event.author || (event.content && event.content.role) || '';
+                    if (role.toLowerCase() === 'user' && event.content && event.content.parts) {{
+                        for (const part of event.content.parts) {{
+                            if (part.text) {{
+                                const text = part.text.trim();
+                                return text.length > 150 ? text.substring(0, 150) + '...' : text;
+                            }}
+                        }}
+                    }}
+                }}
+            }}
+        }}
+        // Try simple prompt path: request.prompt.parts[].text
+        if (prompt.parts) {{
+            for (const part of prompt.parts) {{
+                if (part.text) {{
+                    const text = part.text.trim();
+                    return text.length > 150 ? text.substring(0, 150) + '...' : text;
+                }}
+            }}
+        }}
+        return null;
+    }}
+}})();
+</script>
+</body>
+</html>
+"""
+    )
+
+
+def display_loss_clusters_response(
+    response_obj: "types.GenerateLossClustersResponse",
+) -> None:
+    """Displays a GenerateLossClustersResponse in an IPython environment."""
+    if not _is_ipython_env():
+        logger.warning("Skipping display: not in an IPython environment.")
+        return
+    else:
+        from IPython import display
+
+    try:
+        result_dump = response_obj.model_dump(mode="json", exclude_none=True)
+    except Exception as e:
+        logger.error(
+            "Failed to serialize GenerateLossClustersResponse: %s",
+            e,
+            exc_info=True,
+        )
+        raise
+
+    html_content = _get_loss_analysis_html(
+        json.dumps(result_dump, ensure_ascii=False, default=_pydantic_serializer)
+    )
+    display.display(display.HTML(html_content))
+
+
+def display_loss_analysis_result(
+    result_obj: "types.LossAnalysisResult",
+) -> None:
+    """Displays a single LossAnalysisResult in an IPython environment."""
+    if not _is_ipython_env():
+        logger.warning("Skipping display: not in an IPython environment.")
+        return
+    else:
+        from IPython import display
+
+    try:
+        # Wrap in a response-like structure for the shared HTML generator
+        wrapped = {"results": [result_obj.model_dump(mode="json", exclude_none=True)]}
+    except Exception as e:
+        logger.error(
+            "Failed to serialize LossAnalysisResult: %s",
+            e,
+            exc_info=True,
+        )
+        raise
+
+    html_content = _get_loss_analysis_html(
+        json.dumps(wrapped, ensure_ascii=False, default=_pydantic_serializer)
+    )
+    display.display(display.HTML(html_content))
+
+
 def _get_status_html(status: str, error_message: Optional[str] = None) -> str:
     """Returns a simple HTML string for displaying a status and optional error."""
     error_html = ""

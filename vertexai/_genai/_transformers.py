@@ -479,6 +479,11 @@ def t_inline_results(
                         eval_rubric = getv(verdict, ["evaluated_rubric"])
 
                         if eval_rubric:
+                            rubric_dict: dict[str, Any] = {}
+                            rubric_id = getv(eval_rubric, ["rubric_id"])
+                            if rubric_id:
+                                rubric_dict["rubric_id"] = str(rubric_id)
+
                             rubric_content = getv(eval_rubric, ["content"])
                             if rubric_content:
                                 text = getv(rubric_content, ["text"])
@@ -493,17 +498,16 @@ def t_inline_results(
                                         content_dict["property"] = {
                                             "description": str(desc)
                                         }
-                                verdict_dict["evaluated_rubric"] = {
-                                    "content": content_dict
-                                }
+                                rubric_dict["content"] = content_dict
+                            verdict_dict["evaluated_rubric"] = rubric_dict
 
-                        score = getv(verdict, ["score"])
-                        if score is not None:
-                            verdict_dict["score"] = float(score)
+                        verdict_bool = getv(verdict, ["verdict"])
+                        if verdict_bool is not None:
+                            verdict_dict["verdict"] = bool(verdict_bool)
 
-                        explanation = getv(verdict, ["explanation"])
-                        if explanation:
-                            verdict_dict["explanation"] = str(explanation)
+                        reasoning = getv(verdict, ["reasoning"])
+                        if reasoning:
+                            verdict_dict["reasoning"] = str(reasoning)
 
                         if verdict_dict:
                             api_rubric_verdicts.append(verdict_dict)

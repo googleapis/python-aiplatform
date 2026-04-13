@@ -520,7 +520,82 @@ class TestLossAnalysis:
         assert result.clusters[0].item_count == 3
         assert result.clusters[1].cluster_id == "cluster-2"
 
-    def test_response_show_with_results(self, capsys):
+    def test_get_loss_analysis_html(self):
+        """Tests that _get_loss_analysis_html generates valid HTML with data."""
+        from vertexai._genai import _evals_visualization
+        import json
+
+        data = {
+            "results": [
+                {
+                    "config": {
+                        "metric": "test_metric",
+                        "candidate": "test-candidate",
+                    },
+                    "clusters": [
+                        {
+                            "cluster_id": "c1",
+                            "taxonomy_entry": {
+                                "l1_category": "Tool Calling",
+                                "l2_category": "Missing Invocation",
+                                "description": "Agent failed to call the tool.",
+                            },
+                            "item_count": 5,
+                            "examples": [
+                                {
+                                    "evaluation_result": {
+                                        "request": {
+                                            "prompt": {
+                                                "agent_data": {
+                                                    "turns": [
+                                                        {
+                                                            "turn_index": 0,
+                                                            "events": [
+                                                                {
+                                                                    "author": "user",
+                                                                    "content": {
+                                                                        "parts": [
+                                                                            {
+                                                                                "text": "Find flights to Paris"
+                                                                            }
+                                                                        ],
+                                                                    },
+                                                                }
+                                                            ],
+                                                        }
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "failed_rubrics": [
+                                        {
+                                            "rubric_id": "tool_use",
+                                            "classification_rationale": "Did not invoke find_flights.",
+                                        }
+                                    ],
+                                }
+                            ],
+                        },
+                    ],
+                }
+            ]
+        }
+        html = _evals_visualization._get_loss_analysis_html(json.dumps(data))
+        assert "Loss Pattern Analysis" in html
+        assert "test_metric" not in html  # data is Base64-encoded in the HTML
+        assert "<!DOCTYPE html>" in html
+        assert "extractScenarioPreview" in html
+        assert "example-scenario" in html
+        assert "DOMPurify" in html  # uses DOMPurify for sanitization
+        assert "example-section-label" in html  # labels for scenario/rubrics
+        assert "Analysis Summary" in html  # summary heading
+
+    def test_display_loss_clusters_response_no_ipython(self):
+        """Tests graceful fallback when not in IPython."""
+        from vertexai._genai import _evals_visualization
+        from unittest import mock
+
         response = common_types.GenerateLossClustersResponse(
             results=[
                 common_types.LossAnalysisResult(
@@ -541,12 +616,17 @@ class TestLossAnalysis:
                 )
             ],
         )
-        response.show()
-        captured = capsys.readouterr()
-        assert "test_metric" in captured.out
-        assert "c1" in captured.out
+        with mock.patch.object(
+            _evals_visualization, "_is_ipython_env", return_value=False
+        ):
+            # Should not raise, just log a warning
+            response.show()
 
-    def test_loss_analysis_result_show(self, capsys):
+    def test_display_loss_analysis_result_no_ipython(self):
+        """Tests graceful fallback for individual result when not in IPython."""
+        from vertexai._genai import _evals_visualization
+        from unittest import mock
+
         result = common_types.LossAnalysisResult(
             config=common_types.LossAnalysisConfig(
                 metric="test_metric",
@@ -563,10 +643,518 @@ class TestLossAnalysis:
                 ),
             ],
         )
-        result.show()
-        captured = capsys.readouterr()
-        assert "test_metric" in captured.out
-        assert "c1" in captured.out
+        with mock.patch.object(
+            _evals_visualization, "_is_ipython_env", return_value=False
+        ):
+            result.show()
+
+    def test_enrich_scenario_from_agent_data_in_eval_cases(self):
+        """Tests scenario extraction from agent_data in eval_cases."""
+        from vertexai._genai import _evals_utils
+
+        # API response: evaluation_result has NO request (real API behavior)
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {
+                                                "candidate": "travel-agent",
+                                                "metric": "multi_turn_task_success_v1",
+                                            }
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(
+                                            rubric_id="tool_use",
+                                            classification_rationale="Did not call tool.",
+                                        )
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # Original eval_result with agent_data in eval_cases
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            agent_data=vertexai_genai_types.evals.AgentData(
+                                turns=[
+                                    vertexai_genai_types.evals.ConversationTurn(
+                                        turn_index=0,
+                                        events=[
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="user",
+                                                content={
+                                                    "parts": [
+                                                        {
+                                                            "text": "Book a flight to Paris."
+                                                        }
+                                                    ]
+                                                },
+                                            ),
+                                        ],
+                                    )
+                                ],
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert (
+            example.evaluation_result["scenario_preview"] == "Book a flight to Paris."
+        )
+
+    def test_enrich_scenario_from_user_scenario_starting_prompt(self):
+        """Tests scenario extraction from user_scenario.starting_prompt."""
+        from vertexai._genai import _evals_utils
+
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {"candidate": "travel-agent"}
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(rubric_id="t1")
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # eval_result with user_scenario (from generate_conversation_scenarios)
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            user_scenario=vertexai_genai_types.evals.UserScenario(
+                                starting_prompt="I want to book a hotel in Tokyo.",
+                                conversation_plan="User asks to book a hotel.",
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert (
+            example.evaluation_result["scenario_preview"]
+            == "I want to book a hotel in Tokyo."
+        )
+
+    def test_enrich_scenario_from_dataframe_agent_data(self):
+        """Tests scenario extraction from DataFrame agent_data column."""
+        import pandas as pd
+        from vertexai._genai import _evals_utils
+
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {"candidate": "travel-agent"}
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(rubric_id="t1")
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # eval_result with agent_data in DataFrame (run_inference output)
+        agent_data_obj = vertexai_genai_types.evals.AgentData(
+            turns=[
+                vertexai_genai_types.evals.ConversationTurn(
+                    turn_index=0,
+                    events=[
+                        vertexai_genai_types.evals.AgentEvent(
+                            author="user",
+                            content={"parts": [{"text": "Find flights to London"}]},
+                        ),
+                    ],
+                )
+            ],
+        )
+        df = pd.DataFrame({"agent_data": [agent_data_obj]})
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[common_types.EvaluationDataset(eval_dataset_df=df)],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert example.evaluation_result["scenario_preview"] == "Find flights to London"
+
+    def test_enrich_scenario_e2e_simulation(self):
+        """Simulates the full e2e flow: generate_scenarios -> run_inference -> evaluate -> loss_clusters."""
+        import pandas as pd
+        from vertexai._genai import _evals_utils
+
+        # Step 1: Simulate generate_conversation_scenarios output
+        # This creates eval_cases with user_scenario but no agent_data
+        scenario_dataset = common_types.EvaluationDataset(
+            eval_cases=[
+                common_types.EvalCase(
+                    user_scenario=vertexai_genai_types.evals.UserScenario(
+                        starting_prompt="I need to book a flight from NYC to Paris for next Friday.",
+                        conversation_plan="User books a flight.",
+                    )
+                )
+            ],
+            eval_dataset_df=pd.DataFrame(
+                {
+                    "starting_prompt": [
+                        "I need to book a flight from NYC to Paris for next Friday."
+                    ],
+                    "conversation_plan": ["User books a flight."],
+                }
+            ),
+        )
+
+        # Step 2: Simulate run_inference output
+        # run_inference extracts eval_dataset_df from the input, runs inference,
+        # then returns a NEW EvaluationDataset with only eval_dataset_df (no eval_cases)
+        agent_data_obj = vertexai_genai_types.evals.AgentData(
+            agents={
+                "travel_agent": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="travel_agent",
+                )
+            },
+            turns=[
+                vertexai_genai_types.evals.ConversationTurn(
+                    turn_index=0,
+                    events=[
+                        vertexai_genai_types.evals.AgentEvent(
+                            author="user",
+                            content=genai_types.Content(
+                                parts=[
+                                    genai_types.Part(
+                                        text="I need to book a flight from NYC to Paris for next Friday."
+                                    )
+                                ],
+                                role="user",
+                            ),
+                        ),
+                        vertexai_genai_types.evals.AgentEvent(
+                            author="travel_agent",
+                            content=genai_types.Content(
+                                parts=[
+                                    genai_types.Part(
+                                        text="I'll help you book that flight."
+                                    )
+                                ],
+                                role="model",
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        )
+        inference_df = pd.concat(
+            [
+                scenario_dataset.eval_dataset_df.reset_index(drop=True),
+                pd.DataFrame({"agent_data": [agent_data_obj]}).reset_index(drop=True),
+            ],
+            axis=1,
+        )
+        inference_dataset = common_types.EvaluationDataset(
+            eval_dataset_df=inference_df,
+            candidate_name="travel_agent",
+        )
+
+        # Step 3: Simulate evaluate() output
+        # evaluate() stores the dataset (from step 2) in evaluation_dataset
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed",
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[inference_dataset],  # Note: no eval_cases!
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel_agent"]
+            ),
+        )
+
+        # Step 4: Simulate API response (no request in evaluationResult)
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel_agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                                description="Agent failed to invoke the tool.",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {
+                                                "candidate": "travel_agent",
+                                                "metric": "multi_turn_task_success_v1",
+                                            }
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(
+                                            rubric_id="tool_use",
+                                            classification_rationale="Did not call find_flights.",
+                                        )
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+
+        # Verify intermediate steps
+        scenario_list = _evals_utils._build_scenario_preview_list(eval_result)
+        assert len(scenario_list) == 1, f"Expected 1 scenario, got {len(scenario_list)}"
+        assert scenario_list[0] is not None, (
+            f"Scenario is None. eval_dataset type: {type(eval_result.evaluation_dataset)}, "
+            f"eval_cases: {eval_result.evaluation_dataset[0].eval_cases if eval_result.evaluation_dataset else 'N/A'}, "
+            f"df columns: {list(eval_result.evaluation_dataset[0].eval_dataset_df.columns) if eval_result.evaluation_dataset and eval_result.evaluation_dataset[0].eval_dataset_df is not None else 'N/A'}"
+        )
+
+        # Step 5: Enrich and verify
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert (
+            "scenario_preview" in example.evaluation_result
+        ), f"scenario_preview not found. evaluation_result keys: {list(example.evaluation_result.keys())}"
+        assert (
+            "I need to book a flight" in example.evaluation_result["scenario_preview"]
+        )
+
+        # Verify the full serialization pipeline (model_dump -> JSON -> parse)
+        import json
+
+        result_dump = api_response.model_dump(mode="json", exclude_none=True)
+        json_str = json.dumps(result_dump)
+        parsed = json.loads(json_str)
+        ex_parsed = parsed["results"][0]["clusters"][0]["examples"][0]
+        assert "scenario_preview" in ex_parsed.get(
+            "evaluation_result", {}
+        ), f"scenario_preview missing after serialization. Keys: {list(ex_parsed.get('evaluation_result', {}).keys())}"
+        assert (
+            "I need to book a flight"
+            in ex_parsed["evaluation_result"]["scenario_preview"]
+        )
+
+    def test_enrich_scenario_from_dataframe_starting_prompt(self):
+        """Tests scenario extraction from DataFrame starting_prompt column."""
+        import pandas as pd
+        from vertexai._genai import _evals_utils
+
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="m1",
+                        candidate="c1",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Cat",
+                                l2_category="SubCat",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={"candidateResults": []},
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(rubric_id="r1")
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # DataFrame with starting_prompt but no agent_data
+        df = pd.DataFrame(
+            {
+                "starting_prompt": ["Cancel my reservation please"],
+                "conversation_plan": ["User wants to cancel."],
+            }
+        )
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "m1": common_types.EvalCaseMetricResult(score=0.0)
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[common_types.EvaluationDataset(eval_dataset_df=df)],
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert (
+            example.evaluation_result["scenario_preview"]
+            == "Cancel my reservation please"
+        )
 
 
 def _make_eval_result(
