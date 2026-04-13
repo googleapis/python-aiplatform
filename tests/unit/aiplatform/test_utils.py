@@ -668,6 +668,83 @@ class TestGcsUtils:
         with pytest.raises(ValueError, match=err_msg):
             gcs_utils.validate_gcs_path(test_invalid_path)
 
+    @patch.object(
+        gcs_utils.resource_manager_utils,
+        "get_project_number",
+        return_value=12345,
+    )
+    @patch.object(storage.Bucket, "reload")
+    def test_verify_bucket_ownership_matching_project(
+        self, mock_reload, mock_get_project_number
+    ):
+        mock_client = mock.MagicMock(spec=storage.Client)
+        mock_bucket = mock.MagicMock(spec=storage.Bucket)
+        mock_bucket.project_number = 12345
+        assert gcs_utils._verify_bucket_ownership(
+            mock_bucket, "test-project", mock_client
+        )
+
+    @patch.object(
+        gcs_utils.resource_manager_utils,
+        "get_project_number",
+        return_value=12345,
+    )
+    @patch.object(storage.Bucket, "reload")
+    def test_verify_bucket_ownership_different_project(
+        self, mock_reload, mock_get_project_number
+    ):
+        mock_client = mock.MagicMock(spec=storage.Client)
+        mock_bucket = mock.MagicMock(spec=storage.Bucket)
+        mock_bucket.project_number = 99999
+        assert not gcs_utils._verify_bucket_ownership(
+            mock_bucket, "test-project", mock_client
+        )
+
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    @patch.object(
+        gcs_utils, "_verify_bucket_ownership", return_value=False
+    )
+    def test_stage_local_data_in_gcs_rejects_squatted_bucket(
+        self, mock_verify, mock_storage_client, mock_bucket_exists, json_file
+    ):
+        mock_config = mock.MagicMock()
+        mock_config.project = "victim-project"
+        mock_config.location = "us-central1"
+        mock_config.staging_bucket = None
+        mock_config.credentials = None
+        with patch.object(gcs_utils.initializer, "global_config", mock_config):
+            with pytest.raises(
+                ValueError,
+                match="bucket squatting",
+            ):
+                gcs_utils.stage_local_data_in_gcs(json_file)
+
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    @patch.object(
+        gcs_utils, "_verify_bucket_ownership", return_value=True
+    )
+    @patch("google.cloud.storage.Blob.upload_from_filename")
+    def test_stage_local_data_in_gcs_accepts_owned_bucket(
+        self,
+        mock_upload,
+        mock_verify,
+        mock_storage_client,
+        mock_bucket_exists,
+        json_file,
+        mock_datetime,
+    ):
+        mock_config = mock.MagicMock()
+        mock_config.project = "my-project"
+        mock_config.location = "us-central1"
+        mock_config.staging_bucket = None
+        mock_config.credentials = None
+        with patch.object(gcs_utils.initializer, "global_config", mock_config):
+            result = gcs_utils.stage_local_data_in_gcs(json_file)
+            assert result.startswith("gs://")
+            mock_verify.assert_called_once()
+
 
 class TestPipelineUtils:
     SAMPLE_JOB_SPEC = {

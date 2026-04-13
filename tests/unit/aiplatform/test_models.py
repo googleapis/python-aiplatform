@@ -899,6 +899,9 @@ def mock_storage_blob_upload_from_filename():
         "google.cloud.storage.Blob.upload_from_filename"
     ) as mock_blob_upload_from_filename, patch(
         "google.cloud.storage.Bucket.exists", return_value=True
+    ), patch(
+        "google.cloud.aiplatform.utils.gcs_utils._verify_bucket_ownership",
+        return_value=True,
     ):
         yield mock_blob_upload_from_filename
 
