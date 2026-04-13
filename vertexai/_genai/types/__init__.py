@@ -1205,12 +1205,12 @@ from .common import UpdateAgentEngineMemoryConfigOrDict
 from .common import UpdateAgentEngineSessionConfig
 from .common import UpdateAgentEngineSessionConfigDict
 from .common import UpdateAgentEngineSessionConfigOrDict
-from .common import UpdateDatasetConfig
-from .common import UpdateDatasetConfigDict
-from .common import UpdateDatasetConfigOrDict
 from .common import UpdateMultimodalDatasetConfig
 from .common import UpdateMultimodalDatasetConfigDict
 from .common import UpdateMultimodalDatasetConfigOrDict
+from .common import UpdatePromptConfig
+from .common import UpdatePromptConfigDict
+from .common import UpdatePromptConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
@@ -2173,9 +2173,9 @@ __all__ = [
     "RestoreVersionOperation",
     "RestoreVersionOperationDict",
     "RestoreVersionOperationOrDict",
-    "UpdateDatasetConfig",
-    "UpdateDatasetConfigDict",
-    "UpdateDatasetConfigOrDict",
+    "UpdatePromptConfig",
+    "UpdatePromptConfigDict",
+    "UpdatePromptConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",

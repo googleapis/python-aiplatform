@@ -30,21 +30,21 @@ prompt_contents_2.prompt_data.contents[0].parts[0].text = "Is this Alice?"
 
 
 def test_restore_version(client):
-    my_prompt = client.prompts.create(
-        prompt=test_create_prompt.TEST_PROMPT.model_dump(),
-        config=test_create_prompt.TEST_CREATE_PROMPT_CONFIG,
-    )
-
     # Create 2 versions on my_prompt
     prompt_v1 = client.prompts.create_version(
-        prompt_id=my_prompt.prompt_id,
         prompt=test_create_prompt.TEST_PROMPT.model_copy(deep=True),
-        config=types.CreatePromptVersionConfig(version_display_name="my_prompt_v1"),
+        config=types.CreatePromptVersionConfig(
+            prompt_display_name="my_prompt",
+            version_display_name="my_prompt_v1",
+        ),
     )
-    prompt_v2 = client.prompts.create_version(
-        prompt_id=my_prompt.prompt_id,
+    prompt_v2 = client.prompts.update(
+        prompt_id=prompt_v1.prompt_id,
         prompt=prompt_contents_2,
-        config=types.CreatePromptVersionConfig(version_display_name="my_prompt_v2"),
+        config=types.CreatePromptVersionConfig(
+            prompt_display_name="my_prompt",
+            version_display_name="my_prompt_v2",
+        ),
     )
     my_prompt_v1_id = prompt_v1.dataset_version.name.split("/")[-1]
     my_prompt_v2_id = prompt_v2.dataset_version.name.split("/")[-1]
@@ -58,7 +58,7 @@ def test_restore_version(client):
 
     # Restore version to my_prompt_v1_id
     restored_prompt = client.prompts.restore_version(
-        prompt_id=my_prompt.prompt_id,
+        prompt_id=prompt_v1.prompt_id,
         version_id=my_prompt_v1_id,
     )
     assert restored_prompt.dataset_version.name.split("/")[-1] == my_prompt_v1_id
@@ -80,21 +80,19 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_restore_version_async(client):
-    my_prompt = await client.aio.prompts.create(
-        prompt=test_create_prompt.TEST_PROMPT.model_dump(),
-        config=test_create_prompt.TEST_CREATE_PROMPT_CONFIG,
-    )
-
     # Create 2 versions on my_prompt
     prompt_v1 = client.prompts.create_version(
-        prompt_id=my_prompt.prompt_id,
         prompt=test_create_prompt.TEST_PROMPT.model_copy(deep=True),
-        config=types.CreatePromptVersionConfig(version_display_name="my_prompt_v1"),
+        config=types.CreatePromptVersionConfig(
+            prompt_display_name="my_prompt", version_display_name="my_prompt_v1"
+        ),
     )
-    prompt_v2 = client.prompts.create_version(
-        prompt_id=my_prompt.prompt_id,
+    prompt_v2 = client.prompts.update(
+        prompt_id=prompt_v1.prompt_id,
         prompt=prompt_contents_2,
-        config=types.CreatePromptVersionConfig(version_display_name="my_prompt_v2"),
+        config=types.CreatePromptVersionConfig(
+            prompt_display_name="my_prompt", version_display_name="my_prompt_v2"
+        ),
     )
     my_prompt_v1_id = prompt_v1.dataset_version.name.split("/")[-1]
     my_prompt_v2_id = prompt_v2.dataset_version.name.split("/")[-1]
@@ -102,7 +100,7 @@ async def test_restore_version_async(client):
 
     # Restore version to my_prompt_v1_id
     restored_prompt = await client.aio.prompts.restore_version(
-        prompt_id=my_prompt.prompt_id,
+        prompt_id=prompt_v1.prompt_id,
         version_id=my_prompt_v1_id,
     )
     assert restored_prompt.dataset_version.name.split("/")[-1] == my_prompt_v1_id

@@ -15312,22 +15312,49 @@ RestoreVersionOperationOrDict = Union[
 ]
 
 
-class UpdateDatasetConfig(_common.BaseModel):
+class UpdatePromptConfig(_common.BaseModel):
     """Config for creating a dataset resource to store prompts."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    prompt_display_name: Optional[str] = Field(
+        default=None, description="""The updated display name for the prompt."""
+    )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The updated display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the update_dataset_resource request in seconds. If not set, the default timeout is 90 seconds.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
+    )
 
 
-class UpdateDatasetConfigDict(TypedDict, total=False):
+class UpdatePromptConfigDict(TypedDict, total=False):
     """Config for creating a dataset resource to store prompts."""
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
+    prompt_display_name: Optional[str]
+    """The updated display name for the prompt."""
 
-UpdateDatasetConfigOrDict = Union[UpdateDatasetConfig, UpdateDatasetConfigDict]
+    version_display_name: Optional[str]
+    """The updated display name for the prompt version. If not set, a default name with a timestamp will be used."""
+
+    timeout: Optional[int]
+    """The timeout for the update_dataset_resource request in seconds. If not set, the default timeout is 90 seconds."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
+
+
+UpdatePromptConfigOrDict = Union[UpdatePromptConfig, UpdatePromptConfigDict]
 
 
 class _UpdateDatasetParameters(_common.BaseModel):
@@ -15344,7 +15371,7 @@ class _UpdateDatasetParameters(_common.BaseModel):
         default=None, description=""""""
     )
     model_reference: Optional[str] = Field(default=None, description="""""")
-    config: Optional[UpdateDatasetConfig] = Field(default=None, description="""""")
+    config: Optional[UpdatePromptConfig] = Field(default=None, description="""""")
 
 
 class _UpdateDatasetParametersDict(TypedDict, total=False):
@@ -15371,7 +15398,7 @@ class _UpdateDatasetParametersDict(TypedDict, total=False):
     model_reference: Optional[str]
     """"""
 
-    config: Optional[UpdateDatasetConfigDict]
+    config: Optional[UpdatePromptConfigDict]
     """"""
 
 
@@ -17042,6 +17069,10 @@ class CreatePromptConfig(_common.BaseModel):
         default=None,
         description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
     )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
 
 
 class CreatePromptConfigDict(TypedDict, total=False):
@@ -17058,6 +17089,9 @@ class CreatePromptConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
+
+    version_display_name: Optional[str]
+    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
 
 
 CreatePromptConfigOrDict = Union[CreatePromptConfig, CreatePromptConfigDict]
@@ -17077,6 +17111,14 @@ class CreatePromptVersionConfig(_common.BaseModel):
         default=90,
         description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
     )
+    prompt_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
+    )
 
 
 class CreatePromptVersionConfigDict(TypedDict, total=False):
@@ -17090,6 +17132,12 @@ class CreatePromptVersionConfigDict(TypedDict, total=False):
 
     timeout: Optional[int]
     """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
+
+    prompt_display_name: Optional[str]
+    """The display name for the prompt. If not set, a default name with a timestamp will be used."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
 
 
 CreatePromptVersionConfigOrDict = Union[
