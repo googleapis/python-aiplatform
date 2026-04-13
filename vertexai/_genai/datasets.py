@@ -273,9 +273,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assemble".format_map(request_url_dict)
+                path = "{name}:assemble".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assemble"
+                path = "{name}:assemble"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -363,9 +363,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assess".format_map(request_url_dict)
+                path = "{name}:assess".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assess"
+                path = "{name}:assess"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -512,9 +512,9 @@ class Datasets(_api_module.BaseModule):
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -582,9 +582,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -804,9 +804,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1130,7 +1130,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for getting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -1156,7 +1157,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for deleting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -1231,7 +1233,7 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning resources
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
@@ -1287,7 +1289,7 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning validity
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the tuning validity
               for.
@@ -1347,7 +1349,7 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            resources.
+            resources. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
@@ -1408,7 +1410,7 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            validity for.
+            validity for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
@@ -1479,9 +1481,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assemble".format_map(request_url_dict)
+                path = "{name}:assemble".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assemble"
+                path = "{name}:assemble"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1571,9 +1573,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assess".format_map(request_url_dict)
+                path = "{name}:assess".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assess"
+                path = "{name}:assess"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1724,9 +1726,9 @@ class AsyncDatasets(_api_module.BaseModule):
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1796,9 +1798,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -2024,9 +2026,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -2350,7 +2352,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for getting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -2376,7 +2379,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for deleting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -2451,7 +2455,7 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning resources
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
@@ -2507,7 +2511,7 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning validity
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the tuning validity
               for.
@@ -2567,7 +2571,7 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            resources.
+            resources. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
@@ -2628,7 +2632,7 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            validity for.
+            validity for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.

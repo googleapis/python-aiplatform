@@ -20,7 +20,7 @@ from vertexai._genai import types
 import pytest
 
 BIGQUERY_TABLE_NAME = "vertex-sdk-dev.multimodal_dataset.test-table"
-DATASET = "8810841321427173376"
+DATASET = "projects/964831358985/locations/us-central1/datasets/8810841321427173376"
 
 
 def test_get_dataset(client):
@@ -28,7 +28,7 @@ def test_get_dataset(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
 
 
@@ -37,7 +37,7 @@ def test_get_dataset_from_public_method(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
 
 
@@ -55,7 +55,7 @@ async def test_get_dataset_async(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
 
 
@@ -65,5 +65,5 @@ async def test_get_dataset_from_public_method_async(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"

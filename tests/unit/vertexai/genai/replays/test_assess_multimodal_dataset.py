@@ -23,7 +23,7 @@ METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/multimodal_1.0.0.yaml"
 )
 BIGQUERY_TABLE_NAME = "vertex-sdk-dev.multimodal_dataset.test-table"
-DATASET = "8810841321427173376"
+DATASET = "projects/vertex-sdk-dev/locations/us-central1/datasets/8810841321427173376"
 
 
 def test_assess_dataset(client):
