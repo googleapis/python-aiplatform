@@ -32,7 +32,6 @@ import pandas as pd
 from . import _datasets_utils
 from . import types
 
-
 logger = logging.getLogger("vertexai_genai.datasets")
 
 

@@ -32,7 +32,6 @@ from . import _prompt_optimizer_utils
 from . import prompts
 from . import types
 
-
 logger = logging.getLogger("vertexai_genai.promptoptimizer")
 
 
