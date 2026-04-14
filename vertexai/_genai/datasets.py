@@ -1084,7 +1084,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         multimodal_dataset: types.MultimodalDatasetOrDict,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Updates a multimodal dataset.
 
@@ -1108,9 +1108,9 @@ class Datasets(_api_module.BaseModule):
         _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.UpdateMultimodalDatasetConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.UpdateMultimodalDatasetConfig()
 
         return self._update_multimodal_dataset(
             config=config,
@@ -1124,7 +1124,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Gets a multimodal dataset.
 
@@ -1141,9 +1141,9 @@ class Datasets(_api_module.BaseModule):
           dataset.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return self._get_multimodal_dataset(config=config, name=name)
 
@@ -1151,7 +1151,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """Deletes a multimodal dataset.
 
@@ -1168,9 +1168,9 @@ class Datasets(_api_module.BaseModule):
           multimodal dataset operation.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return self._delete_multimodal_dataset(config=config, name=name)
 
@@ -2310,7 +2310,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         multimodal_dataset: types.MultimodalDatasetOrDict,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Updates a multimodal dataset.
 
@@ -2330,9 +2330,9 @@ class AsyncDatasets(_api_module.BaseModule):
         _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.UpdateMultimodalDatasetConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.UpdateMultimodalDatasetConfig()
 
         return await self._update_multimodal_dataset(
             config=config,
@@ -2346,7 +2346,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Gets a multimodal dataset.
 
@@ -2363,9 +2363,9 @@ class AsyncDatasets(_api_module.BaseModule):
           dataset.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return await self._get_multimodal_dataset(config=config, name=name)
 
@@ -2373,7 +2373,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """Deletes a multimodal dataset.
 
@@ -2390,9 +2390,9 @@ class AsyncDatasets(_api_module.BaseModule):
           multimodal dataset operation.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return await self._delete_multimodal_dataset(config=config, name=name)
 
