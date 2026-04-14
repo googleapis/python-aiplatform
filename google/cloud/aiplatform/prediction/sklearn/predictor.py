@@ -20,9 +20,11 @@ import numpy as np
 import os
 import pickle
 import warnings
+import msgpack
 
 from google.cloud.aiplatform.constants import prediction
 from google.cloud.aiplatform.utils import prediction_utils
+from google.cloud.aiplatform.utils import security_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
 
 
@@ -54,44 +56,39 @@ class SklearnPredictor(Predictor):
 
         if allowed_extensions is None:
             warnings.warn(
-                "No 'allowed_extensions' provided. Loading model artifacts from "
-                "untrusted sources may lead to remote code execution.",
+                "No 'allowed_extensions' provided. Models are now required to be in "
+                "signed msgpack format for security.",
                 UserWarning,
             )
 
+        # 1. First, check for the new secure format (Signed Msgpack)
+        if os.path.exists(prediction.MODEL_FILENAME_MSGPACK):
+            with open(prediction.MODEL_FILENAME_MSGPACK, "rb") as f:
+                signed_data = f.read()
+                # Verify HMAC integrity before unpacking
+                verified_data = security_utils.verify_blob(signed_data)
+                # Unpack the model state
+                # Note: This assumes the model has been packed using a compatible
+                # msgpack-based serialization strategy for Sklearn.
+                self._model = msgpack.unpackb(verified_data, raw=False)
+            return
+
+        # 2. Block insecure formats if redirection is possible
         prediction_utils.download_model_artifacts(artifacts_uri)
-        if os.path.exists(
-            prediction.MODEL_FILENAME_JOBLIB
-        ) and prediction_utils.is_extension_allowed(
-            filename=prediction.MODEL_FILENAME_JOBLIB,
-            allowed_extensions=allowed_extensions,
-        ):
-            warnings.warn(
-                f"Loading {prediction.MODEL_FILENAME_JOBLIB} using joblib pickle, which is unsafe. "
-                "Only load files from trusted sources.",
-                RuntimeWarning,
+        
+        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB) or os.path.exists(prediction.MODEL_FILENAME_PKL):
+            raise RuntimeError(
+                "Security Error: Insecure model formats (.pkl, .joblib) are no longer "
+                "supported by this version of the SDK. Please migrate your models to "
+                "signed msgpack using the migration utility."
             )
-            self._model = joblib.load(prediction.MODEL_FILENAME_JOBLIB)
-        elif os.path.exists(
-            prediction.MODEL_FILENAME_PKL
-        ) and prediction_utils.is_extension_allowed(
-            filename=prediction.MODEL_FILENAME_PKL,
-            allowed_extensions=allowed_extensions,
-        ):
-            warnings.warn(
-                f"Loading {prediction.MODEL_FILENAME_PKL} using pickle, which is unsafe. "
-                "Only load files from trusted sources.",
-                RuntimeWarning,
-            )
-            self._model = pickle.load(open(prediction.MODEL_FILENAME_PKL, "rb"))
-        else:
-            valid_filenames = [
-                prediction.MODEL_FILENAME_JOBLIB,
-                prediction.MODEL_FILENAME_PKL,
-            ]
-            raise ValueError(
-                f"One of the following model files must be provided and allowed: {valid_filenames}."
-            )
+
+        valid_filenames = [
+            prediction.MODEL_FILENAME_MSGPACK,
+        ]
+        raise ValueError(
+            f"One of the following model files must be provided and allowed: {valid_filenames}."
+        )
 
     def preprocess(self, prediction_input: dict) -> np.ndarray:
         """Converts the request body to a numpy array before prediction.
