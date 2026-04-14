@@ -26,6 +26,7 @@ from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AppendAgentEngineTaskEventRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
+from .common import _CancelQueryJobAgentEngineRequestParameters
 from .common import _CheckQueryJobAgentEngineRequestParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
@@ -193,6 +194,12 @@ from .common import BleuInstanceOrDict
 from .common import BleuResults
 from .common import BleuResultsDict
 from .common import BleuResultsOrDict
+from .common import CancelQueryJobAgentEngineConfig
+from .common import CancelQueryJobAgentEngineConfigDict
+from .common import CancelQueryJobAgentEngineConfigOrDict
+from .common import CancelQueryJobResult
+from .common import CancelQueryJobResultDict
+from .common import CancelQueryJobResultOrDict
 from .common import CandidateResponse
 from .common import CandidateResponseDict
 from .common import CandidateResponseOrDict
@@ -1668,6 +1675,12 @@ __all__ = [
     "VertexBaseConfig",
     "VertexBaseConfigDict",
     "VertexBaseConfigOrDict",
+    "CancelQueryJobAgentEngineConfig",
+    "CancelQueryJobAgentEngineConfigDict",
+    "CancelQueryJobAgentEngineConfigOrDict",
+    "CancelQueryJobResult",
+    "CancelQueryJobResultDict",
+    "CancelQueryJobResultOrDict",
     "CheckQueryJobAgentEngineConfig",
     "CheckQueryJobAgentEngineConfigDict",
     "CheckQueryJobAgentEngineConfigOrDict",
@@ -2367,6 +2380,7 @@ __all__ = [
     "_OptimizeRequestParameters",
     "_CustomJobParameters",
     "_GetCustomJobParameters",
+    "_CancelQueryJobAgentEngineRequestParameters",
     "_CheckQueryJobAgentEngineRequestParameters",
     "_RunQueryJobAgentEngineRequestParameters",
     "_CreateAgentEngineRequestParameters",

@@ -3183,6 +3183,28 @@ class TestAgentEngine:
                 None,
             )
 
+    def test_cancel_query_job_agent_engine(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="{}")
+
+            result = self.client.agent_engines.cancel_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={"operation_name": _TEST_AGENT_ENGINE_OPERATION_NAME},
+            )
+
+            assert isinstance(result, _genai_types.CancelQueryJobResult)
+            request_mock.assert_called_with(
+                "post",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:cancelAsyncQuery",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "operationName": _TEST_AGENT_ENGINE_OPERATION_NAME,
+                },
+                None,
+            )
+
     def test_check_query_job_agent_engine(self):
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
