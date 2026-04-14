@@ -280,6 +280,17 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
     """Experimental agent server mode. This mode contains experimental features."""
 
 
+class MemoryType(_common.CaseInSensitiveEnum):
+    """The type of the memory."""
+
+    MEMORY_TYPE_UNSPECIFIED = "MEMORY_TYPE_UNSPECIFIED"
+    """Represents an unspecified memory type. This value should not be used."""
+    NATURAL_LANGUAGE_COLLECTION = "NATURAL_LANGUAGE_COLLECTION"
+    """Indicates belonging to a collection of natural language memories."""
+    STRUCTURED_PROFILE = "STRUCTURED_PROFILE"
+    """Indicates belonging to a structured profile."""
+
+
 class Operator(_common.CaseInSensitiveEnum):
     """Represents the operator to apply to the filter. If not set, then EQUAL will be used."""
 
@@ -6710,6 +6721,10 @@ class MemoryBankCustomizationConfig(_common.BaseModel):
             description="""Optional. Represents configuration for customizing how memories are consolidated together.""",
         )
     )
+    disable_natural_language_memories: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether natural language memory generation should be disabled for all requests. By default, natural language memory generation is enabled. Set this to `true` when you only want to generate structured memories.""",
+    )
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
@@ -6731,6 +6746,9 @@ class MemoryBankCustomizationConfigDict(TypedDict, total=False):
 
     consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfigDict]
     """Optional. Represents configuration for customizing how memories are consolidated together."""
+
+    disable_natural_language_memories: Optional[bool]
+    """Optional. Indicates whether natural language memory generation should be disabled for all requests. By default, natural language memory generation is enabled. Set this to `true` when you only want to generate structured memories."""
 
 
 MemoryBankCustomizationConfigOrDict = Union[
@@ -6868,6 +6886,67 @@ ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
 ]
 
 
+class StructuredMemorySchemaConfig(_common.BaseModel):
+    """Represents the OpenAPI schema of the structured memories."""
+
+    memory_schema: Optional[genai_types.Schema] = Field(
+        default=None,
+        description="""Required. Represents the OpenAPI schema of the structured memories.""",
+    )
+    id: Optional[str] = Field(
+        default=None,
+        description="""Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens.""",
+    )
+    memory_type: Optional[MemoryType] = Field(
+        default=None,
+        description="""Optional. Represents the type of the structured memories associated with the schema. If not set, then `STRUCTURED_PROFILE` will be used.""",
+    )
+
+
+class StructuredMemorySchemaConfigDict(TypedDict, total=False):
+    """Represents the OpenAPI schema of the structured memories."""
+
+    memory_schema: Optional[genai_types.SchemaDict]
+    """Required. Represents the OpenAPI schema of the structured memories."""
+
+    id: Optional[str]
+    """Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens."""
+
+    memory_type: Optional[MemoryType]
+    """Optional. Represents the type of the structured memories associated with the schema. If not set, then `STRUCTURED_PROFILE` will be used."""
+
+
+StructuredMemorySchemaConfigOrDict = Union[
+    StructuredMemorySchemaConfig, StructuredMemorySchemaConfigDict
+]
+
+
+class StructuredMemoryConfig(_common.BaseModel):
+    """Configuration for organizing structured memories within a scope."""
+
+    schema_configs: Optional[list[StructuredMemorySchemaConfig]] = Field(
+        default=None,
+        description="""Optional. Represents configuration of the structured memories' schemas.""",
+    )
+    scope_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+
+
+class StructuredMemoryConfigDict(TypedDict, total=False):
+    """Configuration for organizing structured memories within a scope."""
+
+    schema_configs: Optional[list[StructuredMemorySchemaConfigDict]]
+    """Optional. Represents configuration of the structured memories' schemas."""
+
+    scope_keys: Optional[list[str]]
+    """Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+
+StructuredMemoryConfigOrDict = Union[StructuredMemoryConfig, StructuredMemoryConfigDict]
+
+
 class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     """Specification for a Memory Bank."""
 
@@ -6895,6 +6974,10 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
     )
+    structured_memory_configs: Optional[list[StructuredMemoryConfig]] = Field(
+        default=None,
+        description="""Optional. Configuration for organizing structured memories for a particular scope.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -6918,6 +7001,9 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
 
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
     """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
+
+    structured_memory_configs: Optional[list[StructuredMemoryConfigDict]]
+    """Optional. Configuration for organizing structured memories for a particular scope."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
@@ -9046,6 +9132,34 @@ _CreateAgentEngineMemoryRequestParametersOrDict = Union[
 ]
 
 
+class MemoryStructuredContent(_common.BaseModel):
+    """Represents the structured value of the memory."""
+
+    data: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. Represents the structured value of the memory.""",
+    )
+    schema_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Represents the schema ID for which this structured memory belongs to.""",
+    )
+
+
+class MemoryStructuredContentDict(TypedDict, total=False):
+    """Represents the structured value of the memory."""
+
+    data: Optional[dict[str, Any]]
+    """Required. Represents the structured value of the memory."""
+
+    schema_id: Optional[str]
+    """Required. Represents the schema ID for which this structured memory belongs to."""
+
+
+MemoryStructuredContentOrDict = Union[
+    MemoryStructuredContent, MemoryStructuredContentDict
+]
+
+
 class Memory(_common.BaseModel):
     """A memory."""
 
@@ -9108,6 +9222,14 @@ class Memory(_common.BaseModel):
         default=None,
         description="""Output only. Represents the timestamp when this Memory was most recently updated.""",
     )
+    memory_type: Optional[MemoryType] = Field(
+        default=None,
+        description="""Optional. Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided.""",
+    )
+    structured_content: Optional[MemoryStructuredContent] = Field(
+        default=None,
+        description="""Optional. Represents the structured content of the memory.""",
+    )
 
 
 class MemoryDict(TypedDict, total=False):
@@ -9157,6 +9279,12 @@ class MemoryDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. Represents the timestamp when this Memory was most recently updated."""
+
+    memory_type: Optional[MemoryType]
+    """Optional. Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided."""
+
+    structured_content: Optional[MemoryStructuredContentDict]
+    """Optional. Represents the structured content of the memory."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -10071,6 +10199,13 @@ class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
       metadata.author = "agent 321"))`.
       """,
     )
+    memory_types: Optional[list[MemoryType]] = Field(
+        default=None,
+        description="""Specifies the types of memories to retrieve. If this field is empty
+      or not provided, the request will default to retrieving only memories of
+      type `NATURAL_LANGUAGE_COLLECTION`. If populated, the request will
+      retrieve memories matching any of the specified `MemoryType` values.""",
+    )
 
 
 class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -10104,6 +10239,12 @@ class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
       `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
       metadata.author = "agent 321"))`.
       """
+
+    memory_types: Optional[list[MemoryType]]
+    """Specifies the types of memories to retrieve. If this field is empty
+      or not provided, the request will default to retrieving only memories of
+      type `NATURAL_LANGUAGE_COLLECTION`. If populated, the request will
+      retrieve memories matching any of the specified `MemoryType` values."""
 
 
 RetrieveAgentEngineMemoriesConfigOrDict = Union[
@@ -10225,6 +10366,121 @@ class RetrieveMemoriesResponseDict(TypedDict, total=False):
 
 RetrieveMemoriesResponseOrDict = Union[
     RetrieveMemoriesResponse, RetrieveMemoriesResponseDict
+]
+
+
+class RetrieveMemoryProfilesConfig(_common.BaseModel):
+    """Config for retrieving memory profiles."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class RetrieveMemoryProfilesConfigDict(TypedDict, total=False):
+    """Config for retrieving memory profiles."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+RetrieveMemoryProfilesConfigOrDict = Union[
+    RetrieveMemoryProfilesConfig, RetrieveMemoryProfilesConfigDict
+]
+
+
+class _RetrieveMemoryProfilesRequestParameters(_common.BaseModel):
+    """Parameters for retrieving agent engine memory profiles."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to retrieve memory profiles from.""",
+    )
+    scope: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The scope of the memories to retrieve.
+
+      A memory must have exactly the same scope as the scope provided here to be
+      retrieved (i.e. same keys and values). Order does not matter, but it is
+      case-sensitive.""",
+    )
+    config: Optional[RetrieveMemoryProfilesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _RetrieveMemoryProfilesRequestParametersDict(TypedDict, total=False):
+    """Parameters for retrieving agent engine memory profiles."""
+
+    name: Optional[str]
+    """Name of the agent engine to retrieve memory profiles from."""
+
+    scope: Optional[dict[str, str]]
+    """The scope of the memories to retrieve.
+
+      A memory must have exactly the same scope as the scope provided here to be
+      retrieved (i.e. same keys and values). Order does not matter, but it is
+      case-sensitive."""
+
+    config: Optional[RetrieveMemoryProfilesConfigDict]
+    """"""
+
+
+_RetrieveMemoryProfilesRequestParametersOrDict = Union[
+    _RetrieveMemoryProfilesRequestParameters,
+    _RetrieveMemoryProfilesRequestParametersDict,
+]
+
+
+class MemoryProfile(_common.BaseModel):
+    """A memory profile."""
+
+    schema_id: Optional[str] = Field(
+        default=None,
+        description="""Represents the ID of the schema. This ID corresponds to the `schema_id` defined inside the SchemaConfig, under StructuredMemoryCustomizationConfig.""",
+    )
+    profile: Optional[dict[str, Any]] = Field(
+        default=None, description="""Represents the profile data."""
+    )
+
+
+class MemoryProfileDict(TypedDict, total=False):
+    """A memory profile."""
+
+    schema_id: Optional[str]
+    """Represents the ID of the schema. This ID corresponds to the `schema_id` defined inside the SchemaConfig, under StructuredMemoryCustomizationConfig."""
+
+    profile: Optional[dict[str, Any]]
+    """Represents the profile data."""
+
+
+MemoryProfileOrDict = Union[MemoryProfile, MemoryProfileDict]
+
+
+class RetrieveProfilesResponse(_common.BaseModel):
+    """The response for retrieving memory profiles."""
+
+    profiles: Optional[dict[str, MemoryProfile]] = Field(
+        default=None,
+        description="""The retrieved structured profiles, which match the schemas under the
+      requested scope. The key is the ID of the schema that the profile is
+      linked with, which corresponds to the `schema_id` defined inside the
+      `SchemaConfig`, under `StructuredMemoryCustomizationConfig`.""",
+    )
+
+
+class RetrieveProfilesResponseDict(TypedDict, total=False):
+    """The response for retrieving memory profiles."""
+
+    profiles: Optional[dict[str, MemoryProfileDict]]
+    """The retrieved structured profiles, which match the schemas under the
+      requested scope. The key is the ID of the schema that the profile is
+      linked with, which corresponds to the `schema_id` defined inside the
+      `SchemaConfig`, under `StructuredMemoryCustomizationConfig`."""
+
+
+RetrieveProfilesResponseOrDict = Union[
+    RetrieveProfilesResponse, RetrieveProfilesResponseDict
 ]
 
 
@@ -10713,6 +10969,14 @@ class IntermediateExtractedMemory(_common.BaseModel):
         default=None,
         description="""Output only. Represents the fact of the extracted memory.""",
     )
+    context: Optional[str] = Field(
+        default=None,
+        description="""Output only. Represents the explanation of why the information was extracted from the source content.""",
+    )
+    structured_data: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Output only. Represents the structured value of the extracted memory.""",
+    )
 
 
 class IntermediateExtractedMemoryDict(TypedDict, total=False):
@@ -10720,6 +10984,12 @@ class IntermediateExtractedMemoryDict(TypedDict, total=False):
 
     fact: Optional[str]
     """Output only. Represents the fact of the extracted memory."""
+
+    context: Optional[str]
+    """Output only. Represents the explanation of why the information was extracted from the source content."""
+
+    structured_data: Optional[dict[str, Any]]
+    """Output only. Represents the structured value of the extracted memory."""
 
 
 IntermediateExtractedMemoryOrDict = Union[
@@ -10754,6 +11024,10 @@ class MemoryRevision(_common.BaseModel):
         default=None,
         description="""Identifier. Represents the resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
     )
+    structured_data: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Output only. Represents the structured value of the memory at the time of revision creation.""",
+    )
 
 
 class MemoryRevisionDict(TypedDict, total=False):
@@ -10776,6 +11050,9 @@ class MemoryRevisionDict(TypedDict, total=False):
 
     name: Optional[str]
     """Identifier. Represents the resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
+
+    structured_data: Optional[dict[str, Any]]
+    """Output only. Represents the structured value of the memory at the time of revision creation."""
 
 
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]

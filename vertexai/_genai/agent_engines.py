@@ -49,6 +49,33 @@ logger = logging.getLogger("vertexai_genai.agentengines")
 logger.setLevel(logging.INFO)
 
 
+def _AgentEngineOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _ReasoningEngine_from_vertex(getv(from_object, ["response"]), to_object),
+        )
+
+    return to_object
+
+
 def _CheckQueryJobAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -118,7 +145,13 @@ def _CreateAgentEngineConfig_to_vertex(
         setv(parent_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["context_spec"]) is not None:
-        setv(parent_object, ["contextSpec"], getv(from_object, ["context_spec"]))
+        setv(
+            parent_object,
+            ["contextSpec"],
+            _ReasoningEngineContextSpec_to_vertex(
+                getv(from_object, ["context_spec"]), to_object
+            ),
+        )
 
     if getv(from_object, ["psc_interface_config"]) is not None:
         setv(
@@ -251,6 +284,30 @@ def _ListAgentEngineRequestParameters_to_vertex(
     return to_object
 
 
+def _ListReasoningEnginesResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["reasoningEngines"]) is not None:
+        setv(
+            to_object,
+            ["reasoning_engines"],
+            [
+                _ReasoningEngine_from_vertex(item, to_object)
+                for item in getv(from_object, ["reasoningEngines"])
+            ],
+        )
+
+    return to_object
+
+
 def _QueryAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -279,6 +336,177 @@ def _QueryAgentEngineRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["customizationConfigs"]) is not None:
+        setv(
+            to_object,
+            ["customization_configs"],
+            [item for item in getv(from_object, ["customizationConfigs"])],
+        )
+
+    if getv(from_object, ["disableMemoryRevisions"]) is not None:
+        setv(
+            to_object,
+            ["disable_memory_revisions"],
+            getv(from_object, ["disableMemoryRevisions"]),
+        )
+
+    if getv(from_object, ["generationConfig"]) is not None:
+        setv(to_object, ["generation_config"], getv(from_object, ["generationConfig"]))
+
+    if getv(from_object, ["similaritySearchConfig"]) is not None:
+        setv(
+            to_object,
+            ["similarity_search_config"],
+            getv(from_object, ["similaritySearchConfig"]),
+        )
+
+    if getv(from_object, ["ttlConfig"]) is not None:
+        setv(to_object, ["ttl_config"], getv(from_object, ["ttlConfig"]))
+
+    if getv(from_object, ["structuredMemoryConfigs"]) is not None:
+        setv(
+            to_object,
+            ["structured_memory_configs"],
+            [
+                _StructuredMemoryConfig_from_vertex(item, to_object)
+                for item in getv(from_object, ["structuredMemoryConfigs"])
+            ],
+        )
+
+    return to_object
+
+
+def _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["customization_configs"]) is not None:
+        setv(
+            to_object,
+            ["customizationConfigs"],
+            [item for item in getv(from_object, ["customization_configs"])],
+        )
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            to_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["generation_config"]) is not None:
+        setv(to_object, ["generationConfig"], getv(from_object, ["generation_config"]))
+
+    if getv(from_object, ["similarity_search_config"]) is not None:
+        setv(
+            to_object,
+            ["similaritySearchConfig"],
+            getv(from_object, ["similarity_search_config"]),
+        )
+
+    if getv(from_object, ["ttl_config"]) is not None:
+        setv(to_object, ["ttlConfig"], getv(from_object, ["ttl_config"]))
+
+    if getv(from_object, ["structured_memory_configs"]) is not None:
+        setv(
+            to_object,
+            ["structuredMemoryConfigs"],
+            [
+                _StructuredMemoryConfig_to_vertex(item, to_object)
+                for item in getv(from_object, ["structured_memory_configs"])
+            ],
+        )
+
+    return to_object
+
+
+def _ReasoningEngineContextSpec_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memoryBankConfig"]) is not None:
+        setv(
+            to_object,
+            ["memory_bank_config"],
+            _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
+                getv(from_object, ["memoryBankConfig"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ReasoningEngineContextSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_bank_config"]) is not None:
+        setv(
+            to_object,
+            ["memoryBankConfig"],
+            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+                getv(from_object, ["memory_bank_config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ReasoningEngine_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
+
+    if getv(from_object, ["contextSpec"]) is not None:
+        setv(
+            to_object,
+            ["context_spec"],
+            _ReasoningEngineContextSpec_from_vertex(
+                getv(from_object, ["contextSpec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["etag"]) is not None:
+        setv(to_object, ["etag"], getv(from_object, ["etag"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["spec"]) is not None:
+        setv(to_object, ["spec"], getv(from_object, ["spec"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    if getv(from_object, ["trafficConfig"]) is not None:
+        setv(to_object, ["traffic_config"], getv(from_object, ["trafficConfig"]))
 
     return to_object
 
@@ -318,6 +546,82 @@ def _RunQueryJobAgentEngineRequestParameters_to_vertex(
     return to_object
 
 
+def _StructuredMemoryConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schemaConfigs"]) is not None:
+        setv(
+            to_object,
+            ["schema_configs"],
+            [
+                _StructuredMemorySchemaConfig_from_vertex(item, to_object)
+                for item in getv(from_object, ["schemaConfigs"])
+            ],
+        )
+
+    if getv(from_object, ["scopeKeys"]) is not None:
+        setv(to_object, ["scope_keys"], getv(from_object, ["scopeKeys"]))
+
+    return to_object
+
+
+def _StructuredMemoryConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schema_configs"]) is not None:
+        setv(
+            to_object,
+            ["schemaConfigs"],
+            [
+                _StructuredMemorySchemaConfig_to_vertex(item, to_object)
+                for item in getv(from_object, ["schema_configs"])
+            ],
+        )
+
+    if getv(from_object, ["scope_keys"]) is not None:
+        setv(to_object, ["scopeKeys"], getv(from_object, ["scope_keys"]))
+
+    return to_object
+
+
+def _StructuredMemorySchemaConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schema"]) is not None:
+        setv(to_object, ["memory_schema"], getv(from_object, ["schema"]))
+
+    if getv(from_object, ["id"]) is not None:
+        setv(to_object, ["id"], getv(from_object, ["id"]))
+
+    if getv(from_object, ["memoryType"]) is not None:
+        setv(to_object, ["memory_type"], getv(from_object, ["memoryType"]))
+
+    return to_object
+
+
+def _StructuredMemorySchemaConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_schema"]) is not None:
+        setv(to_object, ["schema"], getv(from_object, ["memory_schema"]))
+
+    if getv(from_object, ["id"]) is not None:
+        setv(to_object, ["id"], getv(from_object, ["id"]))
+
+    if getv(from_object, ["memory_type"]) is not None:
+        setv(to_object, ["memoryType"], getv(from_object, ["memory_type"]))
+
+    return to_object
+
+
 def _UpdateAgentEngineConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -334,7 +638,13 @@ def _UpdateAgentEngineConfig_to_vertex(
         setv(parent_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["context_spec"]) is not None:
-        setv(parent_object, ["contextSpec"], getv(from_object, ["context_spec"]))
+        setv(
+            parent_object,
+            ["contextSpec"],
+            _ReasoningEngineContextSpec_to_vertex(
+                getv(from_object, ["context_spec"]), to_object
+            ),
+        )
 
     if getv(from_object, ["psc_interface_config"]) is not None:
         setv(
@@ -533,6 +843,9 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
             kwargs=(
@@ -600,6 +913,9 @@ class AgentEngines(_api_module.BaseModule):
         response = self._api_client.request("post", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
@@ -755,6 +1071,9 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ReasoningEngine_from_vertex(response_dict)
+
         return_value = types.ReasoningEngine._from_response(
             response=response_dict,
             kwargs=(
@@ -821,6 +1140,9 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict,
             kwargs=(
@@ -886,6 +1208,9 @@ class AgentEngines(_api_module.BaseModule):
         response = self._api_client.request("get", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
@@ -1022,6 +1347,9 @@ class AgentEngines(_api_module.BaseModule):
         response = self._api_client.request("patch", path, request_dict, http_options)
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
@@ -2770,6 +3098,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
             kwargs=(
@@ -2839,6 +3170,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
@@ -2998,6 +3332,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ReasoningEngine_from_vertex(response_dict)
+
         return_value = types.ReasoningEngine._from_response(
             response=response_dict,
             kwargs=(
@@ -3066,6 +3403,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+
         return_value = types.ListReasoningEnginesResponse._from_response(
             response=response_dict,
             kwargs=(
@@ -3133,6 +3473,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,
@@ -3273,6 +3616,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
         )
 
         response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
 
         return_value = types.AgentEngineOperation._from_response(
             response=response_dict,

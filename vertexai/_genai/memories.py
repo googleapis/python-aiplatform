@@ -336,6 +336,9 @@ def _RetrieveAgentEngineMemoriesConfig_to_vertex(
             [item for item in getv(from_object, ["filter_groups"])],
         )
 
+    if getv(from_object, ["memory_types"]) is not None:
+        setv(parent_object, ["memoryTypes"], getv(from_object, ["memory_types"]))
+
     return to_object
 
 
@@ -368,6 +371,20 @@ def _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
         _RetrieveAgentEngineMemoriesConfig_to_vertex(
             getv(from_object, ["config"]), to_object
         )
+
+    return to_object
+
+
+def _RetrieveMemoryProfilesRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["scope"]) is not None:
+        setv(to_object, ["scope"], getv(from_object, ["scope"]))
 
     return to_object
 
@@ -1055,6 +1072,106 @@ class Memories(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RetrieveMemoriesResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def retrieve_profiles(
+        self,
+        *,
+        name: str,
+        scope: dict[str, str],
+        config: Optional[types.RetrieveMemoryProfilesConfigOrDict] = None,
+    ) -> types.RetrieveProfilesResponse:
+        """
+        Retrieves memory profiles for an Agent Engine.
+
+        For example, you can use the following code to retrieve all memory profiles
+        for scope `{'user_id': '123'}`:
+
+        ```python
+        result = client.agent_engines.memories.retrieve_profiles(
+            name="projects/123/locations/us-central1/reasoningEngines/456",
+            scope={"user_id": "123"}
+        )
+
+        for profile in result.profiles.values():
+          # Each profile is a dictionary corresponding to the relevant schema.
+          print(profile.profile)
+        ```
+
+        Args:
+            name (str): Required. A fully-qualified resource name or ID such as
+              "projects/123/locations/us-central1/reasoningEngines/456".
+            scope (dict[str, str]): Required. The scope of the memories to retrieve.
+              A memory must have exactly the same scope as the scope provided here
+              to be retrieved (i.e. same keys and values). Order does not matter,
+              but it is case-sensitive.
+
+        Returns:
+            RetrieveProfilesResponse: The retrieved memory profiles.
+
+        """
+
+        parameter_model = types._RetrieveMemoryProfilesRequestParameters(
+            name=name,
+            scope=scope,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RetrieveMemoryProfilesRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/memories:retrieveProfiles".format_map(request_url_dict)
+            else:
+                path = "{name}/memories:retrieveProfiles"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RetrieveProfilesResponse._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2216,6 +2333,108 @@ class AsyncMemories(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RetrieveMemoriesResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def retrieve_profiles(
+        self,
+        *,
+        name: str,
+        scope: dict[str, str],
+        config: Optional[types.RetrieveMemoryProfilesConfigOrDict] = None,
+    ) -> types.RetrieveProfilesResponse:
+        """
+        Retrieves memory profiles for an Agent Engine.
+
+        For example, you can use the following code to retrieve all memory profiles
+        for scope `{'user_id': '123'}`:
+
+        ```python
+        result = client.agent_engines.memories.retrieve_profiles(
+            name="projects/123/locations/us-central1/reasoningEngines/456",
+            scope={"user_id": "123"}
+        )
+
+        for profile in result.profiles.values():
+          # Each profile is a dictionary corresponding to the relevant schema.
+          print(profile.profile)
+        ```
+
+        Args:
+            name (str): Required. A fully-qualified resource name or ID such as
+              "projects/123/locations/us-central1/reasoningEngines/456".
+            scope (dict[str, str]): Required. The scope of the memories to retrieve.
+              A memory must have exactly the same scope as the scope provided here
+              to be retrieved (i.e. same keys and values). Order does not matter,
+              but it is case-sensitive.
+
+        Returns:
+            RetrieveProfilesResponse: The retrieved memory profiles.
+
+        """
+
+        parameter_model = types._RetrieveMemoryProfilesRequestParameters(
+            name=name,
+            scope=scope,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RetrieveMemoryProfilesRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/memories:retrieveProfiles".format_map(request_url_dict)
+            else:
+                path = "{name}/memories:retrieveProfiles"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RetrieveProfilesResponse._from_response(
             response=response_dict,
             kwargs=(
                 {

@@ -95,6 +95,7 @@ from .common import _PurgeAgentEngineMemoriesRequestParameters
 from .common import _QueryAgentEngineRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
+from .common import _RetrieveMemoryProfilesRequestParameters
 from .common import _RollbackAgentEngineMemoryRequestParameters
 from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
@@ -699,12 +700,19 @@ from .common import MemoryMetadataValue
 from .common import MemoryMetadataValueDict
 from .common import MemoryMetadataValueOrDict
 from .common import MemoryOrDict
+from .common import MemoryProfile
+from .common import MemoryProfileDict
+from .common import MemoryProfileOrDict
 from .common import MemoryRevision
 from .common import MemoryRevisionDict
 from .common import MemoryRevisionOrDict
+from .common import MemoryStructuredContent
+from .common import MemoryStructuredContentDict
+from .common import MemoryStructuredContentOrDict
 from .common import MemoryTopicId
 from .common import MemoryTopicIdDict
 from .common import MemoryTopicIdOrDict
+from .common import MemoryType
 from .common import Message
 from .common import MessageDict
 from .common import Metadata
@@ -929,6 +937,12 @@ from .common import RetrieveMemoriesResponseOrDict
 from .common import RetrieveMemoriesResponseRetrievedMemory
 from .common import RetrieveMemoriesResponseRetrievedMemoryDict
 from .common import RetrieveMemoriesResponseRetrievedMemoryOrDict
+from .common import RetrieveMemoryProfilesConfig
+from .common import RetrieveMemoryProfilesConfigDict
+from .common import RetrieveMemoryProfilesConfigOrDict
+from .common import RetrieveProfilesResponse
+from .common import RetrieveProfilesResponseDict
+from .common import RetrieveProfilesResponseOrDict
 from .common import RollbackAgentEngineMemoryConfig
 from .common import RollbackAgentEngineMemoryConfigDict
 from .common import RollbackAgentEngineMemoryConfigOrDict
@@ -1084,6 +1098,12 @@ from .common import SessionEventOrDict
 from .common import SessionOrDict
 from .common import State
 from .common import Strategy
+from .common import StructuredMemoryConfig
+from .common import StructuredMemoryConfigDict
+from .common import StructuredMemoryConfigOrDict
+from .common import StructuredMemorySchemaConfig
+from .common import StructuredMemorySchemaConfigDict
+from .common import StructuredMemorySchemaConfigOrDict
 from .common import SummaryMetric
 from .common import SummaryMetricDict
 from .common import SummaryMetricOrDict
@@ -1699,6 +1719,12 @@ __all__ = [
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfig",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict",
     "ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict",
+    "StructuredMemorySchemaConfig",
+    "StructuredMemorySchemaConfigDict",
+    "StructuredMemorySchemaConfigOrDict",
+    "StructuredMemoryConfig",
+    "StructuredMemoryConfigDict",
+    "StructuredMemoryConfigOrDict",
     "ReasoningEngineContextSpecMemoryBankConfig",
     "ReasoningEngineContextSpecMemoryBankConfigDict",
     "ReasoningEngineContextSpecMemoryBankConfigOrDict",
@@ -1816,6 +1842,9 @@ __all__ = [
     "AgentEngineMemoryConfig",
     "AgentEngineMemoryConfigDict",
     "AgentEngineMemoryConfigOrDict",
+    "MemoryStructuredContent",
+    "MemoryStructuredContentDict",
+    "MemoryStructuredContentOrDict",
     "Memory",
     "MemoryDict",
     "MemoryOrDict",
@@ -1885,6 +1914,15 @@ __all__ = [
     "RetrieveMemoriesResponse",
     "RetrieveMemoriesResponseDict",
     "RetrieveMemoriesResponseOrDict",
+    "RetrieveMemoryProfilesConfig",
+    "RetrieveMemoryProfilesConfigDict",
+    "RetrieveMemoryProfilesConfigOrDict",
+    "MemoryProfile",
+    "MemoryProfileDict",
+    "MemoryProfileOrDict",
+    "RetrieveProfilesResponse",
+    "RetrieveProfilesResponseDict",
+    "RetrieveProfilesResponseOrDict",
     "RollbackAgentEngineMemoryConfig",
     "RollbackAgentEngineMemoryConfigDict",
     "RollbackAgentEngineMemoryConfigOrDict",
@@ -2272,6 +2310,7 @@ __all__ = [
     "ManagedTopicEnum",
     "IdentityType",
     "AgentServerMode",
+    "MemoryType",
     "Operator",
     "Language",
     "MachineConfig",
@@ -2345,6 +2384,7 @@ __all__ = [
     "_GetAgentEngineMemoryOperationParameters",
     "_GetAgentEngineGenerateMemoriesOperationParameters",
     "_RetrieveAgentEngineMemoriesRequestParameters",
+    "_RetrieveMemoryProfilesRequestParameters",
     "_RollbackAgentEngineMemoryRequestParameters",
     "_UpdateAgentEngineMemoryRequestParameters",
     "_PurgeAgentEngineMemoriesRequestParameters",
