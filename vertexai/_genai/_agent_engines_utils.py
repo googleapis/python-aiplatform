@@ -1021,7 +1021,7 @@ def _prepare(
 
 def _register_api_methods_or_raise(
     *,
-    agent_engine: genai_types.AgentEngine,
+    agent_engine: genai_types.AgentEngine | genai_types.AgentEngineRuntimeRevision,
     wrap_operation_fn: Optional[
         dict[str, Callable[[str, str], Callable[..., Any]]]
     ] = None,
