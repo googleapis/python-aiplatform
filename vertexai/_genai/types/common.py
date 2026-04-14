@@ -6828,12 +6828,75 @@ MemoryBankCustomizationConfigOrDict = Union[
 ]
 
 
+class MemoryGenerationTriggerConfigGenerationTriggerRule(_common.BaseModel):
+    """Represents the active rule that determines when to flush the buffer."""
+
+    event_count: Optional[int] = Field(
+        default=None,
+        description="""Specifies to trigger generation when the event count reaches this limit.""",
+    )
+    fixed_interval: Optional[str] = Field(
+        default=None,
+        description="""Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity.""",
+    )
+    idle_duration: Optional[str] = Field(
+        default=None,
+        description="""Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity.""",
+    )
+
+
+class MemoryGenerationTriggerConfigGenerationTriggerRuleDict(TypedDict, total=False):
+    """Represents the active rule that determines when to flush the buffer."""
+
+    event_count: Optional[int]
+    """Specifies to trigger generation when the event count reaches this limit."""
+
+    fixed_interval: Optional[str]
+    """Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity."""
+
+    idle_duration: Optional[str]
+    """Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity."""
+
+
+MemoryGenerationTriggerConfigGenerationTriggerRuleOrDict = Union[
+    MemoryGenerationTriggerConfigGenerationTriggerRule,
+    MemoryGenerationTriggerConfigGenerationTriggerRuleDict,
+]
+
+
+class MemoryGenerationTriggerConfig(_common.BaseModel):
+    """The configuration for triggering memory generation for ingested events."""
+
+    generation_rule: Optional[MemoryGenerationTriggerConfigGenerationTriggerRule] = (
+        Field(
+            default=None,
+            description="""Optional. Represents the active rule that determines when to flush the buffer. If not set, then the stream will be force flushed immediately.""",
+        )
+    )
+
+
+class MemoryGenerationTriggerConfigDict(TypedDict, total=False):
+    """The configuration for triggering memory generation for ingested events."""
+
+    generation_rule: Optional[MemoryGenerationTriggerConfigGenerationTriggerRuleDict]
+    """Optional. Represents the active rule that determines when to flush the buffer. If not set, then the stream will be force flushed immediately."""
+
+
+MemoryGenerationTriggerConfigOrDict = Union[
+    MemoryGenerationTriggerConfig, MemoryGenerationTriggerConfigDict
+]
+
+
 class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseModel):
     """Configuration for how to generate memories."""
 
     model: Optional[str] = Field(
         default=None,
         description="""Optional. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
+        default=None,
+        description="""Optional. Specifies the default trigger configuration for generating memories using `IngestEvents`.""",
     )
 
 
@@ -6844,6 +6907,9 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
 
     model: Optional[str]
     """Optional. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
+    """Optional. Specifies the default trigger configuration for generating memories using `IngestEvents`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
@@ -9949,6 +10015,193 @@ class _GetAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 
 _GetAgentEngineMemoryRequestParametersOrDict = Union[
     _GetAgentEngineMemoryRequestParameters, _GetAgentEngineMemoryRequestParametersDict
+]
+
+
+class IngestionDirectContentsSourceEvent(_common.BaseModel):
+    """The direct contents source event for ingesting events."""
+
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Required. The content of the event."""
+    )
+    event_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated.""",
+    )
+    event_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used.""",
+    )
+
+
+class IngestionDirectContentsSourceEventDict(TypedDict, total=False):
+    """The direct contents source event for ingesting events."""
+
+    content: Optional[genai_types.ContentDict]
+    """Required. The content of the event."""
+
+    event_id: Optional[str]
+    """Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated."""
+
+    event_time: Optional[datetime.datetime]
+    """Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used."""
+
+
+IngestionDirectContentsSourceEventOrDict = Union[
+    IngestionDirectContentsSourceEvent, IngestionDirectContentsSourceEventDict
+]
+
+
+class IngestionDirectContentsSource(_common.BaseModel):
+    """The direct contents source for ingesting events."""
+
+    events: Optional[list[IngestionDirectContentsSourceEvent]] = Field(
+        default=None, description="""Required. The events to ingest."""
+    )
+
+
+class IngestionDirectContentsSourceDict(TypedDict, total=False):
+    """The direct contents source for ingesting events."""
+
+    events: Optional[list[IngestionDirectContentsSourceEventDict]]
+    """Required. The events to ingest."""
+
+
+IngestionDirectContentsSourceOrDict = Union[
+    IngestionDirectContentsSource, IngestionDirectContentsSourceDict
+]
+
+
+class IngestEventsConfig(_common.BaseModel):
+    """Config for ingesting events."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=False,
+        description="""Waits for the underlying memory generation operation to complete
+      before returning. Defaults to false.""",
+    )
+    force_flush: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`.""",
+    )
+
+
+class IngestEventsConfigDict(TypedDict, total=False):
+    """Config for ingesting events."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the underlying memory generation operation to complete
+      before returning. Defaults to false."""
+
+    force_flush: Optional[bool]
+    """Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`."""
+
+
+IngestEventsConfigOrDict = Union[IngestEventsConfig, IngestEventsConfigDict]
+
+
+class _IngestEventsRequestParameters(_common.BaseModel):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine to ingest events into."""
+    )
+    stream_id: Optional[str] = Field(
+        default=None, description="""The ID of the stream to ingest events into."""
+    )
+    direct_contents_source: Optional[IngestionDirectContentsSource] = Field(
+        default=None,
+        description="""The direct memories source of the events that should be ingested.""",
+    )
+    scope: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The scope of the memories that should be generated from the stream.
+
+      Memories will be consolidated across memories with the same scope. Scope
+      values cannot contain the wildcard character '*'.""",
+    )
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
+        default=None,
+        description="""The configuration for the memory generation trigger.""",
+    )
+    config: Optional[IngestEventsConfig] = Field(default=None, description="""""")
+
+
+class _IngestEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str]
+    """Name of the Agent Engine to ingest events into."""
+
+    stream_id: Optional[str]
+    """The ID of the stream to ingest events into."""
+
+    direct_contents_source: Optional[IngestionDirectContentsSourceDict]
+    """The direct memories source of the events that should be ingested."""
+
+    scope: Optional[dict[str, str]]
+    """The scope of the memories that should be generated from the stream.
+
+      Memories will be consolidated across memories with the same scope. Scope
+      values cannot contain the wildcard character '*'."""
+
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
+    """The configuration for the memory generation trigger."""
+
+    config: Optional[IngestEventsConfigDict]
+    """"""
+
+
+_IngestEventsRequestParametersOrDict = Union[
+    _IngestEventsRequestParameters, _IngestEventsRequestParametersDict
+]
+
+
+class MemoryBankIngestEventsOperation(_common.BaseModel):
+    """Operation that ingests events into a memory bank."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class MemoryBankIngestEventsOperationDict(TypedDict, total=False):
+    """Operation that ingests events into a memory bank."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+MemoryBankIngestEventsOperationOrDict = Union[
+    MemoryBankIngestEventsOperation, MemoryBankIngestEventsOperationDict
 ]
 
 

@@ -78,6 +78,7 @@ from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetMultimodalDatasetOperationParameters
 from .common import _GetMultimodalDatasetParameters
+from .common import _IngestEventsRequestParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
 from .common import _ListAgentEngineRequestParameters
@@ -544,6 +545,15 @@ from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
 from .common import IdentityType
 from .common import Importance
+from .common import IngestEventsConfig
+from .common import IngestEventsConfigDict
+from .common import IngestEventsConfigOrDict
+from .common import IngestionDirectContentsSource
+from .common import IngestionDirectContentsSourceDict
+from .common import IngestionDirectContentsSourceEvent
+from .common import IngestionDirectContentsSourceEventDict
+from .common import IngestionDirectContentsSourceEventOrDict
+from .common import IngestionDirectContentsSourceOrDict
 from .common import IntermediateExtractedMemory
 from .common import IntermediateExtractedMemoryDict
 from .common import IntermediateExtractedMemoryOrDict
@@ -695,6 +705,9 @@ from .common import MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDi
 from .common import MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict
 from .common import MemoryBankCustomizationConfigMemoryTopicOrDict
 from .common import MemoryBankCustomizationConfigOrDict
+from .common import MemoryBankIngestEventsOperation
+from .common import MemoryBankIngestEventsOperationDict
+from .common import MemoryBankIngestEventsOperationOrDict
 from .common import MemoryConjunctionFilter
 from .common import MemoryConjunctionFilterDict
 from .common import MemoryConjunctionFilterOrDict
@@ -702,6 +715,12 @@ from .common import MemoryDict
 from .common import MemoryFilter
 from .common import MemoryFilterDict
 from .common import MemoryFilterOrDict
+from .common import MemoryGenerationTriggerConfig
+from .common import MemoryGenerationTriggerConfigDict
+from .common import MemoryGenerationTriggerConfigGenerationTriggerRule
+from .common import MemoryGenerationTriggerConfigGenerationTriggerRuleDict
+from .common import MemoryGenerationTriggerConfigGenerationTriggerRuleOrDict
+from .common import MemoryGenerationTriggerConfigOrDict
 from .common import MemoryMetadataMergeStrategy
 from .common import MemoryMetadataValue
 from .common import MemoryMetadataValueDict
@@ -1720,6 +1739,12 @@ __all__ = [
     "MemoryBankCustomizationConfig",
     "MemoryBankCustomizationConfigDict",
     "MemoryBankCustomizationConfigOrDict",
+    "MemoryGenerationTriggerConfigGenerationTriggerRule",
+    "MemoryGenerationTriggerConfigGenerationTriggerRuleDict",
+    "MemoryGenerationTriggerConfigGenerationTriggerRuleOrDict",
+    "MemoryGenerationTriggerConfig",
+    "MemoryGenerationTriggerConfigDict",
+    "MemoryGenerationTriggerConfigOrDict",
     "ReasoningEngineContextSpecMemoryBankConfigGenerationConfig",
     "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict",
     "ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict",
@@ -1900,6 +1925,18 @@ __all__ = [
     "GetAgentEngineMemoryConfig",
     "GetAgentEngineMemoryConfigDict",
     "GetAgentEngineMemoryConfigOrDict",
+    "IngestionDirectContentsSourceEvent",
+    "IngestionDirectContentsSourceEventDict",
+    "IngestionDirectContentsSourceEventOrDict",
+    "IngestionDirectContentsSource",
+    "IngestionDirectContentsSourceDict",
+    "IngestionDirectContentsSourceOrDict",
+    "IngestEventsConfig",
+    "IngestEventsConfigDict",
+    "IngestEventsConfigOrDict",
+    "MemoryBankIngestEventsOperation",
+    "MemoryBankIngestEventsOperationDict",
+    "MemoryBankIngestEventsOperationOrDict",
     "ListAgentEngineMemoryConfig",
     "ListAgentEngineMemoryConfigDict",
     "ListAgentEngineMemoryConfigOrDict",
@@ -2394,6 +2431,7 @@ __all__ = [
     "_DeleteAgentEngineMemoryRequestParameters",
     "_GenerateAgentEngineMemoriesRequestParameters",
     "_GetAgentEngineMemoryRequestParameters",
+    "_IngestEventsRequestParameters",
     "_ListAgentEngineMemoryRequestParameters",
     "_GetAgentEngineMemoryOperationParameters",
     "_GetAgentEngineGenerateMemoriesOperationParameters",
