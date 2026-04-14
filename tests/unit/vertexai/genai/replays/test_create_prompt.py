@@ -280,23 +280,23 @@ def test_create_with_file_data(client):
     assert contents[0] == prompt_resource.prompt_data.contents[0]
 
 
-# TODO(b/501475669): Re-enable this test once the bug is fixed.
-# def test_create_with_encryption_spec(client):
-#     encryption_spec = genai_types.EncryptionSpec(
-#         kms_key_name="projects/vertex-sdk-dev/locations/us-central1/keyRings/test-key-ring/cryptoKeys/my-key",
-#     )
-#     config = types.CreatePromptVersionConfig(
-#         prompt_display_name="my_prompt_with_encryption_spec",
-#         version_display_name="my_version_with_encryption_spec",
-#         encryption_spec=encryption_spec,
-#     )
-#     prompt_resource = client.prompts.create_version(
-#         prompt=TEST_PROMPT,
-#         config=config,
-#     )
-#     assert isinstance(prompt_resource, types.Prompt)
-#     assert isinstance(prompt_resource.dataset, types.Dataset)
-#     assert isinstance(prompt_resource.dataset_version, types.DatasetVersion)
+def test_create_with_encryption_spec(client):
+    encryption_spec = genai_types.EncryptionSpec(
+        kms_key_name="projects/vertex-sdk-dev/locations/us-central1/keyRings/test-key-ring/cryptoKeys/my-key",
+    )
+    config = types.CreatePromptVersionConfig(
+        prompt_display_name="my_prompt_with_encryption_spec",
+        version_display_name="my_version_with_encryption_spec",
+        encryption_spec=encryption_spec,
+        timeout=300,
+    )
+    prompt_resource = client.prompts.create_version(
+        prompt=TEST_PROMPT,
+        config=config,
+    )
+    assert isinstance(prompt_resource, types.Prompt)
+    assert isinstance(prompt_resource.dataset, types.Dataset)
+    assert isinstance(prompt_resource.dataset_version, types.DatasetVersion)
 
 
 pytestmark = pytest_helper.setup(
