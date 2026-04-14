@@ -483,6 +483,64 @@ def _resolve_metric_name(
     return str(metric)
 
 
+def _resolve_eval_run_loss_configs(
+    loss_analysis_metrics: Optional[list[Any]] = None,
+    loss_analysis_configs: Optional[list[Any]] = None,
+    inference_configs: Optional[dict[str, Any]] = None,
+) -> Optional[list[types.LossAnalysisConfig]]:
+    """Resolves loss analysis configs for create_evaluation_run.
+
+    Supports two modes:
+    1. ``loss_analysis_metrics``: A simplified list of metrics. The candidate
+       is auto-inferred from ``inference_configs`` when there is exactly one
+       candidate. Each metric is resolved via ``_resolve_metric_name()``.
+    2. ``loss_analysis_configs``: Explicit ``LossAnalysisConfig`` objects or
+       dicts for full control.
+
+    Args:
+        loss_analysis_metrics: Optional list of metric references (strings,
+            Metric objects, or RubricMetric enums).
+        loss_analysis_configs: Optional list of LossAnalysisConfig or dicts.
+        inference_configs: The resolved inference_configs dict (candidate name
+            -> config). Used to auto-infer candidate for the metrics path.
+
+    Returns:
+        A list of resolved LossAnalysisConfig objects, or None if neither
+        loss_analysis_metrics nor loss_analysis_configs is provided.
+
+    Raises:
+        ValueError: If candidate cannot be inferred for loss_analysis_metrics.
+    """
+    if not loss_analysis_metrics and not loss_analysis_configs:
+        return None
+
+    if loss_analysis_configs:
+        return [
+            types.LossAnalysisConfig.model_validate(c) if isinstance(c, dict) else c
+            for c in loss_analysis_configs
+        ]
+
+    # loss_analysis_metrics path: auto-infer candidate from inference_configs
+    candidate = None
+    if inference_configs and len(inference_configs) == 1:
+        candidate = next(iter(inference_configs))
+    elif inference_configs and len(inference_configs) > 1:
+        raise ValueError(
+            "Cannot infer candidate for loss analysis: multiple candidates"
+            f" found in inference_configs: {list(inference_configs.keys())}."
+            " Please use loss_analysis_configs with explicit candidate values"
+            " instead."
+        )
+
+    configs = []
+    for m in loss_analysis_metrics or []:
+        metric_name = _resolve_metric_name(m)
+        configs.append(
+            types.LossAnalysisConfig(metric=metric_name, candidate=candidate)
+        )
+    return configs
+
+
 def _resolve_loss_analysis_config(
     eval_result: types.EvaluationResult,
     config: Optional[types.LossAnalysisConfig] = None,

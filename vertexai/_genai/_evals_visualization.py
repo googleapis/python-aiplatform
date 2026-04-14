@@ -1707,11 +1707,13 @@ def _get_loss_analysis_html(loss_analysis_json: str) -> str:
         // Handles both snake_case (SDK-side) and camelCase (API echo-back) keys.
         const er = ex.evaluation_result;
         if (!er) return null;
-        const prompt = er.request && er.request.prompt;
-        if (!prompt) return null;
-        // Try agent_data path (snake_case or camelCase)
-        const agentData = prompt.agent_data || prompt.agentData;
-        if (agentData && agentData.turns) {{
+        const req = er.request;
+        if (!req) return null;
+        const prompt = req.prompt;
+
+        // Helper: extract first user text from agent_data turns
+        function firstUserText(agentData) {{
+            if (!agentData || !agentData.turns) return null;
             for (const turn of agentData.turns) {{
                 if (!turn.events) continue;
                 for (const event of turn.events) {{
@@ -1726,16 +1728,47 @@ def _get_loss_analysis_html(loss_analysis_json: str) -> str:
                     }}
                 }}
             }}
+            return null;
         }}
-        // Try simple prompt path: request.prompt.parts[].text
-        if (prompt.parts) {{
-            for (const part of prompt.parts) {{
-                if (part.text) {{
-                    const text = part.text.trim();
+
+        if (prompt) {{
+            // Path 1: prompt.agent_data.turns (LRO inline results path)
+            const agentData = prompt.agent_data || prompt.agentData;
+            const fromPromptAgent = firstUserText(agentData);
+            if (fromPromptAgent) return fromPromptAgent;
+
+            // Path 2: prompt.user_scenario.starting_prompt (eval run path)
+            const scenario = prompt.user_scenario || prompt.userScenario;
+            if (scenario) {{
+                const sp = scenario.starting_prompt || scenario.startingPrompt;
+                if (sp) {{
+                    const text = sp.trim();
                     return text.length > 150 ? text.substring(0, 150) + '...' : text;
                 }}
             }}
+
+            // Path 3: prompt.parts[].text (simple prompt path)
+            if (prompt.parts) {{
+                for (const part of prompt.parts) {{
+                    if (part.text) {{
+                        const text = part.text.trim();
+                        return text.length > 150 ? text.substring(0, 150) + '...' : text;
+                    }}
+                }}
+            }}
         }}
+
+        // Path 4: candidate_responses[].agent_data.turns (eval run path -
+        // agent_data is on the candidate response, not the prompt)
+        const crs = req.candidate_responses || req.candidateResponses;
+        if (crs) {{
+            for (const cr of crs) {{
+                const ad = cr.agent_data || cr.agentData;
+                const fromCr = firstUserText(ad);
+                if (fromCr) return fromCr;
+            }}
+        }}
+
         return null;
     }}
 }})();
@@ -1818,6 +1851,90 @@ def _get_status_html(status: str, error_message: Optional[str] = None) -> str:
     </div>
     """
     )
+
+
+def _enrich_loss_examples_with_eval_items(
+    results: list["types.LossAnalysisResult"],
+    eval_item_map: Optional[dict[str, dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    """Enriches loss analysis examples with eval item data for visualization.
+
+    For the eval run path, loss examples only have ``evaluation_item``
+    (a resource name) but no ``evaluation_result``.  The JS visualization
+    needs ``evaluation_result`` to extract scenario previews and rubric
+    descriptions.  This function joins the loss examples with the eval
+    item map so the visualization works identically to the LRO path.
+
+    Args:
+        results: Loss analysis results from the eval run.
+        eval_item_map: Optional mapping from evaluation item resource name
+            to serialized evaluation response data (built by
+            ``_evals_common._build_eval_item_map``).
+
+    Returns:
+        A list of dicts ready for JSON serialization, with ``evaluation_result``
+        populated on each example where a match is found.
+    """
+    result_dicts = []
+    for r in results:
+        r_dump = r.model_dump(mode="json", exclude_none=True)
+        if eval_item_map:
+            clusters = r_dump.get("clusters", [])
+            for cluster in clusters:
+                examples = cluster.get("examples", [])
+                for ex in examples:
+                    # Skip if evaluation_result is already populated (LRO path)
+                    if ex.get("evaluation_result"):
+                        continue
+                    # Match by evaluation_item resource name
+                    eval_item_ref = ex.get("evaluation_item")
+                    if eval_item_ref and eval_item_ref in eval_item_map:
+                        ex["evaluation_result"] = eval_item_map[eval_item_ref]
+        result_dicts.append(r_dump)
+    return result_dicts
+
+
+def display_loss_analysis_results(
+    results: list["types.LossAnalysisResult"],
+    eval_item_map: Optional[dict[str, dict[str, Any]]] = None,
+) -> None:
+    """Displays loss analysis results from an EvaluationRun.
+
+    Wraps the list of LossAnalysisResult objects into the same JSON
+    structure used by GenerateLossClustersResponse and renders using
+    the shared _get_loss_analysis_html() function.
+
+    When ``eval_item_map`` is provided (from
+    ``get_evaluation_run(include_evaluation_items=True)``), the examples
+    are enriched with scenario and rubric data for the visualization.
+
+    Args:
+        results: A list of LossAnalysisResult objects from
+            EvaluationRunResults.loss_analysis_results.
+        eval_item_map: Optional mapping from evaluation item resource name
+            to serialized evaluation response data for enrichment.
+    """
+    if not _is_ipython_env():
+        logger.warning("Skipping display: not in an IPython environment.")
+        return
+    else:
+        from IPython import display
+
+    try:
+        result_dicts = _enrich_loss_examples_with_eval_items(results, eval_item_map)
+        wrapped = {"results": result_dicts}
+    except Exception as e:
+        logger.error(
+            "Failed to serialize loss analysis results: %s",
+            e,
+            exc_info=True,
+        )
+        raise
+
+    html_content = _get_loss_analysis_html(
+        json.dumps(wrapped, ensure_ascii=False, default=_pydantic_serializer)
+    )
+    display.display(display.HTML(html_content))
 
 
 def display_evaluation_run_status(eval_run_obj: "types.EvaluationRun") -> None:

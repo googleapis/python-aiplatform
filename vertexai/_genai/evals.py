@@ -366,6 +366,13 @@ def _EvaluationRunConfig_from_vertex(
     if getv(from_object, ["promptTemplate"]) is not None:
         setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
 
+    if getv(from_object, ["lossAnalysisConfig"]) is not None:
+        setv(
+            to_object,
+            ["loss_analysis_config"],
+            [item for item in getv(from_object, ["lossAnalysisConfig"])],
+        )
+
     return to_object
 
 
@@ -392,6 +399,13 @@ def _EvaluationRunConfig_to_vertex(
 
     if getv(from_object, ["prompt_template"]) is not None:
         setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
+
+    if getv(from_object, ["loss_analysis_config"]) is not None:
+        setv(
+            to_object,
+            ["lossAnalysisConfig"],
+            [item for item in getv(from_object, ["loss_analysis_config"])],
+        )
 
     return to_object
 
@@ -2395,13 +2409,14 @@ class Evals(_api_module.BaseModule):
             name = name.split("/")[-1]
         result = self._get_evaluation_run(name=name, config=config)
         if include_evaluation_items:
-            result.evaluation_item_results = (
-                _evals_common._convert_evaluation_run_results(
-                    self._api_client,
-                    result.evaluation_run_results,
-                    result.inference_configs,
-                )
+            eval_result, eval_item_map = _evals_common._convert_evaluation_run_results(
+                self._api_client,
+                result.evaluation_run_results,
+                result.inference_configs,
             )
+            result.evaluation_item_results = eval_result
+            # Bypass pydantic validation (extra='forbid') for this internal field.
+            object.__setattr__(result, "_eval_item_map", eval_item_map)
         return result
 
     @_common.experimental_warning(
@@ -2423,6 +2438,8 @@ class Evals(_api_module.BaseModule):
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
         labels: Optional[dict[str, str]] = None,
+        loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
+        loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -2452,11 +2469,37 @@ class Evals(_api_module.BaseModule):
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
+          loss_analysis_metrics: This field is experimental and may change in future
+              versions. Optional list of metrics to run loss analysis on. The
+              candidate is auto-inferred from ``inference_configs`` or
+              ``agent_info`` when there is exactly one candidate. Each metric can be
+              a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
+              object, or a ``RubricMetric`` enum
+              (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
+              runs after metric calculation completes.
+              Mutually exclusive with ``loss_analysis_configs``.
+              Example::
+
+                  loss_analysis_metrics=[
+                      types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
+                      types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
+                  ]
+          loss_analysis_configs: This field is experimental and may change in future
+              versions. Optional list of ``LossAnalysisConfig`` objects for full
+              control over loss analysis, including explicit candidate and
+              advanced options like ``predefined_taxonomy`` and
+              ``max_top_cluster_count``. Mutually exclusive with
+              ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
 
         Returns:
             The created evaluation run.
         """
+        if loss_analysis_metrics and loss_analysis_configs:
+            raise ValueError(
+                "At most one of loss_analysis_metrics or loss_analysis_configs"
+                " can be provided."
+            )
         if agent_info and inference_configs:
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
@@ -2498,8 +2541,15 @@ class Evals(_api_module.BaseModule):
         resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
             metrics, self._api_client
         )
+        resolved_loss_configs = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=loss_analysis_metrics,
+            loss_analysis_configs=loss_analysis_configs,
+            inference_configs=inference_configs,
+        )
         evaluation_config = types.EvaluationRunConfig(
-            output_config=output_config, metrics=resolved_metrics
+            output_config=output_config,
+            metrics=resolved_metrics,
+            loss_analysis_config=resolved_loss_configs,
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
@@ -3968,13 +4018,16 @@ class AsyncEvals(_api_module.BaseModule):
             name = name.split("/")[-1]
         result = await self._get_evaluation_run(name=name, config=config)
         if include_evaluation_items:
-            result.evaluation_item_results = (
+            eval_result, eval_item_map = (
                 await _evals_common._convert_evaluation_run_results_async(
                     self._api_client,
                     result.evaluation_run_results,
                     result.inference_configs,
                 )
             )
+            result.evaluation_item_results = eval_result
+            # Bypass pydantic validation (extra='forbid') for this internal field.
+            object.__setattr__(result, "_eval_item_map", eval_item_map)
 
         return result
 
@@ -3997,6 +4050,8 @@ class AsyncEvals(_api_module.BaseModule):
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
         labels: Optional[dict[str, str]] = None,
+        loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
+        loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -4026,11 +4081,37 @@ class AsyncEvals(_api_module.BaseModule):
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
+          loss_analysis_metrics: This field is experimental and may change in future
+              versions. Optional list of metrics to run loss analysis on. The
+              candidate is auto-inferred from ``inference_configs`` or
+              ``agent_info`` when there is exactly one candidate. Each metric can be
+              a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
+              object, or a ``RubricMetric`` enum
+              (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
+              runs after metric calculation completes.
+              Mutually exclusive with ``loss_analysis_configs``.
+              Example::
+
+                  loss_analysis_metrics=[
+                      types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
+                      types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
+                  ]
+          loss_analysis_configs: This field is experimental and may change in future
+              versions. Optional list of ``LossAnalysisConfig`` objects for full
+              control over loss analysis, including explicit candidate and
+              advanced options like ``predefined_taxonomy`` and
+              ``max_top_cluster_count``. Mutually exclusive with
+              ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
 
         Returns:
             The created evaluation run.
         """
+        if loss_analysis_metrics and loss_analysis_configs:
+            raise ValueError(
+                "At most one of loss_analysis_metrics or loss_analysis_configs"
+                " can be provided."
+            )
         if agent_info and inference_configs:
             raise ValueError(
                 "At most one of agent_info or inference_configs can be provided."
@@ -4072,8 +4153,15 @@ class AsyncEvals(_api_module.BaseModule):
         resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
             metrics, self._api_client
         )
+        resolved_loss_configs = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=loss_analysis_metrics,
+            loss_analysis_configs=loss_analysis_configs,
+            inference_configs=inference_configs,
+        )
         evaluation_config = types.EvaluationRunConfig(
-            output_config=output_config, metrics=resolved_metrics
+            output_config=output_config,
+            metrics=resolved_metrics,
+            loss_analysis_config=resolved_loss_configs,
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info

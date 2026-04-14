@@ -2396,14 +2396,48 @@ def _get_eval_result_from_eval_items(
     return eval_result
 
 
+def _build_eval_item_map(
+    eval_items: list[types.EvaluationItem],
+) -> dict[str, dict[str, Any]]:
+    """Builds a mapping from EvaluationItem resource name to serialized data.
+
+    This is used by the loss analysis visualization to enrich examples with
+    scenario and rubric data from the original evaluation items.
+
+    Args:
+        eval_items: The list of EvaluationItem objects.
+
+    Returns:
+        A dict mapping evaluation item resource name to the serialized
+        evaluation_response dict (which the JS visualization reads as
+        ``evaluation_result``).
+    """
+    item_map: dict[str, dict[str, Any]] = {}
+    for item in eval_items:
+        if item.name and item.evaluation_response:
+            try:
+                item_map[item.name] = item.evaluation_response.model_dump(
+                    mode="json", exclude_none=True
+                )
+            except Exception:
+                pass
+    return item_map
+
+
 def _convert_evaluation_run_results(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Optional[types.EvaluationResult]:
-    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+) -> tuple[Optional[types.EvaluationResult], dict[str, dict[str, Any]]]:
+    """Retrieves an EvaluationResult and item map from EvaluationRunResults.
+
+    Returns:
+        A tuple of (EvaluationResult, eval_item_map). The eval_item_map maps
+        evaluation item resource names to their serialized evaluation response
+        data, used for enriching loss analysis visualization.
+    """
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return None
+        return None, {}
 
     evals_module = evals.Evals(api_client_=api_client)
     eval_set = evals_module.get_evaluation_set(
@@ -2416,19 +2450,21 @@ def _convert_evaluation_run_results(
             evals_module.get_evaluation_item(name=item_name)
             for item_name in eval_set.evaluation_items
         ]
-    return _get_eval_result_from_eval_items(
+    eval_result = _get_eval_result_from_eval_items(
         evaluation_run_results, eval_items, inference_configs
     )
+    eval_item_map = _build_eval_item_map(eval_items)
+    return eval_result, eval_item_map
 
 
 async def _convert_evaluation_run_results_async(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Optional[types.EvaluationResult]:
-    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+) -> tuple[Optional[types.EvaluationResult], dict[str, dict[str, Any]]]:
+    """Retrieves an EvaluationResult and item map from EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return None
+        return None, {}
 
     evals_module = evals.AsyncEvals(api_client_=api_client)
     eval_set = await evals_module.get_evaluation_set(
@@ -2442,9 +2478,11 @@ async def _convert_evaluation_run_results_async(
             for eval_item in eval_set.evaluation_items
         ]
         eval_items = await asyncio.gather(*tasks)
-    return _get_eval_result_from_eval_items(
+    eval_result = _get_eval_result_from_eval_items(
         evaluation_run_results, eval_items, inference_configs
     )
+    eval_item_map = _build_eval_item_map(eval_items)
+    return eval_result, eval_item_map
 
 
 def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:

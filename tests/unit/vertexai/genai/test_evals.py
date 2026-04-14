@@ -1189,6 +1189,567 @@ def _make_eval_result(
     )
 
 
+class TestEvalRunLossAnalysis:
+    """Tests for loss analysis integration with EvaluationRun."""
+
+    def test_evaluation_run_config_accepts_loss_analysis_config(self):
+        """Tests that EvaluationRunConfig can hold loss_analysis_config."""
+        config = common_types.EvaluationRunConfig(
+            metrics=[],
+            loss_analysis_config=[
+                common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="travel-agent",
+                ),
+                common_types.LossAnalysisConfig(
+                    metric="multi_turn_tool_use_quality_v1",
+                    candidate="travel-agent",
+                ),
+            ],
+        )
+        assert len(config.loss_analysis_config) == 2
+        assert config.loss_analysis_config[0].metric == "multi_turn_task_success_v1"
+        assert config.loss_analysis_config[1].metric == "multi_turn_tool_use_quality_v1"
+
+    def test_evaluation_run_config_loss_analysis_config_optional(self):
+        """Tests that loss_analysis_config defaults to None when not provided."""
+        config = common_types.EvaluationRunConfig(metrics=[])
+        assert config.loss_analysis_config is None
+
+    def test_evaluation_run_results_has_loss_analysis_results(self):
+        """Tests that EvaluationRunResults can hold loss_analysis_results."""
+        results = common_types.EvaluationRunResults(
+            evaluation_set="projects/123/locations/global/evaluationSets/456",
+            summary_metrics=common_types.SummaryMetric(
+                metrics={}, total_items=10, failed_items=0
+            ),
+            loss_analysis_results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Hallucination",
+                                l2_category="Hallucination of Action",
+                            ),
+                            item_count=3,
+                        )
+                    ],
+                )
+            ],
+        )
+        assert len(results.loss_analysis_results) == 1
+        assert results.loss_analysis_results[0].clusters[0].item_count == 3
+
+    def test_evaluation_run_results_loss_analysis_results_optional(self):
+        """Tests backward compat: loss_analysis_results defaults to None."""
+        results = common_types.EvaluationRunResults(
+            evaluation_set="projects/123/locations/global/evaluationSets/456",
+            summary_metrics=common_types.SummaryMetric(
+                metrics={}, total_items=5, failed_items=0
+            ),
+        )
+        assert results.loss_analysis_results is None
+
+    def test_evaluation_run_show_displays_loss_analysis_without_map(self):
+        """Tests show() calls display with eval_item_map=None when no map set."""
+        eval_run = common_types.EvaluationRun(
+            name="projects/123/locations/global/evaluationRuns/test-run",
+            state="SUCCEEDED",
+            evaluation_run_results=common_types.EvaluationRunResults(
+                evaluation_set="projects/123/locations/global/evaluationSets/456",
+                summary_metrics=common_types.SummaryMetric(
+                    metrics={}, total_items=5, failed_items=0
+                ),
+                loss_analysis_results=[
+                    common_types.LossAnalysisResult(
+                        config=common_types.LossAnalysisConfig(
+                            metric="multi_turn_task_success_v1",
+                            candidate="agent-1",
+                        ),
+                        clusters=[],
+                    )
+                ],
+            ),
+        )
+        with mock.patch.object(
+            _evals_visualization,
+            "display_loss_analysis_results",
+        ) as mock_display:
+            eval_run.show()
+            mock_display.assert_called_once_with(
+                eval_run.evaluation_run_results.loss_analysis_results,
+                eval_item_map=None,
+            )
+
+    def test_evaluation_run_show_passes_eval_item_map(self):
+        """Tests show() passes _eval_item_map to display when set via object.__setattr__."""
+        eval_run = common_types.EvaluationRun(
+            name="projects/123/locations/global/evaluationRuns/test-run",
+            state="SUCCEEDED",
+            evaluation_run_results=common_types.EvaluationRunResults(
+                evaluation_set="projects/123/locations/global/evaluationSets/456",
+                summary_metrics=common_types.SummaryMetric(
+                    metrics={}, total_items=5, failed_items=0
+                ),
+                loss_analysis_results=[
+                    common_types.LossAnalysisResult(
+                        config=common_types.LossAnalysisConfig(
+                            metric="multi_turn_task_success_v1",
+                            candidate="agent-1",
+                        ),
+                        clusters=[
+                            common_types.LossCluster(
+                                cluster_id="c1",
+                                item_count=1,
+                                examples=[
+                                    common_types.LossExample(
+                                        evaluation_item="projects/123/locations/global/evaluationItems/item-1",
+                                    )
+                                ],
+                            )
+                        ],
+                    )
+                ],
+            ),
+        )
+        # Simulate what get_evaluation_run does: set _eval_item_map via object.__setattr__
+        # to bypass pydantic extra='forbid'
+        test_map = {
+            "projects/123/locations/global/evaluationItems/item-1": {
+                "request": {
+                    "prompt": {
+                        "agent_data": {
+                            "turns": [
+                                {
+                                    "events": [
+                                        {
+                                            "author": "user",
+                                            "content": {"parts": [{"text": "Hello"}]},
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+        object.__setattr__(eval_run, "_eval_item_map", test_map)
+
+        # Verify _eval_item_map is accessible via getattr
+        assert getattr(eval_run, "_eval_item_map", None) is test_map
+
+        with mock.patch.object(
+            _evals_visualization,
+            "display_loss_analysis_results",
+        ) as mock_display:
+            eval_run.show()
+            mock_display.assert_called_once_with(
+                eval_run.evaluation_run_results.loss_analysis_results,
+                eval_item_map=test_map,
+            )
+
+    def test_evaluation_run_show_no_loss_analysis_does_not_crash(self):
+        """Tests EvaluationRun.show() works when no loss analysis results."""
+        eval_run = common_types.EvaluationRun(
+            name="projects/123/locations/global/evaluationRuns/test-run",
+            state="SUCCEEDED",
+            evaluation_run_results=common_types.EvaluationRunResults(
+                evaluation_set="projects/123/locations/global/evaluationSets/456",
+                summary_metrics=common_types.SummaryMetric(
+                    metrics={}, total_items=5, failed_items=0
+                ),
+            ),
+        )
+        with mock.patch.object(
+            _evals_visualization,
+            "display_loss_analysis_results",
+        ) as mock_display:
+            # Should not crash; loss analysis display should NOT be called
+            eval_run.show()
+            mock_display.assert_not_called()
+
+    def test_display_loss_analysis_results_html(self):
+        """Tests that display_loss_analysis_results produces valid HTML."""
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="agent-1",
+                ),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        taxonomy_entry=common_types.LossTaxonomyEntry(
+                            l1_category="Tool Calling",
+                            l2_category="Missing Invocation",
+                            description="Agent failed to call the tool.",
+                        ),
+                        item_count=5,
+                    )
+                ],
+            )
+        ]
+        payload_json = json.dumps(
+            {
+                "results": [
+                    r.model_dump(mode="json", exclude_none=True) for r in results
+                ]
+            },
+            ensure_ascii=False,
+        )
+        html = _evals_visualization._get_loss_analysis_html(payload_json)
+        # The HTML is a self-contained report with base64-encoded JSON payload
+        # decoded by JavaScript at runtime. Verify structure, not content.
+        assert "<!DOCTYPE html>" in html
+        assert "Loss Pattern Analysis" in html
+        # Verify the payload is embedded as base64 in the HTML
+        payload_b64 = base64.b64encode(payload_json.encode("utf-8")).decode("ascii")
+        assert payload_b64 in html
+
+    def test_enrich_loss_examples_with_eval_item_map(self):
+        """Tests that _enrich_loss_examples_with_eval_items populates evaluation_result."""
+        # Create loss results where examples only have evaluation_item (eval run path)
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="agent-1",
+                ),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        taxonomy_entry=common_types.LossTaxonomyEntry(
+                            l1_category="Tool Calling",
+                            l2_category="Missing Invocation",
+                        ),
+                        item_count=2,
+                        examples=[
+                            common_types.LossExample(
+                                evaluation_item="projects/123/locations/global/evaluationItems/item-1",
+                                failed_rubrics=[
+                                    common_types.FailedRubric(
+                                        rubric_id="tool_invocation"
+                                    )
+                                ],
+                            ),
+                            common_types.LossExample(
+                                evaluation_item="projects/123/locations/global/evaluationItems/item-2",
+                                failed_rubrics=[
+                                    common_types.FailedRubric(
+                                        rubric_id="tool_invocation"
+                                    )
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+
+        # Build an eval_item_map matching the actual eval run data shape:
+        # - scenario is in prompt.user_scenario.starting_prompt
+        # - agent traces are in candidate_responses[].agent_data.turns
+        # - rubric verdicts are in candidate_results[].rubric_verdicts
+        eval_item_map = {
+            "projects/123/locations/global/evaluationItems/item-1": {
+                "request": {
+                    "prompt": {
+                        "user_scenario": {
+                            "starting_prompt": "Book a flight to Paris",
+                        }
+                    },
+                    "candidate_responses": [
+                        {
+                            "candidate": "agent-1",
+                            "agent_data": {
+                                "turns": [
+                                    {
+                                        "events": [
+                                            {
+                                                "author": "user",
+                                                "content": {
+                                                    "parts": [
+                                                        {
+                                                            "text": "Book a flight to Paris"
+                                                        }
+                                                    ]
+                                                },
+                                            }
+                                        ],
+                                    }
+                                ]
+                            },
+                        }
+                    ],
+                },
+                "candidate_results": [
+                    {
+                        "metric": "multi_turn_task_success_v1",
+                        "candidate": "agent-1",
+                        "rubric_verdicts": [
+                            {
+                                "evaluated_rubric": {
+                                    "rubric_id": "tool_invocation",
+                                    "content": {
+                                        "property": {
+                                            "description": "Agent should call find_flights tool"
+                                        }
+                                    },
+                                },
+                                "verdict": False,
+                            }
+                        ],
+                    }
+                ],
+            },
+            "projects/123/locations/global/evaluationItems/item-2": {
+                "request": {
+                    "prompt": {
+                        "user_scenario": {
+                            "starting_prompt": "Find hotels in Tokyo",
+                        }
+                    },
+                    "candidate_responses": [
+                        {
+                            "candidate": "agent-1",
+                            "agent_data": {
+                                "turns": [
+                                    {
+                                        "events": [
+                                            {
+                                                "author": "user",
+                                                "content": {
+                                                    "parts": [
+                                                        {"text": "Find hotels in Tokyo"}
+                                                    ]
+                                                },
+                                            }
+                                        ],
+                                    }
+                                ]
+                            },
+                        }
+                    ],
+                },
+                "candidate_results": [],
+            },
+        }
+
+        enriched = _evals_visualization._enrich_loss_examples_with_eval_items(
+            results, eval_item_map
+        )
+
+        # Verify enrichment happened
+        assert len(enriched) == 1
+        clusters = enriched[0]["clusters"]
+        assert len(clusters) == 1
+        examples = clusters[0]["examples"]
+        assert len(examples) == 2
+
+        # First example should have evaluation_result with user_scenario
+        ex1 = examples[0]
+        assert "evaluation_result" in ex1
+        er1 = ex1["evaluation_result"]
+        assert (
+            er1["request"]["prompt"]["user_scenario"]["starting_prompt"]
+            == "Book a flight to Paris"
+        )
+        # Agent data is on candidate_responses (eval run path)
+        assert (
+            er1["request"]["candidate_responses"][0]["agent_data"]["turns"][0][
+                "events"
+            ][0]["content"]["parts"][0]["text"]
+            == "Book a flight to Paris"
+        )
+        # Rubric data
+        assert (
+            er1["candidate_results"][0]["rubric_verdicts"][0]["evaluated_rubric"][
+                "content"
+            ]["property"]["description"]
+            == "Agent should call find_flights tool"
+        )
+
+        # Second example should also have evaluation_result
+        ex2 = examples[1]
+        assert "evaluation_result" in ex2
+        er2 = ex2["evaluation_result"]
+        assert (
+            er2["request"]["prompt"]["user_scenario"]["starting_prompt"]
+            == "Find hotels in Tokyo"
+        )
+
+    def test_enrich_skips_already_populated_evaluation_result(self):
+        """Tests that enrichment skips examples that already have evaluation_result (LRO path)."""
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(metric="m1", candidate="c1"),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        item_count=1,
+                        examples=[
+                            common_types.LossExample(
+                                evaluation_item="projects/123/locations/global/evaluationItems/item-1",
+                                evaluation_result={
+                                    "request": {"prompt": {"text": "original"}}
+                                },
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+        eval_item_map = {
+            "projects/123/locations/global/evaluationItems/item-1": {
+                "request": {"prompt": {"text": "should-not-replace"}}
+            },
+        }
+        enriched = _evals_visualization._enrich_loss_examples_with_eval_items(
+            results, eval_item_map
+        )
+        # Should keep the original evaluation_result, not replace it
+        ex = enriched[0]["clusters"][0]["examples"][0]
+        assert ex["evaluation_result"]["request"]["prompt"]["text"] == "original"
+
+    def test_enrich_with_none_map(self):
+        """Tests enrichment with no eval_item_map (backward compat)."""
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(metric="m1", candidate="c1"),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        item_count=1,
+                        examples=[
+                            common_types.LossExample(
+                                evaluation_item="projects/123/evaluationItems/item-1",
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+        enriched = _evals_visualization._enrich_loss_examples_with_eval_items(
+            results, None
+        )
+        # Should not crash, evaluation_result stays absent
+        ex = enriched[0]["clusters"][0]["examples"][0]
+        assert "evaluation_result" not in ex
+
+    def test_evaluation_run_config_serialization_with_loss_analysis(self):
+        """Tests that EvaluationRunConfig with loss_analysis_config serializes."""
+        config = common_types.EvaluationRunConfig(
+            metrics=[],
+            loss_analysis_config=[
+                common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="travel-agent",
+                ),
+            ],
+        )
+        dumped = config.model_dump(mode="json", exclude_none=True)
+        assert "loss_analysis_config" in dumped
+        assert len(dumped["loss_analysis_config"]) == 1
+        assert (
+            dumped["loss_analysis_config"][0]["metric"] == "multi_turn_task_success_v1"
+        )
+
+
+class TestResolveEvalRunLossConfigs:
+    """Unit tests for _resolve_eval_run_loss_configs."""
+
+    def test_none_when_no_args(self):
+        result = _evals_utils._resolve_eval_run_loss_configs()
+        assert result is None
+
+    def test_loss_analysis_metrics_single_candidate(self):
+        """Auto-infers candidate from single-entry inference_configs."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=["multi_turn_task_success_v1"],
+            inference_configs={"my-agent": {}},
+        )
+        assert len(result) == 1
+        assert result[0].metric == "multi_turn_task_success_v1"
+        assert result[0].candidate == "my-agent"
+
+    def test_loss_analysis_metrics_multiple_metrics(self):
+        """Creates one config per metric, all with same inferred candidate."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=[
+                "multi_turn_task_success_v1",
+                "multi_turn_tool_use_quality_v1",
+            ],
+            inference_configs={"travel-agent": {}},
+        )
+        assert len(result) == 2
+        assert result[0].metric == "multi_turn_task_success_v1"
+        assert result[0].candidate == "travel-agent"
+        assert result[1].metric == "multi_turn_tool_use_quality_v1"
+        assert result[1].candidate == "travel-agent"
+
+    def test_loss_analysis_metrics_multi_candidate_raises(self):
+        """Raises when multiple candidates and using simplified metrics."""
+        with pytest.raises(ValueError, match="multiple candidates"):
+            _evals_utils._resolve_eval_run_loss_configs(
+                loss_analysis_metrics=["task_success_v1"],
+                inference_configs={"agent-a": {}, "agent-b": {}},
+            )
+
+    def test_loss_analysis_metrics_no_inference_configs(self):
+        """Creates configs with candidate=None when no inference_configs."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=["task_success_v1"],
+        )
+        assert len(result) == 1
+        assert result[0].metric == "task_success_v1"
+        assert result[0].candidate is None
+
+    def test_loss_analysis_configs_passthrough(self):
+        """Explicit configs are passed through without modification."""
+        configs = [
+            common_types.LossAnalysisConfig(
+                metric="task_success_v1",
+                candidate="agent-1",
+                max_top_cluster_count=5,
+            )
+        ]
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_configs=configs,
+        )
+        assert len(result) == 1
+        assert result[0].metric == "task_success_v1"
+        assert result[0].candidate == "agent-1"
+        assert result[0].max_top_cluster_count == 5
+
+    def test_loss_analysis_configs_dict_input(self):
+        """Dict configs are validated into LossAnalysisConfig objects."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_configs=[
+                {"metric": "task_success_v1", "candidate": "agent-1"}
+            ],
+        )
+        assert len(result) == 1
+        assert isinstance(result[0], common_types.LossAnalysisConfig)
+        assert result[0].metric == "task_success_v1"
+
+    def test_loss_analysis_metrics_accepts_metric_object(self):
+        """Accepts Metric objects in loss_analysis_metrics."""
+        metric = common_types.Metric(name="multi_turn_task_success_v1")
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=[metric],
+            inference_configs={"agent-1": {}},
+        )
+        assert len(result) == 1
+        assert result[0].metric == "multi_turn_task_success_v1"
+        assert result[0].candidate == "agent-1"
+
+
 class TestResolveMetricName:
     """Unit tests for _resolve_metric_name."""
 
