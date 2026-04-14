@@ -953,7 +953,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         dataframe: pd.DataFrame,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -963,7 +963,7 @@ class Datasets(_api_module.BaseModule):
             dataframe (pandas.DataFrame):
                 The pandas dataframe to be used for the created dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -1007,7 +1007,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -1018,7 +1018,7 @@ class Datasets(_api_module.BaseModule):
                 The BigFrames dataframe that will be used for the created
                 dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -2177,7 +2177,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         dataframe: pd.DataFrame,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -2187,7 +2187,7 @@ class AsyncDatasets(_api_module.BaseModule):
             dataframe (pandas.DataFrame):
                 The pandas dataframe to be used for the created dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -2231,7 +2231,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -2242,7 +2242,7 @@ class AsyncDatasets(_api_module.BaseModule):
                 The BigFrames dataframe that will be used for the created
                 dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
