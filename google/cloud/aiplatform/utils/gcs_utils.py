@@ -63,6 +63,35 @@ if _GCS_VERSION < Version("3.0.0"):
 _DEFAULT_STAGING_BUCKET_SALT = str(uuid.uuid4())
 
 
+def _verify_bucket_ownership(
+    bucket: storage.Bucket,
+    expected_project: str,
+    client: storage.Client,
+) -> bool:
+    """Verifies that a GCS bucket belongs to the expected project.
+
+    This check mitigates bucket squatting attacks where an attacker creates a
+    bucket with a predictable name in their own project before the victim does.
+
+    Args:
+        bucket: The GCS bucket to verify.
+        expected_project: The project ID that should own the bucket.
+        client: Storage client instance.
+
+    Returns:
+        True if the bucket belongs to the expected project, False otherwise.
+    """
+    try:
+        bucket.reload(client=client)
+        bucket_project_number = str(bucket.project_number)
+        expected_project_number = str(
+            resource_manager_utils.get_project_number(expected_project)
+        )
+        return bucket_project_number == expected_project_number
+    except Exception:
+        return False
+
+
 def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
     """Create a Blob from a GCS URI, compatible with v2 and v3.
 
@@ -221,6 +250,17 @@ def stage_local_data_in_gcs(
                 project=project,
                 location=location,
             )
+        else:
+            # Verify bucket ownership to prevent bucket squatting attacks.
+            # See b/469987320 for details.
+            if not _verify_bucket_ownership(staging_bucket, project, client):
+                raise ValueError(
+                    f'Staging bucket "{staging_bucket_name}" exists but does '
+                    f'not belong to project "{project}". This may indicate a '
+                    f"bucket squatting attack. Please provide an explicit "
+                    f"staging_bucket parameter or configure one via "
+                    f"aiplatform.init(staging_bucket='gs://your-bucket')."
+                )
         staging_gcs_dir = "gs://" + staging_bucket_name
 
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")
