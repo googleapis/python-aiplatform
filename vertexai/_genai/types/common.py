@@ -7317,7 +7317,7 @@ class KeepAliveProbeHttpGet(_common.BaseModel):
 
     path: Optional[str] = Field(
         default=None,
-        description="""Required. Specifies the path of the HTTP GET request (e.g., `"/is_busy"`).""",
+        description="""Required. Specifies the path of the HTTP GET request (e.g., "/is_busy").""",
     )
     port: Optional[int] = Field(
         default=None,
@@ -7329,7 +7329,7 @@ class KeepAliveProbeHttpGetDict(TypedDict, total=False):
     """Specifies the HTTP GET configuration for the probe."""
 
     path: Optional[str]
-    """Required. Specifies the path of the HTTP GET request (e.g., `"/is_busy"`)."""
+    """Required. Specifies the path of the HTTP GET request (e.g., "/is_busy")."""
 
     port: Optional[int]
     """Optional. Specifies the port number on the container to which the request is sent."""
@@ -8250,6 +8250,12 @@ class CreateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
     )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings.""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -8385,6 +8391,11 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
         ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
     ]
     """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -8908,6 +8919,12 @@ class UpdateAgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
     )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -9048,6 +9065,11 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
         ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
     ]
     """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -17096,6 +17118,12 @@ class AgentEngineConfig(_common.BaseModel):
         default=None,
         description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
     )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings.""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -17274,6 +17302,11 @@ class AgentEngineConfigDict(TypedDict, total=False):
         ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
     ]
     """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

@@ -552,6 +552,12 @@ _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT = (
     _genai_types.IdentityType.SERVICE_ACCOUNT
 )
 _TEST_AGENT_ENGINE_ENCRYPTION_SPEC = {"kms_key_name": "test-kms-key"}
+_TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE = {
+    "http_get": {
+        "path": "/health",
+    },
+    "max_seconds": 60,
+}
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -1087,6 +1093,7 @@ class TestAgentEngineHelpers:
                 config["spec"]["identity_type"]
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
+            assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
 
     def test_create_agent_engine_config_with_developer_connect_source(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -1128,6 +1135,29 @@ class TestAgentEngineHelpers:
                 config["spec"]["identity_type"]
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
+            assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_empty_keep_alive_probe(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                source_packages=[test_file_path],
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                keep_alive_probe={},
+            )
+            assert "keep_alive_probe" in config["spec"].get("deployment_spec", {})
 
     def test_create_agent_engine_config_with_agent_config_source_and_requirements_file(
         self,
@@ -1336,6 +1366,33 @@ class TestAgentEngineHelpers:
         assert (
             config["spec"]["identity_type"]
             == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+        assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
+
+    def test_create_agent_engine_config_with_container_spec_and_keep_alive_probe(
+        self,
+    ):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            container_spec=container_spec,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            keep_alive_probe=_TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE,
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["container_spec"] == container_spec
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+        assert (
+            config["spec"]["deployment_spec"]["keep_alive_probe"]
+            == _TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE
         )
 
     def test_create_agent_engine_config_with_container_spec_and_others_raises(self):
@@ -2133,6 +2190,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2238,6 +2296,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2342,6 +2401,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2515,6 +2575,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2614,6 +2675,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2810,6 +2872,109 @@ class TestAgentEngine:
                         "deployment_spec": _TEST_AGENT_ENGINE_SPEC.get(
                             "deployment_spec"
                         ),
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_with_empty_keep_alive_probe(
+        self, mock_await_operation, mock_prepare
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                agent=self.test_agent,
+                config=_genai_types.AgentEngineConfig(
+                    staging_bucket=_TEST_STAGING_BUCKET,
+                    keep_alive_probe={},
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.package_spec.pickle_object_gcs_uri",
+                    "spec.package_spec.requirements_gcs_uri",
+                    "spec.class_methods",
+                    "spec.deployment_spec.keep_alive_probe",
+                    "spec.agent_framework",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": mock.ANY,
+                        "package_spec": {
+                            "python_version": _TEST_PYTHON_VERSION,
+                            "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
+                            "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+                        },
+                        "deployment_spec": {"keep_alive_probe": {}},
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_with_container_spec_and_keep_alive_probe(
+        self, mock_await_operation
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentEngineConfig(
+                    container_spec=container_spec,
+                    keep_alive_probe=_TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.class_methods",
+                    "spec.container_spec",
+                    "spec.deployment_spec.keep_alive_probe",
+                    "spec.agent_framework",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "agent_framework": "custom",
+                        "container_spec": container_spec,
+                        "deployment_spec": {
+                            "keep_alive_probe": _TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE,
+                        },
+                        "class_methods": mock.ANY,
                     },
                     "_query": {"updateMask": update_mask},
                 },
