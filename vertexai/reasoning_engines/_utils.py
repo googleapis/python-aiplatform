@@ -18,14 +18,13 @@ import inspect
 import json
 import types
 import typing
-from typing import Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Union
+from typing import (Any, Callable, Dict, Iterable, Mapping, Optional, Sequence, Union)
 
 import proto
+from google.api import httpbody_pb2
+from google.protobuf import json_format, struct_pb2
 
 from google.cloud.aiplatform import base
-from google.api import httpbody_pb2
-from google.protobuf import struct_pb2
-from google.protobuf import json_format
 
 try:
     # For LangChain templates, they might not import langchain_core and get
@@ -38,8 +37,8 @@ except ImportError:
     RunnableConfig = Any
 
 try:
-    from llama_index.core.base.response import schema as llama_index_schema
     from llama_index.core.base.llms import types as llama_index_types
+    from llama_index.core.base.response import schema as llama_index_schema
 
     LlamaIndexResponse = llama_index_schema.Response
     LlamaIndexBaseModel = llama_index_schema.BaseModel
@@ -331,16 +330,16 @@ def _import_cloud_storage_or_raise() -> types.ModuleType:
     return storage
 
 
-def _import_cloudpickle_or_raise() -> types.ModuleType:
-    """Tries to import the cloudpickle module."""
+def _import_msgpack_or_raise() -> types.ModuleType:
+    """Tries to import the msgpack module."""
     try:
-        import cloudpickle  # noqa:F401
+        import msgpack  # noqa:F401
     except ImportError as e:
         raise ImportError(
-            "cloudpickle is not installed. Please call "
+            "msgpack is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
-    return cloudpickle
+    return msgpack
 
 
 def _import_pydantic_or_raise() -> types.ModuleType:

@@ -38,24 +38,22 @@ from typing import (
     Union,
 )
 
+import httpx
+import proto
 from google.api_core import exceptions
+from google.protobuf import field_mask_pb2
+
 from google.cloud import storage
-from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1 import types as aip_types
 from google.cloud.aiplatform_v1.types import reasoning_engine_service
 from vertexai.agent_engines import _utils
-import httpx
-import proto
-
-from google.protobuf import field_mask_pb2
-
 
 _LOGGER = _utils.LOGGER
 _SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
-_BLOB_FILENAME = "agent_engine.pkl"
+_BLOB_FILENAME = "agent_engine.msgpack"
 _REQUIREMENTS_FILE = "requirements.txt"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
 _STANDARD_API_MODE = ""
@@ -117,14 +115,14 @@ except (ImportError, AttributeError):
     ADKAgent = None
 
 try:
+    from a2a.client import ClientConfig, ClientFactory
     from a2a.types import (
         AgentCard,
-        TransportProtocol,
         Message,
         TaskIdParams,
         TaskQueryParams,
+        TransportProtocol,
     )
-    from a2a.client import ClientConfig, ClientFactory
 
     AgentCard = AgentCard
     TransportProtocol = TransportProtocol
@@ -1209,23 +1207,54 @@ def _upload_agent_engine(
     logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads the agent engine to GCS."""
-    cloudpickle = _utils._import_cloudpickle_or_raise()
+    import msgpack
+
+    from google.cloud.aiplatform.utils import security_utils
+
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")
-    with blob.open("wb") as f:
-        try:
-            cloudpickle.dump(agent_engine, f)
-        except Exception as e:
-            url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
-            raise TypeError(
-                f"Failed to serialize agent engine. Visit {url} for details."
-            ) from e
-    with blob.open("rb") as f:
-        try:
-            _ = cloudpickle.load(f)
-        except Exception as e:
-            raise TypeError("Agent engine serialized to an invalid format") from e
+
+    # Prepare common state structure
+    if isinstance(agent_engine, ModuleAgent):
+        state = {
+            "type": "ModuleAgent",
+            "params": agent_engine._tmpl_attrs,
+            "agent_framework": agent_engine.agent_framework,
+        }
+    else:
+        # Generic object - only data allowed via msgpack
+        state = {
+            "type": "CustomObject",
+            "data": agent_engine,
+        }
+
+    try:
+        packed_data = msgpack.packb(state, use_bin_type=True)
+        # Apply Digital Signature (HMAC)
+        signed_data = security_utils.sign_blob(packed_data)
+
+        blob.upload_from_string(signed_data)
+    except Exception as e:
+        url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
+        raise TypeError(
+            f"Failed to serialize agent engine to secure msgpack format. "
+            f"Dynamic logic (lambdas, live classes) is no longer supported. "
+            f"Visit {url} for migration details."
+        ) from e
+
+    # Verification round-trip
+    try:
+        downloaded_blob = blob.download_as_bytes()
+        # Verify Signature
+        verified_data = security_utils.verify_blob(downloaded_blob)
+        # Unpack
+        _ = msgpack.unpackb(verified_data, raw=False)
+    except Exception as e:
+        raise TypeError(
+            "Agent engine integrity verification failed after upload."
+        ) from e
+
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    logger.info(f"Wrote to {dir_name}/{_BLOB_FILENAME}")
+    logger.info(f"Wrote signed msgpack to {dir_name}/{_BLOB_FILENAME}")
 
 
 def _upload_requirements(

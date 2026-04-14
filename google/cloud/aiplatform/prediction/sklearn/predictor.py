@@ -15,17 +15,17 @@
 # limitations under the License.
 #
 
-import joblib
-import numpy as np
 import os
 import pickle
 import warnings
+
+import joblib
 import msgpack
+import numpy as np
 
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.utils import prediction_utils
-from google.cloud.aiplatform.utils import security_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
+from google.cloud.aiplatform.utils import prediction_utils, security_utils
 
 
 class SklearnPredictor(Predictor):
@@ -75,8 +75,10 @@ class SklearnPredictor(Predictor):
 
         # 2. Block insecure formats if redirection is possible
         prediction_utils.download_model_artifacts(artifacts_uri)
-        
-        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB) or os.path.exists(prediction.MODEL_FILENAME_PKL):
+
+        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB) or os.path.exists(
+            prediction.MODEL_FILENAME_PKL
+        ):
             raise RuntimeError(
                 "Security Error: Insecure model formats (.pkl, .joblib) are no longer "
                 "supported by this version of the SDK. Please migrate your models to "

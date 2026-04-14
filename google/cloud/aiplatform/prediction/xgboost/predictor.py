@@ -15,20 +15,19 @@
 # limitations under the License.
 #
 
-import joblib
 import logging
 import os
 import pickle
 import warnings
-import msgpack
 
+import joblib
+import msgpack
 import numpy as np
 import xgboost as xgb
 
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.utils import prediction_utils
-from google.cloud.aiplatform.utils import security_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
+from google.cloud.aiplatform.utils import prediction_utils, security_utils
 
 
 class XgboostPredictor(Predictor):
@@ -84,7 +83,9 @@ class XgboostPredictor(Predictor):
         # 3. Block insecure formats
         prediction_utils.download_model_artifacts(artifacts_uri)
 
-        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB) or os.path.exists(prediction.MODEL_FILENAME_PKL):
+        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB) or os.path.exists(
+            prediction.MODEL_FILENAME_PKL
+        ):
             raise RuntimeError(
                 "Security Error: Insecure model formats (.pkl, .joblib) are no longer "
                 "supported by this version of the SDK. Please migrate your models to "

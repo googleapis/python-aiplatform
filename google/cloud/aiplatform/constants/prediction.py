@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import re
-
 from collections import defaultdict
 
 # [region]-docker.pkg.dev/vertex-ai/prediction/[framework]-[accelerator].[version]:latest

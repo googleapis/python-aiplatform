@@ -84,7 +84,9 @@ def verify_blob(signed_data: bytes, key: Optional[str] = None) -> bytes:
     signature = signed_data[:32]
     raw_data = signed_data[32:]
 
-    expected_signature = hmac.new(signing_key.encode(), raw_data, hashlib.sha256).digest()
+    expected_signature = hmac.new(
+        signing_key.encode(), raw_data, hashlib.sha256
+    ).digest()
 
     if not hmac.compare_digest(signature, expected_signature):
         raise ValueError(

@@ -17,21 +17,20 @@
 
 import datetime
 import glob
-import uuid
-
-# Version detection and compatibility layer for google-cloud-storage v2/v3
-from importlib.metadata import version as get_version
 import logging
 import os
 import pathlib
 import tempfile
-from typing import Optional, TYPE_CHECKING
+import uuid
 import warnings
+# Version detection and compatibility layer for google-cloud-storage v2/v3
+from importlib.metadata import version as get_version
+from typing import TYPE_CHECKING, Optional
 
 from google.auth import credentials as auth_credentials
-from google.cloud import storage
 from packaging.version import Version
 
+from google.cloud import storage
 from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform.utils import resource_manager_utils
 
@@ -77,6 +76,9 @@ def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
     Returns:
         storage.Blob: Blob instance
     """
+    from google.cloud.aiplatform.utils import security_utils
+
+    security_utils.validate_uri(uri)
     if _USE_FROM_URI:
         return storage.Blob.from_uri(uri, client=client)
     else:
@@ -97,6 +99,9 @@ def bucket_from_uri(uri: str, client: storage.Client) -> storage.Bucket:
     Returns:
         storage.Bucket: Bucket instance
     """
+    from google.cloud.aiplatform.utils import security_utils
+
+    security_utils.validate_uri(uri)
     if _USE_FROM_URI:
         return storage.Bucket.from_uri(uri, client=client)
     else:
@@ -462,6 +467,10 @@ def validate_gcs_path(gcs_path: str) -> None:
     Raises:
         ValueError if gcs_path is invalid.
     """
+    from google.cloud.aiplatform.utils import security_utils
+
+    security_utils.validate_uri(gcs_path)
+
     if not gcs_path.startswith("gs://"):
         raise ValueError(
             f"Invalid GCS path {gcs_path}. Please provide a valid GCS path starting with 'gs://'"

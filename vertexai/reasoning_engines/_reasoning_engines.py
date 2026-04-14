@@ -35,22 +35,20 @@ from typing import (
 )
 
 import proto
-
 from google.api_core import exceptions
+from google.protobuf import field_mask_pb2
+
 from google.cloud import storage
-from google.cloud.aiplatform import base
-from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1beta1 import types as aip_types
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
 from vertexai.reasoning_engines import _utils
-from google.protobuf import field_mask_pb2
-
 
 _LOGGER = base.Logger(__name__)
 _SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "reasoning_engine"
-_BLOB_FILENAME = "reasoning_engine.pkl"
+_BLOB_FILENAME = "reasoning_engine.msgpack"
 _REQUIREMENTS_FILE = "requirements.txt"
 _EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
 _STANDARD_API_MODE = ""
@@ -640,12 +638,42 @@ def _upload_reasoning_engine(
     gcs_dir_name: str,
 ) -> None:
     """Uploads the reasoning engine to GCS."""
-    cloudpickle = _utils._import_cloudpickle_or_raise()
+    import msgpack
+
+    from google.cloud.aiplatform.utils import security_utils
+
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")
-    with blob.open("wb") as f:
-        cloudpickle.dump(reasoning_engine, f)
+
+    # Reasoning Engines are typically custom classes.
+    # We only allow data-serializable states.
+    state = {
+        "type": "ReasoningEngine",
+        "data": reasoning_engine,
+    }
+
+    try:
+        packed_data = msgpack.packb(state, use_bin_type=True)
+        # Apply Digital Signature (HMAC)
+        signed_data = security_utils.sign_blob(packed_data)
+        blob.upload_from_string(signed_data)
+    except Exception as e:
+        raise TypeError(
+            "Failed to serialize reasoning engine to secure msgpack format. "
+            "Executable code (lambdas, classes) is no longer supported for remote deployment."
+        ) from e
+
+    # Verification round-trip
+    try:
+        downloaded_blob = blob.download_as_bytes()
+        verified_data = security_utils.verify_blob(downloaded_blob)
+        _ = msgpack.unpackb(verified_data, raw=False)
+    except Exception as e:
+        raise TypeError(
+            "Reasoning engine integrity verification failed after upload."
+        ) from e
+
     dir_name = f"gs://{gcs_bucket.name}/{gcs_dir_name}"
-    _LOGGER.info(f"Writing to {dir_name}/{_BLOB_FILENAME}")
+    _LOGGER.info(f"Wrote signed msgpack to {dir_name}/{_BLOB_FILENAME}")
 
 
 def _upload_requirements(
