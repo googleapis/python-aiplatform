@@ -1,5 +1,45 @@
 # Changelog
 
+## [1.148.0](https://github.com/googleapis/python-aiplatform/compare/v1.147.0...v1.148.0) (2026-04-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Methods for multimodal datasets now require the full resource name instead of just the dataset ID.
+
+### Features
+
+* Add Agent Engine-level configuration for generation_trigger_config. ([e73d4e7](https://github.com/googleapis/python-aiplatform/commit/e73d4e7a4948cdea0a2d70d5529ee0b10676a1a3))
+* Add ingest_events method for Memory Bank. ([e73d4e7](https://github.com/googleapis/python-aiplatform/commit/e73d4e7a4948cdea0a2d70d5529ee0b10676a1a3))
+* Add memory_types filter to RetrieveMemories ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add RetrieveProfiles. ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add structured data and context to MemoryRevision. ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add structured data and memory type to Memory. ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add subset_topics to Memory Bank GenerateMemories ([727b8e0](https://github.com/googleapis/python-aiplatform/commit/727b8e0c9a426281f8fe302b48e9836a87645fa6))
+* Add support for agent gateway in agent engine ([9ed3759](https://github.com/googleapis/python-aiplatform/commit/9ed375904993e2c05f48fd804e5ad280b732502b))
+* Add support for keep alive probe in agent engines ([ff859e1](https://github.com/googleapis/python-aiplatform/commit/ff859e1d032a657d5932c8a2c2692f0c9aaf51ff))
+* Adds cancel_query_job to SDK for agent engine long running async tasks. ([04f11d1](https://github.com/googleapis/python-aiplatform/commit/04f11d1fccb94809fca5b66d462099d62bc97787))
+* GenAI Client(evals) - add rich HTML visualization for loss pattern analysis ([9e7b2b9](https://github.com/googleapis/python-aiplatform/commit/9e7b2b92ee67b0032b68c4c1bc5970d878e078fc))
+* GenAI Client(evals) - add user-facing generate_loss_clusters with LRO polling and replay tests ([28e5f95](https://github.com/googleapis/python-aiplatform/commit/28e5f95319cedac4bba367da29e4a76033b8da6f))
+* GenAI Client(evals) - auto-infer metric/candidate and validate inputs for generate_loss_clusters ([7142c62](https://github.com/googleapis/python-aiplatform/commit/7142c625daaabcb0f5a896f046ecd6e0b3958a75))
+* GenAI Client(evals) - support loss analysis in EvaluationRun SDK ([eb1066b](https://github.com/googleapis/python-aiplatform/commit/eb1066bf4db0c3ca1411d9b60abeed3000ea77a0))
+* GenAI SDK client - Update client.prompts.create_version to create a prompt and prompt version for a prompt. Recommend create_version instead of create ([1e1faa3](https://github.com/googleapis/python-aiplatform/commit/1e1faa336477f7b4374a0e35fc0ee245434b3e9f))
+* GenAI SDK client(multimodal) - Auto-generate display name for multimodal datasets if not provided. ([9a9e158](https://github.com/googleapis/python-aiplatform/commit/9a9e15896338a1f30f6b441ef92ad231629359dd))
+* GenAI SDK client(multimodal) - Make multimodal_dataset optional in create_from_pandas and create_from_bigframes. ([dc89de2](https://github.com/googleapis/python-aiplatform/commit/dc89de201c5dc002ab8f741e78c8a418df0aa2fe))
+
+
+### Bug Fixes
+
+* Add bucket ownership verification to prevent bucket squatting in Model.upload() ([9feda02](https://github.com/googleapis/python-aiplatform/commit/9feda020a1fb0d967b122468c1dd49f09a6ba456))
+* GenAI SDK client(multimodal) - Change "name" parameters to refer to resource name instead of dataset ID. ([7c04870](https://github.com/googleapis/python-aiplatform/commit/7c04870312894bd7d7a8148f5ba0c3d4568159cb))
+* GenAI SDK client(multimodal) - Fix "type mismatch" warnings in `datasets` module. ([505aa8c](https://github.com/googleapis/python-aiplatform/commit/505aa8c89d364cf2ab4745a862a13ef2453df83c))
+* Refine Pyink blank line insertion logic and fix range-based formatting regressions. ([e382e45](https://github.com/googleapis/python-aiplatform/commit/e382e45035e38a8d354c74b9abb32314ce35d23a))
+
+
+### Miscellaneous Chores
+
+* Release 1.148.0 ([1aaeba7](https://github.com/googleapis/python-aiplatform/commit/1aaeba7ab5a257a6ca914529ef63b34e9139889f))
+
 ## [1.147.0](https://github.com/googleapis/python-aiplatform/compare/v1.146.0...v1.147.0) (2026-04-09)
 
 
