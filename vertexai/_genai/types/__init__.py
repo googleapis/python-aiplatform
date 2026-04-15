@@ -1251,9 +1251,6 @@ from .common import UpdateAgentEngineMemoryConfigOrDict
 from .common import UpdateAgentEngineSessionConfig
 from .common import UpdateAgentEngineSessionConfigDict
 from .common import UpdateAgentEngineSessionConfigOrDict
-from .common import UpdateMultimodalDatasetConfig
-from .common import UpdateMultimodalDatasetConfigDict
-from .common import UpdateMultimodalDatasetConfigOrDict
 from .common import UpdatePromptConfig
 from .common import UpdatePromptConfigDict
 from .common import UpdatePromptConfigOrDict
@@ -2156,9 +2153,6 @@ __all__ = [
     "ListMultimodalDatasetsResponse",
     "ListMultimodalDatasetsResponseDict",
     "ListMultimodalDatasetsResponseOrDict",
-    "UpdateMultimodalDatasetConfig",
-    "UpdateMultimodalDatasetConfigDict",
-    "UpdateMultimodalDatasetConfigOrDict",
     "SchemaPredictParamsGroundingConfigSourceEntry",
     "SchemaPredictParamsGroundingConfigSourceEntryDict",
     "SchemaPredictParamsGroundingConfigSourceEntryOrDict",

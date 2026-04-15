@@ -782,7 +782,7 @@ class Datasets(_api_module.BaseModule):
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
@@ -1084,7 +1084,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         multimodal_dataset: types.MultimodalDatasetOrDict,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Updates a multimodal dataset.
 
@@ -1108,9 +1108,9 @@ class Datasets(_api_module.BaseModule):
         _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
         if isinstance(config, dict):
-            config = types.UpdateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.UpdateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return self._update_multimodal_dataset(
             config=config,
@@ -2004,7 +2004,7 @@ class AsyncDatasets(_api_module.BaseModule):
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
@@ -2310,7 +2310,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         multimodal_dataset: types.MultimodalDatasetOrDict,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Updates a multimodal dataset.
 
@@ -2330,9 +2330,9 @@ class AsyncDatasets(_api_module.BaseModule):
         _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
         if isinstance(config, dict):
-            config = types.UpdateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.UpdateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return await self._update_multimodal_dataset(
             config=config,

@@ -14145,35 +14145,6 @@ ListMultimodalDatasetsResponseOrDict = Union[
 ]
 
 
-class UpdateMultimodalDatasetConfig(_common.BaseModel):
-    """Config for updating a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    timeout: Optional[int] = Field(
-        default=90,
-        description="""The timeout for the update dataset request in seconds. If not set,
-      the default timeout is 90 seconds.""",
-    )
-
-
-class UpdateMultimodalDatasetConfigDict(TypedDict, total=False):
-    """Config for updating a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    timeout: Optional[int]
-    """The timeout for the update dataset request in seconds. If not set,
-      the default timeout is 90 seconds."""
-
-
-UpdateMultimodalDatasetConfigOrDict = Union[
-    UpdateMultimodalDatasetConfig, UpdateMultimodalDatasetConfigDict
-]
-
-
 class _UpdateMultimodalDatasetParameters(_common.BaseModel):
     """Parameters for updating a multimodal dataset resource."""
 
@@ -14186,9 +14157,7 @@ class _UpdateMultimodalDatasetParameters(_common.BaseModel):
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None, description=""""""
     )
-    config: Optional[UpdateMultimodalDatasetConfig] = Field(
-        default=None, description=""""""
-    )
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
 
 
 class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
@@ -14209,7 +14178,7 @@ class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """"""
 
-    config: Optional[UpdateMultimodalDatasetConfigDict]
+    config: Optional[VertexBaseConfigDict]
     """"""
 
 
