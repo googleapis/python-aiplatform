@@ -326,6 +326,18 @@ def _resolve_dataset(
                         if event.content
                     ]
 
+                if case.conversation_history:
+                    history_parts = []
+                    for msg in case.conversation_history:
+                        if msg.content:
+                            role = msg.content.role or "user"
+                            text = _evals_data_converters._get_content_text(msg.content)
+                            history_parts.append(f"{role}: {text}")
+                    if history_parts:
+                        row[_evals_constant.CONVERSATION_HISTORY] = "\n".join(
+                            history_parts
+                        )
+
                 if case.user_scenario:
                     if case.user_scenario.starting_prompt:
                         row[_evals_constant.STARTING_PROMPT] = (
@@ -2586,6 +2598,14 @@ def _create_evaluation_set_from_dataframe(
             )
 
         prompt = None
+        # Determine which history column name is present, preferring
+        # "conversation_history" over "history" if both exist.
+        history_col = None
+        if _evals_constant.CONVERSATION_HISTORY in row:
+            history_col = _evals_constant.CONVERSATION_HISTORY
+        elif _evals_constant.HISTORY in row:
+            history_col = _evals_constant.HISTORY
+
         if (
             _evals_constant.STARTING_PROMPT in row
             and _evals_constant.CONVERSATION_PLAN in row
@@ -2596,15 +2616,15 @@ def _create_evaluation_set_from_dataframe(
                     conversation_plan=row[_evals_constant.CONVERSATION_PLAN],
                 )
             )
-        elif _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+        elif _evals_constant.CONTEXT in row or history_col:
             values = {}
             if _evals_constant.CONTEXT in row:
                 values[_evals_constant.CONTEXT] = _get_content(
                     row, _evals_constant.CONTEXT
                 )
-            if _evals_constant.HISTORY in row:
-                values[_evals_constant.HISTORY] = _get_content(
-                    row, _evals_constant.HISTORY
+            if history_col:
+                values[_evals_constant.CONVERSATION_HISTORY] = _get_content(
+                    row, history_col
                 )
             if _evals_constant.PROMPT in row:
                 values[_evals_constant.PROMPT] = _get_content(

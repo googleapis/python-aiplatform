@@ -4691,6 +4691,34 @@ class TestFlattenEvalDataConverter:
             eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
         )
 
+    def test_convert_with_conversation_history_column_name(self):
+        """Tests that 'conversation_history' is accepted as a column name alias for 'history'."""
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Current prompt"],
+                "response": ["A response"],
+                "conversation_history": [
+                    [
+                        {"role": "user", "parts": [{"text": "Old user msg"}]},
+                        {"role": "model", "parts": [{"text": "Old model msg"}]},
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")]
+        )
+        assert eval_case.reference is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
     def test_convert_missing_response_raises_value_error(self):
         raw_data_df = pd.DataFrame({"prompt": ["Hello"]})  # Missing response
         raw_data = raw_data_df.to_dict(orient="records")
@@ -8354,6 +8382,176 @@ class TestCreateEvaluationSetFromDataFrame:
         candidate_response = candidate_responses[0]
         assert candidate_response["candidate"] == "test-candidate"
         assert candidate_response["agent_data"] == agent_data
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_with_history_column(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that 'history' column is accepted and mapped to prompt_template_data."""
+        eval_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "test prompt",
+                    "response": "test response",
+                    "history": "previous conversation",
+                }
+            ]
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        result = _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+        )
+
+        assert result == mock_eval_set
+
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        assert "prompt_template_data" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "conversation_history" in ptd_values
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_with_conversation_history_column(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that 'conversation_history' column is accepted and mapped to prompt_template_data."""
+        eval_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "test prompt",
+                    "response": "test response",
+                    "conversation_history": "previous conversation",
+                }
+            ]
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        result = _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+        )
+
+        assert result == mock_eval_set
+
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        assert "prompt_template_data" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "conversation_history" in ptd_values
+
+
+class TestResolveDataset:
+    """Unit tests for the _resolve_dataset function."""
+
+    def setup_method(self):
+        self.mock_api_client = mock.Mock(spec=client.Client)
+        self.mock_api_client.project = "test-project"
+        self.mock_api_client.location = "us-central1"
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_resolve_dataset_preserves_conversation_history(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that conversation_history from EvalCase is included in the DataFrame."""
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_eval_set.name = "eval_set_1"
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        history_content_1 = genai_types.Content(
+            role="user", parts=[genai_types.Part(text="Old user msg")]
+        )
+        history_content_2 = genai_types.Content(
+            role="model", parts=[genai_types.Part(text="Old model msg")]
+        )
+
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_cases=[
+                vertexai_genai_types.EvalCase(
+                    prompt=genai_types.Content(
+                        parts=[genai_types.Part(text="test prompt")]
+                    ),
+                    responses=[
+                        vertexai_genai_types.ResponseCandidate(
+                            response=genai_types.Content(
+                                parts=[genai_types.Part(text="test response")]
+                            )
+                        )
+                    ],
+                    conversation_history=[
+                        vertexai_genai_types.evals.Message(
+                            turn_id="0", content=history_content_1
+                        ),
+                        vertexai_genai_types.evals.Message(
+                            turn_id="1", content=history_content_2
+                        ),
+                    ],
+                )
+            ]
+        )
+
+        result = _evals_common._resolve_dataset(
+            api_client=self.mock_api_client,
+            dataset=dataset,
+            dest="gs://bucket/prefix",
+        )
+
+        assert result.evaluation_set == "eval_set_1"
+
+        # Verify that conversation_history was passed through to the GCS upload
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        assert "prompt_template_data" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "conversation_history" in ptd_values
 
 
 class TestRateLimiter:

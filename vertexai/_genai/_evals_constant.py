@@ -59,7 +59,8 @@ USER_AUTHOR = "user"
 AGENT_DATA = "agent_data"
 STARTING_PROMPT = "starting_prompt"
 CONVERSATION_PLAN = "conversation_plan"
-HISTORY = "conversation_history"
+HISTORY = "history"
+CONVERSATION_HISTORY = "conversation_history"
 
 COMMON_DATASET_COLUMNS = frozenset(
     {
@@ -69,6 +70,7 @@ COMMON_DATASET_COLUMNS = frozenset(
         SESSION_INPUT,
         CONTEXT,
         HISTORY,
+        CONVERSATION_HISTORY,
         STARTING_PROMPT,
         CONVERSATION_PLAN,
         AGENT_DATA,
