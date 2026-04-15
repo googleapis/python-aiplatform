@@ -2228,12 +2228,12 @@ class EvaluationRunMetric(_common.BaseModel):
     metric: Optional[str] = Field(
         default=None, description="""The name of the metric."""
     )
-    metric_config: Optional[UnifiedMetric] = Field(
-        default=None, description="""The unified metric used for evaluation run."""
-    )
     metric_resource_name: Optional[str] = Field(
         default=None,
         description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
+    metric_config: Optional[UnifiedMetric] = Field(
+        default=None, description="""The unified metric used for evaluation run."""
     )
 
 
@@ -2243,11 +2243,11 @@ class EvaluationRunMetricDict(TypedDict, total=False):
     metric: Optional[str]
     """The name of the metric."""
 
-    metric_config: Optional[UnifiedMetricDict]
-    """The unified metric used for evaluation run."""
-
     metric_resource_name: Optional[str]
     """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
+    metric_config: Optional[UnifiedMetricDict]
+    """The unified metric used for evaluation run."""
 
 
 EvaluationRunMetricOrDict = Union[EvaluationRunMetric, EvaluationRunMetricDict]
@@ -4412,10 +4412,10 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     instance: Optional[EvaluationInstance] = Field(
         default=None, description="""The instance to be evaluated."""
     )
-    config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
     metric_sources: Optional[list[MetricSource]] = Field(
         default=None, description="""The metrics used for evaluation."""
     )
+    config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
 
 
 class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
@@ -4462,11 +4462,11 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     instance: Optional[EvaluationInstanceDict]
     """The instance to be evaluated."""
 
-    config: Optional[EvaluateInstancesConfigDict]
-    """"""
-
     metric_sources: Optional[list[MetricSourceDict]]
     """The metrics used for evaluation."""
+
+    config: Optional[EvaluateInstancesConfigDict]
+    """"""
 
 
 _EvaluateInstancesRequestParametersOrDict = Union[
@@ -5162,11 +5162,11 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""Specification for how the rubrics should be generated.""",
     )
-    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
     metric_resource_name: Optional[str] = Field(
         default=None,
         description="""Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored.""",
     )
+    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
 
 
 class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
@@ -5186,11 +5186,11 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     rubric_generation_spec: Optional[genai_types.RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
 
-    config: Optional[RubricGenerationConfigDict]
-    """"""
-
     metric_resource_name: Optional[str]
     """Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored."""
+
+    config: Optional[RubricGenerationConfigDict]
+    """"""
 
 
 _GenerateInstanceRubricsRequestOrDict = Union[

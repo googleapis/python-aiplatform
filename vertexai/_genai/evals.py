@@ -276,9 +276,6 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["metric_sources"]) is not None:
         setv(
             to_object,
@@ -288,6 +285,9 @@ def _EvaluateInstancesRequestParameters_to_vertex(
                 for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
             ],
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -464,18 +464,18 @@ def _EvaluationRunMetric_from_vertex(
     if getv(from_object, ["metric"]) is not None:
         setv(to_object, ["metric"], getv(from_object, ["metric"]))
 
-    if getv(from_object, ["metricConfig"]) is not None:
-        setv(
-            to_object,
-            ["metric_config"],
-            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
-        )
-
     if getv(from_object, ["metricResourceName"]) is not None:
         setv(
             to_object,
             ["metric_resource_name"],
             getv(from_object, ["metricResourceName"]),
+        )
+
+    if getv(from_object, ["metricConfig"]) is not None:
+        setv(
+            to_object,
+            ["metric_config"],
+            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
         )
 
     return to_object
@@ -489,18 +489,18 @@ def _EvaluationRunMetric_to_vertex(
     if getv(from_object, ["metric"]) is not None:
         setv(to_object, ["metric"], getv(from_object, ["metric"]))
 
-    if getv(from_object, ["metric_config"]) is not None:
-        setv(
-            to_object,
-            ["metricConfig"],
-            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
-        )
-
     if getv(from_object, ["metric_resource_name"]) is not None:
         setv(
             to_object,
             ["metricResourceName"],
             getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["metric_config"]) is not None:
+        setv(
+            to_object,
+            ["metricConfig"],
+            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
         )
 
     return to_object
@@ -596,15 +596,15 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             getv(from_object, ["rubric_generation_spec"]),
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["metric_resource_name"]) is not None:
         setv(
             to_object,
             ["metricResourceName"],
             getv(from_object, ["metric_resource_name"]),
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -1254,8 +1254,8 @@ class Evals(_api_module.BaseModule):
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
-        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
         Evaluates instances based on a given metric.
@@ -1275,8 +1275,8 @@ class Evals(_api_module.BaseModule):
             autorater_config=autorater_config,
             metrics=metrics,
             instance=instance,
-            config=config,
             metric_sources=metric_sources,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1498,8 +1498,8 @@ class Evals(_api_module.BaseModule):
             genai_types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
-        config: Optional[types.RubricGenerationConfigOrDict] = None,
         metric_resource_name: Optional[str] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
         Generates rubrics for a given prompt.
@@ -1509,8 +1509,8 @@ class Evals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
-            config=config,
             metric_resource_name=metric_resource_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3220,8 +3220,8 @@ class AsyncEvals(_api_module.BaseModule):
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
-        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
         Evaluates instances based on a given metric.
@@ -3241,8 +3241,8 @@ class AsyncEvals(_api_module.BaseModule):
             autorater_config=autorater_config,
             metrics=metrics,
             instance=instance,
-            config=config,
             metric_sources=metric_sources,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3470,8 +3470,8 @@ class AsyncEvals(_api_module.BaseModule):
             genai_types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
-        config: Optional[types.RubricGenerationConfigOrDict] = None,
         metric_resource_name: Optional[str] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
         Generates rubrics for a given prompt.
@@ -3481,8 +3481,8 @@ class AsyncEvals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
-            config=config,
             metric_resource_name=metric_resource_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
