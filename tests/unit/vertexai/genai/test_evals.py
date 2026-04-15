@@ -3145,6 +3145,94 @@ class TestEvalsRunInference:
         ) in str(excinfo.value)
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_falls_back_to_managed_sessions_api(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        """Tests that run_inference falls back to the managed Sessions API
+        when the agent engine does not have create_session registered."""
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    }
+                ],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        # Create a mock agent engine WITHOUT create_session (simulates agents
+        # deployed via Console, gcloud, or source code deployment).
+        mock_agent_engine = mock.Mock(
+            spec=["api_client", "api_resource", "stream_query"],
+        )
+        mock_agent_engine.api_resource.name = (
+            "projects/test-project/locations/us-central1/reasoningEngines/123"
+        )
+
+        # Mock the managed Sessions API to return a session.
+        mock_session_operation = mock.Mock()
+        mock_session_operation.response.name = (
+            "projects/test-project/locations/us-central1"
+            "/reasoningEngines/123/sessions/managed-session-1"
+        )
+        mock_agent_engine.api_client.sessions.create.return_value = (
+            mock_session_operation
+        )
+
+        stream_query_return_value = [
+            {
+                "id": "1",
+                "content": {"parts": [{"text": "intermediate1"}]},
+                "timestamp": 123,
+                "author": "model",
+            },
+            {
+                "id": "2",
+                "content": {"parts": [{"text": "agent response"}]},
+                "timestamp": 124,
+                "author": "model",
+            },
+        ]
+        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        inference_result = self.client.evals.run_inference(
+            agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+            src=mock_df,
+        )
+
+        # Verify the managed Sessions API was called as fallback.
+        mock_agent_engine.api_client.sessions.create.assert_called_once_with(
+            name="projects/test-project/locations/us-central1/reasoningEngines/123",
+            user_id="123",
+            config=vertexai_genai_types.CreateAgentEngineSessionConfig(
+                session_state={"a": "1"},
+            ),
+        )
+
+        # Verify stream_query was called with the session ID extracted from
+        # the managed session's resource name.
+        mock_agent_engine.stream_query.assert_called_once_with(
+            user_id="123",
+            session_id="managed-session-1",
+            message="agent prompt",
+        )
+
+        # Verify the inference results are correct.
+        assert inference_result.eval_dataset_df["response"].iloc[0] == "agent response"
+        assert inference_result.candidate_name == "agent_engine_0"
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     @mock.patch("vertexai._genai._evals_common.InMemorySessionService")  # fmt: skip
     @mock.patch("vertexai._genai._evals_common.Runner")
     @mock.patch("vertexai._genai._evals_common.LlmAgent")

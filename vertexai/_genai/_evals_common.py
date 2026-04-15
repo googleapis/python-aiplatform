@@ -1964,6 +1964,74 @@ def _run_agent(
                 os.environ["GOOGLE_CLOUD_LOCATION"] = original_location
 
 
+def _create_agent_engine_session(
+    *,
+    agent_engine: types.AgentEngine,
+    user_id: str,
+    session_state: Optional[dict[str, Any]] = None,
+) -> Any:
+    """Creates a session for an agent engine and returns the session ID.
+
+    First attempts to use the agent engine's own `create_session` operation
+    (available for agents deployed via AdkApp). If the agent engine does not
+    have `create_session` registered, falls back to the managed Vertex AI
+    Sessions API.
+
+    Args:
+        agent_engine: The AgentEngine instance.
+        user_id: The user ID for the session.
+        session_state: Optional initial state for the session.
+
+    Returns:
+        The session ID string.
+
+    Raises:
+        RuntimeError: If the session could not be created via either path.
+    """
+    try:
+        session = agent_engine.create_session(  # type: ignore[attr-defined]
+            user_id=user_id,
+            state=session_state,
+        )
+        return session["id"]
+    except AttributeError as exc:
+        # Agent engine does not have create_session registered (e.g. deployed
+        # via Console, gcloud, or source code deployment without AdkApp).
+        # Fall back to the managed Vertex AI Sessions API.
+        logger.info(
+            "Agent engine does not have 'create_session' operation registered."
+            " Falling back to managed Sessions API."
+        )
+        if agent_engine.api_resource is None:
+            raise RuntimeError(
+                "Failed to create session: agent_engine.api_resource is None."
+            ) from exc
+        if agent_engine.api_client is None:
+            raise RuntimeError(
+                "Failed to create session: agent_engine.api_client is None."
+            ) from exc
+        operation = agent_engine.api_client.sessions.create(
+            name=agent_engine.api_resource.name,
+            user_id=user_id,
+            config=types.CreateAgentEngineSessionConfig(
+                session_state=session_state,
+            ),
+        )
+        if operation.response and operation.response.name:
+            # Session name format:
+            # projects/{p}/locations/{l}/reasoningEngines/{re}/sessions/{id}
+            return operation.response.name.split("/")[-1]
+        elif operation.error:
+            raise RuntimeError(
+                f"Failed to create session via managed API: {operation.error}"
+            ) from exc
+        else:
+            raise RuntimeError(
+                "Failed to create session via managed API: "
+                "operation returned no response."
+            ) from exc
+
+
 def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
@@ -1975,9 +2043,10 @@ def _execute_agent_run_with_retry(
         session_inputs = _get_session_inputs(row)
         user_id = session_inputs.user_id
         session_state = session_inputs.state
-        session = agent_engine.create_session(  # type: ignore[attr-defined]
+        session_id = _create_agent_engine_session(
+            agent_engine=agent_engine,
             user_id=user_id,
-            state=session_state,
+            session_state=session_state,
         )
     except KeyError as e:
         return {"error": f"Failed to get all required agent engine inputs: {e}"}
@@ -1988,7 +2057,7 @@ def _execute_agent_run_with_retry(
             responses = []
             for event in agent_engine.stream_query(  # type: ignore[attr-defined]
                 user_id=user_id,
-                session_id=session["id"],
+                session_id=session_id,
                 message=contents,
             ):
                 if event and CONTENT in event and PARTS in event[CONTENT]:
