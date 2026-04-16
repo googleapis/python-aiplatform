@@ -3454,7 +3454,7 @@ class TestEvalsRunInference:
         ) as mock_litellm, mock.patch(
             "vertexai._genai._evals_common._call_litellm_completion"
         ) as mock_call_litellm_completion:
-            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            mock_litellm.get_llm_provider.return_value = ("gpt-4o", "openai", None , None)
             prompt_df = pd.DataFrame([{"prompt": "What is LiteLLM?"}])
             expected_messages = [{"role": "user", "content": "What is LiteLLM?"}]
 
@@ -3510,7 +3510,7 @@ class TestEvalsRunInference:
         ) as mock_litellm, mock.patch(
             "vertexai._genai._evals_common._call_litellm_completion"
         ) as mock_call_litellm_completion:
-            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            mock_litellm.get_llm_provider.return_value = ("gpt-4o", "openai", None , None)
             prompt_df = pd.DataFrame(
                 [
                     {
@@ -3579,7 +3579,9 @@ class TestEvalsRunInference:
         with mock.patch(
             "vertexai._genai._evals_common.litellm"
         ) as mock_litellm_package:
-            mock_litellm_package.utils.get_valid_models.return_value = []
+            mock_litellm_package.get_llm_provider.side_effect = ValueError(
+                "unsupported model"
+            )
             evals_module = evals.Evals(api_client_=mock_api_client_fixture)
             prompt_df = pd.DataFrame([{"prompt": "test"}])
 
@@ -3646,7 +3648,7 @@ class TestEvalsRunInference:
         # fmt: off
         with mock.patch("vertexai._genai._evals_common.litellm") as mock_litellm:
             # fmt: on
-            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            mock_litellm.get_llm_provider.return_value = ("gpt-4o", "openai", None , None)
             inference_result = self.client.evals.run_inference(
                 model="gpt-4o",
                 src=mock_df,

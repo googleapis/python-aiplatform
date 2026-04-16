@@ -761,7 +761,14 @@ def _is_litellm_vertex_maas_model(model: str) -> bool:
 
 def _is_litellm_model(model: str) -> bool:
     """Checks if the model name corresponds to a valid LiteLLM model name."""
-    return model in litellm.utils.get_valid_models(model)
+    if litellm is None:
+        return False
+
+    try:
+        litellm.get_llm_provider(model)
+        return True 
+    except ValueError:
+        return False
 
 
 def _is_gemini_model(model: str) -> bool:
