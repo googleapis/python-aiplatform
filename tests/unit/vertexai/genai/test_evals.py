@@ -2241,6 +2241,79 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "mock_model_fn"
         assert inference_result.gcs_source is None
 
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_overwrites_existing_response_column_with_callable(
+        self, mock_eval_dataset_loader
+    ):
+        """Tests that run_inference overwrites an existing 'response' column."""
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["test prompt"],
+                "response": ["old response"],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        def mock_model_fn(contents):
+            return "new response"
+
+        inference_result = self.client.evals.run_inference(
+            model=mock_model_fn,
+            src=mock_df,
+        )
+
+        result_df = inference_result.eval_dataset_df
+        # Assert there is exactly one 'response' column (no duplicates).
+        assert list(result_df.columns).count("response") == 1
+        # Assert the 'response' column contains the new inference result.
+        assert result_df["response"][0] == "new response"
+        assert "prompt" in result_df.columns
+
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_overwrites_existing_response_column_with_gemini(
+        self, mock_eval_dataset_loader, mock_models
+    ):
+        """Tests that run_inference with Gemini overwrites an existing 'response' column."""
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["test prompt"],
+                "response": ["old response"],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_generate_content_response = genai_types.GenerateContentResponse(
+            candidates=[
+                genai_types.Candidate(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="new gemini response")]
+                    ),
+                    finish_reason=genai_types.FinishReason.STOP,
+                )
+            ],
+            prompt_feedback=None,
+        )
+        mock_models.return_value.generate_content.return_value = (
+            mock_generate_content_response
+        )
+
+        inference_result = self.client.evals.run_inference(
+            model="gemini-pro",
+            src=mock_df,
+        )
+
+        result_df = inference_result.eval_dataset_df
+        # Assert there is exactly one 'response' column (no duplicates).
+        assert list(result_df.columns).count("response") == 1
+        # Assert the 'response' column contains the new inference result.
+        assert result_df["response"][0] == "new gemini response"
+        assert "prompt" in result_df.columns
+
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_prompt_template(

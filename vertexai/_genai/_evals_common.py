@@ -949,11 +949,25 @@ def _run_inference_internal(
 
     results_df_responses_only = pd.DataFrame(
         {
-            "response": responses,
+            _evals_constant.RESPONSE: responses,
         }
     )
 
     prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
+
+    # Drop existing 'response' column to prevent duplicate column names when
+    # re-running inference on a dataset that already has responses.
+    if _evals_constant.RESPONSE in prompt_dataset_indexed.columns:
+        logger.warning(
+            "A column named '%s' already exists in the prompt dataset. "
+            "The existing column will be dropped and replaced with the new "
+            "inference results.",
+            _evals_constant.RESPONSE,
+        )
+        prompt_dataset_indexed = prompt_dataset_indexed.drop(
+            columns=[_evals_constant.RESPONSE]
+        )
+
     results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
 
     results_df = pd.concat(
