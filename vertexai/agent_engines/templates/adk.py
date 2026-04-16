@@ -26,6 +26,7 @@ from typing import (
 
 import asyncio
 from collections.abc import Awaitable
+import os
 import queue
 import sys
 import threading
@@ -105,7 +106,6 @@ _TELEMETRY_API_DISABLED_WARNING = (
     "\n"
     "(If you enabled this API recently, you can safely ignore this warning.)"
 )
-GOOGLE_API_USE_CLIENT_CERTFICATE= "true"
 
 def get_adk_version() -> Optional[str]:
     """Returns the version of the ADK package."""
@@ -806,6 +806,7 @@ class AdkApp:
         from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
+        os.environ["GOOGLE_API_USE_CLIENT_CERTIFICATE"] = "true"
         project = self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
