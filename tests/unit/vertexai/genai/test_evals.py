@@ -5404,6 +5404,101 @@ class TestAgentInfo:
         ]
         mock_from_callable.assert_called_once_with(callable=my_search_tool)
 
+    def test_load_from_agent_with_get_declaration_tool(self):
+        """Tests that tools with _get_declaration() use it instead of from_callable."""
+        mock_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+
+        mock_tool = mock.Mock()
+        mock_tool._get_declaration = mock.Mock(return_value=mock_declaration)
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [mock_tool]
+        mock_agent.sub_agents = []
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+        )
+
+        assert agent_info.name == "mock_agent"
+        assert len(agent_info.agents["mock_agent"].tools) == 1
+        assert isinstance(agent_info.agents["mock_agent"].tools[0], genai_types.Tool)
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+            mock_declaration
+        ]
+        mock_tool._get_declaration.assert_called_once()
+
+    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
+    def test_load_from_agent_with_mixed_tools(self, mock_from_callable):
+        """Tests agents with both _get_declaration tools and plain callables."""
+
+        def my_plain_tool(query: str) -> str:
+            """A plain callable tool."""
+            return query
+
+        mock_adk_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_adk_tool = mock.Mock()
+        mock_adk_tool._get_declaration = mock.Mock(return_value=mock_adk_declaration)
+
+        mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_from_callable.return_value = mock_callable_declaration
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [mock_adk_tool, my_plain_tool]
+        mock_agent.sub_agents = []
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+        )
+
+        assert len(agent_info.agents["mock_agent"].tools) == 2
+        # First tool: ADK tool with _get_declaration
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+            mock_adk_declaration
+        ]
+        mock_adk_tool._get_declaration.assert_called_once()
+        # Second tool: plain callable via from_callable_with_api_option
+        assert agent_info.agents["mock_agent"].tools[1].function_declarations == [
+            mock_callable_declaration
+        ]
+        mock_from_callable.assert_called_once_with(callable=my_plain_tool)
+
+    def test_load_from_agent_with_none_declaration_falls_back(self):
+        """Tests that tools returning None from _get_declaration fall back to from_callable."""
+        mock_tool = mock.Mock()
+        mock_tool._get_declaration = mock.Mock(return_value=None)
+        mock_tool.__name__ = "mock_tool"
+        mock_tool.__doc__ = "A mock tool."
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [mock_tool]
+        mock_agent.sub_agents = []
+
+        with mock.patch.object(
+            genai_types.FunctionDeclaration, "from_callable_with_api_option"
+        ) as mock_from_callable:
+            mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+            mock_from_callable.return_value = mock_callable_declaration
+
+            agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+                agent=mock_agent,
+            )
+
+            assert len(agent_info.agents["mock_agent"].tools) == 1
+            assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+                mock_callable_declaration
+            ]
+            mock_tool._get_declaration.assert_called_once()
+            mock_from_callable.assert_called_once_with(callable=mock_tool)
+
 
 class TestValidateDatasetAgentData:
     """Unit tests for the _validate_dataset_agent_data function."""
