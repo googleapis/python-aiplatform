@@ -105,7 +105,7 @@ _TELEMETRY_API_DISABLED_WARNING = (
     "\n"
     "(If you enabled this API recently, you can safely ignore this warning.)"
 )
-
+GOOGLE_API_USE_CLIENT_CERTFICATE= "true"
 
 def get_adk_version() -> Optional[str]:
     """Returns the version of the ADK package."""
@@ -396,7 +396,7 @@ def _default_instrumentor_builder(
                 session=google.auth.transport.requests.AuthorizedSession(
                     credentials=credentials
                 ),
-                endpoint="https://telemetry.googleapis.com/v1/traces",
+                endpoint="https://telemetry.mtls.googleapis.com/v1/traces",
                 headers={"User-Agent": user_agent},
             )
         )
@@ -553,7 +553,7 @@ def _warn_if_telemetry_api_disabled():
         return
     credentials, project = google.auth.default()
     session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
-    r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+    r = session.post("https://telemetry.mtls.googleapis.com/v1/traces", data=None)
     if "Telemetry API has not been used in project" in r.text:
         _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
