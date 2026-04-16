@@ -107,6 +107,7 @@ _TELEMETRY_API_DISABLED_WARNING = (
     "(If you enabled this API recently, you can safely ignore this warning.)"
 )
 
+
 def get_adk_version() -> Optional[str]:
     """Returns the version of the ADK package."""
     try:
@@ -390,12 +391,14 @@ def _default_instrumentor_builder(
         vertex_sdk_version = aip_version.__version__
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
         user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
-
+        session = google.auth.transport.requests.AuthorizedSession(
+            credentials=credentials
+        )
+        session.configure_mtls_channel()
+        print("configure_mtls_channel done")
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
-                session=google.auth.transport.requests.AuthorizedSession(
-                    credentials=credentials
-                ),
+                session,
                 endpoint="https://telemetry.mtls.googleapis.com/v1/traces",
                 headers={"User-Agent": user_agent},
             )
@@ -552,8 +555,12 @@ def _warn_if_telemetry_api_disabled():
     except (ImportError, AttributeError):
         return
     credentials, project = google.auth.default()
+    print("in warn terlemetery before configure mtls")
     session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
+    session.configure_mtls_channel()
+    print("post configure mtls")
     r = session.post("https://telemetry.mtls.googleapis.com/v1/traces", data=None)
+    print("after session post call")
     if "Telemetry API has not been used in project" in r.text:
         _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
