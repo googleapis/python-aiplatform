@@ -380,7 +380,7 @@ def _default_instrumentor_builder(
             import opentelemetry.exporter.otlp.proto.http.version
             import opentelemetry.exporter.otlp.proto.http.trace_exporter
             import google.auth.transport.requests
-            from google.auth.transport import mtls
+            from google.auth.transport import _mtls_helper
             from google.cloud.aiplatform import version as aip_version
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
@@ -390,19 +390,21 @@ def _default_instrumentor_builder(
         import google.auth
 
         credentials, _ = google.auth.default()
-        client_cert_callback = mtls.default_client_cert_source()
         vertex_sdk_version = aip_version.__version__
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
         user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
         session = google.auth.transport.requests.AuthorizedSession(
             credentials=credentials
         )
+        _ , cert, key = _mtls_helper.get_client_cert_and_key()
         session.configure_mtls_channel(client_cert_callback)
         print("configure_mtls_channel done")
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
                 session=session,
                 endpoint="https://telemetry.mtls.googleapis.com/v1/traces",
+                client_certificate_file = cert,
+                client_key_file = key,
                 headers={"User-Agent": user_agent},
             )
         )
@@ -555,14 +557,12 @@ def _warn_if_telemetry_api_disabled():
     try:
         import google.auth.transport.requests
         import google.auth
-        from google.auth.transport import mtls
     except (ImportError, AttributeError):
         return
     credentials, project = google.auth.default()
     print("in warn terlemetery before configure mtls")
-    client_cert_callback = mtls.default_client_cert_source()
     session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
-    session.configure_mtls_channel(client_cert_callback)
+    session.configure_mtls_channel()
     print("post configure mtls")
     r = session.post("https://telemetry.mtls.googleapis.com/v1/traces", data=None)
     print("after session post call")
