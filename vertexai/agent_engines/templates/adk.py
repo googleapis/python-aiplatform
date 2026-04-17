@@ -94,6 +94,7 @@ if TYPE_CHECKING:
         SynchronousMultiSpanProcessor = Any
 
 
+
 _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
 _TELEMETRY_API_DISABLED_WARNING = (
@@ -379,6 +380,7 @@ def _default_instrumentor_builder(
             import opentelemetry.exporter.otlp.proto.http.version
             import opentelemetry.exporter.otlp.proto.http.trace_exporter
             import google.auth.transport.requests
+            from google.auth.transport import mtls
             from google.cloud.aiplatform import version as aip_version
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
@@ -388,13 +390,14 @@ def _default_instrumentor_builder(
         import google.auth
 
         credentials, _ = google.auth.default()
+        client_cert_callback = mtls.default_client_cert_source()
         vertex_sdk_version = aip_version.__version__
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
         user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
         session = google.auth.transport.requests.AuthorizedSession(
             credentials=credentials
         )
-        session.configure_mtls_channel()
+        session.configure_mtls_channel(client_cert_callback)
         print("configure_mtls_channel done")
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
