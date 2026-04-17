@@ -23,6 +23,8 @@ from typing import (
     Sequence,
     Union,
 )
+import os
+import copy
 
 if TYPE_CHECKING:
     try:
@@ -351,26 +353,10 @@ class AG2Agent:
             "instrumentor": None,
             "instrumentor_builder": instrumentor_builder,
             "enable_tracing": enable_tracing,
+            "provided_llm_config": copy.deepcopy(llm_config),
+            "provided_runnable_kwargs": copy.deepcopy(runnable_kwargs),
         }
-        self._tmpl_attrs["llm_config"] = llm_config or {
-            "config_list": [
-                {
-                    "project_id": self._tmpl_attrs.get("project"),
-                    "location": self._tmpl_attrs.get("location"),
-                    "model": self._tmpl_attrs.get("model_name"),
-                    "api_type": self._tmpl_attrs.get("api_type"),
-                }
-            ]
-        }
-        self._tmpl_attrs["runnable_kwargs"] = _prepare_runnable_kwargs(
-            runnable_kwargs=runnable_kwargs,
-            llm_config=self._tmpl_attrs.get("llm_config"),
-            system_instruction=self._tmpl_attrs.get("system_instruction"),
-            runnable_name=self._tmpl_attrs.get("runnable_name"),
-        )
         if tools:
-            # We validate tools at initialization for actionable feedback before
-            # they are deployed.
             _validate_tools(tools)
             self._tmpl_attrs["tools"] = tools
 
@@ -378,18 +364,38 @@ class AG2Agent:
         """Sets up the agent for execution of queries at runtime.
 
         It initializes the runnable, binds the runnable with tools.
-
-        This method should not be called for an object that being passed to
-        the ReasoningEngine service for deployment, as it initializes clients
-        that can not be serialized.
+        Project and Location are sourced from environment variables.
         """
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or self._tmpl_attrs.get("project")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION") or self._tmpl_attrs.get("location")
+
+        llm_config = {
+                "config_list": [
+                    {
+                        "project_id": project,
+                        "location": location,
+                        "model": self._tmpl_attrs.get("model_name"),
+                        "api_type": self._tmpl_attrs.get("api_type"),
+                    }
+                ]
+            }
+        if self._tmpl_attrs.get("provided_llm_config"):
+            llm_config = self._tmpl_attrs.get("provided_llm_config")
+
+        runnable_kwargs = _prepare_runnable_kwargs(
+            runnable_kwargs=self._tmpl_attrs.get("provided_runnable_kwargs"),
+            llm_config=llm_config,
+            system_instruction=self._tmpl_attrs.get("system_instruction"),
+            runnable_name=self._tmpl_attrs.get("runnable_name"),
+        )
+
         if self._tmpl_attrs.get("enable_tracing"):
             instrumentor_builder = (
                 self._tmpl_attrs.get("instrumentor_builder")
                 or _default_instrumentor_builder
             )
             self._tmpl_attrs["instrumentor"] = instrumentor_builder(
-                project_id=self._tmpl_attrs.get("project")
+                project_id=project,
             )
 
         # Set up tools.
@@ -408,21 +414,20 @@ class AG2Agent:
             self._tmpl_attrs.get("runnable_builder") or _default_runnable_builder
         )
         self._tmpl_attrs["runnable"] = runnable_builder(
-            **self._tmpl_attrs.get("runnable_kwargs")
+            **runnable_kwargs
         )
 
     def clone(self) -> "AG2Agent":
         """Returns a clone of the AG2Agent."""
-        import copy
 
         return AG2Agent(
             model=self._tmpl_attrs.get("model_name"),
             api_type=self._tmpl_attrs.get("api_type"),
-            llm_config=copy.deepcopy(self._tmpl_attrs.get("llm_config")),
+            llm_config=copy.deepcopy(self._tmpl_attrs.get("provided_llm_config")),
             system_instruction=self._tmpl_attrs.get("system_instruction"),
             runnable_name=self._tmpl_attrs.get("runnable_name"),
             tools=copy.deepcopy(self._tmpl_attrs.get("tools")),
-            runnable_kwargs=copy.deepcopy(self._tmpl_attrs.get("runnable_kwargs")),
+            runnable_kwargs=copy.deepcopy(self._tmpl_attrs.get("provided_runnable_kwargs")),
             runnable_builder=self._tmpl_attrs.get("runnable_builder"),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             instrumentor_builder=self._tmpl_attrs.get("instrumentor_builder"),

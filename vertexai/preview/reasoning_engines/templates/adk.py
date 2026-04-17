@@ -725,9 +725,8 @@ class AdkApp:
         from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
-        project = self._tmpl_attrs.get("project")
-        os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or self._tmpl_attrs.get("project")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION") or self._tmpl_attrs.get("location")
         if location:
             if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
