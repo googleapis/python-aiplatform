@@ -2600,16 +2600,16 @@ class CustomJob(_RunnableJob, base.PreviewMixin):
             self._gca_resource.job_spec.psc_interface_config = psc_interface_config
 
         if (
-            timeout
+            timeout is not None
             or restart_job_on_worker_restart
             or disable_retries
-            or scheduling_strategy
-            or max_wait_duration
+            or scheduling_strategy is not None
+            or max_wait_duration is not None
         ):
-            timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
+            timeout = duration_pb2.Duration(seconds=timeout) if timeout is not None else None
             max_wait_duration = (
                 duration_pb2.Duration(seconds=max_wait_duration)
-                if max_wait_duration
+                if max_wait_duration is not None
                 else None
             )
             self._gca_resource.job_spec.scheduling = gca_custom_job_compat.Scheduling(
@@ -3130,16 +3130,16 @@ class HyperparameterTuningJob(_RunnableJob, base.PreviewMixin):
             self._gca_resource.trial_job_spec.network = network
 
         if (
-            timeout
+            timeout is not None
             or restart_job_on_worker_restart
             or disable_retries
-            or max_wait_duration
-            or scheduling_strategy
+            or max_wait_duration is not None
+            or scheduling_strategy is not None
         ):
-            timeout = duration_pb2.Duration(seconds=timeout) if timeout else None
+            timeout = duration_pb2.Duration(seconds=timeout) if timeout is not None else None
             max_wait_duration = (
                 duration_pb2.Duration(seconds=max_wait_duration)
-                if max_wait_duration
+                if max_wait_duration is not None
                 else None
             )
             self._gca_resource.trial_job_spec.scheduling = (
