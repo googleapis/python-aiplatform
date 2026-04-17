@@ -122,15 +122,21 @@ def mock_api_client_fixture():
 
 @pytest.fixture
 def mock_eval_dependencies(mock_api_client_fixture):
-    with mock.patch("google.cloud.storage.Client") as mock_storage_client, mock.patch(
-        "google.cloud.bigquery.Client"
-    ) as mock_bq_client, mock.patch(
-        "vertexai._genai.evals.Evals.evaluate_instances"
-    ) as mock_evaluate_instances, mock.patch(
-        "vertexai._genai._gcs_utils.GcsUtils.upload_json_to_prefix"
-    ) as mock_upload_to_gcs, mock.patch(
-        "vertexai._genai._evals_metric_loaders.LazyLoadedPrebuiltMetric._fetch_and_parse"
-    ) as mock_fetch_prebuilt_metric:
+    # fmt: off
+    with (
+        mock.patch("google.cloud.storage.Client") as mock_storage_client,
+        mock.patch("google.cloud.bigquery.Client") as mock_bq_client,
+        mock.patch(
+            "vertexai._genai.evals.Evals.evaluate_instances"
+        ) as mock_evaluate_instances,
+        mock.patch(
+            "vertexai._genai._gcs_utils.GcsUtils.upload_json_to_prefix"
+        ) as mock_upload_to_gcs,
+        mock.patch(
+            "vertexai._genai._evals_metric_loaders.LazyLoadedPrebuiltMetric._fetch_and_parse"
+        ) as mock_fetch_prebuilt_metric,
+    ):
+        # fmt: on
 
         def mock_evaluate_instances_side_effect(*args, **kwargs):
             metric_config = kwargs.get("metric_config", {})
@@ -3386,14 +3392,8 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "agent_engine_0"
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
-    @mock.patch("vertexai._genai._evals_common.InMemorySessionService")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.Runner")
-    @mock.patch("vertexai._genai._evals_common.LlmAgent")
     def test_run_inference_with_local_agent(
         self,
-        mock_llm_agent,
-        mock_runner,
-        mock_session_service,
         mock_eval_dataset_loader,
     ):
         mock_df = pd.DataFrame(
@@ -3421,8 +3421,15 @@ class TestEvalsRunInference:
         mock_agent_instance.instruction = "mock instruction"
         mock_agent_instance.tools = []
         mock_agent_instance.sub_agents = []
-        mock_llm_agent.return_value = mock_agent_instance
+
+        # Mock ADK modules for lazy imports in _execute_local_agent_run_with_retry_async
+        mock_session_service = mock.MagicMock()
         mock_session_service.return_value.create_session = mock.AsyncMock()
+        mock_runner = mock.MagicMock()
+        mock_adk_sessions_module = mock.MagicMock()
+        mock_adk_sessions_module.InMemorySessionService = mock_session_service
+        mock_adk_runners_module = mock.MagicMock()
+        mock_adk_runners_module.Runner = mock_runner
         mock_runner_instance = mock_runner.return_value
         stream_run_return_value_1 = [
             mock.Mock(
@@ -3473,10 +3480,19 @@ class TestEvalsRunInference:
 
         mock_runner_instance.run_async.side_effect = run_async_side_effect
 
-        inference_result = self.client.evals.run_inference(
-            agent=mock_agent_instance,
-            src=mock_df,
-        )
+        with mock.patch.dict(
+            sys.modules,
+            {
+                "google.adk": mock.MagicMock(),
+                "google.adk.sessions": mock_adk_sessions_module,
+                "google.adk.runners": mock_adk_runners_module,
+                "google.adk.agents": mock.MagicMock(),
+            },
+        ):
+            inference_result = self.client.evals.run_inference(
+                agent=mock_agent_instance,
+                src=mock_df,
+            )
 
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
         assert mock_session_service.call_count == 2
@@ -3602,11 +3618,13 @@ class TestEvalsRunInference:
         mock_api_client_fixture,
     ):
         """Tests inference with LiteLLM using a simple prompt string."""
+        # fmt: off
         with mock.patch(
             "vertexai._genai._evals_common.litellm"
         ) as mock_litellm, mock.patch(
             "vertexai._genai._evals_common._call_litellm_completion"
         ) as mock_call_litellm_completion:
+            # fmt: on
             mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
             prompt_df = pd.DataFrame([{"prompt": "What is LiteLLM?"}])
             expected_messages = [{"role": "user", "content": "What is LiteLLM?"}]
@@ -3658,11 +3676,16 @@ class TestEvalsRunInference:
         mock_api_client_fixture,
     ):
         """Tests inference with LiteLLM where the row contains a chat completion request body."""
-        with mock.patch(
-            "vertexai._genai._evals_common.litellm"
-        ) as mock_litellm, mock.patch(
-            "vertexai._genai._evals_common._call_litellm_completion"
-        ) as mock_call_litellm_completion:
+        # fmt: off
+        with (
+            mock.patch(
+                "vertexai._genai._evals_common.litellm"
+            ) as mock_litellm,
+            mock.patch(
+                "vertexai._genai._evals_common._call_litellm_completion"
+            ) as mock_call_litellm_completion,
+        ):
+            # fmt: on
             mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
             prompt_df = pd.DataFrame(
                 [
@@ -4178,21 +4201,23 @@ class TestRunAgentInternal:
         ]
         assert "mock_agent" in agent_data["agents"]
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_with_intermediate_events(
-        self,
-        mock_config,
-        mock_scenario,
-        mock_simulator,
-        mock_generator,
-        mock_session_input,
-    ):
+    async def test_run_adk_user_simulation_with_intermediate_events(self):
         """Tests that intermediate invocation events (e.g. tool calls) are parsed successfully."""
+        mock_scenario = mock.MagicMock()
+        mock_config = mock.MagicMock()
+        mock_simulator = mock.MagicMock()
+        mock_generator = mock.MagicMock()
+        mock_session_input = mock.MagicMock()
+        mock_adk_eval_scenarios = mock.MagicMock()
+        mock_adk_eval_scenarios.ConversationScenario = mock_scenario
+        mock_adk_eval_case = mock.MagicMock()
+        mock_adk_eval_case.SessionInput = mock_session_input
+        mock_adk_eval_generator = mock.MagicMock()
+        mock_adk_eval_generator.EvaluationGenerator = mock_generator
+        mock_adk_simulator_module = mock.MagicMock()
+        mock_adk_simulator_module.LlmBackedUserSimulator = mock_simulator
+        mock_adk_simulator_module.LlmBackedUserSimulatorConfig = mock_config
         row = pd.Series(
             {
                 "starting_prompt": "I want a laptop.",
@@ -4245,7 +4270,19 @@ class TestRunAgentInternal:
         mock_generator._generate_inferences_from_root_agent = mock.AsyncMock(
             return_value=[mock_invocation]
         )
-        turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(
+            sys.modules,
+            {
+                "google.adk": mock.MagicMock(),
+                "google.adk.evaluation": mock.MagicMock(),
+                "google.adk.evaluation.conversation_scenarios": mock_adk_eval_scenarios,
+                "google.adk.evaluation.eval_case": mock_adk_eval_case,
+                "google.adk.evaluation.evaluation_generator": mock_adk_eval_generator,
+                "google.adk.evaluation.simulation": mock.MagicMock(),
+                "google.adk.evaluation.simulation.llm_backed_user_simulator": mock_adk_simulator_module,
+            },
+        ):
+            turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         assert len(turns) == 1
         turn = turns[0]
@@ -7086,20 +7123,50 @@ class TestPredefinedMetricHandler:
 class TestRunAdkUserSimulation:
     """Unit tests for the _run_adk_user_simulation function."""
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    def _build_adk_mock_modules(self):
+        """Builds mock ADK modules for lazy imports in _run_adk_user_simulation."""
+        mock_scenario_cls = mock.MagicMock()
+        mock_config_cls = mock.MagicMock()
+        mock_simulator_cls = mock.MagicMock()
+        mock_generator_cls = mock.MagicMock()
+        mock_session_input_cls = mock.MagicMock()
+        mock_modules = {
+            "google.adk": mock.MagicMock(),
+            "google.adk.evaluation": mock.MagicMock(),
+            "google.adk.evaluation.conversation_scenarios": mock.MagicMock(
+                ConversationScenario=mock_scenario_cls
+            ),
+            "google.adk.evaluation.eval_case": mock.MagicMock(
+                SessionInput=mock_session_input_cls
+            ),
+            "google.adk.evaluation.evaluation_generator": mock.MagicMock(
+                EvaluationGenerator=mock_generator_cls
+            ),
+            "google.adk.evaluation.simulation": mock.MagicMock(),
+            "google.adk.evaluation.simulation.llm_backed_user_simulator": mock.MagicMock(
+                LlmBackedUserSimulator=mock_simulator_cls,
+                LlmBackedUserSimulatorConfig=mock_config_cls,
+            ),
+        }
+        return (
+            mock_modules,
+            mock_scenario_cls,
+            mock_config_cls,
+            mock_simulator_cls,
+            mock_generator_cls,
+            mock_session_input_cls,
+        )
+
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_success(
-        self,
-        mock_config_cls,
-        mock_scenario_cls,
-        mock_simulator_cls,
-        mock_generator_cls,
-        mock_session_input_cls,
-    ):
+    async def test_run_adk_user_simulation_success(self):
+        (
+            mock_modules,
+            mock_scenario_cls,
+            _,
+            _,
+            mock_generator_cls,
+            mock_session_input_cls,
+        ) = self._build_adk_mock_modules()
         row = pd.Series(
             {
                 "starting_prompt": "start",
@@ -7119,7 +7186,8 @@ class TestRunAdkUserSimulation:
             return_value=[mock_invocation]
         )
 
-        turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(sys.modules, mock_modules):
+            turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         assert len(turns) == 1
         turn = turns[0]
@@ -7138,40 +7206,26 @@ class TestRunAdkUserSimulation:
         )
         mock_session_input_cls.assert_called_once()
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_missing_columns(
-        self,
-        mock_config_cls,
-        mock_scenario_cls,
-        mock_simulator_cls,
-        mock_generator_cls,
-        mock_session_input_cls,
-    ):
+    async def test_run_adk_user_simulation_missing_columns(self):
+        mock_modules, _, _, _, _, _ = self._build_adk_mock_modules()
         row = pd.Series({"conversation_plan": "plan"})
         mock_agent = mock.Mock()
 
-        with pytest.raises(ValueError, match="User simulation requires"):
-            await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(sys.modules, mock_modules):
+            with pytest.raises(ValueError, match="User simulation requires"):
+                await _evals_common._run_adk_user_simulation(row, mock_agent)
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_missing_session_inputs(
-        self,
-        mock_config_cls,
-        mock_scenario_cls,
-        mock_simulator_cls,
-        mock_generator_cls,
-        mock_session_input_cls,
-    ):
+    async def test_run_adk_user_simulation_missing_session_inputs(self):
+        (
+            mock_modules,
+            mock_scenario_cls,
+            _,
+            _,
+            mock_generator_cls,
+            mock_session_input_cls,
+        ) = self._build_adk_mock_modules()
         row = pd.Series(
             {
                 "starting_prompt": "start",
@@ -7190,7 +7244,8 @@ class TestRunAdkUserSimulation:
             return_value=[mock_invocation]
         )
 
-        await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(sys.modules, mock_modules):
+            await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         mock_scenario_cls.assert_called_once_with(
             starting_prompt="start",

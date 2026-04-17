@@ -54,32 +54,6 @@ try:
 except ImportError:
     litellm = None
 
-try:
-    from google.adk.agents import LlmAgent
-    from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulator,
-    )
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulatorConfig,
-    )
-    from google.adk.evaluation.conversation_scenarios import ConversationScenario
-    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
-    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
-except ImportError:
-    logging.getLogger(__name__).warning(
-        "ADK is not installed. Please install it using" " 'pip install google-adk'"
-    )
-    LlmAgent = None
-    Runner = None
-    InMemorySessionService = None
-    LlmBackedUserSimulator = None
-    LlmBackedUserSimulatorConfig = None
-    ConversationScenario = None
-    EvaluationGenerator = None
-    ADK_SessionInput = None
-
 
 _thread_local_data = threading.local()
 
@@ -501,7 +475,7 @@ def _execute_inference_concurrently(
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[..., Any]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
-    agent: Optional[LlmAgent] = None,
+    agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
@@ -979,10 +953,22 @@ def _run_inference_internal(
 
 async def _run_adk_user_simulation(
     row: pd.Series,
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[dict[str, Any]]:
     """Runs a multi-turn user simulation using ADK's EvaluationGenerator."""
+    # Lazy-import ADK dependencies to avoid top-level import failures when
+    # google-adk is not installed.
+    from google.adk.evaluation.conversation_scenarios import ConversationScenario
+    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
+    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulator,
+    )
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulatorConfig,
+    )
+
     starting_prompt = row.get("starting_prompt")
     conversation_plan = row.get("conversation_plan")
     user_persona = "EVALUATOR"
@@ -1169,7 +1155,7 @@ def _execute_inference(
     src: Union[str, pd.DataFrame],
     model: Optional[Union[Callable[[Any], Any], str]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
-    agent: Optional[LlmAgent] = None,
+    agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
@@ -1859,7 +1845,7 @@ def _create_agent_results_dataframe(
 def _run_agent_internal(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
+    agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
     allow_cross_region_model: bool = False,
@@ -1910,7 +1896,7 @@ def _run_agent_internal(
 def _run_agent(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
+    agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
     allow_cross_region_model: bool = False,
@@ -1933,9 +1919,9 @@ def _run_agent(
                 raise ValueError(
                     f"The model '{model_name}' is currently only available in the"
                     " 'global' region. Because this request originated in"
-                    f" '{current_location}', you must explicitly set "
-                    "allow_cross_region_model=True to allow your data to be routed outside"
-                    " of your request's region."
+                    f" '{current_location}', you must explicitly set"
+                    " allow_cross_region_model=True to allow your data to be routed"
+                    " outside of your request's region."
                 )
 
             logger.warning(
@@ -2106,7 +2092,7 @@ def _execute_agent_run_with_retry(
 def _execute_local_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
@@ -2121,11 +2107,15 @@ def _execute_local_agent_run_with_retry(
 async def _execute_local_agent_run_with_retry_async(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt asynchronously."""
+    # Lazy-import ADK dependencies to avoid top-level import failures when
+    # google-adk is not installed.
+    from google.adk.runners import Runner
+    from google.adk.sessions import InMemorySessionService
 
     # Multi-turn agent scraping with user simulation.
     if user_simulator_config or "conversation_plan" in row:
@@ -2616,8 +2606,8 @@ def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Conte
         return cast(genai_types.Content, row[column])
     else:
         raise ValueError(
-            f"{column} must be a string or a Content object. "
-            f"Got {type(row[column])}."
+            f"{column} must be a string or a Content object. Got"
+            f" {type(row[column])}."
         )
 
 
