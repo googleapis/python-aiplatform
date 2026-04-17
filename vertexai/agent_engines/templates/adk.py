@@ -555,12 +555,14 @@ def _warn_if_telemetry_api_disabled():
     try:
         import google.auth.transport.requests
         import google.auth
+        from google.auth.transport import mtls
     except (ImportError, AttributeError):
         return
     credentials, project = google.auth.default()
     print("in warn terlemetery before configure mtls")
+    client_cert_callback = mtls.default_client_cert_source()
     session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
-    session.configure_mtls_channel()
+    session.configure_mtls_channel(client_cert_callback)
     print("post configure mtls")
     r = session.post("https://telemetry.mtls.googleapis.com/v1/traces", data=None)
     print("after session post call")
