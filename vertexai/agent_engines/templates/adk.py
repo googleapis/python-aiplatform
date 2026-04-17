@@ -26,6 +26,7 @@ from typing import (
 
 import asyncio
 from collections.abc import Awaitable
+import os
 import queue
 import sys
 import threading
@@ -91,6 +92,7 @@ if TYPE_CHECKING:
         TracerProvider = Any
         SpanProcessor = Any
         SynchronousMultiSpanProcessor = Any
+
 
 
 _DEFAULT_APP_NAME = "default-app-name"
@@ -378,6 +380,7 @@ def _default_instrumentor_builder(
             import opentelemetry.exporter.otlp.proto.http.version
             import opentelemetry.exporter.otlp.proto.http.trace_exporter
             import google.auth.transport.requests
+            from google.auth.transport import _mtls_helper
             from google.cloud.aiplatform import version as aip_version
         except (ImportError, AttributeError):
             return _warn_missing_dependency(
@@ -390,13 +393,18 @@ def _default_instrumentor_builder(
         vertex_sdk_version = aip_version.__version__
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
         user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
-
+        session = google.auth.transport.requests.AuthorizedSession(
+            credentials=credentials
+        )
+        _ , cert, key = _mtls_helper.get_client_cert_and_key()
+        session.configure_mtls_channel(client_cert_callback)
+        print("configure_mtls_channel done")
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
-                session=google.auth.transport.requests.AuthorizedSession(
-                    credentials=credentials
-                ),
-                endpoint="https://telemetry.googleapis.com/v1/traces",
+                session=session,
+                endpoint="https://telemetry.mtls.googleapis.com/v1/traces",
+                client_certificate_file = cert,
+                client_key_file = key,
                 headers={"User-Agent": user_agent},
             )
         )
@@ -552,8 +560,12 @@ def _warn_if_telemetry_api_disabled():
     except (ImportError, AttributeError):
         return
     credentials, project = google.auth.default()
+    print("in warn terlemetery before configure mtls")
     session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
-    r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+    session.configure_mtls_channel()
+    print("post configure mtls")
+    r = session.post("https://telemetry.mtls.googleapis.com/v1/traces", data=None)
+    print("after session post call")
     if "Telemetry API has not been used in project" in r.text:
         _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
@@ -806,6 +818,7 @@ class AdkApp:
         from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
+        os.environ["GOOGLE_API_USE_CLIENT_CERTIFICATE"] = "true"
         project = self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
