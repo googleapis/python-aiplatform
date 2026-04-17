@@ -398,7 +398,7 @@ def _default_instrumentor_builder(
         print("configure_mtls_channel done")
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
-                session,
+                session=session,
                 endpoint="https://telemetry.mtls.googleapis.com/v1/traces",
                 headers={"User-Agent": user_agent},
             )
