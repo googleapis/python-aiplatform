@@ -20,7 +20,7 @@ import pytest
 
 
 def _make_eval_result():
-    """Creates an EvaluationResult with representative data for loss analysis."""
+    """Creates an EvaluationResult with rubric verdicts for loss analysis."""
     return types.EvaluationResult(
         eval_case_results=[
             types.EvalCaseResult(
@@ -32,6 +32,19 @@ def _make_eval_result():
                             "multi_turn_task_success_v1": types.EvalCaseMetricResult(
                                 score=0.0,
                                 explanation="Failed tool invocation",
+                                rubric_verdicts=[
+                                    types.evals.RubricVerdict(
+                                        evaluated_rubric=types.evals.Rubric(
+                                            rubric_id="tool_invocation",
+                                            content=types.evals.RubricContent(
+                                                property=types.evals.RubricContentProperty(
+                                                    description="The agent should invoke the find_flights tool with the correct parameters.",
+                                                )
+                                            ),
+                                        ),
+                                        verdict=False,
+                                    )
+                                ],
                             )
                         },
                     )

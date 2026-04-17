@@ -441,6 +441,86 @@ class TestTransformers:
         assert "error" not in sanitized
         assert sanitized == {}
 
+    def test_t_inline_results_strips_none_tool_fields(self):
+        """Tests that t_inline_results strips None tool fields like file_search."""
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed",
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            agent_data=vertexai_genai_types.evals.AgentData(
+                                agents={
+                                    "agent_0": vertexai_genai_types.evals.AgentConfig(
+                                        agent_id="agent_0",
+                                        agent_type="LlmAgent",
+                                        instruction="You are a helper.",
+                                        tools=[
+                                            genai_types.Tool(
+                                                function_declarations=[
+                                                    genai_types.FunctionDeclaration(
+                                                        name="search",
+                                                        description="Searches the web.",
+                                                    )
+                                                ]
+                                            )
+                                        ],
+                                    )
+                                },
+                                turns=[
+                                    vertexai_genai_types.evals.ConversationTurn(
+                                        turn_index=0,
+                                        events=[
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="user",
+                                                content=genai_types.Content(
+                                                    parts=[genai_types.Part(text="Hi")],
+                                                ),
+                                            ),
+                                        ],
+                                    )
+                                ],
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["candidate-1"]
+            ),
+        )
+
+        payload = _transformers.t_inline_results([eval_result])
+        assert len(payload) == 1
+
+        agent_data = payload[0]["request"]["prompt"]["agent_data"]
+        agent_config = agent_data["agents"]["agent_0"]
+        assert "tools" in agent_config
+        tool = agent_config["tools"][0]
+        # function_declarations should be preserved
+        assert "function_declarations" in tool
+        assert tool["function_declarations"][0]["name"] == "search"
+        # Gemini-API-only fields must NOT be present (they would be None)
+        assert "file_search" not in tool
+        assert "mcp_servers" not in tool
+        assert "google_search" not in tool
+        assert "code_execution" not in tool
+
     def test_t_inline_results_skips_error_agent_data_in_df(self):
         """Tests that t_inline_results skips error agent_data from DataFrame."""
         error_json = json.dumps({"error": "Agent run failed"})
