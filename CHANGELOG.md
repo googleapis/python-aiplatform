@@ -5,7 +5,7 @@
 
 ### Bug Fixes
 
-* Disable bound token sharing check for this Vertex AI SDK code path: google3/third_party/py/google/cloud/aiplatform/vertexai/agent_engines/ ([04d5092](https://github.com/googleapis/python-aiplatform/commit/04d50929e29e3b6e22398d0961e3ae4ee23af6e4))
+* Disable bound token sharing check for agent_engines ([04d5092](https://github.com/googleapis/python-aiplatform/commit/04d50929e29e3b6e22398d0961e3ae4ee23af6e4))
 * Fix column name inconsistency (history vs conversation_history) across evaluation flows ([37f72e5](https://github.com/googleapis/python-aiplatform/commit/37f72e5c389f69e2eecf252eebb1535de110b901))
 * Fix create_session AttributeError for agents without AdkApp ([3e85f64](https://github.com/googleapis/python-aiplatform/commit/3e85f64207a923a9bdb6fb8e1670680702e8456c))
 * Fix NameError when evaluating ADK agents with AgentTool via GenAI Evals SDK ([04c5e02](https://github.com/googleapis/python-aiplatform/commit/04c5e025f9f5f7a28a738c1ca29f4c22456644e2))
