@@ -603,6 +603,19 @@ class TestGcsUtils:
             output == "gs://test-project-vertex-pipelines-us-central1/output_artifacts/"
         )
 
+    @patch.object(
+        gcs_utils, "_verify_bucket_ownership", return_value=False
+    )
+    @patch.object(storage.Bucket, "exists", return_value=True)
+    @patch.object(storage, "Client")
+    def test_create_gcs_bucket_for_pipeline_artifacts_rejects_foreign_bucket(
+        self, mock_storage_client, mock_bucket_exists, mock_verify
+    ):
+        with pytest.raises(ValueError, match="bucket squatting"):
+            gcs_utils.create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
+                project="test-project", location="us-central1"
+            )
+
     def test_download_from_gcs_dir(
         self, mock_storage_client_list_blobs, mock_storage_blob_download_to_filename
     ):
