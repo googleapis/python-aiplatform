@@ -740,7 +740,7 @@ def _is_litellm_model(model: str) -> bool:
 
     try:
         litellm.get_llm_provider(model)
-        return True 
+        return True
     except ValueError:
         return False
 

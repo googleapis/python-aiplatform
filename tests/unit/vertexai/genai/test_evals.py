@@ -3675,12 +3675,18 @@ class TestEvalsRunInference:
         mock_api_client_fixture,
     ):
         """Tests inference with LiteLLM where the row contains a chat completion request body."""
-        with mock.patch(
-            "vertexai._genai._evals_common.litellm"
-        ) as mock_litellm, mock.patch(
-            "vertexai._genai._evals_common._call_litellm_completion"
-        ) as mock_call_litellm_completion:
-            mock_litellm.get_llm_provider.return_value = ("gpt-4o", "openai", None , None)
+        with (
+            mock.patch("vertexai._genai._evals_common.litellm") as mock_litellm,
+            mock.patch(
+                "vertexai._genai._evals_common._call_litellm_completion"
+            ) as mock_call_litellm_completion,
+        ):
+            mock_litellm.get_llm_provider.return_value = (
+                "gpt-4o",
+                "openai",
+                None,
+                None,
+            )
             prompt_df = pd.DataFrame(
                 [
                     {
