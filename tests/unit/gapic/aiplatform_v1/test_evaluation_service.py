@@ -70,7 +70,9 @@ from google.cloud.aiplatform_v1.services.evaluation_service import (
     EvaluationServiceClient,
 )
 from google.cloud.aiplatform_v1.services.evaluation_service import transports
+from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import evaluation_service
+from google.cloud.aiplatform_v1.types import tool
 from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
@@ -78,6 +80,8 @@ from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
 import google.auth
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
