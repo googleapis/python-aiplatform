@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.148.1](https://github.com/googleapis/python-aiplatform/compare/v1.148.0...v1.148.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* Disable bound token sharing check for agent_engines ([04d5092](https://github.com/googleapis/python-aiplatform/commit/04d50929e29e3b6e22398d0961e3ae4ee23af6e4))
+* Fix column name inconsistency (history vs conversation_history) across evaluation flows ([37f72e5](https://github.com/googleapis/python-aiplatform/commit/37f72e5c389f69e2eecf252eebb1535de110b901))
+* Fix create_session AttributeError for agents without AdkApp ([3e85f64](https://github.com/googleapis/python-aiplatform/commit/3e85f64207a923a9bdb6fb8e1670680702e8456c))
+* Fix NameError when evaluating ADK agents with AgentTool via GenAI Evals SDK ([04c5e02](https://github.com/googleapis/python-aiplatform/commit/04c5e025f9f5f7a28a738c1ca29f4c22456644e2))
+* GenAI Client(evals):  Lazy-load ADK imports in _evals_common.py to avoid top-level ImportError ([c378551](https://github.com/googleapis/python-aiplatform/commit/c378551b8b3099d55afc874637d14e85254220c1))
+* GenAI SDK client(multimodal) - Remove `UpdateMultimodalDatasetConfig` and replace with `VertexBaseConfig`. ([f5dc932](https://github.com/googleapis/python-aiplatform/commit/f5dc9325f89f7aa87c8cd9ed75ffd78caf554e2a))
+* Strip None fields from agent_data in GenerateLossClusters to prevent INVALID_ARGUMENT errors ([f2d73fd](https://github.com/googleapis/python-aiplatform/commit/f2d73fd87d49ad2e340f3d4e4762a6c8261b4b25))
+
 ## [1.148.0](https://github.com/googleapis/python-aiplatform/compare/v1.147.0...v1.148.0) (2026-04-15)
 
 

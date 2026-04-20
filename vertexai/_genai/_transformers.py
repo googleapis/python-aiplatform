@@ -422,7 +422,7 @@ def t_inline_results(
                 if agent_data:
                     if hasattr(agent_data, "model_dump"):
                         prompt_payload["agent_data"] = _sanitize_agent_data(
-                            agent_data.model_dump()
+                            agent_data.model_dump(exclude_none=True)
                         )
                     elif isinstance(agent_data, dict):
                         prompt_payload["agent_data"] = _sanitize_agent_data(agent_data)
@@ -442,7 +442,7 @@ def t_inline_results(
                 if df_agent_data is not None:
                     if hasattr(df_agent_data, "model_dump"):
                         prompt_payload["agent_data"] = _sanitize_agent_data(
-                            df_agent_data.model_dump()
+                            df_agent_data.model_dump(exclude_none=True)
                         )
                     elif isinstance(df_agent_data, str):
                         try:
