@@ -1387,6 +1387,7 @@ from .tuning_job import (
     TuningDataStats,
     TuningJob,
     VeoHyperParameters,
+    VeoLoraTuningSpec,
     VeoTuningSpec,
 )
 from .types import (
@@ -2635,6 +2636,7 @@ __all__ = (
     "TuningDataStats",
     "TuningJob",
     "VeoHyperParameters",
+    "VeoLoraTuningSpec",
     "VeoTuningSpec",
     "BoolArray",
     "DoubleArray",
