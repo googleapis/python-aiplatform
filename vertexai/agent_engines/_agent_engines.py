@@ -119,15 +119,18 @@ except (ImportError, AttributeError):
 try:
     from a2a.types import (
         AgentCard,
-        TransportProtocol,
+        AgentInterface,
         Message,
         TaskIdParams,
         TaskQueryParams,
     )
+    from a2a.utils.constants import TransportProtocol, PROTOCOL_VERSION_CURRENT
     from a2a.client import ClientConfig, ClientFactory
 
     AgentCard = AgentCard
+    AgentInterface = AgentInterface
     TransportProtocol = TransportProtocol
+    PROTOCOL_VERSION_CURRENT = PROTOCOL_VERSION_CURRENT
     Message = Message
     ClientConfig = ClientConfig
     ClientFactory = ClientFactory
@@ -135,7 +138,9 @@ try:
     TaskQueryParams = TaskQueryParams
 except (ImportError, AttributeError):
     AgentCard = None
+    AgentInterface = None
     TransportProtocol = None
+    PROTOCOL_VERSION_CURRENT = None
     Message = None
     ClientConfig = None
     ClientFactory = None
@@ -1216,9 +1221,16 @@ def _upload_agent_engine(
             cloudpickle.dump(agent_engine, f)
         except Exception as e:
             url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
-            raise TypeError(
-                f"Failed to serialize agent engine. Visit {url} for details."
-            ) from e
+            error_msg = f"Failed to serialize agent engine. Visit {url} for details."
+            if "google._upb._message" in str(e) or "Descriptor" in str(e):
+                error_msg += (
+                    " This is often caused by protobuf objects (like Part, AgentCard) "
+                    "being imported at the global module level. Please move these "
+                    "imports inside the functions or methods where they are used. "
+                    "Alternatively, you can import the entire module: "
+                    "`from a2a import types as a2a_types`."
+                )
+            raise TypeError(error_msg) from e
     with blob.open("rb") as f:
         try:
             _ = cloudpickle.load(f)
@@ -1736,16 +1748,23 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
 
         # A2A + AE integration currently only supports Rest API.
         if (
-            a2a_agent_card.preferred_transport
-            and a2a_agent_card.preferred_transport != TransportProtocol.http_json
+            a2a_agent_card.supported_interfaces
+            and a2a_agent_card.supported_interfaces[0].protocol_binding
+            != TransportProtocol.HTTP_JSON
         ):
             raise ValueError(
-                "Only HTTP+JSON is supported for preferred transport on agent card "
+                "Only HTTP+JSON is supported for primary interface on agent card "
             )
 
-        # Set preferred transport to HTTP+JSON if not set.
-        if not hasattr(a2a_agent_card, "preferred_transport"):
-            a2a_agent_card.preferred_transport = TransportProtocol.http_json
+        # Set primary interface to HTTP+JSON if not set.
+        if not a2a_agent_card.supported_interfaces:
+            a2a_agent_card.supported_interfaces = []
+            a2a_agent_card.supported_interfaces.append(
+                AgentInterface(
+                    protocol_binding=TransportProtocol.HTTP_JSON,
+                    protocol_version=PROTOCOL_VERSION_CURRENT,
+                )
+            )
 
         # AE cannot support streaming yet. Turn off streaming for now.
         if a2a_agent_card.capabilities and a2a_agent_card.capabilities.streaming:
@@ -1759,12 +1778,13 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
 
         # agent_card is set on the class_methods before set_up is invoked.
         # Ensure that the agent_card url is set correctly before the client is created.
-        a2a_agent_card.url = f"https://{initializer.global_config.api_endpoint}/v1beta1/{self.resource_name}/a2a"
+        url = f"https://{initializer.global_config.api_endpoint}/v1beta1/{self.resource_name}/a2a"
+        a2a_agent_card.supported_interfaces[0].url = url
 
         # Using a2a client, inject the auth token from the global config.
         config = ClientConfig(
             supported_transports=[
-                TransportProtocol.http_json,
+                TransportProtocol.HTTP_JSON,
             ],
             use_client_preference=True,
             httpx_client=httpx.AsyncClient(
@@ -1977,9 +1997,11 @@ def _generate_class_methods_spec_or_raise(
             class_method[_MODE_KEY_IN_SCHEMA] = mode
             # A2A agent card is a special case, when running in A2A mode,
             if hasattr(agent_engine, "agent_card"):
-                class_method[_A2A_AGENT_CARD] = getattr(
-                    agent_engine, "agent_card"
-                ).model_dump_json()
+                from google.protobuf import json_format
+
+                class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(
+                    getattr(agent_engine, "agent_card")
+                )
             class_methods_spec.append(class_method)
 
     return class_methods_spec

@@ -2475,10 +2475,12 @@ class AgentEngines(_api_module.BaseModule):
                 agent_card = getattr(agent, "agent_card")
                 if agent_card:
                     try:
-                        agent_engine_spec["agent_card"] = agent_card.model_dump(
-                            exclude_none=True
+                        from google.protobuf import json_format
+
+                        agent_engine_spec["agent_card"] = json_format.MessageToDict(
+                            agent_card
                         )
-                    except TypeError as e:
+                    except Exception as e:
                         raise ValueError(
                             f"Failed to convert agent card to dict (serialization error): {e}"
                         ) from e
