@@ -17,6 +17,7 @@
 
 import datetime
 import glob
+import uuid
 
 # Version detection and compatibility layer for google-cloud-storage v2/v3
 from importlib.metadata import version as get_version
@@ -45,7 +46,7 @@ try:
     _GCS_VERSION = Version(get_version("google-cloud-storage"))
 except Exception:
     # Fallback if version detection fails (should not happen in normal use)
-    _GCS_VERSION = Version("2.0.0")
+    _GCS_VERSION = Version("3.0.0")
 
 _USE_FROM_URI = _GCS_VERSION >= Version("3.0.0")
 
@@ -58,6 +59,37 @@ if _GCS_VERSION < Version("3.0.0"):
         FutureWarning,
         stacklevel=2,
     )
+
+_DEFAULT_STAGING_BUCKET_SALT = str(uuid.uuid4())
+
+
+def _verify_bucket_ownership(
+    bucket: storage.Bucket,
+    expected_project: str,
+    client: storage.Client,
+) -> bool:
+    """Verifies that a GCS bucket belongs to the expected project.
+
+    This check mitigates bucket squatting attacks where an attacker creates a
+    bucket with a predictable name in their own project before the victim does.
+
+    Args:
+        bucket: The GCS bucket to verify.
+        expected_project: The project ID that should own the bucket.
+        client: Storage client instance.
+
+    Returns:
+        True if the bucket belongs to the expected project, False otherwise.
+    """
+    try:
+        bucket.reload(client=client)
+        bucket_project_number = str(bucket.project_number)
+        expected_project_number = str(
+            resource_manager_utils.get_project_number(expected_project)
+        )
+        return bucket_project_number == expected_project_number
+    except Exception:
+        return False
 
 
 def blob_from_uri(uri: str, client: storage.Client) -> storage.Blob:
@@ -201,9 +233,14 @@ def stage_local_data_in_gcs(
         # Currently we only do this when staging_gcs_dir is not specified.
         # The buckets that we create are regional.
         # This prevents errors when some service required regional bucket.
-        # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...` is in location `us`. It must be in the same regional location as the service location `us-central1`."
-        # We are making the bucket name region-specific since the bucket is regional.
-        staging_bucket_name = project + "-vertex-staging-" + location
+        # E.g. "FailedPrecondition: 400 The Cloud Storage bucket of `gs://...`
+        # is in location `us`. It must be in the same regional location as the
+        # service location `us-central1`."
+        # We are making the bucket name region-specific since the bucket is
+        # regional.
+        staging_bucket_name = (
+            project + "-vertex-staging-" + location + "-" + _DEFAULT_STAGING_BUCKET_SALT
+        )[:63]
         client = storage.Client(project=project, credentials=credentials)
         staging_bucket = storage.Bucket(client=client, name=staging_bucket_name)
         if not staging_bucket.exists():
@@ -213,6 +250,17 @@ def stage_local_data_in_gcs(
                 project=project,
                 location=location,
             )
+        else:
+            # Verify bucket ownership to prevent bucket squatting attacks.
+            # See b/469987320 for details.
+            if not _verify_bucket_ownership(staging_bucket, project, client):
+                raise ValueError(
+                    f'Staging bucket "{staging_bucket_name}" exists but does '
+                    f'not belong to project "{project}". This may indicate a '
+                    f"bucket squatting attack. Please provide an explicit "
+                    f"staging_bucket parameter or configure one via "
+                    f"aiplatform.init(staging_bucket='gs://your-bucket')."
+                )
         staging_gcs_dir = "gs://" + staging_bucket_name
 
     timestamp = datetime.datetime.now().isoformat(sep="-", timespec="milliseconds")

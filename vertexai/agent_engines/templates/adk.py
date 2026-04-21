@@ -629,7 +629,8 @@ class AdkApp:
         if app:
             if app_name:
                 raise ValueError(
-                    "When app is provided, app_name should not be provided."
+                    "When app is provided, app_name should not be provided, "
+                    "since it will be derived from app.name."
                 )
             if agent:
                 raise ValueError("When app is provided, agent should not be provided.")
@@ -656,6 +657,11 @@ class AdkApp:
             ),
         }
 
+    def _app_name(self) -> str:
+        """Returns the app name."""
+        app = self._tmpl_attrs.get("app")
+        return app.name if app else self._tmpl_attrs.get("app_name")
+
     async def _init_session(
         self,
         session_service: "BaseSessionService",
@@ -672,9 +678,8 @@ class AdkApp:
                 auth = _Authorization(**auth)
                 session_state[auth_id] = auth.access_token
 
-        app = self._tmpl_attrs.get("app")
         session = await session_service.create_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=request.user_id,
             state=session_state,
         )
@@ -694,7 +699,6 @@ class AdkApp:
         request: _StreamRunRequest,
     ):
         """Saves the artifacts."""
-        app = self._tmpl_attrs.get("app")
         if request.artifacts:
             for artifact in request.artifacts:
                 artifact = _Artifact(**artifact)
@@ -703,7 +707,7 @@ class AdkApp:
                 ):
                     version_data = _ArtifactVersion(**version_data)
                     saved_version = await artifact_service.save_artifact(
-                        app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+                        app_name=self._app_name(),
                         user_id=request.user_id,
                         session_id=session_id,
                         filename=artifact.file_name,
@@ -749,7 +753,7 @@ class AdkApp:
                         _ArtifactVersion(
                             version=version,
                             data=await artifact_service.load_artifact(
-                                app_name=self._tmpl_attrs.get("app_name"),
+                                app_name=self._app_name(),
                                 user_id=user_id,
                                 session_id=session_id,
                                 filename=key,
@@ -802,6 +806,11 @@ class AdkApp:
         from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
+        # --- BEGIN BOUND TOKEN PATCH ---
+        # Set GOOGLE_API_PREVENT_AGENT_TOKEN_SHARING_FOR_GCP_SERVICES to false
+        # to disable bound token sharing.
+        os.environ["GOOGLE_API_PREVENT_AGENT_TOKEN_SHARING_FOR_GCP_SERVICES"] = "false"
+        # --- END BOUND TOKEN PATCH ---
         project = self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
@@ -1206,7 +1215,6 @@ class AdkApp:
             )
         ):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
 
         # Try to get the session, if it doesn't exist, create a new one.
         if request.session_id:
@@ -1216,7 +1224,7 @@ class AdkApp:
             session = None
             try:
                 session = await session_service.get_session(
-                    app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+                    app_name=self._app_name(),
                     user_id=request.user_id,
                     session_id=request.session_id,
                 )
@@ -1267,9 +1275,8 @@ class AdkApp:
                 yield converted_event
         finally:
             if session and not request.session_id:
-                app = self._tmpl_attrs.get("app")
                 await session_service.delete_session(
-                    app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+                    app_name=self._app_name(),
                     user_id=request.user_id,
                     session_id=session.id,
                 )
@@ -1306,9 +1313,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         session = await self._tmpl_attrs.get("session_service").get_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
@@ -1384,9 +1390,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         return await self._tmpl_attrs.get("session_service").list_sessions(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             **kwargs,
         )
@@ -1457,9 +1462,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         session = await self._tmpl_attrs.get("session_service").create_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             session_id=session_id,
             state=state,
@@ -1539,9 +1543,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         await self._tmpl_attrs.get("session_service").delete_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
@@ -1630,9 +1633,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("memory_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         return await self._tmpl_attrs.get("memory_service").search_memory(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             query=query,
         )

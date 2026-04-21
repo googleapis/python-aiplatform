@@ -15,32 +15,12 @@
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
 from tests.unit.vertexai.genai.replays import pytest_helper
-from vertexai._genai import _datasets_utils
 from vertexai._genai import types
 
-from unittest import mock
 import pytest
 
 BIGQUERY_TABLE_NAME = "vertex-sdk-dev.multimodal_dataset.test-table"
-DATASET = "8810841321427173376"
-
-
-@pytest.fixture
-def mock_import_bigframes(is_replay_mode):
-    if is_replay_mode:
-        with mock.patch.object(
-            _datasets_utils, "_try_import_bigframes"
-        ) as mock_import_bigframes:
-            mock_read_gbq_table_result = mock.MagicMock()
-            mock_read_gbq_table_result.sql = f"SLECT * FROM `{BIGQUERY_TABLE_NAME}`"
-
-            bigframes = mock.MagicMock()
-            bigframes.pandas.read_gbq_table.return_value = mock_read_gbq_table_result
-
-            mock_import_bigframes.return_value = bigframes
-            yield mock_import_bigframes
-    else:
-        yield None
+DATASET = "projects/964831358985/locations/us-central1/datasets/8810841321427173376"
 
 
 def test_get_dataset(client):
@@ -48,7 +28,7 @@ def test_get_dataset(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
 
 
@@ -57,17 +37,8 @@ def test_get_dataset_from_public_method(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
-
-
-@pytest.mark.usefixtures("mock_import_bigframes")
-def test_to_bigframes(client):
-    dataset = client.datasets.get_multimodal_dataset(
-        name=DATASET,
-    )
-    df = client.datasets.to_bigframes(multimodal_dataset=dataset)
-    assert BIGQUERY_TABLE_NAME in df.sql
 
 
 pytestmark = pytest_helper.setup(
@@ -84,7 +55,7 @@ async def test_get_dataset_async(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
 
 
@@ -94,15 +65,5 @@ async def test_get_dataset_from_public_method_async(client):
         name=DATASET,
     )
     assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.name.endswith(DATASET)
+    assert dataset.name == DATASET
     assert dataset.display_name == "test-display-name"
-
-
-@pytest.mark.asyncio
-@pytest.mark.usefixtures("mock_import_bigframes")
-async def test_to_bigframes_async(client):
-    dataset = await client.aio.datasets.get_multimodal_dataset(
-        name=DATASET,
-    )
-    df = await client.aio.datasets.to_bigframes(multimodal_dataset=dataset)
-    assert BIGQUERY_TABLE_NAME in df.sql

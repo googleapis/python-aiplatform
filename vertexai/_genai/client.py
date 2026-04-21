@@ -20,7 +20,6 @@ from types import TracebackType, ModuleType
 
 import google.auth
 from google.cloud.aiplatform import version as aip_version
-from google.genai import _api_client
 from google.genai import _common
 from google.genai import client as genai_client
 from google.genai import types
@@ -40,27 +39,6 @@ if TYPE_CHECKING:
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
-
-genai_append_method = _api_client.append_library_version_headers
-
-
-def _add_tracking_headers(headers: dict[str, str]) -> None:
-    """Adds Vertex Gen AI tracking headers."""
-    is_vertex = headers.get(
-        "x-goog-vertex-sdk"
-    ) == "true" or "vertex-genai-modules" in headers.get("user-agent", "")
-    if is_vertex:
-        tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
-
-        headers["user-agent"] = tracking_label
-        headers["x-goog-api-client"] = tracking_label
-
-        headers.pop("x-goog-vertex-sdk", None)
-    else:
-        genai_append_method(headers)
-
-
-_api_client.append_library_version_headers = _add_tracking_headers
 
 
 class AsyncClient:
@@ -229,7 +207,22 @@ class Client:
             http_options = types.HttpOptions()
         if http_options.headers is None:
             http_options.headers = {}
-        http_options.headers["x-goog-vertex-sdk"] = "true"
+
+        tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
+
+        if "user-agent" in http_options.headers:
+            http_options.headers["user-agent"] = (
+                f"{http_options.headers['user-agent']} {tracking_label}"
+            )
+        else:
+            http_options.headers["user-agent"] = tracking_label
+
+        if "x-goog-api-client" in http_options.headers:
+            http_options.headers["x-goog-api-client"] = (
+                f"{http_options.headers['x-goog-api-client']} {tracking_label}"
+            )
+        else:
+            http_options.headers["x-goog-api-client"] = tracking_label
 
         self._api_client = genai_client.Client._get_api_client(
             vertexai=True,

@@ -25,6 +25,8 @@ from google.cloud.aiplatform import initializer
 from vertexai.preview.rag.utils import _gapic_utils
 from vertexai.preview.rag.utils import resources
 
+from google.protobuf import any_pb2
+
 
 def retrieval_query(
     text: str,
@@ -246,6 +248,10 @@ def retrieval_query(
             api_retrival_config.filter.vector_similarity_threshold = (
                 rag_retrieval_config.filter.vector_similarity_threshold
             )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
 
         if (
             rag_retrieval_config.ranking
@@ -286,6 +292,7 @@ async def async_retrieve_contexts(
     vector_distance_threshold: Optional[float] = None,
     vector_search_alpha: Optional[float] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
 ) -> aiplatform_v1beta1.RetrieveContextsResponse:
     """Retrieve top k relevant docs/chunks asynchronously.
 
@@ -312,22 +319,23 @@ async def async_retrieve_contexts(
     Args:
         text: Required. The query in text format to get relevant contexts.
         rag_resources: Optional. A list of RagResource. It can be used to specify
-          corpus only or ragfiles. Currently only support one corpus or multiple
-          files from one corpus. In the future we may open up multiple corpora
-          support.
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
         rag_corpora: Optional. Deprecated. Please use rag_resources instead. A
-          list of RagCorpora resource names. Format:
-          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
-          Currently only support one corpus. In the future we may open up multiple
-          corpora support.
+            list of RagCorpora resource names. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            Currently only support one corpus. In the future we may open up multiple
+            corpora support.
         similarity_top_k: Optional. Deprecated. Please use
-          rag_retrieval_config.top_k instead.
+            rag_retrieval_config.top_k instead.
         vector_distance_threshold: Optional. Deprecated. Please use
-          rag_retrieval_config.filter.vector_distance_threshold instead.
+            rag_retrieval_config.filter.vector_distance_threshold instead.
         vector_search_alpha: Optional. Deprecated. Please use
-          rag_retrieval_config.hybrid_search.alpha instead.
+            rag_retrieval_config.hybrid_search.alpha instead.
         rag_retrieval_config: Optional. The config containing the retrieval
-          parameters, including top_k, vector_distance_threshold, and alpha.
+            parameters, including top_k, vector_distance_threshold, and alpha.
+        timeout: Optional. The timeout for the request in seconds. Default is 600.
 
     Returns:
         RetrieveContextsResponse.
@@ -495,6 +503,10 @@ async def async_retrieve_contexts(
             api_retrival_config.ranking.llm_ranker.model_name = (
                 rag_retrieval_config.ranking.llm_ranker.model_name
             )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
 
     query = aiplatform_v1beta1.RagQuery(
         text=text,
@@ -515,8 +527,25 @@ async def async_retrieve_contexts(
         tools=[tool],
     )
     try:
-        response_lro = await client.async_retrieve_contexts(request=request)
-        response = await response_lro.result()
+        response_lro = await client.async_retrieve_contexts(
+            request=request, timeout=timeout
+        )
+        try:
+            response = await response_lro.result(timeout=timeout)
+        except Exception as e:
+            if response_lro.done():
+                raw_op = response_lro.operation
+                if raw_op.WhichOneof("result") == "response":
+                    any_response = raw_op.response
+                    inner_any = any_pb2.Any()
+                    if any_response.Unpack(inner_any):
+                        inner_any.type_url = "type.googleapis.com/google.cloud.aiplatform.v1beta1.RagContexts"
+                        rag_contexts = aiplatform_v1beta1.RagContexts()
+                        if inner_any.Unpack(rag_contexts._pb):
+                            return aiplatform_v1beta1.AsyncRetrieveContextsResponse(
+                                contexts=rag_contexts
+                            )
+            raise e
     except Exception as e:
         raise RuntimeError(
             "Failed in retrieving contexts asynchronously due to: ", e
@@ -533,6 +562,7 @@ def ask_contexts(
     vector_distance_threshold: Optional[float] = None,
     vector_search_alpha: Optional[float] = None,
     rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
 ) -> aiplatform_v1beta1.AskContextsResponse:
     """Ask questions on top k relevant docs/chunks.
 
@@ -559,22 +589,23 @@ def ask_contexts(
     Args:
         text: Required. The query in text format to get relevant contexts.
         rag_resources: Optional. A list of RagResource. It can be used to specify
-          corpus only or ragfiles. Currently only support one corpus or multiple
-          files from one corpus. In the future we may open up multiple corpora
-          support.
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
         rag_corpora: Optional. Deprecated. Please use rag_resources instead. A
-          list of RagCorpora resource names. Format:
-          ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
-          Currently only support one corpus. In the future we may open up multiple
-          corpora support.
+            list of RagCorpora resource names. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}``
+            Currently only support one corpus. In the future we may open up multiple
+            corpora support.
         similarity_top_k: Optional. Deprecated. Please use
-          rag_retrieval_config.top_k instead.
+            rag_retrieval_config.top_k instead.
         vector_distance_threshold: Optional. Deprecated. Please use
-          rag_retrieval_config.filter.vector_distance_threshold instead.
+            rag_retrieval_config.filter.vector_distance_threshold instead.
         vector_search_alpha: Optional. Deprecated. Please use
-          rag_retrieval_config.hybrid_search.alpha instead.
+            rag_retrieval_config.hybrid_search.alpha instead.
         rag_retrieval_config: Optional. The config containing the retrieval
-          parameters, including top_k, vector_distance_threshold, and alpha.
+            parameters, including top_k, vector_distance_threshold, and alpha.
+        timeout: Optional. The timeout for the request in seconds. Default is 600.
 
     Returns:
         AskContextsResponse.
@@ -742,6 +773,10 @@ def ask_contexts(
             api_retrival_config.ranking.llm_ranker.model_name = (
                 rag_retrieval_config.ranking.llm_ranker.model_name
             )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
 
     query = aiplatform_v1beta1.RagQuery(
         text=text,
@@ -762,7 +797,7 @@ def ask_contexts(
         tools=[tool],
     )
     try:
-        response = client.ask_contexts(request=request)
+        response = client.ask_contexts(request=request, timeout=timeout)
     except Exception as e:
         raise RuntimeError("Failed in asking contexts due to: ", e) from e
 

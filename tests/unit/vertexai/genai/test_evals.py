@@ -20,6 +20,7 @@ import os
 import re
 import statistics
 import sys
+import tempfile
 import unittest
 from unittest import mock
 
@@ -34,14 +35,15 @@ from vertexai._genai import _evals_visualization
 from vertexai._genai import _evals_metric_loaders
 from vertexai._genai import _gcs_utils
 from vertexai._genai import _observability_data_converter
+from vertexai._genai import _transformers
 from vertexai._genai import evals
 from vertexai._genai import types as vertexai_genai_types
+from vertexai._genai.types import common as common_types
 from google.genai import client
 from google.genai import errors as genai_errors
 from google.genai import types as genai_types
 import pandas as pd
 import pytest
-
 
 _TEST_PROJECT = "test-project"
 _TEST_LOCATION = "us-central1"
@@ -120,15 +122,21 @@ def mock_api_client_fixture():
 
 @pytest.fixture
 def mock_eval_dependencies(mock_api_client_fixture):
-    with mock.patch("google.cloud.storage.Client") as mock_storage_client, mock.patch(
-        "google.cloud.bigquery.Client"
-    ) as mock_bq_client, mock.patch(
-        "vertexai._genai.evals.Evals.evaluate_instances"
-    ) as mock_evaluate_instances, mock.patch(
-        "vertexai._genai._gcs_utils.GcsUtils.upload_json_to_prefix"
-    ) as mock_upload_to_gcs, mock.patch(
-        "vertexai._genai._evals_metric_loaders.LazyLoadedPrebuiltMetric._fetch_and_parse"
-    ) as mock_fetch_prebuilt_metric:
+    # fmt: off
+    with (
+        mock.patch("google.cloud.storage.Client") as mock_storage_client,
+        mock.patch("google.cloud.bigquery.Client") as mock_bq_client,
+        mock.patch(
+            "vertexai._genai.evals.Evals.evaluate_instances"
+        ) as mock_evaluate_instances,
+        mock.patch(
+            "vertexai._genai._gcs_utils.GcsUtils.upload_json_to_prefix"
+        ) as mock_upload_to_gcs,
+        mock.patch(
+            "vertexai._genai._evals_metric_loaders.LazyLoadedPrebuiltMetric._fetch_and_parse"
+        ) as mock_fetch_prebuilt_metric,
+    ):
+        # fmt: on
 
         def mock_evaluate_instances_side_effect(*args, **kwargs):
             metric_config = kwargs.get("metric_config", {})
@@ -146,12 +154,7 @@ def mock_eval_dependencies(mock_api_client_fixture):
                         rouge_metric_values=[genai_types.RougeMetricValue(score=0.8)]
                     )
                 )
-            elif "pointwise_metric_input" in metric_config:
-                return vertexai_genai_types.EvaluateInstancesResponse(
-                    pointwise_metric_result=genai_types.PointwiseMetricResult(
-                        score=0.9, explanation="Mocked LLM explanation"
-                    )
-                )
+
             elif "comet_input" in metric_config:
                 return vertexai_genai_types.EvaluateInstancesResponse(
                     comet_result=vertexai_genai_types.CometResult(score=0.75)
@@ -221,6 +224,1748 @@ class TestGetApiClientWithLocation:
             mock_api_client_fixture, new_location
         )
         mock_vertexai_client.assert_not_called()
+
+
+class TestTransformers:
+    """Unit tests for transformers."""
+
+    def test_t_inline_results(self):
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "tool_use_quality": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed tool use",
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            prompt=genai_types.Content(
+                                parts=[genai_types.Part(text="test prompt")]
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(candidate_names=["gemini-pro"]),
+        )
+
+        payload = _transformers.t_inline_results([eval_result])
+
+        assert len(payload) == 1
+        assert payload[0]["metric"] == "tool_use_quality"
+        assert payload[0]["request"]["prompt"]["text"] == "test prompt"
+        assert len(payload[0]["candidate_results"]) == 1
+        assert payload[0]["candidate_results"][0]["candidate"] == "gemini-pro"
+        assert payload[0]["candidate_results"][0]["score"] == 0.0
+
+    def test_t_inline_results_sanitizes_agent_data(self):
+        """Tests that t_inline_results strips SDK-only fields from agent_data."""
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed",
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            agent_data=vertexai_genai_types.evals.AgentData(
+                                turns=[
+                                    vertexai_genai_types.evals.ConversationTurn(
+                                        turn_index=0,
+                                        turn_id="turn_0",
+                                        events=[
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="user",
+                                                content=genai_types.Content(
+                                                    role="user",
+                                                    parts=[
+                                                        genai_types.Part(text="Hello")
+                                                    ],
+                                                ),
+                                            ),
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="model",
+                                                content=genai_types.Content(
+                                                    role="model",
+                                                    parts=[
+                                                        genai_types.Part(
+                                                            function_call=genai_types.FunctionCall(
+                                                                name="search",
+                                                                args={"q": "test"},
+                                                            )
+                                                        )
+                                                    ],
+                                                ),
+                                            ),
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="model",
+                                                content=genai_types.Content(
+                                                    role="model",
+                                                    parts=[
+                                                        genai_types.Part(
+                                                            function_response=genai_types.FunctionResponse(
+                                                                name="search",
+                                                                response={
+                                                                    "result": "ok"
+                                                                },
+                                                            )
+                                                        )
+                                                    ],
+                                                ),
+                                            ),
+                                        ],
+                                    )
+                                ]
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        payload = _transformers.t_inline_results([eval_result])
+        assert len(payload) == 1
+
+        agent_data = payload[0]["request"]["prompt"]["agent_data"]
+        assert "turns" in agent_data
+        events = agent_data["turns"][0]["events"]
+        assert len(events) == 3
+
+        # Check text part is preserved
+        text_part = events[0]["content"]["parts"][0]
+        assert "text" in text_part
+        assert text_part["text"] == "Hello"
+
+        # Check function_call is preserved (API-recognized field)
+        fc_part = events[1]["content"]["parts"][0]
+        assert "function_call" in fc_part
+        assert fc_part["function_call"]["name"] == "search"
+        # SDK-only fields must NOT be present
+        assert "tool_call" not in fc_part
+        assert "tool_response" not in fc_part
+        assert "part_metadata" not in fc_part
+
+        # Check function_response is preserved but will_continue is stripped
+        fr_part = events[2]["content"]["parts"][0]
+        assert "function_response" in fr_part
+        assert fr_part["function_response"]["name"] == "search"
+        assert "will_continue" not in fr_part["function_response"]
+
+    def test_sanitize_agent_data_from_dataframe(self):
+        """Tests sanitization when agent_data comes from DataFrame (dict form)."""
+        # Simulate agent_data stored in DataFrame with SDK-only fields
+        raw_agent_data = {
+            "turns": [
+                {
+                    "turn_index": 0,
+                    "turn_id": "turn_0",
+                    "events": [
+                        {
+                            "author": "model",
+                            "content": {
+                                "role": "model",
+                                "parts": [
+                                    {
+                                        "function_call": {
+                                            "name": "find_flights",
+                                            "args": {"origin": "NYC"},
+                                        },
+                                        "tool_call": None,
+                                        "tool_response": None,
+                                        "part_metadata": None,
+                                    }
+                                ],
+                            },
+                        },
+                        {
+                            "author": "model",
+                            "content": {
+                                "role": "model",
+                                "parts": [
+                                    {
+                                        "function_response": {
+                                            "name": "find_flights",
+                                            "response": {"flights": []},
+                                            "will_continue": False,
+                                            "scheduling": None,
+                                        },
+                                    }
+                                ],
+                            },
+                        },
+                    ],
+                }
+            ],
+        }
+
+        sanitized = _transformers._sanitize_agent_data(raw_agent_data)
+
+        parts_0 = sanitized["turns"][0]["events"][0]["content"]["parts"][0]
+        assert "function_call" in parts_0
+        assert "tool_call" not in parts_0
+        assert "tool_response" not in parts_0
+        assert "part_metadata" not in parts_0
+
+        parts_1 = sanitized["turns"][0]["events"][1]["content"]["parts"][0]
+        assert "function_response" in parts_1
+        assert parts_1["function_response"]["name"] == "find_flights"
+        assert "will_continue" not in parts_1["function_response"]
+        assert "scheduling" not in parts_1["function_response"]
+
+    def test_sanitize_agent_data_skips_error_payload(self):
+        """Tests that error payloads from failed agent runs are stripped."""
+        error_data = {"error": "Multi-turn agent run with user simulation failed"}
+        sanitized = _transformers._sanitize_agent_data(error_data)
+        assert "error" not in sanitized
+        assert sanitized == {}
+
+    def test_t_inline_results_strips_none_tool_fields(self):
+        """Tests that t_inline_results strips None tool fields like file_search."""
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed",
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            agent_data=vertexai_genai_types.evals.AgentData(
+                                agents={
+                                    "agent_0": vertexai_genai_types.evals.AgentConfig(
+                                        agent_id="agent_0",
+                                        agent_type="LlmAgent",
+                                        instruction="You are a helper.",
+                                        tools=[
+                                            genai_types.Tool(
+                                                function_declarations=[
+                                                    genai_types.FunctionDeclaration(
+                                                        name="search",
+                                                        description="Searches the web.",
+                                                    )
+                                                ]
+                                            )
+                                        ],
+                                    )
+                                },
+                                turns=[
+                                    vertexai_genai_types.evals.ConversationTurn(
+                                        turn_index=0,
+                                        events=[
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="user",
+                                                content=genai_types.Content(
+                                                    parts=[genai_types.Part(text="Hi")],
+                                                ),
+                                            ),
+                                        ],
+                                    )
+                                ],
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["candidate-1"]
+            ),
+        )
+
+        payload = _transformers.t_inline_results([eval_result])
+        assert len(payload) == 1
+
+        agent_data = payload[0]["request"]["prompt"]["agent_data"]
+        agent_config = agent_data["agents"]["agent_0"]
+        assert "tools" in agent_config
+        tool = agent_config["tools"][0]
+        # function_declarations should be preserved
+        assert "function_declarations" in tool
+        assert tool["function_declarations"][0]["name"] == "search"
+        # Gemini-API-only fields must NOT be present (they would be None)
+        assert "file_search" not in tool
+        assert "mcp_servers" not in tool
+        assert "google_search" not in tool
+        assert "code_execution" not in tool
+
+    def test_t_inline_results_skips_error_agent_data_in_df(self):
+        """Tests that t_inline_results skips error agent_data from DataFrame."""
+        error_json = json.dumps({"error": "Agent run failed"})
+        df = pd.DataFrame(
+            {
+                "prompt": ["test"],
+                "agent_data": [error_json],
+            }
+        )
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "metric_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                )
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[common_types.EvaluationDataset(eval_dataset_df=df)],
+            metadata=common_types.EvaluationRunMetadata(candidate_names=["agent"]),
+        )
+        payload = _transformers.t_inline_results([eval_result])
+        assert len(payload) == 1
+        # The prompt should have no agent_data (error was skipped)
+        assert "agent_data" not in payload[0]["request"]["prompt"]
+
+
+class TestLossAnalysis:
+    """Unit tests for loss analysis types and visualization."""
+
+    def test_response_structure(self):
+        response = common_types.GenerateLossClustersResponse(
+            analysis_time="2026-04-01T10:00:00Z",
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    analysis_time="2026-04-01T10:00:00Z",
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="cluster-1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Tool Invocation",
+                                description="The agent failed to invoke a required tool.",
+                            ),
+                            item_count=3,
+                        ),
+                        common_types.LossCluster(
+                            cluster_id="cluster-2",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Hallucination",
+                                l2_category="Hallucination of Action",
+                                description="Verbally confirmed action without tool.",
+                            ),
+                            item_count=2,
+                        ),
+                    ],
+                )
+            ],
+        )
+        assert len(response.results) == 1
+        assert response.analysis_time == "2026-04-01T10:00:00Z"
+        result = response.results[0]
+        assert result.config.metric == "multi_turn_task_success_v1"
+        assert len(result.clusters) == 2
+        assert result.clusters[0].cluster_id == "cluster-1"
+        assert result.clusters[0].item_count == 3
+        assert result.clusters[1].cluster_id == "cluster-2"
+
+    def test_get_loss_analysis_html(self):
+        """Tests that _get_loss_analysis_html generates valid HTML with data."""
+        from vertexai._genai import _evals_visualization
+        import json
+
+        data = {
+            "results": [
+                {
+                    "config": {
+                        "metric": "test_metric",
+                        "candidate": "test-candidate",
+                    },
+                    "clusters": [
+                        {
+                            "cluster_id": "c1",
+                            "taxonomy_entry": {
+                                "l1_category": "Tool Calling",
+                                "l2_category": "Missing Invocation",
+                                "description": "Agent failed to call the tool.",
+                            },
+                            "item_count": 5,
+                            "examples": [
+                                {
+                                    "evaluation_result": {
+                                        "request": {
+                                            "prompt": {
+                                                "agent_data": {
+                                                    "turns": [
+                                                        {
+                                                            "turn_index": 0,
+                                                            "events": [
+                                                                {
+                                                                    "author": "user",
+                                                                    "content": {
+                                                                        "parts": [
+                                                                            {
+                                                                                "text": "Find flights to Paris"
+                                                                            }
+                                                                        ],
+                                                                    },
+                                                                }
+                                                            ],
+                                                        }
+                                                    ],
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "failed_rubrics": [
+                                        {
+                                            "rubric_id": "tool_use",
+                                            "classification_rationale": "Did not invoke find_flights.",
+                                        }
+                                    ],
+                                }
+                            ],
+                        },
+                    ],
+                }
+            ]
+        }
+        html = _evals_visualization._get_loss_analysis_html(json.dumps(data))
+        assert "Loss Pattern Analysis" in html
+        assert "test_metric" not in html  # data is Base64-encoded in the HTML
+        assert "<!DOCTYPE html>" in html
+        assert "extractScenarioPreview" in html
+        assert "example-scenario" in html
+        assert "DOMPurify" in html  # uses DOMPurify for sanitization
+        assert "example-section-label" in html  # labels for scenario/rubrics
+        assert "Analysis Summary" in html  # summary heading
+
+    def test_display_loss_clusters_response_no_ipython(self):
+        """Tests graceful fallback when not in IPython."""
+        from vertexai._genai import _evals_visualization
+        from unittest import mock
+
+        response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="test_metric",
+                        candidate="test-candidate",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Cat1",
+                                l2_category="SubCat1",
+                            ),
+                            item_count=5,
+                        ),
+                    ],
+                )
+            ],
+        )
+        with mock.patch.object(
+            _evals_visualization, "_is_ipython_env", return_value=False
+        ):
+            # Should not raise, just log a warning
+            response.show()
+
+    def test_display_loss_analysis_result_no_ipython(self):
+        """Tests graceful fallback for individual result when not in IPython."""
+        from vertexai._genai import _evals_visualization
+        from unittest import mock
+
+        result = common_types.LossAnalysisResult(
+            config=common_types.LossAnalysisConfig(
+                metric="test_metric",
+                candidate="test-candidate",
+            ),
+            clusters=[
+                common_types.LossCluster(
+                    cluster_id="c1",
+                    taxonomy_entry=common_types.LossTaxonomyEntry(
+                        l1_category="DirectCat",
+                        l2_category="DirectSubCat",
+                    ),
+                    item_count=7,
+                ),
+            ],
+        )
+        with mock.patch.object(
+            _evals_visualization, "_is_ipython_env", return_value=False
+        ):
+            result.show()
+
+    def test_enrich_scenario_from_agent_data_in_eval_cases(self):
+        """Tests scenario extraction from agent_data in eval_cases."""
+        from vertexai._genai import _evals_utils
+
+        # API response: evaluation_result has NO request (real API behavior)
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {
+                                                "candidate": "travel-agent",
+                                                "metric": "multi_turn_task_success_v1",
+                                            }
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(
+                                            rubric_id="tool_use",
+                                            classification_rationale="Did not call tool.",
+                                        )
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # Original eval_result with agent_data in eval_cases
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            agent_data=vertexai_genai_types.evals.AgentData(
+                                turns=[
+                                    vertexai_genai_types.evals.ConversationTurn(
+                                        turn_index=0,
+                                        events=[
+                                            vertexai_genai_types.evals.AgentEvent(
+                                                author="user",
+                                                content={
+                                                    "parts": [
+                                                        {
+                                                            "text": "Book a flight to Paris."
+                                                        }
+                                                    ]
+                                                },
+                                            ),
+                                        ],
+                                    )
+                                ],
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert (
+            example.evaluation_result["scenario_preview"] == "Book a flight to Paris."
+        )
+
+    def test_enrich_scenario_from_user_scenario_starting_prompt(self):
+        """Tests scenario extraction from user_scenario.starting_prompt."""
+        from vertexai._genai import _evals_utils
+
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {"candidate": "travel-agent"}
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(rubric_id="t1")
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # eval_result with user_scenario (from generate_conversation_scenarios)
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[
+                common_types.EvaluationDataset(
+                    eval_cases=[
+                        common_types.EvalCase(
+                            user_scenario=vertexai_genai_types.evals.UserScenario(
+                                starting_prompt="I want to book a hotel in Tokyo.",
+                                conversation_plan="User asks to book a hotel.",
+                            )
+                        )
+                    ]
+                )
+            ],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert (
+            example.evaluation_result["scenario_preview"]
+            == "I want to book a hotel in Tokyo."
+        )
+
+    def test_enrich_scenario_from_dataframe_agent_data(self):
+        """Tests scenario extraction from DataFrame agent_data column."""
+        import pandas as pd
+        from vertexai._genai import _evals_utils
+
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {"candidate": "travel-agent"}
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(rubric_id="t1")
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # eval_result with agent_data in DataFrame (run_inference output)
+        agent_data_obj = vertexai_genai_types.evals.AgentData(
+            turns=[
+                vertexai_genai_types.evals.ConversationTurn(
+                    turn_index=0,
+                    events=[
+                        vertexai_genai_types.evals.AgentEvent(
+                            author="user",
+                            content={"parts": [{"text": "Find flights to London"}]},
+                        ),
+                    ],
+                )
+            ],
+        )
+        df = pd.DataFrame({"agent_data": [agent_data_obj]})
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[common_types.EvaluationDataset(eval_dataset_df=df)],
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel-agent"]
+            ),
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert example.evaluation_result["scenario_preview"] == "Find flights to London"
+
+    def test_enrich_scenario_e2e_simulation(self):
+        """Simulates the full e2e flow: generate_scenarios -> run_inference -> evaluate -> loss_clusters."""
+        import pandas as pd
+        from vertexai._genai import _evals_utils
+
+        # Step 1: Simulate generate_conversation_scenarios output
+        # This creates eval_cases with user_scenario but no agent_data
+        scenario_dataset = common_types.EvaluationDataset(
+            eval_cases=[
+                common_types.EvalCase(
+                    user_scenario=vertexai_genai_types.evals.UserScenario(
+                        starting_prompt="I need to book a flight from NYC to Paris for next Friday.",
+                        conversation_plan="User books a flight.",
+                    )
+                )
+            ],
+            eval_dataset_df=pd.DataFrame(
+                {
+                    "starting_prompt": [
+                        "I need to book a flight from NYC to Paris for next Friday."
+                    ],
+                    "conversation_plan": ["User books a flight."],
+                }
+            ),
+        )
+
+        # Step 2: Simulate run_inference output
+        # run_inference extracts eval_dataset_df from the input, runs inference,
+        # then returns a NEW EvaluationDataset with only eval_dataset_df (no eval_cases)
+        agent_data_obj = vertexai_genai_types.evals.AgentData(
+            agents={
+                "travel_agent": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="travel_agent",
+                )
+            },
+            turns=[
+                vertexai_genai_types.evals.ConversationTurn(
+                    turn_index=0,
+                    events=[
+                        vertexai_genai_types.evals.AgentEvent(
+                            author="user",
+                            content=genai_types.Content(
+                                parts=[
+                                    genai_types.Part(
+                                        text="I need to book a flight from NYC to Paris for next Friday."
+                                    )
+                                ],
+                                role="user",
+                            ),
+                        ),
+                        vertexai_genai_types.evals.AgentEvent(
+                            author="travel_agent",
+                            content=genai_types.Content(
+                                parts=[
+                                    genai_types.Part(
+                                        text="I'll help you book that flight."
+                                    )
+                                ],
+                                role="model",
+                            ),
+                        ),
+                    ],
+                ),
+            ],
+        )
+        inference_df = pd.concat(
+            [
+                scenario_dataset.eval_dataset_df.reset_index(drop=True),
+                pd.DataFrame({"agent_data": [agent_data_obj]}).reset_index(drop=True),
+            ],
+            axis=1,
+        )
+        inference_dataset = common_types.EvaluationDataset(
+            eval_dataset_df=inference_df,
+            candidate_name="travel_agent",
+        )
+
+        # Step 3: Simulate evaluate() output
+        # evaluate() stores the dataset (from step 2) in evaluation_dataset
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "multi_turn_task_success_v1": common_types.EvalCaseMetricResult(
+                                    score=0.0,
+                                    explanation="Failed",
+                                ),
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[inference_dataset],  # Note: no eval_cases!
+            metadata=common_types.EvaluationRunMetadata(
+                candidate_names=["travel_agent"]
+            ),
+        )
+
+        # Step 4: Simulate API response (no request in evaluationResult)
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel_agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Tool Calling",
+                                l2_category="Missing Invocation",
+                                description="Agent failed to invoke the tool.",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={
+                                        "candidateResults": [
+                                            {
+                                                "candidate": "travel_agent",
+                                                "metric": "multi_turn_task_success_v1",
+                                            }
+                                        ]
+                                    },
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(
+                                            rubric_id="tool_use",
+                                            classification_rationale="Did not call find_flights.",
+                                        )
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+
+        # Verify intermediate steps
+        scenario_list = _evals_utils._build_scenario_preview_list(eval_result)
+        assert len(scenario_list) == 1, f"Expected 1 scenario, got {len(scenario_list)}"
+        assert scenario_list[0] is not None, (
+            f"Scenario is None. eval_dataset type: {type(eval_result.evaluation_dataset)}, "
+            f"eval_cases: {eval_result.evaluation_dataset[0].eval_cases if eval_result.evaluation_dataset else 'N/A'}, "
+            f"df columns: {list(eval_result.evaluation_dataset[0].eval_dataset_df.columns) if eval_result.evaluation_dataset and eval_result.evaluation_dataset[0].eval_dataset_df is not None else 'N/A'}"
+        )
+
+        # Step 5: Enrich and verify
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert (
+            "scenario_preview" in example.evaluation_result
+        ), f"scenario_preview not found. evaluation_result keys: {list(example.evaluation_result.keys())}"
+        assert (
+            "I need to book a flight" in example.evaluation_result["scenario_preview"]
+        )
+
+        # Verify the full serialization pipeline (model_dump -> JSON -> parse)
+        import json
+
+        result_dump = api_response.model_dump(mode="json", exclude_none=True)
+        json_str = json.dumps(result_dump)
+        parsed = json.loads(json_str)
+        ex_parsed = parsed["results"][0]["clusters"][0]["examples"][0]
+        assert "scenario_preview" in ex_parsed.get(
+            "evaluation_result", {}
+        ), f"scenario_preview missing after serialization. Keys: {list(ex_parsed.get('evaluation_result', {}).keys())}"
+        assert (
+            "I need to book a flight"
+            in ex_parsed["evaluation_result"]["scenario_preview"]
+        )
+
+    def test_enrich_scenario_from_dataframe_starting_prompt(self):
+        """Tests scenario extraction from DataFrame starting_prompt column."""
+        import pandas as pd
+        from vertexai._genai import _evals_utils
+
+        api_response = common_types.GenerateLossClustersResponse(
+            results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="m1",
+                        candidate="c1",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Cat",
+                                l2_category="SubCat",
+                            ),
+                            item_count=1,
+                            examples=[
+                                common_types.LossExample(
+                                    evaluation_result={"candidateResults": []},
+                                    failed_rubrics=[
+                                        common_types.FailedRubric(rubric_id="r1")
+                                    ],
+                                )
+                            ],
+                        )
+                    ],
+                )
+            ],
+        )
+        # DataFrame with starting_prompt but no agent_data
+        df = pd.DataFrame(
+            {
+                "starting_prompt": ["Cancel my reservation please"],
+                "conversation_plan": ["User wants to cancel."],
+            }
+        )
+        eval_result = common_types.EvaluationResult(
+            eval_case_results=[
+                common_types.EvalCaseResult(
+                    eval_case_index=0,
+                    response_candidate_results=[
+                        common_types.ResponseCandidateResult(
+                            response_index=0,
+                            metric_results={
+                                "m1": common_types.EvalCaseMetricResult(score=0.0)
+                            },
+                        )
+                    ],
+                )
+            ],
+            evaluation_dataset=[common_types.EvaluationDataset(eval_dataset_df=df)],
+        )
+
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            api_response, eval_result
+        )
+        example = api_response.results[0].clusters[0].examples[0]
+        assert "scenario_preview" in example.evaluation_result
+        assert (
+            example.evaluation_result["scenario_preview"]
+            == "Cancel my reservation please"
+        )
+
+
+def _make_eval_result(
+    metrics=None,
+    candidate_names=None,
+):
+    """Helper to create an EvaluationResult with the given metrics and candidates."""
+    metrics = metrics or ["task_success_v1"]
+    candidate_names = candidate_names or ["agent-1"]
+
+    metric_results = {}
+    for m in metrics:
+        metric_results[m] = common_types.EvalCaseMetricResult(metric_name=m)
+
+    eval_case_results = [
+        common_types.EvalCaseResult(
+            eval_case_index=0,
+            response_candidate_results=[
+                common_types.ResponseCandidateResult(
+                    response_index=0,
+                    metric_results=metric_results,
+                )
+            ],
+        )
+    ]
+    metadata = common_types.EvaluationRunMetadata(
+        candidate_names=candidate_names,
+    )
+    return common_types.EvaluationResult(
+        eval_case_results=eval_case_results,
+        metadata=metadata,
+    )
+
+
+class TestEvalRunLossAnalysis:
+    """Tests for loss analysis integration with EvaluationRun."""
+
+    def test_evaluation_run_config_accepts_loss_analysis_config(self):
+        """Tests that EvaluationRunConfig can hold loss_analysis_config."""
+        config = common_types.EvaluationRunConfig(
+            metrics=[],
+            loss_analysis_config=[
+                common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="travel-agent",
+                ),
+                common_types.LossAnalysisConfig(
+                    metric="multi_turn_tool_use_quality_v1",
+                    candidate="travel-agent",
+                ),
+            ],
+        )
+        assert len(config.loss_analysis_config) == 2
+        assert config.loss_analysis_config[0].metric == "multi_turn_task_success_v1"
+        assert config.loss_analysis_config[1].metric == "multi_turn_tool_use_quality_v1"
+
+    def test_evaluation_run_config_loss_analysis_config_optional(self):
+        """Tests that loss_analysis_config defaults to None when not provided."""
+        config = common_types.EvaluationRunConfig(metrics=[])
+        assert config.loss_analysis_config is None
+
+    def test_evaluation_run_results_has_loss_analysis_results(self):
+        """Tests that EvaluationRunResults can hold loss_analysis_results."""
+        results = common_types.EvaluationRunResults(
+            evaluation_set="projects/123/locations/global/evaluationSets/456",
+            summary_metrics=common_types.SummaryMetric(
+                metrics={}, total_items=10, failed_items=0
+            ),
+            loss_analysis_results=[
+                common_types.LossAnalysisResult(
+                    config=common_types.LossAnalysisConfig(
+                        metric="multi_turn_task_success_v1",
+                        candidate="travel-agent",
+                    ),
+                    clusters=[
+                        common_types.LossCluster(
+                            cluster_id="c1",
+                            taxonomy_entry=common_types.LossTaxonomyEntry(
+                                l1_category="Hallucination",
+                                l2_category="Hallucination of Action",
+                            ),
+                            item_count=3,
+                        )
+                    ],
+                )
+            ],
+        )
+        assert len(results.loss_analysis_results) == 1
+        assert results.loss_analysis_results[0].clusters[0].item_count == 3
+
+    def test_evaluation_run_results_loss_analysis_results_optional(self):
+        """Tests backward compat: loss_analysis_results defaults to None."""
+        results = common_types.EvaluationRunResults(
+            evaluation_set="projects/123/locations/global/evaluationSets/456",
+            summary_metrics=common_types.SummaryMetric(
+                metrics={}, total_items=5, failed_items=0
+            ),
+        )
+        assert results.loss_analysis_results is None
+
+    def test_evaluation_run_show_displays_loss_analysis_without_map(self):
+        """Tests show() calls display with eval_item_map=None when no map set."""
+        eval_run = common_types.EvaluationRun(
+            name="projects/123/locations/global/evaluationRuns/test-run",
+            state="SUCCEEDED",
+            evaluation_run_results=common_types.EvaluationRunResults(
+                evaluation_set="projects/123/locations/global/evaluationSets/456",
+                summary_metrics=common_types.SummaryMetric(
+                    metrics={}, total_items=5, failed_items=0
+                ),
+                loss_analysis_results=[
+                    common_types.LossAnalysisResult(
+                        config=common_types.LossAnalysisConfig(
+                            metric="multi_turn_task_success_v1",
+                            candidate="agent-1",
+                        ),
+                        clusters=[],
+                    )
+                ],
+            ),
+        )
+        with mock.patch.object(
+            _evals_visualization,
+            "display_loss_analysis_results",
+        ) as mock_display:
+            eval_run.show()
+            mock_display.assert_called_once_with(
+                eval_run.evaluation_run_results.loss_analysis_results,
+                eval_item_map=None,
+            )
+
+    def test_evaluation_run_show_passes_eval_item_map(self):
+        """Tests show() passes _eval_item_map to display when set via object.__setattr__."""
+        eval_run = common_types.EvaluationRun(
+            name="projects/123/locations/global/evaluationRuns/test-run",
+            state="SUCCEEDED",
+            evaluation_run_results=common_types.EvaluationRunResults(
+                evaluation_set="projects/123/locations/global/evaluationSets/456",
+                summary_metrics=common_types.SummaryMetric(
+                    metrics={}, total_items=5, failed_items=0
+                ),
+                loss_analysis_results=[
+                    common_types.LossAnalysisResult(
+                        config=common_types.LossAnalysisConfig(
+                            metric="multi_turn_task_success_v1",
+                            candidate="agent-1",
+                        ),
+                        clusters=[
+                            common_types.LossCluster(
+                                cluster_id="c1",
+                                item_count=1,
+                                examples=[
+                                    common_types.LossExample(
+                                        evaluation_item="projects/123/locations/global/evaluationItems/item-1",
+                                    )
+                                ],
+                            )
+                        ],
+                    )
+                ],
+            ),
+        )
+        # Simulate what get_evaluation_run does: set _eval_item_map via object.__setattr__
+        # to bypass pydantic extra='forbid'
+        test_map = {
+            "projects/123/locations/global/evaluationItems/item-1": {
+                "request": {
+                    "prompt": {
+                        "agent_data": {
+                            "turns": [
+                                {
+                                    "events": [
+                                        {
+                                            "author": "user",
+                                            "content": {"parts": [{"text": "Hello"}]},
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+        object.__setattr__(eval_run, "_eval_item_map", test_map)
+
+        # Verify _eval_item_map is accessible via getattr
+        assert getattr(eval_run, "_eval_item_map", None) is test_map
+
+        with mock.patch.object(
+            _evals_visualization,
+            "display_loss_analysis_results",
+        ) as mock_display:
+            eval_run.show()
+            mock_display.assert_called_once_with(
+                eval_run.evaluation_run_results.loss_analysis_results,
+                eval_item_map=test_map,
+            )
+
+    def test_evaluation_run_show_no_loss_analysis_does_not_crash(self):
+        """Tests EvaluationRun.show() works when no loss analysis results."""
+        eval_run = common_types.EvaluationRun(
+            name="projects/123/locations/global/evaluationRuns/test-run",
+            state="SUCCEEDED",
+            evaluation_run_results=common_types.EvaluationRunResults(
+                evaluation_set="projects/123/locations/global/evaluationSets/456",
+                summary_metrics=common_types.SummaryMetric(
+                    metrics={}, total_items=5, failed_items=0
+                ),
+            ),
+        )
+        with mock.patch.object(
+            _evals_visualization,
+            "display_loss_analysis_results",
+        ) as mock_display:
+            # Should not crash; loss analysis display should NOT be called
+            eval_run.show()
+            mock_display.assert_not_called()
+
+    def test_display_loss_analysis_results_html(self):
+        """Tests that display_loss_analysis_results produces valid HTML."""
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="agent-1",
+                ),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        taxonomy_entry=common_types.LossTaxonomyEntry(
+                            l1_category="Tool Calling",
+                            l2_category="Missing Invocation",
+                            description="Agent failed to call the tool.",
+                        ),
+                        item_count=5,
+                    )
+                ],
+            )
+        ]
+        payload_json = json.dumps(
+            {
+                "results": [
+                    r.model_dump(mode="json", exclude_none=True) for r in results
+                ]
+            },
+            ensure_ascii=False,
+        )
+        html = _evals_visualization._get_loss_analysis_html(payload_json)
+        # The HTML is a self-contained report with base64-encoded JSON payload
+        # decoded by JavaScript at runtime. Verify structure, not content.
+        assert "<!DOCTYPE html>" in html
+        assert "Loss Pattern Analysis" in html
+        # Verify the payload is embedded as base64 in the HTML
+        payload_b64 = base64.b64encode(payload_json.encode("utf-8")).decode("ascii")
+        assert payload_b64 in html
+
+    def test_enrich_loss_examples_with_eval_item_map(self):
+        """Tests that _enrich_loss_examples_with_eval_items populates evaluation_result."""
+        # Create loss results where examples only have evaluation_item (eval run path)
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="agent-1",
+                ),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        taxonomy_entry=common_types.LossTaxonomyEntry(
+                            l1_category="Tool Calling",
+                            l2_category="Missing Invocation",
+                        ),
+                        item_count=2,
+                        examples=[
+                            common_types.LossExample(
+                                evaluation_item="projects/123/locations/global/evaluationItems/item-1",
+                                failed_rubrics=[
+                                    common_types.FailedRubric(
+                                        rubric_id="tool_invocation"
+                                    )
+                                ],
+                            ),
+                            common_types.LossExample(
+                                evaluation_item="projects/123/locations/global/evaluationItems/item-2",
+                                failed_rubrics=[
+                                    common_types.FailedRubric(
+                                        rubric_id="tool_invocation"
+                                    )
+                                ],
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+
+        # Build an eval_item_map matching the actual eval run data shape:
+        # - scenario is in prompt.user_scenario.starting_prompt
+        # - agent traces are in candidate_responses[].agent_data.turns
+        # - rubric verdicts are in candidate_results[].rubric_verdicts
+        eval_item_map = {
+            "projects/123/locations/global/evaluationItems/item-1": {
+                "request": {
+                    "prompt": {
+                        "user_scenario": {
+                            "starting_prompt": "Book a flight to Paris",
+                        }
+                    },
+                    "candidate_responses": [
+                        {
+                            "candidate": "agent-1",
+                            "agent_data": {
+                                "turns": [
+                                    {
+                                        "events": [
+                                            {
+                                                "author": "user",
+                                                "content": {
+                                                    "parts": [
+                                                        {
+                                                            "text": "Book a flight to Paris"
+                                                        }
+                                                    ]
+                                                },
+                                            }
+                                        ],
+                                    }
+                                ]
+                            },
+                        }
+                    ],
+                },
+                "candidate_results": [
+                    {
+                        "metric": "multi_turn_task_success_v1",
+                        "candidate": "agent-1",
+                        "rubric_verdicts": [
+                            {
+                                "evaluated_rubric": {
+                                    "rubric_id": "tool_invocation",
+                                    "content": {
+                                        "property": {
+                                            "description": "Agent should call find_flights tool"
+                                        }
+                                    },
+                                },
+                                "verdict": False,
+                            }
+                        ],
+                    }
+                ],
+            },
+            "projects/123/locations/global/evaluationItems/item-2": {
+                "request": {
+                    "prompt": {
+                        "user_scenario": {
+                            "starting_prompt": "Find hotels in Tokyo",
+                        }
+                    },
+                    "candidate_responses": [
+                        {
+                            "candidate": "agent-1",
+                            "agent_data": {
+                                "turns": [
+                                    {
+                                        "events": [
+                                            {
+                                                "author": "user",
+                                                "content": {
+                                                    "parts": [
+                                                        {"text": "Find hotels in Tokyo"}
+                                                    ]
+                                                },
+                                            }
+                                        ],
+                                    }
+                                ]
+                            },
+                        }
+                    ],
+                },
+                "candidate_results": [],
+            },
+        }
+
+        enriched = _evals_visualization._enrich_loss_examples_with_eval_items(
+            results, eval_item_map
+        )
+
+        # Verify enrichment happened
+        assert len(enriched) == 1
+        clusters = enriched[0]["clusters"]
+        assert len(clusters) == 1
+        examples = clusters[0]["examples"]
+        assert len(examples) == 2
+
+        # First example should have evaluation_result with user_scenario
+        ex1 = examples[0]
+        assert "evaluation_result" in ex1
+        er1 = ex1["evaluation_result"]
+        assert (
+            er1["request"]["prompt"]["user_scenario"]["starting_prompt"]
+            == "Book a flight to Paris"
+        )
+        # Agent data is on candidate_responses (eval run path)
+        assert (
+            er1["request"]["candidate_responses"][0]["agent_data"]["turns"][0][
+                "events"
+            ][0]["content"]["parts"][0]["text"]
+            == "Book a flight to Paris"
+        )
+        # Rubric data
+        assert (
+            er1["candidate_results"][0]["rubric_verdicts"][0]["evaluated_rubric"][
+                "content"
+            ]["property"]["description"]
+            == "Agent should call find_flights tool"
+        )
+
+        # Second example should also have evaluation_result
+        ex2 = examples[1]
+        assert "evaluation_result" in ex2
+        er2 = ex2["evaluation_result"]
+        assert (
+            er2["request"]["prompt"]["user_scenario"]["starting_prompt"]
+            == "Find hotels in Tokyo"
+        )
+
+    def test_enrich_skips_already_populated_evaluation_result(self):
+        """Tests that enrichment skips examples that already have evaluation_result (LRO path)."""
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(metric="m1", candidate="c1"),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        item_count=1,
+                        examples=[
+                            common_types.LossExample(
+                                evaluation_item="projects/123/locations/global/evaluationItems/item-1",
+                                evaluation_result={
+                                    "request": {"prompt": {"text": "original"}}
+                                },
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+        eval_item_map = {
+            "projects/123/locations/global/evaluationItems/item-1": {
+                "request": {"prompt": {"text": "should-not-replace"}}
+            },
+        }
+        enriched = _evals_visualization._enrich_loss_examples_with_eval_items(
+            results, eval_item_map
+        )
+        # Should keep the original evaluation_result, not replace it
+        ex = enriched[0]["clusters"][0]["examples"][0]
+        assert ex["evaluation_result"]["request"]["prompt"]["text"] == "original"
+
+    def test_enrich_with_none_map(self):
+        """Tests enrichment with no eval_item_map (backward compat)."""
+        results = [
+            common_types.LossAnalysisResult(
+                config=common_types.LossAnalysisConfig(metric="m1", candidate="c1"),
+                clusters=[
+                    common_types.LossCluster(
+                        cluster_id="c1",
+                        item_count=1,
+                        examples=[
+                            common_types.LossExample(
+                                evaluation_item="projects/123/evaluationItems/item-1",
+                            ),
+                        ],
+                    )
+                ],
+            )
+        ]
+        enriched = _evals_visualization._enrich_loss_examples_with_eval_items(
+            results, None
+        )
+        # Should not crash, evaluation_result stays absent
+        ex = enriched[0]["clusters"][0]["examples"][0]
+        assert "evaluation_result" not in ex
+
+    def test_evaluation_run_config_serialization_with_loss_analysis(self):
+        """Tests that EvaluationRunConfig with loss_analysis_config serializes."""
+        config = common_types.EvaluationRunConfig(
+            metrics=[],
+            loss_analysis_config=[
+                common_types.LossAnalysisConfig(
+                    metric="multi_turn_task_success_v1",
+                    candidate="travel-agent",
+                ),
+            ],
+        )
+        dumped = config.model_dump(mode="json", exclude_none=True)
+        assert "loss_analysis_config" in dumped
+        assert len(dumped["loss_analysis_config"]) == 1
+        assert (
+            dumped["loss_analysis_config"][0]["metric"] == "multi_turn_task_success_v1"
+        )
+
+
+class TestResolveEvalRunLossConfigs:
+    """Unit tests for _resolve_eval_run_loss_configs."""
+
+    def test_none_when_no_args(self):
+        result = _evals_utils._resolve_eval_run_loss_configs()
+        assert result is None
+
+    def test_loss_analysis_metrics_single_candidate(self):
+        """Auto-infers candidate from single-entry inference_configs."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=["multi_turn_task_success_v1"],
+            inference_configs={"my-agent": {}},
+        )
+        assert len(result) == 1
+        assert result[0].metric == "multi_turn_task_success_v1"
+        assert result[0].candidate == "my-agent"
+
+    def test_loss_analysis_metrics_multiple_metrics(self):
+        """Creates one config per metric, all with same inferred candidate."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=[
+                "multi_turn_task_success_v1",
+                "multi_turn_tool_use_quality_v1",
+            ],
+            inference_configs={"travel-agent": {}},
+        )
+        assert len(result) == 2
+        assert result[0].metric == "multi_turn_task_success_v1"
+        assert result[0].candidate == "travel-agent"
+        assert result[1].metric == "multi_turn_tool_use_quality_v1"
+        assert result[1].candidate == "travel-agent"
+
+    def test_loss_analysis_metrics_multi_candidate_raises(self):
+        """Raises when multiple candidates and using simplified metrics."""
+        with pytest.raises(ValueError, match="multiple candidates"):
+            _evals_utils._resolve_eval_run_loss_configs(
+                loss_analysis_metrics=["task_success_v1"],
+                inference_configs={"agent-a": {}, "agent-b": {}},
+            )
+
+    def test_loss_analysis_metrics_no_inference_configs(self):
+        """Creates configs with candidate=None when no inference_configs."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=["task_success_v1"],
+        )
+        assert len(result) == 1
+        assert result[0].metric == "task_success_v1"
+        assert result[0].candidate is None
+
+    def test_loss_analysis_configs_passthrough(self):
+        """Explicit configs are passed through without modification."""
+        configs = [
+            common_types.LossAnalysisConfig(
+                metric="task_success_v1",
+                candidate="agent-1",
+                max_top_cluster_count=5,
+            )
+        ]
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_configs=configs,
+        )
+        assert len(result) == 1
+        assert result[0].metric == "task_success_v1"
+        assert result[0].candidate == "agent-1"
+        assert result[0].max_top_cluster_count == 5
+
+    def test_loss_analysis_configs_dict_input(self):
+        """Dict configs are validated into LossAnalysisConfig objects."""
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_configs=[
+                {"metric": "task_success_v1", "candidate": "agent-1"}
+            ],
+        )
+        assert len(result) == 1
+        assert isinstance(result[0], common_types.LossAnalysisConfig)
+        assert result[0].metric == "task_success_v1"
+
+    def test_loss_analysis_metrics_accepts_metric_object(self):
+        """Accepts Metric objects in loss_analysis_metrics."""
+        metric = common_types.Metric(name="multi_turn_task_success_v1")
+        result = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=[metric],
+            inference_configs={"agent-1": {}},
+        )
+        assert len(result) == 1
+        assert result[0].metric == "multi_turn_task_success_v1"
+        assert result[0].candidate == "agent-1"
+
+
+class TestResolveMetricName:
+    """Unit tests for _resolve_metric_name."""
+
+    def test_none_returns_none(self):
+        assert _evals_utils._resolve_metric_name(None) is None
+
+    def test_string_passes_through(self):
+        assert _evals_utils._resolve_metric_name("task_success_v1") == "task_success_v1"
+
+    def test_metric_object_extracts_name(self):
+        metric = common_types.Metric(name="multi_turn_task_success_v1")
+        assert _evals_utils._resolve_metric_name(metric) == "multi_turn_task_success_v1"
+
+    def test_object_with_name_attr(self):
+        """Tests that any object with a .name attribute works (e.g., LazyLoadedPrebuiltMetric)."""
+
+        class FakeMetric:
+            name = "tool_use_quality_v1"
+
+        assert _evals_utils._resolve_metric_name(FakeMetric()) == "tool_use_quality_v1"
+
+    def test_lazy_loaded_prebuilt_metric_resolves_versioned_name(self):
+        """Tests that LazyLoadedPrebuiltMetric resolves to the versioned API spec name."""
+
+        class FakeLazyMetric:
+            name = "MULTI_TURN_TASK_SUCCESS"
+
+            def _get_api_metric_spec_name(self):
+                return "multi_turn_task_success_v1"
+
+        assert (
+            _evals_utils._resolve_metric_name(FakeLazyMetric())
+            == "multi_turn_task_success_v1"
+        )
+
+    def test_lazy_loaded_prebuilt_metric_falls_back_to_name(self):
+        """Tests fallback to .name when _get_api_metric_spec_name returns None."""
+
+        class FakeLazyMetricNoSpec:
+            name = "CUSTOM_METRIC"
+
+            def _get_api_metric_spec_name(self):
+                return None
+
+        assert (
+            _evals_utils._resolve_metric_name(FakeLazyMetricNoSpec()) == "CUSTOM_METRIC"
+        )
+
+
+class TestResolveLossAnalysisConfig:
+    """Unit tests for _resolve_loss_analysis_config."""
+
+    def test_auto_infer_single_metric_and_candidate(self):
+        eval_result = _make_eval_result(
+            metrics=["task_success_v1"], candidate_names=["agent-1"]
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+        assert resolved.metric == "task_success_v1"
+        assert resolved.candidate == "agent-1"
+
+    def test_explicit_metric_and_candidate(self):
+        eval_result = _make_eval_result(
+            metrics=["m1", "m2"], candidate_names=["c1", "c2"]
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result, metric="m1", candidate="c2"
+        )
+        assert resolved.metric == "m1"
+        assert resolved.candidate == "c2"
+
+    def test_config_provides_metric_and_candidate(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1"])
+        config = common_types.LossAnalysisConfig(
+            metric="m1", candidate="c1", predefined_taxonomy="my_taxonomy"
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result, config=config
+        )
+        assert resolved.metric == "m1"
+        assert resolved.candidate == "c1"
+        assert resolved.predefined_taxonomy == "my_taxonomy"
+
+    def test_explicit_args_override_config(self):
+        eval_result = _make_eval_result(
+            metrics=["m1", "m2"], candidate_names=["c1", "c2"]
+        )
+        config = common_types.LossAnalysisConfig(metric="m1", candidate="c1")
+        resolved = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result, config=config, metric="m2", candidate="c2"
+        )
+        assert resolved.metric == "m2"
+        assert resolved.candidate == "c2"
+
+    def test_error_multiple_metrics_no_explicit(self):
+        eval_result = _make_eval_result(metrics=["m1", "m2"], candidate_names=["c1"])
+        with pytest.raises(ValueError, match="multiple metrics"):
+            _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+
+    def test_error_multiple_candidates_no_explicit(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1", "c2"])
+        with pytest.raises(ValueError, match="multiple candidates"):
+            _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+
+    def test_error_invalid_metric(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1"])
+        with pytest.raises(ValueError, match="not found in eval_result"):
+            _evals_utils._resolve_loss_analysis_config(
+                eval_result=eval_result, metric="nonexistent"
+            )
+
+    def test_error_invalid_candidate(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=["c1"])
+        with pytest.raises(ValueError, match="not found in eval_result"):
+            _evals_utils._resolve_loss_analysis_config(
+                eval_result=eval_result, candidate="nonexistent"
+            )
+
+    def test_no_candidates_defaults_to_candidate_1(self):
+        eval_result = _make_eval_result(metrics=["m1"], candidate_names=[])
+        eval_result = eval_result.model_copy(
+            update={"metadata": common_types.EvaluationRunMetadata()}
+        )
+        resolved = _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
+        assert resolved.metric == "m1"
+        assert resolved.candidate == "candidate_1"
+
+    def test_no_eval_case_results_raises(self):
+        eval_result = common_types.EvaluationResult()
+        with pytest.raises(ValueError, match="no metric results"):
+            _evals_utils._resolve_loss_analysis_config(eval_result=eval_result)
 
 
 class TestEvals:
@@ -582,6 +2327,79 @@ class TestEvalsRunInference:
         assert inference_result.candidate_name == "mock_model_fn"
         assert inference_result.gcs_source is None
 
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_overwrites_existing_response_column_with_callable(
+        self, mock_eval_dataset_loader
+    ):
+        """Tests that run_inference overwrites an existing 'response' column."""
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["test prompt"],
+                "response": ["old response"],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        def mock_model_fn(contents):
+            return "new response"
+
+        inference_result = self.client.evals.run_inference(
+            model=mock_model_fn,
+            src=mock_df,
+        )
+
+        result_df = inference_result.eval_dataset_df
+        # Assert there is exactly one 'response' column (no duplicates).
+        assert list(result_df.columns).count("response") == 1
+        # Assert the 'response' column contains the new inference result.
+        assert result_df["response"][0] == "new response"
+        assert "prompt" in result_df.columns
+
+    @mock.patch.object(_evals_common, "Models")
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
+    def test_inference_overwrites_existing_response_column_with_gemini(
+        self, mock_eval_dataset_loader, mock_models
+    ):
+        """Tests that run_inference with Gemini overwrites an existing 'response' column."""
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["test prompt"],
+                "response": ["old response"],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        mock_generate_content_response = genai_types.GenerateContentResponse(
+            candidates=[
+                genai_types.Candidate(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="new gemini response")]
+                    ),
+                    finish_reason=genai_types.FinishReason.STOP,
+                )
+            ],
+            prompt_feedback=None,
+        )
+        mock_models.return_value.generate_content.return_value = (
+            mock_generate_content_response
+        )
+
+        inference_result = self.client.evals.run_inference(
+            model="gemini-pro",
+            src=mock_df,
+        )
+
+        result_df = inference_result.eval_dataset_df
+        # Assert there is exactly one 'response' column (no duplicates).
+        assert list(result_df.columns).count("response") == 1
+        # Assert the 'response' column contains the new inference result.
+        assert result_df["response"][0] == "new gemini response"
+        assert "prompt" in result_df.columns
+
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_inference_with_prompt_template(
@@ -713,27 +2531,27 @@ class TestEvalsRunInference:
             mock_generate_content_response
         )
 
-        local_dest_dir = "/tmp/test/output_dir"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
+        with tempfile.TemporaryDirectory() as local_dest_dir:
+            config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
 
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=mock_df, config=config
-        )
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=mock_df, config=config
+            )
 
-        mock_makedirs.assert_called_once_with(local_dest_dir, exist_ok=True)
-        expected_save_path = os.path.join(local_dest_dir, "inference_results.jsonl")
-        mock_df_to_json.assert_called_once_with(
-            expected_save_path, orient="records", lines=True
-        )
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["local save"],
-                "response": ["local response"],
-            }
-        )
-        pd.testing.assert_frame_equal(inference_result.eval_dataset_df, expected_df)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            mock_makedirs.assert_called_once_with(local_dest_dir, exist_ok=True)
+            expected_save_path = os.path.join(local_dest_dir, "inference_results.jsonl")
+            mock_df_to_json.assert_called_once_with(
+                expected_save_path, orient="records", lines=True
+            )
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["local save"],
+                    "response": ["local response"],
+                }
+            )
+            pd.testing.assert_frame_equal(inference_result.eval_dataset_df, expected_df)
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -774,201 +2592,199 @@ class TestEvalsRunInference:
             mock_generate_content_responses
         )
 
-        local_dest_dir = "/tmp/test_output_dir"
-        config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
+        with tempfile.TemporaryDirectory() as local_dest_dir:
+            config = vertexai_genai_types.EvalRunInferenceConfig(dest=local_dest_dir)
 
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=mock_df, config=config
-        )
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=mock_df, config=config
+            )
 
-        mock_models.return_value.generate_content.assert_has_calls(
-            [
-                mock.call(
-                    model="gemini-pro",
-                    contents="req 1",
-                    config=genai_types.GenerateContentConfig(),
+            mock_models.return_value.generate_content.assert_has_calls(
+                [
+                    mock.call(
+                        model="gemini-pro",
+                        contents="req 1",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                    mock.call(
+                        model="gemini-pro",
+                        contents="req 2",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                ],
+                any_order=True,
+            )
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["prompt 1", "prompt 2"],
+                    "request": ["req 1", "req 2"],
+                    "response": ["resp 1", "resp 2"],
+                }
+            )
+            pd.testing.assert_frame_equal(
+                inference_result.eval_dataset_df.sort_values(by="request").reset_index(
+                    drop=True
                 ),
-                mock.call(
-                    model="gemini-pro",
-                    contents="req 2",
-                    config=genai_types.GenerateContentConfig(),
-                ),
-            ],
-            any_order=True,
-        )
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["prompt 1", "prompt 2"],
-                "request": ["req 1", "req 2"],
-                "response": ["resp 1", "resp 2"],
-            }
-        )
-        pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="request").reset_index(
-                drop=True
-            ),
-            expected_df.sort_values(by="request").reset_index(drop=True),
-        )
+                expected_df.sort_values(by="request").reset_index(drop=True),
+            )
 
-        saved_file_path = os.path.join(local_dest_dir, "inference_results.jsonl")
-        with open(saved_file_path, "r") as f:
-            saved_records = [json.loads(line) for line in f]
-        expected_records = expected_df.to_dict(orient="records")
-        assert sorted(saved_records, key=lambda x: x["request"]) == sorted(
-            expected_records, key=lambda x: x["request"]
-        )
-        os.remove(saved_file_path)
-        os.rmdir(local_dest_dir)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            saved_file_path = os.path.join(local_dest_dir, "inference_results.jsonl")
+            with open(saved_file_path, "r") as f:
+                saved_records = [json.loads(line) for line in f]
+            expected_records = expected_df.to_dict(orient="records")
+            assert sorted(saved_records, key=lambda x: x["request"]) == sorted(
+                expected_records, key=lambda x: x["request"]
+            )
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_jsonl_file(self, mock_models):
-        local_src_path = "/tmp/input.jsonl"
-        input_records = [
-            {"prompt": "prompt 1", "other_col": "val 1"},
-            {"prompt": "prompt 2", "other_col": "val 2"},
-        ]
-        with open(local_src_path, "w") as f:
-            for record in input_records:
-                f.write(json.dumps(record) + "\n")
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local_src_path = os.path.join(temp_dir, "input.jsonl")
+            input_records = [
+                {"prompt": "prompt 1", "other_col": "val 1"},
+                {"prompt": "prompt 2", "other_col": "val 2"},
+            ]
+            with open(local_src_path, "w") as f:
+                for record in input_records:
+                    f.write(json.dumps(record) + "\n")
 
-        mock_generate_content_responses = [
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 1")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 2")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-        ]
-        mock_models.return_value.generate_content.side_effect = (
-            mock_generate_content_responses
-        )
-
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=local_src_path
-        )
-
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["prompt 1", "prompt 2"],
-                "other_col": ["val 1", "val 2"],
-                "response": ["resp 1", "resp 2"],
-            }
-        )
-        pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
-                drop=True
-            ),
-            expected_df.sort_values(by="prompt").reset_index(drop=True),
-        )
-        mock_models.return_value.generate_content.assert_has_calls(
-            [
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 1",
-                    config=genai_types.GenerateContentConfig(),
+            mock_generate_content_responses = [
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 1")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 2",
-                    config=genai_types.GenerateContentConfig(),
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 2")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-            ],
-            any_order=True,
-        )
-        os.remove(local_src_path)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            ]
+            mock_models.return_value.generate_content.side_effect = (
+                mock_generate_content_responses
+            )
+
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=local_src_path
+            )
+
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["prompt 1", "prompt 2"],
+                    "other_col": ["val 1", "val 2"],
+                    "response": ["resp 1", "resp 2"],
+                }
+            )
+            pd.testing.assert_frame_equal(
+                inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                    drop=True
+                ),
+                expected_df.sort_values(by="prompt").reset_index(drop=True),
+            )
+            mock_models.return_value.generate_content.assert_has_calls(
+                [
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 1",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 2",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                ],
+                any_order=True,
+            )
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @pytest.mark.skip(reason="currently flakey")
     @mock.patch.object(_evals_common, "Models")
     def test_inference_from_local_csv_file(self, mock_models):
-        local_src_path = "/tmp/input.csv"
-        input_df = pd.DataFrame(
-            {"prompt": ["prompt 1", "prompt 2"], "other_col": ["val 1", "val 2"]}
-        )
-        input_df.to_csv(local_src_path, index=False)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            local_src_path = os.path.join(temp_dir, "input.csv")
+            input_df = pd.DataFrame(
+                {"prompt": ["prompt 1", "prompt 2"], "other_col": ["val 1", "val 2"]}
+            )
+            input_df.to_csv(local_src_path, index=False)
 
-        mock_generate_content_responses = [
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 1")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-            genai_types.GenerateContentResponse(
-                candidates=[
-                    genai_types.Candidate(
-                        content=genai_types.Content(
-                            parts=[genai_types.Part(text="resp 2")]
-                        ),
-                        finish_reason=genai_types.FinishReason.STOP,
-                    )
-                ],
-                prompt_feedback=None,
-            ),
-        ]
-        mock_models.return_value.generate_content.side_effect = (
-            mock_generate_content_responses
-        )
-
-        inference_result = self.client.evals.run_inference(
-            model="gemini-pro", src=local_src_path
-        )
-
-        expected_df = pd.DataFrame(
-            {
-                "prompt": ["prompt 1", "prompt 2"],
-                "other_col": ["val 1", "val 2"],
-                "response": ["resp 1", "resp 2"],
-            }
-        )
-        pd.testing.assert_frame_equal(
-            inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
-                drop=True
-            ),
-            expected_df.sort_values(by="prompt").reset_index(drop=True),
-        )
-        mock_models.return_value.generate_content.assert_has_calls(
-            [
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 1",
-                    config=genai_types.GenerateContentConfig(),
+            mock_generate_content_responses = [
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 1")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-                mock.call(
-                    model="gemini-pro",
-                    contents="prompt 2",
-                    config=genai_types.GenerateContentConfig(),
+                genai_types.GenerateContentResponse(
+                    candidates=[
+                        genai_types.Candidate(
+                            content=genai_types.Content(
+                                parts=[genai_types.Part(text="resp 2")]
+                            ),
+                            finish_reason=genai_types.FinishReason.STOP,
+                        )
+                    ],
+                    prompt_feedback=None,
                 ),
-            ],
-            any_order=True,
-        )
-        os.remove(local_src_path)
-        assert inference_result.candidate_name == "gemini-pro"
-        assert inference_result.gcs_source is None
+            ]
+            mock_models.return_value.generate_content.side_effect = (
+                mock_generate_content_responses
+            )
+
+            inference_result = self.client.evals.run_inference(
+                model="gemini-pro", src=local_src_path
+            )
+
+            expected_df = pd.DataFrame(
+                {
+                    "prompt": ["prompt 1", "prompt 2"],
+                    "other_col": ["val 1", "val 2"],
+                    "response": ["resp 1", "resp 2"],
+                }
+            )
+            pd.testing.assert_frame_equal(
+                inference_result.eval_dataset_df.sort_values(by="prompt").reset_index(
+                    drop=True
+                ),
+                expected_df.sort_values(by="prompt").reset_index(drop=True),
+            )
+            mock_models.return_value.generate_content.assert_has_calls(
+                [
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 1",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                    mock.call(
+                        model="gemini-pro",
+                        contents="prompt 2",
+                        config=genai_types.GenerateContentConfig(),
+                    ),
+                ],
+                any_order=True,
+            )
+            assert inference_result.candidate_name == "gemini-pro"
+            assert inference_result.gcs_source is None
 
     @mock.patch.object(_evals_common, "Models")
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
@@ -1488,14 +3304,96 @@ class TestEvalsRunInference:
         ) in str(excinfo.value)
 
     @mock.patch.object(_evals_utils, "EvalDatasetLoader")
-    @mock.patch("vertexai._genai._evals_common.InMemorySessionService")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.Runner")
-    @mock.patch("vertexai._genai._evals_common.LlmAgent")
+    @mock.patch("vertexai._genai._evals_common.vertexai.Client")
+    def test_run_inference_with_agent_engine_falls_back_to_managed_sessions_api(
+        self,
+        mock_vertexai_client,
+        mock_eval_dataset_loader,
+    ):
+        """Tests that run_inference falls back to the managed Sessions API
+        when the agent engine does not have create_session registered."""
+        mock_df = pd.DataFrame(
+            {
+                "prompt": ["agent prompt"],
+                "session_inputs": [
+                    {
+                        "user_id": "123",
+                        "state": {"a": "1"},
+                    }
+                ],
+            }
+        )
+        mock_eval_dataset_loader.return_value.load.return_value = mock_df.to_dict(
+            orient="records"
+        )
+
+        # Create a mock agent engine WITHOUT create_session (simulates agents
+        # deployed via Console, gcloud, or source code deployment).
+        mock_agent_engine = mock.Mock(
+            spec=["api_client", "api_resource", "stream_query"],
+        )
+        mock_agent_engine.api_resource.name = (
+            "projects/test-project/locations/us-central1/reasoningEngines/123"
+        )
+
+        # Mock the managed Sessions API to return a session.
+        mock_session_operation = mock.Mock()
+        mock_session_operation.response.name = (
+            "projects/test-project/locations/us-central1"
+            "/reasoningEngines/123/sessions/managed-session-1"
+        )
+        mock_agent_engine.api_client.sessions.create.return_value = (
+            mock_session_operation
+        )
+
+        stream_query_return_value = [
+            {
+                "id": "1",
+                "content": {"parts": [{"text": "intermediate1"}]},
+                "timestamp": 123,
+                "author": "model",
+            },
+            {
+                "id": "2",
+                "content": {"parts": [{"text": "agent response"}]},
+                "timestamp": 124,
+                "author": "model",
+            },
+        ]
+        mock_agent_engine.stream_query.return_value = iter(stream_query_return_value)
+        mock_vertexai_client.return_value.agent_engines.get.return_value = (
+            mock_agent_engine
+        )
+
+        inference_result = self.client.evals.run_inference(
+            agent="projects/test-project/locations/us-central1/reasoningEngines/123",
+            src=mock_df,
+        )
+
+        # Verify the managed Sessions API was called as fallback.
+        mock_agent_engine.api_client.sessions.create.assert_called_once_with(
+            name="projects/test-project/locations/us-central1/reasoningEngines/123",
+            user_id="123",
+            config=vertexai_genai_types.CreateAgentEngineSessionConfig(
+                session_state={"a": "1"},
+            ),
+        )
+
+        # Verify stream_query was called with the session ID extracted from
+        # the managed session's resource name.
+        mock_agent_engine.stream_query.assert_called_once_with(
+            user_id="123",
+            session_id="managed-session-1",
+            message="agent prompt",
+        )
+
+        # Verify the inference results are correct.
+        assert inference_result.eval_dataset_df["response"].iloc[0] == "agent response"
+        assert inference_result.candidate_name == "agent_engine_0"
+
+    @mock.patch.object(_evals_utils, "EvalDatasetLoader")
     def test_run_inference_with_local_agent(
         self,
-        mock_llm_agent,
-        mock_runner,
-        mock_session_service,
         mock_eval_dataset_loader,
     ):
         mock_df = pd.DataFrame(
@@ -1523,12 +3421,19 @@ class TestEvalsRunInference:
         mock_agent_instance.instruction = "mock instruction"
         mock_agent_instance.tools = []
         mock_agent_instance.sub_agents = []
-        mock_llm_agent.return_value = mock_agent_instance
+
+        # Mock ADK modules for lazy imports in _execute_local_agent_run_with_retry_async
+        mock_session_service = mock.MagicMock()
         mock_session_service.return_value.create_session = mock.AsyncMock()
+        mock_runner = mock.MagicMock()
+        mock_adk_sessions_module = mock.MagicMock()
+        mock_adk_sessions_module.InMemorySessionService = mock_session_service
+        mock_adk_runners_module = mock.MagicMock()
+        mock_adk_runners_module.Runner = mock_runner
         mock_runner_instance = mock_runner.return_value
         stream_run_return_value_1 = [
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "1",
                     "content": {"parts": [{"text": "intermediate1"}]},
                     "timestamp": 123,
@@ -1536,7 +3441,7 @@ class TestEvalsRunInference:
                 }
             ),
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "2",
                     "content": {"parts": [{"text": "agent response"}]},
                     "timestamp": 124,
@@ -1546,7 +3451,7 @@ class TestEvalsRunInference:
         ]
         stream_run_return_value_2 = [
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "3",
                     "content": {"parts": [{"text": "intermediate2"}]},
                     "timestamp": 125,
@@ -1554,7 +3459,7 @@ class TestEvalsRunInference:
                 }
             ),
             mock.Mock(
-                model_dump=lambda: {
+                model_dump=lambda **kwargs: {
                     "id": "4",
                     "content": {"parts": [{"text": "agent response 2"}]},
                     "timestamp": 126,
@@ -1575,10 +3480,19 @@ class TestEvalsRunInference:
 
         mock_runner_instance.run_async.side_effect = run_async_side_effect
 
-        inference_result = self.client.evals.run_inference(
-            agent=mock_agent_instance,
-            src=mock_df,
-        )
+        with mock.patch.dict(
+            sys.modules,
+            {
+                "google.adk": mock.MagicMock(),
+                "google.adk.sessions": mock_adk_sessions_module,
+                "google.adk.runners": mock_adk_runners_module,
+                "google.adk.agents": mock.MagicMock(),
+            },
+        ):
+            inference_result = self.client.evals.run_inference(
+                agent=mock_agent_instance,
+                src=mock_df,
+            )
 
         mock_eval_dataset_loader.return_value.load.assert_called_once_with(mock_df)
         assert mock_session_service.call_count == 2
@@ -1704,12 +3618,13 @@ class TestEvalsRunInference:
         mock_api_client_fixture,
     ):
         """Tests inference with LiteLLM using a simple prompt string."""
+        # fmt: off
         with mock.patch(
             "vertexai._genai._evals_common.litellm"
         ) as mock_litellm, mock.patch(
             "vertexai._genai._evals_common._call_litellm_completion"
         ) as mock_call_litellm_completion:
-            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            mock_litellm.get_llm_provider.return_value = ("gpt-4o", "openai", None , None)
             prompt_df = pd.DataFrame([{"prompt": "What is LiteLLM?"}])
             expected_messages = [{"role": "user", "content": "What is LiteLLM?"}]
 
@@ -1759,13 +3674,19 @@ class TestEvalsRunInference:
         self,
         mock_api_client_fixture,
     ):
-        """Tests inference with LiteLLM where the row contains an chat completion request body."""
-        with mock.patch(
-            "vertexai._genai._evals_common.litellm"
-        ) as mock_litellm, mock.patch(
-            "vertexai._genai._evals_common._call_litellm_completion"
-        ) as mock_call_litellm_completion:
-            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+        """Tests inference with LiteLLM where the row contains a chat completion request body."""
+        with (
+            mock.patch("vertexai._genai._evals_common.litellm") as mock_litellm,
+            mock.patch(
+                "vertexai._genai._evals_common._call_litellm_completion"
+            ) as mock_call_litellm_completion,
+        ):
+            mock_litellm.get_llm_provider.return_value = (
+                "gpt-4o",
+                "openai",
+                None,
+                None,
+            )
             prompt_df = pd.DataFrame(
                 [
                     {
@@ -1834,7 +3755,9 @@ class TestEvalsRunInference:
         with mock.patch(
             "vertexai._genai._evals_common.litellm"
         ) as mock_litellm_package:
-            mock_litellm_package.utils.get_valid_models.return_value = []
+            mock_litellm_package.get_llm_provider.side_effect = ValueError(
+                "unsupported model"
+            )
             evals_module = evals.Evals(api_client_=mock_api_client_fixture)
             prompt_df = pd.DataFrame([{"prompt": "test"}])
 
@@ -1901,7 +3824,7 @@ class TestEvalsRunInference:
         # fmt: off
         with mock.patch("vertexai._genai._evals_common.litellm") as mock_litellm:
             # fmt: on
-            mock_litellm.utils.get_valid_models.return_value = ["gpt-4o"]
+            mock_litellm.get_llm_provider.return_value = ("gpt-4o", "openai", None , None)
             inference_result = self.client.evals.run_inference(
                 model="gpt-4o",
                 src=mock_df,
@@ -2018,8 +3941,118 @@ class TestEvalsMetricHandlers:
         ]
         assert _evals_metric_handlers._has_tool_call(events)
 
+    def test_has_tool_call_with_agent_event(self):
+        events = [
+            vertexai_genai_types.evals.AgentEvent(
+                author="model",
+                content=genai_types.Content(
+                    parts=[
+                        genai_types.Part(
+                            function_call=genai_types.FunctionCall(
+                                name="search", args={}
+                            )
+                        )
+                    ]
+                ),
+            )
+        ]
+        assert _evals_metric_handlers._has_tool_call(events)
+
 
 @pytest.mark.usefixtures("google_auth_mock")
+class TestRunAgent:
+    """Unit tests for the _run_agent function."""
+
+    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
+    def test_run_agent_rewrites_gemini_3_model_name(
+        self, mock_execute_inference_concurrently, mock_api_client_fixture
+    ):
+        mock_execute_inference_concurrently.return_value = []
+        user_simulator_config = vertexai_genai_types.evals.UserSimulatorConfig(
+            model_name="gemini-3-preview"
+        )
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
+
+            def mock_execute(*args, **kwargs):
+                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "global"
+                return []
+
+            mock_execute_inference_concurrently.side_effect = mock_execute
+
+            _evals_common._run_agent(
+                api_client=mock_api_client_fixture,
+                agent_engine=mock.Mock(),
+                agent=None,
+                prompt_dataset=prompt_dataset,
+                user_simulator_config=user_simulator_config,
+                allow_cross_region_model=True,
+            )
+
+            assert (
+                user_simulator_config.model_name
+                == f"projects/{mock_api_client_fixture.project}/locations/global/publishers/google/models/gemini-3-preview"
+            )
+            assert os.environ.get("GOOGLE_CLOUD_LOCATION") == "us-central1"
+
+    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
+    def test_run_agent_raises_error_if_gemini_3_and_allow_cross_region_model_false(
+        self, mock_execute_inference_concurrently, mock_api_client_fixture
+    ):
+        user_simulator_config = vertexai_genai_types.evals.UserSimulatorConfig(
+            model_name="gemini-3-preview"
+        )
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        with mock.patch.dict(os.environ, clear=True):
+            os.environ["GOOGLE_CLOUD_LOCATION"] = "us-central1"
+
+            with pytest.raises(
+                ValueError,
+                match="The model 'gemini-3-preview' is currently only available in the 'global' region.",
+            ):
+                _evals_common._run_agent(
+                    api_client=mock_api_client_fixture,
+                    agent_engine=mock.Mock(),
+                    agent=None,
+                    prompt_dataset=prompt_dataset,
+                    user_simulator_config=user_simulator_config,
+                    allow_cross_region_model=False,
+                )
+
+    @mock.patch.object(_evals_common, "_execute_inference_concurrently")
+    def test_run_agent_rewrites_gemini_3_model_name_empty_env(
+        self, mock_execute_inference_concurrently, mock_api_client_fixture
+    ):
+        mock_execute_inference_concurrently.return_value = []
+        user_simulator_config = vertexai_genai_types.evals.UserSimulatorConfig(
+            model_name="gemini-3-preview"
+        )
+        prompt_dataset = pd.DataFrame({"prompt": ["prompt1"]})
+        with mock.patch.dict(os.environ, clear=True):
+
+            def mock_execute(*args, **kwargs):
+                assert os.environ["GOOGLE_CLOUD_LOCATION"] == "global"
+                return []
+
+            mock_execute_inference_concurrently.side_effect = mock_execute
+
+            _evals_common._run_agent(
+                api_client=mock_api_client_fixture,
+                agent_engine=mock.Mock(),
+                agent=None,
+                prompt_dataset=prompt_dataset,
+                user_simulator_config=user_simulator_config,
+                allow_cross_region_model=True,
+            )
+
+            assert (
+                user_simulator_config.model_name
+                == f"projects/{mock_api_client_fixture.project}/locations/global/publishers/google/models/gemini-3-preview"
+            )
+            assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+
+
 class TestRunAgentInternal:
     """Unit tests for the _run_agent_internal function."""
 
@@ -2170,21 +4203,23 @@ class TestRunAgentInternal:
         ]
         assert "mock_agent" in agent_data["agents"]
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_with_intermediate_events(
-        self,
-        mock_config,
-        mock_scenario,
-        mock_simulator,
-        mock_generator,
-        mock_session_input,
-    ):
+    async def test_run_adk_user_simulation_with_intermediate_events(self):
         """Tests that intermediate invocation events (e.g. tool calls) are parsed successfully."""
+        mock_scenario = mock.MagicMock()
+        mock_config = mock.MagicMock()
+        mock_simulator = mock.MagicMock()
+        mock_generator = mock.MagicMock()
+        mock_session_input = mock.MagicMock()
+        mock_adk_eval_scenarios = mock.MagicMock()
+        mock_adk_eval_scenarios.ConversationScenario = mock_scenario
+        mock_adk_eval_case = mock.MagicMock()
+        mock_adk_eval_case.SessionInput = mock_session_input
+        mock_adk_eval_generator = mock.MagicMock()
+        mock_adk_eval_generator.EvaluationGenerator = mock_generator
+        mock_adk_simulator_module = mock.MagicMock()
+        mock_adk_simulator_module.LlmBackedUserSimulator = mock_simulator
+        mock_adk_simulator_module.LlmBackedUserSimulatorConfig = mock_config
         row = pd.Series(
             {
                 "starting_prompt": "I want a laptop.",
@@ -2237,7 +4272,19 @@ class TestRunAgentInternal:
         mock_generator._generate_inferences_from_root_agent = mock.AsyncMock(
             return_value=[mock_invocation]
         )
-        turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(
+            sys.modules,
+            {
+                "google.adk": mock.MagicMock(),
+                "google.adk.evaluation": mock.MagicMock(),
+                "google.adk.evaluation.conversation_scenarios": mock_adk_eval_scenarios,
+                "google.adk.evaluation.eval_case": mock_adk_eval_case,
+                "google.adk.evaluation.evaluation_generator": mock_adk_eval_generator,
+                "google.adk.evaluation.simulation": mock.MagicMock(),
+                "google.adk.evaluation.simulation.llm_backed_user_simulator": mock_adk_simulator_module,
+            },
+        ):
+            turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         assert len(turns) == 1
         turn = turns[0]
@@ -2255,9 +4302,15 @@ class TestRunAgentInternal:
             turn["events"][3]["content"]["parts"][0]["text"]
             == "There are no laptops matching your search."
         )
-        mock_invocation.user_content.model_dump.assert_called_with(mode="json")
-        mock_event_1.content.model_dump.assert_called_with(mode="json")
-        mock_invocation.final_response.model_dump.assert_called_with(mode="json")
+        mock_invocation.user_content.model_dump.assert_called_with(
+            mode="json", exclude_none=True
+        )
+        mock_event_1.content.model_dump.assert_called_with(
+            mode="json", exclude_none=True
+        )
+        mock_invocation.final_response.model_dump.assert_called_with(
+            mode="json", exclude_none=True
+        )
 
     @mock.patch.object(_evals_common, "_run_agent")
     def test_run_agent_internal_malformed_event(self, mock_run_agent):
@@ -2918,6 +4971,34 @@ class TestFlattenEvalDataConverter:
             eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
         )
 
+    def test_convert_with_conversation_history_column_name(self):
+        """Tests that 'conversation_history' is accepted as a column name alias for 'history'."""
+        raw_data_df = pd.DataFrame(
+            {
+                "prompt": ["Current prompt"],
+                "response": ["A response"],
+                "conversation_history": [
+                    [
+                        {"role": "user", "parts": [{"text": "Old user msg"}]},
+                        {"role": "model", "parts": [{"text": "Old model msg"}]},
+                    ]
+                ],
+            }
+        )
+        raw_data = raw_data_df.to_dict(orient="records")
+        result_dataset = self.converter.convert(raw_data)
+        eval_case = result_dataset.eval_cases[0]
+
+        assert eval_case.prompt == genai_types.Content(
+            parts=[genai_types.Part(text="Current prompt")]
+        )
+        assert eval_case.reference is None
+        assert len(eval_case.conversation_history) == 2
+        assert eval_case.conversation_history[0].content.parts[0].text == "Old user msg"
+        assert (
+            eval_case.conversation_history[1].content.parts[0].text == "Old model msg"
+        )
+
     def test_convert_missing_response_raises_value_error(self):
         raw_data_df = pd.DataFrame({"prompt": ["Hello"]})  # Missing response
         raw_data = raw_data_df.to_dict(orient="records")
@@ -3515,6 +5596,101 @@ class TestAgentInfo:
         ]
         mock_from_callable.assert_called_once_with(callable=my_search_tool)
 
+    def test_load_from_agent_with_get_declaration_tool(self):
+        """Tests that tools with _get_declaration() use it instead of from_callable."""
+        mock_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+
+        mock_tool = mock.Mock()
+        mock_tool._get_declaration = mock.Mock(return_value=mock_declaration)
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [mock_tool]
+        mock_agent.sub_agents = []
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+        )
+
+        assert agent_info.name == "mock_agent"
+        assert len(agent_info.agents["mock_agent"].tools) == 1
+        assert isinstance(agent_info.agents["mock_agent"].tools[0], genai_types.Tool)
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+            mock_declaration
+        ]
+        mock_tool._get_declaration.assert_called_once()
+
+    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
+    def test_load_from_agent_with_mixed_tools(self, mock_from_callable):
+        """Tests agents with both _get_declaration tools and plain callables."""
+
+        def my_plain_tool(query: str) -> str:
+            """A plain callable tool."""
+            return query
+
+        mock_adk_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_adk_tool = mock.Mock()
+        mock_adk_tool._get_declaration = mock.Mock(return_value=mock_adk_declaration)
+
+        mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_from_callable.return_value = mock_callable_declaration
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [mock_adk_tool, my_plain_tool]
+        mock_agent.sub_agents = []
+
+        agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+        )
+
+        assert len(agent_info.agents["mock_agent"].tools) == 2
+        # First tool: ADK tool with _get_declaration
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+            mock_adk_declaration
+        ]
+        mock_adk_tool._get_declaration.assert_called_once()
+        # Second tool: plain callable via from_callable_with_api_option
+        assert agent_info.agents["mock_agent"].tools[1].function_declarations == [
+            mock_callable_declaration
+        ]
+        mock_from_callable.assert_called_once_with(callable=my_plain_tool)
+
+    def test_load_from_agent_with_none_declaration_falls_back(self):
+        """Tests that tools returning None from _get_declaration fall back to from_callable."""
+        mock_tool = mock.Mock()
+        mock_tool._get_declaration = mock.Mock(return_value=None)
+        mock_tool.__name__ = "mock_tool"
+        mock_tool.__doc__ = "A mock tool."
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [mock_tool]
+        mock_agent.sub_agents = []
+
+        with mock.patch.object(
+            genai_types.FunctionDeclaration, "from_callable_with_api_option"
+        ) as mock_from_callable:
+            mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+            mock_from_callable.return_value = mock_callable_declaration
+
+            agent_info = vertexai_genai_types.evals.AgentInfo.load_from_agent(
+                agent=mock_agent,
+            )
+
+            assert len(agent_info.agents["mock_agent"].tools) == 1
+            assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+                mock_callable_declaration
+            ]
+            mock_tool._get_declaration.assert_called_once()
+            mock_from_callable.assert_called_once_with(callable=mock_tool)
+
 
 class TestValidateDatasetAgentData:
     """Unit tests for the _validate_dataset_agent_data function."""
@@ -3723,6 +5899,134 @@ class TestSessionInput:
         )
         assert session_input.user_id == "user1"
         assert session_input.state == {"key": "value"}
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestBuildEvaluationInstance:
+    def setup_method(self):
+        importlib.reload(aiplatform_initializer)
+        importlib.reload(aiplatform)
+        importlib.reload(vertexai)
+        importlib.reload(vertexai_genai_types)
+        importlib.reload(_evals_data_converters)
+        importlib.reload(_evals_metric_handlers)
+
+        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        self.mock_api_client = mock.Mock(spec=client.Client)
+        self.mock_evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+    def test_build_evaluation_instance_basic_filtering_and_fields(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="test_quality",
+            prompt_template="Eval: {prompt} with {response}. Context: {custom_context}. Ref: {reference}",
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(
+                parts=[genai_types.Part(text="User prompt text")]
+            ),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="Model response text")]
+                    )
+                )
+            ],
+            reference=vertexai_genai_types.ResponseCandidate(
+                response=genai_types.Content(
+                    parts=[genai_types.Part(text="Ground truth text")]
+                )
+            ),
+            custom_context="Custom context value.",
+            extra_field_not_in_template="This should be excluded.",
+            eval_case_id="case-123",
+        )
+
+        response_content = _evals_metric_handlers._get_response_from_eval_case(
+            eval_case, 0, metric.name
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, response_content, prompt_template=metric.prompt_template
+        )
+
+        assert instance.prompt.contents.contents[0].parts[0].text == "User prompt text"
+        assert (
+            instance.response.contents.contents[0].parts[0].text
+            == "Model response text"
+        )
+        assert (
+            instance.reference.contents.contents[0].parts[0].text == "Ground truth text"
+        )
+        assert (
+            instance.other_data.map_instance["custom_context"]
+            .contents.contents[0]
+            .parts[0]
+            .text
+            == "Custom context value."
+        )
+        assert "extra_field_not_in_template" not in instance.other_data.map_instance
+
+    def test_build_evaluation_instance_various_field_types(self):
+        metric = vertexai_genai_types.LLMMetric(
+            name="test_various_fields",
+            prompt_template="{prompt}{response}{conversation_history}{system_instruction}{dict_field}{list_field}{int_field}{bool_field}",
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            prompt=genai_types.Content(parts=[genai_types.Part(text="The Prompt")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(
+                        parts=[genai_types.Part(text="The Response")]
+                    )
+                )
+            ],
+            conversation_history=[
+                vertexai_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
+                    )
+                ),
+                vertexai_genai_types.evals.Message(
+                    content=genai_types.Content(
+                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
+                    )
+                ),
+            ],
+            system_instruction=genai_types.Content(
+                parts=[genai_types.Part(text="System instructions here.")],
+                role="system",
+            ),
+            dict_field={"key1": "val1", "key2": [1, 2]},
+            list_field=["a", "b", {"c": 3}],
+            int_field=42,
+            bool_field=True,
+        )
+
+        response_content = _evals_metric_handlers._get_response_from_eval_case(
+            eval_case, 0, metric.name
+        )
+        instance = _evals_metric_handlers._build_evaluation_instance(
+            eval_case, response_content, prompt_template=metric.prompt_template
+        )
+
+        other_data = instance.other_data.map_instance
+        assert (
+            other_data["dict_field"].contents.contents[0].parts[0].text
+            == '{"key1": "val1", "key2": [1, 2]}'
+        )
+        assert (
+            other_data["list_field"].contents.contents[0].parts[0].text
+            == '["a", "b", {"c": 3}]'
+        )
+        assert other_data["int_field"].contents.contents[0].parts[0].text == "42"
+        assert other_data["bool_field"].contents.contents[0].parts[0].text == "True"
+        assert (
+            other_data["conversation_history"].contents.contents[0].parts[0].text
+            == "user: Turn 1 user\nmodel: Turn 1 model"
+        )
+        assert (
+            other_data["system_instruction"].contents.contents[0].parts[0].text
+            == "System instructions here."
+        )
 
 
 class TestMetric:
@@ -4587,12 +6891,10 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case,
-                eval_case.prompt,
-                eval_case.responses[0].response,
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
         assert "agent1" in agent_data.agents
@@ -4623,11 +6925,7 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
-        )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(eval_case)
 
         assert agent_data.agents is None
         assert (
@@ -4652,11 +6950,7 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
-        )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(eval_case)
 
         assert agent_data.agents is None
         assert agent_data.turns[0].events[0].content is None
@@ -4683,13 +6977,13 @@ class TestPredefinedMetricHandler:
             agent_info=agent_info,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
-        assert agent_data.turns is None
+        assert len(agent_data.turns[0].events) == 2
 
     def test_eval_case_to_agent_data_agent_info_empty_tools(self):
         agent_info = vertexai_genai_types.evals.AgentInfo(
@@ -4713,10 +7007,10 @@ class TestPredefinedMetricHandler:
             intermediate_events=None,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
         assert agent_data.agents["agent1"].instruction == "instruction1"
@@ -4742,10 +7036,10 @@ class TestPredefinedMetricHandler:
             intermediate_events=intermediate_events,
         )
 
-        agent_data = (
-            _evals_metric_handlers.PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case
-            )
+        agent_data = _evals_metric_handlers._eval_case_to_agent_data(
+            eval_case,
+            eval_case.prompt,
+            eval_case.responses[0].response,
         )
 
         assert agent_data.agents is None
@@ -4779,29 +7073,102 @@ class TestPredefinedMetricHandler:
         handler._build_request_payload(eval_case, response_index=0)
         mock_warning.assert_called_once_with(
             "Metric 'tool_use_quality_v1' requires tool usage in "
-            "'intermediate_events', but no tool usage was found for case %s.",
+            "'intermediate_events' or 'agent_data', but no tool usage was found for case %s.",
             "case-no-tool-call",
         )
+
+    @mock.patch.object(_evals_metric_handlers.logger, "warning")
+    def test_build_request_payload_tool_use_quality_v1_with_agent_data_tool_call(
+        self, mock_warning, mock_api_client_fixture
+    ):
+        """Tests that PredefinedMetricHandler does not warn if tool call is in agent_data."""
+        metric = vertexai_genai_types.Metric(name="tool_use_quality_v1")
+        handler = _evals_metric_handlers.PredefinedMetricHandler(
+            module=evals.Evals(api_client_=mock_api_client_fixture), metric=metric
+        )
+        eval_case = vertexai_genai_types.EvalCase(
+            eval_case_id="case-with-agent-data-tool-call",
+            prompt=genai_types.Content(parts=[genai_types.Part(text="Hello")]),
+            responses=[
+                vertexai_genai_types.ResponseCandidate(
+                    response=genai_types.Content(parts=[genai_types.Part(text="Hi")])
+                )
+            ],
+            agent_data=vertexai_genai_types.evals.AgentData(
+                turns=[
+                    vertexai_genai_types.evals.ConversationTurn(
+                        turn_index=0,
+                        turn_id="turn_0",
+                        events=[
+                            vertexai_genai_types.evals.AgentEvent(
+                                author="model",
+                                content=genai_types.Content(
+                                    parts=[
+                                        genai_types.Part(
+                                            function_call=genai_types.FunctionCall(
+                                                name="search", args={}
+                                            )
+                                        )
+                                    ]
+                                ),
+                            )
+                        ],
+                    )
+                ]
+            ),
+        )
+        handler._build_request_payload(eval_case, response_index=0)
+        mock_warning.assert_not_called()
 
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestRunAdkUserSimulation:
     """Unit tests for the _run_adk_user_simulation function."""
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
+    def _build_adk_mock_modules(self):
+        """Builds mock ADK modules for lazy imports in _run_adk_user_simulation."""
+        mock_scenario_cls = mock.MagicMock()
+        mock_config_cls = mock.MagicMock()
+        mock_simulator_cls = mock.MagicMock()
+        mock_generator_cls = mock.MagicMock()
+        mock_session_input_cls = mock.MagicMock()
+        mock_modules = {
+            "google.adk": mock.MagicMock(),
+            "google.adk.evaluation": mock.MagicMock(),
+            "google.adk.evaluation.conversation_scenarios": mock.MagicMock(
+                ConversationScenario=mock_scenario_cls
+            ),
+            "google.adk.evaluation.eval_case": mock.MagicMock(
+                SessionInput=mock_session_input_cls
+            ),
+            "google.adk.evaluation.evaluation_generator": mock.MagicMock(
+                EvaluationGenerator=mock_generator_cls
+            ),
+            "google.adk.evaluation.simulation": mock.MagicMock(),
+            "google.adk.evaluation.simulation.llm_backed_user_simulator": mock.MagicMock(
+                LlmBackedUserSimulator=mock_simulator_cls,
+                LlmBackedUserSimulatorConfig=mock_config_cls,
+            ),
+        }
+        return (
+            mock_modules,
+            mock_scenario_cls,
+            mock_config_cls,
+            mock_simulator_cls,
+            mock_generator_cls,
+            mock_session_input_cls,
+        )
+
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_success(
-        self,
-        mock_config_cls,
-        mock_scenario_cls,
-        mock_simulator_cls,
-        mock_generator_cls,
-        mock_session_input_cls,
-    ):
+    async def test_run_adk_user_simulation_success(self):
+        (
+            mock_modules,
+            mock_scenario_cls,
+            _,
+            _,
+            mock_generator_cls,
+            mock_session_input_cls,
+        ) = self._build_adk_mock_modules()
         row = pd.Series(
             {
                 "starting_prompt": "start",
@@ -4821,7 +7188,8 @@ class TestRunAdkUserSimulation:
             return_value=[mock_invocation]
         )
 
-        turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(sys.modules, mock_modules):
+            turns = await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         assert len(turns) == 1
         turn = turns[0]
@@ -4834,44 +7202,32 @@ class TestRunAdkUserSimulation:
         assert turn["events"][1]["content"] == {"text": "agent msg"}
 
         mock_scenario_cls.assert_called_once_with(
-            starting_prompt="start", conversation_plan="plan"
+            starting_prompt="start",
+            conversation_plan="plan",
+            user_persona="EVALUATOR",
         )
         mock_session_input_cls.assert_called_once()
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_missing_columns(
-        self,
-        mock_config_cls,
-        mock_scenario_cls,
-        mock_simulator_cls,
-        mock_generator_cls,
-        mock_session_input_cls,
-    ):
+    async def test_run_adk_user_simulation_missing_columns(self):
+        mock_modules, _, _, _, _, _ = self._build_adk_mock_modules()
         row = pd.Series({"conversation_plan": "plan"})
         mock_agent = mock.Mock()
 
-        with pytest.raises(ValueError, match="User simulation requires"):
-            await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(sys.modules, mock_modules):
+            with pytest.raises(ValueError, match="User simulation requires"):
+                await _evals_common._run_adk_user_simulation(row, mock_agent)
 
-    @mock.patch("vertexai._genai._evals_common.ADK_SessionInput")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.EvaluationGenerator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulator")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.ConversationScenario")  # fmt: skip
-    @mock.patch("vertexai._genai._evals_common.LlmBackedUserSimulatorConfig")  # fmt: skip
     @pytest.mark.asyncio
-    async def test_run_adk_user_simulation_missing_session_inputs(
-        self,
-        mock_config_cls,
-        mock_scenario_cls,
-        mock_simulator_cls,
-        mock_generator_cls,
-        mock_session_input_cls,
-    ):
+    async def test_run_adk_user_simulation_missing_session_inputs(self):
+        (
+            mock_modules,
+            mock_scenario_cls,
+            _,
+            _,
+            mock_generator_cls,
+            mock_session_input_cls,
+        ) = self._build_adk_mock_modules()
         row = pd.Series(
             {
                 "starting_prompt": "start",
@@ -4890,178 +7246,19 @@ class TestRunAdkUserSimulation:
             return_value=[mock_invocation]
         )
 
-        await _evals_common._run_adk_user_simulation(row, mock_agent)
+        with mock.patch.dict(sys.modules, mock_modules):
+            await _evals_common._run_adk_user_simulation(row, mock_agent)
 
         mock_scenario_cls.assert_called_once_with(
-            starting_prompt="start", conversation_plan="plan"
+            starting_prompt="start",
+            conversation_plan="plan",
+            user_persona="EVALUATOR",
         )
         mock_session_input_cls.assert_called_once_with(
             app_name="user_simulation_app",
             user_id="user_simulation_default_user",
             state={},
         )
-
-
-@pytest.mark.usefixtures("google_auth_mock")
-class TestLLMMetricHandlerPayload:
-    def setup_method(self):
-        importlib.reload(aiplatform_initializer)
-        importlib.reload(aiplatform)
-        importlib.reload(vertexai)
-        importlib.reload(vertexai_genai_types)
-        importlib.reload(_evals_data_converters)
-        importlib.reload(_evals_metric_handlers)
-
-        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        self.mock_api_client = mock.Mock(spec=client.Client)
-        self.mock_evals_module = evals.Evals(api_client_=self.mock_api_client)
-
-    def test_build_request_payload_basic_filtering_and_fields(self):
-        metric = vertexai_genai_types.LLMMetric(
-            name="test_quality",
-            prompt_template="Eval: {prompt} with {response}. Context: {custom_context}. Ref: {reference}",
-        )
-        handler = _evals_metric_handlers.LLMMetricHandler(
-            module=self.mock_evals_module, metric=metric
-        )
-        eval_case = vertexai_genai_types.EvalCase(
-            prompt=genai_types.Content(
-                parts=[genai_types.Part(text="User prompt text")]
-            ),
-            responses=[
-                vertexai_genai_types.ResponseCandidate(
-                    response=genai_types.Content(
-                        parts=[genai_types.Part(text="Model response text")]
-                    )
-                )
-            ],
-            reference=vertexai_genai_types.ResponseCandidate(
-                response=genai_types.Content(
-                    parts=[genai_types.Part(text="Ground truth text")]
-                )
-            ),
-            custom_context="Custom context value.",
-            extra_field_not_in_template="This should be excluded.",
-            eval_case_id="case-123",
-        )
-
-        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-
-        expected_content_map = {
-            "prompt": _create_content_dump("User prompt text"),
-            "response": _create_content_dump("Model response text"),
-            "custom_context": _create_content_dump("Custom context value."),
-            "reference": _create_content_dump("Ground truth text"),
-        }
-        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
-            "content_map_instance"
-        ]["values"]
-
-        assert actual_content_map_dict == expected_content_map
-        assert "extra_field_not_in_template" not in actual_content_map_dict
-        assert "eval_case_id" not in actual_content_map_dict
-
-    def test_build_request_payload_various_field_types(self):
-        metric = vertexai_genai_types.LLMMetric(
-            name="test_various_fields",
-            prompt_template="{prompt}{response}{conversation_history}{system_instruction}{dict_field}{list_field}{int_field}{bool_field}",
-        )
-        handler = _evals_metric_handlers.LLMMetricHandler(
-            module=self.mock_evals_module, metric=metric
-        )
-        eval_case = vertexai_genai_types.EvalCase(
-            prompt=genai_types.Content(parts=[genai_types.Part(text="The Prompt")]),
-            responses=[
-                vertexai_genai_types.ResponseCandidate(
-                    response=genai_types.Content(
-                        parts=[genai_types.Part(text="The Response")]
-                    )
-                )
-            ],
-            conversation_history=[
-                vertexai_genai_types.evals.Message(
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text="Turn 1 user")], role="user"
-                    )
-                ),
-                vertexai_genai_types.evals.Message(
-                    content=genai_types.Content(
-                        parts=[genai_types.Part(text="Turn 1 model")], role="model"
-                    )
-                ),
-            ],
-            system_instruction=genai_types.Content(
-                parts=[genai_types.Part(text="System instructions here.")]
-            ),
-            dict_field={"key1": "val1", "key2": [1, 2]},
-            list_field=["a", "b", {"c": 3}],
-            int_field=42,
-            bool_field=True,
-        )
-
-        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
-            "content_map_instance"
-        ]["values"]
-
-        expected_texts = {
-            "prompt": "The Prompt",
-            "response": "The Response",
-            "conversation_history": "user: Turn 1 user\nmodel: Turn 1 model",
-            "system_instruction": "System instructions here.",
-            "dict_field": json.dumps({"key1": "val1", "key2": [1, 2]}),
-            "list_field": json.dumps(["a", "b", {"c": 3}]),
-            "int_field": "42",
-            "bool_field": "True",
-        }
-        expected_content_map = {
-            key: _create_content_dump(text) for key, text in expected_texts.items()
-        }
-
-        assert actual_content_map_dict == expected_content_map
-
-    def test_build_request_payload_optional_metric_configs_set(self):
-        metric = vertexai_genai_types.LLMMetric(
-            name="test_optional_configs",
-            prompt_template="{prompt}{response}",
-            judge_model="gemini-1.5-pro",
-            judge_model_sampling_count=5,
-            judge_model_system_instruction="You are a fair judge.",
-            return_raw_output=True,
-        )
-        handler = _evals_metric_handlers.LLMMetricHandler(
-            module=self.mock_evals_module, metric=metric
-        )
-        eval_case = vertexai_genai_types.EvalCase(
-            prompt=genai_types.Content(parts=[genai_types.Part(text="p")]),
-            responses=[
-                vertexai_genai_types.ResponseCandidate(
-                    response=genai_types.Content(parts=[genai_types.Part(text="r")])
-                )
-            ],
-        )
-
-        payload = handler._build_request_payload(eval_case=eval_case, response_index=0)
-
-        expected_content_map = {
-            "prompt": _create_content_dump("p"),
-            "response": _create_content_dump("r"),
-        }
-        actual_content_map_dict = payload["pointwise_metric_input"]["instance"][
-            "content_map_instance"
-        ]["values"]
-        assert actual_content_map_dict == expected_content_map
-
-        metric_spec_payload = payload["pointwise_metric_input"]["metric_spec"]
-        assert (
-            metric_spec_payload["custom_output_format_config"]["return_raw_output"]
-            is True
-        )
-        assert metric_spec_payload["system_instruction"] == "You are a fair judge."
-
-        autorater_config_payload = payload["autorater_config"]
-        assert autorater_config_payload["autorater_model"] == "gemini-1.5-pro"
-        assert autorater_config_payload["sampling_count"] == 5
 
     def test_merge_with_invalid_prompt_type(self):
         raw_dataset_1 = [
@@ -5360,27 +7557,42 @@ class TestEvalsRunEvaluation:
             name="text_quality", prompt_template="Evaluate: {response}"
         )
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[llm_metric],
-        )
-        assert isinstance(result, vertexai_genai_types.EvaluationResult)
-        assert result.evaluation_dataset == [input_dataset]
-        assert len(result.summary_metrics) == 1
-        summary_metric = result.summary_metrics[0]
-        assert summary_metric.metric_name == "text_quality"
-        assert summary_metric.mean_score == 0.9
-        case_result = result.eval_case_results[0]
-        candidate_result = case_result.response_candidate_results[0]
-        assert (
-            candidate_result.metric_results["text_quality"].explanation
-            == "Mocked LLM explanation"
-        )
+        with mock.patch(
+            "vertexai._genai.evals.Evals._evaluate_instances"
+        ) as mock_evaluate_instances_unified:
+            mock_evaluate_instances_unified.return_value = (
+                vertexai_genai_types.EvaluateInstancesResponse(
+                    metric_results=[
+                        vertexai_genai_types.MetricResult(
+                            score=0.9,
+                            explanation="Mocked LLM explanation",
+                            error=None,
+                            rubric_verdicts=[],
+                        )
+                    ]
+                )
+            )
 
-        mock_eval_dependencies["mock_evaluate_instances"].assert_called_once()
-        call_args = mock_eval_dependencies["mock_evaluate_instances"].call_args
-        assert "pointwise_metric_input" in call_args[1]["metric_config"]
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[llm_metric],
+            )
+            assert isinstance(result, vertexai_genai_types.EvaluationResult)
+            assert result.evaluation_dataset == [input_dataset]
+            assert len(result.summary_metrics) == 1
+            summary_metric = result.summary_metrics[0]
+            assert summary_metric.metric_name == "text_quality"
+            assert summary_metric.mean_score == 0.9
+            case_result = result.eval_case_results[0]
+            candidate_result = case_result.response_candidate_results[0]
+            assert (
+                candidate_result.metric_results["text_quality"].explanation
+                == "Mocked LLM explanation"
+            )
+
+            mock_evaluate_instances_unified.assert_called_once()
+            mock_eval_dependencies["mock_evaluate_instances"].assert_not_called()
 
     def test_execute_evaluation_hallucination_metric(self, mock_api_client_fixture):
         dataset_df = pd.DataFrame(
@@ -5719,21 +7931,37 @@ class TestEvalsRunEvaluation:
             name="fluency", version="v1"
         )
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[lazy_metric_instance],
-        )
+        with mock.patch(
+            "vertexai._genai.evals.Evals._evaluate_instances"
+        ) as mock_evaluate_instances_unified:
+            mock_evaluate_instances_unified.return_value = (
+                vertexai_genai_types.EvaluateInstancesResponse(
+                    metric_results=[
+                        vertexai_genai_types.MetricResult(
+                            score=0.9,
+                            explanation="Mocked LLM explanation",
+                            error=None,
+                            rubric_verdicts=[],
+                        )
+                    ]
+                )
+            )
 
-        mock_eval_dependencies["mock_fetch_prebuilt_metric"].assert_called_once_with(
-            mock_api_client_fixture
-        )
-        assert isinstance(result, vertexai_genai_types.EvaluationResult)
-        assert result.evaluation_dataset == [input_dataset]
-        assert len(result.summary_metrics) == 1
-        summary_metric = result.summary_metrics[0]
-        assert summary_metric.metric_name == "fluency"
-        assert summary_metric.mean_score == 0.9
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[lazy_metric_instance],
+            )
+
+            mock_eval_dependencies[
+                "mock_fetch_prebuilt_metric"
+            ].assert_called_once_with(mock_api_client_fixture)
+            assert isinstance(result, vertexai_genai_types.EvaluationResult)
+            assert result.evaluation_dataset == [input_dataset]
+            assert len(result.summary_metrics) == 1
+            summary_metric = result.summary_metrics[0]
+            assert summary_metric.metric_name == "fluency"
+            assert summary_metric.mean_score == 0.9
 
     def test_execute_evaluation_prebuilt_metric_via_loader(
         self, mock_api_client_fixture, mock_eval_dependencies
@@ -5747,21 +7975,37 @@ class TestEvalsRunEvaluation:
 
         prebuilt_metric = vertexai_genai_types.RubricMetric.FLUENCY
 
-        result = _evals_common._execute_evaluation(
-            api_client=mock_api_client_fixture,
-            dataset=input_dataset,
-            metrics=[prebuilt_metric],
-        )
+        with mock.patch(
+            "vertexai._genai.evals.Evals._evaluate_instances"
+        ) as mock_evaluate_instances_unified:
+            mock_evaluate_instances_unified.return_value = (
+                vertexai_genai_types.EvaluateInstancesResponse(
+                    metric_results=[
+                        vertexai_genai_types.MetricResult(
+                            score=0.9,
+                            explanation="Mocked LLM explanation",
+                            error=None,
+                            rubric_verdicts=[],
+                        )
+                    ]
+                )
+            )
 
-        mock_eval_dependencies["mock_fetch_prebuilt_metric"].assert_called_once_with(
-            mock_api_client_fixture
-        )
-        assert isinstance(result, vertexai_genai_types.EvaluationResult)
-        assert result.evaluation_dataset == [input_dataset]
-        assert len(result.summary_metrics) == 1
-        summary_metric = result.summary_metrics[0]
-        assert summary_metric.metric_name == "fluency"
-        assert summary_metric.mean_score == 0.9
+            result = _evals_common._execute_evaluation(
+                api_client=mock_api_client_fixture,
+                dataset=input_dataset,
+                metrics=[prebuilt_metric],
+            )
+
+            mock_eval_dependencies[
+                "mock_fetch_prebuilt_metric"
+            ].assert_called_once_with(mock_api_client_fixture)
+            assert isinstance(result, vertexai_genai_types.EvaluationResult)
+            assert result.evaluation_dataset == [input_dataset]
+            assert len(result.summary_metrics) == 1
+            summary_metric = result.summary_metrics[0]
+            assert summary_metric.metric_name == "fluency"
+            assert summary_metric.mean_score == 0.9
 
     def test_execute_evaluation_with_gcs_destination(
         self, mock_api_client_fixture, mock_eval_dependencies
@@ -5994,6 +8238,8 @@ class TestEvalsRunEvaluation:
             genai_errors.ClientError(code=429, response_json=error_response_json),
             genai_errors.ClientError(code=429, response_json=error_response_json),
             genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
         ]
 
         result = _evals_common._execute_evaluation(
@@ -6002,18 +8248,13 @@ class TestEvalsRunEvaluation:
             metrics=[metric],
         )
 
-        assert mock_private_evaluate_instances.call_count == 3
-        assert mock_sleep.call_count == 2
+        assert mock_private_evaluate_instances.call_count == 5
+        assert mock_sleep.call_count == 4
         assert len(result.summary_metrics) == 1
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "summarization_quality"
         assert summary_metric.mean_score is None
         assert summary_metric.num_cases_error == 1
-        assert (
-            "Judge model resource exhausted after 3 retries"
-        ) in result.eval_case_results[0].response_candidate_results[0].metric_results[
-            "summarization_quality"
-        ].error_message
 
 
 class TestEvaluationDataset:
@@ -6534,3 +8775,354 @@ class TestCreateEvaluationSetFromDataFrame:
         candidate_response = candidate_responses[0]
         assert candidate_response["candidate"] == "test-candidate"
         assert candidate_response["agent_data"] == agent_data
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_with_history_column(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that 'history' column is accepted and mapped to prompt_template_data."""
+        eval_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "test prompt",
+                    "response": "test response",
+                    "history": "previous conversation",
+                }
+            ]
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        result = _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+        )
+
+        assert result == mock_eval_set
+
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        assert "prompt_template_data" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "conversation_history" in ptd_values
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_with_conversation_history_column(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that 'conversation_history' column is accepted and mapped to prompt_template_data."""
+        eval_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "test prompt",
+                    "response": "test response",
+                    "conversation_history": "previous conversation",
+                }
+            ]
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        result = _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+        )
+
+        assert result == mock_eval_set
+
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        assert "prompt_template_data" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "conversation_history" in ptd_values
+
+
+class TestResolveDataset:
+    """Unit tests for the _resolve_dataset function."""
+
+    def setup_method(self):
+        self.mock_api_client = mock.Mock(spec=client.Client)
+        self.mock_api_client.project = "test-project"
+        self.mock_api_client.location = "us-central1"
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_resolve_dataset_preserves_conversation_history(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that conversation_history from EvalCase is included in the DataFrame."""
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_eval_set.name = "eval_set_1"
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        history_content_1 = genai_types.Content(
+            role="user", parts=[genai_types.Part(text="Old user msg")]
+        )
+        history_content_2 = genai_types.Content(
+            role="model", parts=[genai_types.Part(text="Old model msg")]
+        )
+
+        dataset = vertexai_genai_types.EvaluationDataset(
+            eval_cases=[
+                vertexai_genai_types.EvalCase(
+                    prompt=genai_types.Content(
+                        parts=[genai_types.Part(text="test prompt")]
+                    ),
+                    responses=[
+                        vertexai_genai_types.ResponseCandidate(
+                            response=genai_types.Content(
+                                parts=[genai_types.Part(text="test response")]
+                            )
+                        )
+                    ],
+                    conversation_history=[
+                        vertexai_genai_types.evals.Message(
+                            turn_id="0", content=history_content_1
+                        ),
+                        vertexai_genai_types.evals.Message(
+                            turn_id="1", content=history_content_2
+                        ),
+                    ],
+                )
+            ]
+        )
+
+        result = _evals_common._resolve_dataset(
+            api_client=self.mock_api_client,
+            dataset=dataset,
+            dest="gs://bucket/prefix",
+        )
+
+        assert result.evaluation_set == "eval_set_1"
+
+        # Verify that conversation_history was passed through to the GCS upload
+        mock_gcs_instance.upload_json_to_prefix.assert_called_once()
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        assert "prompt_template_data" in uploaded_data["prompt"]
+        ptd_values = uploaded_data["prompt"]["prompt_template_data"]["values"]
+        assert "conversation_history" in ptd_values
+
+
+class TestRateLimiter:
+    """Tests for the RateLimiter class in _evals_utils."""
+
+    def test_rate_limiter_init(self):
+        """Tests that RateLimiter initializes correctly."""
+        limiter = _evals_utils.RateLimiter(rate=10.0)
+        assert limiter.seconds_per_event == pytest.approx(0.1)
+
+    def test_rate_limiter_invalid_rate(self):
+        """Tests that RateLimiter raises ValueError for non-positive rate."""
+        with pytest.raises(ValueError, match="Rate must be a positive number"):
+            _evals_utils.RateLimiter(rate=0)
+        with pytest.raises(ValueError, match="Rate must be a positive number"):
+            _evals_utils.RateLimiter(rate=-1)
+
+    @mock.patch("time.sleep", return_value=None)
+    @mock.patch("time.monotonic")
+    def test_rate_limiter_sleep_and_advance(self, mock_monotonic, mock_sleep):
+        """Tests that sleep_and_advance properly throttles calls."""
+        # With rate=10 (0.1s interval):
+        # - __init__ at t=0: _next_allowed = 0.0
+        # - first call at t=0: no delay, _next_allowed = 0.1
+        # - second call at t=0.01: delay = 0.1 - 0.01 = 0.09
+        mock_monotonic.side_effect = [
+            0.0,  # __init__: time.monotonic()
+            0.0,  # first sleep_and_advance: now
+            0.01,  # second sleep_and_advance: now
+        ]
+        limiter = _evals_utils.RateLimiter(rate=10.0)
+        limiter.sleep_and_advance()  # First call - should not sleep
+        limiter.sleep_and_advance()  # Second call - should sleep
+        assert mock_sleep.call_count == 1
+        # Verify sleep was called with approximately the right delay
+        sleep_delay = mock_sleep.call_args[0][0]
+        assert 0.08 < sleep_delay <= 0.1
+
+    def test_rate_limiter_no_sleep_when_enough_time_passed(self):
+        """Tests that no sleep occurs when enough time has passed."""
+        import time as real_time
+
+        limiter = _evals_utils.RateLimiter(rate=1000.0)  # Very high rate
+        # With rate=1000, interval is 0.001s - should not sleep
+        start = real_time.time()
+        for _ in range(5):
+            limiter.sleep_and_advance()
+        elapsed = real_time.time() - start
+        # 5 calls at 1000 QPS should take ~0.005s, certainly under 1s
+        assert elapsed < 1.0
+
+
+class TestCallWithRetry:
+    """Tests for the shared _call_with_retry helper."""
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_success_on_first_try(self, mock_sleep):
+        """Tests that _call_with_retry returns immediately on success."""
+        fn = mock.Mock(return_value="success")
+        result = _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert result == "success"
+        assert fn.call_count == 1
+        assert mock_sleep.call_count == 0
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_success_after_retries(self, mock_sleep):
+        """Tests that _call_with_retry succeeds after transient failures."""
+        error_json = {"error": {"code": 429, "message": "exhausted"}}
+        fn = mock.Mock(
+            side_effect=[
+                genai_errors.ClientError(code=429, response_json=error_json),
+                genai_errors.ClientError(code=429, response_json=error_json),
+                "success",
+            ]
+        )
+        result = _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert result == "success"
+        assert fn.call_count == 3
+        assert mock_sleep.call_count == 2
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_raises_after_max_retries(self, mock_sleep):
+        """Tests that _call_with_retry raises after exhausting retries."""
+        error_json = {"error": {"code": 429, "message": "exhausted"}}
+        fn = mock.Mock(
+            side_effect=genai_errors.ClientError(code=429, response_json=error_json)
+        )
+        with pytest.raises(genai_errors.ClientError):
+            _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert fn.call_count == 5  # _MAX_RETRIES
+        assert mock_sleep.call_count == 4
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_retries_on_server_error(self, mock_sleep):
+        """Tests retry on 503 ServiceUnavailable (ServerError)."""
+        error_json = {"error": {"code": 503, "message": "unavailable"}}
+        fn = mock.Mock(
+            side_effect=[
+                genai_errors.ServerError(code=503, response_json=error_json),
+                "success",
+            ]
+        )
+        result = _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert result == "success"
+        assert fn.call_count == 2
+
+    @mock.patch("time.sleep", return_value=None)
+    def test_call_with_retry_no_retry_on_non_retryable(self, mock_sleep):
+        """Tests that non-retryable errors are raised immediately."""
+        error_json = {"error": {"code": 400, "message": "bad request"}}
+        fn = mock.Mock(
+            side_effect=genai_errors.ClientError(code=400, response_json=error_json)
+        )
+        with pytest.raises(genai_errors.ClientError):
+            _evals_metric_handlers._call_with_retry(fn, "test_metric")
+        assert fn.call_count == 1
+        assert mock_sleep.call_count == 0
+
+
+class TestComputationMetricRetry:
+    """Tests for retry behavior in ComputationMetricHandler."""
+
+    @mock.patch.object(
+        _evals_metric_handlers.ComputationMetricHandler,
+        "SUPPORTED_COMPUTATION_METRICS",
+        frozenset(["bleu"]),
+    )
+    @mock.patch("time.sleep", return_value=None)
+    # fmt: off
+    @mock.patch(
+        "vertexai._genai.evals.Evals.evaluate_instances"
+    )
+    # fmt: on
+    def test_computation_metric_retry_on_resource_exhausted(
+        self,
+        mock_evaluate_instances,
+        mock_sleep,
+        mock_api_client_fixture,
+    ):
+        """Tests that ComputationMetricHandler retries on 429."""
+        dataset_df = pd.DataFrame(
+            [
+                {
+                    "prompt": "Test prompt",
+                    "response": "Test response",
+                    "reference": "Test reference",
+                }
+            ]
+        )
+        input_dataset = vertexai_genai_types.EvaluationDataset(
+            eval_dataset_df=dataset_df
+        )
+        metric = vertexai_genai_types.Metric(name="bleu")
+        error_response_json = {
+            "error": {
+                "code": 429,
+                "message": "Resource exhausted.",
+                "status": "RESOURCE_EXHAUSTED",
+            }
+        }
+        mock_bleu_result = mock.MagicMock()
+        mock_bleu_result.model_dump.return_value = {
+            "bleu_results": {"bleu_metric_values": [{"score": 0.85}]}
+        }
+        mock_evaluate_instances.side_effect = [
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            genai_errors.ClientError(code=429, response_json=error_response_json),
+            mock_bleu_result,
+        ]
+
+        result = _evals_common._execute_evaluation(
+            api_client=mock_api_client_fixture,
+            dataset=input_dataset,
+            metrics=[metric],
+        )
+
+        assert mock_evaluate_instances.call_count == 3
+        assert mock_sleep.call_count == 2
+        summary_metric = result.summary_metrics[0]
+        assert summary_metric.metric_name == "bleu"
+        assert summary_metric.mean_score == 0.85

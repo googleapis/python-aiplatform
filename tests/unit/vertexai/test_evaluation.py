@@ -22,6 +22,7 @@ import time
 from unittest import mock
 
 from google import auth
+from google import genai
 from google.auth import credentials as auth_credentials
 from google.cloud import aiplatform
 import vertexai
@@ -1026,6 +1027,62 @@ class TestEvaluation:
         ]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
+    def test_compute_pointwise_metrics_metric_prompt_template_example_string_model(
+        self, api_transport
+    ):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            api_transport=api_transport,
+        )
+        mock_client = mock.create_autospec(genai.Client, instance=True)
+        mock_response = mock.MagicMock()
+        mock_response.text = "test_response"
+        mock_client.models.generate_content.return_value = mock_response
+
+        test_metrics = [Pointwise.SUMMARIZATION_QUALITY]
+        test_eval_task = EvalTask(
+            dataset=_TEST_EVAL_DATASET_WITHOUT_RESPONSE, metrics=test_metrics
+        )
+        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
+        with mock.patch.object(genai, "Client", return_value=mock_client):
+            with mock.patch.object(
+                target=gapic_evaluation_services.EvaluationServiceClient,
+                attribute="evaluate_instances",
+                side_effect=mock_metric_results,
+            ):
+                test_result = test_eval_task.evaluate(
+                    model="gemini-1.5-pro",
+                    prompt_template="{instruction} test prompt template {context}",
+                )
+
+        assert test_result.summary_metrics["row_count"] == 2
+        assert test_result.summary_metrics["summarization_quality/mean"] == 4.5
+        assert test_result.summary_metrics[
+            "summarization_quality/std"
+        ] == pytest.approx(0.7, 0.1)
+        assert set(test_result.metrics_table.columns.values) == set(
+            [
+                "context",
+                "instruction",
+                "reference",
+                "prompt",
+                "response",
+                "summarization_quality/score",
+                "summarization_quality/explanation",
+            ]
+        )
+        assert list(
+            test_result.metrics_table["summarization_quality/score"].values
+        ) == [5, 4]
+        assert list(
+            test_result.metrics_table["summarization_quality/explanation"].values
+        ) == [
+            "explanation",
+            "explanation",
+        ]
+
+    @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_pointwise_metrics_without_model_inference(self, api_transport):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1401,13 +1458,13 @@ class TestEvaluation:
         mock_baseline_model.generate_content.return_value = (
             _MOCK_MODEL_INFERENCE_RESPONSE
         )
-        mock_baseline_model._model_name = "publishers/google/model/gemini-pro"
+        mock_baseline_model._model_name = "gemini-2.5-pro"
         _TEST_PAIRWISE_METRIC._baseline_model = mock_baseline_model
         mock_model = mock.create_autospec(
             generative_models.GenerativeModel, instance=True
         )
         mock_model.generate_content.return_value = _MOCK_MODEL_INFERENCE_RESPONSE
-        mock_model._model_name = "publishers/google/model/gemini-pro"
+        mock_model._model_name = "gemini-2.5-flash"
         test_metrics = [
             "exact_match",
             Pointwise.SUMMARIZATION_QUALITY,
@@ -2096,6 +2153,29 @@ class TestEvaluationErrors:
             )
             test_eval_task.evaluate()
 
+    @mock.patch("google.genai.Client")
+    def test_evaluate_model_genai(self, mock_client_class):
+        mock_client = mock.MagicMock()
+        mock_client.models.generate_content.return_value = mock.MagicMock(
+            text="test_response"
+        )
+        mock_client_class.return_value = mock_client
+        test_eval_task = EvalTaskPreview(
+            dataset=_TEST_EVAL_DATASET_WITHOUT_RESPONSE,
+            metrics=[PointwisePreview.SUMMARIZATION_QUALITY],
+        )
+        with mock.patch.object(
+            target=gapic_evaluation_services_preview.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=_MOCK_SUMMARIZATION_QUALITY_RESULT_PREVIEW,
+        ):
+            test_result = test_eval_task.evaluate(
+                model="gemini-2.5-pro",
+                prompt_template="{instruction} test prompt template {context}",
+            )
+            assert mock_client.models.generate_content.call_count == 2
+            assert "summarization_quality/score" in test_result.metrics_table.columns
+
     def test_evaluate_duplicate_string_metric(self):
         metrics = [
             "exact_match",
@@ -2653,6 +2733,31 @@ class TestEvaluationUtils:
     def test_default_rubrics_parser_with_invalid_json(self):
         parsed_rubrics = utils_preview.parse_rubrics(_INVALID_UNPARSED_RUBRIC)
         assert parsed_rubrics == {"questions": ""}
+
+    def test_generate_responses_from_genai_model(self):
+        mock_client = mock.create_autospec(genai.Client, instance=True)
+        mock_response = mock.MagicMock()
+        mock_response.text = "test_response"
+        mock_client.models.generate_content.return_value = mock_response
+
+        with mock.patch.object(genai, "Client", return_value=mock_client):
+            evaluation_run_config = eval_base.EvaluationRunConfig(
+                dataset=_TEST_EVAL_DATASET_WITHOUT_RESPONSE.copy(),
+                metrics=[],
+                metric_column_mapping={},
+                client=mock.MagicMock(),
+                evaluation_service_qps=1,
+                retry_timeout=1,
+            )
+            _evaluation._generate_responses_from_genai_model(
+                "gemini-2.5-pro", evaluation_run_config
+            )
+
+        assert list(evaluation_run_config.dataset["response"].values) == [
+            "test_response",
+            "test_response",
+        ]
+        assert mock_client.models.generate_content.call_count == 2
 
     def test_generate_responses_from_gemini_model(self):
         mock_model = mock.create_autospec(

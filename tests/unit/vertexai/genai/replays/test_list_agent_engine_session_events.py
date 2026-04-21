@@ -38,12 +38,18 @@ def test_list_session_events(client):
         author="test-user-123",
         invocation_id="test-invocation-id",
         timestamp=datetime.datetime.fromtimestamp(1234567890, tz=datetime.timezone.utc),
+        config={
+            "raw_event": {
+                "test-key": "test-value",
+            },
+        },
     )
     session_event_list = client.agent_engines.sessions.events.list(
         name=session.name,
     )
     assert len(session_event_list) == 1
     assert isinstance(session_event_list[0], types.SessionEvent)
+    assert session_event_list[0].raw_event == {"test-key": "test-value"}
 
 
 pytestmark = pytest_helper.setup(

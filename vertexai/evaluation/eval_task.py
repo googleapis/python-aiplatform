@@ -136,7 +136,7 @@ class EvalTask:
           ```
 
         2. To perform evaluation with Gemini model inference, specify the `model`
-        parameter with a `GenerativeModel` instance.  The input column name to the
+        parameter with a model name string. The input column name to the
         model is `prompt` and must be present in the dataset.
 
           ```
@@ -149,7 +149,7 @@ class EvalTask:
               metrics=["exact_match", "bleu", "rouge_1", "rouge_l_sum"],
               experiment="my-experiment",
           ).evaluate(
-              model=GenerativeModel("gemini-1.5-pro"),
+              model="gemini-2.5-flash",
               experiment_run_name="gemini-eval-run"
           )
           ```
@@ -166,7 +166,7 @@ class EvalTask:
               dataset=eval_dataset,
               metrics=[MetricPromptTemplateExamples.Pointwise.SUMMARIZATION_QUALITY],
           ).evaluate(
-              model=GenerativeModel("gemini-1.5-pro"),
+              model="gemini-2.5-flash",
               prompt_template="{instruction}. Article: {context}. Summary:",
           )
           ```
@@ -207,8 +207,8 @@ class EvalTask:
         to both models is `prompt` and must be present in the dataset.
 
           ```
-          baseline_model = GenerativeModel("gemini-1.0-pro")
-          candidate_model = GenerativeModel("gemini-1.5-pro")
+          baseline_model = "gemini-2.5-pro"
+          candidate_model = "gemini-2.5-flash"
 
           pairwise_groundedness = PairwiseMetric(
               metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
@@ -319,7 +319,7 @@ class EvalTask:
     def _evaluate_with_experiment(
         self,
         *,
-        model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
+        model: Optional[Union[str, GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         evaluation_service_qps: Optional[float] = None,
@@ -381,7 +381,7 @@ class EvalTask:
     def evaluate(
         self,
         *,
-        model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
+        model: Optional[Union[str, GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         experiment_run_name: Optional[str] = None,
         response_column_name: Optional[str] = None,
@@ -393,9 +393,10 @@ class EvalTask:
         """Runs an evaluation for the EvalTask.
 
         Args:
-          model: A GenerativeModel instance or a custom model function to generate
-            responses to evaluate. If not provided, the evaluation can be performed
-            in the bring-your-own-response (BYOR) mode.
+          model: A model name string, a GenerativeModel instance, or a custom
+            model function to generate responses to evaluate. If not provided,
+            the evaluation can be performed in the bring-your-own-response (BYOR)
+            mode.
           prompt_template: The prompt template to use for the evaluation. If not
             set, the prompt template that was used to create the EvalTask will be
             used.
@@ -417,6 +418,15 @@ class EvalTask:
           The evaluation result.
         """
         global_experiment_name = metadata._experiment_tracker.experiment_name
+        if isinstance(model, GenerativeModel):
+            warnings.warn(
+                "vertexai.generative_models.GenerativeModel is deprecated for "
+                "evaluation and will be removed in June 2026. Please pass a string "
+                "model name instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         if experiment_run_name and not self._experiment and not global_experiment_name:
             raise ValueError(
                 "Experiment is not set. Please initialize `EvalTask` with an"
@@ -487,7 +497,9 @@ class EvalTask:
             )
 
         candidate_model_name = None
-        if isinstance(model, generative_models.GenerativeModel):
+        if isinstance(model, str):
+            candidate_model_name = model
+        elif isinstance(model, generative_models.GenerativeModel):
             candidate_model_name = model._model_name
 
         baseline_model_name = None
@@ -499,7 +511,9 @@ class EvalTask:
         if pairwise_metrics:
             # All pairwise metrics should have the same baseline model.
             baseline_model = pairwise_metrics[0].baseline_model
-            if isinstance(baseline_model, generative_models.GenerativeModel):
+            if isinstance(baseline_model, str):
+                baseline_model_name = baseline_model
+            elif isinstance(baseline_model, generative_models.GenerativeModel):
                 baseline_model_name = baseline_model._model_name
 
         dataset_uri = None
@@ -527,7 +541,7 @@ class EvalTask:
 
     def _log_eval_experiment_param(
         self,
-        model: Optional[Union[GenerativeModel, Callable[[str], str]]] = None,
+        model: Optional[Union[str, GenerativeModel, Callable[[str], str]]] = None,
         prompt_template: Optional[str] = None,
         output_file_name: Optional[str] = None,
     ) -> None:
@@ -537,7 +551,13 @@ class EvalTask:
         if prompt_template is not None:
             eval_metadata.update({"prompt_template": prompt_template})
 
-        if isinstance(model, GenerativeModel):
+        if isinstance(model, str):
+            eval_metadata.update(
+                {
+                    "model_name": model,
+                }
+            )
+        elif isinstance(model, GenerativeModel):
             eval_metadata.update(
                 {
                     "model_name": model._model_name,

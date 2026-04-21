@@ -54,37 +54,11 @@ try:
 except ImportError:
     litellm = None
 
-try:
-    from google.adk.agents import LlmAgent
-    from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulator,
-    )
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulatorConfig,
-    )
-    from google.adk.evaluation.conversation_scenarios import ConversationScenario
-    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
-    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
-except ImportError:
-    logging.getLogger(__name__).warning(
-        "ADK is not installed. Please install it using" " 'pip install google-adk'"
-    )
-    LlmAgent = None
-    Runner = None
-    InMemorySessionService = None
-    LlmBackedUserSimulator = None
-    LlmBackedUserSimulatorConfig = None
-    ConversationScenario = None
-    EvaluationGenerator = None
-    ADK_SessionInput = None
-
 
 _thread_local_data = threading.local()
 
 MAX_WORKERS = 100
-AGENT_MAX_WORKERS = 10
+AGENT_MAX_WORKERS = 20
 CONTENT = _evals_constant.CONTENT
 PARTS = _evals_constant.PARTS
 USER_AUTHOR = _evals_constant.USER_AUTHOR
@@ -326,6 +300,18 @@ def _resolve_dataset(
                         if event.content
                     ]
 
+                if case.conversation_history:
+                    history_parts = []
+                    for msg in case.conversation_history:
+                        if msg.content:
+                            role = msg.content.role or "user"
+                            text = _evals_data_converters._get_content_text(msg.content)
+                            history_parts.append(f"{role}: {text}")
+                    if history_parts:
+                        row[_evals_constant.CONVERSATION_HISTORY] = "\n".join(
+                            history_parts
+                        )
+
                 if case.user_scenario:
                     if case.user_scenario.starting_prompt:
                         row[_evals_constant.STARTING_PROMPT] = (
@@ -489,7 +475,7 @@ def _execute_inference_concurrently(
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[..., Any]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
-    agent: Optional[LlmAgent] = None,
+    agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
@@ -749,7 +735,14 @@ def _is_litellm_vertex_maas_model(model: str) -> bool:
 
 def _is_litellm_model(model: str) -> bool:
     """Checks if the model name corresponds to a valid LiteLLM model name."""
-    return model in litellm.utils.get_valid_models(model)
+    if litellm is None:
+        return False
+
+    try:
+        litellm.get_llm_provider(model)
+        return True
+    except ValueError:
+        return False
 
 
 def _is_gemini_model(model: str) -> bool:
@@ -852,7 +845,7 @@ def _run_inference_internal(
             # Unsupported model string
             raise TypeError(
                 f"Unsupported string model name: {model}. Expecting a Gemini model"
-                " name (e.g., 'gemini-1.5-pro', 'projects/.../models/...') or a"
+                " name (e.g., 'gemini-2.5-pro', 'projects/.../models/...') or a"
                 " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
                 " If using a third-party model via LiteLLM, ensure the"
                 " necessary environment variables are set (e.g., for OpenAI:"
@@ -937,11 +930,25 @@ def _run_inference_internal(
 
     results_df_responses_only = pd.DataFrame(
         {
-            "response": responses,
+            _evals_constant.RESPONSE: responses,
         }
     )
 
     prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
+
+    # Drop existing 'response' column to prevent duplicate column names when
+    # re-running inference on a dataset that already has responses.
+    if _evals_constant.RESPONSE in prompt_dataset_indexed.columns:
+        logger.warning(
+            "A column named '%s' already exists in the prompt dataset. "
+            "The existing column will be dropped and replaced with the new "
+            "inference results.",
+            _evals_constant.RESPONSE,
+        )
+        prompt_dataset_indexed = prompt_dataset_indexed.drop(
+            columns=[_evals_constant.RESPONSE]
+        )
+
     results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
 
     results_df = pd.concat(
@@ -953,12 +960,25 @@ def _run_inference_internal(
 
 async def _run_adk_user_simulation(
     row: pd.Series,
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[dict[str, Any]]:
     """Runs a multi-turn user simulation using ADK's EvaluationGenerator."""
+    # Lazy-import ADK dependencies to avoid top-level import failures when
+    # google-adk is not installed.
+    from google.adk.evaluation.conversation_scenarios import ConversationScenario
+    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
+    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulator,
+    )
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulatorConfig,
+    )
+
     starting_prompt = row.get("starting_prompt")
     conversation_plan = row.get("conversation_plan")
+    user_persona = "EVALUATOR"
 
     if not starting_prompt or not conversation_plan:
         raise ValueError(
@@ -967,7 +987,9 @@ async def _run_adk_user_simulation(
         )
 
     scenario = ConversationScenario(
-        starting_prompt=starting_prompt, conversation_plan=conversation_plan
+        starting_prompt=starting_prompt,
+        conversation_plan=conversation_plan,
+        user_persona=user_persona,
     )
 
     user_simulator_kwargs: dict[str, Any] = {}
@@ -1014,7 +1036,9 @@ async def _run_adk_user_simulation(
             events.append(
                 {
                     "author": "user",
-                    "content": invocation.user_content.model_dump(mode="json"),
+                    "content": invocation.user_content.model_dump(
+                        mode="json", exclude_none=True
+                    ),
                     "event_time": datetime.datetime.fromtimestamp(
                         invocation.creation_timestamp, tz=datetime.timezone.utc
                     ),
@@ -1030,7 +1054,7 @@ async def _run_adk_user_simulation(
                         {
                             "author": ie.author,
                             "content": (
-                                ie.content.model_dump(mode="json")
+                                ie.content.model_dump(mode="json", exclude_none=True)
                                 if ie.content
                                 else None
                             ),
@@ -1044,7 +1068,9 @@ async def _run_adk_user_simulation(
                     events.append(
                         {
                             "author": "tool_call",
-                            "content": tool_call.model_dump(mode="json"),
+                            "content": tool_call.model_dump(
+                                mode="json", exclude_none=True
+                            ),
                             "event_time": datetime.datetime.fromtimestamp(
                                 invocation.creation_timestamp, tz=datetime.timezone.utc
                             ),
@@ -1055,7 +1081,9 @@ async def _run_adk_user_simulation(
             events.append(
                 {
                     "author": "agent",
-                    "content": invocation.final_response.model_dump(mode="json"),
+                    "content": invocation.final_response.model_dump(
+                        mode="json", exclude_none=True
+                    ),
                     "event_time": datetime.datetime.fromtimestamp(
                         invocation.creation_timestamp, tz=datetime.timezone.utc
                     ),
@@ -1134,12 +1162,13 @@ def _execute_inference(
     src: Union[str, pd.DataFrame],
     model: Optional[Union[Callable[[Any], Any], str]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
-    agent: Optional[LlmAgent] = None,
+    agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
     location: Optional[str] = None,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
 ) -> pd.DataFrame:
     """Executes inference on a given dataset using the specified model.
 
@@ -1247,6 +1276,7 @@ def _execute_inference(
             agent=agent,
             prompt_dataset=prompt_dataset,
             user_simulator_config=user_simulator_config,
+            allow_cross_region_model=allow_cross_region_model,
         )
         end_time = time.time()
         logger.info("Agent Run completed in %.2f seconds.", end_time - start_time)
@@ -1414,7 +1444,7 @@ def _resolve_evaluation_run_metrics(
                     resolved_metrics_list.append(
                         types.EvaluationRunMetric(
                             metric=resolved_metric.name,
-                            metric_config=genai_types.UnifiedMetric(
+                            metric_config=types.UnifiedMetric(
                                 predefined_metric_spec=genai_types.PredefinedMetricSpec(
                                     metric_spec_name=resolved_metric.name,
                                 )
@@ -1455,7 +1485,7 @@ def _resolve_evaluation_run_metrics(
                         resolved_metrics_list.append(
                             types.EvaluationRunMetric(
                                 metric=resolved_metric.name,
-                                metric_config=genai_types.UnifiedMetric(
+                                metric_config=types.UnifiedMetric(
                                     predefined_metric_spec=genai_types.PredefinedMetricSpec(
                                         metric_spec_name=resolved_metric.name,
                                     )
@@ -1527,6 +1557,7 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]] = None,
     dest: Optional[str] = None,
     location: Optional[str] = None,
+    evaluation_service_qps: Optional[float] = None,
     **kwargs,
 ) -> types.EvaluationResult:
     """Evaluates a dataset using the provided metrics.
@@ -1539,6 +1570,9 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
         dest: The destination to save the evaluation results.
         location: The location to use for the evaluation. If not specified, the
           location configured in the client will be used.
+        evaluation_service_qps: The rate limit (queries per second) for calls
+          to the evaluation service. Defaults to 10. Increase this value if
+          your project has a higher EvaluateInstances API quota.
         **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
     Returns:
@@ -1614,7 +1648,8 @@ def _execute_evaluation(  # type: ignore[no-untyped-def]
     logger.info("Running Metric Computation...")
     t1 = time.perf_counter()
     evaluation_result = _evals_metric_handlers.compute_metrics_and_aggregate(
-        evaluation_run_config
+        evaluation_run_config,
+        evaluation_service_qps=evaluation_service_qps,
     )
     t2 = time.perf_counter()
     logger.info("Evaluation took: %f seconds", t2 - t1)
@@ -1817,9 +1852,10 @@ def _create_agent_results_dataframe(
 def _run_agent_internal(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
+    agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
 ) -> pd.DataFrame:
     """Runs an agent."""
     raw_responses = _run_agent(
@@ -1828,6 +1864,7 @@ def _run_agent_internal(
         agent=agent,
         prompt_dataset=prompt_dataset,
         user_simulator_config=user_simulator_config,
+        allow_cross_region_model=allow_cross_region_model,
     )
     processed_intermediate_events = []
     processed_responses = []
@@ -1866,9 +1903,10 @@ def _run_agent_internal(
 def _run_agent(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
+    agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
+    allow_cross_region_model: bool = False,
 ) -> list[
     Union[
         list[dict[str, Any]],
@@ -1877,28 +1915,128 @@ def _run_agent(
     ]
 ]:
     """Internal helper to run inference using Gemini model with concurrency."""
-    if agent_engine:
-        return _execute_inference_concurrently(
-            api_client=api_client,
-            agent_engine=agent_engine,
-            prompt_dataset=prompt_dataset,
-            progress_desc="Agent Run",
-            gemini_config=None,
-            user_simulator_config=None,
-            inference_fn=_execute_agent_run_with_retry,
+    original_location = os.environ.get("GOOGLE_CLOUD_LOCATION")
+    location_overridden = False
+
+    if user_simulator_config and user_simulator_config.model_name:
+        model_name = user_simulator_config.model_name
+        if model_name.startswith("gemini-3") and "/" not in model_name:
+            current_location = original_location or api_client.location or "us-central1"
+            if current_location != "global" and not allow_cross_region_model:
+                raise ValueError(
+                    f"The model '{model_name}' is currently only available in the"
+                    " 'global' region. Because this request originated in"
+                    f" '{current_location}', you must explicitly set"
+                    " allow_cross_region_model=True to allow your data to be routed"
+                    " outside of your request's region."
+                )
+
+            logger.warning(
+                "Model %s is only available in the global region. Routing to global.",
+                model_name,
+            )
+            user_simulator_config.model_name = f"projects/{api_client.project}/locations/global/publishers/google/models/{model_name}"
+            if original_location != "global":
+                os.environ["GOOGLE_CLOUD_LOCATION"] = "global"
+                location_overridden = True
+
+    try:
+        if agent_engine:
+            return _execute_inference_concurrently(
+                api_client=api_client,
+                agent_engine=agent_engine,
+                prompt_dataset=prompt_dataset,
+                progress_desc="Agent Run",
+                gemini_config=None,
+                user_simulator_config=None,
+                inference_fn=_execute_agent_run_with_retry,
+            )
+        elif agent:
+            return _execute_inference_concurrently(
+                api_client=api_client,
+                agent=agent,
+                prompt_dataset=prompt_dataset,
+                progress_desc="Local Agent Run",
+                gemini_config=None,
+                user_simulator_config=user_simulator_config,
+                inference_fn=_execute_local_agent_run_with_retry,
+            )
+        else:
+            raise ValueError("Neither agent_engine nor agent is provided.")
+    finally:
+        if location_overridden:
+            if original_location is None:
+                del os.environ["GOOGLE_CLOUD_LOCATION"]
+            else:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = original_location
+
+
+def _create_agent_engine_session(
+    *,
+    agent_engine: types.AgentEngine,
+    user_id: str,
+    session_state: Optional[dict[str, Any]] = None,
+) -> Any:
+    """Creates a session for an agent engine and returns the session ID.
+
+    First attempts to use the agent engine's own `create_session` operation
+    (available for agents deployed via AdkApp). If the agent engine does not
+    have `create_session` registered, falls back to the managed Vertex AI
+    Sessions API.
+
+    Args:
+        agent_engine: The AgentEngine instance.
+        user_id: The user ID for the session.
+        session_state: Optional initial state for the session.
+
+    Returns:
+        The session ID string.
+
+    Raises:
+        RuntimeError: If the session could not be created via either path.
+    """
+    try:
+        session = agent_engine.create_session(  # type: ignore[attr-defined]
+            user_id=user_id,
+            state=session_state,
         )
-    elif agent:
-        return _execute_inference_concurrently(
-            api_client=api_client,
-            agent=agent,
-            prompt_dataset=prompt_dataset,
-            progress_desc="Local Agent Run",
-            gemini_config=None,
-            user_simulator_config=user_simulator_config,
-            inference_fn=_execute_local_agent_run_with_retry,
+        return session["id"]
+    except AttributeError as exc:
+        # Agent engine does not have create_session registered (e.g. deployed
+        # via Console, gcloud, or source code deployment without AdkApp).
+        # Fall back to the managed Vertex AI Sessions API.
+        logger.info(
+            "Agent engine does not have 'create_session' operation registered."
+            " Falling back to managed Sessions API."
         )
-    else:
-        raise ValueError("Neither agent_engine nor agent is provided.")
+        if agent_engine.api_resource is None:
+            raise RuntimeError(
+                "Failed to create session: agent_engine.api_resource is None."
+            ) from exc
+        if agent_engine.api_client is None:
+            raise RuntimeError(
+                "Failed to create session: agent_engine.api_client is None."
+            ) from exc
+        operation = agent_engine.api_client.sessions.create(
+            name=agent_engine.api_resource.name,
+            user_id=user_id,
+            config=types.CreateAgentEngineSessionConfig(
+                session_state=session_state,
+            ),
+        )
+        if operation.response and operation.response.name:
+            # Session name format:
+            # projects/{p}/locations/{l}/reasoningEngines/{re}/sessions/{id}
+            return operation.response.name.split("/")[-1]
+        elif operation.error:
+            raise RuntimeError(
+                f"Failed to create session via managed API: {operation.error}"
+            ) from exc
+        else:
+            raise RuntimeError(
+                "Failed to create session via managed API: "
+                "operation returned no response."
+            ) from exc
 
 
 def _execute_agent_run_with_retry(
@@ -1912,9 +2050,10 @@ def _execute_agent_run_with_retry(
         session_inputs = _get_session_inputs(row)
         user_id = session_inputs.user_id
         session_state = session_inputs.state
-        session = agent_engine.create_session(  # type: ignore[attr-defined]
+        session_id = _create_agent_engine_session(
+            agent_engine=agent_engine,
             user_id=user_id,
-            state=session_state,
+            session_state=session_state,
         )
     except KeyError as e:
         return {"error": f"Failed to get all required agent engine inputs: {e}"}
@@ -1925,7 +2064,7 @@ def _execute_agent_run_with_retry(
             responses = []
             for event in agent_engine.stream_query(  # type: ignore[attr-defined]
                 user_id=user_id,
-                session_id=session["id"],
+                session_id=session_id,
                 message=contents,
             ):
                 if event and CONTENT in event and PARTS in event[CONTENT]:
@@ -1960,7 +2099,7 @@ def _execute_agent_run_with_retry(
 def _execute_local_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
@@ -1975,11 +2114,15 @@ def _execute_local_agent_run_with_retry(
 async def _execute_local_agent_run_with_retry_async(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt asynchronously."""
+    # Lazy-import ADK dependencies to avoid top-level import failures when
+    # google-adk is not installed.
+    from google.adk.runners import Runner
+    from google.adk.sessions import InMemorySessionService
 
     # Multi-turn agent scraping with user simulation.
     if user_simulator_config or "conversation_plan" in row:
@@ -2021,7 +2164,7 @@ async def _execute_local_agent_run_with_retry_async(
                     new_message=new_message_content,
                 ):
                     if event:
-                        event = event.model_dump()
+                        event = event.model_dump(exclude_none=True)
                     if event and CONTENT in event and PARTS in event[CONTENT]:
                         events.append(event)
                 return events
@@ -2036,7 +2179,7 @@ async def _execute_local_agent_run_with_retry_async(
                 )
                 if attempt == max_retries - 1:
                     return {"error": f"Resource exhausted after retries: {e}"}
-                time.sleep(2**attempt)
+                await asyncio.sleep(2**attempt)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error(
                     "Unexpected error during generate_content on attempt %d/%d: %s",
@@ -2047,7 +2190,7 @@ async def _execute_local_agent_run_with_retry_async(
 
                 if attempt == max_retries - 1:
                     return {"error": f"Failed after retries: {e}"}
-                time.sleep(1)
+                await asyncio.sleep(1)
         return {"error": f"Failed to get agent run results after {max_retries} retries"}
 
 
@@ -2345,14 +2488,48 @@ def _get_eval_result_from_eval_items(
     return eval_result
 
 
+def _build_eval_item_map(
+    eval_items: list[types.EvaluationItem],
+) -> dict[str, dict[str, Any]]:
+    """Builds a mapping from EvaluationItem resource name to serialized data.
+
+    This is used by the loss analysis visualization to enrich examples with
+    scenario and rubric data from the original evaluation items.
+
+    Args:
+        eval_items: The list of EvaluationItem objects.
+
+    Returns:
+        A dict mapping evaluation item resource name to the serialized
+        evaluation_response dict (which the JS visualization reads as
+        ``evaluation_result``).
+    """
+    item_map: dict[str, dict[str, Any]] = {}
+    for item in eval_items:
+        if item.name and item.evaluation_response:
+            try:
+                item_map[item.name] = item.evaluation_response.model_dump(
+                    mode="json", exclude_none=True
+                )
+            except Exception:
+                pass
+    return item_map
+
+
 def _convert_evaluation_run_results(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Optional[types.EvaluationResult]:
-    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+) -> tuple[Optional[types.EvaluationResult], dict[str, dict[str, Any]]]:
+    """Retrieves an EvaluationResult and item map from EvaluationRunResults.
+
+    Returns:
+        A tuple of (EvaluationResult, eval_item_map). The eval_item_map maps
+        evaluation item resource names to their serialized evaluation response
+        data, used for enriching loss analysis visualization.
+    """
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return None
+        return None, {}
 
     evals_module = evals.Evals(api_client_=api_client)
     eval_set = evals_module.get_evaluation_set(
@@ -2365,19 +2542,21 @@ def _convert_evaluation_run_results(
             evals_module.get_evaluation_item(name=item_name)
             for item_name in eval_set.evaluation_items
         ]
-    return _get_eval_result_from_eval_items(
+    eval_result = _get_eval_result_from_eval_items(
         evaluation_run_results, eval_items, inference_configs
     )
+    eval_item_map = _build_eval_item_map(eval_items)
+    return eval_result, eval_item_map
 
 
 async def _convert_evaluation_run_results_async(
     api_client: BaseApiClient,
     evaluation_run_results: types.EvaluationRunResults,
     inference_configs: Optional[dict[str, types.EvaluationRunInferenceConfig]] = None,
-) -> Optional[types.EvaluationResult]:
-    """Retrieves an EvaluationItem from the EvaluationRunResults."""
+) -> tuple[Optional[types.EvaluationResult], dict[str, dict[str, Any]]]:
+    """Retrieves an EvaluationResult and item map from EvaluationRunResults."""
     if not evaluation_run_results or not evaluation_run_results.evaluation_set:
-        return None
+        return None, {}
 
     evals_module = evals.AsyncEvals(api_client_=api_client)
     eval_set = await evals_module.get_evaluation_set(
@@ -2391,9 +2570,11 @@ async def _convert_evaluation_run_results_async(
             for eval_item in eval_set.evaluation_items
         ]
         eval_items = await asyncio.gather(*tasks)
-    return _get_eval_result_from_eval_items(
+    eval_result = _get_eval_result_from_eval_items(
         evaluation_run_results, eval_items, inference_configs
     )
+    eval_item_map = _build_eval_item_map(eval_items)
+    return eval_result, eval_item_map
 
 
 def _object_to_dict(obj: Any) -> Union[dict[str, Any], Any]:
@@ -2432,8 +2613,8 @@ def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Conte
         return cast(genai_types.Content, row[column])
     else:
         raise ValueError(
-            f"{column} must be a string or a Content object. "
-            f"Got {type(row[column])}."
+            f"{column} must be a string or a Content object. Got"
+            f" {type(row[column])}."
         )
 
 
@@ -2497,6 +2678,14 @@ def _create_evaluation_set_from_dataframe(
             )
 
         prompt = None
+        # Determine which history column name is present, preferring
+        # "conversation_history" over "history" if both exist.
+        history_col = None
+        if _evals_constant.CONVERSATION_HISTORY in row:
+            history_col = _evals_constant.CONVERSATION_HISTORY
+        elif _evals_constant.HISTORY in row:
+            history_col = _evals_constant.HISTORY
+
         if (
             _evals_constant.STARTING_PROMPT in row
             and _evals_constant.CONVERSATION_PLAN in row
@@ -2507,15 +2696,15 @@ def _create_evaluation_set_from_dataframe(
                     conversation_plan=row[_evals_constant.CONVERSATION_PLAN],
                 )
             )
-        elif _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+        elif _evals_constant.CONTEXT in row or history_col:
             values = {}
             if _evals_constant.CONTEXT in row:
                 values[_evals_constant.CONTEXT] = _get_content(
                     row, _evals_constant.CONTEXT
                 )
-            if _evals_constant.HISTORY in row:
-                values[_evals_constant.HISTORY] = _get_content(
-                    row, _evals_constant.HISTORY
+            if history_col:
+                values[_evals_constant.CONVERSATION_HISTORY] = _get_content(
+                    row, history_col
                 )
             if _evals_constant.PROMPT in row:
                 values[_evals_constant.PROMPT] = _get_content(

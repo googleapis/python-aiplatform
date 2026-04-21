@@ -18,22 +18,32 @@ from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
 from google.genai import types as genai_types
 import pandas as pd
+import pytest
 
 
-def test_custom_code_execution(client):
-    """Tests that custom code execution metric produces a correctly structured EvaluationResult."""
-
-    code_snippet = """
+CODE_SNIPPET = """
 def evaluate(instance):
     if instance['response'] == instance['reference']:
         return 1.0
     return 0.0
 """
 
-    custom_metric = types.Metric(
-        name="my_custom_code_metric",
-        remote_custom_function=code_snippet,
-    )
+
+@pytest.mark.parametrize(
+    "custom_metric",
+    [
+        types.CodeExecutionMetric(
+            name="my_custom_code_metric",
+            custom_function=CODE_SNIPPET,
+        ),
+        types.Metric(
+            name="my_custom_code_metric",
+            remote_custom_function=CODE_SNIPPET,
+        ),
+    ],
+)
+def test_custom_code_execution(client, custom_metric):
+    """Tests that custom code execution metric produces a correctly structured EvaluationResult."""
 
     prompts_df = pd.DataFrame(
         {
@@ -69,20 +79,21 @@ def evaluate(instance):
         assert case_result.response_candidate_results is not None
 
 
-def test_custom_code_execution_batch_evaluate(client):
+@pytest.mark.parametrize(
+    "custom_metric",
+    [
+        types.CodeExecutionMetric(
+            name="my_custom_code_metric",
+            custom_function=CODE_SNIPPET,
+        ),
+        types.Metric(
+            name="my_custom_code_metric",
+            remote_custom_function=CODE_SNIPPET,
+        ),
+    ],
+)
+def test_custom_code_execution_batch_evaluate(client, custom_metric):
     """Tests that batch_evaluate() works with custom code execution metric."""
-
-    code_snippet = """
-def evaluate(instance):
-    if instance['response'] == instance['reference']:
-        return 1.0
-    return 0.0
-"""
-
-    custom_metric = types.Metric(
-        name="my_custom_code_metric",
-        remote_custom_function=code_snippet,
-    )
 
     eval_dataset = types.EvaluationDataset(
         gcs_source=genai_types.GcsSource(

@@ -1,5 +1,176 @@
 # Changelog
 
+## [1.148.1](https://github.com/googleapis/python-aiplatform/compare/v1.148.0...v1.148.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* Disable bound token sharing check for agent_engines ([04d5092](https://github.com/googleapis/python-aiplatform/commit/04d50929e29e3b6e22398d0961e3ae4ee23af6e4))
+* Fix column name inconsistency (history vs conversation_history) across evaluation flows ([37f72e5](https://github.com/googleapis/python-aiplatform/commit/37f72e5c389f69e2eecf252eebb1535de110b901))
+* Fix create_session AttributeError for agents without AdkApp ([3e85f64](https://github.com/googleapis/python-aiplatform/commit/3e85f64207a923a9bdb6fb8e1670680702e8456c))
+* Fix NameError when evaluating ADK agents with AgentTool via GenAI Evals SDK ([04c5e02](https://github.com/googleapis/python-aiplatform/commit/04c5e025f9f5f7a28a738c1ca29f4c22456644e2))
+* GenAI Client(evals):  Lazy-load ADK imports in _evals_common.py to avoid top-level ImportError ([c378551](https://github.com/googleapis/python-aiplatform/commit/c378551b8b3099d55afc874637d14e85254220c1))
+* GenAI SDK client(multimodal) - Remove `UpdateMultimodalDatasetConfig` and replace with `VertexBaseConfig`. ([f5dc932](https://github.com/googleapis/python-aiplatform/commit/f5dc9325f89f7aa87c8cd9ed75ffd78caf554e2a))
+* Strip None fields from agent_data in GenerateLossClusters to prevent INVALID_ARGUMENT errors ([f2d73fd](https://github.com/googleapis/python-aiplatform/commit/f2d73fd87d49ad2e340f3d4e4762a6c8261b4b25))
+
+## [1.148.0](https://github.com/googleapis/python-aiplatform/compare/v1.147.0...v1.148.0) (2026-04-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Methods for multimodal datasets now require the full resource name instead of just the dataset ID.
+
+### Features
+
+* Add Agent Engine-level configuration for generation_trigger_config. ([e73d4e7](https://github.com/googleapis/python-aiplatform/commit/e73d4e7a4948cdea0a2d70d5529ee0b10676a1a3))
+* Add ingest_events method for Memory Bank. ([e73d4e7](https://github.com/googleapis/python-aiplatform/commit/e73d4e7a4948cdea0a2d70d5529ee0b10676a1a3))
+* Add memory_types filter to RetrieveMemories ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add RetrieveProfiles. ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add structured data and context to MemoryRevision. ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add structured data and memory type to Memory. ([12d90ad](https://github.com/googleapis/python-aiplatform/commit/12d90ade5da9777c2ceb267c2aaddc7fed0279bb))
+* Add subset_topics to Memory Bank GenerateMemories ([727b8e0](https://github.com/googleapis/python-aiplatform/commit/727b8e0c9a426281f8fe302b48e9836a87645fa6))
+* Add support for agent gateway in agent engine ([9ed3759](https://github.com/googleapis/python-aiplatform/commit/9ed375904993e2c05f48fd804e5ad280b732502b))
+* Add support for keep alive probe in agent engines ([ff859e1](https://github.com/googleapis/python-aiplatform/commit/ff859e1d032a657d5932c8a2c2692f0c9aaf51ff))
+* Adds cancel_query_job to SDK for agent engine long running async tasks. ([04f11d1](https://github.com/googleapis/python-aiplatform/commit/04f11d1fccb94809fca5b66d462099d62bc97787))
+* GenAI Client(evals) - add rich HTML visualization for loss pattern analysis ([9e7b2b9](https://github.com/googleapis/python-aiplatform/commit/9e7b2b92ee67b0032b68c4c1bc5970d878e078fc))
+* GenAI Client(evals) - add user-facing generate_loss_clusters with LRO polling and replay tests ([28e5f95](https://github.com/googleapis/python-aiplatform/commit/28e5f95319cedac4bba367da29e4a76033b8da6f))
+* GenAI Client(evals) - auto-infer metric/candidate and validate inputs for generate_loss_clusters ([7142c62](https://github.com/googleapis/python-aiplatform/commit/7142c625daaabcb0f5a896f046ecd6e0b3958a75))
+* GenAI Client(evals) - support loss analysis in EvaluationRun SDK ([eb1066b](https://github.com/googleapis/python-aiplatform/commit/eb1066bf4db0c3ca1411d9b60abeed3000ea77a0))
+* GenAI SDK client - Update client.prompts.create_version to create a prompt and prompt version for a prompt. Recommend create_version instead of create ([1e1faa3](https://github.com/googleapis/python-aiplatform/commit/1e1faa336477f7b4374a0e35fc0ee245434b3e9f))
+* GenAI SDK client(multimodal) - Auto-generate display name for multimodal datasets if not provided. ([9a9e158](https://github.com/googleapis/python-aiplatform/commit/9a9e15896338a1f30f6b441ef92ad231629359dd))
+* GenAI SDK client(multimodal) - Make multimodal_dataset optional in create_from_pandas and create_from_bigframes. ([dc89de2](https://github.com/googleapis/python-aiplatform/commit/dc89de201c5dc002ab8f741e78c8a418df0aa2fe))
+
+
+### Bug Fixes
+
+* Add bucket ownership verification to prevent bucket squatting in Model.upload() ([9feda02](https://github.com/googleapis/python-aiplatform/commit/9feda020a1fb0d967b122468c1dd49f09a6ba456))
+* GenAI SDK client(multimodal) - Change "name" parameters to refer to resource name instead of dataset ID. ([7c04870](https://github.com/googleapis/python-aiplatform/commit/7c04870312894bd7d7a8148f5ba0c3d4568159cb))
+* GenAI SDK client(multimodal) - Fix "type mismatch" warnings in `datasets` module. ([505aa8c](https://github.com/googleapis/python-aiplatform/commit/505aa8c89d364cf2ab4745a862a13ef2453df83c))
+* Refine Pyink blank line insertion logic and fix range-based formatting regressions. ([e382e45](https://github.com/googleapis/python-aiplatform/commit/e382e45035e38a8d354c74b9abb32314ce35d23a))
+
+
+### Miscellaneous Chores
+
+* Release 1.148.0 ([1aaeba7](https://github.com/googleapis/python-aiplatform/commit/1aaeba7ab5a257a6ca914529ef63b34e9139889f))
+
+## [1.147.0](https://github.com/googleapis/python-aiplatform/compare/v1.146.0...v1.147.0) (2026-04-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* The labels field has been removed from GeminiExample. The tools and safety_settings fields have been turned into lists.
+
+### Features
+
+* Add system_labels parameter to Model Garden deploy methods. ([a196cda](https://github.com/googleapis/python-aiplatform/commit/a196cda777b8f6d9136a7f0b0d7264d09dab1ba9))
+* Add the delete method for the Agent Engine Task Store Service ([2f2a211](https://github.com/googleapis/python-aiplatform/commit/2f2a211a54109e8b5701c0868b1a459a59cac626))
+* GenAI Client(evals):  Route gemini-3 model traffic to global region in local agent scraping ([e2e81c9](https://github.com/googleapis/python-aiplatform/commit/e2e81c99b46fef3978655fc480edd5c39f098fd6))
+* GenAI SDK client(multimodal) - Add single_turn_template helper to GeminiRequestReadConfig. ([0e5037d](https://github.com/googleapis/python-aiplatform/commit/0e5037d31bd6566756dd79ba8606d7fdeb9b54ae))
+* Set agent_framework for A2aAgent class. ([a8085e5](https://github.com/googleapis/python-aiplatform/commit/a8085e50741471fa5c17a5b36b69adaab1da4f25))
+
+
+### Bug Fixes
+
+* Add SDK workaround for double-wrapped Any response in async_retrieve_contexts. ([bd4983b](https://github.com/googleapis/python-aiplatform/commit/bd4983b488a3181578c552482af6ec78e8aa408e))
+* GenAI SDK client(multimodal) - Fix inconsistencies between the GeminiExample class definition and API type. ([fad250e](https://github.com/googleapis/python-aiplatform/commit/fad250e700cc676ce66d20ca1c410829788a251c))
+
+
+### Miscellaneous Chores
+
+* Release 1.147.0 ([4a11370](https://github.com/googleapis/python-aiplatform/commit/4a113706f1ad9a105b0b04a6cdace9e31942d6e7))
+
+## [1.146.0](https://github.com/googleapis/python-aiplatform/compare/v1.145.0...v1.146.0) (2026-04-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* `to_bigframes` has been removed from the datasets module and moved into the `MultimodalDataset` class. Instead of `dataframe = client.datasets.to_bigframes(multimodal_dataset=multimodal_dataset)`, use `dataframe = multimodal_dataset.to_bigframes()` to create a BigFrame instance from a multimodal dataset.
+
+### Features
+
+* Add consolidation customization to Memory Bank ([a8948c4](https://github.com/googleapis/python-aiplatform/commit/a8948c4dfcc65b73ea579b93f8c36baa65817f25))
+* Add support for custom result parsing in LLM-based evaluation metrics ([3e0ddff](https://github.com/googleapis/python-aiplatform/commit/3e0ddff2f5c306d601bf325618b9136f7713ff68))
+* GenAI Client(evals) - add core data models and code-gen mapping for auto-loss analysis ([09794ba](https://github.com/googleapis/python-aiplatform/commit/09794ba83746377b1a94ed00f7c41f6b9d647cd6))
+* GenAI Client(evals):  Apply default user persona 'Evaluator' in multi-turn agent scraping ([7002dc5](https://github.com/googleapis/python-aiplatform/commit/7002dc5452032d3189eabae9b0952decd73fb8eb))
+* In run_query_job, rename gcs_bucket to gcs_uri and allow the case that user sets the filename for the output. ([f302d1f](https://github.com/googleapis/python-aiplatform/commit/f302d1f99b79b862a61a41c729ae56a22307bf11))
+* Pass state from first bidi_stream_query request to async_create_session ([37b5a0f](https://github.com/googleapis/python-aiplatform/commit/37b5a0f796984e3af69f8036ca235e096d64e7d1))
+
+
+### Miscellaneous Chores
+
+* GenAI SDK client(multimodal) - Move `to_bigframes` method to `MultimodalDataset` class. ([6874b8d](https://github.com/googleapis/python-aiplatform/commit/6874b8db7adfa4022972e0eba2c3ccaffd523cf2))
+* Release 1.146.0 ([aab457d](https://github.com/googleapis/python-aiplatform/commit/aab457dcf8f0552b0e378c5b4d693e4aa8a2e2f1))
+
+## [1.145.0](https://github.com/googleapis/python-aiplatform/compare/v1.144.0...v1.145.0) (2026-04-01)
+
+
+### Features
+
+* Add session_id to Create Session to allow custom session id ([bea67c2](https://github.com/googleapis/python-aiplatform/commit/bea67c296637c06821df12494ba46b74de5cd2aa))
+* Eval SDK: Migrate model call method by genai SDK usage ([ff5e246](https://github.com/googleapis/python-aiplatform/commit/ff5e24659d399816c19c641674f85ef0c5e65b6b))
+* Eval SDK: Migrate model call method by genai SDK usage in preview foler ([ad36123](https://github.com/googleapis/python-aiplatform/commit/ad36123f6f9ae35cbe45bd925dde9458ee3cef00))
+* Limit metric registry support to only custom code execution metric and llm based metric in SDK ([c12aedc](https://github.com/googleapis/python-aiplatform/commit/c12aedcea7f778bc6cdfd1d871334ef504870c97))
+
+
+### Bug Fixes
+
+* Increase default timeout to 600 seconds for ask_contexts and async_retrieve_contexts in VertexRagServiceClient. ([3de2c1e](https://github.com/googleapis/python-aiplatform/commit/3de2c1eba1a16775085fb3c46b19ac9e8d5f5f22))
+
+## [1.144.0](https://github.com/googleapis/python-aiplatform/compare/v1.143.0...v1.144.0) (2026-03-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* `create_from_bigquery` and `update_multimodal_dataset` no longer automatically prepend a missing `bq://` prefix for BigQuery URIs. When using the new function `MultimodalDataset.set_bigquery_uri` the prefix will still be added if needed.
+
+### Features
+
+* Add `metadata_filter` usage to all retrieval and generator methods in `rag_retrieval.py` ([841c597](https://github.com/googleapis/python-aiplatform/commit/841c597c35d9b6d4f101060284a89131a510a813))
+* Add container_spec to Reasoning Engine public protos ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+* Add container_spec to Reasoning Engine public protos ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+* Add support for container_spec in AgentEngines ([da663c0](https://github.com/googleapis/python-aiplatform/commit/da663c0d000deeb5663d53334abc1d997f3575b5))
+* GenAI SDK client(multimodal) - Add metadata helpers to `MultimodalDataset`. ([e164b19](https://github.com/googleapis/python-aiplatform/commit/e164b19e16356dc83e23ccd54c9bbe9f9649bad0))
+* Publish client batch config schema ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+* Refactor evaluation instance building and update LLM metric handler ([7a3b436](https://github.com/googleapis/python-aiplatform/commit/7a3b436bda89fd3931fa6fee30e6fed10489d200))
+* Update the interface for custom code execution metric while maintaining remote_custom_function support for backward compatibility ([f7733ec](https://github.com/googleapis/python-aiplatform/commit/f7733ec70f4128ecdb31811c2ff33dfb3132aa98))
+
+
+### Bug Fixes
+
+* Auto-created GCS staging bucket names are less predictable ([1a33ad9](https://github.com/googleapis/python-aiplatform/commit/1a33ad9a56c09892b12194b7cb8615b2739386ad))
+* GenAI SDK client(multimodal) - Replace blocking calls in `create_from_pandas` with async versions. ([2767273](https://github.com/googleapis/python-aiplatform/commit/27672738a12c8012534d6350d3315eff95bbbaa4))
+* Introduce timeout for outgoing A2A requests from AgentEngine ([78525d2](https://github.com/googleapis/python-aiplatform/commit/78525d20a1e2f183cabcde222e15db2756d40c2c))
+* Relax the requirement to specify class_methods if image_spec/container_spec is provided ([6f7b12c](https://github.com/googleapis/python-aiplatform/commit/6f7b12c40f5ae3099b997e99d899b0f5e618cfda))
+* Standardize on the app_name in AdkApp ([ee9fbe1](https://github.com/googleapis/python-aiplatform/commit/ee9fbe11c13bf3bb7fe7a70f1484882c056ff63f))
+
+
+### Documentation
+
+* Update API common type documentation ([9a0eefb](https://github.com/googleapis/python-aiplatform/commit/9a0eefb2baa9f4044db349fce2ae5e3991a3cf92))
+
+
+### Miscellaneous Chores
+
+* Release 1.144.0 ([2ad586d](https://github.com/googleapis/python-aiplatform/commit/2ad586d49a84ff51a96a338ceef7d4b771871d07))
+
+## [1.143.0](https://github.com/googleapis/python-aiplatform/compare/v1.142.0...v1.143.0) (2026-03-25)
+
+
+### Features
+
+* Add AgentEngine Sessions module ([368a8f8](https://github.com/googleapis/python-aiplatform/commit/368a8f82c73a227b8fb90a36e6dfc1ff3ab91f53))
+* Add memory_id to Create Memory ([2167f36](https://github.com/googleapis/python-aiplatform/commit/2167f369a45ad1cfd0a701777dea4cdbc08810db))
+* Add RagMetadata and RagDataSchema management APIs ([4f0fdfe](https://github.com/googleapis/python-aiplatform/commit/4f0fdfe5a71e0a9fddfb86aa2c1ef5a492795f0c))
+* Add raw_event to Append Event ([2167f36](https://github.com/googleapis/python-aiplatform/commit/2167f369a45ad1cfd0a701777dea4cdbc08810db))
+* GenAI SDK client(multimodal) - Accept `gemini_request_read_config` instead of `template_config` in all functions. ([f138162](https://github.com/googleapis/python-aiplatform/commit/f138162e55e913c632c76a0762d911f795bffcd4))
+* GenAI SDK client(multimodal) - Support creating multimodal dataset from bigframe DataFrame ([9b7dc29](https://github.com/googleapis/python-aiplatform/commit/9b7dc2916c55a394e8beef7c02ad122147543846))
+
+
+### Bug Fixes
+
+* Exclude compromised LiteLLM versions from dependencies pin to 1.82.6 ([78966da](https://github.com/googleapis/python-aiplatform/commit/78966dac863b026db0b426f63dbff72271cdda10))
+* Fix rag resource parsing ([bc61708](https://github.com/googleapis/python-aiplatform/commit/bc6170819c35db80238a843d5d658f30e73630d3)), closes [#6442](https://github.com/googleapis/python-aiplatform/issues/6442)
+
 ## [1.142.0](https://github.com/googleapis/python-aiplatform/compare/v1.141.0...v1.142.0) (2026-03-20)
 
 

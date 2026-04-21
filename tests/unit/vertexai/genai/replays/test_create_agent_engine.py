@@ -85,16 +85,28 @@ def test_create_with_context_spec(client):
             }
         ],
         "enable_third_person_memories": True,
+        "consolidation_config": {"revisions_per_candidate_count": 5},
     }
     memory_bank_customization_config = types.MemoryBankCustomizationConfig(
         **customization_config
+    )
+    generation_trigger_config = {
+        "generation_rule": {
+            "idle_duration": "300s",
+        },
+    }
+    generation_trigger_config_obj = types.MemoryGenerationTriggerConfig(
+        **generation_trigger_config
     )
 
     agent_engine = client.agent_engines.create(
         config={
             "context_spec": {
                 "memory_bank_config": {
-                    "generation_config": {"model": generation_model},
+                    "generation_config": {
+                        "model": generation_model,
+                        "generation_trigger_config": generation_trigger_config_obj,
+                    },
                     "similarity_search_config": {
                         "embedding_model": embedding_model,
                     },
@@ -108,6 +120,10 @@ def test_create_with_context_spec(client):
     agent_engine = client.agent_engines.get(name=agent_engine.api_resource.name)
     memory_bank_config = agent_engine.api_resource.context_spec.memory_bank_config
     assert memory_bank_config.generation_config.model == generation_model
+    assert (
+        memory_bank_config.generation_config.generation_trigger_config
+        == generation_trigger_config_obj
+    )
     assert (
         memory_bank_config.similarity_search_config.embedding_model == embedding_model
     )

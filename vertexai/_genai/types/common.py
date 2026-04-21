@@ -244,18 +244,18 @@ class JobState(_common.CaseInSensitiveEnum):
 
 
 class ManagedTopicEnum(_common.CaseInSensitiveEnum):
-    """The managed memory topic."""
+    """Represents the managed memory topic."""
 
     MANAGED_TOPIC_ENUM_UNSPECIFIED = "MANAGED_TOPIC_ENUM_UNSPECIFIED"
-    """Unspecified topic. This value should not be used."""
+    """Represents an unspecified topic. This value should not be used."""
     USER_PERSONAL_INFO = "USER_PERSONAL_INFO"
-    """Significant personal information about the User like first names, relationships, hobbies, important dates."""
+    """Represents significant personal information about the User like first names, relationships, hobbies, important dates."""
     USER_PREFERENCES = "USER_PREFERENCES"
-    """Stated or implied likes, dislikes, preferred styles, or patterns."""
+    """Represents stated or implied likes, dislikes, preferred styles, or patterns."""
     KEY_CONVERSATION_DETAILS = "KEY_CONVERSATION_DETAILS"
-    """Important milestones or conclusions within the dialogue."""
+    """Represents important milestones or conclusions within the dialogue."""
     EXPLICIT_INSTRUCTIONS = "EXPLICIT_INSTRUCTIONS"
-    """Information that the user explicitly requested to remember or forget."""
+    """Represents information that the user explicitly requested to remember or forget."""
 
 
 class IdentityType(_common.CaseInSensitiveEnum):
@@ -280,11 +280,22 @@ class AgentServerMode(_common.CaseInSensitiveEnum):
     """Experimental agent server mode. This mode contains experimental features."""
 
 
+class MemoryType(_common.CaseInSensitiveEnum):
+    """The type of the memory."""
+
+    MEMORY_TYPE_UNSPECIFIED = "MEMORY_TYPE_UNSPECIFIED"
+    """Represents an unspecified memory type. This value should not be used."""
+    NATURAL_LANGUAGE_COLLECTION = "NATURAL_LANGUAGE_COLLECTION"
+    """Indicates belonging to a collection of natural language memories."""
+    STRUCTURED_PROFILE = "STRUCTURED_PROFILE"
+    """Indicates belonging to a structured profile."""
+
+
 class Operator(_common.CaseInSensitiveEnum):
-    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+    """Represents the operator to apply to the filter. If not set, then EQUAL will be used."""
 
     OPERATOR_UNSPECIFIED = "OPERATOR_UNSPECIFIED"
-    """Unspecified operator. Defaults to EQUAL."""
+    """Represents an unspecified operator. Defaults to EQUAL."""
     EQUAL = "EQUAL"
     """Equal to."""
     GREATER_THAN = "GREATER_THAN"
@@ -399,10 +410,7 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     CREATED = "CREATED"
     """The memory was created."""
     UPDATED = "UPDATED"
-    """The memory was updated.
-
-      The `fact` field may not be updated if the existing fact is still accurate.
-      """
+    """The memory was updated. The `fact` field may not be updated if the existing fact is still accurate."""
     DELETED = "DELETED"
     """The memory was deleted."""
 
@@ -423,6 +431,52 @@ class OptimizationMethod(_common.CaseInSensitiveEnum):
     """The default data driven Vertex AI Prompt Optimizer."""
     OPTIMIZATION_TARGET_GEMINI_NANO = "OPTIMIZATION_TARGET_GEMINI_NANO"
     """The data driven prompt optimizer designer for prompts from Android core API."""
+
+
+class DeleteAgentEngineTaskConfig(_common.BaseModel):
+    """Config for deleting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteAgentEngineTaskConfigDict(TypedDict, total=False):
+    """Config for deleting an Agent Engine Task."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteAgentEngineTaskConfigOrDict = Union[
+    DeleteAgentEngineTaskConfig, DeleteAgentEngineTaskConfigDict
+]
+
+
+class _DeleteAgentEngineTaskRequestParameters(_common.BaseModel):
+    """Parameters for deleting an agent engine task."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the agent engine task."""
+    )
+    config: Optional[DeleteAgentEngineTaskConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineTaskRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting an agent engine task."""
+
+    name: Optional[str]
+    """Name of the agent engine task."""
+
+    config: Optional[DeleteAgentEngineTaskConfigDict]
+    """"""
+
+
+_DeleteAgentEngineTaskRequestParametersOrDict = Union[
+    _DeleteAgentEngineTaskRequestParameters, _DeleteAgentEngineTaskRequestParametersDict
+]
 
 
 class GetAgentEngineTaskConfig(_common.BaseModel):
@@ -624,6 +678,14 @@ class A2aTask(_common.BaseModel):
         default=None,
         description="""Output only. The last update timestamp of the task.""",
     )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. Timestamp of when this task is considered expired. This is *always* provided on output, and is calculated based on the `ttl` if set on the request""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]""",
+    )
 
 
 class A2aTaskDict(TypedDict, total=False):
@@ -655,6 +717,12 @@ class A2aTaskDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. The last update timestamp of the task."""
+
+    expire_time: Optional[datetime.datetime]
+    """Optional. Timestamp of when this task is considered expired. This is *always* provided on output, and is calculated based on the `ttl` if set on the request"""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL (Time To Live) for the task. If not set, the task will expire in 24 hours by default. Valid range: (0 seconds, 1000 days]"""
 
 
 A2aTaskOrDict = Union[A2aTask, A2aTaskDict]
@@ -1579,7 +1647,7 @@ class Metric(_common.BaseModel):
     """The metric used for evaluation."""
 
     name: Optional[str] = Field(default=None, description="""The name of the metric.""")
-    custom_function: Optional[Callable[..., Any]] = Field(
+    custom_function: Optional[Union[str, Callable[..., Any]]] = Field(
         default=None,
         description="""The custom function that defines the end-to-end logic for metric computation.""",
     )
@@ -1683,6 +1751,26 @@ class Metric(_common.BaseModel):
 
         with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(data_to_dump, f, sort_keys=False, allow_unicode=True)
+
+
+class CodeExecutionMetric(Metric):
+    """A metric that executes custom Python code for evaluation."""
+
+    # You can use standard Pydantic Field syntax here because this is raw Python code
+    custom_function: Optional[str] = Field(
+        default=None,
+        description="""The Python function code to be executed on the server side.""",
+    )
+
+    # You can also add hand-written validators or methods here
+    @field_validator("custom_function")
+    @classmethod
+    def validate_code(cls, value: Optional[str]) -> Optional[str]:
+        if value and "def evaluate" not in value:
+            raise ValueError(
+                "custom_function must contain a 'def evaluate(instance):' signature."
+            )
+        return value
 
 
 class LLMMetric(Metric):
@@ -1795,7 +1883,7 @@ class MetricDict(TypedDict, total=False):
     name: Optional[str]
     """The name of the metric."""
 
-    custom_function: Optional[Callable[..., Any]]
+    custom_function: Optional[Union[str, Callable[..., Any]]]
     """The custom function that defines the end-to-end logic for metric computation."""
 
     prompt_template: Optional[str]
@@ -2140,12 +2228,12 @@ class EvaluationRunMetric(_common.BaseModel):
     metric: Optional[str] = Field(
         default=None, description="""The name of the metric."""
     )
-    metric_config: Optional[UnifiedMetric] = Field(
-        default=None, description="""The unified metric used for evaluation run."""
-    )
     metric_resource_name: Optional[str] = Field(
         default=None,
         description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
+    )
+    metric_config: Optional[UnifiedMetric] = Field(
+        default=None, description="""The unified metric used for evaluation run."""
     )
 
 
@@ -2155,11 +2243,11 @@ class EvaluationRunMetricDict(TypedDict, total=False):
     metric: Optional[str]
     """The name of the metric."""
 
-    metric_config: Optional[UnifiedMetricDict]
-    """The unified metric used for evaluation run."""
-
     metric_resource_name: Optional[str]
     """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
+    metric_config: Optional[UnifiedMetricDict]
+    """The unified metric used for evaluation run."""
 
 
 EvaluationRunMetricOrDict = Union[EvaluationRunMetric, EvaluationRunMetricDict]
@@ -2207,6 +2295,46 @@ EvaluationRunPromptTemplateOrDict = Union[
 ]
 
 
+class LossAnalysisConfig(_common.BaseModel):
+    """Configuration for the loss analysis job."""
+
+    metric: Optional[str] = Field(
+        default=None,
+        description="""Required. The metric to analyze (e.g., "multi_turn_tool_use_quality_v1").""",
+    )
+    candidate: Optional[str] = Field(
+        default=None,
+        description="""Required. The candidate model/agent to analyze (e.g., "gemini-3.1-pro-preview"). This targets the specific CandidateResult within the EvaluationResult.""",
+    )
+    predefined_taxonomy: Optional[str] = Field(
+        default=None,
+        description="""Optional. The identifier for the pre-defined taxonomy to use (e.g., "agent_taxonomy_v1", "tool_use_v2"). If not specified, the service may select a default based on the metric.""",
+    )
+    max_top_cluster_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Limits the analysis to the top N clusters. If not specified or set to 0, all clusters are returned.""",
+    )
+
+
+class LossAnalysisConfigDict(TypedDict, total=False):
+    """Configuration for the loss analysis job."""
+
+    metric: Optional[str]
+    """Required. The metric to analyze (e.g., "multi_turn_tool_use_quality_v1")."""
+
+    candidate: Optional[str]
+    """Required. The candidate model/agent to analyze (e.g., "gemini-3.1-pro-preview"). This targets the specific CandidateResult within the EvaluationResult."""
+
+    predefined_taxonomy: Optional[str]
+    """Optional. The identifier for the pre-defined taxonomy to use (e.g., "agent_taxonomy_v1", "tool_use_v2"). If not specified, the service may select a default based on the metric."""
+
+    max_top_cluster_count: Optional[int]
+    """Optional. Limits the analysis to the top N clusters. If not specified or set to 0, all clusters are returned."""
+
+
+LossAnalysisConfigOrDict = Union[LossAnalysisConfig, LossAnalysisConfigDict]
+
+
 class EvaluationRunConfig(_common.BaseModel):
     """The evaluation configuration used for the evaluation run."""
 
@@ -2222,6 +2350,10 @@ class EvaluationRunConfig(_common.BaseModel):
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
+    )
+    loss_analysis_config: Optional[list[LossAnalysisConfig]] = Field(
+        default=None,
+        description="""Specifications for loss analysis. Each config specifies a metric and candidate to analyze for loss patterns.""",
     )
 
 
@@ -2239,6 +2371,9 @@ class EvaluationRunConfigDict(TypedDict, total=False):
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
+
+    loss_analysis_config: Optional[list[LossAnalysisConfigDict]]
+    """Specifications for loss analysis. Each config specifies a metric and candidate to analyze for loss patterns."""
 
 
 EvaluationRunConfigOrDict = Union[EvaluationRunConfig, EvaluationRunConfigDict]
@@ -2464,6 +2599,175 @@ class SummaryMetricDict(TypedDict, total=False):
 SummaryMetricOrDict = Union[SummaryMetric, SummaryMetricDict]
 
 
+class LossTaxonomyEntry(_common.BaseModel):
+    """A specific entry in the loss pattern taxonomy."""
+
+    l1_category: Optional[str] = Field(
+        default=None,
+        description="""The primary category of the loss (e.g., "Hallucination", "Tool Calling").""",
+    )
+    l2_category: Optional[str] = Field(
+        default=None,
+        description="""The secondary category of the loss (e.g., "Hallucination of Action", "Incorrect Tool Selection").""",
+    )
+    description: Optional[str] = Field(
+        default=None,
+        description="""A detailed description of this loss pattern. Example: "The agent verbally confirms an action without executing the tool." """,
+    )
+
+
+class LossTaxonomyEntryDict(TypedDict, total=False):
+    """A specific entry in the loss pattern taxonomy."""
+
+    l1_category: Optional[str]
+    """The primary category of the loss (e.g., "Hallucination", "Tool Calling")."""
+
+    l2_category: Optional[str]
+    """The secondary category of the loss (e.g., "Hallucination of Action", "Incorrect Tool Selection")."""
+
+    description: Optional[str]
+    """A detailed description of this loss pattern. Example: "The agent verbally confirms an action without executing the tool." """
+
+
+LossTaxonomyEntryOrDict = Union[LossTaxonomyEntry, LossTaxonomyEntryDict]
+
+
+class FailedRubric(_common.BaseModel):
+    """A specific failed rubric and the associated analysis."""
+
+    rubric_id: Optional[str] = Field(
+        default=None,
+        description="""The unique ID of the rubric (if available from the metric source).""",
+    )
+    classification_rationale: Optional[str] = Field(
+        default=None,
+        description="""The rationale provided by the Loss Analysis Classifier for why this failure maps to this specific Loss Cluster.""",
+    )
+
+
+class FailedRubricDict(TypedDict, total=False):
+    """A specific failed rubric and the associated analysis."""
+
+    rubric_id: Optional[str]
+    """The unique ID of the rubric (if available from the metric source)."""
+
+    classification_rationale: Optional[str]
+    """The rationale provided by the Loss Analysis Classifier for why this failure maps to this specific Loss Cluster."""
+
+
+FailedRubricOrDict = Union[FailedRubric, FailedRubricDict]
+
+
+class LossExample(_common.BaseModel):
+    """A specific example of a loss pattern."""
+
+    evaluation_item: Optional[str] = Field(
+        default=None,
+        description="""Reference to the persisted EvalItem resource name. Format: projects/.../locations/.../evaluationItems/{item_id}.""",
+    )
+    evaluation_result: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The full evaluation result object provided inline. Used when the analysis is performed on ephemeral data.""",
+    )
+    failed_rubrics: Optional[list[FailedRubric]] = Field(
+        default=None,
+        description="""The specific rubric(s) that failed and caused this example to be classified here. An example might fail multiple rubrics, but only specific ones trigger this loss pattern.""",
+    )
+
+
+class LossExampleDict(TypedDict, total=False):
+    """A specific example of a loss pattern."""
+
+    evaluation_item: Optional[str]
+    """Reference to the persisted EvalItem resource name. Format: projects/.../locations/.../evaluationItems/{item_id}."""
+
+    evaluation_result: Optional[dict[str, Any]]
+    """The full evaluation result object provided inline. Used when the analysis is performed on ephemeral data."""
+
+    failed_rubrics: Optional[list[FailedRubricDict]]
+    """The specific rubric(s) that failed and caused this example to be classified here. An example might fail multiple rubrics, but only specific ones trigger this loss pattern."""
+
+
+LossExampleOrDict = Union[LossExample, LossExampleDict]
+
+
+class LossCluster(_common.BaseModel):
+    """A semantic grouping of failures (e.g., "Hallucination of Action")."""
+
+    cluster_id: Optional[str] = Field(
+        default=None,
+        description="""Unique identifier for the loss cluster within the scope of the analysis result.""",
+    )
+    taxonomy_entry: Optional[LossTaxonomyEntry] = Field(
+        default=None,
+        description="""The structured definition of the loss taxonomy for this cluster.""",
+    )
+    item_count: Optional[int] = Field(
+        default=None,
+        description="""The total number of EvaluationItems falling into this cluster.""",
+    )
+    examples: Optional[list[LossExample]] = Field(
+        default=None,
+        description="""A list of examples that belong to this cluster. This links the cluster back to the specific EvaluationItems and Rubrics.""",
+    )
+
+
+class LossClusterDict(TypedDict, total=False):
+    """A semantic grouping of failures (e.g., "Hallucination of Action")."""
+
+    cluster_id: Optional[str]
+    """Unique identifier for the loss cluster within the scope of the analysis result."""
+
+    taxonomy_entry: Optional[LossTaxonomyEntryDict]
+    """The structured definition of the loss taxonomy for this cluster."""
+
+    item_count: Optional[int]
+    """The total number of EvaluationItems falling into this cluster."""
+
+    examples: Optional[list[LossExampleDict]]
+    """A list of examples that belong to this cluster. This links the cluster back to the specific EvaluationItems and Rubrics."""
+
+
+LossClusterOrDict = Union[LossCluster, LossClusterDict]
+
+
+class LossAnalysisResult(_common.BaseModel):
+    """The top-level result for loss analysis."""
+
+    config: Optional[LossAnalysisConfig] = Field(
+        default=None,
+        description="""The configuration used to generate this analysis.""",
+    )
+    analysis_time: Optional[str] = Field(
+        default=None, description="""The timestamp when this analysis was performed."""
+    )
+    clusters: Optional[list[LossCluster]] = Field(
+        default=None, description="""The list of identified loss clusters."""
+    )
+
+    def show(self) -> None:
+        """Shows the loss analysis result with rich HTML visualization."""
+        from .. import _evals_visualization
+
+        _evals_visualization.display_loss_analysis_result(self)
+
+
+class LossAnalysisResultDict(TypedDict, total=False):
+    """The top-level result for loss analysis."""
+
+    config: Optional[LossAnalysisConfigDict]
+    """The configuration used to generate this analysis."""
+
+    analysis_time: Optional[str]
+    """The timestamp when this analysis was performed."""
+
+    clusters: Optional[list[LossClusterDict]]
+    """The list of identified loss clusters."""
+
+
+LossAnalysisResultOrDict = Union[LossAnalysisResult, LossAnalysisResultDict]
+
+
 class EvaluationRunResults(_common.BaseModel):
     """Represents the results of an evaluation run."""
 
@@ -2473,6 +2777,10 @@ class EvaluationRunResults(_common.BaseModel):
     )
     summary_metrics: Optional[SummaryMetric] = Field(
         default=None, description="""The summary metrics for the evaluation run."""
+    )
+    loss_analysis_results: Optional[list[LossAnalysisResult]] = Field(
+        default=None,
+        description="""The loss analysis results for the evaluation run.""",
     )
 
 
@@ -2484,6 +2792,9 @@ class EvaluationRunResultsDict(TypedDict, total=False):
 
     summary_metrics: Optional[SummaryMetricDict]
     """The summary metrics for the evaluation run."""
+
+    loss_analysis_results: Optional[list[LossAnalysisResultDict]]
+    """The loss analysis results for the evaluation run."""
 
 
 EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
@@ -3067,6 +3378,18 @@ class EvaluationRun(_common.BaseModel):
             else:
                 logger.warning(
                     "Evaluation Run succeeded but no evaluation item results found. To display results, please set include_evaluation_items to True when calling get_evaluation_run()."
+                )
+            # Show loss analysis results if present on the evaluation run.
+            # Pass the eval item map so the visualization can enrich
+            # loss examples with scenario/rubric data.
+            if (
+                self.evaluation_run_results
+                and self.evaluation_run_results.loss_analysis_results
+            ):
+                eval_item_map = getattr(self, "_eval_item_map", None)
+                _evals_visualization.display_loss_analysis_results(
+                    self.evaluation_run_results.loss_analysis_results,
+                    eval_item_map=eval_item_map,
                 )
         else:
             _evals_visualization.display_evaluation_run_status(self)
@@ -4089,10 +4412,10 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
     instance: Optional[EvaluationInstance] = Field(
         default=None, description="""The instance to be evaluated."""
     )
-    config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
     metric_sources: Optional[list[MetricSource]] = Field(
         default=None, description="""The metrics used for evaluation."""
     )
+    config: Optional[EvaluateInstancesConfig] = Field(default=None, description="""""")
 
 
 class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
@@ -4139,11 +4462,11 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     instance: Optional[EvaluationInstanceDict]
     """The instance to be evaluated."""
 
-    config: Optional[EvaluateInstancesConfigDict]
-    """"""
-
     metric_sources: Optional[list[MetricSourceDict]]
     """The metrics used for evaluation."""
+
+    config: Optional[EvaluateInstancesConfigDict]
+    """"""
 
 
 _EvaluateInstancesRequestParametersOrDict = Union[
@@ -4649,6 +4972,156 @@ GenerateUserScenariosResponseOrDict = Union[
 ]
 
 
+class GenerateLossClustersConfig(_common.BaseModel):
+    """Config for generating loss clusters."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GenerateLossClustersConfigDict(TypedDict, total=False):
+    """Config for generating loss clusters."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GenerateLossClustersConfigOrDict = Union[
+    GenerateLossClustersConfig, GenerateLossClustersConfigDict
+]
+
+
+class _GenerateLossClustersParameters(_common.BaseModel):
+    """Parameters for GenerateLossClusters."""
+
+    location: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the Location. Format: `projects/{project}/locations/{location}`.""",
+    )
+    evaluation_set: Optional[str] = Field(
+        default=None,
+        description="""Reference to a persisted EvaluationSet. The service will read items from this set.""",
+    )
+    inline_results: Optional[list[EvaluationResult]] = Field(
+        default=None,
+        description="""Inline evaluation results. Useful for ephemeral analysis in notebooks/SDKs where data isn't persisted.""",
+    )
+    configs: Optional[list[LossAnalysisConfig]] = Field(
+        default=None,
+        description="""Configuration for the analysis algorithm. Analysis for multiple metrics and multiple candidates could be specified.""",
+    )
+    config: Optional[GenerateLossClustersConfig] = Field(
+        default=None, description="""Config for generating loss clusters."""
+    )
+
+
+class _GenerateLossClustersParametersDict(TypedDict, total=False):
+    """Parameters for GenerateLossClusters."""
+
+    location: Optional[str]
+    """The resource name of the Location. Format: `projects/{project}/locations/{location}`."""
+
+    evaluation_set: Optional[str]
+    """Reference to a persisted EvaluationSet. The service will read items from this set."""
+
+    inline_results: Optional[list[EvaluationResultDict]]
+    """Inline evaluation results. Useful for ephemeral analysis in notebooks/SDKs where data isn't persisted."""
+
+    configs: Optional[list[LossAnalysisConfigDict]]
+    """Configuration for the analysis algorithm. Analysis for multiple metrics and multiple candidates could be specified."""
+
+    config: Optional[GenerateLossClustersConfigDict]
+    """Config for generating loss clusters."""
+
+
+_GenerateLossClustersParametersOrDict = Union[
+    _GenerateLossClustersParameters, _GenerateLossClustersParametersDict
+]
+
+
+class GenerateLossClustersResponse(_common.BaseModel):
+    """Response message for EvaluationAnalyticsService.GenerateLossClusters."""
+
+    analysis_time: Optional[str] = Field(
+        default=None, description="""The timestamp when this analysis was completed."""
+    )
+    results: Optional[list[LossAnalysisResult]] = Field(
+        default=None,
+        description="""The analysis results, one per config provided in the request.""",
+    )
+
+    def show(self) -> None:
+        """Shows the loss pattern analysis report with rich HTML visualization."""
+        from .. import _evals_visualization
+
+        _evals_visualization.display_loss_clusters_response(self)
+
+
+class GenerateLossClustersResponseDict(TypedDict, total=False):
+    """Response message for EvaluationAnalyticsService.GenerateLossClusters."""
+
+    analysis_time: Optional[str]
+    """The timestamp when this analysis was completed."""
+
+    results: Optional[list[LossAnalysisResultDict]]
+    """The analysis results, one per config provided in the request."""
+
+
+GenerateLossClustersResponseOrDict = Union[
+    GenerateLossClustersResponse, GenerateLossClustersResponseDict
+]
+
+
+class GenerateLossClustersOperation(_common.BaseModel):
+    """Long-running operation for generating loss clusters."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[GenerateLossClustersResponse] = Field(
+        default=None,
+        description="""Response message for EvaluationAnalyticsService.GenerateLossClusters.""",
+    )
+
+
+class GenerateLossClustersOperationDict(TypedDict, total=False):
+    """Long-running operation for generating loss clusters."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[GenerateLossClustersResponseDict]
+    """Response message for EvaluationAnalyticsService.GenerateLossClusters."""
+
+
+GenerateLossClustersOperationOrDict = Union[
+    GenerateLossClustersOperation, GenerateLossClustersOperationDict
+]
+
+
 class RubricGenerationConfig(_common.BaseModel):
     """Config for generating rubrics."""
 
@@ -4689,11 +5162,11 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
         default=None,
         description="""Specification for how the rubrics should be generated.""",
     )
-    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
     metric_resource_name: Optional[str] = Field(
         default=None,
         description="""Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored.""",
     )
+    config: Optional[RubricGenerationConfig] = Field(default=None, description="""""")
 
 
 class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
@@ -4713,11 +5186,11 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     rubric_generation_spec: Optional[genai_types.RubricGenerationSpecDict]
     """Specification for how the rubrics should be generated."""
 
-    config: Optional[RubricGenerationConfigDict]
-    """"""
-
     metric_resource_name: Optional[str]
     """Registered metric resource name. If this field is set, the configuration provided in this field is used for rubric generation. The `predefined_rubric_generation_spec` and `rubric_generation_spec` fields will be ignored."""
+
+    config: Optional[RubricGenerationConfigDict]
+    """"""
 
 
 _GenerateInstanceRubricsRequestOrDict = Union[
@@ -5090,7 +5563,7 @@ DnsPeeringConfigOrDict = Union[DnsPeeringConfig, DnsPeeringConfigDict]
 
 
 class PscInterfaceConfig(_common.BaseModel):
-    """The PSC interface config."""
+    """Configuration for PSC-I."""
 
     dns_peering_configs: Optional[list[DnsPeeringConfig]] = Field(
         default=None,
@@ -5103,7 +5576,7 @@ class PscInterfaceConfig(_common.BaseModel):
 
 
 class PscInterfaceConfigDict(TypedDict, total=False):
-    """The PSC interface config."""
+    """Configuration for PSC-I."""
 
     dns_peering_configs: Optional[list[DnsPeeringConfigDict]]
     """Optional. DNS peering configurations. When specified, Vertex AI will attempt to configure DNS peering zones in the tenant project VPC to resolve the specified domains using the target network's Cloud DNS. The user must grant the dns.peer role to the Vertex AI Service Agent on the target project."""
@@ -5805,6 +6278,78 @@ _GetCustomJobParametersOrDict = Union[
 ]
 
 
+class CancelQueryJobAgentEngineConfig(_common.BaseModel):
+    """Config for canceling async querying agent engines."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    operation_name: Optional[str] = Field(
+        default=None,
+        description="""Name of the longrunning operation returned from run_query_job.""",
+    )
+
+
+class CancelQueryJobAgentEngineConfigDict(TypedDict, total=False):
+    """Config for canceling async querying agent engines."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    operation_name: Optional[str]
+    """Name of the longrunning operation returned from run_query_job."""
+
+
+CancelQueryJobAgentEngineConfigOrDict = Union[
+    CancelQueryJobAgentEngineConfig, CancelQueryJobAgentEngineConfigDict
+]
+
+
+class _CancelQueryJobAgentEngineRequestParameters(_common.BaseModel):
+    """Parameters for canceling async querying agent engines."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the reasoning engine resource."""
+    )
+    config: Optional[CancelQueryJobAgentEngineConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CancelQueryJobAgentEngineRequestParametersDict(TypedDict, total=False):
+    """Parameters for canceling async querying agent engines."""
+
+    name: Optional[str]
+    """Name of the reasoning engine resource."""
+
+    config: Optional[CancelQueryJobAgentEngineConfigDict]
+    """"""
+
+
+_CancelQueryJobAgentEngineRequestParametersOrDict = Union[
+    _CancelQueryJobAgentEngineRequestParameters,
+    _CancelQueryJobAgentEngineRequestParametersDict,
+]
+
+
+class CancelQueryJobResult(_common.BaseModel):
+    """Result of canceling a query job."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class CancelQueryJobResultDict(TypedDict, total=False):
+    """Result of canceling a query job."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+CancelQueryJobResultOrDict = Union[CancelQueryJobResult, CancelQueryJobResultDict]
+
+
 class CheckQueryJobAgentEngineConfig(_common.BaseModel):
     """Config for async querying agent engines."""
 
@@ -5964,7 +6509,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEven
     """The conversation source event for generating memories."""
 
     content: Optional[genai_types.Content] = Field(
-        default=None, description="""Required. The content of the event."""
+        default=None, description="""Required. Represents the content of the event."""
     )
 
 
@@ -5974,7 +6519,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEven
     """The conversation source event for generating memories."""
 
     content: Optional[genai_types.ContentDict]
-    """Required. The content of the event."""
+    """Required. Represents the content of the event."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventOrDict = (
@@ -5996,7 +6541,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSource(
         ]
     ] = Field(
         default=None,
-        description="""Optional. The input conversation events for the example.""",
+        description="""Optional. Represents the input conversation events for the example.""",
     )
 
 
@@ -6010,7 +6555,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceDict
             MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEventDict
         ]
     ]
-    """Optional. The input conversation events for the example."""
+    """Optional. Represents the input conversation events for the example."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceOrDict = Union[
@@ -6023,10 +6568,11 @@ class MemoryTopicId(_common.BaseModel):
     """The topic ID for a memory."""
 
     custom_memory_topic_label: Optional[str] = Field(
-        default=None, description="""Optional. The custom memory topic label."""
+        default=None,
+        description="""Optional. Represents the custom memory topic label.""",
     )
     managed_memory_topic: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Optional. The managed memory topic."""
+        default=None, description="""Optional. Represents the managed memory topic."""
     )
 
 
@@ -6034,10 +6580,10 @@ class MemoryTopicIdDict(TypedDict, total=False):
     """The topic ID for a memory."""
 
     custom_memory_topic_label: Optional[str]
-    """Optional. The custom memory topic label."""
+    """Optional. Represents the custom memory topic label."""
 
     managed_memory_topic: Optional[ManagedTopicEnum]
-    """Optional. The managed memory topic."""
+    """Optional. Represents the managed memory topic."""
 
 
 MemoryTopicIdOrDict = Union[MemoryTopicId, MemoryTopicIdDict]
@@ -6049,11 +6595,12 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory(
     """A memory generated by the operation."""
 
     fact: Optional[str] = Field(
-        default=None, description="""Required. The fact to generate a memory from."""
+        default=None,
+        description="""Required. Represents the fact to generate a memory from.""",
     )
     topics: Optional[list[MemoryTopicId]] = Field(
         default=None,
-        description="""Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
+        description="""Optional. Represents the list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`.""",
     )
 
 
@@ -6063,10 +6610,10 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict(
     """A memory generated by the operation."""
 
     fact: Optional[str]
-    """Required. The fact to generate a memory from."""
+    """Required. Represents the fact to generate a memory from."""
 
     topics: Optional[list[MemoryTopicIdDict]]
-    """Optional. The list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
+    """Optional. Represents the list of topics that the memory should be associated with. For example, use `custom_memory_topic_label = "jargon"` if the extracted memory is an example of memory extraction for the custom topic `jargon`."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryOrDict = Union[
@@ -6085,7 +6632,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExample(_common.BaseModel):
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemory]
     ] = Field(
         default=None,
-        description="""Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
+        description="""Optional. Represents the memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation.""",
     )
 
 
@@ -6100,7 +6647,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleDict(TypedDict, total=
     generated_memories: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleGeneratedMemoryDict]
     ]
-    """Optional. The memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
+    """Optional. Represents the memories that are expected to be generated from the input conversation. An empty list indicates that no memories are expected to be generated for the input conversation."""
 
 
 MemoryBankCustomizationConfigGenerateMemoriesExampleOrDict = Union[
@@ -6113,11 +6660,11 @@ class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopic(_common.BaseMode
     """A custom memory topic defined by the developer."""
 
     label: Optional[str] = Field(
-        default=None, description="""Required. The label of the topic."""
+        default=None, description="""Required. Represents the label of the topic."""
     )
     description: Optional[str] = Field(
         default=None,
-        description="""Required. Description of the memory topic. This should explain what information should be extracted for this topic.""",
+        description="""Required. Represents the description of the memory topic. This should explain what information should be extracted for this topic.""",
     )
 
 
@@ -6127,10 +6674,10 @@ class MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicDict(
     """A custom memory topic defined by the developer."""
 
     label: Optional[str]
-    """Required. The label of the topic."""
+    """Required. Represents the label of the topic."""
 
     description: Optional[str]
-    """Required. Description of the memory topic. This should explain what information should be extracted for this topic."""
+    """Required. Represents the description of the memory topic. This should explain what information should be extracted for this topic."""
 
 
 MemoryBankCustomizationConfigMemoryTopicCustomMemoryTopicOrDict = Union[
@@ -6143,7 +6690,7 @@ class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopic(_common.BaseMod
     """A managed memory topic defined by the system."""
 
     managed_topic_enum: Optional[ManagedTopicEnum] = Field(
-        default=None, description="""Required. The managed topic."""
+        default=None, description="""Required. Represents the managed topic."""
     )
 
 
@@ -6153,7 +6700,7 @@ class MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicDict(
     """A managed memory topic defined by the system."""
 
     managed_topic_enum: Optional[ManagedTopicEnum]
-    """Required. The managed topic."""
+    """Required. Represents the managed topic."""
 
 
 MemoryBankCustomizationConfigMemoryTopicManagedMemoryTopicOrDict = Union[
@@ -6197,49 +6744,146 @@ MemoryBankCustomizationConfigMemoryTopicOrDict = Union[
 ]
 
 
+class MemoryBankCustomizationConfigConsolidationConfig(_common.BaseModel):
+    """Represents configuration for customizing how memories are consolidated."""
+
+    revisions_per_candidate_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Represents the maximum number of revisions to consider for each candidate memory. If not set, then the default value (1) will be used, which means that only the latest revision will be considered.""",
+    )
+
+
+class MemoryBankCustomizationConfigConsolidationConfigDict(TypedDict, total=False):
+    """Represents configuration for customizing how memories are consolidated."""
+
+    revisions_per_candidate_count: Optional[int]
+    """Optional. Represents the maximum number of revisions to consider for each candidate memory. If not set, then the default value (1) will be used, which means that only the latest revision will be considered."""
+
+
+MemoryBankCustomizationConfigConsolidationConfigOrDict = Union[
+    MemoryBankCustomizationConfigConsolidationConfig,
+    MemoryBankCustomizationConfigConsolidationConfigDict,
+]
+
+
 class MemoryBankCustomizationConfig(_common.BaseModel):
-    """Configuration for organizing memories for a particular scope."""
+    """Represents configuration for organizing natural language memories for a particular scope."""
 
     enable_third_person_memories: Optional[bool] = Field(
         default=None,
-        description="""Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
+        description="""Optional. Indicates whether the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")""",
     )
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExample]
     ] = Field(
         default=None,
-        description="""Optional. Examples of how to generate memories for a particular scope.""",
+        description="""Optional. Provides examples of how to generate memories for a particular scope.""",
     )
     memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopic]] = Field(
         default=None,
-        description="""Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
+        description="""Optional. Represents topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used.""",
     )
     scope_keys: Optional[list[str]] = Field(
         default=None,
-        description="""Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+        description="""Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+    consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfig] = (
+        Field(
+            default=None,
+            description="""Optional. Represents configuration for customizing how memories are consolidated together.""",
+        )
+    )
+    disable_natural_language_memories: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Indicates whether natural language memory generation should be disabled for all requests. By default, natural language memory generation is enabled. Set this to `true` when you only want to generate structured memories.""",
     )
 
 
 class MemoryBankCustomizationConfigDict(TypedDict, total=False):
-    """Configuration for organizing memories for a particular scope."""
+    """Represents configuration for organizing natural language memories for a particular scope."""
 
     enable_third_person_memories: Optional[bool]
-    """Optional. If true, then the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
+    """Optional. Indicates whether the memories will be generated in the third person (i.e. "The user generates memories with Memory Bank."). By default, the memories will be generated in the first person (i.e. "I generate memories with Memory Bank.")"""
 
     generate_memories_examples: Optional[
         list[MemoryBankCustomizationConfigGenerateMemoriesExampleDict]
     ]
-    """Optional. Examples of how to generate memories for a particular scope."""
+    """Optional. Provides examples of how to generate memories for a particular scope."""
 
     memory_topics: Optional[list[MemoryBankCustomizationConfigMemoryTopicDict]]
-    """Optional. Topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
+    """Optional. Represents topics of information that should be extracted from conversations and stored as memories. If not set, then Memory Bank's default topics will be used."""
 
     scope_keys: Optional[list[str]]
-    """Optional. The scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+    """Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+    consolidation_config: Optional[MemoryBankCustomizationConfigConsolidationConfigDict]
+    """Optional. Represents configuration for customizing how memories are consolidated together."""
+
+    disable_natural_language_memories: Optional[bool]
+    """Optional. Indicates whether natural language memory generation should be disabled for all requests. By default, natural language memory generation is enabled. Set this to `true` when you only want to generate structured memories."""
 
 
 MemoryBankCustomizationConfigOrDict = Union[
     MemoryBankCustomizationConfig, MemoryBankCustomizationConfigDict
+]
+
+
+class MemoryGenerationTriggerConfigGenerationTriggerRule(_common.BaseModel):
+    """Represents the active rule that determines when to flush the buffer."""
+
+    event_count: Optional[int] = Field(
+        default=None,
+        description="""Specifies to trigger generation when the event count reaches this limit.""",
+    )
+    fixed_interval: Optional[str] = Field(
+        default=None,
+        description="""Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity.""",
+    )
+    idle_duration: Optional[str] = Field(
+        default=None,
+        description="""Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity.""",
+    )
+
+
+class MemoryGenerationTriggerConfigGenerationTriggerRuleDict(TypedDict, total=False):
+    """Represents the active rule that determines when to flush the buffer."""
+
+    event_count: Optional[int]
+    """Specifies to trigger generation when the event count reaches this limit."""
+
+    fixed_interval: Optional[str]
+    """Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity."""
+
+    idle_duration: Optional[str]
+    """Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity."""
+
+
+MemoryGenerationTriggerConfigGenerationTriggerRuleOrDict = Union[
+    MemoryGenerationTriggerConfigGenerationTriggerRule,
+    MemoryGenerationTriggerConfigGenerationTriggerRuleDict,
+]
+
+
+class MemoryGenerationTriggerConfig(_common.BaseModel):
+    """The configuration for triggering memory generation for ingested events."""
+
+    generation_rule: Optional[MemoryGenerationTriggerConfigGenerationTriggerRule] = (
+        Field(
+            default=None,
+            description="""Optional. Represents the active rule that determines when to flush the buffer. If not set, then the stream will be force flushed immediately.""",
+        )
+    )
+
+
+class MemoryGenerationTriggerConfigDict(TypedDict, total=False):
+    """The configuration for triggering memory generation for ingested events."""
+
+    generation_rule: Optional[MemoryGenerationTriggerConfigGenerationTriggerRuleDict]
+    """Optional. Represents the active rule that determines when to flush the buffer. If not set, then the stream will be force flushed immediately."""
+
+
+MemoryGenerationTriggerConfigOrDict = Union[
+    MemoryGenerationTriggerConfig, MemoryGenerationTriggerConfigDict
 ]
 
 
@@ -6248,7 +6892,11 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfig(_common.BaseMod
 
     model: Optional[str] = Field(
         default=None,
-        description="""Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+        description="""Optional. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`.""",
+    )
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
+        default=None,
+        description="""Optional. Specifies the default trigger configuration for generating memories using `IngestEvents`.""",
     )
 
 
@@ -6258,7 +6906,10 @@ class ReasoningEngineContextSpecMemoryBankConfigGenerationConfigDict(
     """Configuration for how to generate memories."""
 
     model: Optional[str]
-    """Required. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+    """Optional. The model used to generate memories. Format: `projects/{project}/locations/{location}/publishers/google/models/{model}`."""
+
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
+    """Optional. Specifies the default trigger configuration for generating memories using `IngestEvents`."""
 
 
 ReasoningEngineContextSpecMemoryBankConfigGenerationConfigOrDict = Union[
@@ -6373,6 +7024,67 @@ ReasoningEngineContextSpecMemoryBankConfigTtlConfigOrDict = Union[
 ]
 
 
+class StructuredMemorySchemaConfig(_common.BaseModel):
+    """Represents the OpenAPI schema of the structured memories."""
+
+    memory_schema: Optional[genai_types.Schema] = Field(
+        default=None,
+        description="""Required. Represents the OpenAPI schema of the structured memories.""",
+    )
+    id: Optional[str] = Field(
+        default=None,
+        description="""Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens.""",
+    )
+    memory_type: Optional[MemoryType] = Field(
+        default=None,
+        description="""Optional. Represents the type of the structured memories associated with the schema. If not set, then `STRUCTURED_PROFILE` will be used.""",
+    )
+
+
+class StructuredMemorySchemaConfigDict(TypedDict, total=False):
+    """Represents the OpenAPI schema of the structured memories."""
+
+    memory_schema: Optional[genai_types.SchemaDict]
+    """Required. Represents the OpenAPI schema of the structured memories."""
+
+    id: Optional[str]
+    """Required. Represents the ID of the schema. Must be 1-63 characters, start with a lowercase letter, and consist of lowercase letters, numbers, and hyphens."""
+
+    memory_type: Optional[MemoryType]
+    """Optional. Represents the type of the structured memories associated with the schema. If not set, then `STRUCTURED_PROFILE` will be used."""
+
+
+StructuredMemorySchemaConfigOrDict = Union[
+    StructuredMemorySchemaConfig, StructuredMemorySchemaConfigDict
+]
+
+
+class StructuredMemoryConfig(_common.BaseModel):
+    """Configuration for organizing structured memories within a scope."""
+
+    schema_configs: Optional[list[StructuredMemorySchemaConfig]] = Field(
+        default=None,
+        description="""Optional. Represents configuration of the structured memories' schemas.""",
+    )
+    scope_keys: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank.""",
+    )
+
+
+class StructuredMemoryConfigDict(TypedDict, total=False):
+    """Configuration for organizing structured memories within a scope."""
+
+    schema_configs: Optional[list[StructuredMemorySchemaConfigDict]]
+    """Optional. Represents configuration of the structured memories' schemas."""
+
+    scope_keys: Optional[list[str]]
+    """Optional. Represents the scope keys (i.e. 'user_id') for which to use this config. A request's scope must include all of the provided keys for the config to be used (order does not matter). If empty, then the config will be used for all requests that do not have a more specific config. Only one default config is allowed per Memory Bank."""
+
+
+StructuredMemoryConfigOrDict = Union[StructuredMemoryConfig, StructuredMemoryConfigDict]
+
+
 class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
     """Specification for a Memory Bank."""
 
@@ -6400,6 +7112,10 @@ class ReasoningEngineContextSpecMemoryBankConfig(_common.BaseModel):
         default=None,
         description="""Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource.""",
     )
+    structured_memory_configs: Optional[list[StructuredMemoryConfig]] = Field(
+        default=None,
+        description="""Optional. Configuration for organizing structured memories for a particular scope.""",
+    )
 
 
 class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
@@ -6424,6 +7140,9 @@ class ReasoningEngineContextSpecMemoryBankConfigDict(TypedDict, total=False):
     ttl_config: Optional[ReasoningEngineContextSpecMemoryBankConfigTtlConfigDict]
     """Optional. Configuration for automatic TTL ("time-to-live") of the memories in the Memory Bank. If not set, TTL will not be applied automatically. The TTL can be explicitly set by modifying the `expire_time` of each Memory resource."""
 
+    structured_memory_configs: Optional[list[StructuredMemoryConfigDict]]
+    """Optional. Configuration for organizing structured memories for a particular scope."""
+
 
 ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
     ReasoningEngineContextSpecMemoryBankConfig,
@@ -6432,7 +7151,7 @@ ReasoningEngineContextSpecMemoryBankConfigOrDict = Union[
 
 
 class ReasoningEngineContextSpec(_common.BaseModel):
-    """The configuration for agent engine sub-resources to manage context."""
+    """Configuration for how Agent Engine sub-resources should manage context."""
 
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfig] = Field(
         default=None,
@@ -6441,7 +7160,7 @@ class ReasoningEngineContextSpec(_common.BaseModel):
 
 
 class ReasoningEngineContextSpecDict(TypedDict, total=False):
-    """The configuration for agent engine sub-resources to manage context."""
+    """Configuration for how Agent Engine sub-resources should manage context."""
 
     memory_bank_config: Optional[ReasoningEngineContextSpecMemoryBankConfigDict]
     """Optional. Specification for a Memory Bank, which manages memories for the Agent Engine."""
@@ -6504,6 +7223,147 @@ class SecretEnvVarDict(TypedDict, total=False):
 SecretEnvVarOrDict = Union[SecretEnvVar, SecretEnvVarDict]
 
 
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig(
+    _common.BaseModel
+):
+    """Configuration for traffic originating from a Reasoning Engine."""
+
+    agent_gateway: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Agent Gateway for outbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `AGENT_TO_ANYWHERE`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for traffic originating from a Reasoning Engine."""
+
+    agent_gateway: Optional[str]
+    """Required. The resource name of the Agent Gateway for outbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `AGENT_TO_ANYWHERE`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`"""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict,
+]
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig(
+    _common.BaseModel
+):
+    """Configuration for traffic targeting a Reasoning Engine."""
+
+    agent_gateway: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Agent Gateway to use for inbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `CLIENT_TO_AGENT`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict(
+    TypedDict, total=False
+):
+    """Configuration for traffic targeting a Reasoning Engine."""
+
+    agent_gateway: Optional[str]
+    """Required. The resource name of the Agent Gateway to use for inbound traffic. It must be set to a Google-managed gateway whose `governed_access_path` is `CLIENT_TO_AGENT`. Format: `projects/{project}/locations/{location}/agentGateways/{agent_gateway}`"""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict,
+]
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfig(_common.BaseModel):
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    agent_to_anywhere_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for traffic originating from the Reasoning Engine. When unset, outgoing traffic is not routed through an Agent Gateway.""",
+    )
+    client_to_agent_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Configuration for traffic targeting the Reasoning Engine. When unset, incoming traffic is not routed through an Agent Gateway.""",
+    )
+
+
+class ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict(TypedDict, total=False):
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    agent_to_anywhere_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigAgentToAnywhereConfigDict
+    ]
+    """Optional. Configuration for traffic originating from the Reasoning Engine. When unset, outgoing traffic is not routed through an Agent Gateway."""
+
+    client_to_agent_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigClientToAgentConfigDict
+    ]
+    """Optional. Configuration for traffic targeting the Reasoning Engine. When unset, incoming traffic is not routed through an Agent Gateway."""
+
+
+ReasoningEngineSpecDeploymentSpecAgentGatewayConfigOrDict = Union[
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfig,
+    ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict,
+]
+
+
+class KeepAliveProbeHttpGet(_common.BaseModel):
+    """Specifies the HTTP GET configuration for the probe."""
+
+    path: Optional[str] = Field(
+        default=None,
+        description="""Required. Specifies the path of the HTTP GET request (e.g., "/is_busy").""",
+    )
+    port: Optional[int] = Field(
+        default=None,
+        description="""Optional. Specifies the port number on the container to which the request is sent.""",
+    )
+
+
+class KeepAliveProbeHttpGetDict(TypedDict, total=False):
+    """Specifies the HTTP GET configuration for the probe."""
+
+    path: Optional[str]
+    """Required. Specifies the path of the HTTP GET request (e.g., "/is_busy")."""
+
+    port: Optional[int]
+    """Optional. Specifies the port number on the container to which the request is sent."""
+
+
+KeepAliveProbeHttpGetOrDict = Union[KeepAliveProbeHttpGet, KeepAliveProbeHttpGetDict]
+
+
+class KeepAliveProbe(_common.BaseModel):
+    """Represents the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
+
+    http_get: Optional[KeepAliveProbeHttpGet] = Field(
+        default=None,
+        description="""Optional. Specifies the HTTP GET configuration for the probe.""",
+    )
+    max_seconds: Optional[int] = Field(
+        default=None,
+        description="""Optional. Specifies the maximum duration (in seconds) to keep the instance alive via this probe. Can be a maximum of 3600 seconds (1 hour).""",
+    )
+
+
+class KeepAliveProbeDict(TypedDict, total=False):
+    """Represents the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
+
+    http_get: Optional[KeepAliveProbeHttpGetDict]
+    """Optional. Specifies the HTTP GET configuration for the probe."""
+
+    max_seconds: Optional[int]
+    """Optional. Specifies the maximum duration (in seconds) to keep the instance alive via this probe. Can be a maximum of 3600 seconds (1 hour)."""
+
+
+KeepAliveProbeOrDict = Union[KeepAliveProbe, KeepAliveProbeDict]
+
+
 class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     """The specification of a Reasoning Engine deployment."""
 
@@ -6537,6 +7397,16 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
         default=None,
         description="""Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent.""",
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Optional. Agent Gateway configuration for the Reasoning Engine deployment.""",
+    )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings.""",
+    )
 
 
 class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
@@ -6565,6 +7435,14 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
 
     secret_env: Optional[list[SecretEnvVarDict]]
     """Optional. Environment variables where the value is a secret in Cloud Secret Manager. To use this feature, add 'Secret Manager Secret Accessor' role (roles/secretmanager.secretAccessor) to AI Platform Reasoning Engine Service Agent."""
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Optional. Agent Gateway configuration for the Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
 
 
 ReasoningEngineSpecDeploymentSpecOrDict = Union[
@@ -6759,10 +7637,7 @@ ReasoningEngineSpecSourceCodeSpecDeveloperConnectSourceOrDict = Union[
 
 
 class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
-    """The image spec for building an image (within a single build step).
-
-    It is based on the config file (i.e. Dockerfile) in the source directory.
-    """
+    """The image spec for building an image (within a single build step), based on the config file (i.e. Dockerfile) in the source directory."""
 
     build_args: Optional[dict[str, str]] = Field(
         default=None,
@@ -6771,10 +7646,7 @@ class ReasoningEngineSpecSourceCodeSpecImageSpec(_common.BaseModel):
 
 
 class ReasoningEngineSpecSourceCodeSpecImageSpecDict(TypedDict, total=False):
-    """The image spec for building an image (within a single build step).
-
-    It is based on the config file (i.e. Dockerfile) in the source directory.
-    """
+    """The image spec for building an image (within a single build step), based on the config file (i.e. Dockerfile) in the source directory."""
 
     build_args: Optional[dict[str, str]]
     """Optional. Build arguments to be used. They will be passed through --build-arg flags."""
@@ -6883,6 +7755,27 @@ ReasoningEngineSpecSourceCodeSpecOrDict = Union[
 ]
 
 
+class ReasoningEngineSpecContainerSpec(_common.BaseModel):
+    """Specification for deploying from a container image."""
+
+    image_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica.""",
+    )
+
+
+class ReasoningEngineSpecContainerSpecDict(TypedDict, total=False):
+    """Specification for deploying from a container image."""
+
+    image_uri: Optional[str]
+    """Required. The Artifact Registry Docker image URI (e.g., us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag) of the container image that is to be run on each worker replica."""
+
+
+ReasoningEngineSpecContainerSpecOrDict = Union[
+    ReasoningEngineSpecContainerSpec, ReasoningEngineSpecContainerSpecDict
+]
+
+
 class ReasoningEngineSpec(_common.BaseModel):
     """The specification of an agent engine."""
 
@@ -6922,6 +7815,10 @@ class ReasoningEngineSpec(_common.BaseModel):
         default=None,
         description="""Deploy from source code files with a defined entrypoint.""",
     )
+    container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
+        default=None,
+        description="""Deploy from a container image with a defined entrypoint and commands.""",
+    )
 
 
 class ReasoningEngineSpecDict(TypedDict, total=False):
@@ -6954,8 +7851,116 @@ class ReasoningEngineSpecDict(TypedDict, total=False):
     source_code_spec: Optional[ReasoningEngineSpecSourceCodeSpecDict]
     """Deploy from source code files with a defined entrypoint."""
 
+    container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
+    """Deploy from a container image with a defined entrypoint and commands."""
+
 
 ReasoningEngineSpecOrDict = Union[ReasoningEngineSpec, ReasoningEngineSpecDict]
+
+
+class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest(_common.BaseModel):
+    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    pass
+
+
+class ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict(TypedDict, total=False):
+    """Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    pass
+
+
+ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest,
+    ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict,
+]
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManualTarget(_common.BaseModel):
+    """A single target for the traffic split, specifying a Runtime Revision and the percentage of traffic to send to it."""
+
+    percent: Optional[int] = Field(
+        default=None,
+        description="""Required. Specifies percent of the traffic to this Runtime Revision.""",
+    )
+    runtime_revision_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The Runtime Revision name to which to send this portion of traffic, if traffic allocation is by Runtime Revision.""",
+    )
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManualTargetDict(TypedDict, total=False):
+    """A single target for the traffic split, specifying a Runtime Revision and the percentage of traffic to send to it."""
+
+    percent: Optional[int]
+    """Required. Specifies percent of the traffic to this Runtime Revision."""
+
+    runtime_revision_name: Optional[str]
+    """Required. The Runtime Revision name to which to send this portion of traffic, if traffic allocation is by Runtime Revision."""
+
+
+ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitManualTarget,
+    ReasoningEngineTrafficConfigTrafficSplitManualTargetDict,
+]
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManual(_common.BaseModel):
+    """Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
+    targets: Optional[list[ReasoningEngineTrafficConfigTrafficSplitManualTarget]] = (
+        Field(
+            default=None,
+            description="""A list of traffic targets for the Runtimes Revisions. The sum of percentages must equal to 100.""",
+        )
+    )
+
+
+class ReasoningEngineTrafficConfigTrafficSplitManualDict(TypedDict, total=False):
+    """Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
+    targets: Optional[list[ReasoningEngineTrafficConfigTrafficSplitManualTargetDict]]
+    """A list of traffic targets for the Runtimes Revisions. The sum of percentages must equal to 100."""
+
+
+ReasoningEngineTrafficConfigTrafficSplitManualOrDict = Union[
+    ReasoningEngineTrafficConfigTrafficSplitManual,
+    ReasoningEngineTrafficConfigTrafficSplitManualDict,
+]
+
+
+class ReasoningEngineTrafficConfig(_common.BaseModel):
+    """Traffic distribution configuration."""
+
+    traffic_split_always_latest: Optional[
+        ReasoningEngineTrafficConfigTrafficSplitAlwaysLatest
+    ] = Field(
+        default=None,
+        description="""Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision.""",
+    )
+    traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManual] = (
+        Field(
+            default=None,
+            description="""Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each.""",
+        )
+    )
+
+
+class ReasoningEngineTrafficConfigDict(TypedDict, total=False):
+    """Traffic distribution configuration."""
+
+    traffic_split_always_latest: Optional[
+        ReasoningEngineTrafficConfigTrafficSplitAlwaysLatestDict
+    ]
+    """Optional. Traffic distribution configuration, where all traffic is sent to the latest Runtime Revision."""
+
+    traffic_split_manual: Optional[ReasoningEngineTrafficConfigTrafficSplitManualDict]
+    """Optional. Manual traffic distribution configuration, where the user specifies the Runtime Revision IDs and the percentage of traffic to send to each."""
+
+
+ReasoningEngineTrafficConfigOrDict = Union[
+    ReasoningEngineTrafficConfig, ReasoningEngineTrafficConfigDict
+]
 
 
 class ReasoningEngine(_common.BaseModel):
@@ -6999,6 +8004,10 @@ class ReasoningEngine(_common.BaseModel):
         default=None,
         description="""Output only. Timestamp when this ReasoningEngine was most recently updated.""",
     )
+    traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
+        default=None,
+        description="""Optional. Traffic distribution configuration for the Reasoning Engine.""",
+    )
 
 
 class ReasoningEngineDict(TypedDict, total=False):
@@ -7033,6 +8042,9 @@ class ReasoningEngineDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. Timestamp when this ReasoningEngine was most recently updated."""
+
+    traffic_config: Optional[ReasoningEngineTrafficConfigDict]
+    """Optional. Traffic distribution configuration for the Reasoning Engine."""
 
 
 ReasoningEngineOrDict = Union[ReasoningEngine, ReasoningEngineDict]
@@ -7232,6 +8244,18 @@ class CreateAgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
+    )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings.""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -7362,6 +8386,16 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
           The scripts must be located in the `installation_scripts`
           subdirectory and the path must be added to `extra_packages`.
       """
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -7879,6 +8913,18 @@ class UpdateAgentEngineConfig(_common.BaseModel):
           subdirectory and the path must be added to `extra_packages`.
       """,
     )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
+    )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -8015,6 +9061,16 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
           subdirectory and the path must be added to `extra_packages`.
       """
 
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings."""
+
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
       https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
@@ -8052,12 +9108,18 @@ _UpdateAgentEngineRequestParametersOrDict = Union[
 class MemoryMetadataValue(_common.BaseModel):
     """The metadata values for memories."""
 
-    bool_value: Optional[bool] = Field(default=None, description="""Boolean value.""")
-    double_value: Optional[float] = Field(default=None, description="""Double value.""")
-    string_value: Optional[str] = Field(default=None, description="""String value.""")
+    bool_value: Optional[bool] = Field(
+        default=None, description="""Represents a boolean value."""
+    )
+    double_value: Optional[float] = Field(
+        default=None, description="""Represents a double value."""
+    )
+    string_value: Optional[str] = Field(
+        default=None, description="""Represents a string value."""
+    )
     timestamp_value: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
+        description="""Represents a timestamp value. When filtering on timestamp values, only the seconds field will be compared.""",
     )
 
 
@@ -8065,16 +9127,16 @@ class MemoryMetadataValueDict(TypedDict, total=False):
     """The metadata values for memories."""
 
     bool_value: Optional[bool]
-    """Boolean value."""
+    """Represents a boolean value."""
 
     double_value: Optional[float]
-    """Double value."""
+    """Represents a double value."""
 
     string_value: Optional[str]
-    """String value."""
+    """Represents a string value."""
 
     timestamp_value: Optional[datetime.datetime]
-    """Timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
+    """Represents a timestamp value. When filtering on timestamp values, only the seconds field will be compared."""
 
 
 MemoryMetadataValueOrDict = Union[MemoryMetadataValue, MemoryMetadataValueDict]
@@ -8125,6 +9187,10 @@ class AgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
+    memory_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
 
 
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
@@ -8164,6 +9230,9 @@ class AgentEngineMemoryConfigDict(TypedDict, total=False):
 
     metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+
+    memory_id: Optional[str]
+    """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
 
 AgentEngineMemoryConfigOrDict = Union[
@@ -8223,65 +9292,103 @@ _CreateAgentEngineMemoryRequestParametersOrDict = Union[
 ]
 
 
+class MemoryStructuredContent(_common.BaseModel):
+    """Represents the structured value of the memory."""
+
+    data: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Required. Represents the structured value of the memory.""",
+    )
+    schema_id: Optional[str] = Field(
+        default=None,
+        description="""Required. Represents the schema ID for which this structured memory belongs to.""",
+    )
+
+
+class MemoryStructuredContentDict(TypedDict, total=False):
+    """Represents the structured value of the memory."""
+
+    data: Optional[dict[str, Any]]
+    """Required. Represents the structured value of the memory."""
+
+    schema_id: Optional[str]
+    """Required. Represents the schema ID for which this structured memory belongs to."""
+
+
+MemoryStructuredContentOrDict = Union[
+    MemoryStructuredContent, MemoryStructuredContentDict
+]
+
+
 class Memory(_common.BaseModel):
     """A memory."""
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when this Memory was created.""",
+        description="""Output only. Represents the timestamp when this Memory was created.""",
     )
     description: Optional[str] = Field(
-        default=None, description="""Optional. Description of the Memory."""
+        default=None,
+        description="""Optional. Represents the description of the Memory.""",
     )
     disable_memory_revisions: Optional[bool] = Field(
         default=None,
-        description="""Optional. Input only. If true, no revision will be created for this request.""",
+        description="""Optional. Input only. Indicates whether no revision will be created for this request.""",
     )
     display_name: Optional[str] = Field(
-        default=None, description="""Optional. Display name of the Memory."""
+        default=None,
+        description="""Optional. Represents the display name of the Memory.""",
     )
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
+        description="""Optional. Represents the timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided.""",
     )
     fact: Optional[str] = Field(
         default=None,
-        description="""Required. Semantic knowledge extracted from the source content.""",
+        description="""Optional. Represents semantic knowledge extracted from the source content.""",
     )
     metadata: Optional[dict[str, MemoryMetadataValue]] = Field(
         default=None,
-        description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
+        description="""Optional. Represents user-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`""",
+        description="""Identifier. Represents the resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`""",
     )
     revision_expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
+        description="""Optional. Input only. Represents the timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted.""",
     )
     revision_labels: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Optional. Input only. The labels to apply to the Memory Revision created as a result of this request.""",
+        description="""Optional. Input only. Represents the labels to apply to the Memory Revision created as a result of this request.""",
     )
     revision_ttl: Optional[str] = Field(
         default=None,
-        description="""Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL.""",
+        description="""Optional. Input only. Represents the TTL for the revision. The expiration time is computed: now + TTL.""",
     )
     scope: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Required. Immutable. The scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'.""",
+        description="""Required. Immutable. Represents the scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'.""",
     )
     topics: Optional[list[MemoryTopicId]] = Field(
-        default=None, description="""Optional. The Topics of the Memory."""
+        default=None, description="""Optional. Represents the Topics of the Memory."""
     )
     ttl: Optional[str] = Field(
         default=None,
-        description="""Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL.""",
+        description="""Optional. Input only. Represents the TTL for this resource. The expiration time is computed: now + TTL.""",
     )
     update_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when this Memory was most recently updated.""",
+        description="""Output only. Represents the timestamp when this Memory was most recently updated.""",
+    )
+    memory_type: Optional[MemoryType] = Field(
+        default=None,
+        description="""Optional. Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided.""",
+    )
+    structured_content: Optional[MemoryStructuredContent] = Field(
+        default=None,
+        description="""Optional. Represents the structured content of the memory.""",
     )
 
 
@@ -8289,49 +9396,55 @@ class MemoryDict(TypedDict, total=False):
     """A memory."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory was created."""
+    """Output only. Represents the timestamp when this Memory was created."""
 
     description: Optional[str]
-    """Optional. Description of the Memory."""
+    """Optional. Represents the description of the Memory."""
 
     disable_memory_revisions: Optional[bool]
-    """Optional. Input only. If true, no revision will be created for this request."""
+    """Optional. Input only. Indicates whether no revision will be created for this request."""
 
     display_name: Optional[str]
-    """Optional. Display name of the Memory."""
+    """Optional. Represents the display name of the Memory."""
 
     expire_time: Optional[datetime.datetime]
-    """Optional. Timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
+    """Optional. Represents the timestamp of when this resource is considered expired. This is *always* provided on output when `expiration` is set on input, regardless of whether `expire_time` or `ttl` was provided."""
 
     fact: Optional[str]
-    """Required. Semantic knowledge extracted from the source content."""
+    """Optional. Represents semantic knowledge extracted from the source content."""
 
     metadata: Optional[dict[str, MemoryMetadataValueDict]]
-    """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+    """Optional. Represents user-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
 
     name: Optional[str]
-    """Identifier. The resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`"""
+    """Identifier. Represents the resource name of the Memory. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}`"""
 
     revision_expire_time: Optional[datetime.datetime]
-    """Optional. Input only. Timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
+    """Optional. Input only. Represents the timestamp of when the revision is considered expired. If not set, the memory revision will be kept until manually deleted."""
 
     revision_labels: Optional[dict[str, str]]
-    """Optional. Input only. The labels to apply to the Memory Revision created as a result of this request."""
+    """Optional. Input only. Represents the labels to apply to the Memory Revision created as a result of this request."""
 
     revision_ttl: Optional[str]
-    """Optional. Input only. The TTL for the revision. The expiration time is computed: now + TTL."""
+    """Optional. Input only. Represents the TTL for the revision. The expiration time is computed: now + TTL."""
 
     scope: Optional[dict[str, str]]
-    """Required. Immutable. The scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'."""
+    """Required. Immutable. Represents the scope of the Memory. Memories are isolated within their scope. The scope is defined when creating or generating memories. Scope values cannot contain the wildcard character '*'."""
 
     topics: Optional[list[MemoryTopicIdDict]]
-    """Optional. The Topics of the Memory."""
+    """Optional. Represents the Topics of the Memory."""
 
     ttl: Optional[str]
-    """Optional. Input only. The TTL for this resource. The expiration time is computed: now + TTL."""
+    """Optional. Input only. Represents the TTL for this resource. The expiration time is computed: now + TTL."""
 
     update_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory was most recently updated."""
+    """Output only. Represents the timestamp when this Memory was most recently updated."""
+
+    memory_type: Optional[MemoryType]
+    """Optional. Represents the type of the memory. If not set, the `NATURAL_LANGUAGE_COLLECTION` type is used. If `STRUCTURED_COLLECTION` or `STRUCTURED_PROFILE` is used, then `structured_data` must be provided."""
+
+    structured_content: Optional[MemoryStructuredContentDict]
+    """Optional. Represents the structured content of the memory."""
 
 
 MemoryOrDict = Union[Memory, MemoryDict]
@@ -8652,6 +9765,10 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
         default=None,
         description="""Optional. The strategy to use when applying metadata to existing memories.""",
     )
+    allowed_topics: Optional[list[MemoryTopicId]] = Field(
+        default=None,
+        description="""Optional. Restricts memory generation to a subset of memory topics.""",
+    )
 
 
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -8688,6 +9805,9 @@ class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
 
     metadata_merge_strategy: Optional[MemoryMetadataMergeStrategy]
     """Optional. The strategy to use when applying metadata to existing memories."""
+
+    allowed_topics: Optional[list[MemoryTopicIdDict]]
+    """Optional. Restricts memory generation to a subset of memory topics."""
 
 
 GenerateAgentEngineMemoriesConfigOrDict = Union[
@@ -8917,6 +10037,193 @@ class _GetAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 
 _GetAgentEngineMemoryRequestParametersOrDict = Union[
     _GetAgentEngineMemoryRequestParameters, _GetAgentEngineMemoryRequestParametersDict
+]
+
+
+class IngestionDirectContentsSourceEvent(_common.BaseModel):
+    """The direct contents source event for ingesting events."""
+
+    content: Optional[genai_types.Content] = Field(
+        default=None, description="""Required. The content of the event."""
+    )
+    event_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated.""",
+    )
+    event_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used.""",
+    )
+
+
+class IngestionDirectContentsSourceEventDict(TypedDict, total=False):
+    """The direct contents source event for ingesting events."""
+
+    content: Optional[genai_types.ContentDict]
+    """Required. The content of the event."""
+
+    event_id: Optional[str]
+    """Optional. A unique identifier for the event. If an event with the same event_id is ingested multiple times, it will be de-duplicated."""
+
+    event_time: Optional[datetime.datetime]
+    """Optional. The time at which the event occurred. If provided, this timestamp will be used for ordering events within a stream. If not provided, the server-side ingestion time will be used."""
+
+
+IngestionDirectContentsSourceEventOrDict = Union[
+    IngestionDirectContentsSourceEvent, IngestionDirectContentsSourceEventDict
+]
+
+
+class IngestionDirectContentsSource(_common.BaseModel):
+    """The direct contents source for ingesting events."""
+
+    events: Optional[list[IngestionDirectContentsSourceEvent]] = Field(
+        default=None, description="""Required. The events to ingest."""
+    )
+
+
+class IngestionDirectContentsSourceDict(TypedDict, total=False):
+    """The direct contents source for ingesting events."""
+
+    events: Optional[list[IngestionDirectContentsSourceEventDict]]
+    """Required. The events to ingest."""
+
+
+IngestionDirectContentsSourceOrDict = Union[
+    IngestionDirectContentsSource, IngestionDirectContentsSourceDict
+]
+
+
+class IngestEventsConfig(_common.BaseModel):
+    """Config for ingesting events."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=False,
+        description="""Waits for the underlying memory generation operation to complete
+      before returning. Defaults to false.""",
+    )
+    force_flush: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`.""",
+    )
+
+
+class IngestEventsConfigDict(TypedDict, total=False):
+    """Config for ingesting events."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the underlying memory generation operation to complete
+      before returning. Defaults to false."""
+
+    force_flush: Optional[bool]
+    """Optional. Forces a flush of all pending events in the stream and triggers memory generation immediately bypassing any conditions configured in the `generation_trigger_config`."""
+
+
+IngestEventsConfigOrDict = Union[IngestEventsConfig, IngestEventsConfigDict]
+
+
+class _IngestEventsRequestParameters(_common.BaseModel):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Agent Engine to ingest events into."""
+    )
+    stream_id: Optional[str] = Field(
+        default=None, description="""The ID of the stream to ingest events into."""
+    )
+    direct_contents_source: Optional[IngestionDirectContentsSource] = Field(
+        default=None,
+        description="""The direct memories source of the events that should be ingested.""",
+    )
+    scope: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The scope of the memories that should be generated from the stream.
+
+      Memories will be consolidated across memories with the same scope. Scope
+      values cannot contain the wildcard character '*'.""",
+    )
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfig] = Field(
+        default=None,
+        description="""The configuration for the memory generation trigger.""",
+    )
+    config: Optional[IngestEventsConfig] = Field(default=None, description="""""")
+
+
+class _IngestEventsRequestParametersDict(TypedDict, total=False):
+    """Parameters for purging agent engine memories."""
+
+    name: Optional[str]
+    """Name of the Agent Engine to ingest events into."""
+
+    stream_id: Optional[str]
+    """The ID of the stream to ingest events into."""
+
+    direct_contents_source: Optional[IngestionDirectContentsSourceDict]
+    """The direct memories source of the events that should be ingested."""
+
+    scope: Optional[dict[str, str]]
+    """The scope of the memories that should be generated from the stream.
+
+      Memories will be consolidated across memories with the same scope. Scope
+      values cannot contain the wildcard character '*'."""
+
+    generation_trigger_config: Optional[MemoryGenerationTriggerConfigDict]
+    """The configuration for the memory generation trigger."""
+
+    config: Optional[IngestEventsConfigDict]
+    """"""
+
+
+_IngestEventsRequestParametersOrDict = Union[
+    _IngestEventsRequestParameters, _IngestEventsRequestParametersDict
+]
+
+
+class MemoryBankIngestEventsOperation(_common.BaseModel):
+    """Operation that ingests events into a memory bank."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class MemoryBankIngestEventsOperationDict(TypedDict, total=False):
+    """Operation that ingests events into a memory bank."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+MemoryBankIngestEventsOperationOrDict = Union[
+    MemoryBankIngestEventsOperation, MemoryBankIngestEventsOperationDict
 ]
 
 
@@ -9151,17 +10458,17 @@ class MemoryFilter(_common.BaseModel):
 
     key: Optional[str] = Field(
         default=None,
-        description="""Key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
+        description="""Represents the key of the filter. For example, "author" would apply to `metadata` entries with the key "author".""",
     )
     negate: Optional[bool] = Field(
-        default=None, description="""If true, the filter will be negated."""
+        default=None, description="""Indicates whether the filter will be negated."""
     )
     op: Optional[Operator] = Field(
         default=None,
-        description="""Operator to apply to the filter. If not set, then EQUAL will be used.""",
+        description="""Represents the operator to apply to the filter. If not set, then EQUAL will be used.""",
     )
     value: Optional[MemoryMetadataValue] = Field(
-        default=None, description="""Value to compare to."""
+        default=None, description="""Represents the value to compare to."""
     )
 
 
@@ -9169,16 +10476,16 @@ class MemoryFilterDict(TypedDict, total=False):
     """Filter to apply when retrieving memories."""
 
     key: Optional[str]
-    """Key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
+    """Represents the key of the filter. For example, "author" would apply to `metadata` entries with the key "author"."""
 
     negate: Optional[bool]
-    """If true, the filter will be negated."""
+    """Indicates whether the filter will be negated."""
 
     op: Optional[Operator]
-    """Operator to apply to the filter. If not set, then EQUAL will be used."""
+    """Represents the operator to apply to the filter. If not set, then EQUAL will be used."""
 
     value: Optional[MemoryMetadataValueDict]
-    """Value to compare to."""
+    """Represents the value to compare to."""
 
 
 MemoryFilterOrDict = Union[MemoryFilter, MemoryFilterDict]
@@ -9188,7 +10495,8 @@ class MemoryConjunctionFilter(_common.BaseModel):
     """The conjunction filter for memories."""
 
     filters: Optional[list[MemoryFilter]] = Field(
-        default=None, description="""Filters that will combined using AND logic."""
+        default=None,
+        description="""Represents filters that will be combined using AND logic.""",
     )
 
 
@@ -9196,7 +10504,7 @@ class MemoryConjunctionFilterDict(TypedDict, total=False):
     """The conjunction filter for memories."""
 
     filters: Optional[list[MemoryFilterDict]]
-    """Filters that will combined using AND logic."""
+    """Represents filters that will be combined using AND logic."""
 
 
 MemoryConjunctionFilterOrDict = Union[
@@ -9238,6 +10546,13 @@ class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
       metadata.author = "agent 321"))`.
       """,
     )
+    memory_types: Optional[list[MemoryType]] = Field(
+        default=None,
+        description="""Specifies the types of memories to retrieve. If this field is empty
+      or not provided, the request will default to retrieving only memories of
+      type `NATURAL_LANGUAGE_COLLECTION`. If populated, the request will
+      retrieve memories matching any of the specified `MemoryType` values.""",
+    )
 
 
 class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
@@ -9271,6 +10586,12 @@ class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
       `(metadata.author = "agent 123" OR (metadata.label = "travel" AND
       metadata.author = "agent 321"))`.
       """
+
+    memory_types: Optional[list[MemoryType]]
+    """Specifies the types of memories to retrieve. If this field is empty
+      or not provided, the request will default to retrieving only memories of
+      type `NATURAL_LANGUAGE_COLLECTION`. If populated, the request will
+      retrieve memories matching any of the specified `MemoryType` values."""
 
 
 RetrieveAgentEngineMemoriesConfigOrDict = Union[
@@ -9392,6 +10713,121 @@ class RetrieveMemoriesResponseDict(TypedDict, total=False):
 
 RetrieveMemoriesResponseOrDict = Union[
     RetrieveMemoriesResponse, RetrieveMemoriesResponseDict
+]
+
+
+class RetrieveMemoryProfilesConfig(_common.BaseModel):
+    """Config for retrieving memory profiles."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class RetrieveMemoryProfilesConfigDict(TypedDict, total=False):
+    """Config for retrieving memory profiles."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+RetrieveMemoryProfilesConfigOrDict = Union[
+    RetrieveMemoryProfilesConfig, RetrieveMemoryProfilesConfigDict
+]
+
+
+class _RetrieveMemoryProfilesRequestParameters(_common.BaseModel):
+    """Parameters for retrieving agent engine memory profiles."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the agent engine to retrieve memory profiles from.""",
+    )
+    scope: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The scope of the memories to retrieve.
+
+      A memory must have exactly the same scope as the scope provided here to be
+      retrieved (i.e. same keys and values). Order does not matter, but it is
+      case-sensitive.""",
+    )
+    config: Optional[RetrieveMemoryProfilesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _RetrieveMemoryProfilesRequestParametersDict(TypedDict, total=False):
+    """Parameters for retrieving agent engine memory profiles."""
+
+    name: Optional[str]
+    """Name of the agent engine to retrieve memory profiles from."""
+
+    scope: Optional[dict[str, str]]
+    """The scope of the memories to retrieve.
+
+      A memory must have exactly the same scope as the scope provided here to be
+      retrieved (i.e. same keys and values). Order does not matter, but it is
+      case-sensitive."""
+
+    config: Optional[RetrieveMemoryProfilesConfigDict]
+    """"""
+
+
+_RetrieveMemoryProfilesRequestParametersOrDict = Union[
+    _RetrieveMemoryProfilesRequestParameters,
+    _RetrieveMemoryProfilesRequestParametersDict,
+]
+
+
+class MemoryProfile(_common.BaseModel):
+    """A memory profile."""
+
+    schema_id: Optional[str] = Field(
+        default=None,
+        description="""Represents the ID of the schema. This ID corresponds to the `schema_id` defined inside the SchemaConfig, under StructuredMemoryCustomizationConfig.""",
+    )
+    profile: Optional[dict[str, Any]] = Field(
+        default=None, description="""Represents the profile data."""
+    )
+
+
+class MemoryProfileDict(TypedDict, total=False):
+    """A memory profile."""
+
+    schema_id: Optional[str]
+    """Represents the ID of the schema. This ID corresponds to the `schema_id` defined inside the SchemaConfig, under StructuredMemoryCustomizationConfig."""
+
+    profile: Optional[dict[str, Any]]
+    """Represents the profile data."""
+
+
+MemoryProfileOrDict = Union[MemoryProfile, MemoryProfileDict]
+
+
+class RetrieveProfilesResponse(_common.BaseModel):
+    """The response for retrieving memory profiles."""
+
+    profiles: Optional[dict[str, MemoryProfile]] = Field(
+        default=None,
+        description="""The retrieved structured profiles, which match the schemas under the
+      requested scope. The key is the ID of the schema that the profile is
+      linked with, which corresponds to the `schema_id` defined inside the
+      `SchemaConfig`, under `StructuredMemoryCustomizationConfig`.""",
+    )
+
+
+class RetrieveProfilesResponseDict(TypedDict, total=False):
+    """The response for retrieving memory profiles."""
+
+    profiles: Optional[dict[str, MemoryProfileDict]]
+    """The retrieved structured profiles, which match the schemas under the
+      requested scope. The key is the ID of the schema that the profile is
+      linked with, which corresponds to the `schema_id` defined inside the
+      `SchemaConfig`, under `StructuredMemoryCustomizationConfig`."""
+
+
+RetrieveProfilesResponseOrDict = Union[
+    RetrieveProfilesResponse, RetrieveProfilesResponseDict
 ]
 
 
@@ -9542,6 +10978,10 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
         default=None,
         description="""Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank.""",
     )
+    memory_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -9586,6 +11026,9 @@ class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
 
     metadata: Optional[dict[str, MemoryMetadataValueDict]]
     """Optional. User-provided metadata for the Memory. This information was provided when creating, updating, or generating the Memory. It was not generated by Memory Bank."""
+
+    memory_id: Optional[str]
+    """Optional. The user defined ID to use for memory, which will become the final component of the memory resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -9870,7 +11313,16 @@ class IntermediateExtractedMemory(_common.BaseModel):
     """An extracted memory that is the intermediate result before consolidation."""
 
     fact: Optional[str] = Field(
-        default=None, description="""Output only. The fact of the extracted memory."""
+        default=None,
+        description="""Output only. Represents the fact of the extracted memory.""",
+    )
+    context: Optional[str] = Field(
+        default=None,
+        description="""Output only. Represents the explanation of why the information was extracted from the source content.""",
+    )
+    structured_data: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Output only. Represents the structured value of the extracted memory.""",
     )
 
 
@@ -9878,7 +11330,13 @@ class IntermediateExtractedMemoryDict(TypedDict, total=False):
     """An extracted memory that is the intermediate result before consolidation."""
 
     fact: Optional[str]
-    """Output only. The fact of the extracted memory."""
+    """Output only. Represents the fact of the extracted memory."""
+
+    context: Optional[str]
+    """Output only. Represents the explanation of why the information was extracted from the source content."""
+
+    structured_data: Optional[dict[str, Any]]
+    """Output only. Represents the structured value of the extracted memory."""
 
 
 IntermediateExtractedMemoryOrDict = Union[
@@ -9891,27 +11349,31 @@ class MemoryRevision(_common.BaseModel):
 
     create_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp when this Memory Revision was created.""",
+        description="""Output only. Represents the timestamp when this Memory Revision was created.""",
     )
     expire_time: Optional[datetime.datetime] = Field(
         default=None,
-        description="""Output only. Timestamp of when this resource is considered expired.""",
+        description="""Output only. Represents the timestamp of when this resource is considered expired.""",
     )
     extracted_memories: Optional[list[IntermediateExtractedMemory]] = Field(
         default=None,
-        description="""Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
+        description="""Output only. Represents the extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation.""",
     )
     fact: Optional[str] = Field(
         default=None,
-        description="""Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation.""",
+        description="""Output only. Represents the fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation.""",
     )
     labels: Optional[dict[str, str]] = Field(
         default=None,
-        description="""Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
+        description="""Output only. Represents the labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`.""",
     )
     name: Optional[str] = Field(
         default=None,
-        description="""Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
+        description="""Identifier. Represents the resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`""",
+    )
+    structured_data: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Output only. Represents the structured value of the memory at the time of revision creation.""",
     )
 
 
@@ -9919,22 +11381,25 @@ class MemoryRevisionDict(TypedDict, total=False):
     """A memory revision."""
 
     create_time: Optional[datetime.datetime]
-    """Output only. Timestamp when this Memory Revision was created."""
+    """Output only. Represents the timestamp when this Memory Revision was created."""
 
     expire_time: Optional[datetime.datetime]
-    """Output only. Timestamp of when this resource is considered expired."""
+    """Output only. Represents the timestamp of when this resource is considered expired."""
 
     extracted_memories: Optional[list[IntermediateExtractedMemoryDict]]
-    """Output only. The extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
+    """Output only. Represents the extracted memories from the source content before consolidation when the memory was updated via GenerateMemories. This information was used to modify an existing Memory via Consolidation."""
 
     fact: Optional[str]
-    """Output only. The fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation."""
+    """Output only. Represents the fact of the Memory Revision. This corresponds to the `fact` field of the parent Memory at the time of revision creation."""
 
     labels: Optional[dict[str, str]]
-    """Output only. The labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
+    """Output only. Represents the labels of the Memory Revision. These labels are applied to the MemoryRevision when it is created based on `GenerateMemoriesRequest.revision_labels`."""
 
     name: Optional[str]
-    """Identifier. The resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
+    """Identifier. Represents the resource name of the Memory Revision. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/memories/{memory}/revisions/{memory_revision}`"""
+
+    structured_data: Optional[dict[str, Any]]
+    """Output only. Represents the structured value of the memory at the time of revision creation."""
 
 
 MemoryRevisionOrDict = Union[MemoryRevision, MemoryRevisionDict]
@@ -10201,6 +11666,10 @@ class SandboxEnvironmentConnectionInfo(_common.BaseModel):
         default=None,
         description="""Output only. The internal IP address of the SandboxEnvironment.""",
     )
+    sandbox_hostname: Optional[str] = Field(
+        default=None,
+        description="""Output only. The hostname of the SandboxEnvironment.""",
+    )
 
 
 class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
@@ -10214,6 +11683,9 @@ class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
 
     sandbox_internal_ip: Optional[str]
     """Output only. The internal IP address of the SandboxEnvironment."""
+
+    sandbox_hostname: Optional[str]
+    """Output only. The hostname of the SandboxEnvironment."""
 
 
 SandboxEnvironmentConnectionInfoOrDict = Union[
@@ -10757,6 +12229,10 @@ class CreateAgentEngineSessionConfig(_common.BaseModel):
         default=None,
         description="""Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
     )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
 
 
 class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
@@ -10784,6 +12260,9 @@ class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
 
     labels: Optional[dict[str, str]]
     """Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    session_id: Optional[str]
+    """Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
 
 CreateAgentEngineSessionConfigOrDict = Union[
@@ -11234,6 +12713,10 @@ class UpdateAgentEngineSessionConfig(_common.BaseModel):
         default=None,
         description="""Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels.""",
     )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -11269,6 +12752,9 @@ class UpdateAgentEngineSessionConfigDict(TypedDict, total=False):
 
     labels: Optional[dict[str, str]]
     """Optional. The labels with user-defined metadata to organize your Sessions. Label keys and values can be no longer than 64 characters (Unicode codepoints), can only contain lowercase letters, numeric characters, underscores and dashes. International characters are allowed. See https://goo.gl/xmQnxf for more information and examples of labels."""
+
+    session_id: Optional[str]
+    """Optional. The user defined ID to use for session, which will become the final component of the session resource name. If not provided, Vertex AI will generate a value for this ID. This value may be up to 63 characters, and valid characters are `[a-z0-9-]`. The first character must be a letter, and the last character must be a letter or number."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -11458,6 +12944,10 @@ class AppendAgentEngineSessionEventConfig(_common.BaseModel):
     event_metadata: Optional[EventMetadata] = Field(
         default=None, description="""Metadata relating to the session event."""
     )
+    raw_event: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Weakly typed raw event data in proto struct format.""",
+    )
 
 
 class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
@@ -11480,6 +12970,9 @@ class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
 
     event_metadata: Optional[EventMetadataDict]
     """Metadata relating to the session event."""
+
+    raw_event: Optional[dict[str, Any]]
+    """Weakly typed raw event data in proto struct format."""
 
 
 AppendAgentEngineSessionEventConfigOrDict = Union[
@@ -11650,6 +13143,10 @@ class SessionEvent(_common.BaseModel):
         default=None,
         description="""Required. Timestamp when the event was created on client side.""",
     )
+    raw_event: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Optional. Weakly typed raw event data in proto struct format.""",
+    )
 
 
 class SessionEventDict(TypedDict, total=False):
@@ -11681,6 +13178,9 @@ class SessionEventDict(TypedDict, total=False):
 
     timestamp: Optional[datetime.datetime]
     """Required. Timestamp when the event was created on client side."""
+
+    raw_event: Optional[dict[str, Any]]
+    """Optional. Weakly typed raw event data in proto struct format."""
 
 
 SessionEventOrDict = Union[SessionEvent, SessionEventDict]
@@ -11731,17 +13231,14 @@ class GeminiExample(_common.BaseModel):
     cached_content: Optional[str] = Field(
         default=None, description="""Cached content for the Gemini example."""
     )
-    tools: Optional[genai_types.Tool] = Field(
+    tools: Optional[list[genai_types.Tool]] = Field(
         default=None, description="""Tools for the Gemini example."""
     )
     tool_config: Optional[genai_types.ToolConfig] = Field(
         default=None, description="""Tools for the Gemini example."""
     )
-    safety_settings: Optional[genai_types.SafetySetting] = Field(
+    safety_settings: Optional[list[genai_types.SafetySetting]] = Field(
         default=None, description="""Safety settings for the Gemini example."""
-    )
-    labels: Optional[dict[str, str]] = Field(
-        default=None, description="""Labels for the Gemini example."""
     )
     generation_config: Optional[genai_types.GenerationConfig] = Field(
         default=None, description="""Generation config for the Gemini example."""
@@ -11767,17 +13264,14 @@ class GeminiExampleDict(TypedDict, total=False):
     cached_content: Optional[str]
     """Cached content for the Gemini example."""
 
-    tools: Optional[genai_types.ToolDict]
+    tools: Optional[list[genai_types.ToolDict]]
     """Tools for the Gemini example."""
 
     tool_config: Optional[genai_types.ToolConfigDict]
     """Tools for the Gemini example."""
 
-    safety_settings: Optional[genai_types.SafetySettingDict]
+    safety_settings: Optional[list[genai_types.SafetySettingDict]]
     """Safety settings for the Gemini example."""
-
-    labels: Optional[dict[str, str]]
-    """Labels for the Gemini example."""
 
     generation_config: Optional[genai_types.GenerationConfigDict]
     """Generation config for the Gemini example."""
@@ -11823,8 +13317,94 @@ class GeminiRequestReadConfig(_common.BaseModel):
     )
     assembled_request_column_name: Optional[str] = Field(
         default=None,
-        description="""Optional. Column name in the dataset table that contains already fully assembled Gemini requests.""",
+        description="""Column name in the underlying BigQuery table that contains already fully assembled Gemini requests.""",
     )
+
+    @classmethod
+    def single_turn_template(
+        cls,
+        *,
+        prompt: str,
+        response: Optional[str] = None,
+        system_instruction: Optional[str] = None,
+        model: Optional[str] = None,
+        cached_content: Optional[str] = None,
+        tools: Optional[list[Union[genai_types.Tool, dict[str, Any]]]] = None,
+        tool_config: Optional[Union[genai_types.ToolConfig, dict[str, Any]]] = None,
+        safety_settings: Optional[
+            list[Union[genai_types.SafetySetting, dict[str, Any]]]
+        ] = None,
+        generation_config: Optional[
+            Union[genai_types.GenerationConfig, dict[str, Any]]
+        ] = None,
+        field_mapping: Optional[dict[str, str]] = None,
+    ) -> "GeminiRequestReadConfig":
+        """Constructs a GeminiRequestReadConfig object for single-turn cases.
+
+        Example:
+            read_config = GeminiRequestReadConfig.single_turn_template(
+                    prompt="Which flower is this {flower_image}?",
+                    response="This is a {label}.",
+                    system_instruction="You are a botanical classifier."
+            )
+
+        Args:
+            prompt: Required. User input.
+            response: Optional. Model response to user input.
+            system_instruction: Optional. System instructions for the model.
+            model: Optional. The model to use for the GeminiExample.
+            cached_content: Optional. The cached content to use for the GeminiExample.
+            tools: Optional. The tools to use for the GeminiExample.
+            tool_config: Optional. The tool config to use for the GeminiExample.
+            safety_settings: Optional. The safety settings to use for the GeminiExample.
+            generation_config: Optional. The generation config to use for the GeminiExample.
+            field_mapping: Optional. Mapping of placeholders to dataset columns.
+
+        Returns:
+            A GeminiRequestReadConfig object.
+        """
+        contents = []
+        contents.append(
+            genai_types.Content(
+                role="user",
+                parts=[
+                    genai_types.Part.from_text(text=prompt),
+                ],
+            )
+        )
+        if response:
+            contents.append(
+                genai_types.Content(
+                    role="model",
+                    parts=[
+                        genai_types.Part.from_text(text=response),
+                    ],
+                )
+            )
+
+        system_instruction_content = None
+        if system_instruction:
+            system_instruction_content = genai_types.Content(
+                parts=[
+                    genai_types.Part.from_text(text=system_instruction),
+                ],
+            )
+
+        return cls(
+            template_config=GeminiTemplateConfig(
+                gemini_example=GeminiExample(
+                    model=model,
+                    contents=contents,
+                    system_instruction=system_instruction_content,
+                    cached_content=cached_content,
+                    tools=tools,
+                    tool_config=tool_config,
+                    safety_settings=safety_settings,
+                    generation_config=generation_config,
+                ),
+                field_mapping=field_mapping,
+            ),
+        )
 
 
 class GeminiRequestReadConfigDict(TypedDict, total=False):
@@ -11834,7 +13414,7 @@ class GeminiRequestReadConfigDict(TypedDict, total=False):
     """Gemini request template with placeholders."""
 
     assembled_request_column_name: Optional[str]
-    """Optional. Column name in the dataset table that contains already fully assembled Gemini requests."""
+    """Column name in the underlying BigQuery table that contains already fully assembled Gemini requests."""
 
 
 GeminiRequestReadConfigOrDict = Union[
@@ -12158,6 +13738,10 @@ class SchemaTablesDatasetMetadata(_common.BaseModel):
         default=None,
         description="""The input config for multimodal dataset metadata.""",
     )
+    gemini_request_read_config: Optional[GeminiRequestReadConfig] = Field(
+        default=None,
+        description="""The Gemini request read config for the multimodal dataset.""",
+    )
 
 
 class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
@@ -12165,6 +13749,9 @@ class SchemaTablesDatasetMetadataDict(TypedDict, total=False):
 
     input_config: Optional[SchemaTablesDatasetMetadataInputConfigDict]
     """The input config for multimodal dataset metadata."""
+
+    gemini_request_read_config: Optional[GeminiRequestReadConfigDict]
+    """The Gemini request read config for the multimodal dataset."""
 
 
 SchemaTablesDatasetMetadataOrDict = Union[
@@ -12311,6 +13898,83 @@ class MultimodalDataset(_common.BaseModel):
     description: Optional[str] = Field(
         default=None, description="""The description of the multimodal dataset."""
     )
+
+    @property
+    def read_config(self) -> Optional[GeminiRequestReadConfig]:
+        """Gets the read config from the dataset metadata. Returns None if it's not set."""
+        if self.metadata is None or self.metadata.gemini_request_read_config is None:
+            return None
+        return self.metadata.gemini_request_read_config
+
+    def set_read_config(
+        self,
+        *,
+        read_config: GeminiRequestReadConfigOrDict,
+    ) -> None:
+        """Sets the read config in the dataset metadata."""
+        if isinstance(read_config, dict):
+            read_config = GeminiRequestReadConfig(**read_config)
+
+        if self.metadata is None:
+            self.metadata = SchemaTablesDatasetMetadata()
+        self.metadata.gemini_request_read_config = read_config
+
+    @property
+    def bigquery_uri(
+        self,
+    ) -> Optional[str]:
+        """Gets the bigquery uri from the dataset metadata. Returns None if it's not set."""
+        if (
+            self.metadata is None
+            or self.metadata.input_config is None
+            or self.metadata.input_config.bigquery_source is None
+        ):
+            return None
+        return str(self.metadata.input_config.bigquery_source.uri)
+
+    def set_bigquery_uri(
+        self,
+        bigquery_uri: str,
+    ) -> None:
+        """Sets the bigquery uri in the dataset metadata. Prepends 'bq://' if it's not already present."""
+        if not bigquery_uri.startswith("bq://"):
+            bigquery_uri = f"bq://{bigquery_uri}"
+        metadata = (
+            SchemaTablesDatasetMetadata() if self.metadata is None else self.metadata
+        )
+        input_config = (
+            SchemaTablesDatasetMetadataInputConfig()
+            if metadata.input_config is None
+            else metadata.input_config
+        )
+        bigquery_source = (
+            SchemaTablesDatasetMetadataBigQuerySource()
+            if input_config.bigquery_source is None
+            else input_config.bigquery_source
+        )
+        bigquery_source.uri = bigquery_uri
+        input_config.bigquery_source = bigquery_source
+        metadata.input_config = input_config
+        self.metadata = metadata
+
+    def to_bigframes(
+        self,
+    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+        """Converts the multimodal dataset to a BigFrames dataframe.
+
+        This is the preferred method to inspect the multimodal dataset in a
+        notebook.
+
+        Returns:
+          A BigFrames dataframe.
+        """
+        from .. import _datasets_utils
+
+        bigframes = _datasets_utils._try_import_bigframes()
+
+        if self.bigquery_uri is None:
+            raise ValueError("Multimodal dataset bigquery source uri is not set.")
+        return bigframes.pandas.read_gbq_table(self.bigquery_uri.removeprefix("bq://"))
 
 
 class MultimodalDatasetDict(TypedDict, total=False):
@@ -12481,35 +14145,6 @@ ListMultimodalDatasetsResponseOrDict = Union[
 ]
 
 
-class UpdateMultimodalDatasetConfig(_common.BaseModel):
-    """Config for updating a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptions] = Field(
-        default=None, description="""Used to override HTTP request options."""
-    )
-    timeout: Optional[int] = Field(
-        default=90,
-        description="""The timeout for the update dataset request in seconds. If not set,
-      the default timeout is 90 seconds.""",
-    )
-
-
-class UpdateMultimodalDatasetConfigDict(TypedDict, total=False):
-    """Config for updating a multimodal dataset resource."""
-
-    http_options: Optional[genai_types.HttpOptionsDict]
-    """Used to override HTTP request options."""
-
-    timeout: Optional[int]
-    """The timeout for the update dataset request in seconds. If not set,
-      the default timeout is 90 seconds."""
-
-
-UpdateMultimodalDatasetConfigOrDict = Union[
-    UpdateMultimodalDatasetConfig, UpdateMultimodalDatasetConfigDict
-]
-
-
 class _UpdateMultimodalDatasetParameters(_common.BaseModel):
     """Parameters for updating a multimodal dataset resource."""
 
@@ -12522,9 +14157,7 @@ class _UpdateMultimodalDatasetParameters(_common.BaseModel):
     encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None, description=""""""
     )
-    config: Optional[UpdateMultimodalDatasetConfig] = Field(
-        default=None, description=""""""
-    )
+    config: Optional[VertexBaseConfig] = Field(default=None, description="""""")
 
 
 class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
@@ -12545,7 +14178,7 @@ class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """"""
 
-    config: Optional[UpdateMultimodalDatasetConfigDict]
+    config: Optional[VertexBaseConfigDict]
     """"""
 
 
@@ -14299,22 +15932,49 @@ RestoreVersionOperationOrDict = Union[
 ]
 
 
-class UpdateDatasetConfig(_common.BaseModel):
+class UpdatePromptConfig(_common.BaseModel):
     """Config for creating a dataset resource to store prompts."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    prompt_display_name: Optional[str] = Field(
+        default=None, description="""The updated display name for the prompt."""
+    )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The updated display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
+    timeout: Optional[int] = Field(
+        default=90,
+        description="""The timeout for the update_dataset_resource request in seconds. If not set, the default timeout is 90 seconds.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
+    )
 
 
-class UpdateDatasetConfigDict(TypedDict, total=False):
+class UpdatePromptConfigDict(TypedDict, total=False):
     """Config for creating a dataset resource to store prompts."""
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
 
+    prompt_display_name: Optional[str]
+    """The updated display name for the prompt."""
 
-UpdateDatasetConfigOrDict = Union[UpdateDatasetConfig, UpdateDatasetConfigDict]
+    version_display_name: Optional[str]
+    """The updated display name for the prompt version. If not set, a default name with a timestamp will be used."""
+
+    timeout: Optional[int]
+    """The timeout for the update_dataset_resource request in seconds. If not set, the default timeout is 90 seconds."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
+
+
+UpdatePromptConfigOrDict = Union[UpdatePromptConfig, UpdatePromptConfigDict]
 
 
 class _UpdateDatasetParameters(_common.BaseModel):
@@ -14331,7 +15991,7 @@ class _UpdateDatasetParameters(_common.BaseModel):
         default=None, description=""""""
     )
     model_reference: Optional[str] = Field(default=None, description="""""")
-    config: Optional[UpdateDatasetConfig] = Field(default=None, description="""""")
+    config: Optional[UpdatePromptConfig] = Field(default=None, description="""""")
 
 
 class _UpdateDatasetParametersDict(TypedDict, total=False):
@@ -14358,7 +16018,7 @@ class _UpdateDatasetParametersDict(TypedDict, total=False):
     model_reference: Optional[str]
     """"""
 
-    config: Optional[UpdateDatasetConfigDict]
+    config: Optional[UpdatePromptConfigDict]
     """"""
 
 
@@ -14469,6 +16129,12 @@ class EvaluateMethodConfig(_common.BaseModel):
     dest: Optional[str] = Field(
         default=None, description="""The destination path for the evaluation results."""
     )
+    evaluation_service_qps: Optional[float] = Field(
+        default=None,
+        description="""The rate limit (queries per second) for calls to the
+      evaluation service. Defaults to 10. Increase this value if your
+      project has a higher EvaluateInstances API quota.""",
+    )
 
 
 class EvaluateMethodConfigDict(TypedDict, total=False):
@@ -14484,6 +16150,11 @@ class EvaluateMethodConfigDict(TypedDict, total=False):
 
     dest: Optional[str]
     """The destination path for the evaluation results."""
+
+    evaluation_service_qps: Optional[float]
+    """The rate limit (queries per second) for calls to the
+      evaluation service. Defaults to 10. Increase this value if your
+      project has a higher EvaluateInstances API quota."""
 
 
 EvaluateMethodConfigOrDict = Union[EvaluateMethodConfig, EvaluateMethodConfigDict]
@@ -15084,6 +16755,10 @@ class EvalRunInferenceConfig(_common.BaseModel):
         description="""Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
       conversation plans, user simulation will be triggered.""",
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Opt-in flag to authorize cross-region routing for LLM models.""",
+    )
 
 
 class EvalRunInferenceConfigDict(TypedDict, total=False):
@@ -15101,6 +16776,9 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
     user_simulator_config: Optional[evals_types.UserSimulatorConfig]
     """Configuration for user simulation in multi-turn agent scraping. If provided, and the dataset contains
       conversation plans, user simulation will be triggered."""
+
+    allow_cross_region_model: Optional[bool]
+    """Opt-in flag to authorize cross-region routing for LLM models."""
 
 
 EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceConfigDict]
@@ -15400,6 +17078,21 @@ class AgentEngineConfig(_common.BaseModel):
     ] = Field(
         default=None, description="""The agent config source for the Agent Engine."""
     )
+    container_spec: Optional[ReasoningEngineSpecContainerSpec] = Field(
+        default=None, description="""The container spec for the Agent Engine."""
+    )
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfig
+    ] = Field(
+        default=None,
+        description="""Agent Gateway configuration for a Reasoning Engine deployment.""",
+    )
+    keep_alive_probe: Optional[KeepAliveProbe] = Field(
+        default=None,
+        description="""Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings.""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -15571,6 +17264,19 @@ class AgentEngineConfigDict(TypedDict, total=False):
     ]
     """The agent config source for the Agent Engine."""
 
+    container_spec: Optional[ReasoningEngineSpecContainerSpecDict]
+    """The container spec for the Agent Engine."""
+
+    agent_gateway_config: Optional[
+        ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+    ]
+    """Agent Gateway configuration for a Reasoning Engine deployment."""
+
+    keep_alive_probe: Optional[KeepAliveProbeDict]
+    """Optional. Specifies the configuration for keep-alive probe.
+      Contains configuration on a specified endpoint that a deployment host
+      should use to keep the container alive based on the probe settings."""
+
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]
 
@@ -15584,8 +17290,14 @@ class RunQueryJobAgentEngineConfig(_common.BaseModel):
     query: Optional[str] = Field(
         default=None, description="""The query to send to the agent engine."""
     )
-    gcs_bucket: Optional[str] = Field(
-        default=None, description="""The GCS bucket to use for the query."""
+    output_gcs_uri: Optional[str] = Field(
+        default=None,
+        description="""The GCS URI to use for the output.
+      If it is a file, the system use this file to store the response.
+      If it represents a directory, the system automatically generate a file
+      for the response.
+      In both cases, the input query will be stored in the same directory under
+      the same file name prefix as the output file.""",
     )
 
 
@@ -15598,8 +17310,13 @@ class RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
     query: Optional[str]
     """The query to send to the agent engine."""
 
-    gcs_bucket: Optional[str]
-    """The GCS bucket to use for the query."""
+    output_gcs_uri: Optional[str]
+    """The GCS URI to use for the output.
+      If it is a file, the system use this file to store the response.
+      If it represents a directory, the system automatically generate a file
+      for the response.
+      In both cases, the input query will be stored in the same directory under
+      the same file name prefix as the output file."""
 
 
 RunQueryJobAgentEngineConfigOrDict = Union[
@@ -15983,6 +17700,10 @@ class CreatePromptConfig(_common.BaseModel):
         default=None,
         description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
     )
+    version_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt version. If not set, a default name with a timestamp will be used.""",
+    )
 
 
 class CreatePromptConfigDict(TypedDict, total=False):
@@ -15999,6 +17720,9 @@ class CreatePromptConfigDict(TypedDict, total=False):
 
     encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
+
+    version_display_name: Optional[str]
+    """The display name for the prompt version. If not set, a default name with a timestamp will be used."""
 
 
 CreatePromptConfigOrDict = Union[CreatePromptConfig, CreatePromptConfigDict]
@@ -16018,6 +17742,14 @@ class CreatePromptVersionConfig(_common.BaseModel):
         default=90,
         description="""The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds.""",
     )
+    prompt_display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name for the prompt. If not set, a default name with a timestamp will be used.""",
+    )
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
+        default=None,
+        description="""Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key.""",
+    )
 
 
 class CreatePromptVersionConfigDict(TypedDict, total=False):
@@ -16031,6 +17763,12 @@ class CreatePromptVersionConfigDict(TypedDict, total=False):
 
     timeout: Optional[int]
     """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
+
+    prompt_display_name: Optional[str]
+    """The display name for the prompt. If not set, a default name with a timestamp will be used."""
+
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
 
 
 CreatePromptVersionConfigOrDict = Union[

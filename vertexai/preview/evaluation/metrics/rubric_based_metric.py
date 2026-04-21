@@ -30,7 +30,7 @@ from vertexai.preview.evaluation.metrics import pointwise_metric
 if TYPE_CHECKING:
     import pandas as pd
 
-_DEFAULT_MODEL_NAME = "gemini-2.0-flash-001"
+_DEFAULT_MODEL_NAME = "gemini-2.5-pro"
 _LOGGER = base.Logger(__name__)
 
 
@@ -73,11 +73,18 @@ class RubricBasedMetric(metrics_base._Metric):
             )
             return eval_dataset
 
-        responses = _pre_eval_utils._generate_responses_from_gemini_model(
-            model,
-            eval_dataset,
-            self.generation_config.prompt_template,
-        )
+        if isinstance(model, str):
+            responses = _pre_eval_utils._generate_responses_from_genai_model(
+                model,
+                eval_dataset,
+                self.generation_config.prompt_template,
+            )
+        else:
+            responses = _pre_eval_utils._generate_responses_from_gemini_model(
+                model,
+                eval_dataset,
+                self.generation_config.prompt_template,
+            )
         if self.generation_config.parsing_fn:
             parsing_fn = self.generation_config.parsing_fn
         else:

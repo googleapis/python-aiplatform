@@ -99,9 +99,6 @@ def test_evaluation_byor(client):
 
 def test_evaluation_agent_data(client):
     """Tests evaluate method with AgentData."""
-    client._api_client._http_options.base_url = (
-        "https://autopush-aiplatform.sandbox.googleapis.com/"
-    )
     client._api_client._http_options.api_version = "v1beta1"
 
     agent_data = types.evals.AgentData(
@@ -356,23 +353,86 @@ def test_evaluation_agent_data(client):
 def test_evaluation_metric_resource_name(client):
     """Tests with a metric resource name in types.Metric."""
     client._api_client._http_options.api_version = "v1beta1"
-    client._api_client._http_options.base_url = (
-        "https://us-central1-staging-aiplatform.sandbox.googleapis.com/"
+    tone_check_metric = types.LLMMetric(
+        name="tone_check",
+        prompt_template="""Analyze the tone of the response based on these two criteria:\n
+          1. Professionalism: The response should use appropriate language and maintain a business-like demeanor.\n
+          2. Empathy: The response should acknowledge the user's feelings and show understanding.\n\n
+          Prompt: {agent_data.turns[0].events[0]}
+          Response: {agent_data.turns[0].events[1]}
+          Return ONLY a JSON list of objects for these two properties:
+          [{"property": "Professionalism", "verdict": true, "reasoning": "..."},
+          {"property": "Empathy", "verdict": true, "reasoning": "..."}]
+        """,
+        result_parsing_function="""
+import json, re
+def parse_results(responses):
+    text = responses[0]
+    # Use robust regex to find the JSON list block
+    match = re.search("[\\[].*[]]", text, re.DOTALL)
+    if not match: return {"score": 0.0, "explanation": "No valid JSON found"}
+
+    try:
+        data = json.loads(match.group(0))
+        # Calculate an overall score (e.g., average of verdicts)
+        passed_count = sum(1 for r in data if r.get("verdict", False))
+        total_count = len(data)
+        score = passed_count / total_count if total_count > 0 else 0.0
+
+        # Consolidate reasoning into a single explanation string
+        explanation = "\\n".join([f"{r.get('property')}: {r.get('reasoning')}" for r in data])
+
+        # IMPORTANT: Return a dictionary, not a list
+        return {
+            "score": float(score),
+            "explanation": explanation
+        }
+    except Exception as e:
+        return {"score": 0.0, "explanation": f"Parsing failed: {str(e)}"}
+""",
     )
     metric_resource_name = client.evals.create_evaluation_metric(
-        display_name="test_metric",
-        description="test_description",
-        metric=types.RubricMetric.GENERAL_QUALITY,
+        metric=tone_check_metric,
     )
     assert isinstance(metric_resource_name, str)
     assert re.match(
         r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$",
         metric_resource_name,
     )
+    agent_data = types.evals.AgentData(
+        turns=[
+            types.evals.ConversationTurn(
+                turn_index=0,
+                events=[
+                    types.evals.AgentEvent(
+                        author="user",
+                        content=genai_types.Content(
+                            role="user",
+                            parts=[
+                                genai_types.Part(
+                                    text=("Write a simple story about a dinosaur")
+                                )
+                            ],
+                        ),
+                    ),
+                    types.evals.AgentEvent(
+                        author="model",
+                        content=genai_types.Content(
+                            role="model",
+                            parts=[
+                                genai_types.Part(
+                                    text="Once upon a time, there was a T-Rex named Rexy."
+                                )
+                            ],
+                        ),
+                    ),
+                ],
+            ),
+        ],
+    )
     byor_df = pd.DataFrame(
         {
-            "prompt": ["Write a simple story about a dinosaur"],
-            "response": ["Once upon a time, there was a T-Rex named Rexy."],
+            "agent_data": [agent_data],
         }
     )
     metric = types.Metric(

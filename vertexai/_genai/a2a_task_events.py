@@ -29,7 +29,6 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import types
 
-
 logger = logging.getLogger("vertexai_genai.a2ataskevents")
 
 logger.setLevel(logging.INFO)
@@ -167,7 +166,24 @@ class A2aTaskEvents(_api_module.BaseModule):
             )
 
         return_value = types.AppendAgentEngineTaskEventResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -232,7 +248,24 @@ class A2aTaskEvents(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineTaskEventsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -334,7 +367,24 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
             )
 
         return_value = types.AppendAgentEngineTaskEventResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -401,7 +451,24 @@ class AsyncA2aTaskEvents(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineTaskEventsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)

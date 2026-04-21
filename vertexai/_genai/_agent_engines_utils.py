@@ -152,6 +152,7 @@ _SUPPORTED_AGENT_FRAMEWORKS = frozenset(
         "ag2",
         "llama-index",
         "custom",
+        "a2a",
     ]
 )
 _DEFAULT_ASYNC_METHOD_NAME = "async_query"
@@ -1822,7 +1823,12 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
                     "Authorization": (
                         f"Bearer {self.api_client._api_client._credentials.token}"
                     )
-                }
+                },
+                timeout=(
+                    self.api_client._api_client._http_options.timeout / 1000.0
+                    if self.api_client._api_client._http_options.timeout
+                    else None
+                ),
             ),
         )
         factory = ClientFactory(config)

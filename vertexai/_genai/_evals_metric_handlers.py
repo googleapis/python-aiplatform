@@ -19,6 +19,7 @@ import collections
 from concurrent import futures
 import json
 import logging
+import random
 import statistics
 import time
 from typing import Any, Callable, Generic, Optional, TypeVar, Union
@@ -31,23 +32,86 @@ from typing_extensions import override
 
 from . import _evals_common
 from . import _evals_constant
+from . import _evals_utils
 from . import evals
 from . import types
 
 
 logger = logging.getLogger(__name__)
-_MAX_RETRIES = 3
+_MAX_RETRIES = 5
+# HTTP status codes that are safe to retry with backoff.
+_RETRYABLE_STATUS_CODES = frozenset(
+    {
+        408,  # RequestTimeout (DEADLINE_EXCEEDED)
+        409,  # Conflict / Aborted (ABORTED)
+        429,  # TooManyRequests / ResourceExhausted (RESOURCE_EXHAUSTED)
+        499,  # Client Closed Request (CANCELLED)
+        500,  # InternalServerError (INTERNAL)
+        502,  # BadGateway
+        503,  # ServiceUnavailable (UNAVAILABLE)
+        504,  # GatewayTimeout (DEADLINE_EXCEEDED)
+    }
+)
 
-
+R = TypeVar("R")
 T = TypeVar("T", types.Metric, types.MetricSource, types.LLMMetric)
 
 
-def _has_tool_call(intermediate_events: Optional[list[types.evals.Event]]) -> bool:
-    """Checks if any event in intermediate_events has a function call."""
-    if not intermediate_events:
+def _call_with_retry(
+    fn: Callable[[], R],
+    metric_name: str,
+) -> R:
+    """Calls ``fn()`` with exponential backoff + jitter on retryable errors.
+
+    Retries up to ``_MAX_RETRIES`` times on errors whose HTTP status code is
+    in ``_RETRYABLE_STATUS_CODES`` (Aborted, DeadlineExceeded,
+    ResourceExhausted, ServiceUnavailable, Cancelled). Non-retryable errors
+    are re-raised immediately. If all retries are exhausted the last
+    exception is re-raised so the caller can decide how to handle it.
+
+    Args:
+        fn: A zero-argument callable that performs the API call.
+        metric_name: Name of the metric, used for log messages.
+
+    Returns:
+        The return value of ``fn()``.
+
+    Raises:
+        genai_errors.APIError: If all retries are exhausted or the error is
+            not retryable.
+    """
+    for attempt in range(_MAX_RETRIES):
+        try:
+            return fn()
+        except genai_errors.APIError as e:
+            if e.code in _RETRYABLE_STATUS_CODES:
+                backoff = 2**attempt + random.uniform(0, 1)
+                logger.warning(
+                    "Retryable error (code=%s) on attempt %d/%d for metric"
+                    " '%s': %s. Retrying in %.1f seconds...",
+                    e.code,
+                    attempt + 1,
+                    _MAX_RETRIES,
+                    metric_name,
+                    e,
+                    backoff,
+                )
+                if attempt == _MAX_RETRIES - 1:
+                    raise
+                time.sleep(backoff)
+            else:
+                raise
+    raise genai_errors.APIError(
+        code=504, response_json={"message": "Retries exhausted"}
+    )
+
+
+def _has_tool_call(events: Optional[list[Any]]) -> bool:
+    """Checks if any event in events has a function call."""
+    if not events:
         return False
-    for event in intermediate_events:
-        if event.content and event.content.parts:
+    for event in events:
+        if getattr(event, "content", None) and getattr(event.content, "parts", None):
             for part in event.content.parts:
                 if hasattr(part, "function_call") and part.function_call:
                     return True
@@ -344,9 +408,12 @@ class ComputationMetricHandler(MetricHandler[types.Metric]):
             metric_name,
             eval_case.model_dump(exclude_none=True),
         )
-        response = self.module.evaluate_instances(
-            metric_config=self._build_request_payload(eval_case, response_index)
-        ).model_dump(exclude_none=True)
+        response = _call_with_retry(
+            lambda: self.module.evaluate_instances(
+                metric_config=self._build_request_payload(eval_case, response_index)
+            ).model_dump(exclude_none=True),
+            metric_name,
+        )
         logger.debug("response: %s", response)
         score = None
         for _, result_value in response.items():
@@ -459,8 +526,11 @@ class TranslationMetricHandler(MetricHandler[types.Metric]):
             metric_name,
             eval_case,
         )
-        api_response = self.module.evaluate_instances(
-            metric_config=self._build_request_payload(eval_case, response_index)
+        api_response = _call_with_retry(
+            lambda: self.module.evaluate_instances(
+                metric_config=self._build_request_payload(eval_case, response_index)
+            ),
+            metric_name,
         )
         logger.debug("API Response: %s", api_response)
 
@@ -537,6 +607,120 @@ class TranslationMetricHandler(MetricHandler[types.Metric]):
         return _default_aggregate_scores(self.metric.name, eval_case_metric_results)
 
 
+def _content_to_instance_data(
+    content: Optional[genai_types.Content],
+) -> Optional[types.evals.InstanceData]:
+    """Converts a genai_types.Content object to a types.InstanceData object."""
+    if not content:
+        return None
+    return types.evals.InstanceData(
+        contents=types.evals.InstanceDataContents(contents=[content])
+    )
+
+
+def _eval_case_to_agent_data(
+    eval_case: types.EvalCase,
+    prompt_content: Optional[genai_types.Content] = None,
+    response_content: Optional[genai_types.Content] = None,
+) -> Optional[types.evals.AgentData]:
+    """Converts an EvalCase object to a single turn AgentData object.
+
+    If `eval_case.agent_data` is provided, it is returned directly, and
+    `prompt_content` and `response_content` are ignored.
+    """
+    if getattr(eval_case, "agent_data", None):
+        return eval_case.agent_data
+
+    if (
+        not eval_case.agent_info
+        and not eval_case.intermediate_events
+        and not prompt_content
+        and not response_content
+    ):
+        return None
+
+    agents_map = eval_case.agent_info.agents if eval_case.agent_info else None
+    events = []
+    if prompt_content:
+        events.append(types.evals.AgentEvent(author="user", content=prompt_content))
+
+    if eval_case.intermediate_events:
+        for event in eval_case.intermediate_events:
+            events.append(
+                types.evals.AgentEvent(
+                    author=event.author,
+                    content=event.content,
+                    event_time=event.creation_timestamp,
+                )
+            )
+
+    if response_content:
+        events.append(types.evals.AgentEvent(author="model", content=response_content))
+
+    turns = (
+        [types.evals.ConversationTurn(turn_index=0, turn_id="turn_0", events=events)]
+        if events
+        else None
+    )
+    return types.evals.AgentData(agents=agents_map, turns=turns)
+
+
+def _build_evaluation_instance(
+    eval_case: types.EvalCase,
+    response_content: Optional[genai_types.Content],
+    prompt_instance_data: Optional[types.evals.InstanceData] = None,
+    prompt_template: Optional[str] = None,
+) -> types.EvaluationInstance:
+    """Builds a unified EvaluationInstance. Multi-turn logic is handled by the caller."""
+    extracted_prompt = _get_prompt_from_eval_case(eval_case)
+
+    # 1. Use caller-provided prompt data (multi-turn) or default to simple content
+    if prompt_instance_data is None:
+        prompt_instance_data = _content_to_instance_data(extracted_prompt)
+
+    # 2. Collect placeholders for other_data
+    other_data_map: dict[str, Any] = {}
+    if hasattr(eval_case, "context") and eval_case.context:
+        if isinstance(eval_case.context, str):
+            other_data_map["context"] = types.evals.InstanceData(text=eval_case.context)
+        elif isinstance(eval_case.context, genai_types.Content):
+            other_data_map["context"] = _content_to_instance_data(eval_case.context)
+
+    # 3. Extract custom variables from LLMMetric templates
+    if prompt_template:
+        template_vars = types.PromptTemplate(text=prompt_template).variables
+        standard_fields = {"prompt", "response", "reference", "context", "agent_data"}
+        for full_path in template_vars:
+            # Extract the root variable (e.g. 'metadata' from 'metadata.user_id')
+            root_var = full_path.split(".")[0].split("[")[0]
+
+            if root_var not in standard_fields and hasattr(eval_case, root_var):
+                val = getattr(eval_case, root_var)
+                # Add the root object to other_data so the backend can traverse it
+                other_data_map[root_var] = types.evals.InstanceData(
+                    contents=types.evals.InstanceDataContents(
+                        contents=_value_to_content_list(val)
+                    )
+                )
+
+    return types.EvaluationInstance(
+        prompt=prompt_instance_data,
+        response=_content_to_instance_data(response_content),
+        reference=(
+            _content_to_instance_data(eval_case.reference.response)
+            if eval_case.reference
+            else None
+        ),
+        rubric_groups=eval_case.rubric_groups,
+        other_data=(
+            types.MapInstance(map_instance=other_data_map) if other_data_map else None
+        ),
+        agent_data=_eval_case_to_agent_data(
+            eval_case, extracted_prompt, response_content
+        ),
+    )
+
+
 class LLMMetricHandler(MetricHandler[types.LLMMetric]):
     """Metric handler for LLM metrics."""
 
@@ -547,179 +731,59 @@ class LLMMetricHandler(MetricHandler[types.LLMMetric]):
     def __init__(self, module: "evals.Evals", metric: types.LLMMetric):
         super().__init__(module=module, metric=metric)
 
-    def _build_rubric_based_input(
-        self, eval_case: types.EvalCase, response_content: genai_types.Content
-    ) -> dict[str, Any]:
-        """Builds the payload for a rubric-based LLM metric."""
-        eval_case_dict = eval_case.model_dump(exclude={"responses"})
-        rubric_groups_data = eval_case_dict.get("rubric_groups")
-
-        if not isinstance(rubric_groups_data, dict):
-            raise ValueError(
-                f"Dataset column 'rubric_groups' for case {eval_case.eval_case_id} "
-                "must be a dictionary."
-            )
-
-        rubric_group_from_data = rubric_groups_data.get(
-            self.metric.rubric_group_name, {}
-        )
-        if isinstance(rubric_group_from_data, dict):
-            rubrics_list = rubric_group_from_data.get("rubrics", [])
-        else:
-            rubrics_list = []
-
-        if not isinstance(rubrics_list, list):
-            logger.warning(
-                "Rubrics for group '%s' in case %s is not a list: %s. "
-                "Skipping rubrics for this case.",
-                self.metric.rubric_group_name,
-                eval_case.eval_case_id,
-                rubrics_list,
-            )
-            rubrics_list = []
-
-        parsed_rubrics = [types.evals.Rubric(**r) for r in rubrics_list]
-        extracted_prompt = _get_prompt_from_eval_case(eval_case)
-        rubric_enhanced_contents = {
-            "prompt": (
-                [extracted_prompt.model_dump(mode="json", exclude_none=True)]
-                if extracted_prompt
-                else None
-            ),
-            "response": [response_content.model_dump(mode="json", exclude_none=True)],
-            "rubric_groups": {
-                self.metric.rubric_group_name: {
-                    "rubrics": [
-                        r.model_dump(mode="json", exclude_none=True)
-                        for r in parsed_rubrics
-                    ]
-                }
-            },
-        }
-
-        metric_spec_payload = {
-            "metric_prompt_template": self.metric.prompt_template,
-            "rubric_group_key": self.metric.rubric_group_name,
-        }
-
-        return {
-            "rubric_based_metric_input": {
-                "metric_spec": metric_spec_payload,
-                "instance": {"rubric_enhanced_contents": rubric_enhanced_contents},
-            }
-        }
-
-    def _build_pointwise_input(
-        self, eval_case: types.EvalCase, response_content: genai_types.Content
-    ) -> dict[str, Any]:
-        """Builds the payload for a standard pointwise LLM metric."""
-        extracted_prompt = _get_prompt_from_eval_case(eval_case)
-        instance_data = {
-            "prompt": extracted_prompt,
-            "response": response_content,
-        }
-        template_obj = types.PromptTemplate(text=self.metric.prompt_template)
-        required_vars = template_obj.variables - set(instance_data.keys())
-        for var_name in required_vars:
-            if hasattr(eval_case, var_name):
-                instance_data[var_name] = getattr(eval_case, var_name)
-
-        content_map_values = {}
-        for key, value in instance_data.items():
-            content_map_values[key] = types.ContentMapContents(
-                contents=_value_to_content_list(value)
-            )
-
-        instance_payload = types.PointwiseMetricInstance(
-            content_map_instance=types.ContentMap(values=content_map_values)
-        )
-
-        metric_spec_payload = {"metric_prompt_template": self.metric.prompt_template}
-        if self.metric.return_raw_output is not None:
-            metric_spec_payload["custom_output_format_config"] = {  # type: ignore[assignment]
-                "return_raw_output": self.metric.return_raw_output
-            }
-        if self.metric.judge_model_system_instruction:
-            metric_spec_payload["system_instruction"] = (
-                self.metric.judge_model_system_instruction
-            )
-
-        return {
-            "pointwise_metric_input": {
-                "metric_spec": metric_spec_payload,
-                "instance": instance_payload.model_dump(mode="json", exclude_none=True),
-            }
-        }
-
-    def _add_autorater_config(self, payload: dict[str, Any]) -> None:
-        """Adds autorater config to the request payload if specified."""
-        autorater_config = _get_autorater_config(self.metric)
-
-        if not autorater_config:
-            return
-
-        if "rubric_based_metric_input" in payload:
-            spec = payload["rubric_based_metric_input"]["metric_spec"]
-            if "judge_autorater_config" not in spec:
-                spec["judge_autorater_config"] = {}
-            spec["judge_autorater_config"].update(autorater_config)
-        else:
-            payload["autorater_config"] = autorater_config
-
-    def _build_request_payload(
-        self, eval_case: types.EvalCase, response_index: int
-    ) -> dict[str, Any]:
-        """Builds the request parameters for evaluate instances request."""
-        response_content = _get_response_from_eval_case(
-            eval_case, response_index, self.metric.name
-        )
-
-        if not response_content:
-            raise ValueError(
-                f"Response content missing for candidate {response_index}."
-            )
-
-        if self.metric.rubric_group_name:
-            payload = self._build_rubric_based_input(eval_case, response_content)
-        else:
-            payload = self._build_pointwise_input(eval_case, response_content)
-
-        self._add_autorater_config(payload)
-        return payload
-
     @override
     def get_metric_result(
         self, eval_case: types.EvalCase, response_index: int
     ) -> types.EvalCaseMetricResult:
-        """Processes a single evaluation case for a specific LLM metric."""
-        metric_name = self.metric.name
+        """Processes a single evaluation case using the unified backend interface."""
         try:
-            payload = self._build_request_payload(eval_case, response_index)
-            response = self.module.evaluate_instances(metric_config=payload)
+            response_content = _get_response_from_eval_case(
+                eval_case, response_index, self.metric_name
+            )
+            if not response_content:
+                raise ValueError(
+                    f"Response content missing for candidate {response_index}."
+                )
 
-            if self.metric.rubric_group_name:
-                result_data = response.rubric_based_metric_result
+            instance = _build_evaluation_instance(
+                eval_case, response_content, prompt_template=self.metric.prompt_template
+            )
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=instance,
+                ),
+                self.metric_name,
+            )
+
+            if api_response and api_response.metric_results:
+                result = api_response.metric_results[0]
+                error_msg = None
+                if result.error and getattr(result.error, "code"):
+                    error_msg = f"Error in metric result: {result.error}"
+
                 return types.EvalCaseMetricResult(
-                    metric_name=metric_name,
-                    score=result_data.score if result_data else None,
-                    rubric_verdicts=result_data.rubric_verdicts if result_data else [],
+                    metric_name=self.metric_name,
+                    score=result.score,
+                    explanation=result.explanation,
+                    rubric_verdicts=result.rubric_verdicts,
+                    error_message=error_msg,
                 )
             else:
-                result_data = response.pointwise_metric_result  # type: ignore[assignment]
                 return types.EvalCaseMetricResult(
-                    metric_name=metric_name,
-                    score=result_data.score if result_data else None,
-                    explanation=result_data.explanation if result_data else None,  # type: ignore[attr-defined]
+                    metric_name=self.metric_name,
+                    error_message="Metric results missing in API response.",
                 )
-        except Exception as e:  # pylint: disable=broad-exception-caught
+
+        except Exception as e:
             logger.error(
                 "Error processing metric %s for case %s.",
-                metric_name,
+                self.metric_name,
                 eval_case.eval_case_id,
                 exc_info=True,
             )
             return types.EvalCaseMetricResult(
-                metric_name=metric_name, error_message=str(e)
+                metric_name=self.metric_name, error_message=str(e)
             )
 
     @override
@@ -846,7 +910,7 @@ class CustomMetricHandler(MetricHandler[types.Metric]):
         score = None
         explanation = None
         try:
-            if self.metric.custom_function:
+            if self.metric.custom_function and callable(self.metric.custom_function):
                 custom_function_result = self.metric.custom_function(
                     instance_for_custom_fn
                 )
@@ -909,85 +973,6 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
                 f"Metric '{self.metric.name}' is not a supported predefined metric."
             )
 
-    @staticmethod
-    def _content_to_instance_data(
-        content: Optional[genai_types.Content],
-    ) -> Optional[types.evals.InstanceData]:
-        """Converts a genai_types.Content object to a types.InstanceData object."""
-        if not content:
-            return None
-        return types.evals.InstanceData(
-            contents=types.evals.InstanceDataContents(contents=[content])
-        )
-
-    @staticmethod
-    def _eval_case_to_agent_data(
-        eval_case: types.EvalCase,
-        prompt_content: Optional[genai_types.Content] = None,
-        response_content: Optional[genai_types.Content] = None,
-    ) -> Optional[types.evals.AgentData]:
-        """Converts an EvalCase object to a single turn AgentData object.
-
-        If `eval_case.agent_data` is provided, it is returned directly, and
-        `prompt_content` and `response_content` are ignored.
-        """
-        if getattr(eval_case, "agent_data", None):
-            return eval_case.agent_data
-
-        if (
-            not eval_case.agent_info
-            and not eval_case.intermediate_events
-            and not prompt_content
-            and not response_content
-        ):
-            return None
-
-        agents_map = None
-        if eval_case.agent_info:
-            agents_map = eval_case.agent_info.agents
-
-        events = []
-        if prompt_content:
-            events.append(
-                types.evals.AgentEvent(
-                    author="user",
-                    content=prompt_content,
-                )
-            )
-
-        if eval_case.intermediate_events:
-            for event in eval_case.intermediate_events:
-                events.append(
-                    types.evals.AgentEvent(
-                        author=event.author,
-                        content=event.content,
-                        event_time=event.creation_timestamp,
-                    )
-                )
-
-        if response_content:
-            events.append(
-                types.evals.AgentEvent(
-                    author="model",
-                    content=response_content,
-                )
-            )
-
-        turns = None
-        if events:
-            turns = [
-                types.evals.ConversationTurn(
-                    turn_index=0,
-                    turn_id="turn_0",
-                    events=events,
-                )
-            ]
-
-        return types.evals.AgentData(
-            agents=agents_map,
-            turns=turns,
-        )
-
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int
     ) -> dict[str, Any]:
@@ -1002,66 +987,39 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             )
 
         if self.metric.name == "tool_use_quality_v1":
-            if not _has_tool_call(eval_case.intermediate_events):
+            has_tool_call = _has_tool_call(eval_case.intermediate_events)
+
+            # Check agent_data for tool calls if intermediate_events is empty
+            agent_data = getattr(eval_case, "agent_data", None)
+            if not has_tool_call and agent_data:
+                for turn in agent_data.turns or []:
+                    if _has_tool_call(turn.events):
+                        has_tool_call = True
+                        break
+
+            if not has_tool_call:
                 logger.warning(
                     "Metric 'tool_use_quality_v1' requires tool usage in "
-                    "'intermediate_events', but no tool usage was found for case %s.",
+                    "'intermediate_events' or 'agent_data', but no tool usage was found for case %s.",
                     eval_case.eval_case_id,
                 )
 
-        reference_instance_data = None
-        if eval_case.reference:
-            reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
-                eval_case.reference.response
-            )
-
         extracted_prompt = _get_prompt_from_eval_case(eval_case)
         prompt_instance_data = None
-        if self.metric.name is not None and self.metric.name.startswith("multi_turn"):
-            prompt_contents = []
-            if eval_case.conversation_history:
-                for message in eval_case.conversation_history:
-                    prompt_contents.append(message.content)
+        if self.metric.name and self.metric.name.startswith("multi_turn"):
+            prompt_contents = [
+                msg.content for msg in (eval_case.conversation_history or [])
+            ]
             if extracted_prompt:
                 prompt_contents.append(extracted_prompt)
-
             prompt_instance_data = types.evals.InstanceData(
                 contents=types.evals.InstanceDataContents(contents=prompt_contents)
             )
-        else:
-            prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
-                extracted_prompt
-            )
 
-        other_data_map: dict[str, Any] = {}
-        if hasattr(eval_case, "context") and eval_case.context:
-            if isinstance(eval_case.context, str):
-                other_data_map["context"] = types.evals.InstanceData(
-                    text=eval_case.context
-                )
-            elif isinstance(eval_case.context, genai_types.Content):
-                other_data_map["context"] = (
-                    PredefinedMetricHandler._content_to_instance_data(eval_case.context)
-                )
-            else:
-                logger.warning(
-                    f"Unsupported type for context: {type(eval_case.context)}"
-                )
-        instance_payload = types.EvaluationInstance(
-            prompt=prompt_instance_data,
-            response=PredefinedMetricHandler._content_to_instance_data(
-                response_content
-            ),
-            reference=reference_instance_data,
-            rubric_groups=eval_case.rubric_groups,
-            other_data=(
-                types.MapInstance(map_instance=other_data_map)
-                if other_data_map
-                else None
-            ),
-            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(
-                eval_case, extracted_prompt, response_content
-            ),
+        instance_payload = _build_evaluation_instance(
+            eval_case=eval_case,
+            response_content=response_content,
+            prompt_instance_data=prompt_instance_data,
         )
 
         request_payload: dict[str, Any] = {
@@ -1083,32 +1041,14 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metrics=[self.metric],
-                        instance=payload.get("instance"),
-                        autorater_config=payload.get("autorater_config"),
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429:
-                        logger.warning(
-                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                            " seconds...",
-                            attempt + 1,
-                            _MAX_RETRIES,
-                            e,
-                            2**attempt,
-                        )
-                        if attempt == _MAX_RETRIES - 1:
-                            return types.EvalCaseMetricResult(
-                                metric_name=metric_name,
-                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
-                            )
-                        time.sleep(2**attempt)
-                    else:
-                        raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=payload.get("instance"),
+                    autorater_config=payload.get("autorater_config"),
+                ),
+                metric_name,
+            )
 
             if (
                 api_response
@@ -1175,10 +1115,10 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
     def __init__(self, module: "evals.Evals", metric: types.Metric):
         super().__init__(module=module, metric=metric)
 
-        if not self.metric.remote_custom_function:
+        if not self.metric.remote_custom_function and not self.metric.custom_function:
             raise ValueError(
                 f"CustomCodeExecutionMetricHandler for '{self.metric.name}' needs "
-                " Metric.remote_custom_function to be set."
+                " custom function to be set."
             )
 
     def _build_request_payload(
@@ -1196,22 +1136,18 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
 
         reference_instance_data = None
         if eval_case.reference:
-            reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
+            reference_instance_data = _content_to_instance_data(
                 eval_case.reference.response
             )
 
         extracted_prompt = _get_prompt_from_eval_case(eval_case)
-        prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
-            extracted_prompt
-        )
+        prompt_instance_data = _content_to_instance_data(extracted_prompt)
 
         instance_payload = types.EvaluationInstance(
             prompt=prompt_instance_data,
-            response=PredefinedMetricHandler._content_to_instance_data(
-                response_content
-            ),
+            response=_content_to_instance_data(response_content),
             reference=reference_instance_data,
-            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
+            agent_data=_eval_case_to_agent_data(eval_case),
         )
 
         return {
@@ -1226,31 +1162,13 @@ class CustomCodeExecutionMetricHandler(MetricHandler[types.Metric]):
         metric_name = self.metric.name
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metrics=[self.metric],
-                        instance=payload.get("instance"),
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429:
-                        logger.warning(
-                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                            " seconds...",
-                            attempt + 1,
-                            _MAX_RETRIES,
-                            e,
-                            2**attempt,
-                        )
-                        if attempt == _MAX_RETRIES - 1:
-                            return types.EvalCaseMetricResult(
-                                metric_name=metric_name,
-                                error_message=f"Resource exhausted after {_MAX_RETRIES} retries: {e}",
-                            )
-                        time.sleep(2**attempt)
-                    else:
-                        raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metrics=[self.metric],
+                    instance=payload.get("instance"),
+                ),
+                metric_name,
+            )
 
             if (
                 api_response
@@ -1334,23 +1252,19 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
 
         reference_instance_data = None
         if eval_case.reference:
-            reference_instance_data = PredefinedMetricHandler._content_to_instance_data(
+            reference_instance_data = _content_to_instance_data(
                 eval_case.reference.response
             )
 
         extracted_prompt = _get_prompt_from_eval_case(eval_case)
-        prompt_instance_data = PredefinedMetricHandler._content_to_instance_data(
-            extracted_prompt
-        )
+        prompt_instance_data = _content_to_instance_data(extracted_prompt)
 
         instance_payload = types.EvaluationInstance(
             prompt=prompt_instance_data,
-            response=PredefinedMetricHandler._content_to_instance_data(
-                response_content
-            ),
+            response=_content_to_instance_data(response_content),
             reference=reference_instance_data,
             rubric_groups=eval_case.rubric_groups,
-            agent_data=PredefinedMetricHandler._eval_case_to_agent_data(eval_case),
+            agent_data=_eval_case_to_agent_data(eval_case),
         )
 
         request_payload = {
@@ -1374,32 +1288,14 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
 
         try:
             payload = self._build_request_payload(eval_case, response_index)
-            for attempt in range(_MAX_RETRIES):
-                try:
-                    api_response = self.module._evaluate_instances(
-                        metric_sources=[metric_source],
-                        instance=payload.get("instance"),
-                        autorater_config=payload.get("autorater_config"),
-                    )
-                    break
-                except genai_errors.ClientError as e:
-                    if e.code == 429:
-                        logger.warning(
-                            "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                            " seconds...",
-                            attempt + 1,
-                            _MAX_RETRIES,
-                            e,
-                            2**attempt,
-                        )
-                        if attempt == _MAX_RETRIES - 1:
-                            return types.EvalCaseMetricResult(
-                                metric_name=metric_name,
-                                error_message=f"Judge model resource exhausted after {_MAX_RETRIES} retries: {e}",
-                            )
-                        time.sleep(2**attempt)
-                    else:
-                        raise e
+            api_response = _call_with_retry(
+                lambda: self.module._evaluate_instances(
+                    metric_sources=[metric_source],
+                    instance=payload.get("instance"),
+                    autorater_config=payload.get("autorater_config"),
+                ),
+                metric_name,
+            )
 
             if api_response and api_response.metric_results:
                 result_data = api_response.metric_results[0]
@@ -1435,7 +1331,17 @@ class RegisteredMetricHandler(MetricHandler[types.Metric]):
 
 _METRIC_HANDLER_MAPPING = [
     (
-        lambda m: hasattr(m, "remote_custom_function") and m.remote_custom_function,
+        lambda m: (
+            # Recognize the user-facing class
+            isinstance(m, types.CodeExecutionMetric)
+            and (hasattr(m, "custom_function") and m.custom_function)
+        )
+        or (hasattr(m, "remote_custom_function") and m.remote_custom_function)
+        # Recognize base Metric objects that have been coerced by Pydantic
+        or (
+            isinstance(m, types.Metric)
+            and isinstance(getattr(m, "custom_function", None), str)
+        ),
         CustomCodeExecutionMetricHandler,
     ),
     (
@@ -1603,10 +1509,29 @@ class EvaluationRunConfig(_common.BaseModel):
     """The number of response candidates for the evaluation run."""
 
 
+def _rate_limited_get_metric_result(
+    rate_limiter: _evals_utils.RateLimiter,
+    handler: MetricHandler[Any],
+    eval_case: types.EvalCase,
+    response_index: int,
+) -> types.EvalCaseMetricResult:
+    """Wraps a handler's get_metric_result with rate limiting."""
+    rate_limiter.sleep_and_advance()
+    return handler.get_metric_result(eval_case, response_index)
+
+
 def compute_metrics_and_aggregate(
     evaluation_run_config: EvaluationRunConfig,
+    evaluation_service_qps: Optional[float] = None,
 ) -> types.EvaluationResult:
-    """Computes metrics and aggregates them for a given evaluation run config."""
+    """Computes metrics and aggregates them for a given evaluation run config.
+
+    Args:
+        evaluation_run_config: The configuration for the evaluation run.
+        evaluation_service_qps: Optional QPS limit for the evaluation service.
+            Defaults to _DEFAULT_EVAL_SERVICE_QPS (10). Users with higher
+            quotas can increase this value.
+    """
     metric_handlers = []
     all_futures = []
     results_by_case_response_metric: collections.defaultdict[
@@ -1615,6 +1540,12 @@ def compute_metrics_and_aggregate(
     submission_errors = []
     execution_errors = []
     case_indices_with_errors = set()
+
+    if evaluation_service_qps is not None and evaluation_service_qps <= 0:
+        raise ValueError("evaluation_service_qps must be a positive number.")
+    qps = evaluation_service_qps or _evals_utils._DEFAULT_EVAL_SERVICE_QPS
+    rate_limiter = _evals_utils.RateLimiter(rate=qps)
+    logger.info("Rate limiting evaluation service requests to %.1f QPS.", qps)
 
     for eval_metric in evaluation_run_config.metrics:
         metric_handlers.append(
@@ -1658,7 +1589,9 @@ def compute_metrics_and_aggregate(
                     for response_index in range(actual_num_candidates_for_case):
                         try:
                             future = executor.submit(
-                                metric_handler_instance.get_metric_result,
+                                _rate_limited_get_metric_result,
+                                rate_limiter,
+                                metric_handler_instance,
                                 eval_case,
                                 response_index,
                             )

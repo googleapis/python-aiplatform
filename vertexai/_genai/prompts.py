@@ -36,7 +36,6 @@ from . import _prompt_management_utils
 from . import _prompt_optimizer_utils
 from . import types
 
-
 logger = logging.getLogger("vertexai_genai.prompts")
 
 
@@ -513,7 +512,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -574,7 +590,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -627,7 +660,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -684,7 +734,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetVersion._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -741,7 +808,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -790,7 +874,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -849,7 +950,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetVersionsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -895,7 +1013,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -950,7 +1085,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptVersionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1007,7 +1159,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RestoreVersionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1023,7 +1192,7 @@ class Prompts(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
-        config: Optional[types.UpdateDatasetConfigOrDict] = None,
+        config: Optional[types.UpdatePromptConfigOrDict] = None,
     ) -> types.Dataset:
         """
         Creates a dataset resource to store prompts.
@@ -1072,7 +1241,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1128,7 +1314,24 @@ class Prompts(_api_module.BaseModule):
             response_dict = _CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1181,7 +1384,24 @@ class Prompts(_api_module.BaseModule):
             response_dict = _CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1234,7 +1454,24 @@ class Prompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.OptimizeResponseEndpoint._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1250,8 +1487,11 @@ class Prompts(_api_module.BaseModule):
 
         This method waits for prompt creation to be complete before returning.
 
+        Note: This method does not create a versioned resource for your prompt.
+        Call create_version() to create a new prompt resource with a version.
+
         Args:
-          prompt: The prompt to create a version for.
+          prompt: The prompt to create.
           config: Optional configuration for creating the prompt.
 
         Returns:
@@ -1310,24 +1550,32 @@ class Prompts(_api_module.BaseModule):
     def create_version(
         self,
         *,
-        prompt_id: str,
         prompt: types.PromptOrDict,
+        prompt_id: Optional[str] = None,
         config: Optional[types.CreatePromptVersionConfigOrDict] = None,
     ) -> types.Prompt:
-        """Creates a new version of a prompt in the prompt resource associated with the provided prompt_id.
+        """Creates a prompt resource and an initial prompt version.
 
-        When creating new prompt version resources, this waits for
+        When creating new prompt and prompt version resources, this waits for
         the create operation to complete before returning.
 
+        Note: This method is recommended instead of create() since it creates a
+        versioned resource for your prompt.
+
         Args:
-          prompt_id: The ID of the prompt to create a version for.
-          prompt: The prompt to create a version for.
-          config: Optional configuration for creating the prompt version.
+          prompt: The prompt to create.
+          prompt_id: This parameter is deprecated, since this method will create a new prompt each time it is called. If provided, it will be ignored.
+          config: Optional configuration for creating the prompt and prompt version.
 
         Returns:
           A types.Prompt object representing the prompt with its associated
           Dataset and Dataset Version resources.
         """
+        if prompt_id:
+            raise DeprecationWarning(
+                "The prompt_id argument is deprecated and will be ignored."
+            )
+
         if isinstance(prompt, dict):
             prompt = types.Prompt(**prompt)
         if isinstance(config, dict):
@@ -1340,35 +1588,51 @@ class Prompts(_api_module.BaseModule):
         if prompt.prompt_data is None:
             raise ValueError("Prompt data is required to create a prompt.")
 
-        if config and config.version_display_name:
-            version_name = config.version_display_name
-        else:
-            version_name = None
-
-        # Step 1: Get the dataset resource
-        dataset_resource = self._get_dataset_resource(name=prompt_id)
-
-        # Step 2: Update the dataset with the new prompt metadata
-        updated_dataset_resource = self._update_dataset_resource(
-            dataset_id=prompt_id,
-            display_name=dataset_resource.display_name,
-            metadata=_prompt_management_utils._create_dataset_metadata_from_prompt(
-                prompt,
-                variables=(
-                    prompt.prompt_data.variables
-                    if prompt.prompt_data and prompt.prompt_data.variables
-                    else None
-                ),
+        prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
+            prompt,
+            variables=(
+                prompt.prompt_data.variables
+                if prompt.prompt_data and prompt.prompt_data.variables
+                else None
             ),
-            model_reference=prompt.prompt_data.model,
         )
+
+        # Step 1: Create the dataset resource for the prompt and wait for the operation to complete.
+        create_prompt_dataset_operation = self._create_dataset_resource(
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else f"prompt_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            metadata_schema_uri=_prompt_management_utils.PROMPT_SCHEMA_URI,
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+            encryption_spec=(
+                config.encryption_spec if config and config.encryption_spec else None
+            ),
+        )
+        dataset_resource_name = self._wait_for_operation(
+            operation=create_prompt_dataset_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_id = dataset_resource_name.split("/")[-1]
+
+        # Step 2: Get the dataset resource
+        dataset_resource = self._get_dataset_resource(
+            name=dataset_id,
+        )
+        prompt._dataset = dataset_resource
+
+        if prompt._dataset.name is None:
+            raise ValueError("Invalid dataset resource.")
 
         # Step 3: Create the dataset version
         create_dataset_version_operation = self._create_dataset_version_resource(
-            dataset_name=prompt_id,
+            dataset_name=prompt._dataset.name.split("/")[-1],
             display_name=(
-                version_name
-                if version_name
+                config.version_display_name
+                if config and config.version_display_name is not None
                 else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
             ),
         )
@@ -1379,13 +1643,13 @@ class Prompts(_api_module.BaseModule):
 
         # Step 4: Get the dataset version resource and return it with the prompt
         dataset_version_resource = self._get_dataset_version_resource(
-            dataset_id=prompt_id,
+            dataset_id=dataset_id,
             dataset_version_id=dataset_version_resource_name.split("/")[-1],
         )
         prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
             dataset_version_resource
         )
-        prompt._dataset = updated_dataset_resource
+        prompt._dataset = dataset_resource
         prompt._dataset_version = dataset_version_resource
         return prompt
 
@@ -2043,6 +2307,93 @@ class Prompts(_api_module.BaseModule):
             )
         return final_response
 
+    def update(
+        self,
+        *,
+        prompt_id: str,
+        prompt: types.PromptOrDict,
+        config: Optional[types.UpdatePromptConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Updates an existing prompt and creates a new version for the prompt associated with the provided prompt_id.
+
+        Args:
+          prompt_id: The ID of the prompt to create a new version for.
+          prompt: The updated prompt.
+          config: Optional configuration for updating the prompt.
+
+        Returns:
+          A types.Prompt object representing the updated prompt with its associated
+          Dataset and Dataset Version resources.
+        """
+
+        if isinstance(prompt, dict):
+            prompt = types.Prompt(**prompt)
+        if isinstance(config, dict):
+            config = types.UpdatePromptConfig(**config)
+        elif not config:
+            config = types.UpdatePromptConfig()
+
+        prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
+            prompt,
+            variables=(
+                prompt.prompt_data.variables
+                if prompt.prompt_data and prompt.prompt_data.variables
+                else None
+            ),
+        )
+
+        if not prompt.prompt_data:
+            raise ValueError("Prompt data is required to update a prompt.")
+
+        # Step 1: Update the dataset resource for the prompt and wait for the operation to complete.
+        updated_dataset_resource = self._update_dataset_resource(
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            dataset_id=prompt_id,
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else None
+            ),
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+            encryption_spec=(
+                config.encryption_spec if config and config.encryption_spec else None
+            ),
+            config=config,
+        )
+
+        if not updated_dataset_resource.name:
+            raise ValueError("Failed to update dataset resource.")
+
+        dataset_id = updated_dataset_resource.name.split("/")[-1]
+
+        # Step 2: Create a dataset version for the prompt.
+        create_dataset_version_operation = self._create_dataset_version_resource(
+            dataset_name=dataset_id,
+            display_name=(
+                config.version_display_name
+                if config and config.version_display_name is not None
+                else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+        )
+        dataset_version_resource_name = self._wait_for_operation(
+            operation=create_dataset_version_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_version_id = dataset_version_resource_name.split("/")[-1]
+
+        # Step 3: Get the dataset version resource and return it with the prompt.
+        dataset_version_resource = self._get_dataset_version_resource(
+            dataset_id=dataset_id,
+            dataset_version_id=dataset_version_id,
+        )
+        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            dataset_version_resource
+        )
+        prompt._dataset = updated_dataset_resource
+        prompt._dataset_version = dataset_version_resource
+        return prompt
+
 
 class AsyncPrompts(_api_module.BaseModule):
 
@@ -2107,7 +2458,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2170,7 +2538,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2225,7 +2610,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2284,7 +2686,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetVersion._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2343,7 +2762,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2394,7 +2830,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2455,7 +2908,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListDatasetVersionsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2503,7 +2973,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2560,7 +3047,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeletePromptVersionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2619,7 +3123,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.RestoreVersionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2635,7 +3156,7 @@ class AsyncPrompts(_api_module.BaseModule):
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
         model_reference: Optional[str] = None,
-        config: Optional[types.UpdateDatasetConfigOrDict] = None,
+        config: Optional[types.UpdatePromptConfigOrDict] = None,
     ) -> types.Dataset:
         """
         Creates a dataset resource to store prompts.
@@ -2686,7 +3207,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Dataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2744,7 +3282,24 @@ class AsyncPrompts(_api_module.BaseModule):
             response_dict = _CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2799,7 +3354,24 @@ class AsyncPrompts(_api_module.BaseModule):
             response_dict = _CustomJob_from_vertex(response_dict)
 
         return_value = types.CustomJob._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2854,7 +3426,24 @@ class AsyncPrompts(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.OptimizeResponseEndpoint._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2869,6 +3458,9 @@ class AsyncPrompts(_api_module.BaseModule):
         """Creates a new prompt in a Vertex Dataset resource.
 
         This method waits for prompt creation to be complete before returning.
+
+        Note: This method does not create a versioned resource for your prompt.
+        Call create_version() to create a new prompt resource with a version.
 
         Args:
           prompt: The prompt to create.
@@ -2930,24 +3522,31 @@ class AsyncPrompts(_api_module.BaseModule):
     async def create_version(
         self,
         *,
-        prompt_id: str,
         prompt: types.PromptOrDict,
+        prompt_id: Optional[str] = None,
         config: Optional[types.CreatePromptVersionConfigOrDict] = None,
     ) -> types.Prompt:
-        """Creates a new version of a prompt in the prompt resource associated with the provided prompt_id.
+        """Creates a prompt resource and an initial prompt version.
 
-        When creating new prompt version resources, this waits for
+        When creating new prompt and prompt version resources, this waits for
         the create operation to complete before returning.
 
+        Note: This method is recommended instead of create() since it creates a
+        versioned resource for your prompt.
+
         Args:
-          prompt_id: The ID of the prompt to create a version for.
-          prompt: The prompt to create a version for.
-          config: Optional configuration for creating the prompt version.
+          prompt: The prompt to create.
+          prompt_id: This parameter is deprecated, since this method will create a new prompt each time it is called. If provided, it will be ignored.
+          config: Optional configuration for creating the prompt and prompt version.
 
         Returns:
           A types.Prompt object representing the prompt with its associated
           Dataset and Dataset Version resources.
         """
+        if prompt_id:
+            raise DeprecationWarning(
+                "The prompt_id argument is deprecated and will be ignored."
+            )
         if isinstance(prompt, dict):
             prompt = types.Prompt(**prompt)
         if isinstance(config, dict):
@@ -2960,35 +3559,51 @@ class AsyncPrompts(_api_module.BaseModule):
         if prompt.prompt_data is None:
             raise ValueError("Prompt data is required to create a prompt.")
 
-        if config and config.version_display_name:
-            version_name = config.version_display_name
-        else:
-            version_name = None
-
-        # Step 1: Get the dataset resource
-        dataset_resource = await self._get_dataset_resource(name=prompt_id)
-
-        # Step 2: Update the dataset with the new prompt metadata
-        updated_dataset_resource = await self._update_dataset_resource(
-            dataset_id=prompt_id,
-            display_name=dataset_resource.display_name,
-            metadata=_prompt_management_utils._create_dataset_metadata_from_prompt(
-                prompt,
-                variables=(
-                    prompt.prompt_data.variables
-                    if prompt.prompt_data and prompt.prompt_data.variables
-                    else None
-                ),
+        prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
+            prompt,
+            variables=(
+                prompt.prompt_data.variables
+                if prompt.prompt_data and prompt.prompt_data.variables
+                else None
             ),
-            model_reference=prompt.prompt_data.model,
         )
+
+        # Step 1: Create the dataset resource for the prompt and wait for the operation to complete.
+        create_prompt_dataset_operation = await self._create_dataset_resource(
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else f"prompt_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            metadata_schema_uri=_prompt_management_utils.PROMPT_SCHEMA_URI,
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+            encryption_spec=(
+                config.encryption_spec if config and config.encryption_spec else None
+            ),
+        )
+        dataset_resource_name = await self._wait_for_operation(
+            operation=create_prompt_dataset_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_id = dataset_resource_name.split("/")[-1]
+
+        # Step 2: Get the dataset resource
+        dataset_resource = await self._get_dataset_resource(
+            name=dataset_id,
+        )
+        prompt._dataset = dataset_resource
+
+        if prompt._dataset.name is None:
+            raise ValueError("Invalid dataset resource.")
 
         # Step 3: Create the dataset version
         create_dataset_version_operation = await self._create_dataset_version_resource(
-            dataset_name=prompt_id,
+            dataset_name=prompt._dataset.name.split("/")[-1],
             display_name=(
-                version_name
-                if version_name
+                config.version_display_name
+                if config and config.version_display_name is not None
                 else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
             ),
         )
@@ -2999,8 +3614,96 @@ class AsyncPrompts(_api_module.BaseModule):
 
         # Step 4: Get the dataset version resource and return it with the prompt
         dataset_version_resource = await self._get_dataset_version_resource(
-            dataset_id=prompt_id,
+            dataset_id=dataset_id,
             dataset_version_id=dataset_version_resource_name.split("/")[-1],
+        )
+        prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
+            dataset_version_resource
+        )
+        prompt._dataset = dataset_resource
+        prompt._dataset_version = dataset_version_resource
+        return prompt
+
+    async def update(
+        self,
+        *,
+        prompt_id: str,
+        prompt: types.PromptOrDict,
+        config: Optional[types.UpdatePromptConfigOrDict] = None,
+    ) -> types.Prompt:
+        """Updates an existing prompt and creates a new version for the prompt
+        associated with the provided prompt_id.
+
+        Args:
+          prompt_id: The ID of the prompt to create a new version for.
+          prompt: The updated prompt.
+          config: Optional configuration for updating the prompt.
+
+        Returns:
+          A types.Prompt object representing the updated prompt with its associated
+          Dataset and Dataset Version resources.
+        """
+
+        if isinstance(prompt, dict):
+            prompt = types.Prompt(**prompt)
+        if isinstance(config, dict):
+            config = types.UpdatePromptConfig(**config)
+        elif not config:
+            config = types.UpdatePromptConfig()
+
+        prompt_metadata = _prompt_management_utils._create_dataset_metadata_from_prompt(
+            prompt,
+            variables=(
+                prompt.prompt_data.variables
+                if prompt.prompt_data and prompt.prompt_data.variables
+                else None
+            ),
+        )
+
+        if not prompt.prompt_data:
+            raise ValueError("Prompt data is required to update a prompt.")
+
+        # Step 1: Update the dataset resource for the prompt and wait for the operation to complete.
+        updated_dataset_resource = await self._update_dataset_resource(
+            name=f"projects/{self._api_client.project}/locations/{self._api_client.location}",
+            dataset_id=prompt_id,
+            display_name=(
+                config.prompt_display_name
+                if config and config.prompt_display_name
+                else None
+            ),
+            metadata=prompt_metadata,
+            model_reference=prompt.prompt_data.model,
+            encryption_spec=(
+                config.encryption_spec if config and config.encryption_spec else None
+            ),
+            config=config,
+        )
+
+        if not updated_dataset_resource.name:
+            raise ValueError("Failed to update dataset resource.")
+
+        dataset_id = updated_dataset_resource.name.split("/")[-1]
+
+        # Step 2: Create a dataset version for the prompt.
+        create_dataset_version_operation = await self._create_dataset_version_resource(
+            dataset_name=dataset_id,
+            display_name=(
+                config.version_display_name
+                if config and config.version_display_name is not None
+                else f"prompt_version_{time.strftime('%Y%m%d-%H%M%S')}"
+            ),
+        )
+        dataset_version_resource_name = await self._wait_for_operation(
+            operation=create_dataset_version_operation,
+            timeout=config.timeout if config else 90,
+        )
+        dataset_version_id = dataset_version_resource_name.split("/")[-1]
+
+        # Step 3: Get the dataset version resource and return it with the prompt.
+        dataset_version_resource = await self._get_dataset_version_resource(
+            dataset_id=dataset_id,
+            dataset_version_id=dataset_version_id,
         )
         prompt = _prompt_management_utils._create_prompt_from_dataset_metadata(
             dataset_version_resource

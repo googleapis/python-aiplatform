@@ -215,6 +215,35 @@ class TestPredefinedRubricMetrics:
                 "rb_instruction_following/raw_outputs",
             ]
 
+    @mock.patch("google.genai.Client")
+    def test_pointwise_instruction_following_metric_genai(self, mock_client_class):
+        import copy
+
+        metric = copy.deepcopy(PredefinedRubricMetrics.Pointwise.INSTRUCTION_FOLLOWING)
+        metric.generation_config.model = "gemini-2.5-pro"
+        mock_client = mock.MagicMock()
+        mock_client.models.generate_content.return_value = mock.MagicMock(
+            text="""```json{"questions": ["test_rubric"]}```"""
+        )
+        mock_client_class.return_value = mock_client
+        with mock.patch.object(
+            target=gapic_evaluation_services.EvaluationServiceClient,
+            attribute="evaluate_instances",
+            side_effect=_MOCK_POINTWISE_RESPONSE,
+        ):
+            eval_result = EvalTask(
+                dataset=_TEST_EVAL_DATASET, metrics=[metric]
+            ).evaluate()
+            assert eval_result.metrics_table.columns.tolist() == [
+                "prompt",
+                "response",
+                "rubrics",
+                "rb_instruction_following/score",
+                "rb_instruction_following/rubric_verdict_pairs",
+                "rb_instruction_following/raw_outputs",
+            ]
+            assert mock_client.models.generate_content.call_count == 3
+
     def test_pairwise_instruction_following_metric(self):
         metric = PredefinedRubricMetrics.Pairwise.INSTRUCTION_FOLLOWING
         mock_model = mock.create_autospec(

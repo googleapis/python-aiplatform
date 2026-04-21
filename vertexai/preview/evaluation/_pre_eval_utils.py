@@ -21,6 +21,8 @@ from __future__ import annotations
 from concurrent import futures
 from typing import Callable, Optional, Set, TYPE_CHECKING, Union, List
 
+from google import genai
+from google.cloud import aiplatform
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform_v1beta1.types import (
     content as gapic_content_types,
@@ -68,6 +70,107 @@ def _assemble_prompt(
             **row[list(prompt_template.variables)].astype(str).to_dict()
         )
     )
+
+
+def _generate_content_text_response_genai(
+    model: str, client: genai.Client, prompt: str, max_retries: int = 3
+) -> str:
+    """Generates a text response from Gemini model from a text prompt with retries using genai module.
+
+    Args:
+        model: The model name string.
+        client: The genai client instance.
+        prompt: The prompt to send to the model.
+        max_retries: Maximum number of retries for response generation.
+
+    Returns:
+        The text response from the model.
+        Returns constants.RESPONSE_ERROR if there is an error after all retries.
+    """
+    for retry_attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model=model,
+                contents=prompt,
+            )
+            # The new SDK raises exceptions on blocked content instead of returning
+            # block_reason directly, so if it succeeds, we can return the text.
+            if response.text:
+                return response.text
+            else:
+                _LOGGER.warning(
+                    "The model response was empty or blocked.\n"
+                    f"Prompt: {prompt}.\n"
+                    f"Retry attempt: {retry_attempt + 1}/{max_retries}"
+                )
+        except Exception as e:  # pylint: disable=broad-except
+            error_message = (
+                f"Failed to generate response candidates from GenAI model "
+                f"{model}.\n"
+                f"Error: {e}.\n"
+                f"Prompt: {prompt}.\n"
+                f"Retry attempt: {retry_attempt + 1}/{max_retries}"
+            )
+            _LOGGER.warning(error_message)
+        if retry_attempt < max_retries - 1:
+            _LOGGER.info(
+                f"Retrying response generation for prompt: {prompt}, attempt "
+                f"{retry_attempt + 1}/{max_retries}..."
+            )
+
+    final_error_message = (
+        f"Failed to generate response from GenAI model {model}.\n" f"Prompt: {prompt}."
+    )
+    _LOGGER.warning(final_error_message)
+    return constants.RESPONSE_ERROR
+
+
+def _generate_responses_from_genai_model(
+    model: str,
+    df: "pd.DataFrame",
+    rubric_generation_prompt_template: Optional[str] = None,
+) -> List[str]:
+    """Generates responses from Google GenAI SDK for the given evaluation dataset."""
+    _LOGGER.info(
+        f"Generating a total of {df.shape[0]} "
+        f"responses from Google GenAI model {model}."
+    )
+    tasks = []
+    client = genai.Client(
+        vertexai=True,
+        project=aiplatform.initializer.global_config.project,
+        location=aiplatform.initializer.global_config.location,
+    )
+
+    with tqdm(total=len(df)) as pbar:
+        with futures.ThreadPoolExecutor(max_workers=constants.MAX_WORKERS) as executor:
+            for idx, row in df.iterrows():
+                if rubric_generation_prompt_template:
+                    input_columns = prompt_template_base.PromptTemplate(
+                        rubric_generation_prompt_template
+                    ).variables
+                    if multimodal_utils.is_multimodal_instance(
+                        row[list(input_columns)].to_dict()
+                    ):
+                        prompt = multimodal_utils._assemble_multi_modal_prompt(
+                            rubric_generation_prompt_template, row, idx, input_columns
+                        )
+                    else:
+                        prompt = _assemble_prompt(
+                            row, rubric_generation_prompt_template
+                        )
+                else:
+                    prompt = row[constants.Dataset.PROMPT_COLUMN]
+                task = executor.submit(
+                    _generate_content_text_response_genai,
+                    prompt=prompt,
+                    model=model,
+                    client=client,
+                )
+                task.add_done_callback(lambda _: pbar.update(1))
+                tasks.append(task)
+        responses = [future.result() for future in tasks]
+    return responses
 
 
 def _generate_content_text_response(

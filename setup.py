@@ -181,7 +181,9 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm >= 1.72.4, != 1.77.2, != 1.77.3, != 1.77.4",
+    "litellm>=1.75.5, <1.83.7, !=1.82.7, !=1.82.8",
+    # For LiteLLM tests. Upper bound pinned below latest version.
+    # Exclude 1.82.7 and 1.82.8 due to supply chain attack.
 ]
 
 langchain_extra_require = [
@@ -320,7 +322,7 @@ setuptools.setup(
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "google-genai >= 1.37.0, <2.0.0; python_version<'3.10'",
-        "google-genai >= 1.59.0, <2.0.0; python_version>='3.10'",
+        "google-genai >= 1.66.0, <2.0.0; python_version>='3.10'",
     )
     + genai_requires,
     extras_require={

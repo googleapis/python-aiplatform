@@ -85,7 +85,7 @@ def retrieve_contexts_eq(response, expected_response):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
-class TestRagRetrieval:  # pylint: disable=missing-class-docstring
+class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentation, unused-variable, unused-argument, redefined-outer-name
 
     def setup_method(self):
         importlib.reload(aiplatform.initializer)
@@ -114,6 +114,18 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_with_timeout(self, ask_contexts_mock):
+        rag.ask_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+            timeout=300,
+        )
+        ask_contexts_mock.assert_called_once()
+        _, kwargs = ask_contexts_mock.call_args
+        assert kwargs["timeout"] == 300
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
     def test_ask_contexts_multiple_rag_resources_success(self):
         response = rag.ask_contexts(
             rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
@@ -123,8 +135,9 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
-    async def test_async_retrieve_contexts_rag_resources_success(self):
+    async def test_async_retrieve_contexts_rag_resources_success(
+        self, async_retrieve_contexts_mock
+    ):
         response = await rag.async_retrieve_contexts(
             rag_resources=[tc.TEST_RAG_RESOURCE],
             text=tc.TEST_QUERY_TEXT,
@@ -133,8 +146,23 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.asyncio
-    @pytest.mark.usefixtures("async_retrieve_contexts_mock")
-    async def test_async_retrieve_contexts_multiple_rag_resources_success(self):
+    async def test_async_retrieve_contexts_with_timeout(
+        self, async_retrieve_contexts_mock
+    ):
+        await rag.async_retrieve_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+            timeout=300,
+        )
+        async_retrieve_contexts_mock.assert_called_once()
+        _, kwargs = async_retrieve_contexts_mock.call_args
+        assert kwargs["timeout"] == 300
+
+    @pytest.mark.asyncio
+    async def test_async_retrieve_contexts_multiple_rag_resources_success(
+        self, async_retrieve_contexts_mock
+    ):
         response = await rag.async_retrieve_contexts(
             rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
             text=tc.TEST_QUERY_TEXT,
@@ -177,7 +205,7 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
-            e.match("Failed in retrieving contexts due to")
+        e.match("Failed in retrieving contexts due to")
 
     def test_retrieval_query_invalid_name(self):
         with pytest.raises(ValueError) as e:
@@ -186,7 +214,7 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
-            e.match("Invalid RagCorpus name")
+        e.match("Invalid RagCorpus name")
 
     def test_retrieval_query_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
@@ -195,7 +223,7 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
-            e.match("Currently only support 1 RagResource")
+        e.match("Currently only support 1 RagResource")
 
     def test_retrieval_query_similarity_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
@@ -204,7 +232,7 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
             )
-            e.match("Currently only support 1 RagResource")
+        e.match("Currently only support 1 RagResource")
 
     def test_retrieval_query_invalid_config_filter(self):
         with pytest.raises(ValueError) as e:
@@ -213,8 +241,8 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
             )
-            e.match(
-                "Only one of vector_distance_threshold or"
-                " vector_similarity_threshold can be specified at a time"
-                " in rag_retrieval_config."
-            )
+        e.match(
+            "Only one of vector_distance_threshold or"
+            " vector_similarity_threshold can be specified at a time"
+            " in rag_retrieval_config."
+        )

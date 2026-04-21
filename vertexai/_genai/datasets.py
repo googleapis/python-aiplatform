@@ -32,7 +32,6 @@ import pandas as pd
 from . import _datasets_utils
 from . import types
 
-
 logger = logging.getLogger("vertexai_genai.datasets")
 
 
@@ -274,9 +273,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assemble".format_map(request_url_dict)
+                path = "{name}:assemble".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assemble"
+                path = "{name}:assemble"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -299,7 +298,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -347,9 +363,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assess".format_map(request_url_dict)
+                path = "{name}:assess".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assess"
+                path = "{name}:assess"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -372,7 +388,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -435,7 +468,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -462,9 +512,9 @@ class Datasets(_api_module.BaseModule):
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -487,7 +537,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -515,9 +582,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -540,7 +607,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -599,7 +683,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -650,7 +751,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListMultimodalDatasetsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -664,7 +782,7 @@ class Datasets(_api_module.BaseModule):
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
@@ -686,9 +804,9 @@ class Datasets(_api_module.BaseModule):
             request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -711,7 +829,24 @@ class Datasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -790,20 +925,21 @@ class Datasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
             config = types.CreateMultimodalDatasetConfig()
 
+        display_name = (
+            multimodal_dataset.display_name
+            if multimodal_dataset.display_name is not None
+            else _datasets_utils.generate_multimodal_dataset_display_name()
+        )
         multimodal_dataset_operation = self._create_multimodal_dataset(
             config=config,
-            display_name=multimodal_dataset.display_name,
+            display_name=display_name,
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
             metadata=multimodal_dataset.metadata,
         )
@@ -817,7 +953,7 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         dataframe: pd.DataFrame,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -827,7 +963,7 @@ class Datasets(_api_module.BaseModule):
             dataframe (pandas.DataFrame):
                 The pandas dataframe to be used for the created dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -850,23 +986,9 @@ class Datasets(_api_module.BaseModule):
             multimodal_dataset = types.MultimodalDataset()
 
         bigframes = _datasets_utils._try_import_bigframes()
-        bigquery = _datasets_utils._try_import_bigquery()
         project = self._api_client.project
         location = self._api_client.location
         credentials = self._api_client._credentials
-
-        if target_table_id:
-            target_table_id = _datasets_utils._normalize_and_validate_table_id(
-                table_id=target_table_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        else:
-            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
-                project=project, location=location, credentials=credentials
-            )
-            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -874,34 +996,18 @@ class Datasets(_api_module.BaseModule):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(dataframe)
-            client = bigquery.Client(project=project, credentials=credentials)
-            _datasets_utils.save_dataframe_to_bigquery(
-                temp_bigframes_df,
-                target_table_id,
-                client,
+            return self.create_from_bigframes(
+                dataframe=session.read_pandas(dataframe),
+                multimodal_dataset=multimodal_dataset,
+                target_table_id=target_table_id,
+                config=config,
             )
-
-        return self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
-        )
 
     def create_from_bigframes(
         self,
         *,
         dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -912,7 +1018,7 @@ class Datasets(_api_module.BaseModule):
                 The BigFrames dataframe that will be used for the created
                 dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -974,38 +1080,11 @@ class Datasets(_api_module.BaseModule):
             config=config,
         )
 
-    def to_bigframes(
-        self,
-        *,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
-    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
-        """Converts a multimodal dataset to a BigFrames dataframe.
-
-        This is the preferred method to inspect the multimodal dataset in a
-        notebook.
-
-        Args:
-          multimodal_dataset:
-            Required. A representation of a multimodal dataset.
-
-        Returns:
-          A BigFrames dataframe.
-        """
-        bigframes = _datasets_utils._try_import_bigframes()
-
-        if isinstance(multimodal_dataset, dict):
-            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        elif not multimodal_dataset:
-            multimodal_dataset = types.MultimodalDataset()
-
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        return bigframes.pandas.read_gbq_table(uri.removeprefix("bq://"))
-
     def update_multimodal_dataset(
         self,
         *,
         multimodal_dataset: types.MultimodalDatasetOrDict,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Updates a multimodal dataset.
 
@@ -1026,16 +1105,12 @@ class Datasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return self._update_multimodal_dataset(
             config=config,
@@ -1049,13 +1124,14 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Gets a multimodal dataset.
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for getting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -1065,9 +1141,9 @@ class Datasets(_api_module.BaseModule):
           dataset.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return self._get_multimodal_dataset(config=config, name=name)
 
@@ -1075,13 +1151,14 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """Deletes a multimodal dataset.
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for deleting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -1091,9 +1168,9 @@ class Datasets(_api_module.BaseModule):
           multimodal dataset operation.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return self._delete_multimodal_dataset(config=config, name=name)
 
@@ -1101,7 +1178,9 @@ class Datasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> str:
         """Assemble the dataset into a BigQuery table.
@@ -1112,9 +1191,9 @@ class Datasets(_api_module.BaseModule):
           name:
             Required. The name of the dataset to assemble. The name should be in
             the format of "projects/{project}/locations/{location}/datasets/{dataset}".
-          template_config:
-            Optional. The template config to use to assemble the dataset. If
-            not provided, the template config attached to the dataset will be
+          gemini_request_read_config:
+            Optional. The read config to use to assemble the dataset. If
+            not provided, the read config attached to the dataset will be
             used.
           config:
             Optional. A configuration for assembling the dataset. If not
@@ -1130,9 +1209,7 @@ class Datasets(_api_module.BaseModule):
 
         operation = self._assemble_multimodal_dataset(
             name=name,
-            gemini_request_read_config={
-                "template_config": template_config,
-            },
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1146,7 +1223,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningResourceUsageAssessmentResult:
         """Assess the tuning resources required for a given model.
@@ -1154,15 +1233,15 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning resources
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
-          template_config:
-            Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+            Optional. The read config used to assemble the dataset
             before assessing the tuning resources. If not provided, the
-            template config attached to the dataset will be used. Required
-            if no template config is attached to the dataset.
+            read config attached to the dataset will be used. Required
+            if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning resources. If not
             provided, the default configuration will be used.
@@ -1181,9 +1260,7 @@ class Datasets(_api_module.BaseModule):
             tuning_resource_usage_assessment_config=types.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1201,7 +1278,9 @@ class Datasets(_api_module.BaseModule):
         dataset_name: str,
         model_name: str,
         dataset_usage: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of tuning a given
@@ -1210,18 +1289,18 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning validity
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the tuning validity
               for.
           dataset_usage:
               Required. The dataset usage to assess the tuning validity for.
               Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the tuning validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning validity. If not
             provided, the default configuration will be used.
@@ -1243,9 +1322,7 @@ class Datasets(_api_module.BaseModule):
                 model_name=model_name,
                 dataset_usage=dataset_usage,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1262,7 +1339,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionResourceUsageAssessmentResult:
         """Assess the batch prediction resources required for a given model.
@@ -1270,20 +1349,15 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            resources.
+            resources. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction resources. If not provided,
-              the template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
-          template_config:
-              Optional. The template config used to assemble the dataset
-              before assessing the batch prediction resources. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              the read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
               Optional. A configuration for assessing the batch prediction
               resources. If not provided, the default configuration will be
@@ -1307,9 +1381,7 @@ class Datasets(_api_module.BaseModule):
             batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1326,7 +1398,9 @@ class Datasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of batch prediction
@@ -1336,15 +1410,15 @@ class Datasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            validity for.
+            validity for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the batch prediction validity.
             If not provided, the default configuration will be used.
@@ -1366,9 +1440,7 @@ class Datasets(_api_module.BaseModule):
             batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = self._wait_for_operation(
@@ -1409,9 +1481,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assemble".format_map(request_url_dict)
+                path = "{name}:assemble".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assemble"
+                path = "{name}:assemble"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1436,7 +1508,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1484,9 +1573,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}:assess".format_map(request_url_dict)
+                path = "{name}:assess".format_map(request_url_dict)
             else:
-                path = "datasets/{name}:assess"
+                path = "{name}:assess"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1511,7 +1600,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1576,7 +1682,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1603,9 +1726,9 @@ class AsyncDatasets(_api_module.BaseModule):
             )
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1630,7 +1753,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1658,9 +1798,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1685,7 +1825,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1746,7 +1903,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDatasetOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1799,7 +1973,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListMultimodalDatasetsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1813,7 +2004,7 @@ class AsyncDatasets(_api_module.BaseModule):
         metadata: Optional[types.SchemaTablesDatasetMetadataOrDict] = None,
         description: Optional[str] = None,
         encryption_spec: Optional[genai_types.EncryptionSpecOrDict] = None,
-        config: Optional[types.UpdateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """
         Updates a multimodal dataset resource.
@@ -1835,9 +2026,9 @@ class AsyncDatasets(_api_module.BaseModule):
             request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
             if request_url_dict:
-                path = "datasets/{name}".format_map(request_url_dict)
+                path = "{name}".format_map(request_url_dict)
             else:
-                path = "datasets/{name}"
+                path = "{name}"
 
         query_params = request_dict.get("_query")
         if query_params:
@@ -1862,7 +2053,24 @@ class AsyncDatasets(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.MultimodalDataset._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1941,20 +2149,21 @@ class AsyncDatasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
             config = types.CreateMultimodalDatasetConfig(**config)
         elif not config:
             config = types.CreateMultimodalDatasetConfig()
 
+        display_name = (
+            multimodal_dataset.display_name
+            if multimodal_dataset.display_name is not None
+            else _datasets_utils.generate_multimodal_dataset_display_name()
+        )
         multimodal_dataset_operation = await self._create_multimodal_dataset(
             config=config,
-            display_name=multimodal_dataset.display_name,
+            display_name=display_name,
             metadata_schema_uri=_datasets_utils.METADATA_SCHEMA_URI,
             metadata=multimodal_dataset.metadata,
         )
@@ -1968,7 +2177,7 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         dataframe: pd.DataFrame,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -1978,7 +2187,7 @@ class AsyncDatasets(_api_module.BaseModule):
             dataframe (pandas.DataFrame):
                 The pandas dataframe to be used for the created dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -2001,23 +2210,9 @@ class AsyncDatasets(_api_module.BaseModule):
             multimodal_dataset = types.MultimodalDataset()
 
         bigframes = _datasets_utils._try_import_bigframes()
-        bigquery = _datasets_utils._try_import_bigquery()
         project = self._api_client.project
         location = self._api_client.location
         credentials = self._api_client._credentials
-
-        if target_table_id:
-            target_table_id = _datasets_utils._normalize_and_validate_table_id(
-                table_id=target_table_id,
-                project=project,
-                location=location,
-                credentials=credentials,
-            )
-        else:
-            dataset_id = _datasets_utils._create_default_bigquery_dataset_if_not_exists(
-                project=project, location=location, credentials=credentials
-            )
-            target_table_id = _datasets_utils._generate_target_table_id(dataset_id)
 
         session_options = bigframes.BigQueryOptions(
             credentials=credentials,
@@ -2025,34 +2220,18 @@ class AsyncDatasets(_api_module.BaseModule):
             location=location,
         )
         with bigframes.connect(session_options) as session:
-            temp_bigframes_df = session.read_pandas(dataframe)
-            client = bigquery.Client(project=project, credentials=credentials)
-            await _datasets_utils.save_dataframe_to_bigquery_async(
-                temp_bigframes_df,
-                target_table_id,
-                client,
+            return await self.create_from_bigframes(
+                dataframe=session.read_pandas(dataframe),
+                multimodal_dataset=multimodal_dataset,
+                target_table_id=target_table_id,
+                config=config,
             )
-
-        return await self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
-        )
 
     async def create_from_bigframes(
         self,
         *,
         dataframe: "bigframes.pandas.DataFrame",  # type: ignore # noqa: F821
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         target_table_id: Optional[str] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
@@ -2063,7 +2242,7 @@ class AsyncDatasets(_api_module.BaseModule):
                 The BigFrames dataframe that will be used for the created
                 dataset.
             multimodal_dataset:
-                Required. A representation of a multimodal dataset.
+                Optional. A representation of a multimodal dataset.
             target_table_id (str):
                 Optional. The BigQuery table id where the dataframe will be
                 uploaded. The table id can be in the format of "dataset.table"
@@ -2127,40 +2306,11 @@ class AsyncDatasets(_api_module.BaseModule):
             config=config,
         )
 
-    async def to_bigframes(
-        self,
-        *,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
-    ) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
-        """Converts a multimodal dataset to a BigFrames dataframe.
-
-        This is the preferred method to inspect the multimodal dataset in a
-        notebook.
-
-        Args:
-          multimodal_dataset:
-            Required. A representation of a multimodal dataset.
-
-        Returns:
-          A BigFrames dataframe.
-        """
-        bigframes = _datasets_utils._try_import_bigframes()
-
-        if isinstance(multimodal_dataset, dict):
-            multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
-        elif not multimodal_dataset:
-            multimodal_dataset = types.MultimodalDataset()
-
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        return await asyncio.to_thread(
-            bigframes.pandas.read_gbq_table, uri.removeprefix("bq://")
-        )
-
     async def update_multimodal_dataset(
         self,
         *,
         multimodal_dataset: types.MultimodalDatasetOrDict,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Updates a multimodal dataset.
 
@@ -2177,16 +2327,12 @@ class AsyncDatasets(_api_module.BaseModule):
         """
         if isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+        _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
-        uri = _datasets_utils.multimodal_dataset_get_bigquery_uri(multimodal_dataset)
-        if not uri.startswith("bq://"):
-            _datasets_utils.multimodal_dataset_set_bigquery_uri(
-                multimodal_dataset, f"bq://{uri}"
-            )
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return await self._update_multimodal_dataset(
             config=config,
@@ -2200,13 +2346,14 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Gets a multimodal dataset.
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for getting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -2216,9 +2363,9 @@ class AsyncDatasets(_api_module.BaseModule):
           dataset.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return await self._get_multimodal_dataset(config=config, name=name)
 
@@ -2226,13 +2373,14 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
+        config: Optional[types.VertexBaseConfigOrDict] = None,
     ) -> types.MultimodalDatasetOperation:
         """Deletes a multimodal dataset.
 
         Args:
           name:
-            Required. name of a multimodal dataset.
+            Required. name of a multimodal dataset. The name should be in
+            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           config:
             Optional. A configuration for deleting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -2242,9 +2390,9 @@ class AsyncDatasets(_api_module.BaseModule):
           multimodal dataset operation.
         """
         if isinstance(config, dict):
-            config = types.CreateMultimodalDatasetConfig(**config)
+            config = types.VertexBaseConfig(**config)
         elif not config:
-            config = types.CreateMultimodalDatasetConfig()
+            config = types.VertexBaseConfig()
 
         return await self._delete_multimodal_dataset(config=config, name=name)
 
@@ -2252,7 +2400,9 @@ class AsyncDatasets(_api_module.BaseModule):
         self,
         *,
         name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
     ) -> str:
         """Assemble the dataset into a BigQuery table.
@@ -2263,9 +2413,9 @@ class AsyncDatasets(_api_module.BaseModule):
           name:
             Required. The name of the dataset to assemble. The name should be in
             the format of "projects/{project}/locations/{location}/datasets/{dataset}".
-          template_config:
-            Optional. The template config to use to assemble the dataset. If
-            not provided, the template config attached to the dataset will be
+          gemini_request_read_config:
+            Optional. The read config to use to assemble the dataset. If
+            not provided, the read config attached to the dataset will be
             used.
           config:
             Optional. A configuration for assembling the dataset. If not
@@ -2281,9 +2431,7 @@ class AsyncDatasets(_api_module.BaseModule):
 
         operation = await self._assemble_multimodal_dataset(
             name=name,
-            gemini_request_read_config={
-                "template_config": template_config,
-            },
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2297,7 +2445,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningResourceUsageAssessmentResult:
         """Assess the tuning resources required for a given model.
@@ -2305,15 +2455,15 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning resources
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
-          template_config:
-            Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+            Optional. The read config used to assemble the dataset
             before assessing the tuning resources. If not provided, the
-            template config attached to the dataset will be used. Required
-            if no template config is attached to the dataset.
+            read config attached to the dataset will be used. Required
+            if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning resources. If not
             provided, the default configuration will be used.
@@ -2332,9 +2482,7 @@ class AsyncDatasets(_api_module.BaseModule):
             tuning_resource_usage_assessment_config=types.TuningResourceUsageAssessmentConfig(
                 model_name=model_name
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2352,7 +2500,9 @@ class AsyncDatasets(_api_module.BaseModule):
         dataset_name: str,
         model_name: str,
         dataset_usage: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.TuningValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of tuning a given
@@ -2361,18 +2511,18 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the tuning validity
-            for.
+            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the tuning validity
               for.
           dataset_usage:
               Required. The dataset usage to assess the tuning validity for.
               Must be one of the following: SFT_TRAINING, SFT_VALIDATION.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the tuning validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the tuning validity. If not
             provided, the default configuration will be used.
@@ -2394,9 +2544,7 @@ class AsyncDatasets(_api_module.BaseModule):
                 model_name=model_name,
                 dataset_usage=dataset_usage,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2413,7 +2561,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionResourceUsageAssessmentResult:
         """Assess the batch prediction resources required for a given model.
@@ -2421,20 +2571,15 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            resources.
+            resources. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction resources. If not provided,
-              the template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
-          template_config:
-              Optional. The template config used to assemble the dataset
-              before assessing the batch prediction resources. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              the read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
               Optional. A configuration for assessing the batch prediction
               resources. If not provided, the default configuration will be
@@ -2458,9 +2603,7 @@ class AsyncDatasets(_api_module.BaseModule):
             batch_prediction_resource_usage_assessment_config=types.BatchPredictionResourceUsageAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(
@@ -2477,7 +2620,9 @@ class AsyncDatasets(_api_module.BaseModule):
         *,
         dataset_name: str,
         model_name: str,
-        template_config: Optional[types.GeminiTemplateConfigOrDict] = None,
+        gemini_request_read_config: Optional[
+            types.GeminiRequestReadConfigOrDict
+        ] = None,
         config: Optional[types.AssessDatasetConfigOrDict] = None,
     ) -> types.BatchPredictionValidationAssessmentResult:
         """Assess if the assembled dataset is valid in terms of batch prediction
@@ -2487,15 +2632,15 @@ class AsyncDatasets(_api_module.BaseModule):
         Args:
           dataset_name:
             Required. The name of the dataset to assess the batch prediction
-            validity for.
+            validity for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
-          template_config:
-              Optional. The template config used to assemble the dataset
+          gemini_request_read_config:
+              Optional. The read config used to assemble the dataset
               before assessing the batch prediction validity. If not provided, the
-              template config attached to the dataset will be used. Required
-              if no template config is attached to the dataset.
+              read config attached to the dataset will be used. Required
+              if no read config is attached to the dataset.
           config:
             Optional. A configuration for assessing the batch prediction validity.
             If not provided, the default configuration will be used.
@@ -2517,9 +2662,7 @@ class AsyncDatasets(_api_module.BaseModule):
             batch_prediction_validation_assessment_config=types.BatchPredictionValidationAssessmentConfig(
                 model_name=model_name,
             ),
-            gemini_request_read_config=types.GeminiRequestReadConfig(
-                template_config=template_config,
-            ),
+            gemini_request_read_config=gemini_request_read_config,
             config=config,
         )
         response = await self._wait_for_operation(

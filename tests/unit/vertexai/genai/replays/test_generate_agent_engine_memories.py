@@ -336,3 +336,46 @@ async def test_generate_and_rollback_memories_async(client):
     await client.aio.agent_engines.delete(
         name=agent_engine.api_resource.name, force=True
     )
+
+
+def test_generate_memories_with_allowed_topics(client):
+    agent_engine = client.agent_engines.create()
+    client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "test-user-id"},
+        direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
+            events=[
+                types.GenerateMemoriesRequestDirectContentsSourceEvent(
+                    content=genai_types.Content(
+                        role="user",
+                        parts=[genai_types.Part(text="I am a software engineer.")],
+                    )
+                ),
+                types.GenerateMemoriesRequestDirectContentsSourceEvent(
+                    content=genai_types.Content(
+                        role="user",
+                        parts=[genai_types.Part(text="I like to write replay tests.")],
+                    )
+                ),
+            ]
+        ),
+        config=types.GenerateAgentEngineMemoriesConfig(
+            allowed_topics=[
+                types.MemoryTopicId(
+                    managed_memory_topic=types.ManagedTopicEnum.USER_PREFERENCES
+                ),
+            ],
+            wait_for_completion=True,
+        ),
+    )
+    assert (
+        len(
+            list(
+                client.agent_engines.memories.list(
+                    name=agent_engine.api_resource.name,
+                )
+            )
+        )
+        == 1
+    )
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
