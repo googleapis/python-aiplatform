@@ -1254,6 +1254,7 @@ from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
 from .types.tuning_job import VeoHyperParameters
+from .types.tuning_job import VeoLoraTuningSpec
 from .types.tuning_job import VeoTuningSpec
 from .types.types import BoolArray
 from .types.types import DoubleArray
@@ -2741,6 +2742,7 @@ __all__ = (
     "UserSpecifiedMetadata",
     "Value",
     "VeoHyperParameters",
+    "VeoLoraTuningSpec",
     "VeoTuningSpec",
     "VertexAISearch",
     "VertexAiSearchConfig",
