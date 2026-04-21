@@ -63,7 +63,7 @@ EvalResult = eval_base.EvalResult
 GenerativeModel = generative_models.GenerativeModel
 
 _RunnableType = Union[reasoning_engines.Queryable, Callable[[str], Dict[str, str]]]
-_ModelType = Union[generative_models.GenerativeModel, Callable[[str], str]]
+_ModelType = Union[str, generative_models.GenerativeModel, Callable[[str], str]]
 
 
 class EvalTask:
@@ -579,6 +579,12 @@ class EvalTask:
                         for category, threshold in safety_settings.items()
                     }
                     eval_metadata.update(safety_settings_as_str)
+            elif isinstance(model, str):
+                eval_metadata.update(
+                    {
+                        "model_name": model,
+                    }
+                )
 
         if runnable:
             if isinstance(runnable, reasoning_engines.LangchainAgent):

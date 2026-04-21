@@ -22,7 +22,7 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import api_auth as gca_api_auth
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import io
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -44,6 +44,12 @@ __protobuf__ = proto.module(
         "ImportRagFilesConfig",
         "RagManagedDbConfig",
         "RagEngineConfig",
+        "RagDataSchema",
+        "RagMetadataSchemaDetails",
+        "RagMetadata",
+        "UserSpecifiedMetadata",
+        "MetadataValue",
+        "MetadataList",
     },
 )
 
@@ -242,6 +248,11 @@ class RagVectorDbConfig(proto.Message):
             The config for the Vertex Vector Search.
 
             This field is a member of `oneof`_ ``vector_db``.
+        rag_managed_vertex_vector_search (google.cloud.aiplatform_v1beta1.types.RagVectorDbConfig.RagManagedVertexVectorSearch):
+            The config for the RAG-managed Vertex Vector
+            Search 2.0.
+
+            This field is a member of `oneof`_ ``vector_db``.
         api_auth (google.cloud.aiplatform_v1beta1.types.ApiAuth):
             Authentication config for the chosen Vector
             DB.
@@ -400,6 +411,22 @@ class RagVectorDbConfig(proto.Message):
             number=2,
         )
 
+    class RagManagedVertexVectorSearch(proto.Message):
+        r"""The config for the RAG-managed Vertex Vector Search 2.0.
+
+        Attributes:
+            collection_name (str):
+                Output only. The resource name of the Vector Search 2.0
+                Collection that RAG Created for the corpus. Only populated
+                after the corpus is successfully created. Format:
+                ``projects/{project}/locations/{location}/collections/{collection_id}``
+        """
+
+        collection_name: str = proto.Field(
+            proto.STRING,
+            number=1,
+        )
+
     rag_managed_db: RagManagedDb = proto.Field(
         proto.MESSAGE,
         number=1,
@@ -429,6 +456,12 @@ class RagVectorDbConfig(proto.Message):
         number=6,
         oneof="vector_db",
         message=VertexVectorSearch,
+    )
+    rag_managed_vertex_vector_search: RagManagedVertexVectorSearch = proto.Field(
+        proto.MESSAGE,
+        number=8,
+        oneof="vector_db",
+        message=RagManagedVertexVectorSearch,
     )
     api_auth: gca_api_auth.ApiAuth = proto.Field(
         proto.MESSAGE,
@@ -588,8 +621,10 @@ class RagCorpus(proto.Message):
         corpus_status (google.cloud.aiplatform_v1beta1.types.CorpusStatus):
             Output only. RagCorpus state.
         rag_files_count (int):
-            Output only. Number of RagFiles in the
-            RagCorpus.
+            Output only. Number of RagFiles in the RagCorpus.
+
+            NOTE: This field is not populated in the response of
+            [VertexRagDataService.ListRagCorpora][google.cloud.aiplatform.v1beta1.VertexRagDataService.ListRagCorpora].
         encryption_spec (google.cloud.aiplatform_v1beta1.types.EncryptionSpec):
             Optional. Immutable. The CMEK key name used
             to encrypt at-rest data related to this Corpus.
@@ -599,6 +634,10 @@ class RagCorpus(proto.Message):
         corpus_type_config (google.cloud.aiplatform_v1beta1.types.RagCorpus.CorpusTypeConfig):
             Optional. The corpus type config of the
             RagCorpus.
+        satisfies_pzs (bool):
+            Output only. Reserved for future use.
+        satisfies_pzi (bool):
+            Output only. Reserved for future use.
     """
 
     class CorpusTypeConfig(proto.Message):
@@ -715,6 +754,14 @@ class RagCorpus(proto.Message):
         number=13,
         message=CorpusTypeConfig,
     )
+    satisfies_pzs: bool = proto.Field(
+        proto.BOOL,
+        number=19,
+    )
+    satisfies_pzi: bool = proto.Field(
+        proto.BOOL,
+        number=20,
+    )
 
 
 class RagFile(proto.Message):
@@ -782,8 +829,8 @@ class RagFile(proto.Message):
         file_status (google.cloud.aiplatform_v1beta1.types.FileStatus):
             Output only. State of the RagFile.
         user_metadata (str):
-            Output only. The metadata for metadata
-            search. The contents will be be in JSON format.
+            Output only. The metadata for metadata search. The
+            user_metadata Needs to be in JSON format.
     """
 
     class RagFileType(proto.Enum):
@@ -895,6 +942,10 @@ class RagChunk(proto.Message):
             starts and ends in the document.
 
             This field is a member of `oneof`_ ``_page_span``.
+        file_id (str):
+            The ID of the file that the chunk belongs to.
+        chunk_id (str):
+            The ID of the chunk.
     """
 
     class PageSpan(proto.Message):
@@ -927,6 +978,14 @@ class RagChunk(proto.Message):
         number=2,
         optional=True,
         message=PageSpan,
+    )
+    file_id: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    chunk_id: str = proto.Field(
+        proto.STRING,
+        number=4,
     )
 
 
@@ -1166,16 +1225,16 @@ class RagFileMetadataConfig(proto.Message):
             Sample formats:
 
             - ``gs://bucket_name/my_directory/object_name/metadata_schema.json``
-            - ``gs://bucket_name/my_directory`` If providing a
+            - ``gs://bucket_name/my_directory`` If the user provides a
               directory, the metadata schema will be read from the files
               that ends with "metadata_schema.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_schema_source``.
         google_drive_metadata_schema_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
             Google Drive location. Supports importing individual files
-            as well as Google Drive folders. If providing a folder, the
-            metadata schema will be read from the files that ends with
-            "metadata_schema.json" in the directory.
+            as well as Google Drive folders. If the user provides a
+            folder, the metadata schema will be read from the files that
+            ends with "metadata_schema.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_schema_source``.
         inline_metadata_schema_source (str):
@@ -1189,7 +1248,7 @@ class RagFileMetadataConfig(proto.Message):
             Sample formats:
 
             - ``gs://bucket_name/my_directory/object_name/metadata.json``
-            - ``gs://bucket_name/my_directory`` If providing a
+            - ``gs://bucket_name/my_directory`` If the user provides a
               directory, the metadata will be read from the files that
               ends with "metadata.json" in the directory.
 
@@ -1197,9 +1256,9 @@ class RagFileMetadataConfig(proto.Message):
         google_drive_metadata_source (google.cloud.aiplatform_v1beta1.types.GoogleDriveSource):
             Google Drive location. Supports importing
             individual files as well as Google Drive
-            folders. If providing a directory, the metadata
-            will be read from the files that ends with
-            "metadata.json" in the directory.
+            folders. If the user provides a directory, the
+            metadata will be read from the files that ends
+            with "metadata.json" in the directory.
 
             This field is a member of `oneof`_ ``metadata_source``.
         inline_metadata_source (str):
@@ -1256,10 +1315,11 @@ class UploadRagFileConfig(proto.Message):
             Specifies the transformation config for
             RagFiles.
         rag_file_metadata_config (google.cloud.aiplatform_v1beta1.types.RagFileMetadataConfig):
-            Specifies the metadata config for RagFiles.
-            Including paths for metadata schema and
-            metadata. Alteratively, inline metadata schema
-            and metadata can be provided.
+            Optional. Specifies the metadata config for
+            RagFiles. Including paths for metadata schema
+            and metadata. Alteratively, inline metadata
+            schema and metadata can be provided. Deprecated:
+            Not in use.
         rag_file_parsing_config (google.cloud.aiplatform_v1beta1.types.RagFileParsingConfig):
             Optional. Specifies the parsing config for
             RagFiles. RAG will use the default parser if
@@ -1372,7 +1432,7 @@ class ImportRagFilesConfig(proto.Message):
         rag_file_metadata_config (google.cloud.aiplatform_v1beta1.types.RagFileMetadataConfig):
             Specifies the metadata config for RagFiles.
             Including paths for metadata schema and
-            metadata.
+            metadata. Deprecated: Not in use.
         max_embedding_requests_per_min (int):
             Optional. The max number of queries per
             minute that this job is allowed to make to the
@@ -1501,31 +1561,42 @@ class RagManagedDbConfig(proto.Message):
 
     Attributes:
         enterprise (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Enterprise):
-            Deprecated: Please use ``Scaled`` tier instead. Sets the
-            RagManagedDb to the Enterprise tier. This is the default
-            tier if not explicitly chosen.
+            Sets the RagManagedDb to the Enterprise tier.
 
             This field is a member of `oneof`_ ``tier``.
         scaled (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Scaled):
-            Sets the RagManagedDb to the Scaled tier.
+            Deprecated: Use ``mode`` instead to set the tier under
+            Spanner. Sets the RagManagedDb to the Scaled tier.
 
             This field is a member of `oneof`_ ``tier``.
         basic (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Basic):
-            Sets the RagManagedDb to the Basic tier.
+            Deprecated: Use ``mode`` instead to set the tier under
+            Spanner. Sets the RagManagedDb to the Basic tier.
 
             This field is a member of `oneof`_ ``tier``.
         unprovisioned (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Unprovisioned):
-            Sets the RagManagedDb to the Unprovisioned
-            tier.
+            Deprecated: Use ``mode`` instead to set the tier under
+            Spanner. Sets the RagManagedDb to the Unprovisioned tier.
 
             This field is a member of `oneof`_ ``tier``.
+        serverless (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Serverless):
+            Sets the backend to be the serverless mode
+            offered by RAG Engine.
+
+            This field is a member of `oneof`_ ``mode``.
+        spanner (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Spanner):
+            Sets the RAG Engine backend to be
+            RagManagedDb, built on top of Spanner.
+            NOTE: This is the default mode (w/ Basic Tier)
+            if not explicitly chosen.
+
+            This field is a member of `oneof`_ ``mode``.
     """
 
     class Enterprise(proto.Message):
-        r"""Deprecated: Please use ``Scaled`` tier instead. Enterprise tier
-        offers production grade performance along with autoscaling
-        functionality. It is suitable for customers with large amounts of
-        data or performance sensitive workloads.
+        r"""Enterprise tier offers production grade performance along
+        with autoscaling functionality. It is suitable for customers
+        with large amounts of data or performance sensitive workloads.
 
         """
 
@@ -1545,7 +1616,8 @@ class RagManagedDbConfig(proto.Message):
         - Latency insensitive workload.
         - Only using RAG Engine with external vector DBs.
 
-        NOTE: This is the default tier if not explicitly chosen.
+        NOTE: This is the default tier under Spanner mode if not explicitly
+        chosen.
 
         """
 
@@ -1557,6 +1629,60 @@ class RagManagedDbConfig(proto.Message):
         NOTE: Once deleted the data cannot be recovered. To start using
         RAG Engine again, you will need to update the tier by calling
         the UpdateRagEngineConfig API.
+
+        """
+
+    class Spanner(proto.Message):
+        r"""Message to configure the Spanner database used by
+        RagManagedDb.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            scaled (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Scaled):
+                Sets the RagManagedDb to the Scaled tier.
+
+                This field is a member of `oneof`_ ``tier``.
+            basic (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Basic):
+                Sets the RagManagedDb to the Basic tier. This
+                is the default tier for Spanner mode if not
+                explicitly chosen.
+
+                This field is a member of `oneof`_ ``tier``.
+            unprovisioned (google.cloud.aiplatform_v1beta1.types.RagManagedDbConfig.Unprovisioned):
+                Sets the RagManagedDb to the Unprovisioned
+                tier.
+
+                This field is a member of `oneof`_ ``tier``.
+        """
+
+        scaled: "RagManagedDbConfig.Scaled" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            oneof="tier",
+            message="RagManagedDbConfig.Scaled",
+        )
+        basic: "RagManagedDbConfig.Basic" = proto.Field(
+            proto.MESSAGE,
+            number=2,
+            oneof="tier",
+            message="RagManagedDbConfig.Basic",
+        )
+        unprovisioned: "RagManagedDbConfig.Unprovisioned" = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="tier",
+            message="RagManagedDbConfig.Unprovisioned",
+        )
+
+    class Serverless(proto.Message):
+        r"""Message to configure the serverless mode offered by RAG
+        Engine.
 
         """
 
@@ -1584,6 +1710,18 @@ class RagManagedDbConfig(proto.Message):
         oneof="tier",
         message=Unprovisioned,
     )
+    serverless: Serverless = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        oneof="mode",
+        message=Serverless,
+    )
+    spanner: Spanner = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="mode",
+        message=Spanner,
+    )
 
 
 class RagEngineConfig(proto.Message):
@@ -1606,6 +1744,325 @@ class RagEngineConfig(proto.Message):
         proto.MESSAGE,
         number=2,
         message="RagManagedDbConfig",
+    )
+
+
+class RagDataSchema(proto.Message):
+    r"""The schema of the user specified metadata.
+
+    Attributes:
+        name (str):
+            Identifier. Resource name of the data schema in the form of:
+            ``projects/{project_number}/locations/{location}/ragCorpora/{rag_corpus}/ragDataSchemas/{rag_data_schema}``
+            where the {rag_data_schema} part should be the same as the
+            ``key`` field below.
+        key (str):
+            Required. The key of this data schema. This key should be
+            matching the key of user specified metadata and unique
+            inside corpus. This value can be up to 63 characters, and
+            valid characters are /[a-z][0-9]-/. The first character must
+            be a letter, the last could be a letter or a number.
+        schema_details (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails):
+            The schema details mapping to the key.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    key: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    schema_details: "RagMetadataSchemaDetails" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="RagMetadataSchemaDetails",
+    )
+
+
+class RagMetadataSchemaDetails(proto.Message):
+    r"""Data schema details indicates the data type and the data
+    struct corresponding to the key of user specified metadata.
+
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        type_ (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails.DataType):
+            Type of the metadata.
+
+            This field is a member of `oneof`_ ``_type``.
+        list_config (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails.ListConfig):
+            Config for List data type.
+        granularity (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails.Granularity):
+            The granularity associated with this
+            RagMetadataSchema.
+
+            This field is a member of `oneof`_ ``_granularity``.
+        search_strategy (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails.SearchStrategy):
+            The search strategy for the metadata value of the ``key``.
+
+            This field is a member of `oneof`_ ``_search_strategy``.
+    """
+
+    class DataType(proto.Enum):
+        r"""Data type of the metadata.
+
+        Values:
+            DATA_TYPE_UNSPECIFIED (0):
+                Unspecified type.
+            INTEGER (1):
+                Integer type.
+            FLOAT (2):
+                Float type.
+            STRING (3):
+                String type.
+            DATETIME (4):
+                Supported formats: %Y-%m-%dT%H:%M:%E\ *S%E*\ z
+                (absl::RFC3339_full) %Y-%m-%dT%H:%M:%E\ *S
+                %Y-%m-%dT%H:%M%E*\ z %Y-%m-%dT%H:%M %Y-%m-%dT%H%E\ *z
+                %Y-%m-%dT%H %Y-%m-%d%E*\ z %Y-%m-%d %Y-%m %Y
+            BOOLEAN (5):
+                Boolean type.
+            LIST (6):
+                List type.
+                - Each element in the list must be of the exact
+                  same data schema;    otherwise, they are
+                  invalid arguments.
+                 - Elements cannot be another list (no list of
+                  list).
+        """
+
+        DATA_TYPE_UNSPECIFIED = 0
+        INTEGER = 1
+        FLOAT = 2
+        STRING = 3
+        DATETIME = 4
+        BOOLEAN = 5
+        LIST = 6
+
+    class Granularity(proto.Enum):
+        r"""The granularity of metadata under this DataSchema.
+
+        Values:
+            GRANULARITY_UNSPECIFIED (0):
+                Unspecified granularity.
+            GRANULARITY_FILE_LEVEL (1):
+                RagFile-level granularity.
+        """
+
+        GRANULARITY_UNSPECIFIED = 0
+        GRANULARITY_FILE_LEVEL = 1
+
+    class ListConfig(proto.Message):
+        r"""Config for List data type.
+
+        Attributes:
+            value_schema (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails):
+                The value's data type in the list.
+        """
+
+        value_schema: "RagMetadataSchemaDetails" = proto.Field(
+            proto.MESSAGE,
+            number=1,
+            message="RagMetadataSchemaDetails",
+        )
+
+    class SearchStrategy(proto.Message):
+        r"""The search strategy for the metadata value of the ``key``.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            search_strategy_type (google.cloud.aiplatform_v1beta1.types.RagMetadataSchemaDetails.SearchStrategy.SearchStrategyType):
+                The search strategy type to be applied on the
+                metadata key.
+
+                This field is a member of `oneof`_ ``_search_strategy_type``.
+        """
+
+        class SearchStrategyType(proto.Enum):
+            r"""The types of search strategies to be applied on the metadata
+            key.
+
+            Values:
+                SEARCH_STRATEGY_TYPE_UNSPECIFIED (0):
+                    Unspecified search strategy type.
+                NO_SEARCH (1):
+                    metadata values of the ``key`` above will not be searchable.
+                EXACT_SEARCH (2):
+                    When searching with ``key``, the value must be exactly as
+                    the metadata value that has been ingested.
+            """
+
+            SEARCH_STRATEGY_TYPE_UNSPECIFIED = 0
+            NO_SEARCH = 1
+            EXACT_SEARCH = 2
+
+        search_strategy_type: (
+            "RagMetadataSchemaDetails.SearchStrategy.SearchStrategyType"
+        ) = proto.Field(
+            proto.ENUM,
+            number=1,
+            optional=True,
+            enum="RagMetadataSchemaDetails.SearchStrategy.SearchStrategyType",
+        )
+
+    type_: DataType = proto.Field(
+        proto.ENUM,
+        number=1,
+        optional=True,
+        enum=DataType,
+    )
+    list_config: ListConfig = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=ListConfig,
+    )
+    granularity: Granularity = proto.Field(
+        proto.ENUM,
+        number=3,
+        optional=True,
+        enum=Granularity,
+    )
+    search_strategy: SearchStrategy = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        optional=True,
+        message=SearchStrategy,
+    )
+
+
+class RagMetadata(proto.Message):
+    r"""Metadata for RagFile provided by users.
+
+    Attributes:
+        name (str):
+            Identifier. Resource name of the RagMetadata. Format:
+            ``projects/{project}/locations/{location}/ragCorpora/{rag_corpus}/ragFiles/{rag_file}/ragMetadata/{rag_metadata}``
+        user_specified_metadata (google.cloud.aiplatform_v1beta1.types.UserSpecifiedMetadata):
+            User provided metadata.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    user_specified_metadata: "UserSpecifiedMetadata" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="UserSpecifiedMetadata",
+    )
+
+
+class UserSpecifiedMetadata(proto.Message):
+    r"""Metadata provided by users.
+
+    Attributes:
+        key (str):
+            Required. Key of the metadata. The key must
+            be set with type by CreateRagDataSchema.
+        value (google.cloud.aiplatform_v1beta1.types.MetadataValue):
+            Value of the metadata. The value must be able
+            to convert to the type according to the data
+            schema.
+    """
+
+    key: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    value: "MetadataValue" = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message="MetadataValue",
+    )
+
+
+class MetadataValue(proto.Message):
+    r"""Value of Metadata, including all types available in data
+    schema.
+
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+    Attributes:
+        int_value (int):
+            Value of int type metadata.
+
+            This field is a member of `oneof`_ ``value``.
+        float_value (float):
+            Value of float type metadata.
+
+            This field is a member of `oneof`_ ``value``.
+        str_value (str):
+            Value of string type metadata.
+
+            This field is a member of `oneof`_ ``value``.
+        datetime_value (str):
+            Value of date time type metadata.
+
+            This field is a member of `oneof`_ ``value``.
+        bool_value (bool):
+            Value of boolean type metadata.
+
+            This field is a member of `oneof`_ ``value``.
+        list_value (google.cloud.aiplatform_v1beta1.types.MetadataList):
+            Value of list type metadata.
+
+            This field is a member of `oneof`_ ``value``.
+    """
+
+    int_value: int = proto.Field(
+        proto.INT64,
+        number=1,
+        oneof="value",
+    )
+    float_value: float = proto.Field(
+        proto.FLOAT,
+        number=2,
+        oneof="value",
+    )
+    str_value: str = proto.Field(
+        proto.STRING,
+        number=3,
+        oneof="value",
+    )
+    datetime_value: str = proto.Field(
+        proto.STRING,
+        number=4,
+        oneof="value",
+    )
+    bool_value: bool = proto.Field(
+        proto.BOOL,
+        number=5,
+        oneof="value",
+    )
+    list_value: "MetadataList" = proto.Field(
+        proto.MESSAGE,
+        number=6,
+        oneof="value",
+        message="MetadataList",
+    )
+
+
+class MetadataList(proto.Message):
+    r"""List representation in metadata.
+
+    Attributes:
+        values (MutableSequence[google.cloud.aiplatform_v1beta1.types.MetadataValue]):
+            The values of ``LIST`` data type metadata.
+    """
+
+    values: MutableSequence["MetadataValue"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message="MetadataValue",
     )
 
 

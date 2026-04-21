@@ -36,6 +36,7 @@ __protobuf__ = proto.module(
         "DiskSpec",
         "PersistentDiskSpec",
         "NfsMount",
+        "LustreMount",
         "AutoscalingMetricSpec",
         "ShieldedVmConfig",
     },
@@ -70,6 +71,21 @@ class MachineSpec(proto.Message):
         accelerator_count (int):
             The number of accelerators to attach to the
             machine.
+        gpu_partition_size (str):
+            Optional. Immutable. The Nvidia GPU partition size.
+
+            When specified, the requested accelerators will be
+            partitioned into smaller GPU partitions. For example, if the
+            request is for 8 units of NVIDIA A100 GPUs, and
+            gpu_partition_size="1g.10gb", the service will create 8 \* 7
+            = 56 partitioned MIG instances.
+
+            The partition size must be a value supported by the
+            requested accelerator. Refer to `Nvidia GPU
+            Partitioning <https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions>`__
+            for the available partition sizes.
+
+            If set, the accelerator_count should be set to 1.
         tpu_topology (str):
             Immutable. The topology of the TPUs. Corresponds to the TPU
             topologies available from GKE. (Example: tpu_topology:
@@ -93,6 +109,10 @@ class MachineSpec(proto.Message):
         proto.INT32,
         number=3,
     )
+    gpu_partition_size: str = proto.Field(
+        proto.STRING,
+        number=7,
+    )
     tpu_topology: str = proto.Field(
         proto.STRING,
         number=4,
@@ -106,33 +126,32 @@ class MachineSpec(proto.Message):
 
 class DedicatedResources(proto.Message):
     r"""A description of resources that are dedicated to a
-    DeployedModel, and that need a higher degree of manual
-    configuration.
+    DeployedModel or DeployedIndex, and that need a higher degree of
+    manual configuration.
 
     Attributes:
         machine_spec (google.cloud.aiplatform_v1.types.MachineSpec):
             Required. Immutable. The specification of a
-            single machine used by the prediction.
+            single machine being used.
         min_replica_count (int):
             Required. Immutable. The minimum number of
-            machine replicas this DeployedModel will be
-            always deployed on. This value must be greater
-            than or equal to 1.
+            machine replicas that will be always deployed
+            on. This value must be greater than or equal to
+            1.
 
-            If traffic against the DeployedModel increases,
-            it may dynamically be deployed onto more
-            replicas, and as traffic decreases, some of
-            these extra replicas may be freed.
+            If traffic increases, it may dynamically be
+            deployed onto more replicas, and as traffic
+            decreases, some of these extra replicas may be
+            freed.
         max_replica_count (int):
-            Immutable. The maximum number of replicas this DeployedModel
-            may be deployed on when the traffic against it increases. If
-            the requested value is too large, the deployment will error,
-            but if deployment succeeds then the ability to scale the
-            model to that many replicas is guaranteed (barring service
-            outages). If traffic against the DeployedModel increases
-            beyond what its replicas at maximum may handle, a portion of
-            the traffic will be dropped. If this value is not provided,
-            will use
+            Immutable. The maximum number of replicas that may be
+            deployed on when the traffic against it increases. If the
+            requested value is too large, the deployment will error, but
+            if deployment succeeds then the ability to scale to that
+            many replicas is guaranteed (barring service outages). If
+            traffic increases beyond what its replicas at maximum may
+            handle, a portion of the traffic will be dropped. If this
+            value is not provided, will use
             [min_replica_count][google.cloud.aiplatform.v1.DedicatedResources.min_replica_count]
             as the default value.
 
@@ -144,8 +163,8 @@ class DedicatedResources(proto.Message):
         required_replica_count (int):
             Optional. Number of required available replicas for the
             deployment to succeed. This field is only needed when
-            partial model deployment/mutation is desired. If set, the
-            model deploy/mutate operation will succeed once
+            partial deployment/mutation is desired. If set, the
+            deploy/mutate operation will succeed once
             available_replica_count reaches required_replica_count, and
             the rest of the replicas will be retried. If not set, the
             default required_replica_count will be min_replica_count.
@@ -220,28 +239,27 @@ class AutomaticResources(proto.Message):
 
     Attributes:
         min_replica_count (int):
-            Immutable. The minimum number of replicas this DeployedModel
-            will be always deployed on. If traffic against it increases,
-            it may dynamically be deployed onto more replicas up to
+            Immutable. The minimum number of replicas that will be
+            always deployed on. If traffic against it increases, it may
+            dynamically be deployed onto more replicas up to
             [max_replica_count][google.cloud.aiplatform.v1.AutomaticResources.max_replica_count],
             and as traffic decreases, some of these extra replicas may
             be freed. If the requested value is too large, the
             deployment will error.
         max_replica_count (int):
             Immutable. The maximum number of replicas
-            this DeployedModel may be deployed on when the
-            traffic against it increases. If the requested
-            value is too large, the deployment will error,
-            but if deployment succeeds then the ability to
-            scale the model to that many replicas is
-            guaranteed (barring service outages). If traffic
-            against the DeployedModel increases beyond what
-            its replicas at maximum may handle, a portion of
-            the traffic will be dropped. If this value is
-            not provided, a no upper bound for scaling under
-            heavy traffic will be assume, though Vertex AI
-            may be unable to scale beyond certain replica
-            number.
+            that may be deployed on when the traffic against
+            it increases. If the requested value is too
+            large, the deployment will error, but if
+            deployment succeeds then the ability to scale to
+            that many replicas is guaranteed (barring
+            service outages). If traffic increases beyond
+            what its replicas at maximum may handle, a
+            portion of the traffic will be dropped. If this
+            value is not provided, a no upper bound for
+            scaling under heavy traffic will be assume,
+            though Vertex AI may be unable to scale beyond
+            certain replica number.
     """
 
     min_replica_count: int = proto.Field(
@@ -312,10 +330,12 @@ class DiskSpec(proto.Message):
 
     Attributes:
         boot_disk_type (str):
-            Type of the boot disk (default is "pd-ssd").
-            Valid values: "pd-ssd" (Persistent Disk Solid
-            State Drive) or "pd-standard" (Persistent Disk
-            Hard Disk Drive).
+            Type of the boot disk. For non-A3U machines,
+            the default value is "pd-ssd", for A3U machines,
+            the default value is "hyperdisk-balanced". Valid
+            values: "pd-ssd" (Persistent Disk Solid State
+            Drive), "pd-standard" (Persistent Disk Hard Disk
+            Drive) or "hyperdisk-balanced".
         boot_disk_size_gb (int):
             Size in GB of the boot disk (default is
             100GB).
@@ -388,6 +408,40 @@ class NfsMount(proto.Message):
     )
 
 
+class LustreMount(proto.Message):
+    r"""Represents a mount configuration for Lustre file system.
+
+    Attributes:
+        instance_ip (str):
+            Required. IP address of the Lustre instance.
+        volume_handle (str):
+            Required. The unique identifier of the Lustre
+            volume.
+        filesystem (str):
+            Required. The name of the Lustre filesystem.
+        mount_point (str):
+            Required. Destination mount path. The Lustre file system
+            will be mounted for the user under /mnt/lustre/<mount_point>
+    """
+
+    instance_ip: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    volume_handle: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    filesystem: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+    mount_point: str = proto.Field(
+        proto.STRING,
+        number=4,
+    )
+
+
 class AutoscalingMetricSpec(proto.Message):
     r"""The metric specification that defines the target resource
     utilization (CPU utilization, accelerator's duty cycle, and so
@@ -400,6 +454,7 @@ class AutoscalingMetricSpec(proto.Message):
             - For Online Prediction:
             - ``aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle``
             - ``aiplatform.googleapis.com/prediction/online/cpu/utilization``
+            - ``aiplatform.googleapis.com/prediction/online/request_count``
         target (int):
             The target resource utilization in percentage
             (1% - 100%) for the given metric; once the real

@@ -357,3 +357,323 @@ class ListRagFilesAsyncPager:
 
     def __repr__(self) -> str:
         return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListRagDataSchemasPager:
+    """A pager for iterating through ``list_rag_data_schemas`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``rag_data_schemas`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListRagDataSchemas`` requests and continue to iterate
+    through the ``rag_data_schemas`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., vertex_rag_data_service.ListRagDataSchemasResponse],
+        request: vertex_rag_data_service.ListRagDataSchemasRequest,
+        response: vertex_rag_data_service.ListRagDataSchemasResponse,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasResponse):
+                The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        self._method = method
+        self._request = vertex_rag_data_service.ListRagDataSchemasRequest(request)
+        self._response = response
+        self._retry = retry
+        self._timeout = timeout
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[vertex_rag_data_service.ListRagDataSchemasResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
+            yield self._response
+
+    def __iter__(self) -> Iterator[vertex_rag_data.RagDataSchema]:
+        for page in self.pages:
+            yield from page.rag_data_schemas
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListRagDataSchemasAsyncPager:
+    """A pager for iterating through ``list_rag_data_schemas`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``rag_data_schemas`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListRagDataSchemas`` requests and continue to iterate
+    through the ``rag_data_schemas`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[vertex_rag_data_service.ListRagDataSchemasResponse]
+        ],
+        request: vertex_rag_data_service.ListRagDataSchemasRequest,
+        response: vertex_rag_data_service.ListRagDataSchemasResponse,
+        *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListRagDataSchemasResponse):
+                The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        self._method = method
+        self._request = vertex_rag_data_service.ListRagDataSchemasRequest(request)
+        self._response = response
+        self._retry = retry
+        self._timeout = timeout
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(
+        self,
+    ) -> AsyncIterator[vertex_rag_data_service.ListRagDataSchemasResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[vertex_rag_data.RagDataSchema]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.rag_data_schemas:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListRagMetadataPager:
+    """A pager for iterating through ``list_rag_metadata`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListRagMetadataResponse` object, and
+    provides an ``__iter__`` method to iterate through its
+    ``rag_metadata`` field.
+
+    If there are more pages, the ``__iter__`` method will make additional
+    ``ListRagMetadata`` requests and continue to iterate
+    through the ``rag_metadata`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListRagMetadataResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[..., vertex_rag_data_service.ListRagMetadataResponse],
+        request: vertex_rag_data_service.ListRagMetadataRequest,
+        response: vertex_rag_data_service.ListRagMetadataResponse,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = ()
+    ):
+        """Instantiate the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListRagMetadataRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListRagMetadataResponse):
+                The initial response object.
+            retry (google.api_core.retry.Retry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        self._method = method
+        self._request = vertex_rag_data_service.ListRagMetadataRequest(request)
+        self._response = response
+        self._retry = retry
+        self._timeout = timeout
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    def pages(self) -> Iterator[vertex_rag_data_service.ListRagMetadataResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
+            yield self._response
+
+    def __iter__(self) -> Iterator[vertex_rag_data.RagMetadata]:
+        for page in self.pages:
+            yield from page.rag_metadata
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)
+
+
+class ListRagMetadataAsyncPager:
+    """A pager for iterating through ``list_rag_metadata`` requests.
+
+    This class thinly wraps an initial
+    :class:`google.cloud.aiplatform_v1beta1.types.ListRagMetadataResponse` object, and
+    provides an ``__aiter__`` method to iterate through its
+    ``rag_metadata`` field.
+
+    If there are more pages, the ``__aiter__`` method will make additional
+    ``ListRagMetadata`` requests and continue to iterate
+    through the ``rag_metadata`` field on the
+    corresponding responses.
+
+    All the usual :class:`google.cloud.aiplatform_v1beta1.types.ListRagMetadataResponse`
+    attributes are available on the pager. If multiple requests are made, only
+    the most recent response is retained, and thus used for attribute lookup.
+    """
+
+    def __init__(
+        self,
+        method: Callable[
+            ..., Awaitable[vertex_rag_data_service.ListRagMetadataResponse]
+        ],
+        request: vertex_rag_data_service.ListRagMetadataRequest,
+        response: vertex_rag_data_service.ListRagMetadataResponse,
+        *,
+        retry: OptionalAsyncRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = ()
+    ):
+        """Instantiates the pager.
+
+        Args:
+            method (Callable): The method that was originally called, and
+                which instantiated this pager.
+            request (google.cloud.aiplatform_v1beta1.types.ListRagMetadataRequest):
+                The initial request object.
+            response (google.cloud.aiplatform_v1beta1.types.ListRagMetadataResponse):
+                The initial response object.
+            retry (google.api_core.retry.AsyncRetry): Designation of what errors,
+                if any, should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+        """
+        self._method = method
+        self._request = vertex_rag_data_service.ListRagMetadataRequest(request)
+        self._response = response
+        self._retry = retry
+        self._timeout = timeout
+        self._metadata = metadata
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    @property
+    async def pages(
+        self,
+    ) -> AsyncIterator[vertex_rag_data_service.ListRagMetadataResponse]:
+        yield self._response
+        while self._response.next_page_token:
+            self._request.page_token = self._response.next_page_token
+            self._response = await self._method(
+                self._request,
+                retry=self._retry,
+                timeout=self._timeout,
+                metadata=self._metadata,
+            )
+            yield self._response
+
+    def __aiter__(self) -> AsyncIterator[vertex_rag_data.RagMetadata]:
+        async def async_generator():
+            async for page in self.pages:
+                for response in page.rag_metadata:
+                    yield response
+
+        return async_generator()
+
+    def __repr__(self) -> str:
+        return "{0}<{1!r}>".format(self.__class__.__name__, self._response)

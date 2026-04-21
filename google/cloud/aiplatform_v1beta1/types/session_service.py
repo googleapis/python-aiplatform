@@ -21,7 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import operation
 from google.cloud.aiplatform_v1beta1.types import session as gca_session
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -53,6 +53,14 @@ class CreateSessionRequest(proto.Message):
             ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
         session (google.cloud.aiplatform_v1beta1.types.Session):
             Required. The session to create.
+        session_id (str):
+            Optional. The user defined ID to use for session, which will
+            become the final component of the session resource name. If
+            not provided, Vertex AI will generate a value for this ID.
+
+            This value may be up to 63 characters, and valid characters
+            are ``[a-z0-9-]``. The first character must be a letter, and
+            the last character must be a letter or number.
     """
 
     parent: str = proto.Field(
@@ -63,6 +71,10 @@ class CreateSessionRequest(proto.Message):
         proto.MESSAGE,
         number=2,
         message=gca_session.Session,
+    )
+    session_id: str = proto.Field(
+        proto.STRING,
+        number=3,
     )
 
 
@@ -121,9 +133,10 @@ class ListSessionsRequest(proto.Message):
             call.
         filter (str):
             Optional. The standard list filter. Supported fields: \*
-            ``display_name``
+            ``display_name`` \* ``user_id`` \* ``labels``
 
-            Example: ``display_name=abc``.
+            Example: ``display_name="abc"``, ``user_id="123"``,
+            ``labels.key="value"``.
         order_by (str):
             Optional. A comma-separated list of fields to order by,
             sorted in ascending order. Use "desc" after a field name for
@@ -256,6 +269,14 @@ class ListEventsRequest(proto.Message):
             timestamp is in RFC 3339 format)
 
             More detail in `AIP-160 <https://google.aip.dev/160>`__.
+        order_by (str):
+            Optional. A comma-separated list of fields to order by,
+            sorted in ascending order. Use "desc" after a field name for
+            descending. Supported fields:
+
+            - ``timestamp``
+
+            Example: ``timestamp desc``.
     """
 
     parent: str = proto.Field(
@@ -273,6 +294,10 @@ class ListEventsRequest(proto.Message):
     filter: str = proto.Field(
         proto.STRING,
         number=4,
+    )
+    order_by: str = proto.Field(
+        proto.STRING,
+        number=5,
     )
 
 

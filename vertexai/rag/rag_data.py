@@ -428,7 +428,9 @@ def upload_file(
         "metadata": (None, str(js_rag_file)),
         "file": open(path, "rb"),
     }
-    credentials, _ = auth.default()
+    credentials = initializer.global_config.credentials
+    if not credentials:
+        credentials, _ = auth.default()
     authorized_session = google_auth_requests.AuthorizedSession(credentials=credentials)
     try:
         response = authorized_session.post(

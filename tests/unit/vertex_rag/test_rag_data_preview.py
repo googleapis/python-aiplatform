@@ -30,6 +30,10 @@ from google.cloud.aiplatform_v1beta1 import (
     VertexRagDataServiceClient,
     ListRagCorporaResponse,
     ListRagFilesResponse,
+    BatchCreateRagDataSchemasResponse,
+    BatchCreateRagMetadataResponse,
+    ListRagDataSchemasResponse,
+    ListRagMetadataResponse,
 )
 from google.cloud import aiplatform
 import mock
@@ -162,6 +166,23 @@ def create_rag_corpus_mock_pinecone():
         )
         create_rag_corpus_mock_pinecone.return_value = create_rag_corpus_lro_mock
         yield create_rag_corpus_mock_pinecone
+
+
+@pytest.fixture
+def create_rag_corpus_mock_rag_managed_vertex_vector_search():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "create_rag_corpus",
+    ) as create_rag_corpus_mock_rag_managed_vertex_vector_search:
+        create_rag_corpus_lro_mock = mock.Mock(ga_operation.Operation)
+        create_rag_corpus_lro_mock.done.return_value = True
+        create_rag_corpus_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH
+        )
+        create_rag_corpus_mock_rag_managed_vertex_vector_search.return_value = (
+            create_rag_corpus_lro_mock
+        )
+        yield create_rag_corpus_mock_rag_managed_vertex_vector_search
 
 
 @pytest.fixture
@@ -476,6 +497,91 @@ def update_rag_engine_config_enterprise_mock():
 
 
 @pytest.fixture()
+def update_rag_engine_config_serverless_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_serverless_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS
+        )
+        update_rag_engine_config_serverless_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_serverless_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_basic_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_basic_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_BASIC
+        )
+        update_rag_engine_config_spanner_basic_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_basic_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_scaled_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_scaled_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED
+        )
+        update_rag_engine_config_spanner_scaled_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_scaled_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_no_tier_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_no_tier_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED
+        )
+        update_rag_engine_config_spanner_no_tier_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_no_tier_mock
+
+
+@pytest.fixture()
+def update_rag_engine_config_spanner_unprovisioned_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_engine_config",
+    ) as update_rag_engine_config_spanner_unprovisioned_mock:
+        update_rag_engine_config_lro_mock = mock.Mock(ga_operation.Operation)
+        update_rag_engine_config_lro_mock.done.return_value = True
+        update_rag_engine_config_lro_mock.result.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED
+        )
+        update_rag_engine_config_spanner_unprovisioned_mock.return_value = (
+            update_rag_engine_config_lro_mock
+        )
+        yield update_rag_engine_config_spanner_unprovisioned_mock
+
+
+@pytest.fixture()
 def update_rag_engine_config_scaled_mock():
     with mock.patch.object(
         VertexRagDataServiceClient,
@@ -565,6 +671,54 @@ def get_rag_engine_enterprise_config_mock():
             test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_ENTERPRISE
         )
         yield get_rag_engine_enterprise_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_spanner_basic_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_spanner_basic_config_mock:
+        get_rag_engine_spanner_basic_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_BASIC
+        )
+        yield get_rag_engine_spanner_basic_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_spanner_scaled_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_spanner_scaled_config_mock:
+        get_rag_engine_spanner_scaled_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED
+        )
+        yield get_rag_engine_spanner_scaled_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_spanner_unprovisioned_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_spanner_unprovisioned_config_mock:
+        get_rag_engine_spanner_unprovisioned_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED
+        )
+        yield get_rag_engine_spanner_unprovisioned_config_mock
+
+
+@pytest.fixture()
+def get_rag_engine_serverless_config_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "get_rag_engine_config",
+    ) as get_rag_engine_serverless_config_mock:
+        get_rag_engine_serverless_config_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS
+        )
+        yield get_rag_engine_serverless_config_mock
 
 
 @pytest.fixture()
@@ -659,6 +813,149 @@ def list_rag_files_pager_mock():
         yield list_rag_files_pager_mock
 
 
+@pytest.fixture
+def batch_create_rag_data_schemas_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "batch_create_rag_data_schemas",
+    ) as batch_create_rag_data_schemas_mock:
+        batch_create_rag_data_schemas_lro_mock = mock.Mock(ga_operation.Operation)
+        batch_create_rag_data_schemas_lro_mock.done.return_value = True
+        batch_create_rag_data_schemas_lro_mock.result.return_value = (
+            BatchCreateRagDataSchemasResponse(
+                rag_data_schemas=[test_rag_constants_preview.TEST_GAPIC_RAG_DATA_SCHEMA]
+            )
+        )
+        batch_create_rag_data_schemas_mock.return_value = (
+            batch_create_rag_data_schemas_lro_mock
+        )
+        yield batch_create_rag_data_schemas_mock
+
+
+@pytest.fixture
+def batch_delete_rag_data_schemas_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "batch_delete_rag_data_schemas",
+    ) as batch_delete_rag_data_schemas_mock:
+        batch_delete_rag_data_schemas_lro_mock = mock.Mock(ga_operation.Operation)
+        batch_delete_rag_data_schemas_lro_mock.done.return_value = True
+        batch_delete_rag_data_schemas_mock.return_value = (
+            batch_delete_rag_data_schemas_lro_mock
+        )
+        yield batch_delete_rag_data_schemas_mock
+
+
+@pytest.fixture
+def list_rag_data_schemas_pager_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "list_rag_data_schemas",
+    ) as list_rag_data_schemas_pager_mock:
+        list_rag_data_schemas_pager_mock.return_value = [
+            ListRagDataSchemasResponse(
+                rag_data_schemas=[
+                    test_rag_constants_preview.TEST_GAPIC_RAG_DATA_SCHEMA,
+                ],
+                next_page_token=test_rag_constants_preview.TEST_PAGE_TOKEN,
+            ),
+        ]
+        yield list_rag_data_schemas_pager_mock
+
+
+@pytest.fixture
+def batch_create_rag_metadata_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "batch_create_rag_metadata",
+    ) as batch_create_rag_metadata_mock:
+        batch_create_rag_metadata_lro_mock = mock.Mock(ga_operation.Operation)
+        batch_create_rag_metadata_lro_mock.done.return_value = True
+        batch_create_rag_metadata_lro_mock.result.return_value = (
+            BatchCreateRagMetadataResponse(
+                rag_metadata=[test_rag_constants_preview.TEST_GAPIC_RAG_METADATA]
+            )
+        )
+        batch_create_rag_metadata_mock.return_value = batch_create_rag_metadata_lro_mock
+        yield batch_create_rag_metadata_mock
+
+
+@pytest.fixture
+def batch_delete_rag_metadata_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "batch_delete_rag_metadata",
+    ) as batch_delete_rag_metadata_mock:
+        batch_delete_rag_metadata_lro_mock = mock.Mock(ga_operation.Operation)
+        batch_delete_rag_metadata_lro_mock.done.return_value = True
+        batch_delete_rag_metadata_mock.return_value = batch_delete_rag_metadata_lro_mock
+        yield batch_delete_rag_metadata_mock
+
+
+@pytest.fixture
+def list_rag_metadata_pager_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "list_rag_metadata",
+    ) as list_rag_metadata_pager_mock:
+        list_rag_metadata_pager_mock.return_value = [
+            ListRagMetadataResponse(
+                rag_metadata=[
+                    test_rag_constants_preview.TEST_GAPIC_RAG_METADATA,
+                ],
+                next_page_token=test_rag_constants_preview.TEST_PAGE_TOKEN,
+            ),
+        ]
+        yield list_rag_metadata_pager_mock
+
+
+@pytest.fixture
+def update_rag_metadata_mock():
+    with mock.patch.object(
+        VertexRagDataServiceClient,
+        "update_rag_metadata",
+    ) as update_rag_metadata_mock:
+        update_rag_metadata_mock.return_value = (
+            test_rag_constants_preview.TEST_GAPIC_RAG_METADATA
+        )
+        yield update_rag_metadata_mock
+
+
+@pytest.fixture
+def rag_data_client_preview_mock_exception():
+    from vertexai.preview.rag.utils import _gapic_utils
+
+    with mock.patch.object(
+        _gapic_utils, "create_rag_data_service_client"
+    ) as create_client_mock:
+        create_client_mock.return_value.create_rag_corpus.side_effect = Exception
+        create_client_mock.return_value.get_rag_corpus.side_effect = Exception
+        create_client_mock.return_value.update_rag_corpus.side_effect = Exception
+        create_client_mock.return_value.list_rag_corpora.side_effect = Exception
+        create_client_mock.return_value.delete_rag_corpus.side_effect = Exception
+        create_client_mock.return_value.upload_rag_file.side_effect = Exception
+        create_client_mock.return_value.import_rag_files.side_effect = Exception
+        create_client_mock.return_value.get_rag_file.side_effect = Exception
+        create_client_mock.return_value.list_rag_files.side_effect = Exception
+        create_client_mock.return_value.delete_rag_file.side_effect = Exception
+        create_client_mock.return_value.batch_create_rag_data_schemas.side_effect = (
+            Exception
+        )
+        create_client_mock.return_value.batch_delete_rag_data_schemas.side_effect = (
+            Exception
+        )
+        create_client_mock.return_value.list_rag_data_schemas.side_effect = Exception
+        create_client_mock.return_value.batch_create_rag_metadata.side_effect = (
+            Exception
+        )
+        create_client_mock.return_value.batch_delete_rag_metadata.side_effect = (
+            Exception
+        )
+        create_client_mock.return_value.list_rag_metadata.side_effect = Exception
+        create_client_mock.return_value.update_rag_metadata.side_effect = Exception
+        yield create_client_mock
+
+
 def create_transformation_config(
     chunk_size: int = test_rag_constants_preview.TEST_CHUNK_SIZE,
     chunk_overlap: int = test_rag_constants_preview.TEST_CHUNK_OVERLAP,
@@ -668,6 +965,28 @@ def create_transformation_config(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
         ),
+    )
+
+
+def rag_data_schema_eq(returned_schema, expected_schema):
+    assert returned_schema.name == expected_schema.name
+    assert returned_schema.key == expected_schema.key
+    assert returned_schema.schema_details.type == expected_schema.schema_details.type
+    assert (
+        returned_schema.schema_details.search_strategy.search_strategy_type
+        == expected_schema.schema_details.search_strategy.search_strategy_type
+    )
+    assert (
+        returned_schema.schema_details.granularity
+        == expected_schema.schema_details.granularity
+    )
+
+
+def rag_metadata_eq(returned_metadata, expected_metadata):
+    assert returned_metadata.name == expected_metadata.name
+    assert (
+        returned_metadata.user_specified_metadata
+        == expected_metadata.user_specified_metadata
     )
 
 
@@ -803,6 +1122,18 @@ class TestRagDataManagement:
 
         rag_corpus_eq(
             rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
+        )
+
+    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_vertex_vector_search")
+    def test_create_corpus_rag_managed_vertex_vector_search_success(self):
+        rag_corpus = rag.create_corpus(
+            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
+            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG,
+        )
+
+        rag_corpus_eq(
+            rag_corpus,
+            test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH,
         )
 
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search_backend")
@@ -1688,6 +2019,129 @@ class TestRagDataManagement:
             )
         e.match("endpoint must be of the format ")
 
+    def test_batch_create_data_schemas_success(
+        self, batch_create_rag_data_schemas_mock
+    ):
+        schemas = rag.batch_create_data_schemas(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            requests=[test_rag_constants_preview.TEST_RAG_DATA_SCHEMA],
+        )
+        batch_create_rag_data_schemas_mock.assert_called_once()
+        rag_data_schema_eq(schemas[0], test_rag_constants_preview.TEST_RAG_DATA_SCHEMA)
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_batch_create_data_schemas_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.batch_create_data_schemas(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                requests=[test_rag_constants_preview.TEST_RAG_DATA_SCHEMA],
+            )
+        e.match("Failed in RagDataSchema batch creation due to")
+
+    def test_batch_delete_data_schemas_success(
+        self, batch_delete_rag_data_schemas_mock
+    ):
+        rag.batch_delete_data_schemas(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            names=[test_rag_constants_preview.TEST_RAG_DATA_SCHEMA_ID],
+        )
+        batch_delete_rag_data_schemas_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_batch_delete_data_schemas_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.batch_delete_data_schemas(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                names=[test_rag_constants_preview.TEST_RAG_DATA_SCHEMA_ID],
+            )
+        e.match("Failed in RagDataSchema batch deletion due to")
+
+    def test_list_data_schemas_success(self, list_rag_data_schemas_pager_mock):
+        pager = rag.list_data_schemas(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            page_size=1,
+        )
+        list_rag_data_schemas_pager_mock.assert_called_once()
+        assert pager[0].next_page_token == test_rag_constants_preview.TEST_PAGE_TOKEN
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_list_data_schemas_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.list_data_schemas(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME
+            )
+        e.match("Failed in listing the RagDataSchemas due to")
+
+    def test_batch_create_metadata_success(self, batch_create_rag_metadata_mock):
+        metadata = rag.batch_create_metadata(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            file_name=test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME,
+            requests=[test_rag_constants_preview.TEST_RAG_METADATA],
+        )
+        batch_create_rag_metadata_mock.assert_called_once()
+        rag_metadata_eq(metadata[0], test_rag_constants_preview.TEST_RAG_METADATA)
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_batch_create_metadata_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.batch_create_metadata(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                file_name=test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME,
+                requests=[test_rag_constants_preview.TEST_RAG_METADATA],
+            )
+        e.match("Failed in RagMetadata batch creation due to")
+
+    def test_batch_delete_metadata_success(self, batch_delete_rag_metadata_mock):
+        rag.batch_delete_metadata(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            file_name=test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME,
+            names=[test_rag_constants_preview.TEST_RAG_METADATA_ID],
+        )
+        batch_delete_rag_metadata_mock.assert_called_once()
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_batch_delete_metadata_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.batch_delete_metadata(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                file_name=test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME,
+                names=[test_rag_constants_preview.TEST_RAG_METADATA_ID],
+            )
+        e.match("Failed in RagMetadata batch deletion due to")
+
+    def test_list_metadata_success(self, list_rag_metadata_pager_mock):
+        pager = rag.list_metadata(
+            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+            file_name=test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME,
+            page_size=1,
+        )
+        list_rag_metadata_pager_mock.assert_called_once()
+        assert pager[0].next_page_token == test_rag_constants_preview.TEST_PAGE_TOKEN
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_list_metadata_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.list_metadata(
+                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
+                file_name=test_rag_constants_preview.TEST_RAG_FILE_RESOURCE_NAME,
+            )
+        e.match("Failed in listing the RagMetadata due to")
+
+    def test_update_metadata_success(self, update_rag_metadata_mock):
+        metadata = rag.update_metadata(
+            rag_metadata=test_rag_constants_preview.TEST_RAG_METADATA,
+        )
+        update_rag_metadata_mock.assert_called_once()
+        rag_metadata_eq(metadata, test_rag_constants_preview.TEST_RAG_METADATA)
+
+    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
+    def test_update_metadata_failure(self):
+        with pytest.raises(RuntimeError) as e:
+            rag.update_metadata(
+                rag_metadata=test_rag_constants_preview.TEST_RAG_METADATA,
+            )
+        e.match("Failed in RagMetadata update due to")
+
     def test_update_rag_engine_config_success(
         self, update_rag_engine_config_basic_mock
     ):
@@ -1736,6 +2190,73 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_UNPROVISIONED,
         )
 
+    def test_update_rag_engine_config_spanner_basic_success(
+        self, update_rag_engine_config_spanner_basic_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC,
+        )
+        assert update_rag_engine_config_spanner_basic_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC,
+        )
+
+    def test_update_rag_engine_config_spanner_scaled_success(
+        self, update_rag_engine_config_spanner_scaled_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+        assert update_rag_engine_config_spanner_scaled_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+
+    def test_update_rag_engine_config_spanner_unprovisioned_success(
+        self, update_rag_engine_config_spanner_unprovisioned_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED,
+        )
+        assert update_rag_engine_config_spanner_unprovisioned_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED,
+        )
+
+    def test_update_rag_engine_config_spanner_no_tier_success(
+        self, update_rag_engine_config_spanner_no_tier_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_NO_TIER,
+        )
+        assert update_rag_engine_config_spanner_no_tier_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+
+    def test_update_rag_engine_config_serverless_success(
+        self, update_rag_engine_config_serverless_mock
+    ):
+        rag_config = rag.update_rag_engine_config(
+            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
+        )
+        assert update_rag_engine_config_serverless_mock.call_count == 1
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
+        )
+
+    def test_update_rag_engine_config_with_mode_and_tier_failure(self):
+        with pytest.raises(ValueError) as e:
+            rag.update_rag_engine_config(
+                rag_engine_config=test_rag_constants_preview.TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER,
+            )
+        e.match("mode and tier both cannot be set at the same time")
+
     @pytest.mark.usefixtures("update_rag_engine_config_mock_exception")
     def test_update_rag_engine_config_failure(self):
         with pytest.raises(RuntimeError) as e:
@@ -1755,6 +2276,46 @@ class TestRagDataManagement:
         rag_engine_config_eq(
             rag_config,
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_serverless_config_mock")
+    def test_get_rag_engine_config_serverless_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_spanner_basic_config_mock")
+    def test_get_rag_engine_config_spanner_basic_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_spanner_scaled_config_mock")
+    def test_get_rag_engine_config_spanner_scaled_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED,
+        )
+
+    @pytest.mark.usefixtures("get_rag_engine_spanner_unprovisioned_config_mock")
+    def test_get_rag_engine_config_spanner_unprovisioned_success(self):
+        rag_config = rag.get_rag_engine_config(
+            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+        )
+        rag_engine_config_eq(
+            rag_config,
+            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED,
         )
 
     @pytest.mark.usefixtures("get_rag_engine_basic_config_mock")

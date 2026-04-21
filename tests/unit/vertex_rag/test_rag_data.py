@@ -654,6 +654,32 @@ class TestRagDataManagement:
         e.match("Failed in RagCorpus update due to")
 
     @pytest.mark.usefixtures("rag_data_client_mock")
+    @pytest.mark.parametrize("corpus_name", ["Capital-Corpus", "123-Corpus"])
+    def test_get_corpus_with_valid_resource_name_success(self, corpus_name):
+        # Tests regex allowing names starting with uppercase or digits.
+        rag_corpus = rag.get_corpus(corpus_name)
+        rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)
+
+    @pytest.mark.usefixtures("rag_data_client_mock")
+    @pytest.mark.parametrize("file_name", ["Capital-File", "123-File"])
+    def test_get_file_with_valid_resource_name_success(self, file_name):
+        # This test covers the regex change for RAG file names.
+        rag_file = rag.get_file(
+            name=file_name,
+            corpus_name=test_rag_constants.TEST_RAG_CORPUS_ID,
+        )
+        rag_file_eq(rag_file, test_rag_constants.TEST_RAG_FILE)
+
+    def test_get_corpus_with_invalid_name_format_failure(self):
+        # Verify names starting with invalid characters (like underscore) still fail.
+        with pytest.raises(ValueError) as e:
+            rag.get_corpus("_invalid-name")
+        e.match(
+            "name must be of the format `projects/{project}/locations/{location}/"
+            "ragCorpora/{rag_corpus}` or `{rag_corpus}`"
+        )
+
+    @pytest.mark.usefixtures("rag_data_client_mock")
     def test_get_corpus_success(self):
         rag_corpus = rag.get_corpus(test_rag_constants.TEST_RAG_CORPUS_RESOURCE_NAME)
         rag_corpus_eq(rag_corpus, test_rag_constants.TEST_RAG_CORPUS)

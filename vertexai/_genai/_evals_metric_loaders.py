@@ -20,85 +20,16 @@ import os
 import re
 from typing import Any, Optional, Union, TYPE_CHECKING
 
-from google.genai._api_client import BaseApiClient
-import pandas as pd
 import yaml
 
 from . import _evals_constant
 from . import _gcs_utils
-from . import _bigquery_utils
 
 if TYPE_CHECKING:
     from . import types
 
 
 logger = logging.getLogger(__name__)
-
-
-GCS_PREFIX = "gs://"
-BQ_PREFIX = "bq://"
-
-
-class EvalDatasetLoader:
-    """A loader for datasets from various sources, using a shared client."""
-
-    def __init__(self, api_client: BaseApiClient):
-        self.api_client = api_client
-        self.gcs_utils = _gcs_utils.GcsUtils(self.api_client)
-        self.bigquery_utils = _bigquery_utils.BigQueryUtils(self.api_client)
-
-    def _load_file(
-        self, filepath: str, file_type: str
-    ) -> Union[list[dict[str, Any]], Any]:
-        """Loads data from a file into a list of dictionaries."""
-        if filepath.startswith(GCS_PREFIX):
-            df = self.gcs_utils.read_gcs_file_to_dataframe(filepath, file_type)
-            return df.to_dict(orient="records")
-        else:
-            if file_type == "jsonl":
-                df = pd.read_json(filepath, lines=True)
-                return df.to_dict(orient="records")
-            elif file_type == "csv":
-                df = pd.read_csv(filepath, encoding="utf-8")
-                return df.to_dict(orient="records")
-            else:
-                raise ValueError(
-                    f"Unsupported file type: '{file_type}'. Please provide 'jsonl' or"
-                    " 'csv'."
-                )
-
-    def load(
-        self, source: Union[str, "pd.DataFrame"]
-    ) -> Union[list[dict[str, Any]], Any]:
-        """Loads dataset from various sources into a list of dictionaries."""
-        if isinstance(source, pd.DataFrame):
-            return source.to_dict(orient="records")
-        elif isinstance(source, str):
-            if source.startswith(BQ_PREFIX):
-                df = self.bigquery_utils.load_bigquery_to_dataframe(
-                    source[len(BQ_PREFIX) :]
-                )
-                return df.to_dict(orient="records")
-
-            _, extension = os.path.splitext(source)
-            file_type = extension.lower()[1:]
-
-            if file_type == "jsonl":
-                return self._load_file(source, "jsonl")
-            elif file_type == "csv":
-                return self._load_file(source, "csv")
-            else:
-                raise TypeError(
-                    f"Unsupported file type: {file_type} from {source}. Please"
-                    " provide a valid GCS path with `jsonl` or `csv` suffix, "
-                    "a local file path, or a valid BigQuery table URI."
-                )
-        else:
-            raise TypeError(
-                "Unsupported dataset type. Must be a `pd.DataFrame`, Python"
-                " a valid GCS path with `jsonl` or `csv` suffix, a local"
-                " file path, or a valid BigQuery table URI."
-            )
 
 
 class LazyLoadedPrebuiltMetric:
@@ -113,7 +44,7 @@ class LazyLoadedPrebuiltMetric:
         "gs://vertex-ai-generative-ai-eval-sdk-resources/metrics/{metric_name}/"
     )
 
-    def __init__(self, name: str, version: Optional[str] = None, **kwargs):
+    def __init__(self, name: str, version: Optional[str] = None, **kwargs: Any):
         self.name = name.upper()
         self.version = version
         self.metric_kwargs = kwargs
@@ -317,7 +248,7 @@ class LazyLoadedPrebuiltMetric:
             ) from e
 
     def __call__(
-        self, version: Optional[str] = None, **kwargs
+        self, version: Optional[str] = None, **kwargs: Any
     ) -> "LazyLoadedPrebuiltMetric":
         """Allows setting a specific version and other metric attributes."""
         updated_kwargs = self.metric_kwargs.copy()
@@ -340,7 +271,7 @@ class PrebuiltMetricLoader:
     """
 
     def __getattr__(
-        self, name: str, version: Optional[str] = None, **kwargs
+        self, name: str, version: Optional[str] = None, **kwargs: Any
     ) -> LazyLoadedPrebuiltMetric:
         return LazyLoadedPrebuiltMetric(name=name, version=version, **kwargs)
 
@@ -367,6 +298,18 @@ class PrebuiltMetricLoader:
     @property
     def MULTI_TURN_TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("MULTI_TURN_TEXT_QUALITY")
+
+    @property
+    def MULTI_TURN_TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TOOL_USE_QUALITY", version="v1")
+
+    @property
+    def MULTI_TURN_TRAJECTORY_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TRAJECTORY_QUALITY", version="v1")
+
+    @property
+    def MULTI_TURN_TASK_SUCCESS(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("MULTI_TURN_TASK_SUCCESS", version="v1")
 
     @property
     def FINAL_RESPONSE_MATCH(self) -> LazyLoadedPrebuiltMetric:
@@ -408,6 +351,31 @@ class PrebuiltMetricLoader:
     def FINAL_RESPONSE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("FINAL_RESPONSE_QUALITY")
 
+    @property
+    def HALLUCINATION(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("HALLUCINATION")
+
+    @property
+    def TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("TOOL_USE_QUALITY")
+
+    @property
+    def GECKO_TEXT2IMAGE(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("GECKO_TEXT2IMAGE")
+
+    @property
+    def GECKO_TEXT2VIDEO(self) -> LazyLoadedPrebuiltMetric:
+        return self.__getattr__("GECKO_TEXT2VIDEO")
+
 
 PrebuiltMetric = PrebuiltMetricLoader()
 RubricMetric = PrebuiltMetric
+
+
+def CodeExecutionMetric(
+    name: str, custom_function: str, **kwargs: Any
+) -> "types.Metric":
+    """Instantiates a code execution metric."""
+    from . import types
+
+    return types.Metric(name=name, remote_custom_function=custom_function, **kwargs)

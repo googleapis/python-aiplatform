@@ -19,18 +19,22 @@ import functools
 import json
 import logging
 import mimetypes
+import secrets
+import time
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
+from google import genai
+from google.cloud import iam_credentials_v1  # type: ignore[attr-defined]
 from google.genai import _api_module
 from google.genai import _common
+from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import Pager
 
 from . import _agent_engines_utils
 from . import types
-
 
 logger = logging.getLogger("vertexai_genai.sandboxes")
 
@@ -67,12 +71,8 @@ def _CreateAgentEngineSandboxRequestParameters_to_vertex(
         setv(to_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineSandboxConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _CreateAgentEngineSandboxConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -85,9 +85,6 @@ def _DeleteAgentEngineSandboxRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -103,9 +100,6 @@ def _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
     if getv(from_object, ["inputs"]) is not None:
         setv(to_object, ["inputs"], [item for item in getv(from_object, ["inputs"])])
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -119,9 +113,6 @@ def _GetAgentEngineSandboxOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -132,9 +123,6 @@ def _GetAgentEngineSandboxRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -166,12 +154,8 @@ def _ListAgentEngineSandboxesRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineSandboxesConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineSandboxesConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -230,7 +214,24 @@ class Sandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -291,7 +292,24 @@ class Sandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSandboxOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -348,7 +366,24 @@ class Sandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ExecuteSandboxEnvironmentResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -409,7 +444,24 @@ class Sandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.SandboxEnvironment._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -474,7 +526,24 @@ class Sandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineSandboxesResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -525,7 +594,24 @@ class Sandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -535,6 +621,7 @@ class Sandboxes(_api_module.BaseModule):
         self,
         *,
         name: str,
+        poll_interval_seconds: float = 0.1,
         spec: Optional[types.SandboxEnvironmentSpecOrDict] = None,
         config: Optional[types.CreateAgentEngineSandboxConfigOrDict] = None,
     ) -> types.AgentEngineSandboxOperation:
@@ -544,6 +631,9 @@ class Sandboxes(_api_module.BaseModule):
             name (str):
                 Required. The name of the agent engine to create sandbox for.
                 projects/{project}/locations/{location}/reasoningEngines/{resource_id}
+            poll_interval_seconds (float):
+                Optional. The interval in seconds to poll for sandbox creation
+                completion.
             spec (SandboxEnvironmentSpec):
                 Optional. The specification for the sandbox to create.
             config (CreateAgentEngineSandboxConfigOrDict):
@@ -552,6 +642,17 @@ class Sandboxes(_api_module.BaseModule):
         Returns:
             AgentEngineSandboxOperation: The operation for creating the sandbox.
         """
+        if spec:
+            computer_use = False
+            if isinstance(spec, dict):
+                computer_use = spec.get("computer_use_environment") is not None
+            elif hasattr(spec, "computer_use_environment"):
+                computer_use = True
+
+            if computer_use:
+                logging.warning(
+                    "The computer_use_environment feature in the sandboxes module is experimental and may change in future versions."
+                )
         operation = self._create(
             name=name,
             spec=spec,
@@ -566,7 +667,7 @@ class Sandboxes(_api_module.BaseModule):
                 operation = _agent_engines_utils._await_operation(
                     operation_name=operation.name,
                     get_operation_fn=self._get_sandbox_operation,
-                    poll_interval_seconds=0.1,
+                    poll_interval_seconds=poll_interval_seconds,
                 )
             # We need to make a call to get the sandbox because the operation
             # response might not contain the relevant fields.
@@ -650,20 +751,20 @@ class Sandboxes(_api_module.BaseModule):
         )
 
         output_chunks = []
-        for output in response.outputs:
-            if output.mime_type is None:
-                # if mime_type is not available, try to guess the mime_type from the file_name.
-                if (
-                    output.metadata is not None
-                    and output.metadata.attributes is not None
-                ):
-                    file_name = output.metadata.attributes.get("file_name", b"").decode(
-                        "utf-8"
-                    )
-                    mime_type, _ = mimetypes.guess_type(file_name)
-                    output.mime_type = mime_type
-
-            output_chunks.append(output)
+        if response.outputs is not None:
+            for output in response.outputs:
+                if output.mime_type is None:
+                    # if mime_type is not available, try to guess the mime_type from the file_name.
+                    if (
+                        output.metadata is not None
+                        and output.metadata.attributes is not None
+                    ):
+                        file_name = output.metadata.attributes.get(
+                            "file_name", b""
+                        ).decode("utf-8")
+                        mime_type, _ = mimetypes.guess_type(file_name)
+                        output.mime_type = mime_type
+                output_chunks.append(output)
 
         response = types.ExecuteSandboxEnvironmentResponse(outputs=output_chunks)
 
@@ -703,6 +804,161 @@ class Sandboxes(_api_module.BaseModule):
               Optional. The configuration for the sandbox to delete.
         """
         return self._delete(name=name, config=config)
+
+    def generate_access_token(
+        self,
+        service_account_email: str,
+        sandbox_id: str,
+        port: str = "8080",
+        timeout: int = 3600,
+    ) -> str:
+        """Signs a JWT with a Google Cloud service account.
+
+        Args:
+            service_account_email (str):
+                Required. The email of the service account to use for signing.
+            sandbox_id (str):
+                Required. The resource name of the sandbox to generate a token for.
+            port (str):
+                Optional. The port to use for the token. Defaults to "8080".
+            timeout (int):
+                Optional. The timeout in seconds for the token. Defaults to 3600.
+
+        Returns:
+            str: The signed JWT.
+        """
+        client = iam_credentials_v1.IAMCredentialsClient()
+        name = f"projects/-/serviceAccounts/{service_account_email}"
+        custom_claims = {"port": port, "sandbox_id": sandbox_id}
+        payload = {
+            "iat": int(time.time()),
+            "exp": int(time.time()) + timeout,
+            "iss": service_account_email,
+            "nonce": secrets.randbelow(1000000000) + 1,
+            "aud": "vmaas-proxy-api",  # default audience for sandbox proxy
+            **custom_claims,
+        }
+        request = iam_credentials_v1.SignJwtRequest(
+            name=name,
+            payload=json.dumps(payload),
+        )
+        response = client.sign_jwt(request=request)
+        return response.signed_jwt  # type: ignore[no-any-return]
+
+    def send_command(
+        self,
+        *,
+        http_method: str,
+        access_token: str,
+        sandbox_environment: types.SandboxEnvironment,
+        path: Optional[str] = None,
+        query_params: Optional[dict[str, object]] = None,
+        headers: Optional[dict[str, str]] = None,
+        request_dict: Optional[dict[str, object]] = None,
+    ) -> genai_types.HttpResponse:
+        """Sends a command to the sandbox.
+
+        Args:
+            http_method (str):
+                Required. The HTTP method to use for the command.
+            access_token (str):
+                Required. The access token to use for authorization.
+            sandbox_environment (types.SandboxEnvironment):
+                Required. The sandbox environment to send the command to.
+            path (str):
+                Optional. The path to send the command to.
+            query_params (dict[str, object]):
+                Optional. The query parameters to include in the command.
+            headers (dict[str, str]):
+                Optional. The headers to include in the command.
+            request_dict (dict[str, object]):
+                Optional. The request body to include in the command.
+
+        Returns:
+            genai_types.HttpResponse: The response from the sandbox.
+        """
+        headers = headers or {}
+        request_dict = request_dict or {}
+        connection_info = sandbox_environment.connection_info
+        if not connection_info:
+            raise ValueError("Connection info is not available.")
+        if connection_info.load_balancer_hostname:
+            endpoint = "https://" + connection_info.load_balancer_hostname
+        elif connection_info.load_balancer_ip:
+            endpoint = "http://" + connection_info.load_balancer_ip
+        else:
+            raise ValueError("Load balancer hostname or ip is not available.")
+
+        path = path or ""
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        headers["Authorization"] = f"Bearer {access_token}"
+        endpoint = endpoint + path if path.startswith("/") else endpoint + "/" + path
+        http_options = genai_types.HttpOptions(headers=headers, base_url=endpoint)
+        http_client = genai.Client(vertexai=True, http_options=http_options)
+        # Full path is constructed in this function. The passed in path into request
+        # function will not be used.
+        response = http_client._api_client.request(http_method, path, request_dict)
+        return genai_types.HttpResponse(
+            headers=response.headers,
+            body=response.body,
+        )
+
+    def generate_browser_ws_headers(
+        self,
+        sandbox_environment: types.SandboxEnvironment,
+        service_account_email: str,
+        timeout: int = 3600,
+    ) -> tuple[str, dict[str, str]]:
+        """Generates the websocket upgrade headers for the browser.
+
+        Args:
+            sandbox_environment (types.SandboxEnvironment):
+                Required. The sandbox environment to generate websocket headers for.
+            service_account_email (str):
+                Required. The email of the service account to use for signing.
+            timeout (int):
+                Optional. The timeout in seconds for the token. Defaults to 3600.
+
+        Returns:
+            tuple[str, dict[str, str]]: A tuple containing the websocket URL and
+            the headers for websocket upgrade.
+        """
+        sandbox_id = sandbox_environment.name
+        # port 8080 is the default port for http endpoint.
+        http_access_token = self.generate_access_token(
+            service_account_email, sandbox_id, "8080", timeout
+        )
+        response = self.send_command(
+            http_method="GET",
+            access_token=http_access_token,
+            sandbox_environment=sandbox_environment,
+            path="/cdp_ws_endpoint",
+        )
+        if not response:
+            raise ValueError("Failed to get the websocket endpoint.")
+        body_dict = json.loads(response.body)
+        ws_path = body_dict["endpoint"]
+
+        ws_url = "wss://test-us-central1.autopush-sandbox.vertexai.goog"
+        if sandbox_environment and sandbox_environment.connection_info:
+            connection_info = sandbox_environment.connection_info
+            if connection_info.load_balancer_hostname:
+                ws_url = "wss://" + connection_info.load_balancer_hostname
+            elif connection_info.load_balancer_ip:
+                ws_url = "ws://" + connection_info.load_balancer_ip
+            else:
+                raise ValueError("Load balancer hostname or ip is not available.")
+        ws_url = ws_url + "/" + ws_path
+
+        # port 9222 is the default port for the browser websocket endpoint.
+        ws_access_token = self.generate_access_token(
+            service_account_email, sandbox_id, "9222", timeout
+        )
+
+        headers = {}
+        headers["Sec-WebSocket-Protocol"] = f"binary, {ws_access_token}"
+        return ws_url, headers
 
 
 class AsyncSandboxes(_api_module.BaseModule):
@@ -760,7 +1016,24 @@ class AsyncSandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -823,7 +1096,24 @@ class AsyncSandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSandboxOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -882,7 +1172,24 @@ class AsyncSandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ExecuteSandboxEnvironmentResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -945,7 +1252,24 @@ class AsyncSandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.SandboxEnvironment._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1012,7 +1336,24 @@ class AsyncSandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListAgentEngineSandboxesResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1065,7 +1406,24 @@ class AsyncSandboxes(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSandboxOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)

@@ -60,6 +60,52 @@ def test_evaluation_result(client):
         assert case_result.response_candidate_results is not None
 
 
+# TODO: Re-enable this test once the Presubmit replay test bug is fixed.
+
+# def test_evaluation_result_with_autorater_config(client):
+#     """Tests that evaluate() produces a correctly structured EvaluationResult."""
+#     prompts_df = pd.DataFrame(
+#         {
+#             "prompt": ["Explain the concept of machine learning in simple terms."],
+#             "response": [
+#                 "Machine learning is a type of artificial intelligence that allows"
+#                 " computers to learn from data without being explicitly programmed."
+#             ],
+#         }
+#     )
+
+#     eval_dataset = types.EvaluationDataset(
+#         eval_dataset_df=prompts_df,
+#         candidate_name="gemini-2.5-flash",
+#     )
+
+#     predefined_metric_with_autorater_config = types.RubricMetric.GENERAL_QUALITY(
+#         judge_model_generation_config=genai_types.GenerationConfig(
+#             temperature=0.1,
+#             max_output_tokens=1024,
+#         )
+#     )
+
+#     evaluation_result = client.evals.evaluate(
+#         dataset=eval_dataset,
+#         metrics=[predefined_metric_with_autorater_config],
+#     )
+
+#     assert isinstance(evaluation_result, types.EvaluationResult)
+
+#     assert evaluation_result.summary_metrics is not None
+#     for summary in evaluation_result.summary_metrics:
+#         assert isinstance(summary, types.AggregatedMetricResult)
+#         assert summary.metric_name == "general_quality_v1"
+#         assert summary.mean_score is not None
+
+#     assert evaluation_result.eval_case_results is not None
+#     for case_result in evaluation_result.eval_case_results:
+#         assert isinstance(case_result, types.EvalCaseResult)
+#         assert case_result.eval_case_index is not None
+#         assert case_result.response_candidate_results is not None
+
+
 def test_multi_turn_predefined_metric(client):
     """Tests that evaluate works with multi-turn predefined metrics."""
     prompts_data = {

@@ -17,6 +17,7 @@
 """Model-based Pairwise Metric."""
 
 from typing import Callable, Optional, Union
+import warnings
 
 from vertexai import generative_models
 from vertexai.evaluation.metrics import _base
@@ -58,8 +59,8 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
     Usage Examples:
 
         ```
-        baseline_model = GenerativeModel("gemini-1.0-pro")
-        candidate_model = GenerativeModel("gemini-1.5-pro")
+        baseline_model = "gemini-2.5-pro"
+        candidate_model = "gemini-2.5-flash"
 
         pairwise_groundedness = PairwiseMetric(
             metric_prompt_template=MetricPromptTemplateExamples.get_prompt_template(
@@ -90,7 +91,7 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
             metric_prompt_template_base.PairwiseMetricPromptTemplate, str
         ],
         baseline_model: Optional[
-            Union[generative_models.GenerativeModel, Callable[[str], str]]
+            Union[str, generative_models.GenerativeModel, Callable[[str], str]]
         ] = None,
     ):
         """Initializes a pairwise evaluation metric.
@@ -99,18 +100,28 @@ class PairwiseMetric(_base._ModelBasedMetric):  # pylint: disable=protected-acce
           metric: The pairwise evaluation metric name.
           metric_prompt_template: Pairwise metric prompt template for performing
             the pairwise model-based evaluation. A freeform string is also accepted.
-          baseline_model: The baseline model for side-by-side comparison. If not
-            specified, `baseline_model_response` column is required in the dataset
-            to perform bring-your-own-response(BYOR) evaluation.
+          baseline_model: A model name string, a GenerativeModel instance, or a
+            custom model function for the baseline model for side-by-side
+            comparison. If not specified, `baseline_model_response` column is
+            required in the dataset to perform bring-your-own-response(BYOR)
+            evaluation.
         """
         super().__init__(
             metric_prompt_template=metric_prompt_template,
             metric=metric,
         )
+        if isinstance(baseline_model, generative_models.GenerativeModel):
+            warnings.warn(
+                "vertexai.generative_models.GenerativeModel is deprecated for "
+                "evaluation and will be removed in June 2026. Please pass a string "
+                "model name instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         self._baseline_model = baseline_model
 
     @property
     def baseline_model(
         self,
-    ) -> Union[generative_models.GenerativeModel, Callable[[str], str]]:
+    ) -> Union[str, generative_models.GenerativeModel, Callable[[str], str]]:
         return self._baseline_model

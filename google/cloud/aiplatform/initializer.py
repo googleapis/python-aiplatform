@@ -245,10 +245,6 @@ class _Config:
             # Set api_transport as "rest" if location is "global".
             if location == "global" and not api_transport:
                 self._api_transport = "rest"
-            elif location == "global" and api_transport == "grpc":
-                raise ValueError(
-                    "api_transport cannot be 'grpc' when location is 'global'."
-                )
         if experiment_description and experiment is None:
             raise ValueError(
                 "Experiment needs to be set in `init` in order to add experiment"
@@ -722,7 +718,7 @@ def _set_async_rest_credentials(credentials: AsyncCredentials):
             + "google-auth >= 2.35.0.\n\n"
             + "Install the following dependencies:\n"
             + "pip install google-api-core[grpc, async_rest] >= 2.21.0\n"
-            + "pip install google-auth[aiohttp] >= 2.35.0\n\n"
+            + "pip install google-auth[aiohttp] >= 2.47.0\n\n"
             + "Example usage:\n"
             + "from google.auth.aio.credentials import StaticCredentials\n"
             + "async_credentials = StaticCredentials(token=YOUR_TOKEN_HERE)\n"

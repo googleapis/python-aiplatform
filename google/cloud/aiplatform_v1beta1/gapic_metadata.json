@@ -4972,6 +4972,11 @@
                 "direct_raw_predict"
               ]
             },
+            "EmbedContent": {
+              "methods": [
+                "embed_content"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -5052,6 +5057,11 @@
                 "direct_raw_predict"
               ]
             },
+            "EmbedContent": {
+              "methods": [
+                "embed_content"
+              ]
+            },
             "Explain": {
               "methods": [
                 "explain"
@@ -5130,6 +5140,11 @@
             "DirectRawPredict": {
               "methods": [
                 "direct_raw_predict"
+              ]
+            },
+            "EmbedContent": {
+              "methods": [
+                "embed_content"
               ]
             },
             "Explain": {
@@ -6150,9 +6165,39 @@
         "grpc": {
           "libraryClient": "VertexRagDataServiceClient",
           "rpcs": {
+            "BatchCreateRagDataSchemas": {
+              "methods": [
+                "batch_create_rag_data_schemas"
+              ]
+            },
+            "BatchCreateRagMetadata": {
+              "methods": [
+                "batch_create_rag_metadata"
+              ]
+            },
+            "BatchDeleteRagDataSchemas": {
+              "methods": [
+                "batch_delete_rag_data_schemas"
+              ]
+            },
+            "BatchDeleteRagMetadata": {
+              "methods": [
+                "batch_delete_rag_metadata"
+              ]
+            },
             "CreateRagCorpus": {
               "methods": [
                 "create_rag_corpus"
+              ]
+            },
+            "CreateRagDataSchema": {
+              "methods": [
+                "create_rag_data_schema"
+              ]
+            },
+            "CreateRagMetadata": {
+              "methods": [
+                "create_rag_metadata"
               ]
             },
             "DeleteRagCorpus": {
@@ -6160,14 +6205,29 @@
                 "delete_rag_corpus"
               ]
             },
+            "DeleteRagDataSchema": {
+              "methods": [
+                "delete_rag_data_schema"
+              ]
+            },
             "DeleteRagFile": {
               "methods": [
                 "delete_rag_file"
               ]
             },
+            "DeleteRagMetadata": {
+              "methods": [
+                "delete_rag_metadata"
+              ]
+            },
             "GetRagCorpus": {
               "methods": [
                 "get_rag_corpus"
+              ]
+            },
+            "GetRagDataSchema": {
+              "methods": [
+                "get_rag_data_schema"
               ]
             },
             "GetRagEngineConfig": {
@@ -6180,6 +6240,11 @@
                 "get_rag_file"
               ]
             },
+            "GetRagMetadata": {
+              "methods": [
+                "get_rag_metadata"
+              ]
+            },
             "ImportRagFiles": {
               "methods": [
                 "import_rag_files"
@@ -6190,9 +6255,19 @@
                 "list_rag_corpora"
               ]
             },
+            "ListRagDataSchemas": {
+              "methods": [
+                "list_rag_data_schemas"
+              ]
+            },
             "ListRagFiles": {
               "methods": [
                 "list_rag_files"
+              ]
+            },
+            "ListRagMetadata": {
+              "methods": [
+                "list_rag_metadata"
               ]
             },
             "UpdateRagCorpus": {
@@ -6203,6 +6278,11 @@
             "UpdateRagEngineConfig": {
               "methods": [
                 "update_rag_engine_config"
+              ]
+            },
+            "UpdateRagMetadata": {
+              "methods": [
+                "update_rag_metadata"
               ]
             },
             "UploadRagFile": {
@@ -6215,9 +6295,39 @@
         "grpc-async": {
           "libraryClient": "VertexRagDataServiceAsyncClient",
           "rpcs": {
+            "BatchCreateRagDataSchemas": {
+              "methods": [
+                "batch_create_rag_data_schemas"
+              ]
+            },
+            "BatchCreateRagMetadata": {
+              "methods": [
+                "batch_create_rag_metadata"
+              ]
+            },
+            "BatchDeleteRagDataSchemas": {
+              "methods": [
+                "batch_delete_rag_data_schemas"
+              ]
+            },
+            "BatchDeleteRagMetadata": {
+              "methods": [
+                "batch_delete_rag_metadata"
+              ]
+            },
             "CreateRagCorpus": {
               "methods": [
                 "create_rag_corpus"
+              ]
+            },
+            "CreateRagDataSchema": {
+              "methods": [
+                "create_rag_data_schema"
+              ]
+            },
+            "CreateRagMetadata": {
+              "methods": [
+                "create_rag_metadata"
               ]
             },
             "DeleteRagCorpus": {
@@ -6225,14 +6335,29 @@
                 "delete_rag_corpus"
               ]
             },
+            "DeleteRagDataSchema": {
+              "methods": [
+                "delete_rag_data_schema"
+              ]
+            },
             "DeleteRagFile": {
               "methods": [
                 "delete_rag_file"
               ]
             },
+            "DeleteRagMetadata": {
+              "methods": [
+                "delete_rag_metadata"
+              ]
+            },
             "GetRagCorpus": {
               "methods": [
                 "get_rag_corpus"
+              ]
+            },
+            "GetRagDataSchema": {
+              "methods": [
+                "get_rag_data_schema"
               ]
             },
             "GetRagEngineConfig": {
@@ -6245,6 +6370,11 @@
                 "get_rag_file"
               ]
             },
+            "GetRagMetadata": {
+              "methods": [
+                "get_rag_metadata"
+              ]
+            },
             "ImportRagFiles": {
               "methods": [
                 "import_rag_files"
@@ -6255,9 +6385,19 @@
                 "list_rag_corpora"
               ]
             },
+            "ListRagDataSchemas": {
+              "methods": [
+                "list_rag_data_schemas"
+              ]
+            },
             "ListRagFiles": {
               "methods": [
                 "list_rag_files"
+              ]
+            },
+            "ListRagMetadata": {
+              "methods": [
+                "list_rag_metadata"
               ]
             },
             "UpdateRagCorpus": {
@@ -6268,6 +6408,11 @@
             "UpdateRagEngineConfig": {
               "methods": [
                 "update_rag_engine_config"
+              ]
+            },
+            "UpdateRagMetadata": {
+              "methods": [
+                "update_rag_metadata"
               ]
             },
             "UploadRagFile": {
@@ -6280,9 +6425,39 @@
         "rest": {
           "libraryClient": "VertexRagDataServiceClient",
           "rpcs": {
+            "BatchCreateRagDataSchemas": {
+              "methods": [
+                "batch_create_rag_data_schemas"
+              ]
+            },
+            "BatchCreateRagMetadata": {
+              "methods": [
+                "batch_create_rag_metadata"
+              ]
+            },
+            "BatchDeleteRagDataSchemas": {
+              "methods": [
+                "batch_delete_rag_data_schemas"
+              ]
+            },
+            "BatchDeleteRagMetadata": {
+              "methods": [
+                "batch_delete_rag_metadata"
+              ]
+            },
             "CreateRagCorpus": {
               "methods": [
                 "create_rag_corpus"
+              ]
+            },
+            "CreateRagDataSchema": {
+              "methods": [
+                "create_rag_data_schema"
+              ]
+            },
+            "CreateRagMetadata": {
+              "methods": [
+                "create_rag_metadata"
               ]
             },
             "DeleteRagCorpus": {
@@ -6290,14 +6465,29 @@
                 "delete_rag_corpus"
               ]
             },
+            "DeleteRagDataSchema": {
+              "methods": [
+                "delete_rag_data_schema"
+              ]
+            },
             "DeleteRagFile": {
               "methods": [
                 "delete_rag_file"
               ]
             },
+            "DeleteRagMetadata": {
+              "methods": [
+                "delete_rag_metadata"
+              ]
+            },
             "GetRagCorpus": {
               "methods": [
                 "get_rag_corpus"
+              ]
+            },
+            "GetRagDataSchema": {
+              "methods": [
+                "get_rag_data_schema"
               ]
             },
             "GetRagEngineConfig": {
@@ -6310,6 +6500,11 @@
                 "get_rag_file"
               ]
             },
+            "GetRagMetadata": {
+              "methods": [
+                "get_rag_metadata"
+              ]
+            },
             "ImportRagFiles": {
               "methods": [
                 "import_rag_files"
@@ -6320,9 +6515,19 @@
                 "list_rag_corpora"
               ]
             },
+            "ListRagDataSchemas": {
+              "methods": [
+                "list_rag_data_schemas"
+              ]
+            },
             "ListRagFiles": {
               "methods": [
                 "list_rag_files"
+              ]
+            },
+            "ListRagMetadata": {
+              "methods": [
+                "list_rag_metadata"
               ]
             },
             "UpdateRagCorpus": {
@@ -6333,6 +6538,11 @@
             "UpdateRagEngineConfig": {
               "methods": [
                 "update_rag_engine_config"
+              ]
+            },
+            "UpdateRagMetadata": {
+              "methods": [
+                "update_rag_metadata"
               ]
             },
             "UploadRagFile": {
@@ -6349,6 +6559,16 @@
         "grpc": {
           "libraryClient": "VertexRagServiceClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"
@@ -6369,6 +6589,16 @@
         "grpc-async": {
           "libraryClient": "VertexRagServiceAsyncClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"
@@ -6389,6 +6619,16 @@
         "rest": {
           "libraryClient": "VertexRagServiceClient",
           "rpcs": {
+            "AskContexts": {
+              "methods": [
+                "ask_contexts"
+              ]
+            },
+            "AsyncRetrieveContexts": {
+              "methods": [
+                "async_retrieve_contexts"
+              ]
+            },
             "AugmentPrompt": {
               "methods": [
                 "augment_prompt"

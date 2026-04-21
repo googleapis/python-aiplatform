@@ -14,15 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+"""Tests for vertex_rag.retrieval."""
+
 import importlib
 from google.cloud import aiplatform
+from google.cloud.aiplatform_v1 import VertexRagServiceAsyncClient
+from google.cloud.aiplatform_v1 import VertexRagServiceClient
+import test_rag_constants as tc
 from vertexai import rag
-from google.cloud.aiplatform_v1 import (
-    VertexRagServiceClient,
-)
 import mock
 import pytest
-import test_rag_constants as tc
 
 
 @pytest.fixture
@@ -30,21 +31,45 @@ def retrieve_contexts_mock():
     with mock.patch.object(
         VertexRagServiceClient,
         "retrieve_contexts",
-    ) as retrieve_contexts_mock:
-        retrieve_contexts_mock.return_value = tc.TEST_RETRIEVAL_RESPONSE
-        yield retrieve_contexts_mock
+    ) as patched_retrieve_contexts:
+        patched_retrieve_contexts.return_value = tc.TEST_RETRIEVAL_RESPONSE
+        yield patched_retrieve_contexts
+
+
+@pytest.fixture
+def ask_contexts_mock():
+    with mock.patch.object(
+        VertexRagServiceClient,
+        "ask_contexts",
+    ) as patched_ask_contexts:
+        patched_ask_contexts.return_value = tc.TEST_RETRIEVAL_RESPONSE
+        yield patched_ask_contexts
+
+
+@pytest.fixture
+def async_retrieve_contexts_mock():
+    with mock.patch.object(
+        VertexRagServiceAsyncClient,
+        "async_retrieve_contexts",
+        new_callable=mock.AsyncMock,
+    ) as patched_async_retrieve_contexts:
+        lro_mock = mock.Mock()
+        lro_mock.result = mock.AsyncMock(return_value=tc.TEST_RETRIEVAL_RESPONSE)
+        patched_async_retrieve_contexts.return_value = lro_mock
+        yield patched_async_retrieve_contexts
 
 
 @pytest.fixture
 def rag_client_mock_exception():
     with mock.patch.object(
-        rag.utils._gapic_utils, "create_rag_service_client"
-    ) as rag_client_mock_exception:
+        rag.utils._gapic_utils,
+        "create_rag_service_client",  # pylint: disable=protected-access
+    ) as patched_rag_client_mock_exception:
         api_client_mock = mock.Mock(spec=VertexRagServiceClient)
         # retrieve_contexts
         api_client_mock.retrieve_contexts.side_effect = Exception
-        rag_client_mock_exception.return_value = api_client_mock
-        yield rag_client_mock_exception
+        patched_rag_client_mock_exception.return_value = api_client_mock
+        yield patched_rag_client_mock_exception
 
 
 def retrieve_contexts_eq(response, expected_response):
@@ -60,7 +85,8 @@ def retrieve_contexts_eq(response, expected_response):
 
 
 @pytest.mark.usefixtures("google_auth_mock")
-class TestRagRetrieval:
+class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentation, unused-variable, unused-argument, redefined-outer-name
+
     def setup_method(self):
         importlib.reload(aiplatform.initializer)
         importlib.reload(aiplatform)
@@ -73,6 +99,72 @@ class TestRagRetrieval:
     def test_retrieval_query_rag_resources_success(self):
         response = rag.retrieval_query(
             rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_rag_resources_success(self):
+        response = rag.ask_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_with_timeout(self, ask_contexts_mock):
+        rag.ask_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+            timeout=300,
+        )
+        ask_contexts_mock.assert_called_once()
+        _, kwargs = ask_contexts_mock.call_args
+        assert kwargs["timeout"] == 300
+
+    @pytest.mark.usefixtures("ask_contexts_mock")
+    def test_ask_contexts_multiple_rag_resources_success(self):
+        response = rag.ask_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.asyncio
+    async def test_async_retrieve_contexts_rag_resources_success(
+        self, async_retrieve_contexts_mock
+    ):
+        response = await rag.async_retrieve_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+
+    @pytest.mark.asyncio
+    async def test_async_retrieve_contexts_with_timeout(
+        self, async_retrieve_contexts_mock
+    ):
+        await rag.async_retrieve_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
+            timeout=300,
+        )
+        async_retrieve_contexts_mock.assert_called_once()
+        _, kwargs = async_retrieve_contexts_mock.call_args
+        assert kwargs["timeout"] == 300
+
+    @pytest.mark.asyncio
+    async def test_async_retrieve_contexts_multiple_rag_resources_success(
+        self, async_retrieve_contexts_mock
+    ):
+        response = await rag.async_retrieve_contexts(
+            rag_resources=[tc.TEST_RAG_RESOURCE, tc.TEST_RAG_RESOURCE],
             text=tc.TEST_QUERY_TEXT,
             rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
         )
@@ -113,7 +205,7 @@ class TestRagRetrieval:
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
-            e.match("Failed in retrieving contexts due to")
+        e.match("Failed in retrieving contexts due to")
 
     def test_retrieval_query_invalid_name(self):
         with pytest.raises(ValueError) as e:
@@ -122,7 +214,7 @@ class TestRagRetrieval:
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
-            e.match("Invalid RagCorpus name")
+        e.match("Invalid RagCorpus name")
 
     def test_retrieval_query_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
@@ -131,7 +223,7 @@ class TestRagRetrieval:
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
             )
-            e.match("Currently only support 1 RagResource")
+        e.match("Currently only support 1 RagResource")
 
     def test_retrieval_query_similarity_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
@@ -140,7 +232,7 @@ class TestRagRetrieval:
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_SIMILARITY_CONFIG,
             )
-            e.match("Currently only support 1 RagResource")
+        e.match("Currently only support 1 RagResource")
 
     def test_retrieval_query_invalid_config_filter(self):
         with pytest.raises(ValueError) as e:
@@ -149,8 +241,8 @@ class TestRagRetrieval:
                 text=tc.TEST_QUERY_TEXT,
                 rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_ERROR_CONFIG,
             )
-            e.match(
-                "Only one of vector_distance_threshold or"
-                " vector_similarity_threshold can be specified at a time"
-                " in rag_retrieval_config."
-            )
+        e.match(
+            "Only one of vector_distance_threshold or"
+            " vector_similarity_threshold can be specified at a time"
+            " in rag_retrieval_config."
+        )

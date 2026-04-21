@@ -157,8 +157,10 @@ def mock_storage_blob_download_xgboost_booster_file():
 @pytest.fixture
 def mock_storage_blob_download_xgboost_xgbmodel_file():
     def create_model_file(filename):
+        xgb.XGBClassifier._estimator_type = "classifier"
         x, y = make_classification()
         model = xgb.XGBClassifier()
+        model._estimator_type = "classifier"
         model.fit(x, y)
         model.save_model(filename)
 
@@ -522,6 +524,7 @@ class TestModels:
 
         x, y = make_classification()
         xgb_model = xgb.XGBClassifier()
+        xgb_model._estimator_type = "classifier"
         xgb_model.fit(x, y)
 
         aiplatform.init(

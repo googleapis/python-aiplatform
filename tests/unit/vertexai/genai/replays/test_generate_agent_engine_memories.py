@@ -14,6 +14,7 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+import datetime
 import pytest
 
 
@@ -23,10 +24,6 @@ from google.genai import types as genai_types
 
 
 def test_generate_and_rollback_memories(client):
-    # TODO(): Use prod endpoint once experiment is fully rolled out.
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
-    )
     agent_engine = client.agent_engines.create()
     assert not list(
         client.agent_engines.memories.list(
@@ -149,6 +146,134 @@ def test_generate_memories_direct_memories_source(client):
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
 
+def test_generate_memories_with_metadata(client):
+    agent_engine = client.agent_engines.create()
+    metadata = {
+        "my_string_key": types.MemoryMetadataValue(string_value="my_string_value"),
+        "my_double_key": types.MemoryMetadataValue(double_value=123.456),
+        "my_boolean_key": types.MemoryMetadataValue(bool_value=True),
+        "my_timestamp_key": types.MemoryMetadataValue(
+            timestamp_value=datetime.datetime(
+                2027, 1, 1, 12, 30, 00, tzinfo=datetime.timezone.utc
+            )
+        ),
+    }
+    # Reuse the same content and scope for all generation requests to ensure
+    # that the same memory is updated.
+    direct_memories_source = types.GenerateMemoriesRequestDirectMemoriesSource(
+        direct_memories=[
+            types.GenerateMemoriesRequestDirectMemoriesSourceDirectMemory(
+                fact="I am a software engineer."
+            ),
+        ]
+    )
+    scope = {"user_id": "test-user-id"}
+
+    operation = client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope=scope,
+        direct_memories_source=direct_memories_source,
+        config=types.GenerateAgentEngineMemoriesConfig(metadata=metadata),
+    )
+    assert len(operation.response.generated_memories) >= 1
+    memory = client.agent_engines.memories.get(
+        name=operation.response.generated_memories[0].memory.name
+    )
+    assert memory.metadata == metadata
+
+    # Overwrite the metadata.
+    overwrite_metadata = {
+        "my_string_key": types.MemoryMetadataValue(string_value="new_value"),
+    }
+    operation = client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope=scope,
+        direct_memories_source=direct_memories_source,
+        config=types.GenerateAgentEngineMemoriesConfig(
+            metadata=overwrite_metadata,
+            metadata_merge_strategy=types.MemoryMetadataMergeStrategy.OVERWRITE,
+        ),
+    )
+    assert len(operation.response.generated_memories) >= 1
+    assert (
+        operation.response.generated_memories[0].action
+        == types.GenerateMemoriesResponseGeneratedMemoryAction.UPDATED
+    )
+    memory = client.agent_engines.memories.get(
+        name=operation.response.generated_memories[0].memory.name
+    )
+    assert memory.metadata == overwrite_metadata
+
+    # Merge the metadata.
+    new_metadata = {
+        "my_double_key": types.MemoryMetadataValue(double_value=123.456),
+    }
+    operation = client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope=scope,
+        direct_memories_source=direct_memories_source,
+        config=types.GenerateAgentEngineMemoriesConfig(
+            metadata=new_metadata,
+            metadata_merge_strategy=types.MemoryMetadataMergeStrategy.MERGE,
+        ),
+    )
+    assert len(operation.response.generated_memories) >= 1
+    assert (
+        operation.response.generated_memories[0].action
+        == types.GenerateMemoriesResponseGeneratedMemoryAction.UPDATED
+    )
+    memory = client.agent_engines.memories.get(
+        name=operation.response.generated_memories[0].memory.name
+    )
+    assert memory.metadata == {**overwrite_metadata, **new_metadata}
+
+    # Restrict consolidation based on metadata values. For the first request,
+    # there's no existing memories that match the metadata, so a new memory is
+    # created.
+    restricted_metadata = {
+        "my_string_key": types.MemoryMetadataValue(string_value="new_value2"),
+    }
+    operation = client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope=scope,
+        direct_memories_source=direct_memories_source,
+        config=types.GenerateAgentEngineMemoriesConfig(
+            metadata=restricted_metadata,
+            metadata_merge_strategy="REQUIRE_EXACT_MATCH",
+        ),
+    )
+    assert len(operation.response.generated_memories) == 1
+    # Metadata doesn't match existing memory, so a new memory is created.
+    assert (
+        operation.response.generated_memories[0].action
+        == types.GenerateMemoriesResponseGeneratedMemoryAction.CREATED
+    )
+    memory = client.agent_engines.memories.get(
+        name=operation.response.generated_memories[0].memory.name
+    )
+    assert memory.metadata == restricted_metadata
+
+    # Send a second request where the metadata matches only one of the existing
+    # memories.
+    operation = client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope=scope,
+        direct_memories_source=direct_memories_source,
+        config=types.GenerateAgentEngineMemoriesConfig(
+            metadata=restricted_metadata,
+            metadata_merge_strategy="REQUIRE_EXACT_MATCH",
+        ),
+    )
+    assert len(operation.response.generated_memories) == 1
+    assert (
+        operation.response.generated_memories[0].action
+        == types.GenerateMemoriesResponseGeneratedMemoryAction.UPDATED
+    )
+    assert operation.response.generated_memories[0].memory.name == memory.name
+
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -161,10 +286,6 @@ pytest_plugins = ("pytest_asyncio",)
 
 @pytest.mark.asyncio
 async def test_generate_and_rollback_memories_async(client):
-    # TODO(): Use prod endpoint once revisions experiment is fully rolled out.
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com/"
-    )
     agent_engine = client.agent_engines.create()
     await client.aio.agent_engines.memories.generate(
         name=agent_engine.api_resource.name,
@@ -215,3 +336,46 @@ async def test_generate_and_rollback_memories_async(client):
     await client.aio.agent_engines.delete(
         name=agent_engine.api_resource.name, force=True
     )
+
+
+def test_generate_memories_with_allowed_topics(client):
+    agent_engine = client.agent_engines.create()
+    client.agent_engines.memories.generate(
+        name=agent_engine.api_resource.name,
+        scope={"user_id": "test-user-id"},
+        direct_contents_source=types.GenerateMemoriesRequestDirectContentsSource(
+            events=[
+                types.GenerateMemoriesRequestDirectContentsSourceEvent(
+                    content=genai_types.Content(
+                        role="user",
+                        parts=[genai_types.Part(text="I am a software engineer.")],
+                    )
+                ),
+                types.GenerateMemoriesRequestDirectContentsSourceEvent(
+                    content=genai_types.Content(
+                        role="user",
+                        parts=[genai_types.Part(text="I like to write replay tests.")],
+                    )
+                ),
+            ]
+        ),
+        config=types.GenerateAgentEngineMemoriesConfig(
+            allowed_topics=[
+                types.MemoryTopicId(
+                    managed_memory_topic=types.ManagedTopicEnum.USER_PREFERENCES
+                ),
+            ],
+            wait_for_completion=True,
+        ),
+    )
+    assert (
+        len(
+            list(
+                client.agent_engines.memories.list(
+                    name=agent_engine.api_resource.name,
+                )
+            )
+        )
+        == 1
+    )
+    client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)

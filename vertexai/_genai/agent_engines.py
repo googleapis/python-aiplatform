@@ -19,6 +19,7 @@ import datetime
 import importlib
 import json
 import logging
+import typing
 from typing import Any, AsyncIterator, Iterator, Optional, Sequence, Tuple, Union
 from urllib.parse import urlencode
 import warnings
@@ -33,10 +34,131 @@ from google.genai.pagers import Pager
 from . import _agent_engines_utils
 from . import types
 
+if typing.TYPE_CHECKING:
+    from . import sessions as sessions_module
+    from . import memories as memories_module
+    from . import a2a_tasks as a2a_tasks_module
+
+    _ = sessions_module
+    __ = memories_module
+    ___ = a2a_tasks_module
+
 
 logger = logging.getLogger("vertexai_genai.agentengines")
 
 logger.setLevel(logging.INFO)
+
+
+def _AgentEngineOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _ReasoningEngine_from_vertex(getv(from_object, ["response"]), to_object),
+        )
+
+    return to_object
+
+
+def _CancelQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(parent_object, ["operationName"], getv(from_object, ["operation_name"]))
+
+    return to_object
+
+
+def _CancelQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _CancelQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _CheckQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["retrieve_result"]) is not None:
+        setv(parent_object, ["retrieveResult"], getv(from_object, ["retrieve_result"]))
+
+    return to_object
+
+
+def _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _CheckQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _CheckQueryJobResult_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(parent_object, ["operationName"]) is not None:
+        setv(to_object, ["operation_name"], getv(parent_object, ["operationName"]))
+
+    if getv(parent_object, ["outputGcsUri"]) is not None:
+        setv(to_object, ["output_gcs_uri"], getv(parent_object, ["outputGcsUri"]))
+
+    if getv(parent_object, ["status"]) is not None:
+        setv(to_object, ["status"], getv(parent_object, ["status"]))
+
+    if getv(parent_object, ["result"]) is not None:
+        setv(to_object, ["result"], getv(parent_object, ["result"]))
+
+    return to_object
 
 
 def _CreateAgentEngineConfig_to_vertex(
@@ -55,7 +177,13 @@ def _CreateAgentEngineConfig_to_vertex(
         setv(parent_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["context_spec"]) is not None:
-        setv(parent_object, ["contextSpec"], getv(from_object, ["context_spec"]))
+        setv(
+            parent_object,
+            ["contextSpec"],
+            _ReasoningEngineContextSpec_to_vertex(
+                getv(from_object, ["context_spec"]), to_object
+            ),
+        )
 
     if getv(from_object, ["psc_interface_config"]) is not None:
         setv(
@@ -97,6 +225,16 @@ def _CreateAgentEngineConfig_to_vertex(
     if getv(from_object, ["agent_framework"]) is not None:
         setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
 
+    if getv(from_object, ["python_version"]) is not None:
+        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
+
+    if getv(from_object, ["agent_gateway_config"]) is not None:
+        setv(
+            parent_object,
+            ["agentGatewayConfig"],
+            getv(from_object, ["agent_gateway_config"]),
+        )
+
     return to_object
 
 
@@ -106,13 +244,7 @@ def _CreateAgentEngineRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _CreateAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
@@ -128,9 +260,6 @@ def _DeleteAgentEngineRequestParameters_to_vertex(
     if getv(from_object, ["force"]) is not None:
         setv(to_object, ["force"], getv(from_object, ["force"]))
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -144,9 +273,6 @@ def _GetAgentEngineOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -157,9 +283,6 @@ def _GetAgentEngineRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -188,10 +311,30 @@ def _ListAgentEngineRequestParameters_to_vertex(
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
+        _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _ListReasoningEnginesResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["reasoningEngines"]) is not None:
         setv(
             to_object,
-            ["config"],
-            _ListAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            ["reasoning_engines"],
+            [
+                _ReasoningEngine_from_vertex(item, to_object)
+                for item in getv(from_object, ["reasoningEngines"])
+            ],
         )
 
     return to_object
@@ -224,11 +367,289 @@ def _QueryAgentEngineRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
+        _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
+def _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["customizationConfigs"]) is not None:
+        setv(
+            to_object,
+            ["customization_configs"],
+            [item for item in getv(from_object, ["customizationConfigs"])],
+        )
+
+    if getv(from_object, ["disableMemoryRevisions"]) is not None:
+        setv(
+            to_object,
+            ["disable_memory_revisions"],
+            getv(from_object, ["disableMemoryRevisions"]),
+        )
+
+    if getv(from_object, ["generationConfig"]) is not None:
+        setv(to_object, ["generation_config"], getv(from_object, ["generationConfig"]))
+
+    if getv(from_object, ["similaritySearchConfig"]) is not None:
+        setv(
+            to_object,
+            ["similarity_search_config"],
+            getv(from_object, ["similaritySearchConfig"]),
+        )
+
+    if getv(from_object, ["ttlConfig"]) is not None:
+        setv(to_object, ["ttl_config"], getv(from_object, ["ttlConfig"]))
+
+    if getv(from_object, ["structuredMemoryConfigs"]) is not None:
+        setv(
+            to_object,
+            ["structured_memory_configs"],
+            [
+                _StructuredMemoryConfig_from_vertex(item, to_object)
+                for item in getv(from_object, ["structuredMemoryConfigs"])
+            ],
+        )
+
+    return to_object
+
+
+def _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["customization_configs"]) is not None:
+        setv(
+            to_object,
+            ["customizationConfigs"],
+            [item for item in getv(from_object, ["customization_configs"])],
+        )
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            to_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["generation_config"]) is not None:
+        setv(to_object, ["generationConfig"], getv(from_object, ["generation_config"]))
+
+    if getv(from_object, ["similarity_search_config"]) is not None:
+        setv(
+            to_object,
+            ["similaritySearchConfig"],
+            getv(from_object, ["similarity_search_config"]),
+        )
+
+    if getv(from_object, ["ttl_config"]) is not None:
+        setv(to_object, ["ttlConfig"], getv(from_object, ["ttl_config"]))
+
+    if getv(from_object, ["structured_memory_configs"]) is not None:
+        setv(
+            to_object,
+            ["structuredMemoryConfigs"],
+            [
+                _StructuredMemoryConfig_to_vertex(item, to_object)
+                for item in getv(from_object, ["structured_memory_configs"])
+            ],
+        )
+
+    return to_object
+
+
+def _ReasoningEngineContextSpec_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memoryBankConfig"]) is not None:
+        setv(
+            to_object,
+            ["memory_bank_config"],
+            _ReasoningEngineContextSpecMemoryBankConfig_from_vertex(
+                getv(from_object, ["memoryBankConfig"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ReasoningEngineContextSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_bank_config"]) is not None:
+        setv(
+            to_object,
+            ["memoryBankConfig"],
+            _ReasoningEngineContextSpecMemoryBankConfig_to_vertex(
+                getv(from_object, ["memory_bank_config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
+def _ReasoningEngine_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["encryptionSpec"]) is not None:
+        setv(to_object, ["encryption_spec"], getv(from_object, ["encryptionSpec"]))
+
+    if getv(from_object, ["contextSpec"]) is not None:
+        setv(
+            to_object,
+            ["context_spec"],
+            _ReasoningEngineContextSpec_from_vertex(
+                getv(from_object, ["contextSpec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["createTime"]) is not None:
+        setv(to_object, ["create_time"], getv(from_object, ["createTime"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["etag"]) is not None:
+        setv(to_object, ["etag"], getv(from_object, ["etag"]))
+
+    if getv(from_object, ["labels"]) is not None:
+        setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["spec"]) is not None:
+        setv(to_object, ["spec"], getv(from_object, ["spec"]))
+
+    if getv(from_object, ["updateTime"]) is not None:
+        setv(to_object, ["update_time"], getv(from_object, ["updateTime"]))
+
+    if getv(from_object, ["trafficConfig"]) is not None:
+        setv(to_object, ["traffic_config"], getv(from_object, ["trafficConfig"]))
+
+    return to_object
+
+
+def _RunQueryJobAgentEngineConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["input_gcs_uri"]) is not None:
+        setv(parent_object, ["inputGcsUri"], getv(from_object, ["input_gcs_uri"]))
+
+    if getv(from_object, ["output_gcs_uri"]) is not None:
+        setv(parent_object, ["outputGcsUri"], getv(from_object, ["output_gcs_uri"]))
+
+    return to_object
+
+
+def _RunQueryJobAgentEngineRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
         setv(
             to_object,
             ["config"],
-            _QueryAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object),
+            _RunQueryJobAgentEngineConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
         )
+
+    return to_object
+
+
+def _StructuredMemoryConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schemaConfigs"]) is not None:
+        setv(
+            to_object,
+            ["schema_configs"],
+            [
+                _StructuredMemorySchemaConfig_from_vertex(item, to_object)
+                for item in getv(from_object, ["schemaConfigs"])
+            ],
+        )
+
+    if getv(from_object, ["scopeKeys"]) is not None:
+        setv(to_object, ["scope_keys"], getv(from_object, ["scopeKeys"]))
+
+    return to_object
+
+
+def _StructuredMemoryConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schema_configs"]) is not None:
+        setv(
+            to_object,
+            ["schemaConfigs"],
+            [
+                _StructuredMemorySchemaConfig_to_vertex(item, to_object)
+                for item in getv(from_object, ["schema_configs"])
+            ],
+        )
+
+    if getv(from_object, ["scope_keys"]) is not None:
+        setv(to_object, ["scopeKeys"], getv(from_object, ["scope_keys"]))
+
+    return to_object
+
+
+def _StructuredMemorySchemaConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["schema"]) is not None:
+        setv(to_object, ["memory_schema"], getv(from_object, ["schema"]))
+
+    if getv(from_object, ["id"]) is not None:
+        setv(to_object, ["id"], getv(from_object, ["id"]))
+
+    if getv(from_object, ["memoryType"]) is not None:
+        setv(to_object, ["memory_type"], getv(from_object, ["memoryType"]))
+
+    return to_object
+
+
+def _StructuredMemorySchemaConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["memory_schema"]) is not None:
+        setv(to_object, ["schema"], getv(from_object, ["memory_schema"]))
+
+    if getv(from_object, ["id"]) is not None:
+        setv(to_object, ["id"], getv(from_object, ["id"]))
+
+    if getv(from_object, ["memory_type"]) is not None:
+        setv(to_object, ["memoryType"], getv(from_object, ["memory_type"]))
 
     return to_object
 
@@ -249,7 +670,13 @@ def _UpdateAgentEngineConfig_to_vertex(
         setv(parent_object, ["spec"], getv(from_object, ["spec"]))
 
     if getv(from_object, ["context_spec"]) is not None:
-        setv(parent_object, ["contextSpec"], getv(from_object, ["context_spec"]))
+        setv(
+            parent_object,
+            ["contextSpec"],
+            _ReasoningEngineContextSpec_to_vertex(
+                getv(from_object, ["context_spec"]), to_object
+            ),
+        )
 
     if getv(from_object, ["psc_interface_config"]) is not None:
         setv(
@@ -291,6 +718,16 @@ def _UpdateAgentEngineConfig_to_vertex(
     if getv(from_object, ["agent_framework"]) is not None:
         setv(parent_object, ["agentFramework"], getv(from_object, ["agent_framework"]))
 
+    if getv(from_object, ["python_version"]) is not None:
+        setv(parent_object, ["pythonVersion"], getv(from_object, ["python_version"]))
+
+    if getv(from_object, ["agent_gateway_config"]) is not None:
+        setv(
+            parent_object,
+            ["agentGatewayConfig"],
+            getv(from_object, ["agent_gateway_config"]),
+        )
+
     if getv(from_object, ["update_mask"]) is not None:
         setv(
             parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
@@ -308,18 +745,241 @@ def _UpdateAgentEngineRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _UpdateAgentEngineConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
-        )
+        _UpdateAgentEngineConfig_to_vertex(getv(from_object, ["config"]), to_object)
 
     return to_object
 
 
 class AgentEngines(_api_module.BaseModule):
+
+    def cancel_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CancelQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CancelQueryJobResult:
+        """
+        Cancels a long-running query job on an Agent Engine.
+
+        Args:
+            name (str):
+                Required. The reasoning engine resource name.
+            config (CancelQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the cancel_query_job.
+
+        """
+
+        parameter_model = types._CancelQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CancelQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:cancelAsyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:cancelAsyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.CancelQueryJobResult._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:checkQueryJob".format_map(request_url_dict)
+            else:
+                path = "{name}:checkQueryJob"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CheckQueryJobResult._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types._RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Run a query job on an agent engine.
+        """
+
+        parameter_model = types._RunQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
@@ -365,8 +1025,28 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -436,7 +1116,24 @@ class AgentEngines(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -485,8 +1182,28 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ReasoningEngine_from_vertex(response_dict)
+
         return_value = types.ReasoningEngine._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -534,8 +1251,28 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+
         return_value = types.ListReasoningEnginesResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -583,8 +1320,28 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -634,7 +1391,24 @@ class AgentEngines(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.QueryReasoningEngineResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -685,19 +1459,55 @@ class AgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
         return return_value
 
+    _a2a_tasks = None
     _memories = None
     _sandboxes = None
     _sessions = None
 
     @property
-    def memories(self):
+    def a2a_tasks(self) -> "a2a_tasks_module.A2aTasks":
+        if self._a2a_tasks is None:
+            try:
+                # We need to lazy load the a2a_tasks module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._a2a_tasks = importlib.import_module(".a2a_tasks", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.a2a_tasks' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._a2a_tasks.A2aTasks(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def memories(self) -> "memories_module.Memories":
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -709,14 +1519,10 @@ class AgentEngines(_api_module.BaseModule):
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._memories.Memories(self._api_client)
+        return self._memories.Memories(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sandboxes module is experimental, "
-        "and may change in future versions."
-    )
-    def sandboxes(self):
+    def sandboxes(self) -> Any:
         if self._sandboxes is None:
             try:
                 # We need to lazy load the sandboxes module to handle the
@@ -731,7 +1537,7 @@ class AgentEngines(_api_module.BaseModule):
         return self._sandboxes.Sandboxes(self._api_client)
 
     @property
-    def sessions(self):
+    def sessions(self) -> "sessions_module.Sessions":
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -743,7 +1549,7 @@ class AgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._sessions.Sessions(self._api_client)
+        return self._sessions.Sessions(self._api_client)  # type: ignore[no-any-return]
 
     def _list_pager(
         self, *, config: Optional[types.ListAgentEngineConfigOrDict] = None
@@ -753,6 +1559,212 @@ class AgentEngines(_api_module.BaseModule):
             self._list,
             self._list(config=config),
             config,
+        )
+
+    def check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """Checks a query job on an agent engine and optionally returns the results.
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (CheckQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the check_query_job. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - retrieve_result: Whether to retrieve the results of the query job.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+        import json
+
+        if config is None:
+            config = types.CheckQueryJobAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.CheckQueryJobAgentEngineConfig(**config)
+
+        raw_response = self._api_client.request("get", name, {})
+        if hasattr(raw_response, "body"):
+            operation = (
+                json.loads(raw_response.body)
+                if isinstance(raw_response.body, str)
+                else raw_response.body
+            )
+        else:
+            operation = raw_response
+
+        status = "RUNNING"
+        if isinstance(operation, dict):
+            if operation.get("done"):
+                status = "FAILED" if operation.get("error") else "SUCCESS"
+
+            response_dict = operation.get("response", {})
+            output_gcs_uri = response_dict.get("outputGcsUri") or response_dict.get(
+                "output_gcs_uri"
+            )
+            error = operation.get("error")
+        else:
+            if getattr(operation, "done", False):
+                status = "FAILED" if getattr(operation, "error", None) else "SUCCESS"
+
+            response_obj = getattr(operation, "response", None)
+            if isinstance(response_obj, dict):
+                output_gcs_uri = response_obj.get("outputGcsUri") or response_obj.get(
+                    "output_gcs_uri"
+                )
+            else:
+                output_gcs_uri = (
+                    getattr(
+                        response_obj,
+                        "output_gcs_uri",
+                        getattr(response_obj, "outputGcsUri", None),
+                    )
+                    if response_obj
+                    else None
+                )
+            error = getattr(operation, "error", None)
+
+        result_str = None
+        if status == "SUCCESS" and config.retrieve_result and output_gcs_uri:
+            storage_client = storage.Client(
+                project=self._api_client.project,
+                credentials=self._api_client._credentials,
+            )
+            bucket_name = output_gcs_uri.replace("gs://", "").split("/")[0]
+            blob_name = output_gcs_uri.replace(f"gs://{bucket_name}/", "")
+            bucket = storage_client.bucket(bucket_name)
+            blob = bucket.blob(blob_name)
+            if blob.exists():
+                result_str = blob.download_as_string().decode("utf-8")
+            else:
+                raise ValueError(
+                    f"Failed to retrieve blob results for {output_gcs_uri}"
+                )
+
+        elif status == "FAILED" and error:
+            result_str = str(error)
+
+        return types.CheckQueryJobResult(
+            operation_name=name,
+            output_gcs_uri=output_gcs_uri,
+            status=status,
+            result=result_str,
+        )
+
+    def _is_lightweight_creation(
+        self, agent: Any, config: types.AgentEngineConfig
+    ) -> bool:
+        if (
+            agent
+            or config.source_packages
+            or config.developer_connect_source
+            or config.agent_config_source
+            or config.container_spec
+        ):
+            return False
+        return True
+
+    def run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.RunQueryJobResult:
+        """Launches a long-running query job on an Agent Engine
+
+        Args:
+            name (str):
+                Required. A fully-qualified resource name or ID.
+            config (RunQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the async query. If not provided,
+                the default configuration will be used. This can be used to specify
+                the following fields:
+                  - query: The query to send to the agent engine.
+                  - output_gcs_uri: The GCS URI to use for the output.
+        """
+        from google.cloud import storage  # type: ignore[attr-defined]
+        from google.api_core import exceptions
+        import uuid
+
+        if config is None:
+            config = types.RunQueryJobAgentEngineConfig()
+        elif isinstance(config, dict):
+            config = types.RunQueryJobAgentEngineConfig(**config)
+
+        if not config.query:
+            raise ValueError("`query` is required in the config object.")
+        if not config.output_gcs_uri:
+            raise ValueError("`output_gcs_uri` is required in the config object.")
+
+        output_gcs_uri = config.output_gcs_uri
+        is_file = False
+        last_part = ""
+        if not output_gcs_uri.endswith("/"):
+            last_part = output_gcs_uri.split("/")[-1]
+            if "." in last_part:
+                is_file = True
+
+        if is_file:
+            path_parts = output_gcs_uri.split("/")
+            file_name = path_parts[-1]
+            base_uri = "/".join(path_parts[:-1])
+            name_parts = file_name.rsplit(".", 1)
+            if len(name_parts) == 2:
+                name_part, ext = name_parts[0], "." + name_parts[1]
+            else:
+                name_part = name_parts[0]
+                ext = ""
+            input_gcs_uri = f"{base_uri}/{name_part}_input{ext}"
+        else:
+            job_uuid = uuid.uuid4().hex
+            gcs_path = output_gcs_uri.rstrip("/")
+            input_gcs_uri = f"{gcs_path}/{job_uuid}_input.json"
+            output_gcs_uri = f"{gcs_path}/{job_uuid}_output.json"
+
+        storage_client = storage.Client(
+            project=self._api_client.project, credentials=self._api_client._credentials
+        )
+
+        # Handle creating the bucket if it does not exist
+        bucket_name = config.output_gcs_uri.replace("gs://", "").split("/")[0]
+        bucket = storage_client.bucket(bucket_name)
+
+        try:
+            bucket_exists = bucket.exists()
+        except exceptions.Forbidden as e:
+            raise ValueError(
+                f"Permission denied to check existence of bucket '{bucket_name}'. "
+                "The service account may lack 'storage.buckets.get' permission."
+            ) from e
+
+        if not bucket_exists:
+            try:
+                bucket.create()
+            except exceptions.Forbidden as e:
+                raise ValueError(
+                    f"Permission denied to create bucket '{bucket_name}'. "
+                    "The service account may lack 'storage.buckets.create' permission."
+                ) from e
+
+        input_blob_name = input_gcs_uri.replace(f"gs://{bucket_name}/", "")
+        blob = bucket.blob(input_blob_name)
+        blob.upload_from_string(config.query)
+
+        new_config = types._RunQueryJobAgentEngineConfig(
+            input_gcs_uri=input_gcs_uri,
+            output_gcs_uri=output_gcs_uri,
+        )
+
+        # Proceed with sending the async query via the auto-generated method
+        operation = self._run_query_job(name=name, config=new_config)
+
+        return types.RunQueryJobResult(
+            job_name=operation.name,
+            input_gcs_uri=input_gcs_uri,
+            output_gcs_uri=output_gcs_uri,
         )
 
     def get(
@@ -896,7 +1908,20 @@ class AgentEngines(_api_module.BaseModule):
         context_spec = config.context_spec
         if context_spec is not None:
             # Conversion to a dict for _create_config
-            context_spec = context_spec.model_dump()
+            context_spec = json.loads(context_spec.model_dump_json())
+        developer_connect_source = config.developer_connect_source
+        if developer_connect_source is not None:
+            developer_connect_source = json.loads(
+                developer_connect_source.model_dump_json()
+            )
+        agent_config_source = config.agent_config_source
+        if agent_config_source is not None:
+            agent_config_source = json.loads(agent_config_source.model_dump_json())
+        keep_alive_probe = config.keep_alive_probe
+        if keep_alive_probe is not None:
+            keep_alive_probe = json.loads(
+                keep_alive_probe.model_dump_json(exclude_none=True)
+            )
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -918,6 +1943,7 @@ class AgentEngines(_api_module.BaseModule):
             service_account=config.service_account,
             context_spec=context_spec,
             psc_interface_config=config.psc_interface_config,
+            agent_gateway_config=config.agent_gateway_config,
             min_instances=config.min_instances,
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
@@ -927,17 +1953,29 @@ class AgentEngines(_api_module.BaseModule):
             labels=config.labels,
             class_methods=config.class_methods,
             source_packages=config.source_packages,
+            developer_connect_source=developer_connect_source,
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
             agent_framework=config.agent_framework,
+            python_version=config.python_version,
+            build_options=config.build_options,
+            image_spec=config.image_spec,
+            agent_config_source=agent_config_source,
+            container_spec=config.container_spec,
+            keep_alive_probe=keep_alive_probe,
         )
         operation = self._create(config=api_config)
-        # TODO: Use a more specific link.
-        logger.info(
-            f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+        reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
+            operation_name=operation.name
         )
-        if agent is not None or config.source_packages is not None:
+        logger.info(
+            "View progress and logs at https://console.cloud.google.com/logs/query?"
+            f"project={self._api_client.project}"
+            "&query=resource.type%3D%22aiplatform.googleapis.com%2FReasoningEngine%22%0A"
+            f"resource.labels.reasoning_engine_id%3D%22{reasoning_engine_id}%22."
+        )
+        if not self._is_lightweight_creation(agent, config):
             poll_interval_seconds = 10
         else:
             poll_interval_seconds = 1  # Lightweight agent engine resource creation.
@@ -961,11 +1999,237 @@ class AgentEngines(_api_module.BaseModule):
             raise RuntimeError(f"Failed to create Agent Engine: {operation.error}")
         else:
             logger.warning("The operation returned an empty response.")
-        if agent is not None or config.source_packages is not None:
+        if not self._is_lightweight_creation(agent, config):
             # If the user did not provide an agent_engine (e.g. lightweight
             # provisioning), it will not have any API methods registered.
             agent_engine = self._register_api_methods(agent_engine=agent_engine)
-        return agent_engine
+        return agent_engine  # type: ignore[no-any-return]
+
+    def _set_source_code_spec(
+        self,
+        *,
+        spec: types.ReasoningEngineSpecDict,
+        update_masks: list[str],
+        source_packages: Optional[Sequence[str]] = None,
+        developer_connect_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
+        ] = None,
+        class_methods: Optional[Sequence[dict[str, Any]]] = None,
+        entrypoint_module: Optional[str] = None,
+        entrypoint_object: Optional[str] = None,
+        requirements_file: Optional[str] = None,
+        sys_version: str,
+        build_options: Optional[dict[str, list[str]]] = None,
+        image_spec: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
+        ] = None,
+        agent_config_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+        ] = None,
+    ) -> None:
+        """Sets source_code_spec for agent engine inside the `spec`."""
+        source_code_spec = types.ReasoningEngineSpecSourceCodeSpecDict()
+        if source_packages and not agent_config_source:
+            source_packages = _agent_engines_utils._validate_packages_or_raise(
+                packages=source_packages,
+                build_options=build_options,
+            )
+            update_masks.append("spec.source_code_spec.inline_source.source_archive")
+            source_code_spec["inline_source"] = {  # type: ignore[typeddict-item]
+                "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
+                    source_packages=source_packages
+                )
+            }
+        elif developer_connect_source:
+            update_masks.append("spec.source_code_spec.developer_connect_source")
+            source_code_spec["developer_connect_source"] = {
+                "config": developer_connect_source
+            }
+        elif not agent_config_source:
+            raise ValueError(
+                "Please specify one of `source_packages`, `developer_connect_source`, "
+                "or `agent_config_source`."
+            )
+        if class_methods is not None:
+            update_masks.append("spec.class_methods")
+            class_methods_spec_list = (
+                _agent_engines_utils._class_methods_to_class_methods_spec(
+                    class_methods=class_methods
+                )
+            )
+            spec["class_methods"] = [
+                _agent_engines_utils._to_dict(class_method_spec)
+                for class_method_spec in class_methods_spec_list
+            ]
+        elif image_spec is None:
+            raise ValueError(
+                "`class_methods` must be specified if `source_packages`, "
+                "`developer_connect_source`, or `agent_config_source` is "
+                "specified without a Dockerfile or `image_spec`."
+            )
+        if image_spec is not None:
+            if entrypoint_module or entrypoint_object or requirements_file:
+                raise ValueError(
+                    "`image_spec` cannot be specified alongside `entrypoint_module`, "
+                    "`entrypoint_object`, or `requirements_file`, as they are "
+                    "mutually exclusive."
+                )
+            if agent_config_source:
+                raise ValueError(
+                    "`image_spec` cannot be specified alongside `agent_config_source`, "
+                    "as they are mutually exclusive."
+                )
+            update_masks.append("spec.source_code_spec.image_spec")
+            source_code_spec["image_spec"] = image_spec
+            spec["source_code_spec"] = source_code_spec
+            return
+
+        update_masks.append("spec.source_code_spec.python_spec.version")
+        python_spec: types.ReasoningEngineSpecSourceCodeSpecPythonSpecDict = {
+            "version": sys_version,
+        }
+        if agent_config_source is not None:
+            if entrypoint_module or entrypoint_object:
+                logger.warning(
+                    "`entrypoint_module` and `entrypoint_object` are ignored when "
+                    "`agent_config_source` is specified, as they are pre-defined."
+                )
+            if source_packages:
+                source_packages = _agent_engines_utils._validate_packages_or_raise(
+                    packages=source_packages,
+                    build_options=build_options,
+                )
+                update_masks.append(
+                    "spec.source_code_spec.agent_config_source.inline_source.source_archive"
+                )
+                agent_config_source["inline_source"] = {  # type: ignore[typeddict-item]
+                    "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
+                        source_packages=source_packages
+                    )
+                }
+            update_masks.append("spec.source_code_spec.agent_config_source")
+            source_code_spec["agent_config_source"] = agent_config_source
+
+            if requirements_file is not None:
+                update_masks.append(
+                    "spec.source_code_spec.python_spec.requirements_file"
+                )
+                python_spec["requirements_file"] = requirements_file
+            source_code_spec["python_spec"] = python_spec
+
+            spec["source_code_spec"] = source_code_spec
+            return
+
+        if not entrypoint_module:
+            raise ValueError(
+                "`entrypoint_module` must be specified if `source_packages` or `developer_connect_source` is specified."
+            )
+        update_masks.append("spec.source_code_spec.python_spec.entrypoint_module")
+        python_spec["entrypoint_module"] = entrypoint_module
+        if not entrypoint_object:
+            raise ValueError(
+                "`entrypoint_object` must be specified if `source_packages` or `developer_connect_source` is specified."
+            )
+        update_masks.append("spec.source_code_spec.python_spec.entrypoint_object")
+        python_spec["entrypoint_object"] = entrypoint_object
+        if requirements_file is not None:
+            update_masks.append("spec.source_code_spec.python_spec.requirements_file")
+            python_spec["requirements_file"] = requirements_file
+        source_code_spec["python_spec"] = python_spec
+        spec["source_code_spec"] = source_code_spec
+
+    def _set_package_spec(
+        self,
+        *,
+        spec: types.ReasoningEngineSpecDict,
+        update_masks: list[str],
+        agent: Any,
+        staging_bucket: Optional[str] = None,
+        requirements: Optional[Union[str, Sequence[str]]] = None,
+        gcs_dir_name: Optional[str] = None,
+        extra_packages: Optional[Sequence[str]] = None,
+        class_methods: Optional[Sequence[dict[str, Any]]] = None,
+        sys_version: str,
+        build_options: Optional[dict[str, list[str]]] = None,
+    ) -> None:
+        """Sets package spec for agent engine."""
+        project = self._api_client.project
+        if project is None:
+            raise ValueError("project must be set using `vertexai.Client`.")
+        location = self._api_client.location
+        if location is None:
+            raise ValueError("location must be set using `vertexai.Client`.")
+        gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
+        staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
+            staging_bucket=staging_bucket,
+        )
+        requirements = _agent_engines_utils._validate_requirements_or_raise(
+            agent=agent,
+            requirements=requirements,
+        )
+        extra_packages = _agent_engines_utils._validate_packages_or_raise(
+            packages=extra_packages,
+            build_options=build_options,
+        )
+        # Prepares the Agent Engine for creation/update in Vertex AI. This
+        # involves packaging and uploading the artifacts for agent_engine,
+        # requirements and extra_packages to `staging_bucket/gcs_dir_name`.
+        _agent_engines_utils._prepare(
+            agent=agent,
+            requirements=requirements,
+            project=project,
+            location=location,
+            staging_bucket=staging_bucket,
+            gcs_dir_name=gcs_dir_name,
+            extra_packages=extra_packages,
+            credentials=self._api_client._credentials,
+        )
+        # Update the package spec.
+        update_masks.append("spec.package_spec.pickle_object_gcs_uri")
+        package_spec: types.ReasoningEngineSpecPackageSpecDict = {
+            "python_version": sys_version,
+            "pickle_object_gcs_uri": "{}/{}/{}".format(
+                staging_bucket,
+                gcs_dir_name,
+                _agent_engines_utils._BLOB_FILENAME,
+            ),
+        }
+        if extra_packages:
+            update_masks.append("spec.package_spec.dependency_files_gcs_uri")
+            package_spec["dependency_files_gcs_uri"] = "{}/{}/{}".format(
+                staging_bucket,
+                gcs_dir_name,
+                _agent_engines_utils._EXTRA_PACKAGES_FILE,
+            )
+        if requirements:
+            update_masks.append("spec.package_spec.requirements_gcs_uri")
+            package_spec["requirements_gcs_uri"] = "{}/{}/{}".format(
+                staging_bucket,
+                gcs_dir_name,
+                _agent_engines_utils._REQUIREMENTS_FILE,
+            )
+        spec["package_spec"] = package_spec
+
+        update_masks.append("spec.class_methods")
+        if class_methods is not None:
+            class_methods_spec_list = (
+                _agent_engines_utils._class_methods_to_class_methods_spec(
+                    class_methods=class_methods
+                )
+            )
+        else:
+            class_methods_spec_list = (
+                _agent_engines_utils._generate_class_methods_spec_or_raise(
+                    agent=agent,
+                    operations=_agent_engines_utils._get_registered_operations(
+                        agent=agent
+                    ),
+                )
+            )
+        spec["class_methods"] = [
+            _agent_engines_utils._to_dict(class_method_spec)
+            for class_method_spec in class_methods_spec_list
+        ]
 
     def _create_config(
         self,
@@ -983,6 +2247,9 @@ class AgentEngines(_api_module.BaseModule):
         service_account: Optional[str] = None,
         context_spec: Optional[types.ReasoningEngineContextSpecDict] = None,
         psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
+        agent_gateway_config: Optional[
+            types.ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+        ] = None,
         min_instances: Optional[int] = None,
         max_instances: Optional[int] = None,
         resource_limits: Optional[dict[str, str]] = None,
@@ -992,10 +2259,23 @@ class AgentEngines(_api_module.BaseModule):
         agent_server_mode: Optional[types.AgentServerMode] = None,
         class_methods: Optional[Sequence[dict[str, Any]]] = None,
         source_packages: Optional[Sequence[str]] = None,
+        developer_connect_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecDeveloperConnectConfigDict
+        ] = None,
         entrypoint_module: Optional[str] = None,
         entrypoint_object: Optional[str] = None,
         requirements_file: Optional[str] = None,
         agent_framework: Optional[str] = None,
+        python_version: Optional[str] = None,
+        build_options: Optional[dict[str, list[str]]] = None,
+        image_spec: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecImageSpecDict
+        ] = None,
+        agent_config_source: Optional[
+            types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
+        ] = None,
+        container_spec: Optional[types.ReasoningEngineSpecContainerSpecDict] = None,
+        keep_alive_probe: Optional[dict[str, Any]] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -1027,170 +2307,130 @@ class AgentEngines(_api_module.BaseModule):
         if agent_framework == "google-adk":
             env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
 
-        sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-        agent_engine_spec = None
-        if agent is not None:
-            if source_packages is not None:
+        if python_version:
+            sys_version = python_version
+        else:
+            sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+        if agent:
+            if source_packages:
                 raise ValueError(
                     "If you have provided `source_packages` in `config`, please "
                     "do not specify `agent` in `agent_engines.create()` or "
                     "`agent_engines.update()`."
                 )
+            if developer_connect_source:
+                raise ValueError(
+                    "If you have provided `developer_connect_source` in `config`, please "
+                    "do not specify `agent` in `agent_engines.create()` or "
+                    "`agent_engines.update()`."
+                )
+        elif source_packages and developer_connect_source:
+            raise ValueError(
+                "Please specify only one of `source_packages` or `developer_connect_source` in `config`."
+            )
 
-            project = self._api_client.project
-            if project is None:
-                raise ValueError("project must be set using `vertexai.Client`.")
-            location = self._api_client.location
-            if location is None:
-                raise ValueError("location must be set using `vertexai.Client`.")
-            gcs_dir_name = gcs_dir_name or _agent_engines_utils._DEFAULT_GCS_DIR_NAME
+        if container_spec:
+            if agent:
+                raise ValueError(
+                    "If you have provided `container_spec` in `config`, please "
+                    "do not specify `agent` in `agent_engines.create()` or "
+                    "`agent_engines.update()`."
+                )
+            if source_packages or developer_connect_source:
+                raise ValueError(
+                    "If you have provided `container_spec` in `config`, please "
+                    "do not specify `source_packages` or `developer_connect_source` in `config`."
+                )
+
+        agent_engine_spec: Any = None
+        if agent:
+            agent_engine_spec = {}
             agent = _agent_engines_utils._validate_agent_or_raise(agent=agent)
             if _agent_engines_utils._is_adk_agent(agent):
                 env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
-            staging_bucket = _agent_engines_utils._validate_staging_bucket_or_raise(
-                staging_bucket=staging_bucket,
-            )
-            requirements = _agent_engines_utils._validate_requirements_or_raise(
+            self._set_package_spec(
+                spec=agent_engine_spec,
+                update_masks=update_masks,
                 agent=agent,
-                requirements=requirements,
-            )
-            extra_packages = _agent_engines_utils._validate_extra_packages_or_raise(
-                extra_packages=extra_packages,
-            )
-            # Prepares the Agent Engine for creation/update in Vertex AI. This
-            # involves packaging and uploading the artifacts for agent_engine,
-            # requirements and extra_packages to `staging_bucket/gcs_dir_name`.
-            _agent_engines_utils._prepare(
-                agent=agent,
-                requirements=requirements,
-                project=project,
-                location=location,
                 staging_bucket=staging_bucket,
+                requirements=requirements,
                 gcs_dir_name=gcs_dir_name,
                 extra_packages=extra_packages,
+                class_methods=class_methods,
+                sys_version=sys_version,
+                build_options=build_options,
             )
-            # Update the package spec.
-            update_masks.append("spec.package_spec.pickle_object_gcs_uri")
-            package_spec = {
-                "python_version": sys_version,
-                "pickle_object_gcs_uri": "{}/{}/{}".format(
-                    staging_bucket,
-                    gcs_dir_name,
-                    _agent_engines_utils._BLOB_FILENAME,
-                ),
-            }
-            if extra_packages:
-                update_masks.append("spec.package_spec.dependency_files_gcs_uri")
-                package_spec["dependency_files_gcs_uri"] = "{}/{}/{}".format(
-                    staging_bucket,
-                    gcs_dir_name,
-                    _agent_engines_utils._EXTRA_PACKAGES_FILE,
-                )
-            if requirements:
-                update_masks.append("spec.package_spec.requirements_gcs_uri")
-                package_spec["requirements_gcs_uri"] = "{}/{}/{}".format(
-                    staging_bucket,
-                    gcs_dir_name,
-                    _agent_engines_utils._REQUIREMENTS_FILE,
-                )
-
-            update_masks.append("spec.class_methods")
-            class_methods_spec = []
+        elif (
+            source_packages
+            or developer_connect_source
+            or image_spec
+            or agent_config_source
+        ):
+            agent_engine_spec = {}
+            self._set_source_code_spec(
+                spec=agent_engine_spec,
+                update_masks=update_masks,
+                source_packages=source_packages,
+                developer_connect_source=developer_connect_source,
+                class_methods=class_methods,
+                entrypoint_module=entrypoint_module,
+                entrypoint_object=entrypoint_object,
+                requirements_file=requirements_file,
+                sys_version=sys_version,
+                build_options=build_options,
+                image_spec=image_spec,
+                agent_config_source=agent_config_source,
+            )
+        elif container_spec:
+            agent_engine_spec = {}
             if class_methods is not None:
-                class_methods_spec = (
+                update_masks.append("spec.class_methods")
+                class_methods_spec_list = (
                     _agent_engines_utils._class_methods_to_class_methods_spec(
                         class_methods=class_methods
                     )
                 )
-            else:
-                class_methods_spec = (
-                    _agent_engines_utils._generate_class_methods_spec_or_raise(
-                        agent=agent,
-                        operations=_agent_engines_utils._get_registered_operations(
-                            agent=agent
-                        ),
-                    )
-                )
-
-            agent_engine_spec: types.ReasoningEngineSpecDict = {
-                "package_spec": package_spec,
-                "class_methods": [
+                agent_engine_spec["class_methods"] = [
                     _agent_engines_utils._to_dict(class_method_spec)
-                    for class_method_spec in class_methods_spec
-                ],
-            }
+                    for class_method_spec in class_methods_spec_list
+                ]
+            update_masks.append("spec.container_spec")
+            agent_engine_spec["container_spec"] = container_spec
 
-        if source_packages is not None:
-            update_masks.append("spec.source_code_spec.inline_source.source_archive")
-            source_code_spec = {
-                "inline_source": {
-                    "source_archive": _agent_engines_utils._create_base64_encoded_tarball(
-                        source_packages=source_packages
-                    )
-                }
-            }
-
-            update_masks.append("spec.source_code_spec.python_spec.version")
-            python_spec = {
-                "version": sys_version,
-            }
-            if not entrypoint_module:
-                raise ValueError(
-                    "entrypoint_module must be specified if source_packages is specified."
-                )
-            update_masks.append("spec.source_code_spec.python_spec.entrypoint_module")
-            python_spec["entrypoint_module"] = entrypoint_module
-            if not entrypoint_object:
-                raise ValueError(
-                    "entrypoint_object must be specified if source_packages is specified."
-                )
-            update_masks.append("spec.source_code_spec.python_spec.entrypoint_object")
-            python_spec["entrypoint_object"] = entrypoint_object
-            if requirements_file is not None:
-                update_masks.append(
-                    "spec.source_code_spec.python_spec.requirements_file"
-                )
-                python_spec["requirements_file"] = requirements_file
-            source_code_spec["python_spec"] = python_spec
-
-            if class_methods is None:
-                raise ValueError(
-                    "class_methods must be specified if source_packages is specified."
-                )
-            update_masks.append("spec.class_methods")
-            class_methods_spec = (
-                _agent_engines_utils._class_methods_to_class_methods_spec(
-                    class_methods=class_methods
-                )
+        is_deployment_spec_updated = (
+            env_vars is not None
+            or psc_interface_config is not None
+            or agent_gateway_config is not None
+            or min_instances is not None
+            or max_instances is not None
+            or resource_limits is not None
+            or container_concurrency is not None
+            or keep_alive_probe is not None
+        )
+        if agent_engine_spec is None and is_deployment_spec_updated:
+            raise ValueError(
+                "To update `env_vars`, `psc_interface_config`, `min_instances`, "
+                "`max_instances`, `resource_limits`, `container_concurrency`, or "
+                "`keep_alive_probe`, you must also provide the `agent` variable or "
+                "the source code options (`source_packages`, "
+                "`developer_connect_source` or `agent_config_source`)."
             )
 
-            agent_engine_spec: types.ReasoningEngineSpecDict = {
-                "source_code_spec": source_code_spec,
-                "class_methods": [
-                    _agent_engines_utils._to_dict(class_method_spec)
-                    for class_method_spec in class_methods_spec
-                ],
-            }
-
         if agent_engine_spec is not None:
-            if (
-                env_vars is not None
-                or psc_interface_config is not None
-                or min_instances is not None
-                or max_instances is not None
-                or resource_limits is not None
-                or container_concurrency is not None
-            ):
+            if is_deployment_spec_updated:
                 (
                     deployment_spec,
                     deployment_update_masks,
                 ) = self._generate_deployment_spec_or_raise(
                     env_vars=env_vars,
                     psc_interface_config=psc_interface_config,
+                    agent_gateway_config=agent_gateway_config,
                     min_instances=min_instances,
                     max_instances=max_instances,
                     resource_limits=resource_limits,
                     container_concurrency=container_concurrency,
+                    keep_alive_probe=keep_alive_probe,
                 )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
@@ -1210,6 +2450,18 @@ class AgentEngines(_api_module.BaseModule):
                     agent=agent,
                 )
             )
+
+            if hasattr(agent, "agent_card"):
+                agent_card = getattr(agent, "agent_card")
+                if agent_card:
+                    try:
+                        agent_engine_spec["agent_card"] = agent_card.model_dump(
+                            exclude_none=True
+                        )
+                    except TypeError as e:
+                        raise ValueError(
+                            f"Failed to convert agent card to dict (serialization error): {e}"
+                        ) from e
             update_masks.append("spec.agent_framework")
 
         if identity_type is not None or service_account is not None:
@@ -1237,10 +2489,14 @@ class AgentEngines(_api_module.BaseModule):
         *,
         env_vars: Optional[dict[str, Union[str, Any]]] = None,
         psc_interface_config: Optional[types.PscInterfaceConfigDict] = None,
+        agent_gateway_config: Optional[
+            types.ReasoningEngineSpecDeploymentSpecAgentGatewayConfigDict
+        ] = None,
         min_instances: Optional[int] = None,
         max_instances: Optional[int] = None,
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
+        keep_alive_probe: Optional[dict[str, Any]] = None,
     ) -> Tuple[dict[str, Any], Sequence[str]]:
         deployment_spec: dict[str, Any] = {}
         update_masks = []
@@ -1261,6 +2517,9 @@ class AgentEngines(_api_module.BaseModule):
         if psc_interface_config:
             deployment_spec["psc_interface_config"] = psc_interface_config
             update_masks.append("spec.deployment_spec.psc_interface_config")
+        if agent_gateway_config:
+            deployment_spec["agent_gateway_config"] = agent_gateway_config
+            update_masks.append("spec.deployment_spec.agent_gateway_config")
         if min_instances is not None:
             if not 0 <= min_instances <= 10:
                 raise ValueError(
@@ -1288,6 +2547,9 @@ class AgentEngines(_api_module.BaseModule):
         if container_concurrency:
             deployment_spec["container_concurrency"] = container_concurrency
             update_masks.append("spec.deployment_spec.container_concurrency")
+        if keep_alive_probe is not None:
+            deployment_spec["keep_alive_probe"] = keep_alive_probe
+            update_masks.append("spec.deployment_spec.keep_alive_probe")
         return deployment_spec, update_masks
 
     def _update_deployment_spec_with_env_vars_dict_or_raise(
@@ -1321,10 +2583,10 @@ class AgentEngines(_api_module.BaseModule):
             _agent_engines_utils._register_api_methods_or_raise(
                 agent_engine=agent_engine,
                 wrap_operation_fn={
-                    "": _agent_engines_utils._wrap_query_operation,
-                    "async": _agent_engines_utils._wrap_async_query_operation,
-                    "stream": _agent_engines_utils._wrap_stream_query_operation,
-                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,
+                    "": _agent_engines_utils._wrap_query_operation,  # type: ignore[dict-item]
+                    "async": _agent_engines_utils._wrap_async_query_operation,  # type: ignore[dict-item]
+                    "stream": _agent_engines_utils._wrap_stream_query_operation,  # type: ignore[dict-item]
+                    "async_stream": _agent_engines_utils._wrap_async_stream_query_operation,  # type: ignore[dict-item]
                     "a2a_extension": _agent_engines_utils._wrap_a2a_operation,
                 },
             )
@@ -1420,13 +2682,34 @@ class AgentEngines(_api_module.BaseModule):
         context_spec = config.context_spec
         if context_spec is not None:
             # Conversion to a dict for _create_config
-            context_spec = context_spec.model_dump()
+            context_spec = json.loads(context_spec.model_dump_json())
+        developer_connect_source = config.developer_connect_source
+        if developer_connect_source is not None:
+            developer_connect_source = json.loads(
+                developer_connect_source.model_dump_json()
+            )
+        agent_config_source = config.agent_config_source
+        if agent_config_source is not None:
+            agent_config_source = json.loads(agent_config_source.model_dump_json())
+        keep_alive_probe = config.keep_alive_probe
+        if keep_alive_probe is not None:
+            keep_alive_probe = json.loads(
+                keep_alive_probe.model_dump_json(exclude_none=True)
+            )
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
             raise DeprecationWarning(
                 "The `agent_engine` argument is deprecated. Please use `agent` instead."
             )
+        image_spec = config.image_spec
+        if image_spec is not None:
+            # Conversion to a dict for _create_config
+            image_spec = json.loads(image_spec.model_dump_json())
+        container_spec = config.container_spec
+        if container_spec is not None:
+            # Conversion to a dict for _create_config
+            container_spec = json.loads(container_spec.model_dump_json())
         agent = agent or agent_engine
         api_config = self._create_config(
             mode="update",
@@ -1442,6 +2725,7 @@ class AgentEngines(_api_module.BaseModule):
             service_account=config.service_account,
             context_spec=context_spec,
             psc_interface_config=config.psc_interface_config,
+            agent_gateway_config=config.agent_gateway_config,
             min_instances=config.min_instances,
             max_instances=config.max_instances,
             resource_limits=config.resource_limits,
@@ -1449,14 +2733,27 @@ class AgentEngines(_api_module.BaseModule):
             labels=config.labels,
             class_methods=config.class_methods,
             source_packages=config.source_packages,
+            developer_connect_source=developer_connect_source,
             entrypoint_module=config.entrypoint_module,
             entrypoint_object=config.entrypoint_object,
             requirements_file=config.requirements_file,
             agent_framework=config.agent_framework,
+            python_version=config.python_version,
+            build_options=config.build_options,
+            image_spec=image_spec,
+            agent_config_source=agent_config_source,
+            container_spec=container_spec,
+            keep_alive_probe=keep_alive_probe,
         )
         operation = self._update(name=name, config=api_config)
+        reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
+            resource_name=name
+        )
         logger.info(
-            f"View progress and logs at https://console.cloud.google.com/logs/query?project={self._api_client.project}."
+            "View progress and logs at https://console.cloud.google.com/logs/query?"
+            f"project={self._api_client.project}"
+            "&query=resource.type%3D%22aiplatform.googleapis.com%2FReasoningEngine%22%0A"
+            f"resource.labels.reasoning_engine_id%3D%22{reasoning_engine_id}%22."
         )
         operation = _agent_engines_utils._await_operation(
             operation_name=operation.name,
@@ -1476,7 +2773,7 @@ class AgentEngines(_api_module.BaseModule):
             raise RuntimeError(f"Failed to update Agent Engine: {operation.error}")
         if agent_engine.api_resource.spec:
             self._register_api_methods(agent_engine=agent_engine)
-        return agent_engine
+        return agent_engine  # type: ignore[no-any-return]
 
     def _stream_query(
         self, *, name: str, config: Optional[types.QueryAgentEngineConfigOrDict] = None
@@ -1804,6 +3101,241 @@ class AgentEngines(_api_module.BaseModule):
 
 class AsyncAgentEngines(_api_module.BaseModule):
 
+    async def cancel_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CancelQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CancelQueryJobResult:
+        """
+        Cancels a long-running query job on an Agent Engine.
+
+        Args:
+            name (str):
+                Required. The reasoning engine resource name.
+            config (CancelQueryJobAgentEngineConfigOrDict):
+                Optional. The configuration for the cancel_query_job.
+
+        """
+
+        parameter_model = types._CancelQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CancelQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:cancelAsyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:cancelAsyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.CancelQueryJobResult._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _check_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types.CheckQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.CheckQueryJobResult:
+        """
+        Query an Agent Engine asynchronously.
+        """
+
+        parameter_model = types._CheckQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:checkQueryJob".format_map(request_url_dict)
+            else:
+                path = "{name}:checkQueryJob"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CheckQueryJobResult_from_vertex(response_dict)
+
+        return_value = types.CheckQueryJobResult._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _run_query_job(
+        self,
+        *,
+        name: str,
+        config: Optional[types._RunQueryJobAgentEngineConfigOrDict] = None,
+    ) -> types.AgentEngineOperation:
+        """
+        Run a query job on an agent engine.
+        """
+
+        parameter_model = types._RunQueryJobAgentEngineRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}:asyncQuery".format_map(request_url_dict)
+            else:
+                path = "{name}:asyncQuery"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
+        return_value = types.AgentEngineOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _create(
         self, *, config: Optional[types.CreateAgentEngineConfigOrDict] = None
     ) -> types.AgentEngineOperation:
@@ -1850,8 +3382,28 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1923,7 +3475,24 @@ class AsyncAgentEngines(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1974,8 +3543,28 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ReasoningEngine_from_vertex(response_dict)
+
         return_value = types.ReasoningEngine._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2025,8 +3614,28 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _ListReasoningEnginesResponse_from_vertex(response_dict)
+
         return_value = types.ListReasoningEnginesResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2076,8 +3685,28 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2129,7 +3758,24 @@ class AsyncAgentEngines(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.QueryReasoningEngineResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2182,13 +3828,34 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         response_dict = {} if not response.body else json.loads(response.body)
 
+        if self._api_client.vertexai:
+            response_dict = _AgentEngineOperation_from_vertex(response_dict)
+
         return_value = types.AgentEngineOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
         return return_value
 
+    _a2a_tasks = None
     _memories = None
     _sessions = None
 
@@ -2221,7 +3888,22 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return operation
 
     @property
-    def memories(self):
+    def a2a_tasks(self) -> "a2a_tasks_module.AsyncA2aTasks":
+        if self._a2a_tasks is None:
+            try:
+                # We need to lazy load the a2a_tasks module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._a2a_tasks = importlib.import_module(".a2a_tasks", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.a2a_tasks' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._a2a_tasks.AsyncA2aTasks(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def memories(self) -> "memories_module.AsyncMemories":
         if self._memories is None:
             try:
                 # We need to lazy load the memories module to handle the
@@ -2233,10 +3915,10 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._memories.AsyncMemories(self._api_client)
+        return self._memories.AsyncMemories(self._api_client)  # type: ignore[no-any-return]
 
     @property
-    def sessions(self):
+    def sessions(self) -> "sessions_module.AsyncSessions":
         if self._sessions is None:
             try:
                 # We need to lazy load the sessions module to handle the
@@ -2248,7 +3930,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
                     "Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._sessions.AsyncSessions(self._api_client)
+        return self._sessions.AsyncSessions(self._api_client)  # type: ignore[no-any-return]
 
     async def append_session_event(
         self,
@@ -2268,7 +3950,13 @@ class AsyncAgentEngines(_api_module.BaseModule):
             DeprecationWarning,
             stacklevel=2,
         )
-        return await self.sessions.events.append(name=name, config=config)
+        return await self.sessions.events.append(
+            name=name,
+            author=author,
+            invocation_id=invocation_id,
+            timestamp=timestamp,
+            config=config,
+        )
 
     async def delete_memory(
         self,

@@ -33,10 +33,9 @@ def test_delete_dataset(client):
             },
         }
     )
-    name = dataset.name.split("/datasets/")[1]
 
     operation = client.datasets._delete_multimodal_dataset(
-        name=name,
+        name=dataset.name,
     )
     assert isinstance(operation, types.MultimodalDatasetOperation)
     assert operation.done
@@ -53,10 +52,9 @@ def test_delete_dataset_with_public_method(client):
             },
         }
     )
-    name = dataset.name.split("/datasets/")[1]
 
     operation = client.datasets.delete_multimodal_dataset(
-        name=name,
+        name=dataset.name,
     )
     assert isinstance(operation, types.MultimodalDatasetOperation)
     assert operation.done
@@ -82,13 +80,12 @@ async def test_delete_dataset_async(client):
             },
         }
     )
-    name = dataset.name.split("/datasets/")[1]
 
     operation = await client.aio.datasets._delete_multimodal_dataset(
-        name=name,
+        name=dataset.name,
     )
     assert isinstance(operation, types.MultimodalDatasetOperation)
-    assert operation
+    assert operation.done
 
 
 @pytest.mark.asyncio
@@ -103,10 +100,9 @@ async def test_delete_dataset_with_public_method_async(client):
             },
         }
     )
-    name = dataset.name.split("/datasets/")[1]
 
     operation = await client.aio.datasets.delete_multimodal_dataset(
-        name=name,
+        name=dataset.name,
     )
     assert isinstance(operation, types.MultimodalDatasetOperation)
     assert operation.done

@@ -29,6 +29,7 @@ def test_save_model_sample(mock_save_model):
         uri=constants.MODEL_ARTIFACT_URI,
         input_example=constants.EXPERIMENT_MODEL_INPUT_EXAMPLE,
         display_name=constants.DISPLAY_NAME,
+        staging_bucket=constants.STAGING_BUCKET,
     )
 
     mock_save_model.assert_called_once_with(
@@ -37,4 +38,5 @@ def test_save_model_sample(mock_save_model):
         uri=constants.MODEL_ARTIFACT_URI,
         input_example=constants.EXPERIMENT_MODEL_INPUT_EXAMPLE,
         display_name=constants.DISPLAY_NAME,
+        staging_bucket=constants.STAGING_BUCKET,
     )

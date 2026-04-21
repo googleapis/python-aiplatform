@@ -62,6 +62,7 @@ def list_deployable_models(
         `{publisher}/{model}@{version}` or Hugging Face model ID in the format
         of `{organization}/{model}`.
     """
+
     filter_str = _NATIVE_MODEL_FILTER
     if list_hf_models:
         filter_str = " AND ".join([_HF_WILDCARD_FILTER, _VERIFIED_DEPLOYMENT_FILTER])
@@ -90,6 +91,50 @@ def list_deployable_models(
                     re.sub(r"publishers/(hf-|)|models/", "", model.name)
                     + ("" if list_hf_models else ("@" + model.version_id))
                 )
+    return output
+
+
+def list_models(
+    *, list_hf_models: bool = False, model_filter: Optional[str] = None
+) -> List[str]:
+    """Lists the models in Model Garden.
+
+    Args:
+        list_hf_models: Whether to list the Hugging Face models.
+        model_filter: Optional. A string to filter the models by.
+
+    Returns:
+        The names of the models in Model Garden in the format of
+        `{publisher}/{model}@{version}` or Hugging Face model ID in the format
+        of `{organization}/{model}`.
+    """
+    filter_str = _NATIVE_MODEL_FILTER
+    if list_hf_models:
+        filter_str = _HF_WILDCARD_FILTER
+    if model_filter:
+        filter_str = (
+            f'{filter_str} AND (model_user_id=~"(?i).*{model_filter}.*" OR'
+            f' display_name=~"(?i).*{model_filter}.*")'
+        )
+
+    request = types.ListPublisherModelsRequest(
+        parent="publishers/*",
+        list_all_versions=True,
+        filter=filter_str,
+    )
+    client = initializer.global_config.create_client(
+        client_class=_ModelGardenClientWithOverride,
+        credentials=initializer.global_config.credentials,
+        location_override="us-central1",
+    )
+    response = client.list_publisher_models(request)
+    output = []
+    for page in response.pages:
+        for model in page.publisher_models:
+            output.append(
+                re.sub(r"publishers/(hf-|)|models/", "", model.name)
+                + ("" if list_hf_models else ("@" + model.version_id))
+            )
     return output
 
 
@@ -416,6 +461,8 @@ class OpenModel:
         serving_container_health_probe_exec: Optional[Sequence[str]] = None,
         serving_container_health_probe_period_seconds: Optional[int] = None,
         serving_container_health_probe_timeout_seconds: Optional[int] = None,
+        enable_private_service_connect: bool = False,
+        psc_project_allow_list: Optional[Sequence[str]] = None,
     ) -> aiplatform.Endpoint:
         """Deploys an Open Model to an endpoint.
 
@@ -550,6 +597,10 @@ class OpenModel:
             serving_container_health_probe_timeout_seconds (int): Optional. Number
               of seconds after which the health probe times out. Defaults to 1
               second. Minimum value is 1.
+            enable_private_service_connect (bool): Whether to enable private service
+            connect.
+            psc_project_allow_list (Sequence[str]): The list of projects that are
+            allowed to access the endpoint over private service connect.
 
         Returns:
             endpoint (aiplatform.Endpoint):
@@ -616,6 +667,14 @@ class OpenModel:
         if dedicated_endpoint_disabled:
             request.endpoint_config.dedicated_endpoint_disabled = (
                 dedicated_endpoint_disabled
+            )
+
+        if enable_private_service_connect and psc_project_allow_list:
+            request.endpoint_config.private_service_connect_config = (
+                types.PrivateServiceConnectConfig(
+                    enable_private_service_connect=enable_private_service_connect,
+                    project_allowlist=psc_project_allow_list,
+                )
             )
 
         if fast_tryout_enabled:
@@ -1061,6 +1120,7 @@ class CustomModel:
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        system_labels: Optional[Dict[str, str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         enable_private_service_connect: bool = False,
@@ -1105,6 +1165,7 @@ class CustomModel:
               name of the reservation.
                 Format:
                   'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            system_labels (Dict[str, str]): Optional. System labels for Model Garden deployments.
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             enable_private_service_connect (bool): Whether to enable private service
@@ -1127,6 +1188,7 @@ class CustomModel:
             reservation_affinity_type=reservation_affinity_type,
             reservation_affinity_key=reservation_affinity_key,
             reservation_affinity_values=reservation_affinity_values,
+            system_labels=system_labels,
             endpoint_display_name=endpoint_display_name,
             model_display_name=model_display_name,
             enable_private_service_connect=enable_private_service_connect,
@@ -1152,6 +1214,7 @@ class CustomModel:
         reservation_affinity_type: Optional[str] = None,
         reservation_affinity_key: Optional[str] = None,
         reservation_affinity_values: Optional[List[str]] = None,
+        system_labels: Optional[Dict[str, str]] = None,
         endpoint_display_name: Optional[str] = None,
         model_display_name: Optional[str] = None,
         deploy_request_timeout: Optional[float] = None,
@@ -1196,6 +1259,7 @@ class CustomModel:
               name of the reservation.
                 Format:
                   'projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}'
+            system_labels (Dict[str, str]): Optional. System labels for Model Garden deployments.
             endpoint_display_name: The display name of the created endpoint.
             model_display_name: The display name of the custom model.
             enable_private_service_connect (bool): Whether to enable private service
@@ -1230,6 +1294,8 @@ class CustomModel:
             request.endpoint_config.endpoint_display_name = endpoint_display_name
         if model_display_name:
             request.model_config.model_display_name = model_display_name
+        if system_labels:
+            request.deploy_config.system_labels = system_labels
 
         if enable_private_service_connect and psc_project_allow_list:
             request.endpoint_config.private_service_connect_config = (

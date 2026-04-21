@@ -173,19 +173,19 @@ You can also run queries against the deployed agent:
 Prompt optimization
 ^^^^^^^^^^^^^^^^^^^
 
-To do a zero-shot prompt optimization, use the `optimize_prompt`
+To do a zero-shot prompt optimization, use the `optimize`
 method.
 
 .. code-block:: Python
 
     prompt = "Generate system instructions for a question-answering assistant"
-    response = client.prompt_optimizer.optimize_prompt(prompt=prompt)
+    response = client.prompts.optimize(prompt=prompt)
     print(response.raw_text_response)
     if response.parsed_response:
       print(response.parsed_response.suggested_prompt)
 
-To call the data-driven prompt optimization, call the `optimize` method.
-In this case however, we need to provide `vapo_config`. This config needs to
+To call the data-driven prompt optimization, call the `launch_optimization_job` method.
+In this case however, we need to provide a VAPO (Vertex AI Prompt Optimizer) config. This config needs to
 have either service account or project **number** and the config path.
 Please refer to this [tutorial](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/prompts/data-driven-optimizer)
 for more details on config parameter.
@@ -206,7 +206,7 @@ for more details on config parameter.
     # Set up logging to see the progress of the optimization job
     logging.basicConfig(encoding='utf-8', level=logging.INFO, force=True)
 
-    result = client.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+    result = client.prompts.launch_optimization_job(method=types.PromptOptimizerMethod.VAPO, config=vapo_config)
 
 If you want to use the project number instead of the service account, you can
 instead use the following config:
@@ -219,11 +219,11 @@ instead use the following config:
         wait_for_completion=False
     )
 
-We can also call optimize method async.
+We can also call the `launch_optimization_job` method asynchronously.
 
 .. code-block:: Python
 
-    await client.aio.prompt_optimizer.optimize(method="vapo", config=vapo_config)
+    await client.aio.prompts.launch_optimization_job(method=types.PromptOptimizerMethod.VAPO, config=vapo_config)
 
 Prompt Management
 ^^^^^^^^^^^^^^^^^

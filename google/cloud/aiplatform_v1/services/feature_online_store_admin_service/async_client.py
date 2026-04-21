@@ -45,8 +45,6 @@ try:
 except AttributeError:  # pragma: NO COVER
     OptionalRetry = Union[retries.AsyncRetry, object, None]  # type: ignore
 
-from google.api_core import operation as gac_operation  # type: ignore
-from google.api_core import operation_async  # type: ignore
 from google.cloud.aiplatform_v1.services.feature_online_store_admin_service import (
     pagers,
 )
@@ -64,11 +62,13 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
-from google.type import interval_pb2  # type: ignore
+import google.api_core.operation as gac_operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
+import google.type.interval_pb2 as interval_pb2  # type: ignore
 from .transports.base import (
     FeatureOnlineStoreAdminServiceTransport,
     DEFAULT_CLIENT_INFO,
@@ -164,7 +164,12 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
         Returns:
             FeatureOnlineStoreAdminServiceAsyncClient: The constructed client.
         """
-        return FeatureOnlineStoreAdminServiceClient.from_service_account_info.__func__(FeatureOnlineStoreAdminServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            FeatureOnlineStoreAdminServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(
+            FeatureOnlineStoreAdminServiceAsyncClient, info, *args, **kwargs
+        )
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -180,7 +185,12 @@ class FeatureOnlineStoreAdminServiceAsyncClient:
         Returns:
             FeatureOnlineStoreAdminServiceAsyncClient: The constructed client.
         """
-        return FeatureOnlineStoreAdminServiceClient.from_service_account_file.__func__(FeatureOnlineStoreAdminServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            FeatureOnlineStoreAdminServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(
+            FeatureOnlineStoreAdminServiceAsyncClient, filename, *args, **kwargs
+        )
 
     from_service_account_json = from_service_account_file
 

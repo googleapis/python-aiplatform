@@ -17,7 +17,7 @@
 
 import json
 import logging
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional, Union, cast
 from urllib.parse import urlencode
 import uuid
 
@@ -32,6 +32,12 @@ from . import _evals_common
 from . import _evals_utils
 from . import _transformers as t
 from . import types
+from .types import evals as evals_types
+
+try:
+    from google.adk.agents import LlmAgent
+except ImportError:
+    LlmAgent = None
 
 
 logger = logging.getLogger("vertexai_genai.evals")
@@ -61,6 +67,30 @@ def _CreateEvaluationItemParameters_to_vertex(
     return to_object
 
 
+def _CreateEvaluationMetricParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["display_name"]) is not None:
+        setv(to_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["metric"]) is not None:
+        setv(
+            to_object,
+            ["metric"],
+            t.t_metric_for_registry(getv(from_object, ["metric"])),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _CreateEvaluationRunParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -76,16 +106,29 @@ def _CreateEvaluationRunParameters_to_vertex(
         setv(to_object, ["dataSource"], getv(from_object, ["data_source"]))
 
     if getv(from_object, ["evaluation_config"]) is not None:
-        setv(to_object, ["evaluationConfig"], getv(from_object, ["evaluation_config"]))
+        setv(
+            to_object,
+            ["evaluationConfig"],
+            _EvaluationRunConfig_to_vertex(
+                getv(from_object, ["evaluation_config"]), to_object
+            ),
+        )
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
 
+    if getv(from_object, ["inference_configs"]) is not None:
+        setv(
+            to_object,
+            ["inferenceConfigs"],
+            {
+                k: _EvaluationRunInferenceConfig_to_vertex(v, to_object)
+                for k, v in getv(from_object, ["inference_configs"]).items()
+            },
+        )
+
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    if getv(from_object, ["inference_configs"]) is not None:
-        setv(to_object, ["inferenceConfigs"], getv(from_object, ["inference_configs"]))
 
     return to_object
 
@@ -103,6 +146,50 @@ def _CreateEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _CustomCodeExecutionSpec_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluationFunction"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_function"],
+            getv(from_object, ["evaluationFunction"]),
+        )
+
+    if getv(from_object, ["evaluation_function"]) is not None:
+        setv(
+            to_object,
+            ["remote_custom_function"],
+            getv(from_object, ["evaluation_function"]),
+        )
+
+    return to_object
+
+
+def _CustomCodeExecutionSpec_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["evaluation_function"]) is not None:
+        setv(
+            to_object,
+            ["evaluationFunction"],
+            getv(from_object, ["evaluation_function"]),
+        )
+
+    if getv(from_object, ["remote_custom_function"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_function"],
+            getv(from_object, ["remote_custom_function"]),
+        )
 
     return to_object
 
@@ -183,10 +270,238 @@ def _EvaluateInstancesRequestParameters_to_vertex(
         )
 
     if getv(from_object, ["instance"]) is not None:
-        setv(to_object, ["instance"], getv(from_object, ["instance"]))
+        setv(
+            to_object,
+            ["instance"],
+            _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
+        )
+
+    if getv(from_object, ["metric_sources"]) is not None:
+        setv(
+            to_object,
+            ["metricSources"],
+            [
+                item
+                for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
+            ],
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _EvaluationInstance_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["prompt"]) is not None:
+        setv(to_object, ["prompt"], getv(from_object, ["prompt"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(to_object, ["response"], getv(from_object, ["response"]))
+
+    if getv(from_object, ["reference"]) is not None:
+        setv(to_object, ["reference"], getv(from_object, ["reference"]))
+
+    if getv(from_object, ["other_data"]) is not None:
+        setv(to_object, ["otherData"], getv(from_object, ["other_data"]))
+
+    if getv(from_object, ["agent_data"]) is not None:
+        setv(to_object, ["agent_eval_data"], getv(from_object, ["agent_data"]))
+
+    if getv(from_object, ["rubric_groups"]) is not None:
+        setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
+
+    return to_object
+
+
+def _EvaluationMetric_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["displayName"]) is not None:
+        setv(to_object, ["display_name"], getv(from_object, ["displayName"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(to_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["metric"]) is not None:
+        setv(
+            to_object,
+            ["metric"],
+            _UnifiedMetric_from_vertex(getv(from_object, ["metric"]), to_object),
+        )
+
+    return to_object
+
+
+def _EvaluationRunConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metrics"]) is not None:
+        setv(
+            to_object,
+            ["metrics"],
+            [
+                _EvaluationRunMetric_from_vertex(item, to_object)
+                for item in getv(from_object, ["metrics"])
+            ],
+        )
+
+    if getv(from_object, ["outputConfig"]) is not None:
+        setv(to_object, ["output_config"], getv(from_object, ["outputConfig"]))
+
+    if getv(from_object, ["autoraterConfig"]) is not None:
+        setv(to_object, ["autorater_config"], getv(from_object, ["autoraterConfig"]))
+
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
+
+    if getv(from_object, ["lossAnalysisConfig"]) is not None:
+        setv(
+            to_object,
+            ["loss_analysis_config"],
+            [item for item in getv(from_object, ["lossAnalysisConfig"])],
+        )
+
+    return to_object
+
+
+def _EvaluationRunConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metrics"]) is not None:
+        setv(
+            to_object,
+            ["metrics"],
+            [
+                _EvaluationRunMetric_to_vertex(item, to_object)
+                for item in getv(from_object, ["metrics"])
+            ],
+        )
+
+    if getv(from_object, ["output_config"]) is not None:
+        setv(to_object, ["outputConfig"], getv(from_object, ["output_config"]))
+
+    if getv(from_object, ["autorater_config"]) is not None:
+        setv(to_object, ["autoraterConfig"], getv(from_object, ["autorater_config"]))
+
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
+
+    if getv(from_object, ["loss_analysis_config"]) is not None:
+        setv(
+            to_object,
+            ["lossAnalysisConfig"],
+            [item for item in getv(from_object, ["loss_analysis_config"])],
+        )
+
+    return to_object
+
+
+def _EvaluationRunInferenceConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["agentConfig"]) is not None:
+        setv(to_object, ["agent_config"], getv(from_object, ["agentConfig"]))
+
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+
+    if getv(from_object, ["promptTemplate"]) is not None:
+        setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
+
+    if getv(from_object, ["agentRunConfig"]) is not None:
+        setv(to_object, ["agent_run_config"], getv(from_object, ["agentRunConfig"]))
+
+    if getv(from_object, ["agents"]) is not None:
+        setv(to_object, ["agent_configs"], getv(from_object, ["agents"]))
+
+    return to_object
+
+
+def _EvaluationRunInferenceConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["agent_config"]) is not None:
+        setv(to_object, ["agentConfig"], getv(from_object, ["agent_config"]))
+
+    if getv(from_object, ["model"]) is not None:
+        setv(to_object, ["model"], getv(from_object, ["model"]))
+
+    if getv(from_object, ["prompt_template"]) is not None:
+        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
+
+    if getv(from_object, ["agent_run_config"]) is not None:
+        setv(to_object, ["agentRunConfig"], getv(from_object, ["agent_run_config"]))
+
+    if getv(from_object, ["agent_configs"]) is not None:
+        setv(to_object, ["agents"], getv(from_object, ["agent_configs"]))
+
+    return to_object
+
+
+def _EvaluationRunMetric_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric"]) is not None:
+        setv(to_object, ["metric"], getv(from_object, ["metric"]))
+
+    if getv(from_object, ["metricResourceName"]) is not None:
+        setv(
+            to_object,
+            ["metric_resource_name"],
+            getv(from_object, ["metricResourceName"]),
+        )
+
+    if getv(from_object, ["metricConfig"]) is not None:
+        setv(
+            to_object,
+            ["metric_config"],
+            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
+        )
+
+    return to_object
+
+
+def _EvaluationRunMetric_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric"]) is not None:
+        setv(to_object, ["metric"], getv(from_object, ["metric"]))
+
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["metric_config"]) is not None:
+        setv(
+            to_object,
+            ["metricConfig"],
+            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
+        )
 
     return to_object
 
@@ -235,10 +550,23 @@ def _EvaluationRun_from_vertex(
         )
 
     if getv(from_object, ["evaluationConfig"]) is not None:
-        setv(to_object, ["evaluation_config"], getv(from_object, ["evaluationConfig"]))
+        setv(
+            to_object,
+            ["evaluation_config"],
+            _EvaluationRunConfig_from_vertex(
+                getv(from_object, ["evaluationConfig"]), to_object
+            ),
+        )
 
     if getv(from_object, ["inferenceConfigs"]) is not None:
-        setv(to_object, ["inference_configs"], getv(from_object, ["inferenceConfigs"]))
+        setv(
+            to_object,
+            ["inference_configs"],
+            {
+                k: _EvaluationRunInferenceConfig_from_vertex(v, to_object)
+                for k, v in getv(from_object, ["inferenceConfigs"]).items()
+            },
+        )
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
@@ -265,8 +593,72 @@ def _GenerateInstanceRubricsRequest_to_vertex(
         setv(
             to_object,
             ["rubricGenerationSpec"],
-            _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
+            getv(from_object, ["rubric_generation_spec"]),
+        )
+
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["metricResourceName"],
+            getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GenerateLossClustersParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["location"]) is not None:
+        setv(to_object, ["location"], getv(from_object, ["location"]))
+
+    if getv(from_object, ["evaluation_set"]) is not None:
+        setv(to_object, ["evaluationSet"], getv(from_object, ["evaluation_set"]))
+
+    if getv(from_object, ["inline_results"]) is not None:
+        setv(
+            to_object,
+            ["inlineResults", "evaluationResults"],
+            [
+                item
+                for item in t.t_inline_results(getv(from_object, ["inline_results"]))
+            ],
+        )
+
+    if getv(from_object, ["configs"]) is not None:
+        setv(to_object, ["configs"], [item for item in getv(from_object, ["configs"])])
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GenerateUserScenariosParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["location"]) is not None:
+        setv(to_object, ["location"], getv(from_object, ["location"]))
+
+    if getv(from_object, ["agents"]) is not None:
+        setv(to_object, ["agents"], getv(from_object, ["agents"]))
+
+    if getv(from_object, ["root_agent_id"]) is not None:
+        setv(to_object, ["rootAgentId"], getv(from_object, ["root_agent_id"]))
+
+    if getv(from_object, ["user_scenario_generation_config"]) is not None:
+        setv(
+            to_object,
+            ["userScenarioGenerationConfig"],
+            t.t_user_scenario_generation_config(
+                getv(from_object, ["user_scenario_generation_config"])
             ),
         )
 
@@ -283,6 +675,24 @@ def _GetEvaluationItemParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetEvaluationMetricParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["_url", "evaluation_metric"],
+            getv(from_object, ["metric_resource_name"]),
+        )
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
@@ -314,6 +724,41 @@ def _GetEvaluationSetParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ListEvaluationMetricsParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ListEvaluationMetricsResponse_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sdkHttpResponse"]) is not None:
+        setv(to_object, ["sdk_http_response"], getv(from_object, ["sdkHttpResponse"]))
+
+    if getv(from_object, ["nextPageToken"]) is not None:
+        setv(to_object, ["next_page_token"], getv(from_object, ["nextPageToken"]))
+
+    if getv(from_object, ["evaluationMetrics"]) is not None:
+        setv(
+            to_object,
+            ["evaluation_metrics"],
+            [
+                _EvaluationMetric_from_vertex(item, to_object)
+                for item in getv(from_object, ["evaluationMetrics"])
+            ],
+        )
 
     return to_object
 
@@ -371,35 +816,109 @@ def _RubricBasedMetricSpec_to_vertex(
         setv(
             to_object,
             ["rubricGenerationSpec"],
-            _RubricGenerationSpec_to_vertex(
-                getv(from_object, ["rubric_generation_spec"]), to_object
-            ),
+            getv(from_object, ["rubric_generation_spec"]),
         )
 
     return to_object
 
 
-def _RubricGenerationSpec_to_vertex(
+def _UnifiedMetric_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
-    if getv(from_object, ["prompt_template"]) is not None:
-        setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
+    if getv(from_object, ["bleuSpec"]) is not None:
+        setv(to_object, ["bleu_spec"], getv(from_object, ["bleuSpec"]))
 
-    if getv(from_object, ["generator_model_config"]) is not None:
-        setv(to_object, ["model_config"], getv(from_object, ["generator_model_config"]))
+    if getv(from_object, ["rougeSpec"]) is not None:
+        setv(to_object, ["rouge_spec"], getv(from_object, ["rougeSpec"]))
 
-    if getv(from_object, ["rubric_content_type"]) is not None:
-        setv(
-            to_object, ["rubricContentType"], getv(from_object, ["rubric_content_type"])
-        )
-
-    if getv(from_object, ["rubric_type_ontology"]) is not None:
+    if getv(from_object, ["pointwiseMetricSpec"]) is not None:
         setv(
             to_object,
-            ["rubricTypeOntology"],
-            getv(from_object, ["rubric_type_ontology"]),
+            ["pointwise_metric_spec"],
+            getv(from_object, ["pointwiseMetricSpec"]),
+        )
+
+    if getv(from_object, ["llmBasedMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["llm_based_metric_spec"],
+            getv(from_object, ["llmBasedMetricSpec"]),
+        )
+
+    if getv(from_object, ["customCodeExecutionSpec"]) is not None:
+        setv(
+            to_object,
+            ["custom_code_execution_spec"],
+            _CustomCodeExecutionSpec_from_vertex(
+                getv(from_object, ["customCodeExecutionSpec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["predefinedMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["predefined_metric_spec"],
+            getv(from_object, ["predefinedMetricSpec"]),
+        )
+
+    if getv(from_object, ["computationBasedMetricSpec"]) is not None:
+        setv(
+            to_object,
+            ["computation_based_metric_spec"],
+            getv(from_object, ["computationBasedMetricSpec"]),
+        )
+
+    return to_object
+
+
+def _UnifiedMetric_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["bleu_spec"]) is not None:
+        setv(to_object, ["bleuSpec"], getv(from_object, ["bleu_spec"]))
+
+    if getv(from_object, ["rouge_spec"]) is not None:
+        setv(to_object, ["rougeSpec"], getv(from_object, ["rouge_spec"]))
+
+    if getv(from_object, ["pointwise_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["pointwiseMetricSpec"],
+            getv(from_object, ["pointwise_metric_spec"]),
+        )
+
+    if getv(from_object, ["llm_based_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["llmBasedMetricSpec"],
+            getv(from_object, ["llm_based_metric_spec"]),
+        )
+
+    if getv(from_object, ["custom_code_execution_spec"]) is not None:
+        setv(
+            to_object,
+            ["customCodeExecutionSpec"],
+            _CustomCodeExecutionSpec_to_vertex(
+                getv(from_object, ["custom_code_execution_spec"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["predefined_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["predefinedMetricSpec"],
+            getv(from_object, ["predefined_metric_spec"]),
+        )
+
+    if getv(from_object, ["computation_based_metric_spec"]) is not None:
+        setv(
+            to_object,
+            ["computationBasedMetricSpec"],
+            getv(from_object, ["computation_based_metric_spec"]),
         )
 
     return to_object
@@ -458,7 +977,101 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Creates an EvaluationMetric.
+        """
+
+        parameter_model = types._CreateEvaluationMetricParameters(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -472,10 +1085,10 @@ class Evals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -487,8 +1100,8 @@ class Evals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
-            config=config,
             inference_configs=inference_configs,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -526,7 +1139,24 @@ class Evals(_api_module.BaseModule):
             response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -581,7 +1211,24 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -607,6 +1254,7 @@ class Evals(_api_module.BaseModule):
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
+        metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
@@ -627,6 +1275,7 @@ class Evals(_api_module.BaseModule):
             autorater_config=autorater_config,
             metrics=metrics,
             instance=instance,
+            metric_sources=metric_sources,
             config=config,
         )
 
@@ -664,7 +1313,178 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluateInstancesResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _generate_user_scenarios(
+        self,
+        *,
+        location: Optional[str] = None,
+        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        root_agent_id: Optional[str] = None,
+        user_scenario_generation_config: Optional[
+            evals_types.UserScenarioGenerationConfigOrDict
+        ] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+    ) -> types.GenerateUserScenariosResponse:
+        """
+        Generates user scenarios for agent evaluation.
+        """
+
+        parameter_model = types._GenerateUserScenariosParameters(
+            location=location,
+            agents=agents,
+            root_agent_id=root_agent_id,
+            user_scenario_generation_config=user_scenario_generation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateUserScenarios".format_map(request_url_dict)
+            else:
+                path = ":generateUserScenarios"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _generate_loss_clusters(
+        self,
+        *,
+        location: Optional[str] = None,
+        evaluation_set: Optional[str] = None,
+        inline_results: Optional[list[types.EvaluationResultOrDict]] = None,
+        configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        config: Optional[types.GenerateLossClustersConfigOrDict] = None,
+    ) -> types.GenerateLossClustersOperation:
+        """
+        Generates loss clusters from evaluation results.
+        """
+
+        parameter_model = types._GenerateLossClustersParameters(
+            location=location,
+            evaluation_set=evaluation_set,
+            inline_results=inline_results,
+            configs=configs,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateLossClusters".format_map(request_url_dict)
+            else:
+                path = ":generateLossClusters"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateLossClustersOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -675,9 +1495,10 @@ class Evals(_api_module.BaseModule):
         *,
         contents: list[genai_types.ContentOrDict],
         predefined_rubric_generation_spec: Optional[
-            types.PredefinedMetricSpecOrDict
+            genai_types.PredefinedMetricSpecOrDict
         ] = None,
-        rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
+        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
+        metric_resource_name: Optional[str] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
@@ -688,6 +1509,7 @@ class Evals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
@@ -723,7 +1545,97 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateInstanceRubricsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Retrieves an EvaluationMetric from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -776,7 +1688,24 @@ class Evals(_api_module.BaseModule):
             response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -826,7 +1755,24 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -876,18 +1822,97 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
         return return_value
 
-    def run(self) -> types.EvaluateInstancesResponse:
-        """Evaluates an instance of a model.
-
-        This should eventually call _evaluate_instances()
+    def _list_evaluation_metrics(
+        self, *, config: Optional[types.ListEvaluationMetricsConfigOrDict] = None
+    ) -> types.ListEvaluationMetricsResponse:
         """
-        raise NotImplementedError()
+        Lists EvaluationMetrics.
+        """
+
+        parameter_model = types._ListEvaluationMetricsParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
+
+        return_value = types.ListEvaluationMetricsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
 
     def evaluate_instances(
         self,
@@ -910,7 +1935,8 @@ class Evals(_api_module.BaseModule):
         *,
         src: Union[str, pd.DataFrame, types.EvaluationDataset],
         model: Optional[Union[str, Callable[[Any], Any]]] = None,
-        agent: Optional[Union[str, types.AgentEngine]] = None,
+        agent: Optional[Union[str, types.AgentEngine, LlmAgent]] = None,
+        location: Optional[str] = None,
         config: Optional[types.EvalRunInferenceConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Runs inference on a dataset for evaluation.
@@ -930,16 +1956,22 @@ class Evals(_api_module.BaseModule):
               - For custom logic, provide a callable function that accepts a prompt and
                 returns a response.
           agent: This field is experimental and may change in future versions
-                The agent engine used to run agent, optional for non-agent evaluations.
+                The agent engine used or local agent to run agent, optional for non-agent evaluations.
               - agent engine resource name in str type, with format
                 `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`,
                 run_inference will fetch the agent engine from the resource name.
               - Or `types.AgentEngine` object.
+              - Or ADK agent in LlMAgent type.
+          location: The location to use for the inference. If not specified, the
+                location configured in the client will be used. If specified,
+                this will override the location set in `vertexai.Client` only
+                for this API call.
           config: The optional configuration for the inference run. Must be a dict or
               `types.EvalRunInferenceConfig` type.
                 - dest: The destination path for storage of the inference results.
                 - prompt_template: The template string to use for constructing prompts.
                 - generate_content_config: The config for the Gemini generate content call.
+                - allow_cross_region_model: Opt-in flag to authorize cross-region routing for LLM models.
 
         Returns:
           The evaluation dataset.
@@ -956,14 +1988,26 @@ class Evals(_api_module.BaseModule):
                 )
             src = src.eval_dataset_df
 
+        agent_engine_instance = None
+        agent_instance = None
+        if agent:
+            if isinstance(agent, str) or isinstance(agent, types.AgentEngine):
+                agent_engine_instance = agent
+            else:
+                agent_instance = agent
+
         return _evals_common._execute_inference(  # type: ignore[no-any-return]
             api_client=self._api_client,
             model=model,
-            agent_engine=agent,
+            agent_engine=agent_engine_instance,
+            agent=agent_instance,
             src=src,
             dest=config.dest,
-            config=config.generate_content_config,
             prompt_template=config.prompt_template,
+            location=location,
+            config=config.generate_content_config,
+            user_simulator_config=getattr(config, "user_simulator_config", None),
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", False),
         )
 
     def evaluate(
@@ -974,9 +2018,10 @@ class Evals(_api_module.BaseModule):
             types.EvaluationDatasetOrDict,
             list[types.EvaluationDatasetOrDict],
         ],
-        metrics: list[types.MetricOrDict] = None,
+        metrics: Optional[list[types.MetricOrDict]] = None,
+        location: Optional[str] = None,
         config: Optional[types.EvaluateMethodConfigOrDict] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> types.EvaluationResult:
         """Evaluates candidate responses in the provided dataset(s) using the specified metrics.
 
@@ -984,11 +2029,18 @@ class Evals(_api_module.BaseModule):
           dataset: The dataset(s) to evaluate. Can be a pandas DataFrame, a single
             `types.EvaluationDataset` or a list of `types.EvaluationDataset`.
           metrics: The list of metrics to use for evaluation.
+          location: The location to use for the evaluation service. If not specified,
+             the location configured in the client will be used. If specified,
+             this will override the location set in `vertexai.Client` only for
+             this API call.
           config: Optional configuration for the evaluation. Can be a dictionary or a
             `types.EvaluateMethodConfig` object.
             - dataset_schema: Schema to use for the dataset. If not specified, the
               dataset schema will be inferred from the dataset automatically.
             - dest: Destination path for storing evaluation results.
+            - evaluation_service_qps: The rate limit (queries per second) for
+              calls to the evaluation service. Defaults to 10. Increase this
+              value if your project has a higher EvaluateInstances API quota.
           **kwargs: Extra arguments to pass to evaluation, such as `agent_info`.
 
         Returns:
@@ -1029,6 +2081,8 @@ class Evals(_api_module.BaseModule):
             metrics=metrics,
             dataset_schema=config.dataset_schema,
             dest=config.dest,
+            location=location,
+            evaluation_service_qps=getattr(config, "evaluation_service_qps", None),
             **kwargs,
         )
 
@@ -1113,16 +2167,20 @@ class Evals(_api_module.BaseModule):
         rubric_type_ontology: Optional[list[str]] = None,
         predefined_spec_name: Optional[Union[str, "types.PrebuiltMetric"]] = None,
         metric_spec_parameters: Optional[dict[str, Any]] = None,
+        metric: Optional[types.MetricOrDict] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.EvaluationDataset:
         """Generates rubrics for each prompt in the source and adds them as a new column
         structured as a dictionary.
 
         You can generate rubrics by providing either:
-          1. A `predefined_spec_name` to use a Vertex AI backend recipe.
-          2. A `prompt_template` along with other configuration parameters
+          1. A `metric` to use a pre-registered metric resource.
+          2. A `predefined_spec_name` to use a Vertex AI backend recipe.
+          3. A `prompt_template` along with other configuration parameters
              (`generator_model_config`, `rubric_content_type`, `rubric_type_ontology`)
              for custom rubric generation.
+        with `metric` taking precedence over `predefined_spec_name`,
+        and `predefined_spec_name` taking precedence over `prompt_template`
 
         These two modes are mutually exclusive.
 
@@ -1152,6 +2210,9 @@ class Evals(_api_module.BaseModule):
             metric_spec_parameters: Optional. Parameters for the Predefined Metric,
                 used to customize rubric generation. Only used if `predefined_spec_name` is set.
                 Example: {"guidelines": ["The response must be in Japanese."]}
+            metric: Optional. A types.Metric object containing a metric_resource_name,
+                or a resource name string. If provided, this will take precedence over
+                predefined_spec_name and prompt_template.
             config: Optional. Configuration for the rubric generation process.
 
         Returns:
@@ -1191,10 +2252,32 @@ class Evals(_api_module.BaseModule):
         )
         all_rubric_groups: list[dict[str, list[types.Rubric]]] = []
 
+        actual_metric_resource_name = None
+        if metric:
+            if isinstance(metric, str) and metric.startswith("projects/"):
+                actual_metric_resource_name = metric
+            else:
+                metric_obj = (
+                    types.Metric.model_validate(metric)
+                    if isinstance(metric, dict)
+                    else metric
+                )
+                actual_metric_resource_name = getattr(
+                    metric_obj, "metric_resource_name", None
+                )
+                if not actual_metric_resource_name:
+                    raise ValueError(
+                        "The provided Metric object must have metric_resource_name set."
+                    )
+
         rubric_gen_spec = None
         predefined_spec = None
 
-        if predefined_spec_name:
+        if actual_metric_resource_name:
+            # Precedence: Registered metric resource overrides everything else.
+            predefined_spec = None
+            rubric_gen_spec = None
+        elif predefined_spec_name:
             if prompt_template:
                 logger.warning(
                     "prompt_template is ignored when predefined_spec_name is provided."
@@ -1232,7 +2315,7 @@ class Evals(_api_module.BaseModule):
                     "Could not determine metric_spec_name from predefined_spec_name"
                 )
 
-            predefined_spec = types.PredefinedMetricSpec(
+            predefined_spec = genai_types.PredefinedMetricSpec(
                 metric_spec_name=actual_predefined_spec_name,
                 metric_spec_parameters=metric_spec_parameters,
             )
@@ -1248,10 +2331,10 @@ class Evals(_api_module.BaseModule):
                 "generator_model_config": generator_model_config,
             }
             spec_dict = {k: v for k, v in spec_dict.items() if v is not None}
-            rubric_gen_spec = types.RubricGenerationSpec.model_validate(spec_dict)
+            rubric_gen_spec = genai_types.RubricGenerationSpec.model_validate(spec_dict)
         else:
             raise ValueError(
-                "Either predefined_spec_name or prompt_template must be provided."
+                "Either metric, predefined_spec_name or prompt_template must be provided."
             )
 
         for _, row in prompts_df.iterrows():
@@ -1274,6 +2357,7 @@ class Evals(_api_module.BaseModule):
                     contents=contents,
                     rubric_generation_spec=rubric_gen_spec,
                     predefined_rubric_generation_spec=predefined_spec,
+                    metric_resource_name=actual_metric_resource_name,
                     config=config,
                 )
                 rubric_group = {rubric_group_name: response.generated_rubrics}
@@ -1325,13 +2409,14 @@ class Evals(_api_module.BaseModule):
             name = name.split("/")[-1]
         result = self._get_evaluation_run(name=name, config=config)
         if include_evaluation_items:
-            result.evaluation_item_results = (
-                _evals_common._convert_evaluation_run_results(
-                    self._api_client,
-                    result.evaluation_run_results,
-                    result.inference_configs,
-                )
+            eval_result, eval_item_map = _evals_common._convert_evaluation_run_results(
+                self._api_client,
+                result.evaluation_run_results,
+                result.inference_configs,
             )
+            result.evaluation_item_results = eval_result
+            # Bypass pydantic validation (extra='forbid') for this internal field.
+            object.__setattr__(result, "_eval_item_map", eval_item_map)
         return result
 
     @_common.experimental_warning(
@@ -1346,8 +2431,15 @@ class Evals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[types.evals.AgentInfoOrDict] = None,
+        agent_info: Optional[evals_types.AgentInfoOrDict] = None,
+        agent: Optional[str] = None,
+        user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
         labels: Optional[dict[str, str]] = None,
+        loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
+        loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -1358,68 +2450,119 @@ class Evals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          agent_info: The agent info to evaluate.
+          agent_info: The agent info to evaluate. Mutually exclusive with
+              `inference_configs`.
+          agent: The agent engine resource name in str type, with format
+              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.
+              If provided, runs inference with the deployed agent to get agent responses
+              for evaluation. This is required if `agent_info` is provided.
+          user_simulator_config: The user simulator configuration for agent evaluation.
+              If `agent_info` is provided without `inference_configs`, this config is used
+              to automatically construct the inference configuration. If not specified,
+              or if `max_turn` is not set, `max_turn` defaults to 5.
+              The `model_name` inside this config can be either a full model path or a
+              short model name, e.g. `gemini-3-preview-flash`.
+          inference_configs: The candidate to inference config map for the evaluation run.
+              The key is the candidate name, and the value is the inference config.
+              If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
+              this will be automatically constructed using `agent_info` and `user_simulator_config`.
+              Example:
+              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
+          loss_analysis_metrics: This field is experimental and may change in future
+              versions. Optional list of metrics to run loss analysis on. The
+              candidate is auto-inferred from ``inference_configs`` or
+              ``agent_info`` when there is exactly one candidate. Each metric can be
+              a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
+              object, or a ``RubricMetric`` enum
+              (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
+              runs after metric calculation completes.
+              Mutually exclusive with ``loss_analysis_configs``.
+              Example::
+
+                  loss_analysis_metrics=[
+                      types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
+                      types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
+                  ]
+          loss_analysis_configs: This field is experimental and may change in future
+              versions. Optional list of ``LossAnalysisConfig`` objects for full
+              control over loss analysis, including explicit candidate and
+              advanced options like ``predefined_taxonomy`` and
+              ``max_top_cluster_count``. Mutually exclusive with
+              ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
 
         Returns:
             The created evaluation run.
         """
-        if agent_info and isinstance(agent_info, dict):
-            agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if type(dataset).__name__ == "EvaluationDataset":
-            if dataset.eval_dataset_df is None:
-                raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
-                )
-            if (
-                dataset.candidate_name
-                and agent_info.name
-                and dataset.candidate_name != agent_info.name
-            ):
-                logger.warning(
-                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-                )
-            elif dataset.candidate_name is None and agent_info:
-                dataset.candidate_name = agent_info.name
-            eval_set = _evals_common._create_evaluation_set_from_dataframe(
-                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+        if loss_analysis_metrics and loss_analysis_configs:
+            raise ValueError(
+                "At most one of loss_analysis_metrics or loss_analysis_configs"
+                " can be provided."
             )
-            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        if agent_info and inference_configs:
+            raise ValueError(
+                "At most one of agent_info or inference_configs can be provided."
+            )
+        parsed_agent_info = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else (agent_info or evals_types.AgentInfo())
+        )
+
+        if agent_info and not inference_configs:
+            parsed_user_simulator_config = (
+                evals_types.UserSimulatorConfig.model_validate(user_simulator_config)
+                if isinstance(user_simulator_config, dict)
+                else (user_simulator_config or evals_types.UserSimulatorConfig())
+            )
+            if getattr(parsed_user_simulator_config, "max_turn", None) is None:
+                parsed_user_simulator_config.max_turn = 5
+
+            candidate_name = parsed_agent_info.name or "candidate-1"
+            inference_configs = {
+                candidate_name: types.EvaluationRunInferenceConfig(
+                    agent_configs=parsed_agent_info.agents,
+                    agent_run_config=types.AgentRunConfig(
+                        agent_engine=agent,
+                        user_simulator_config=parsed_user_simulator_config,
+                    ),
+                )
+            }
+
+        if isinstance(dataset, types.EvaluationDataset):
+            _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+        resolved_dataset = _evals_common._resolve_dataset(
+            self._api_client, dataset, dest, parsed_agent_info
+        )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
             metrics, self._api_client
         )
-        evaluation_config = types.EvaluationRunConfig(
-            output_config=output_config, metrics=resolved_metrics
-        )
-        inference_configs = {}
-        if agent_info:
-            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info.instruction)]
-                    ),
-                    tools=agent_info.tool_declarations,
-                )
-            )
-            if agent_info.agent_resource_name:
-                labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
-                )
-        if not name:
-            name = f"evaluation_run_{uuid.uuid4()}"
-
-        return self._create_evaluation_run(  # type: ignore[no-any-return]
-            name=name,
-            display_name=display_name or name,
-            data_source=dataset,
-            evaluation_config=evaluation_config,
+        resolved_loss_configs = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=loss_analysis_metrics,
+            loss_analysis_configs=loss_analysis_configs,
             inference_configs=inference_configs,
-            labels=labels,
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config,
+            metrics=resolved_metrics,
+            loss_analysis_config=resolved_loss_configs,
+        )
+        resolved_inference_configs = _evals_common._resolve_inference_configs(
+            self._api_client, resolved_dataset, inference_configs, parsed_agent_info
+        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
+        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
+        return self._create_evaluation_run(
+            name=resolved_name,
+            display_name=display_name or resolved_name,
+            data_source=resolved_dataset,
+            evaluation_config=evaluation_config,
+            inference_configs=resolved_inference_configs,
+            labels=resolved_labels,
             config=config,
         )
 
@@ -1521,7 +2664,7 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        return self._create_evaluation_item(  # type: ignore[no-any-return]
+        return self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
@@ -1551,9 +2694,190 @@ class Evals(_api_module.BaseModule):
         Returns:
           The evaluation set.
         """
-        return self._create_evaluation_set(  # type: ignore[no-any-return]
+        return self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_conversation_scenarios module is experimental, "
+        "and may change in future versions."
+    )
+    def generate_conversation_scenarios(
+        self,
+        *,
+        agent_info: evals_types.AgentInfoOrDict,
+        config: evals_types.UserScenarioGenerationConfigOrDict,
+    ) -> types.EvaluationDataset:
+        """Generates an evaluation dataset with user scenarios,
+           which helps to generate conversations between a simulated user
+           and the agent under test.
+
+        Args:
+            agent_info: The agent info to generate user scenarios for.
+            config: Configuration for generating user scenarios.
+
+        Returns:
+            An EvaluationDataset containing the generated user scenarios.
+        """
+        parsed_agent_info = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else agent_info
+        )
+        response = self._generate_user_scenarios(
+            agents=parsed_agent_info.agents,
+            root_agent_id=parsed_agent_info.root_agent_id,
+            user_scenario_generation_config=config,
+        )
+        return _evals_utils._postprocess_user_scenarios_response(response)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_loss_clusters module is experimental, "
+        "and may change in future versions."
+    )
+    def generate_loss_clusters(
+        self,
+        *,
+        eval_result: types.EvaluationResult,
+        metric: Optional[Union[str, types.MetricOrDict]] = None,
+        candidate: Optional[str] = None,
+        config: Optional[types.LossAnalysisConfigOrDict] = None,
+    ) -> types.GenerateLossClustersResponse:
+        """Generates loss clusters from evaluation results.
+
+        Analyzes "Pass/Fail" signals from rubric-based autoraters and groups
+        them into semantic "Loss Patterns" (e.g., "Hallucination of Action").
+
+        This method calls the GenerateLossClusters LRO and polls until
+        completion, returning the results directly.
+
+        If ``metric`` or ``candidate`` are not provided, they will be
+        auto-inferred from ``eval_result`` when unambiguous (i.e., when the
+        eval result contains exactly one metric or one candidate). For
+        multi-metric or multi-candidate evaluations, provide them explicitly.
+
+        Available candidate names can be found in
+        ``eval_result.metadata.candidate_names``.
+
+        Note: This API is only available in the ``global`` region.
+
+        Args:
+            eval_result: The EvaluationResult object returned from
+                client.evals.evaluate().
+            metric: The metric to analyze. Can be a metric name string
+                (e.g., "multi_turn_task_success_v1"), a Metric object, or a
+                RubricMetric enum (e.g., types.RubricMetric.MULTI_TURN_TASK_SUCCESS).
+                If not provided and config does not specify it, auto-inferred
+                from eval_result.
+            candidate: The candidate to analyze. If not provided and config
+                does not specify it, auto-inferred from eval_result.
+            config: Optional LossAnalysisConfig with additional options
+                (predefined_taxonomy, max_top_cluster_count). Can also
+                specify metric/candidate, but explicit arguments take
+                precedence.
+
+        Returns:
+            A GenerateLossClustersResponse containing the analysis results.
+            Call .show() to visualize, or access .results for individual
+            LossAnalysisResult objects (each with their own .show()).
+        """
+        metric_name = _evals_utils._resolve_metric_name(metric)
+        parsed_config = (
+            types.LossAnalysisConfig.model_validate(config)
+            if isinstance(config, dict)
+            else config
+        )
+        resolved_config = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result,
+            config=parsed_config,
+            metric=metric_name,
+            candidate=candidate,
+        )
+        operation = self._generate_loss_clusters(
+            inline_results=[eval_result],
+            configs=[resolved_config],
+        )
+        completed = _evals_utils._poll_operation(
+            api_client=self._api_client,
+            operation=operation,
+        )
+        if completed.error:
+            raise RuntimeError(f"Loss analysis operation failed: {completed.error}")
+        if completed.response is None:
+            raise RuntimeError(
+                "Loss analysis operation completed but returned no response."
+            )
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            completed.response, eval_result
+        )
+        return completed.response
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_metric method is experimental, "
+        "and may change in future versions."
+    )
+    def create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> str:
+        """Creates an EvaluationMetric."""
+        if metric and not isinstance(metric, dict):
+            # metric is now Metric | LazyLoadedPrebuiltMetric (RubricMetric)
+            # Mypy correctly narrows the type here, so cast is not needed.
+            resolved_metrics = _evals_common._resolve_metrics(
+                [metric], self._api_client
+            )
+            metric = resolved_metrics[0]
+
+        # Add fallback logic for display_name
+        if display_name is None and metric:
+            if isinstance(metric, dict):
+                display_name = metric.get("name")
+            else:
+                display_name = getattr(metric, "name", None)
+
+        result = self._create_evaluation_metric(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+        # result.name is Optional[str], but we know it's always returned on creation
+        return cast(str, result.name)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_metric module is experimental, "
+        "and may change in future versions."
+    )
+    def get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """Retrieves an EvaluationMetric from the resource name."""
+        return self._get_evaluation_metric(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.list_evaluation_metrics module is experimental, "
+        "and may change in future versions."
+    )
+    def list_evaluation_metrics(
+        self,
+        *,
+        config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
+    ) -> types.ListEvaluationMetricsResponse:
+        """Lists EvaluationMetrics."""
+        return self._list_evaluation_metrics(
             config=config,
         )
 
@@ -1613,7 +2937,103 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Creates an EvaluationMetric.
+        """
+
+        parameter_model = types._CreateEvaluationMetricParameters(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1627,10 +3047,10 @@ class AsyncEvals(_api_module.BaseModule):
         data_source: types.EvaluationRunDataSourceOrDict,
         evaluation_config: types.EvaluationRunConfigOrDict,
         labels: Optional[dict[str, str]] = None,
-        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1642,8 +3062,8 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=data_source,
             evaluation_config=evaluation_config,
             labels=labels,
-            config=config,
             inference_configs=inference_configs,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1683,7 +3103,24 @@ class AsyncEvals(_api_module.BaseModule):
             response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1740,7 +3177,24 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1766,6 +3220,7 @@ class AsyncEvals(_api_module.BaseModule):
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
+        metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
         config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
@@ -1786,6 +3241,7 @@ class AsyncEvals(_api_module.BaseModule):
             autorater_config=autorater_config,
             metrics=metrics,
             instance=instance,
+            metric_sources=metric_sources,
             config=config,
         )
 
@@ -1825,7 +3281,182 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluateInstancesResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _generate_user_scenarios(
+        self,
+        *,
+        location: Optional[str] = None,
+        agents: Optional[dict[str, evals_types.AgentConfigOrDict]] = None,
+        root_agent_id: Optional[str] = None,
+        user_scenario_generation_config: Optional[
+            evals_types.UserScenarioGenerationConfigOrDict
+        ] = None,
+        config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+    ) -> types.GenerateUserScenariosResponse:
+        """
+        Generates user scenarios for agent evaluation.
+        """
+
+        parameter_model = types._GenerateUserScenariosParameters(
+            location=location,
+            agents=agents,
+            root_agent_id=root_agent_id,
+            user_scenario_generation_config=user_scenario_generation_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateUserScenarios".format_map(request_url_dict)
+            else:
+                path = ":generateUserScenarios"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateUserScenariosResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _generate_loss_clusters(
+        self,
+        *,
+        location: Optional[str] = None,
+        evaluation_set: Optional[str] = None,
+        inline_results: Optional[list[types.EvaluationResultOrDict]] = None,
+        configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        config: Optional[types.GenerateLossClustersConfigOrDict] = None,
+    ) -> types.GenerateLossClustersOperation:
+        """
+        Generates loss clusters from evaluation results.
+        """
+
+        parameter_model = types._GenerateLossClustersParameters(
+            location=location,
+            evaluation_set=evaluation_set,
+            inline_results=inline_results,
+            configs=configs,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = ":generateLossClusters".format_map(request_url_dict)
+            else:
+                path = ":generateLossClusters"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.GenerateLossClustersOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1836,9 +3467,10 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         contents: list[genai_types.ContentOrDict],
         predefined_rubric_generation_spec: Optional[
-            types.PredefinedMetricSpecOrDict
+            genai_types.PredefinedMetricSpecOrDict
         ] = None,
-        rubric_generation_spec: Optional[types.RubricGenerationSpecOrDict] = None,
+        rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
+        metric_resource_name: Optional[str] = None,
         config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
@@ -1849,6 +3481,7 @@ class AsyncEvals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
@@ -1886,7 +3519,99 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.GenerateInstanceRubricsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """
+        Retrieves an EvaluationMetric from the resource name.
+        """
+
+        parameter_model = types._GetEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _EvaluationMetric_from_vertex(response_dict)
+
+        return_value = types.EvaluationMetric._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1941,7 +3666,24 @@ class AsyncEvals(_api_module.BaseModule):
             response_dict = _EvaluationRun_from_vertex(response_dict)
 
         return_value = types.EvaluationRun._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1993,7 +3735,24 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2045,7 +3804,95 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationItem._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _list_evaluation_metrics(
+        self, *, config: Optional[types.ListEvaluationMetricsConfigOrDict] = None
+    ) -> types.ListEvaluationMetricsResponse:
+        """
+        Lists EvaluationMetrics.
+        """
+
+        parameter_model = types._ListEvaluationMetricsParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError("This method is only supported in the Vertex AI client.")
+        else:
+            request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "evaluationMetrics".format_map(request_url_dict)
+            else:
+                path = "evaluationMetrics"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _ListEvaluationMetricsResponse_from_vertex(response_dict)
+
+        return_value = types.ListEvaluationMetricsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -2171,13 +4018,16 @@ class AsyncEvals(_api_module.BaseModule):
             name = name.split("/")[-1]
         result = await self._get_evaluation_run(name=name, config=config)
         if include_evaluation_items:
-            result.evaluation_item_results = (
+            eval_result, eval_item_map = (
                 await _evals_common._convert_evaluation_run_results_async(
                     self._api_client,
                     result.evaluation_run_results,
                     result.inference_configs,
                 )
             )
+            result.evaluation_item_results = eval_result
+            # Bypass pydantic validation (extra='forbid') for this internal field.
+            object.__setattr__(result, "_eval_item_map", eval_item_map)
 
         return result
 
@@ -2193,8 +4043,15 @@ class AsyncEvals(_api_module.BaseModule):
         metrics: list[types.EvaluationRunMetricOrDict],
         name: Optional[str] = None,
         display_name: Optional[str] = None,
-        agent_info: Optional[types.evals.AgentInfo] = None,
+        agent_info: Optional[evals_types.AgentInfo] = None,
+        agent: Optional[str] = None,
+        user_simulator_config: Optional[evals_types.UserSimulatorConfigOrDict] = None,
+        inference_configs: Optional[
+            dict[str, types.EvaluationRunInferenceConfigOrDict]
+        ] = None,
         labels: Optional[dict[str, str]] = None,
+        loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
+        loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -2205,68 +4062,120 @@ class AsyncEvals(_api_module.BaseModule):
           metrics: The list of metrics to evaluate.
           name: The name of the evaluation run.
           display_name: The display name of the evaluation run.
-          agent_info: The agent info to evaluate.
+          agent_info: The agent info to evaluate. Mutually exclusive with
+              `inference_configs`.
+          agent: The agent engine resource name in str type, with format
+              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.
+              If provided, runs inference with the deployed agent to get agent responses
+              for evaluation. This is required if `agent_info` is provided.
+          user_simulator_config: The user simulator configuration for agent evaluation.
+              If `agent_info` is provided without `inference_configs`, this config is used
+              to automatically construct the inference configuration. If not specified,
+              or if `max_turn` is not set, `max_turn` defaults to 5.
+              The `model_name` inside this config can be either a full model path or a
+              short model name, e.g. `gemini-3-preview-flash`.
+          inference_configs: The candidate to inference config map for the evaluation run.
+              The key is the candidate name, and the value is the inference config.
+              If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
+              this will be automatically constructed using `agent_info` and `user_simulator_config`.
+              Example:
+              {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
+          loss_analysis_metrics: This field is experimental and may change in future
+              versions. Optional list of metrics to run loss analysis on. The
+              candidate is auto-inferred from ``inference_configs`` or
+              ``agent_info`` when there is exactly one candidate. Each metric can be
+              a string (e.g., ``"multi_turn_task_success_v1"``), a ``Metric``
+              object, or a ``RubricMetric`` enum
+              (e.g., ``types.RubricMetric.MULTI_TURN_TASK_SUCCESS``). Loss analysis
+              runs after metric calculation completes.
+              Mutually exclusive with ``loss_analysis_configs``.
+              Example::
+
+                  loss_analysis_metrics=[
+                      types.RubricMetric.MULTI_TURN_TASK_SUCCESS,
+                      types.RubricMetric.MULTI_TURN_TOOL_USE_QUALITY,
+                  ]
+          loss_analysis_configs: This field is experimental and may change in future
+              versions. Optional list of ``LossAnalysisConfig`` objects for full
+              control over loss analysis, including explicit candidate and
+              advanced options like ``predefined_taxonomy`` and
+              ``max_top_cluster_count``. Mutually exclusive with
+              ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
 
         Returns:
             The created evaluation run.
         """
-        if agent_info and isinstance(agent_info, dict):
-            agent_info = types.evals.AgentInfo.model_validate(agent_info)
-        if type(dataset).__name__ == "EvaluationDataset":
-            if dataset.eval_dataset_df is None:
-                raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
-                )
-            if (
-                dataset.candidate_name
-                and agent_info.name
-                and dataset.candidate_name != agent_info.name
-            ):
-                logger.warning(
-                    "Evaluation dataset candidate_name and agent_info.name are different. Please make sure this is intended."
-                )
-            elif dataset.candidate_name is None and agent_info:
-                dataset.candidate_name = agent_info.name
-            eval_set = _evals_common._create_evaluation_set_from_dataframe(
-                self._api_client, dest, dataset.eval_dataset_df, dataset.candidate_name
+        if loss_analysis_metrics and loss_analysis_configs:
+            raise ValueError(
+                "At most one of loss_analysis_metrics or loss_analysis_configs"
+                " can be provided."
             )
-            dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
+        if agent_info and inference_configs:
+            raise ValueError(
+                "At most one of agent_info or inference_configs can be provided."
+            )
+        parsed_agent_info = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else (agent_info or evals_types.AgentInfo())
+        )
+
+        if agent_info and not inference_configs:
+            parsed_user_simulator_config = (
+                evals_types.UserSimulatorConfig.model_validate(user_simulator_config)
+                if isinstance(user_simulator_config, dict)
+                else (user_simulator_config or evals_types.UserSimulatorConfig())
+            )
+            if getattr(parsed_user_simulator_config, "max_turn", None) is None:
+                parsed_user_simulator_config.max_turn = 5
+
+            candidate_name = parsed_agent_info.name or "candidate-1"
+            inference_configs = {
+                candidate_name: types.EvaluationRunInferenceConfig(
+                    agent_configs=parsed_agent_info.agents,
+                    agent_run_config=types.AgentRunConfig(
+                        agent_engine=agent,
+                        user_simulator_config=parsed_user_simulator_config,
+                    ),
+                )
+            }
+
+        if isinstance(dataset, types.EvaluationDataset):
+            _evals_utils._validate_dataset_agent_data(dataset, inference_configs)
+        resolved_dataset = _evals_common._resolve_dataset(
+            self._api_client, dataset, dest, parsed_agent_info
+        )
         output_config = genai_types.OutputConfig(
             gcs_destination=genai_types.GcsDestination(output_uri_prefix=dest)
         )
         resolved_metrics = _evals_common._resolve_evaluation_run_metrics(
             metrics, self._api_client
         )
-        evaluation_config = types.EvaluationRunConfig(
-            output_config=output_config, metrics=resolved_metrics
-        )
-        inference_configs = {}
-        if agent_info:
-            inference_configs[agent_info.name] = types.EvaluationRunInferenceConfig(
-                agent_config=types.EvaluationRunAgentConfig(
-                    developer_instruction=genai_types.Content(
-                        parts=[genai_types.Part(text=agent_info.instruction)]
-                    ),
-                    tools=agent_info.tool_declarations,
-                )
-            )
-            if agent_info.agent_resource_name:
-                labels = labels or {}
-                labels["vertex-ai-evaluation-agent-engine-id"] = (
-                    agent_info.agent_resource_name.split("reasoningEngines/")[-1]
-                )
-        if not name:
-            name = f"evaluation_run_{uuid.uuid4()}"
-
-        result = await self._create_evaluation_run(  # type: ignore[no-any-return]
-            name=name,
-            display_name=display_name or name,
-            data_source=dataset,
-            evaluation_config=evaluation_config,
+        resolved_loss_configs = _evals_utils._resolve_eval_run_loss_configs(
+            loss_analysis_metrics=loss_analysis_metrics,
+            loss_analysis_configs=loss_analysis_configs,
             inference_configs=inference_configs,
-            labels=labels,
+        )
+        evaluation_config = types.EvaluationRunConfig(
+            output_config=output_config,
+            metrics=resolved_metrics,
+            loss_analysis_config=resolved_loss_configs,
+        )
+        resolved_inference_configs = _evals_common._resolve_inference_configs(
+            self._api_client, resolved_dataset, inference_configs, parsed_agent_info
+        )
+        resolved_labels = _evals_common._add_evaluation_run_labels(labels, agent)
+        resolved_name = name or f"evaluation_run_{uuid.uuid4()}"
+
+        result = await self._create_evaluation_run(
+            name=resolved_name,
+            display_name=display_name or resolved_name,
+            data_source=resolved_dataset,
+            evaluation_config=evaluation_config,
+            inference_configs=resolved_inference_configs,
+            labels=resolved_labels,
             config=config,
         )
 
@@ -2372,7 +4281,7 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
           The evaluation item.
         """
-        result = await self._create_evaluation_item(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_item(
             evaluation_item_type=evaluation_item_type,
             gcs_uri=gcs_uri,
             display_name=display_name,
@@ -2403,9 +4312,187 @@ class AsyncEvals(_api_module.BaseModule):
         Returns:
           The evaluation set.
         """
-        result = await self._create_evaluation_set(  # type: ignore[no-any-return]
+        result = await self._create_evaluation_set(
             evaluation_items=evaluation_items,
             display_name=display_name,
             config=config,
         )
         return result
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_conversation_scenarios module is experimental, "
+        "and may change in future versions."
+    )
+    async def generate_conversation_scenarios(
+        self,
+        *,
+        agent_info: evals_types.AgentInfoOrDict,
+        config: evals_types.UserScenarioGenerationConfigOrDict,
+    ) -> types.EvaluationDataset:
+        """Generates an evaluation dataset with user scenarios,
+           which helps to generate conversations between a simulated user
+           and the agent under test.
+
+        Args:
+            agent_info: The agent info to generate user scenarios for.
+            config: Configuration for generating user scenarios.
+
+        Returns:
+            An EvaluationDataset containing the generated user scenarios.
+        """
+        parsed_agent_info = (
+            evals_types.AgentInfo.model_validate(agent_info)
+            if isinstance(agent_info, dict)
+            else agent_info
+        )
+        response = await self._generate_user_scenarios(
+            agents=parsed_agent_info.agents,
+            root_agent_id=parsed_agent_info.root_agent_id,
+            user_scenario_generation_config=config,
+        )
+        return _evals_utils._postprocess_user_scenarios_response(response)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.generate_loss_clusters module is experimental, "
+        "and may change in future versions."
+    )
+    async def generate_loss_clusters(
+        self,
+        *,
+        eval_result: types.EvaluationResult,
+        metric: Optional[Union[str, types.MetricOrDict]] = None,
+        candidate: Optional[str] = None,
+        config: Optional[types.LossAnalysisConfigOrDict] = None,
+    ) -> types.GenerateLossClustersResponse:
+        """Generates loss clusters from evaluation results.
+
+        Analyzes "Pass/Fail" signals from rubric-based autoraters and groups
+        them into semantic "Loss Patterns" (e.g., "Hallucination of Action").
+
+        This method calls the GenerateLossClusters LRO and polls until
+        completion, returning the results directly.
+
+        If ``metric`` or ``candidate`` are not provided, they will be
+        auto-inferred from ``eval_result`` when unambiguous (i.e., when the
+        eval result contains exactly one metric or one candidate). For
+        multi-metric or multi-candidate evaluations, provide them explicitly.
+
+        Available candidate names can be found in
+        ``eval_result.metadata.candidate_names``.
+
+        Note: This API is only available in the ``global`` region.
+
+        Args:
+            eval_result: The EvaluationResult object returned from
+                client.evals.evaluate().
+            metric: The metric to analyze. Can be a metric name string
+                (e.g., "multi_turn_task_success_v1"), a Metric object, or a
+                RubricMetric enum (e.g., types.RubricMetric.MULTI_TURN_TASK_SUCCESS).
+                If not provided and config does not specify it, auto-inferred
+                from eval_result.
+            candidate: The candidate to analyze. If not provided and config
+                does not specify it, auto-inferred from eval_result.
+            config: Optional LossAnalysisConfig with additional options
+                (predefined_taxonomy, max_top_cluster_count). Can also
+                specify metric/candidate, but explicit arguments take
+                precedence.
+
+        Returns:
+            A GenerateLossClustersResponse containing the analysis results.
+            Call .show() to visualize, or access .results for individual
+            LossAnalysisResult objects (each with their own .show()).
+        """
+        metric_name = _evals_utils._resolve_metric_name(metric)
+        parsed_config = (
+            types.LossAnalysisConfig.model_validate(config)
+            if isinstance(config, dict)
+            else config
+        )
+        resolved_config = _evals_utils._resolve_loss_analysis_config(
+            eval_result=eval_result,
+            config=parsed_config,
+            metric=metric_name,
+            candidate=candidate,
+        )
+        operation = await self._generate_loss_clusters(
+            inline_results=[eval_result],
+            configs=[resolved_config],
+        )
+        completed = await _evals_utils._poll_operation_async(
+            api_client=self._api_client,
+            operation=operation,
+        )
+        if completed.error:
+            raise RuntimeError(f"Loss analysis operation failed: {completed.error}")
+        if completed.response is None:
+            raise RuntimeError(
+                "Loss analysis operation completed but returned no response."
+            )
+        _evals_utils._enrich_loss_response_with_rubric_descriptions(
+            completed.response, eval_result
+        )
+        return completed.response
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.create_evaluation_metric module is experimental, "
+        "and may change in future versions."
+    )
+    async def create_evaluation_metric(
+        self,
+        *,
+        display_name: Optional[str] = None,
+        description: Optional[str] = None,
+        metric: Optional[types.MetricOrDict] = None,
+        config: Optional[types.CreateEvaluationMetricConfigOrDict] = None,
+    ) -> str:
+        """Creates an EvaluationMetric."""
+        if metric and not isinstance(metric, dict):
+            resolved_metrics = _evals_common._resolve_metrics(
+                [metric], self._api_client
+            )
+            metric = resolved_metrics[0]
+
+        # Add fallback logic for display_name
+        if display_name is None and metric:
+            if isinstance(metric, dict):
+                display_name = metric.get("name")
+            else:
+                display_name = getattr(metric, "name", None)
+
+        result = await self._create_evaluation_metric(
+            display_name=display_name,
+            description=description,
+            metric=metric,
+            config=config,
+        )
+        return cast(str, result.name)
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.get_evaluation_metric module is experimental, "
+        "and may change in future versions."
+    )
+    async def get_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.GetEvaluationMetricConfigOrDict] = None,
+    ) -> types.EvaluationMetric:
+        """Retrieves an EvaluationMetric from the resource name."""
+        return await self._get_evaluation_metric(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.list_evaluation_metrics module is experimental, "
+        "and may change in future versions."
+    )
+    async def list_evaluation_metrics(
+        self,
+        *,
+        config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
+    ) -> types.ListEvaluationMetricsResponse:
+        """Lists EvaluationMetrics."""
+        return await self._list_evaluation_metrics(
+            config=config,
+        )

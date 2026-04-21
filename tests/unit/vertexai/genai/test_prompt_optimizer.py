@@ -19,8 +19,10 @@ from unittest import mock
 
 import vertexai
 from vertexai._genai import prompt_optimizer
+from vertexai._genai import prompts
 from vertexai._genai import types
 from google.genai import client
+import pandas as pd
 import pytest
 
 
@@ -50,7 +52,10 @@ class TestPromptOptimizer:
 
     @mock.patch.object(client.Client, "_get_api_client")
     @mock.patch.object(prompt_optimizer.PromptOptimizer, "_create_custom_job_resource")
-    def test_prompt_optimizer_optimize(self, mock_custom_job, mock_client):
+    @mock.patch.object(prompts.Prompts, "_create_custom_job_resource")
+    def test_prompt_optimizer_optimize(
+        self, mock_custom_job_prompts, mock_custom_job_prompt_optimizer, mock_client
+    ):
         """Test that prompt_optimizer.optimize method creates a custom job."""
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_client.prompt_optimizer.optimize(
@@ -62,11 +67,14 @@ class TestPromptOptimizer:
             ),
         )
         mock_client.assert_called_once()
-        mock_custom_job.assert_called_once()
+        mock_custom_job_prompts.assert_called_once()
 
     @mock.patch.object(client.Client, "_get_api_client")
     @mock.patch.object(prompt_optimizer.PromptOptimizer, "_create_custom_job_resource")
-    def test_prompt_optimizer_optimize_nano(self, mock_custom_job, mock_client):
+    @mock.patch.object(prompts.Prompts, "_create_custom_job_resource")
+    def test_prompt_optimizer_optimize_nano(
+        self, mock_custom_job_prompts, mock_custom_job_prompt_optimizer, mock_client
+    ):
         """Test that prompt_optimizer.optimize method creates a custom job."""
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
         test_client.prompt_optimizer.optimize(
@@ -78,10 +86,10 @@ class TestPromptOptimizer:
             ),
         )
         mock_client.assert_called_once()
-        mock_custom_job.assert_called_once()
+        mock_custom_job_prompts.assert_called_once()
 
     @mock.patch.object(client.Client, "_get_api_client")
-    @mock.patch.object(prompt_optimizer.PromptOptimizer, "_custom_optimize_prompt")
+    @mock.patch.object(prompts.Prompts, "_custom_optimize")
     def test_prompt_optimizer_optimize_prompt(
         self, mock_custom_optimize_prompt, mock_client
     ):
@@ -91,7 +99,94 @@ class TestPromptOptimizer:
         mock_client.assert_called_once()
         mock_custom_optimize_prompt.assert_called_once()
 
-    @mock.patch.object(prompt_optimizer.PromptOptimizer, "_custom_optimize_prompt")
+
+class TestPrompts:
+    """Unit tests for the Prompts client."""
+
+    def setup_method(self):
+        importlib.reload(vertexai)
+        vertexai.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_prompt_optimizer_client(self):
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        assert test_client.prompts is not None
+
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(prompts.Prompts, "_create_custom_job_resource")
+    def test_prompt_optimizer_optimize(self, mock_custom_job, mock_client):
+        """Test that prompt_optimizer.optimize method creates a custom job."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.prompts.launch_optimization_job(
+            method=types.PromptOptimizerMethod.VAPO,
+            config=types.PromptOptimizerConfig(
+                config_path="gs://ssusie-vapo-sdk-test/config.json",
+                wait_for_completion=False,
+                service_account="test-service-account",
+            ),
+        )
+        mock_client.assert_called_once()
+        mock_custom_job.assert_called_once()
+
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(prompts.Prompts, "_create_custom_job_resource")
+    def test_prompt_optimizer_optimize_nano(self, mock_custom_job, mock_client):
+        """Test that prompt_optimizer.optimize method creates a custom job."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.prompts.launch_optimization_job(
+            method=types.PromptOptimizerMethod.OPTIMIZATION_TARGET_GEMINI_NANO,
+            config=types.PromptOptimizerConfig(
+                config_path="gs://ssusie-vapo-sdk-test/config.json",
+                wait_for_completion=False,
+                service_account="test-service-account",
+            ),
+        )
+        mock_client.assert_called_once()
+        mock_custom_job.assert_called_once()
+
+    @mock.patch.object(client.Client, "_get_api_client")
+    @mock.patch.object(prompts.Prompts, "_custom_optimize")
+    def test_prompt_optimizer_optimize_prompt(
+        self, mock_custom_optimize_prompt, mock_client
+    ):
+        """Test that prompt_optimizer.optimize_prompt method calls optimize_prompt API."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_client.prompts.optimize(prompt="test_prompt")
+        mock_client.assert_called_once()
+        mock_custom_optimize_prompt.assert_called_once()
+
+    @mock.patch.object(prompts.Prompts, "_custom_optimize")
+    def test_prompt_optimizer_optimize_few_shot(self, mock_custom_optimize_prompt):
+        """Test that prompt_optimizer.optimize method for few shot optimizer."""
+        df = pd.DataFrame(
+            {
+                "prompt": ["prompt1", "prompt2"],
+                "model_response": ["response1", "response2"],
+                "target_response": ["target1", "target2"],
+            }
+        )
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        test_config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE,
+            examples_dataframe=df,
+        )
+        test_client.prompts.optimize(
+            prompt="test_prompt",
+            config=test_config,
+        )
+        mock_custom_optimize_prompt.assert_called_once()
+        mock_kwargs = mock_custom_optimize_prompt.call_args.kwargs
+        assert (
+            mock_kwargs["config"].optimization_target == test_config.optimization_target
+        )
+        pd.testing.assert_frame_equal(
+            mock_kwargs["config"].examples_dataframe, test_config.examples_dataframe
+        )
+
+    @mock.patch.object(prompts.Prompts, "_custom_optimize")
     def test_prompt_optimizer_optimize_prompt_with_optimization_target(
         self, mock_custom_optimize_prompt
     ):
@@ -100,7 +195,7 @@ class TestPromptOptimizer:
         config = types.OptimizeConfig(
             optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO,
         )
-        test_client.prompt_optimizer.optimize_prompt(
+        test_client.prompts.optimize(
             prompt="test_prompt",
             config=config,
         )
@@ -110,17 +205,17 @@ class TestPromptOptimizer:
         )
 
     @pytest.mark.asyncio
-    @mock.patch.object(prompt_optimizer.AsyncPromptOptimizer, "_custom_optimize_prompt")
+    @mock.patch.object(prompts.AsyncPrompts, "_custom_optimize")
     async def test_async_prompt_optimizer_optimize_prompt(
         self, mock_custom_optimize_prompt
     ):
         """Test that async prompt_optimizer.optimize_prompt method calls optimize_prompt API."""
         test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
-        await test_client.aio.prompt_optimizer.optimize_prompt(prompt="test_prompt")
+        await test_client.aio.prompts.optimize(prompt="test_prompt")
         mock_custom_optimize_prompt.assert_called_once()
 
     @pytest.mark.asyncio
-    @mock.patch.object(prompt_optimizer.AsyncPromptOptimizer, "_custom_optimize_prompt")
+    @mock.patch.object(prompts.AsyncPrompts, "_custom_optimize")
     async def test_async_prompt_optimizer_optimize_prompt_with_optimization_target(
         self, mock_custom_optimize_prompt
     ):
@@ -129,7 +224,62 @@ class TestPromptOptimizer:
         config = types.OptimizeConfig(
             optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_GEMINI_NANO,
         )
-        await test_client.aio.prompt_optimizer.optimize_prompt(
+        await test_client.aio.prompts.optimize(
+            prompt="test_prompt",
+            config=config,
+        )
+        mock_custom_optimize_prompt.assert_called_once_with(
+            content=mock.ANY,
+            config=config,
+        )
+
+    @pytest.mark.asyncio
+    @mock.patch.object(prompts.AsyncPrompts, "_custom_optimize")
+    async def test_async_prompt_optimizer_optimize_prompt_few_shot_target_response(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that async prompt_optimizer.optimize_prompt calls optimize_prompt with few shot target response."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        df = pd.DataFrame(
+            {
+                "prompt": ["prompt1", "prompt2"],
+                "model_response": ["response1", "response2"],
+                "target_response": ["target1", "target2"],
+            }
+        )
+        config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_TARGET_RESPONSE,
+            examples_dataframe=df,
+        )
+        await test_client.aio.prompts.optimize(
+            prompt="test_prompt",
+            config=config,
+        )
+        mock_custom_optimize_prompt.assert_called_once_with(
+            content=mock.ANY,
+            config=config,
+        )
+
+    @pytest.mark.asyncio
+    @mock.patch.object(prompts.AsyncPrompts, "_custom_optimize")
+    async def test_async_prompt_optimizer_optimize_prompt_few_shot_rubrics(
+        self, mock_custom_optimize_prompt
+    ):
+        """Test that async prompt_optimizer.optimize_prompt calls optimize_prompt with few shot rubrics."""
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        df = pd.DataFrame(
+            {
+                "prompt": ["prompt1", "prompt2"],
+                "model_response": ["response1", "response2"],
+                "rubrics": ["rubric1", "rubric2"],
+                "rubrics_evaluations": ["[True, True]", "[True, False]"],
+            }
+        )
+        config = types.OptimizeConfig(
+            optimization_target=types.OptimizeTarget.OPTIMIZATION_TARGET_FEW_SHOT_RUBRICS,
+            examples_dataframe=df,
+        )
+        await test_client.aio.prompts.optimize(
             prompt="test_prompt",
             config=config,
         )

@@ -75,6 +75,7 @@ TEST_PROMPT = types.Prompt(
 )
 TEST_CREATE_PROMPT_CONFIG = types.CreatePromptConfig(
     prompt_display_name="my_prompt",
+    version_display_name="my_version",
 )
 
 TEST_CREATE_PROMPT_VERSION_CONFIG = types.CreatePromptVersionConfig(
@@ -147,8 +148,18 @@ def test_create(client):
     assert isinstance(prompt_resource.dataset, types.Dataset)
 
 
+def test_create_version(client):
+    prompt_resource = client.prompts.create_version(
+        prompt=TEST_PROMPT,
+        config=TEST_CREATE_PROMPT_CONFIG,
+    )
+    assert isinstance(prompt_resource, types.Prompt)
+    assert isinstance(prompt_resource.dataset, types.Dataset)
+    assert isinstance(prompt_resource.dataset_version, types.DatasetVersion)
+
+
 def test_create_e2e(client):
-    prompt_resource = client.prompts.create(
+    prompt_resource = client.prompts.create_version(
         prompt=TEST_PROMPT,
         config=TEST_CREATE_PROMPT_CONFIG,
     )
@@ -183,13 +194,13 @@ def test_create_e2e(client):
         == prompt_resource.prompt_data.generation_config
     )
 
-    # Test calling create_version on the same prompt dataset and change the prompt
+    # Test creating a new version on the same prompt dataset with update()
     new_prompt = TEST_PROMPT.model_copy(deep=True)
     new_prompt.prompt_data.contents[0].parts[0].text = "Is this Alice?"
-    prompt_resource_2 = client.prompts.create_version(
+    prompt_resource_2 = client.prompts.update(
         prompt_id=prompt_resource.prompt_id,
         prompt=new_prompt,
-        config=types.CreatePromptVersionConfig(
+        config=types.UpdatePromptConfig(
             version_display_name="my_version",
         ),
     )
@@ -199,35 +210,15 @@ def test_create_e2e(client):
     # Update the prompt contents again and verify version history is preserved
     prompt_v3 = TEST_PROMPT.model_copy(deep=True)
     prompt_v3.prompt_data.contents[0].parts[0].text = "Is this Bob?"
-    prompt_resource_3 = client.prompts.create_version(
+    prompt_resource_3 = client.prompts.update(
         prompt_id=prompt_resource.prompt_id,
         prompt=prompt_v3,
-        config=types.CreatePromptVersionConfig(
+        config=types.UpdatePromptConfig(
             version_display_name="my_version_2",
         ),
     )
     assert prompt_resource_3.dataset.name == prompt_resource.dataset.name
     assert prompt_resource_3.prompt_data.contents[0].parts[0].text == "Is this Bob?"
-
-
-def test_create_version(client):
-    updated_prompt = TEST_PROMPT.model_copy(deep=True)
-    new_prompt_text = "Is this {name}?"
-    updated_prompt.prompt_data.contents[0].parts[0].text = new_prompt_text
-    prompt_resource = client.prompts.create_version(
-        prompt_id=TEST_PROMPT_DATASET_ID,
-        prompt=updated_prompt,
-        config=TEST_CREATE_PROMPT_VERSION_CONFIG,
-    )
-    assert isinstance(prompt_resource, types.Prompt)
-    assert isinstance(prompt_resource.dataset, types.Dataset)
-    assert isinstance(prompt_resource.dataset_version, types.DatasetVersion)
-    assert prompt_resource.dataset.name.endswith(TEST_PROMPT_DATASET_ID)
-    assert (
-        prompt_resource.dataset_version.display_name
-        == TEST_CREATE_PROMPT_VERSION_CONFIG.version_display_name
-    )
-    assert prompt_resource.prompt_data.contents[0].parts[0].text == new_prompt_text
 
 
 def test_create_with_file_data(client):
@@ -291,32 +282,21 @@ def test_create_with_file_data(client):
 
 def test_create_with_encryption_spec(client):
     encryption_spec = genai_types.EncryptionSpec(
-        kms_key_name="projects/vertex-sdk-dev/locations/us-central1/keyRings/my-key-ring/cryptoKeys/my-key",
+        kms_key_name="projects/vertex-sdk-dev/locations/us-central1/keyRings/test-key-ring/cryptoKeys/my-key",
     )
-    config = types.CreatePromptConfig(
+    config = types.CreatePromptVersionConfig(
         prompt_display_name="my_prompt_with_encryption_spec",
+        version_display_name="my_version_with_encryption_spec",
         encryption_spec=encryption_spec,
+        timeout=300,
     )
-    prompt_resource = client.prompts.create(
+    prompt_resource = client.prompts.create_version(
         prompt=TEST_PROMPT,
         config=config,
     )
     assert isinstance(prompt_resource, types.Prompt)
     assert isinstance(prompt_resource.dataset, types.Dataset)
-
-    # Create a version on a prompt with an encryption spec.
-    new_prompt = TEST_PROMPT.model_copy(deep=True)
-    new_prompt.prompt_data.contents[0].parts[0].text = "Is this Alice?"
-    prompt_version_resource = client.prompts.create_version(
-        prompt_id=prompt_resource.prompt_id,
-        prompt=new_prompt,
-        config=types.CreatePromptVersionConfig(
-            version_display_name="my_version_existing_dataset",
-        ),
-    )
-    assert isinstance(prompt_version_resource, types.Prompt)
-    assert isinstance(prompt_version_resource.dataset, types.Dataset)
-    assert isinstance(prompt_version_resource.dataset_version, types.DatasetVersion)
+    assert isinstance(prompt_resource.dataset_version, types.DatasetVersion)
 
 
 pytestmark = pytest_helper.setup(
@@ -340,24 +320,10 @@ async def test_create_async(client):
 
 @pytest.mark.asyncio
 async def test_create_version_async(client):
-    prompt_resource = await client.aio.prompts.create(
-        prompt=TEST_PROMPT.model_dump(),
-        config=TEST_CREATE_PROMPT_CONFIG.model_dump(),
+    prompt_resource = await client.aio.prompts.create_version(
+        prompt=TEST_PROMPT,
+        config=TEST_CREATE_PROMPT_CONFIG,
     )
-    new_prompt = TEST_PROMPT.model_copy(deep=True)
-    new_prompt.prompt_data.contents[0].parts[0].text = "Is this Alice?"
-    prompt_version_resource = await client.aio.prompts.create_version(
-        prompt_id=prompt_resource.prompt_id,
-        prompt=new_prompt,
-        config=types.CreatePromptVersionConfig(
-            version_display_name="my_version_existing_dataset",
-        ),
-    )
-    assert isinstance(prompt_version_resource, types.Prompt)
-    assert isinstance(prompt_version_resource.dataset, types.Dataset)
-    assert isinstance(prompt_version_resource.dataset_version, types.DatasetVersion)
-    assert prompt_version_resource.dataset.name.endswith(prompt_resource.prompt_id)
-    assert (
-        prompt_version_resource.prompt_data.contents[0].parts[0].text
-        == "Is this Alice?"
-    )
+    assert isinstance(prompt_resource, types.Prompt)
+    assert isinstance(prompt_resource.dataset, types.Dataset)
+    assert isinstance(prompt_resource.dataset_version, types.DatasetVersion)

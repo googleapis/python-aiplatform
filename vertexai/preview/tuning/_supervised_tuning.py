@@ -14,12 +14,11 @@
 #
 
 from typing import Dict, Literal, Optional, Union
+import warnings
 
 from google.cloud.aiplatform.preview import datasets
 from google.cloud.aiplatform.utils import _ipython_utils
-from google.cloud.aiplatform_v1beta1.types import (
-    tuning_job as gca_tuning_job_types,
-)
+from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job_types
 from vertexai import generative_models
 from vertexai.preview.tuning import _tuning
 from vertexai.preview.tuning._tuning import SourceModel
@@ -65,6 +64,11 @@ def train(
     Returns:
         A `TuningJob` object.
     """
+    warnings.warn(
+        "This method is deprecated. Please use the `train` method in the `vertexai.tuning` package instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if tuning_mode is None:
         tuning_mode_value = None
     elif tuning_mode == "FULL":

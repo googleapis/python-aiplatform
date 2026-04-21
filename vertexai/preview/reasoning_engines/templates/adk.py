@@ -27,6 +27,7 @@ from typing import (
 import asyncio
 from collections.abc import Awaitable
 import queue
+import sys
 import threading
 
 
@@ -137,8 +138,13 @@ def is_version_sufficient(version_to_check: str) -> bool:
 
 class _ArtifactVersion:
     def __init__(self, **kwargs):
+        from google.genai import types
+
         self.version: Optional[str] = kwargs.get("version")
-        self.data = kwargs.get("data")
+        data = kwargs.get("data")
+        self.data: Optional[types.Part] = (
+            types.Part.model_validate(data) if isinstance(data, dict) else data
+        )
 
     def dump(self) -> Dict[str, Any]:
         result = {}
@@ -279,12 +285,18 @@ async def _force_flush_otel(tracing_enabled: bool, logging_enabled: bool):
 
 
 def _default_instrumentor_builder(
-    project_id: str,
+    project_id: Optional[str],
     *,
     enable_tracing: bool = False,
     enable_logging: bool = False,
 ):
     if not enable_tracing and not enable_logging:
+        return None
+
+    if project_id is None:
+        _warn(
+            "telemetry is only supported when project is specified, proceeding with no telemetry"
+        )
         return None
 
     import os
@@ -308,7 +320,9 @@ def _default_instrumentor_builder(
         return None
 
     def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
-        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION", ""
+        )
         agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
         if all(v is not None for v in (location, agent_engine_id)):
             return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
@@ -345,10 +359,14 @@ def _default_instrumentor_builder(
         attributes={
             "gcp.project_id": project_id,
             "cloud.account.id": project_id,
+            "cloud.provider": "gcp",
             "cloud.platform": "gcp.agent_engine",
             "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
             "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
-            "cloud.region": os.getenv("GOOGLE_CLOUD_LOCATION", ""),
+            "cloud.region": (
+                os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "")
+                or os.getenv("GOOGLE_CLOUD_LOCATION", "")
+            ),
         }
         | (
             {"cloud.resource_id": cloud_resource_id}
@@ -427,17 +445,47 @@ def _default_instrumentor_builder(
                 "opentelemetry-exporter-gcp-logging", needed_for_logging=True
             )
 
+        class _SimpleLogRecordProcessor(
+            opentelemetry.sdk._logs.export.SimpleLogRecordProcessor
+        ):
+            def force_flush(
+                self, timeout_millis: int = 30000
+            ) -> bool:  # pylint: disable=no-self-use
+                sys.stdout.flush()
+                sys.stderr.flush()
+                return True
+
         logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
-        logger_provider.add_log_record_processor(
-            opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
-                opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
-                    project_id=project_id,
-                    default_log_name=os.getenv(
-                        "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+        # Use the legacy log processor when experimental semconv is enabled.
+        # Exporting JSON logs to stdout is bugged; Agent Engine fails to
+        # correctly parse the `gen_ai.client.inference.operation.details`
+        # messages.
+        # TODO: b/480102541 - Unify both branches once the regression is fixed.
+        if "gen_ai_latest_experimental" in os.getenv(
+            "OTEL_SEMCONV_STABILITY_OPT_IN", ""
+        ).split(","):
+            logger_provider.add_log_record_processor(
+                opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
                     ),
-                ),
+                )
             )
-        )
+        else:
+            logger_provider.add_log_record_processor(
+                _SimpleLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
+                        structured_json_file=sys.stdout,
+                    ),
+                )
+            )
         event_logger_provider = opentelemetry.sdk._events.EventLoggerProvider(
             logger_provider=logger_provider
         )
@@ -569,6 +617,23 @@ class AdkApp:
             for event in request.events:
                 await session_service.append_event(session, Event(**event))
         if request.artifacts:
+            await self._save_artifacts(
+                session_id=session.id,
+                artifact_service=artifact_service,
+                request=request,
+            )
+
+        return session
+
+    async def _save_artifacts(
+        self,
+        session_id: str,
+        artifact_service: "BaseArtifactService",
+        request: _StreamRunRequest,
+    ):
+        """Saves the artifacts."""
+        app = self._tmpl_attrs.get("app")
+        if request.artifacts:
             for artifact in request.artifacts:
                 artifact = _Artifact(**artifact)
                 for version_data in sorted(
@@ -576,9 +641,9 @@ class AdkApp:
                 ):
                     version_data = _ArtifactVersion(**version_data)
                     saved_version = await artifact_service.save_artifact(
-                        app_name=self._tmpl_attrs.get("app_name"),
+                        app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
-                        session_id=session.id,
+                        session_id=session_id,
                         filename=artifact.file_name,
                         artifact=version_data.data,
                     )
@@ -592,7 +657,6 @@ class AdkApp:
                             saved_version,
                             version_data.version,
                         )
-        return session
 
     async def _convert_response_events(
         self,
@@ -664,7 +728,11 @@ class AdkApp:
         project = self._tmpl_attrs.get("project")
         os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
-        os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        if location:
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
 
         # Disable content capture in custom ADK spans unless user enabled
         # tracing explicitly with the old flag
@@ -706,7 +774,7 @@ class AdkApp:
         enable_logging = bool(self._telemetry_enabled())
 
         self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
-            project,
+            self.project_id(),
             enable_tracing=self._tracing_enabled(),
             enable_logging=enable_logging,
         )
@@ -965,33 +1033,44 @@ class AdkApp:
 
         async def _invoke_agent_async():
             request = _StreamRunRequest(**json.loads(request_json))
-            if not self._tmpl_attrs.get("in_memory_runner"):
+            if not any(
+                self._tmpl_attrs.get(service)
+                for service in (
+                    "in_memory_runner",
+                    "runner",
+                    "in_memory_artifact_service",
+                    "artifact_service",
+                    "in_memory_session_service",
+                    "session_service",
+                    "in_memory_memory_service",
+                    "memory_service",
+                )
+            ):
                 self.set_up()
-            if not self._tmpl_attrs.get("runner"):
-                self.set_up()
-            # Prepare the in-memory session.
-            if not self._tmpl_attrs.get("in_memory_artifact_service"):
-                self.set_up()
-            if not self._tmpl_attrs.get("artifact_service"):
-                self.set_up()
-            if not self._tmpl_attrs.get("in_memory_session_service"):
-                self.set_up()
-            if not self._tmpl_attrs.get("session_service"):
-                self.set_up()
-
             # Try to get the session, if it doesn't exist, create a new one.
             if request.session_id:
                 session_service = self._tmpl_attrs.get("session_service")
                 artifact_service = self._tmpl_attrs.get("artifact_service")
                 runner = self._tmpl_attrs.get("runner")
+                session = None
                 try:
                     session = await session_service.get_session(
                         app_name=self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
                         session_id=request.session_id,
                     )
+                    if session:
+                        await self._save_artifacts(
+                            session_id=request.session_id,
+                            artifact_service=artifact_service,
+                            request=request,
+                        )
                 except ClientError:
+                    pass
+                if not session:
                     #  Fall back to create session if the session is not found.
+                    #  Specifying session_id on creation is not supported,
+                    #  so session id will be regenerated.
                     session = await self._init_session(
                         session_service=session_service,
                         artifact_service=artifact_service,
@@ -1012,7 +1091,7 @@ class AdkApp:
             # Run the agent.
             message_for_agent = types.Content(**request.message)
             try:
-                for event in runner.run_async(
+                for event in runner.run(
                     user_id=request.user_id,
                     session_id=session.id,
                     new_message=message_for_agent,
@@ -1099,7 +1178,8 @@ class AdkApp:
         if not self._tmpl_attrs.get("runner"):
             self.set_up()
         if not session_id:
-            session = await self.async_create_session(user_id=user_id)
+            state = first_request.get("state")
+            session = await self.async_create_session(user_id=user_id, state=state)
             session_id = session.id
         run_config = _validate_run_config(run_config)
 
@@ -1534,3 +1614,18 @@ class AdkApp:
         r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
         if "Telemetry API has not been used in project" in r.text:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+
+    def project_id(self) -> Optional[str]:
+        if project := self._tmpl_attrs.get("project"):
+            try:
+                from google.cloud.aiplatform.utils import (
+                    resource_manager_utils,
+                )
+                from google.api_core import exceptions
+
+                return resource_manager_utils.get_project_id(project)
+            # Fail open as temporary workaround for identity_type config parameter
+            except (exceptions.PermissionDenied, exceptions.Unauthenticated):
+                return project
+
+        return None

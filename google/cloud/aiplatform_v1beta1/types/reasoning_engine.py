@@ -22,9 +22,9 @@ import proto  # type: ignore
 from google.cloud.aiplatform_v1beta1.types import encryption_spec as gca_encryption_spec
 from google.cloud.aiplatform_v1beta1.types import env_var
 from google.cloud.aiplatform_v1beta1.types import service_networking
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -40,12 +40,22 @@ __protobuf__ = proto.module(
 class ReasoningEngineSpec(proto.Message):
     r"""ReasoningEngine configurations
 
+    This message has `oneof`_ fields (mutually exclusive fields).
+    For each oneof, at most one member field can be set at the same time.
+    Setting any member of the oneof automatically clears all other
+    members.
+
     .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
     Attributes:
         source_code_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec):
             Deploy from source code files with a defined
             entrypoint.
+
+            This field is a member of `oneof`_ ``deployment_source``.
+        container_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.ContainerSpec):
+            Deploy from a container image with a defined
+            entrypoint and commands.
 
             This field is a member of `oneof`_ ``deployment_source``.
         service_account (str):
@@ -94,9 +104,9 @@ class ReasoningEngineSpec(proto.Message):
                 Optional. The Cloud Storage URI of the ``requirements.txt``
                 file
             python_version (str):
-                Optional. The Python version. Currently
-                support 3.8, 3.9, 3.10, 3.11. If not specified,
-                default value is 3.10.
+                Optional. The Python version. Supported
+                values are 3.9, 3.10, 3.11, 3.12, 3.13. If not
+                specified, the default value is 3.10.
         """
 
         pickle_object_gcs_uri: str = proto.Field(
@@ -209,6 +219,11 @@ class ReasoningEngineSpec(proto.Message):
     class SourceCodeSpec(proto.Message):
         r"""Specification for deploying from source code.
 
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
         .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
 
         Attributes:
@@ -217,8 +232,18 @@ class ReasoningEngineSpec(proto.Message):
                 request.
 
                 This field is a member of `oneof`_ ``source``.
+            developer_connect_source (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource):
+                Source code is in a Git repository managed by
+                Developer Connect.
+
+                This field is a member of `oneof`_ ``source``.
             python_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.PythonSpec):
                 Configuration for a Python application.
+
+                This field is a member of `oneof`_ ``language_spec``.
+            image_spec (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.ImageSpec):
+                Optional. Configuration for building an image
+                with custom config file.
 
                 This field is a member of `oneof`_ ``language_spec``.
         """
@@ -236,6 +261,74 @@ class ReasoningEngineSpec(proto.Message):
             source_archive: bytes = proto.Field(
                 proto.BYTES,
                 number=1,
+            )
+
+        class ImageSpec(proto.Message):
+            r"""The image spec for building an image (within a single build
+            step), based on the config file (i.e. Dockerfile) in the source
+            directory.
+
+            Attributes:
+                build_args (MutableMapping[str, str]):
+                    Optional. Build arguments to be used. They
+                    will be passed through --build-arg flags.
+            """
+
+            build_args: MutableMapping[str, str] = proto.MapField(
+                proto.STRING,
+                proto.STRING,
+                number=1,
+            )
+
+        class DeveloperConnectConfig(proto.Message):
+            r"""Specifies the configuration for fetching source code from a
+            Git repository that is managed by Developer Connect. This
+            includes the repository, revision, and directory to use.
+
+            Attributes:
+                git_repository_link (str):
+                    Required. The Developer Connect Git repository link,
+                    formatted as
+                    ``projects/*/locations/*/connections/*/gitRepositoryLink/*``.
+                dir_ (str):
+                    Required. Directory, relative to the source
+                    root, in which to run the build.
+                revision (str):
+                    Required. The revision to fetch from the Git
+                    repository such as a branch, a tag, a commit
+                    SHA, or any Git ref.
+            """
+
+            git_repository_link: str = proto.Field(
+                proto.STRING,
+                number=1,
+            )
+            dir_: str = proto.Field(
+                proto.STRING,
+                number=2,
+            )
+            revision: str = proto.Field(
+                proto.STRING,
+                number=3,
+            )
+
+        class DeveloperConnectSource(proto.Message):
+            r"""Specifies source code to be fetched from a Git repository
+            managed through the Developer Connect service.
+
+            Attributes:
+                config (google.cloud.aiplatform_v1beta1.types.ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig):
+                    Required. The Developer Connect configuration
+                    that defines the specific repository, revision,
+                    and directory to use as the source code root.
+            """
+
+            config: "ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig" = (
+                proto.Field(
+                    proto.MESSAGE,
+                    number=1,
+                    message="ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectConfig",
+                )
             )
 
         class PythonSpec(proto.Message):
@@ -288,11 +381,42 @@ class ReasoningEngineSpec(proto.Message):
             oneof="source",
             message="ReasoningEngineSpec.SourceCodeSpec.InlineSource",
         )
+        developer_connect_source: (
+            "ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource"
+        ) = proto.Field(
+            proto.MESSAGE,
+            number=3,
+            oneof="source",
+            message="ReasoningEngineSpec.SourceCodeSpec.DeveloperConnectSource",
+        )
         python_spec: "ReasoningEngineSpec.SourceCodeSpec.PythonSpec" = proto.Field(
             proto.MESSAGE,
             number=2,
             oneof="language_spec",
             message="ReasoningEngineSpec.SourceCodeSpec.PythonSpec",
+        )
+        image_spec: "ReasoningEngineSpec.SourceCodeSpec.ImageSpec" = proto.Field(
+            proto.MESSAGE,
+            number=5,
+            oneof="language_spec",
+            message="ReasoningEngineSpec.SourceCodeSpec.ImageSpec",
+        )
+
+    class ContainerSpec(proto.Message):
+        r"""Specification for deploying from a container image.
+
+        Attributes:
+            image_uri (str):
+                Required. The Artifact Registry Docker image
+                URI (e.g.,
+                us-central1-docker.pkg.dev/my-project/my-repo/my-image:tag)
+                of the container image that is to be run on each
+                worker replica.
+        """
+
+        image_uri: str = proto.Field(
+            proto.STRING,
+            number=1,
         )
 
     source_code_spec: SourceCodeSpec = proto.Field(
@@ -300,6 +424,12 @@ class ReasoningEngineSpec(proto.Message):
         number=11,
         oneof="deployment_source",
         message=SourceCodeSpec,
+    )
+    container_spec: ContainerSpec = proto.Field(
+        proto.MESSAGE,
+        number=15,
+        oneof="deployment_source",
+        message=ContainerSpec,
     )
     service_account: str = proto.Field(
         proto.STRING,

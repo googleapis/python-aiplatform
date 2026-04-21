@@ -22,5 +22,6 @@ from vertexai.model_garden import _model_garden
 OpenModel = _model_garden.OpenModel
 PartnerModel = _model_garden.PartnerModel
 list_deployable_models = _model_garden.list_deployable_models
+list_models = _model_garden.list_models
 
-__all__ = ("OpenModel", "PartnerModel", "list_deployable_models")
+__all__ = ("OpenModel", "PartnerModel", "list_deployable_models", "list_models")

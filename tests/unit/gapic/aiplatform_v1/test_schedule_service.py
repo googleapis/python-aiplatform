@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -99,14 +99,15 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import empty_pb2  # type: ignore
-from google.protobuf import field_mask_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.any_pb2 as any_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -206,12 +207,19 @@ def test__read_environment_variables():
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
-        with pytest.raises(ValueError) as excinfo:
-            ScheduleServiceClient._read_environment_variables()
-    assert (
-        str(excinfo.value)
-        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-    )
+        if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+            with pytest.raises(ValueError) as excinfo:
+                ScheduleServiceClient._read_environment_variables()
+            assert (
+                str(excinfo.value)
+                == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        else:
+            assert ScheduleServiceClient._read_environment_variables() == (
+                False,
+                "auto",
+                None,
+            )
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         assert ScheduleServiceClient._read_environment_variables() == (
@@ -248,6 +256,105 @@ def test__read_environment_variables():
             "auto",
             "foo.com",
         )
+
+
+def test_use_client_cert_effective():
+    # Test case 1: Test when `should_use_client_cert` returns True.
+    # We mock the `should_use_client_cert` function to simulate a scenario where
+    # the google-auth library supports automatic mTLS and determines that a
+    # client certificate should be used.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch(
+            "google.auth.transport.mtls.should_use_client_cert", return_value=True
+        ):
+            assert ScheduleServiceClient._use_client_cert_effective() is True
+
+    # Test case 2: Test when `should_use_client_cert` returns False.
+    # We mock the `should_use_client_cert` function to simulate a scenario where
+    # the google-auth library supports automatic mTLS and determines that a
+    # client certificate should NOT be used.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch(
+            "google.auth.transport.mtls.should_use_client_cert", return_value=False
+        ):
+            assert ScheduleServiceClient._use_client_cert_effective() is False
+
+    # Test case 3: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "true".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+            assert ScheduleServiceClient._use_client_cert_effective() is True
+
+    # Test case 4: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "false".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}
+        ):
+            assert ScheduleServiceClient._use_client_cert_effective() is False
+
+    # Test case 5: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "True".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "True"}):
+            assert ScheduleServiceClient._use_client_cert_effective() is True
+
+    # Test case 6: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "False".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "False"}
+        ):
+            assert ScheduleServiceClient._use_client_cert_effective() is False
+
+    # Test case 7: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "TRUE".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "TRUE"}):
+            assert ScheduleServiceClient._use_client_cert_effective() is True
+
+    # Test case 8: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "FALSE".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "FALSE"}
+        ):
+            assert ScheduleServiceClient._use_client_cert_effective() is False
+
+    # Test case 9: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not set.
+    # In this case, the method should return False, which is the default value.
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, clear=True):
+            assert ScheduleServiceClient._use_client_cert_effective() is False
+
+    # Test case 10: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
+    # The method should raise a ValueError as the environment variable must be either
+    # "true" or "false".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}
+        ):
+            with pytest.raises(ValueError):
+                ScheduleServiceClient._use_client_cert_effective()
+
+    # Test case 11: Test when `should_use_client_cert` is available and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
+    # The method should return False as the environment variable is set to an invalid value.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}
+        ):
+            assert ScheduleServiceClient._use_client_cert_effective() is False
+
+    # Test case 12: Test when `should_use_client_cert` is available and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is unset. Also,
+    # the GOOGLE_API_CONFIG environment variable is unset.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": ""}):
+            with mock.patch.dict(os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": ""}):
+                assert ScheduleServiceClient._use_client_cert_effective() is False
 
 
 def test__get_client_cert_source():
@@ -619,17 +726,6 @@ def test_schedule_service_client_client_options(
         == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
     )
 
-    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
-    ):
-        with pytest.raises(ValueError) as excinfo:
-            client = client_class(transport=transport_name)
-    assert (
-        str(excinfo.value)
-        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-    )
-
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
@@ -865,6 +961,117 @@ def test_schedule_service_client_get_mtls_endpoint_and_cert_source(client_class)
         assert api_endpoint == mock_api_endpoint
         assert cert_source is None
 
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "Unsupported".
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+            mock_client_cert_source = mock.Mock()
+            mock_api_endpoint = "foo"
+            options = client_options.ClientOptions(
+                client_cert_source=mock_client_cert_source,
+                api_endpoint=mock_api_endpoint,
+            )
+            api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+                options
+            )
+            assert api_endpoint == mock_api_endpoint
+            assert cert_source is None
+
+    # Test cases for mTLS enablement when GOOGLE_API_USE_CLIENT_CERTIFICATE is unset.
+    test_cases = [
+        (
+            # With workloads present in config, mTLS is enabled.
+            {
+                "version": 1,
+                "cert_configs": {
+                    "workload": {
+                        "cert_path": "path/to/cert/file",
+                        "key_path": "path/to/key/file",
+                    }
+                },
+            },
+            mock_client_cert_source,
+        ),
+        (
+            # With workloads not present in config, mTLS is disabled.
+            {
+                "version": 1,
+                "cert_configs": {},
+            },
+            None,
+        ),
+    ]
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        for config_data, expected_cert_source in test_cases:
+            env = os.environ.copy()
+            env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", None)
+            with mock.patch.dict(os.environ, env, clear=True):
+                config_filename = "mock_certificate_config.json"
+                config_file_content = json.dumps(config_data)
+                m = mock.mock_open(read_data=config_file_content)
+                with mock.patch("builtins.open", m):
+                    with mock.patch.dict(
+                        os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
+                    ):
+                        mock_api_endpoint = "foo"
+                        options = client_options.ClientOptions(
+                            client_cert_source=mock_client_cert_source,
+                            api_endpoint=mock_api_endpoint,
+                        )
+                        api_endpoint, cert_source = (
+                            client_class.get_mtls_endpoint_and_cert_source(options)
+                        )
+                        assert api_endpoint == mock_api_endpoint
+                        assert cert_source is expected_cert_source
+
+    # Test cases for mTLS enablement when GOOGLE_API_USE_CLIENT_CERTIFICATE is unset(empty).
+    test_cases = [
+        (
+            # With workloads present in config, mTLS is enabled.
+            {
+                "version": 1,
+                "cert_configs": {
+                    "workload": {
+                        "cert_path": "path/to/cert/file",
+                        "key_path": "path/to/key/file",
+                    }
+                },
+            },
+            mock_client_cert_source,
+        ),
+        (
+            # With workloads not present in config, mTLS is disabled.
+            {
+                "version": 1,
+                "cert_configs": {},
+            },
+            None,
+        ),
+    ]
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        for config_data, expected_cert_source in test_cases:
+            env = os.environ.copy()
+            env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", "")
+            with mock.patch.dict(os.environ, env, clear=True):
+                config_filename = "mock_certificate_config.json"
+                config_file_content = json.dumps(config_data)
+                m = mock.mock_open(read_data=config_file_content)
+                with mock.patch("builtins.open", m):
+                    with mock.patch.dict(
+                        os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
+                    ):
+                        mock_api_endpoint = "foo"
+                        options = client_options.ClientOptions(
+                            client_cert_source=mock_client_cert_source,
+                            api_endpoint=mock_api_endpoint,
+                        )
+                        api_endpoint, cert_source = (
+                            client_class.get_mtls_endpoint_and_cert_source(options)
+                        )
+                        assert api_endpoint == mock_api_endpoint
+                        assert cert_source is expected_cert_source
+
     # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
@@ -912,18 +1119,6 @@ def test_schedule_service_client_get_mtls_endpoint_and_cert_source(client_class)
         assert (
             str(excinfo.value)
             == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-        )
-
-    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
-    ):
-        with pytest.raises(ValueError) as excinfo:
-            client_class.get_mtls_endpoint_and_cert_source()
-
-        assert (
-            str(excinfo.value)
-            == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
         )
 
 
@@ -1209,6 +1404,7 @@ def test_create_schedule(request_type, transport: str = "grpc"):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -1229,6 +1425,7 @@ def test_create_schedule(request_type, transport: str = "grpc"):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -1362,6 +1559,7 @@ async def test_create_schedule_async(
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -1382,6 +1580,7 @@ async def test_create_schedule_async(
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -1898,6 +2097,7 @@ def test_get_schedule(request_type, transport: str = "grpc"):
             started_run_count=1843,
             state=schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -1918,6 +2118,7 @@ def test_get_schedule(request_type, transport: str = "grpc"):
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -2051,6 +2252,7 @@ async def test_get_schedule_async(
                 started_run_count=1843,
                 state=schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -2071,6 +2273,7 @@ async def test_get_schedule_async(
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -3401,6 +3604,7 @@ def test_update_schedule(request_type, transport: str = "grpc"):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -3421,6 +3625,7 @@ def test_update_schedule(request_type, transport: str = "grpc"):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -3550,6 +3755,7 @@ async def test_update_schedule_async(
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -3570,6 +3776,7 @@ async def test_update_schedule_async(
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -5365,6 +5572,7 @@ async def test_create_schedule_empty_call_grpc_asyncio():
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -5424,6 +5632,7 @@ async def test_get_schedule_empty_call_grpc_asyncio():
                 started_run_count=1843,
                 state=schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -5531,6 +5740,7 @@ async def test_update_schedule_empty_call_grpc_asyncio():
                 started_run_count=1843,
                 state=gca_schedule.Schedule.State.ACTIVE,
                 max_concurrent_run_count=2596,
+                max_concurrent_active_run_count=3327,
                 allow_queueing=True,
                 catch_up=True,
             )
@@ -5735,6 +5945,7 @@ def test_create_schedule_rest_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -5783,6 +5994,7 @@ def test_create_schedule_rest_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -5869,6 +6081,7 @@ def test_create_schedule_rest_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -5894,6 +6107,7 @@ def test_create_schedule_rest_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -6134,6 +6348,7 @@ def test_get_schedule_rest_call_success(request_type):
             started_run_count=1843,
             state=schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -6159,6 +6374,7 @@ def test_get_schedule_rest_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -6762,6 +6978,7 @@ def test_update_schedule_rest_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -6810,6 +7027,7 @@ def test_update_schedule_rest_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -6896,6 +7114,7 @@ def test_update_schedule_rest_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -6921,6 +7140,7 @@ def test_update_schedule_rest_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -7979,6 +8199,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -8027,6 +8248,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -8113,6 +8335,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -8140,6 +8363,7 @@ async def test_create_schedule_rest_asyncio_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -8416,6 +8640,7 @@ async def test_get_schedule_rest_asyncio_call_success(request_type):
             started_run_count=1843,
             state=schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -8443,6 +8668,7 @@ async def test_get_schedule_rest_asyncio_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -9118,6 +9344,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
                         "machine_type": "machine_type_value",
                         "accelerator_type": 1,
                         "accelerator_count": 1805,
+                        "gpu_partition_size": "gpu_partition_size_value",
                         "tpu_topology": "tpu_topology_value",
                         "reservation_affinity": {
                             "reservation_affinity_type": 1,
@@ -9166,6 +9393,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
         "last_pause_time": {},
         "last_resume_time": {},
         "max_concurrent_run_count": 2596,
+        "max_concurrent_active_run_count": 3327,
         "allow_queueing": True,
         "catch_up": True,
         "last_scheduled_run_response": {
@@ -9252,6 +9480,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
             started_run_count=1843,
             state=gca_schedule.Schedule.State.ACTIVE,
             max_concurrent_run_count=2596,
+            max_concurrent_active_run_count=3327,
             allow_queueing=True,
             catch_up=True,
             cron="cron_value",
@@ -9279,6 +9508,7 @@ async def test_update_schedule_rest_asyncio_call_success(request_type):
     assert response.started_run_count == 1843
     assert response.state == gca_schedule.Schedule.State.ACTIVE
     assert response.max_concurrent_run_count == 2596
+    assert response.max_concurrent_active_run_count == 3327
     assert response.allow_queueing is True
     assert response.catch_up is True
 
@@ -10675,6 +10905,7 @@ def test_schedule_service_grpc_asyncio_transport_channel():
 
 # Remove this test when deprecated arguments (api_mtls_endpoint, client_cert_source) are
 # removed from grpc/grpc_asyncio transport constructor.
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize(
     "transport_class",
     [

@@ -165,6 +165,7 @@ class TestModelDeploymentMonitoring(e2e_base.TestEndToEnd):
             location=e2e_base._LOCATION,
             endpoint=self.endpoint,
         )
+        shared_state["resources"].append(job)
 
         gapic_job = job._gca_resource
         assert (

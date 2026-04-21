@@ -15,7 +15,17 @@
 #
 from google.cloud.aiplatform_v1beta1 import gapic_version as package_version
 
+import google.api_core as api_core
+import sys
+
 __version__ = package_version.__version__
+
+if sys.version_info >= (3, 8):  # pragma: NO COVER
+    from importlib import metadata
+else:  # pragma: NO COVER
+    # TODO(https://github.com/googleapis/python-api-core/issues/835): Remove
+    # this code path once we drop support for Python 3.7
+    import importlib_metadata as metadata
 
 
 from .services.dataset_service import DatasetServiceClient
@@ -133,13 +143,16 @@ from .types.content import ImageConfig
 from .types.content import LogprobsResult
 from .types.content import ModalityTokenCount
 from .types.content import ModelArmorConfig
+from .types.content import MultiSpeakerVoiceConfig
 from .types.content import Part
 from .types.content import PrebuiltVoiceConfig
+from .types.content import ReplicatedVoiceConfig
 from .types.content import RetrievalMetadata
 from .types.content import SafetyRating
 from .types.content import SafetySetting
 from .types.content import SearchEntryPoint
 from .types.content import Segment
+from .types.content import SpeakerVoiceConfig
 from .types.content import SpeechConfig
 from .types.content import UrlContextMetadata
 from .types.content import UrlMetadata
@@ -279,6 +292,7 @@ from .types.evaluation_service import CometInput
 from .types.evaluation_service import CometInstance
 from .types.evaluation_service import CometResult
 from .types.evaluation_service import CometSpec
+from .types.evaluation_service import ComputationBasedMetricSpec
 from .types.evaluation_service import ContentMap
 from .types.evaluation_service import CustomOutput
 from .types.evaluation_service import CustomOutputFormatConfig
@@ -305,7 +319,9 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import LLMBasedMetricSpec
 from .types.evaluation_service import Metric
+from .types.evaluation_service import MetricResult
 from .types.evaluation_service import MetricxInput
 from .types.evaluation_service import MetricxInstance
 from .types.evaluation_service import MetricxResult
@@ -328,6 +344,7 @@ from .types.evaluation_service import PointwiseMetricInput
 from .types.evaluation_service import PointwiseMetricInstance
 from .types.evaluation_service import PointwiseMetricResult
 from .types.evaluation_service import PointwiseMetricSpec
+from .types.evaluation_service import PredefinedMetricSpec
 from .types.evaluation_service import QuestionAnsweringCorrectnessInput
 from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
 from .types.evaluation_service import QuestionAnsweringCorrectnessResult
@@ -684,6 +701,8 @@ from .types.io import JiraSource
 from .types.io import SharePointSources
 from .types.io import SlackSource
 from .types.io import TFRecordDestination
+from .types.io import VertexMultimodalDatasetDestination
+from .types.io import VertexMultimodalDatasetSource
 from .types.job_service import CancelBatchPredictionJobRequest
 from .types.job_service import CancelCustomJobRequest
 from .types.job_service import CancelDataLabelingJobRequest
@@ -739,6 +758,8 @@ from .types.machine_resources import BatchDedicatedResources
 from .types.machine_resources import DedicatedResources
 from .types.machine_resources import DiskSpec
 from .types.machine_resources import FlexStart
+from .types.machine_resources import FullFineTunedResources
+from .types.machine_resources import LustreMount
 from .types.machine_resources import MachineSpec
 from .types.machine_resources import NfsMount
 from .types.machine_resources import PersistentDiskSpec
@@ -1039,6 +1060,8 @@ from .types.prediction_service import DirectPredictRequest
 from .types.prediction_service import DirectPredictResponse
 from .types.prediction_service import DirectRawPredictRequest
 from .types.prediction_service import DirectRawPredictResponse
+from .types.prediction_service import EmbedContentRequest
+from .types.prediction_service import EmbedContentResponse
 from .types.prediction_service import ExplainRequest
 from .types.prediction_service import ExplainResponse
 from .types.prediction_service import GenerateContentRequest
@@ -1094,6 +1117,7 @@ from .types.session import EventActions
 from .types.session import EventMetadata
 from .types.session import Session
 from .types.session import SessionEvent
+from .types.session import Transcription
 from .types.session_service import AppendEventRequest
 from .types.session_service import AppendEventResponse
 from .types.session_service import CreateSessionOperationMetadata
@@ -1184,8 +1208,12 @@ from .types.tool import FunctionCall
 from .types.tool import FunctionCallingConfig
 from .types.tool import FunctionDeclaration
 from .types.tool import FunctionResponse
+from .types.tool import FunctionResponseBlob
+from .types.tool import FunctionResponseFileData
+from .types.tool import FunctionResponsePart
 from .types.tool import GoogleMaps
 from .types.tool import GoogleSearchRetrieval
+from .types.tool import PartialArg
 from .types.tool import RagRetrievalConfig
 from .types.tool import Retrieval
 from .types.tool import RetrievalConfig
@@ -1230,13 +1258,17 @@ from .types.types import Tensor
 from .types.ui_pipeline_spec import ArtifactTypeSchema
 from .types.ui_pipeline_spec import RuntimeArtifact
 from .types.unmanaged_container_model import UnmanagedContainerModel
+from .types.usage_metadata import UsageMetadata
 from .types.user_action_reference import UserActionReference
 from .types.value import Value
 from .types.vertex_rag_data import CorpusStatus
 from .types.vertex_rag_data import FileStatus
 from .types.vertex_rag_data import ImportRagFilesConfig
+from .types.vertex_rag_data import MetadataList
+from .types.vertex_rag_data import MetadataValue
 from .types.vertex_rag_data import RagChunk
 from .types.vertex_rag_data import RagCorpus
+from .types.vertex_rag_data import RagDataSchema
 from .types.vertex_rag_data import RagEmbeddingModelConfig
 from .types.vertex_rag_data import RagEngineConfig
 from .types.vertex_rag_data import RagFile
@@ -1245,29 +1277,56 @@ from .types.vertex_rag_data import RagFileMetadataConfig
 from .types.vertex_rag_data import RagFileParsingConfig
 from .types.vertex_rag_data import RagFileTransformationConfig
 from .types.vertex_rag_data import RagManagedDbConfig
+from .types.vertex_rag_data import RagMetadata
+from .types.vertex_rag_data import RagMetadataSchemaDetails
 from .types.vertex_rag_data import RagVectorDbConfig
 from .types.vertex_rag_data import UploadRagFileConfig
+from .types.vertex_rag_data import UserSpecifiedMetadata
 from .types.vertex_rag_data import VertexAiSearchConfig
+from .types.vertex_rag_data_service import BatchCreateRagDataSchemasOperationMetadata
+from .types.vertex_rag_data_service import BatchCreateRagDataSchemasRequest
+from .types.vertex_rag_data_service import BatchCreateRagDataSchemasResponse
+from .types.vertex_rag_data_service import BatchCreateRagMetadataOperationMetadata
+from .types.vertex_rag_data_service import BatchCreateRagMetadataRequest
+from .types.vertex_rag_data_service import BatchCreateRagMetadataResponse
+from .types.vertex_rag_data_service import BatchDeleteRagDataSchemasRequest
+from .types.vertex_rag_data_service import BatchDeleteRagMetadataRequest
 from .types.vertex_rag_data_service import CreateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import CreateRagCorpusRequest
+from .types.vertex_rag_data_service import CreateRagDataSchemaRequest
+from .types.vertex_rag_data_service import CreateRagMetadataRequest
 from .types.vertex_rag_data_service import DeleteRagCorpusRequest
+from .types.vertex_rag_data_service import DeleteRagDataSchemaRequest
 from .types.vertex_rag_data_service import DeleteRagFileRequest
+from .types.vertex_rag_data_service import DeleteRagMetadataRequest
 from .types.vertex_rag_data_service import GetRagCorpusRequest
+from .types.vertex_rag_data_service import GetRagDataSchemaRequest
 from .types.vertex_rag_data_service import GetRagEngineConfigRequest
 from .types.vertex_rag_data_service import GetRagFileRequest
+from .types.vertex_rag_data_service import GetRagMetadataRequest
 from .types.vertex_rag_data_service import ImportRagFilesOperationMetadata
 from .types.vertex_rag_data_service import ImportRagFilesRequest
 from .types.vertex_rag_data_service import ImportRagFilesResponse
 from .types.vertex_rag_data_service import ListRagCorporaRequest
 from .types.vertex_rag_data_service import ListRagCorporaResponse
+from .types.vertex_rag_data_service import ListRagDataSchemasRequest
+from .types.vertex_rag_data_service import ListRagDataSchemasResponse
 from .types.vertex_rag_data_service import ListRagFilesRequest
 from .types.vertex_rag_data_service import ListRagFilesResponse
+from .types.vertex_rag_data_service import ListRagMetadataRequest
+from .types.vertex_rag_data_service import ListRagMetadataResponse
 from .types.vertex_rag_data_service import UpdateRagCorpusOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagCorpusRequest
 from .types.vertex_rag_data_service import UpdateRagEngineConfigOperationMetadata
 from .types.vertex_rag_data_service import UpdateRagEngineConfigRequest
+from .types.vertex_rag_data_service import UpdateRagMetadataRequest
 from .types.vertex_rag_data_service import UploadRagFileRequest
 from .types.vertex_rag_data_service import UploadRagFileResponse
+from .types.vertex_rag_service import AskContextsRequest
+from .types.vertex_rag_service import AskContextsResponse
+from .types.vertex_rag_service import AsyncRetrieveContextsOperationMetadata
+from .types.vertex_rag_service import AsyncRetrieveContextsRequest
+from .types.vertex_rag_service import AsyncRetrieveContextsResponse
 from .types.vertex_rag_service import AugmentPromptRequest
 from .types.vertex_rag_service import AugmentPromptResponse
 from .types.vertex_rag_service import Claim
@@ -1300,6 +1359,100 @@ from .types.vizier_service import StopTrialRequest
 from .types.vizier_service import SuggestTrialsMetadata
 from .types.vizier_service import SuggestTrialsRequest
 from .types.vizier_service import SuggestTrialsResponse
+
+if hasattr(api_core, "check_python_version") and hasattr(
+    api_core, "check_dependency_versions"
+):  # pragma: NO COVER
+    api_core.check_python_version("google.cloud.aiplatform_v1beta1")  # type: ignore
+    api_core.check_dependency_versions("google.cloud.aiplatform_v1beta1")  # type: ignore
+else:  # pragma: NO COVER
+    # An older version of api_core is installed which does not define the
+    # functions above. We do equivalent checks manually.
+    try:
+        import warnings
+        import sys
+
+        _py_version_str = sys.version.split()[0]
+        _package_label = "google.cloud.aiplatform_v1beta1"
+        if sys.version_info < (3, 9):
+            warnings.warn(
+                "You are using a non-supported Python version "
+                + f"({_py_version_str}).  Google will not post any further "
+                + f"updates to {_package_label} supporting this Python version. "
+                + "Please upgrade to the latest Python version, or at "
+                + f"least to Python 3.9, and then update {_package_label}.",
+                FutureWarning,
+            )
+        if sys.version_info[:2] == (3, 9):
+            warnings.warn(
+                f"You are using a Python version ({_py_version_str}) "
+                + f"which Google will stop supporting in {_package_label} in "
+                + "January 2026. Please "
+                + "upgrade to the latest Python version, or at "
+                + "least to Python 3.10, before then, and "
+                + f"then update {_package_label}.",
+                FutureWarning,
+            )
+
+        def parse_version_to_tuple(version_string: str):
+            """Safely converts a semantic version string to a comparable tuple of integers.
+            Example: "4.25.8" -> (4, 25, 8)
+            Ignores non-numeric parts and handles common version formats.
+            Args:
+                version_string: Version string in the format "x.y.z" or "x.y.z<suffix>"
+            Returns:
+                Tuple of integers for the parsed version string.
+            """
+            parts = []
+            for part in version_string.split("."):
+                try:
+                    parts.append(int(part))
+                except ValueError:
+                    # If it's a non-numeric part (e.g., '1.0.0b1' -> 'b1'), stop here.
+                    # This is a simplification compared to 'packaging.parse_version', but sufficient
+                    # for comparing strictly numeric semantic versions.
+                    break
+            return tuple(parts)
+
+        def _get_version(dependency_name):
+            try:
+                version_string: str = metadata.version(dependency_name)
+                parsed_version = parse_version_to_tuple(version_string)
+                return (parsed_version, version_string)
+            except Exception:
+                # Catch exceptions from metadata.version() (e.g., PackageNotFoundError)
+                # or errors during parse_version_to_tuple
+                return (None, "--")
+
+        _dependency_package = "google.protobuf"
+        _next_supported_version = "4.25.8"
+        _next_supported_version_tuple = (4, 25, 8)
+        _recommendation = " (we recommend 6.x)"
+        (_version_used, _version_used_string) = _get_version(_dependency_package)
+        if _version_used and _version_used < _next_supported_version_tuple:
+            warnings.warn(
+                f"Package {_package_label} depends on "
+                + f"{_dependency_package}, currently installed at version "
+                + f"{_version_used_string}. Future updates to "
+                + f"{_package_label} will require {_dependency_package} at "
+                + f"version {_next_supported_version} or higher{_recommendation}."
+                + " Please ensure "
+                + "that either (a) your Python environment doesn't pin the "
+                + f"version of {_dependency_package}, so that updates to "
+                + f"{_package_label} can require the higher version, or "
+                + "(b) you manually update your Python environment to use at "
+                + f"least version {_next_supported_version} of "
+                + f"{_dependency_package}.",
+                FutureWarning,
+            )
+    except Exception:
+        warnings.warn(
+            "Could not determine the version of Python "
+            + "currently being used. To continue receiving "
+            + "updates for {_package_label}, ensure you are "
+            + "using a supported version of Python; see "
+            + "https://devguide.python.org/versions/"
+        )
 
 __all__ = (
     "DatasetServiceAsyncClient",
@@ -1359,6 +1512,8 @@ __all__ = (
     "AppendEventResponse",
     "Artifact",
     "ArtifactTypeSchema",
+    "AskContextsRequest",
+    "AskContextsResponse",
     "AssembleDataOperationMetadata",
     "AssembleDataRequest",
     "AssembleDataResponse",
@@ -1367,6 +1522,9 @@ __all__ = (
     "AssessDataResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "AsyncRetrieveContextsOperationMetadata",
+    "AsyncRetrieveContextsRequest",
+    "AsyncRetrieveContextsResponse",
     "Attribution",
     "AugmentPromptRequest",
     "AugmentPromptResponse",
@@ -1382,6 +1540,12 @@ __all__ = (
     "BatchCreateFeaturesOperationMetadata",
     "BatchCreateFeaturesRequest",
     "BatchCreateFeaturesResponse",
+    "BatchCreateRagDataSchemasOperationMetadata",
+    "BatchCreateRagDataSchemasRequest",
+    "BatchCreateRagDataSchemasResponse",
+    "BatchCreateRagMetadataOperationMetadata",
+    "BatchCreateRagMetadataRequest",
+    "BatchCreateRagMetadataResponse",
     "BatchCreateTensorboardRunsRequest",
     "BatchCreateTensorboardRunsResponse",
     "BatchCreateTensorboardTimeSeriesRequest",
@@ -1389,6 +1553,8 @@ __all__ = (
     "BatchDedicatedResources",
     "BatchDeletePipelineJobsRequest",
     "BatchDeletePipelineJobsResponse",
+    "BatchDeleteRagDataSchemasRequest",
+    "BatchDeleteRagMetadataRequest",
     "BatchImportEvaluatedAnnotationsRequest",
     "BatchImportEvaluatedAnnotationsResponse",
     "BatchImportModelEvaluationSlicesRequest",
@@ -1444,6 +1610,7 @@ __all__ = (
     "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
+    "ComputationBasedMetricSpec",
     "ComputeTokensRequest",
     "ComputeTokensResponse",
     "ContainerRegistryDestination",
@@ -1516,6 +1683,8 @@ __all__ = (
     "CreatePipelineJobRequest",
     "CreateRagCorpusOperationMetadata",
     "CreateRagCorpusRequest",
+    "CreateRagDataSchemaRequest",
+    "CreateRagMetadataRequest",
     "CreateReasoningEngineOperationMetadata",
     "CreateReasoningEngineRequest",
     "CreateRegistryFeatureOperationMetadata",
@@ -1592,7 +1761,9 @@ __all__ = (
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
     "DeleteRagCorpusRequest",
+    "DeleteRagDataSchemaRequest",
     "DeleteRagFileRequest",
+    "DeleteRagMetadataRequest",
     "DeleteReasoningEngineRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
@@ -1638,6 +1809,8 @@ __all__ = (
     "DnsPeeringConfig",
     "DoubleArray",
     "DynamicRetrievalConfig",
+    "EmbedContentRequest",
+    "EmbedContentResponse",
     "EncryptionSpec",
     "Endpoint",
     "EndpointServiceClient",
@@ -1756,10 +1929,14 @@ __all__ = (
     "FulfillmentInstance",
     "FulfillmentResult",
     "FulfillmentSpec",
+    "FullFineTunedResources",
     "FunctionCall",
     "FunctionCallingConfig",
     "FunctionDeclaration",
     "FunctionResponse",
+    "FunctionResponseBlob",
+    "FunctionResponseFileData",
+    "FunctionResponsePart",
     "GcsDestination",
     "GcsSource",
     "GeminiExample",
@@ -1823,8 +2000,10 @@ __all__ = (
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
     "GetRagCorpusRequest",
+    "GetRagDataSchemaRequest",
     "GetRagEngineConfigRequest",
     "GetRagFileRequest",
+    "GetRagMetadataRequest",
     "GetReasoningEngineRequest",
     "GetScheduleRequest",
     "GetSessionRequest",
@@ -1881,6 +2060,7 @@ __all__ = (
     "JiraSource",
     "JobServiceClient",
     "JobState",
+    "LLMBasedMetricSpec",
     "LargeModelReference",
     "LineageSubgraph",
     "ListAnnotationsRequest",
@@ -1981,8 +2161,12 @@ __all__ = (
     "ListPublisherModelsResponse",
     "ListRagCorporaRequest",
     "ListRagCorporaResponse",
+    "ListRagDataSchemasRequest",
+    "ListRagDataSchemasResponse",
     "ListRagFilesRequest",
     "ListRagFilesResponse",
+    "ListRagMetadataRequest",
+    "ListRagMetadataResponse",
     "ListReasoningEnginesRequest",
     "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
@@ -2012,6 +2196,7 @@ __all__ = (
     "LlmUtilityServiceClient",
     "LogprobsResult",
     "LookupStudyRequest",
+    "LustreMount",
     "MachineSpec",
     "ManualBatchTuningParameters",
     "MatchServiceClient",
@@ -2019,10 +2204,13 @@ __all__ = (
     "Memory",
     "MemoryBankServiceClient",
     "MergeVersionAliasesRequest",
+    "MetadataList",
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "MetadataValue",
     "Metric",
+    "MetricResult",
     "MetricxInput",
     "MetricxInstance",
     "MetricxResult",
@@ -2069,6 +2257,7 @@ __all__ = (
     "ModelServiceClient",
     "ModelSourceInfo",
     "ModelVersionCheckpoint",
+    "MultiSpeakerVoiceConfig",
     "MutateDeployedIndexOperationMetadata",
     "MutateDeployedIndexRequest",
     "MutateDeployedIndexResponse",
@@ -2114,6 +2303,7 @@ __all__ = (
     "PairwiseSummarizationQualityResult",
     "PairwiseSummarizationQualitySpec",
     "Part",
+    "PartialArg",
     "PartnerModelTuningSpec",
     "PauseModelDeploymentMonitoringJobRequest",
     "PauseScheduleRequest",
@@ -2137,6 +2327,7 @@ __all__ = (
     "PostStartupScriptConfig",
     "PreTunedModel",
     "PrebuiltVoiceConfig",
+    "PredefinedMetricSpec",
     "PredefinedSplit",
     "PredictLongRunningMetadata",
     "PredictLongRunningResponse",
@@ -2193,6 +2384,7 @@ __all__ = (
     "RagChunk",
     "RagContexts",
     "RagCorpus",
+    "RagDataSchema",
     "RagEmbeddingModelConfig",
     "RagEngineConfig",
     "RagFile",
@@ -2201,6 +2393,8 @@ __all__ = (
     "RagFileParsingConfig",
     "RagFileTransformationConfig",
     "RagManagedDbConfig",
+    "RagMetadata",
+    "RagMetadataSchemaDetails",
     "RagQuery",
     "RagRetrievalConfig",
     "RagVectorDbConfig",
@@ -2238,6 +2432,7 @@ __all__ = (
     "RemoveDatapointsResponse",
     "RemoveExamplesRequest",
     "RemoveExamplesResponse",
+    "ReplicatedVoiceConfig",
     "ReservationAffinity",
     "ResourcePool",
     "ResourceRuntime",
@@ -2314,6 +2509,7 @@ __all__ = (
     "ShieldedVmConfig",
     "SlackSource",
     "SmoothGradConfig",
+    "SpeakerVoiceConfig",
     "SpecialistPool",
     "SpecialistPoolServiceClient",
     "SpeculativeDecodingSpec",
@@ -2441,6 +2637,7 @@ __all__ = (
     "TrajectorySingleToolUseMetricValue",
     "TrajectorySingleToolUseResults",
     "TrajectorySingleToolUseSpec",
+    "Transcription",
     "Trial",
     "TrialContext",
     "TunedModel",
@@ -2503,6 +2700,7 @@ __all__ = (
     "UpdateRagCorpusRequest",
     "UpdateRagEngineConfigOperationMetadata",
     "UpdateRagEngineConfigRequest",
+    "UpdateRagMetadataRequest",
     "UpdateReasoningEngineOperationMetadata",
     "UpdateReasoningEngineRequest",
     "UpdateScheduleRequest",
@@ -2530,12 +2728,16 @@ __all__ = (
     "UrlContext",
     "UrlContextMetadata",
     "UrlMetadata",
+    "UsageMetadata",
     "UserActionReference",
+    "UserSpecifiedMetadata",
     "Value",
     "VeoHyperParameters",
     "VeoTuningSpec",
     "VertexAISearch",
     "VertexAiSearchConfig",
+    "VertexMultimodalDatasetDestination",
+    "VertexMultimodalDatasetSource",
     "VertexRagDataServiceClient",
     "VertexRagServiceClient",
     "VertexRagStore",

@@ -8,10 +8,12 @@
 # Example:
 #   ./third_party/py/google/cloud/aiplatform/tests/unit/vertexai/genai/run_replay_tests.sh test_evals.py
 
-# It also supports a --mode flag, which can be one of:
-#   * record: Call the API and record the result in a replay file.
-#   * replay: Use the recorded replay file to simulate the API call, or record if the replay file does not exist.
-#   * api: Call the API and do not record.
+# Supported flags:
+#   --mode <mode>: Specifies the run mode. Options are:
+#     * record: Call the API and record the result in a replay file.
+#     * replay: Use the recorded replay file to simulate the API call, or record if the replay file does not exist.
+#     * api: Call the API and do not record.
+#   --filter <filter>: The expression passed to pytest's -k flag to filter tests.
 
 # Get the current working directory
 START_DIR=$(pwd)
@@ -76,7 +78,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-PARSED_ARGS=$(getopt -o "" -l "mode:" -- "$@")
+PARSED_ARGS=$(getopt -o "" -l "mode:,filter:" -- "$@")
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to parse command line arguments." >&2
@@ -88,11 +90,16 @@ eval set -- "$PARSED_ARGS"
 
 TEST_FILE_ARG="" # Stores the provided test path, if any
 MODE_VALUE=""    # Stores the value of the --mode flag (e.g., 'replay')
+FILTER_VALUE=""  # Stores the value of the --filter flag
 
 while true; do
     case "$1" in
         --mode)
             MODE_VALUE="$2"
+            shift 2
+            ;;
+        --filter)
+            FILTER_VALUE="$2"
             shift 2
             ;;
         --)
@@ -114,10 +121,16 @@ if [ -n "$1" ]; then
     fi
 fi
 
-# Construct the full --mode argument string to be passed to pytest.
-MODE_ARG=""
+# Construct the full --mode argument array to be passed to pytest.
+MODE_ARG=()
 if [ -n "$MODE_VALUE" ]; then
-    MODE_ARG="--mode $MODE_VALUE"
+    MODE_ARG=(--mode "$MODE_VALUE")
+fi
+
+# Construct the full --filter argument array to be passed to pytest.
+FILTER_ARG=()
+if [ -n "$FILTER_VALUE" ]; then
+    FILTER_ARG=(-k "$FILTER_VALUE")
 fi
 
 
@@ -135,7 +148,7 @@ fi
 # Run tests
 # -s is equivalent to --capture=no, it ensures pytest doesn't capture the output from stdout and stderr
 # so it can be logged when this script is run
-pytest -v -s "$PYTEST_PATH" ${MODE_ARG} --replays-directory-prefix="$START_DIR"
+pytest -v -s "$PYTEST_PATH" "${MODE_ARG[@]}" --replays-directory-prefix="$START_DIR" "${FILTER_ARG[@]}"
 
 PYTEST_EXIT_CODE=$?
 

@@ -50,7 +50,7 @@ from google.cloud.location import locations_pb2  # type: ignore
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
 from .transports.base import LlmUtilityServiceTransport, DEFAULT_CLIENT_INFO
 from .transports.grpc_asyncio import LlmUtilityServiceGrpcAsyncIOTransport
 from .client import LlmUtilityServiceClient
@@ -117,7 +117,10 @@ class LlmUtilityServiceAsyncClient:
         Returns:
             LlmUtilityServiceAsyncClient: The constructed client.
         """
-        return LlmUtilityServiceClient.from_service_account_info.__func__(LlmUtilityServiceAsyncClient, info, *args, **kwargs)  # type: ignore
+        sa_info_func = (
+            LlmUtilityServiceClient.from_service_account_info.__func__  # type: ignore
+        )
+        return sa_info_func(LlmUtilityServiceAsyncClient, info, *args, **kwargs)
 
     @classmethod
     def from_service_account_file(cls, filename: str, *args, **kwargs):
@@ -133,7 +136,10 @@ class LlmUtilityServiceAsyncClient:
         Returns:
             LlmUtilityServiceAsyncClient: The constructed client.
         """
-        return LlmUtilityServiceClient.from_service_account_file.__func__(LlmUtilityServiceAsyncClient, filename, *args, **kwargs)  # type: ignore
+        sa_file_func = (
+            LlmUtilityServiceClient.from_service_account_file.__func__  # type: ignore
+        )
+        return sa_file_func(LlmUtilityServiceAsyncClient, filename, *args, **kwargs)
 
     from_service_account_json = from_service_account_file
 

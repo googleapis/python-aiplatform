@@ -32,7 +32,7 @@ from vertexai.preview.evaluation.metrics import (
 )
 
 
-_ModelType = Union[generative_models.GenerativeModel, Callable[[str], str]]
+_ModelType = Union[str, generative_models.GenerativeModel, Callable[[str], str]]
 
 
 class _Metric(abc.ABC):

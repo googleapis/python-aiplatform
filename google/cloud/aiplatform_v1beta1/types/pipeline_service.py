@@ -24,7 +24,7 @@ from google.cloud.aiplatform_v1beta1.types import pipeline_job as gca_pipeline_j
 from google.cloud.aiplatform_v1beta1.types import (
     training_pipeline as gca_training_pipeline,
 )
-from google.protobuf import field_mask_pb2  # type: ignore
+import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(

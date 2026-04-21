@@ -458,6 +458,7 @@ _TEST_AGENT_ENGINE_QUERY_SCHEMA = _agent_engines_utils._generate_schema(
 )
 _TEST_AGENT_ENGINE_QUERY_SCHEMA[_TEST_MODE_KEY_IN_SCHEMA] = _TEST_STANDARD_API_MODE
 _TEST_PYTHON_VERSION = f"{sys.version_info.major}.{sys.version_info.minor}"
+_TEST_PYTHON_VERSION_OVERRIDE = "3.11"
 _TEST_AGENT_ENGINE_FRAMEWORK = _agent_engines_utils._DEFAULT_AGENT_FRAMEWORK
 _TEST_AGENT_ENGINE_CLASS_METHOD_1 = {
     "description": "Runs the engine.",
@@ -525,6 +526,20 @@ _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG = {
         }
     ],
 }
+_TEST_AGENT_ENGINE_AGENT_GATEWAY_CONFIG = {
+    "client_to_agent_config": {
+        "agent_gateway": (
+            "projects/test-project/locations/us-central1/agentGateways/"
+            "test-client-to-agent-gateway"
+        ),
+    },
+    "agent_to_anywhere_config": {
+        "agent_gateway": (
+            "projects/test-project/locations/us-central1/agentGateways/"
+            "test-agent-to-anywhere-gateway"
+        ),
+    },
+}
 _TEST_AGENT_ENGINE_MIN_INSTANCES = 2
 _TEST_AGENT_ENGINE_MAX_INSTANCES = 4
 _TEST_AGENT_ENGINE_RESOURCE_LIMITS = {
@@ -537,6 +552,12 @@ _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT = (
     _genai_types.IdentityType.SERVICE_ACCOUNT
 )
 _TEST_AGENT_ENGINE_ENCRYPTION_SPEC = {"kms_key_name": "test-kms-key"}
+_TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE = {
+    "http_get": {
+        "path": "/health",
+    },
+    "max_seconds": 60,
+}
 _TEST_AGENT_ENGINE_SPEC = _genai_types.ReasoningEngineSpecDict(
     agent_framework=_TEST_AGENT_ENGINE_FRAMEWORK,
     class_methods=[_TEST_AGENT_ENGINE_CLASS_METHOD_1],
@@ -903,6 +924,11 @@ class TestAgentEngineHelpers:
             {"name": key, "value": value} for key, value in expected_env_vars.items()
         ]
 
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @pytest.mark.parametrize(
         "env_vars,expected_env_vars",
@@ -929,20 +955,25 @@ class TestAgentEngineHelpers:
     def test_agent_engine_adk_telemetry_enablement_through_source_packages(
         self,
         mock_prepare: mock.Mock,
+        mock_create_base64_encoded_tarball: mock.Mock,
         env_vars: dict[str, str],
         expected_env_vars: dict[str, str],
     ):
-        config = self.client.agent_engines._create_config(
-            mode="create",
-            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
-            description=_TEST_AGENT_ENGINE_DESCRIPTION,
-            source_packages=[],
-            class_methods=[],
-            entrypoint_module=".",
-            entrypoint_object=".",
-            env_vars=env_vars,
-            agent_framework="google-adk",
-        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                source_packages=[test_file_path],
+                class_methods=[],
+                entrypoint_module=".",
+                entrypoint_object=".",
+                env_vars=env_vars,
+                agent_framework="google-adk",
+            )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
         assert config["spec"]["deployment_spec"]["env"] == [
@@ -964,17 +995,19 @@ class TestAgentEngineHelpers:
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
             identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
             psc_interface_config=_TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            agent_gateway_config=_TEST_AGENT_ENGINE_AGENT_GATEWAY_CONFIG,
             min_instances=_TEST_AGENT_ENGINE_MIN_INSTANCES,
             max_instances=_TEST_AGENT_ENGINE_MAX_INSTANCES,
             resource_limits=_TEST_AGENT_ENGINE_RESOURCE_LIMITS,
             container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
             encryption_spec=_TEST_AGENT_ENGINE_ENCRYPTION_SPEC,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
         assert config["spec"]["agent_framework"] == "custom"
         assert config["spec"]["package_spec"] == {
-            "python_version": _TEST_PYTHON_VERSION,
+            "python_version": _TEST_PYTHON_VERSION_OVERRIDE,
             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
             "dependency_files_gcs_uri": _TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -994,6 +1027,7 @@ class TestAgentEngineHelpers:
                 },
             ],
             "psc_interface_config": _TEST_AGENT_ENGINE_PSC_INTERFACE_CONFIG,
+            "agent_gateway_config": _TEST_AGENT_ENGINE_AGENT_GATEWAY_CONFIG,
             "min_instances": _TEST_AGENT_ENGINE_MIN_INSTANCES,
             "max_instances": _TEST_AGENT_ENGINE_MAX_INSTANCES,
             "resource_limits": _TEST_AGENT_ENGINE_RESOURCE_LIMITS,
@@ -1037,6 +1071,7 @@ class TestAgentEngineHelpers:
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
                 agent_framework=_TEST_AGENT_FRAMEWORK,
                 identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
             )
             assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
             assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1044,7 +1079,7 @@ class TestAgentEngineHelpers:
             assert config["spec"]["source_code_spec"] == {
                 "inline_source": {"source_archive": "test_tarball"},
                 "python_spec": {
-                    "version": _TEST_PYTHON_VERSION,
+                    "version": _TEST_PYTHON_VERSION_OVERRIDE,
                     "entrypoint_module": "main",
                     "entrypoint_object": "app",
                     "requirements_file": requirements_file_path,
@@ -1058,6 +1093,383 @@ class TestAgentEngineHelpers:
                 config["spec"]["identity_type"]
                 == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
             )
+            assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
+
+    def test_create_agent_engine_config_with_developer_connect_source(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+            developer_connect_source = {
+                "git_repository_link": "projects/test-project/locations/us-central1/connections/test-connection/gitRepositoryLinks/test-repo",
+                "revision": "main",
+                "dir": "agent",
+            }
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                developer_connect_source=developer_connect_source,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                requirements_file=requirements_file_path,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            )
+            assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+            assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+            assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
+            assert config["spec"]["source_code_spec"] == {
+                "developer_connect_source": {"config": developer_connect_source},
+                "python_spec": {
+                    "version": _TEST_PYTHON_VERSION_OVERRIDE,
+                    "entrypoint_module": "main",
+                    "entrypoint_object": "app",
+                    "requirements_file": requirements_file_path,
+                },
+            }
+            assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+            assert (
+                config["spec"]["identity_type"]
+                == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+            )
+            assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_empty_keep_alive_probe(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                source_packages=[test_file_path],
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                keep_alive_probe={},
+            )
+            assert "keep_alive_probe" in config["spec"].get("deployment_spec", {})
+
+    def test_create_agent_engine_config_with_agent_config_source_and_requirements_file(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                agent_config_source={"adk_config": {"json_config": {}}},
+                requirements_file=requirements_file_path,
+            )
+
+            assert config["spec"]["source_code_spec"] == {
+                "agent_config_source": {"adk_config": {"json_config": {}}},
+                "python_spec": {
+                    "version": _TEST_PYTHON_VERSION_OVERRIDE,
+                    "requirements_file": requirements_file_path,
+                },
+            }
+
+    def test_create_agent_engine_config_with_agent_config_source_and_entrypoint_module_warns(
+        self, caplog
+    ):
+        caplog.set_level(logging.WARNING, logger="vertexai_genai.agentengines")
+
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            agent_framework=_TEST_AGENT_FRAMEWORK,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            agent_config_source={"adk_config": {"json_config": {}}},
+            entrypoint_module="some_module",
+        )
+
+        assert (
+            "`entrypoint_module` and `entrypoint_object` are ignored when"
+            in caplog.text
+        )
+        assert config["spec"]["source_code_spec"] == {
+            "agent_config_source": {"adk_config": {"json_config": {}}},
+            "python_spec": {
+                "version": _TEST_PYTHON_VERSION_OVERRIDE,
+            },
+        }
+        # entrypoint_module is NOT in python_spec
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_source_packages_and_image_spec_raises(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            with pytest.raises(ValueError) as excinfo:
+                self.client.agent_engines._create_config(
+                    mode="create",
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    source_packages=[test_file_path],
+                    entrypoint_module="main",
+                    entrypoint_object="app",
+                    requirements_file=requirements_file_path,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                    agent_framework=_TEST_AGENT_FRAMEWORK,
+                    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                    python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                    image_spec={},
+                )
+            assert "`image_spec` cannot be specified alongside" in str(excinfo.value)
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_agent_config_source_and_image_spec_raises(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            with pytest.raises(ValueError) as excinfo:
+                self.client.agent_engines._create_config(
+                    mode="create",
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                    agent_framework=_TEST_AGENT_FRAMEWORK,
+                    identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                    python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                    image_spec={},
+                    agent_config_source={"adk_config": {"json_config": {}}},
+                )
+            assert "`image_spec` cannot be specified alongside" in str(excinfo.value)
+
+    def test_create_agent_engine_config_with_agent_config_source(self):
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            agent_framework=_TEST_AGENT_FRAMEWORK,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            agent_config_source={"adk_config": {"json_config": {}}},
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
+        assert config["spec"]["source_code_spec"] == {
+            "agent_config_source": {"adk_config": {"json_config": {}}},
+            "python_spec": {"version": _TEST_PYTHON_VERSION_OVERRIDE},
+        }
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    def test_create_agent_engine_config_with_source_packages_and_agent_config_source(
+        self, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "test_file.txt")
+            with open(test_file_path, "w") as f:
+                f.write("test content")
+            requirements_file_path = os.path.join(tmpdir, "requirements.txt")
+            with open(requirements_file_path, "w") as f:
+                f.write("requests==2.0.0")
+
+            config = self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                source_packages=[test_file_path],
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                agent_framework=_TEST_AGENT_FRAMEWORK,
+                identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+                python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+                agent_config_source={"adk_config": {"json_config": {}}},
+            )
+            assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+            assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+            assert config["spec"]["agent_framework"] == _TEST_AGENT_FRAMEWORK
+            assert config["spec"]["source_code_spec"] == {
+                "agent_config_source": {
+                    "adk_config": {"json_config": {}},
+                    "inline_source": {"source_archive": "test_tarball"},
+                },
+                "python_spec": {"version": _TEST_PYTHON_VERSION_OVERRIDE},
+            }
+            assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+            mock_create_base64_encoded_tarball.assert_called_once_with(
+                source_packages=[test_file_path]
+            )
+            assert (
+                config["spec"]["identity_type"]
+                == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+            )
+
+    def test_create_agent_engine_config_with_container_spec(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            container_spec=container_spec,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["container_spec"] == container_spec
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+        assert "keep_alive_probe" not in config["spec"].get("deployment_spec", {})
+
+    def test_create_agent_engine_config_with_container_spec_and_keep_alive_probe(
+        self,
+    ):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        config = self.client.agent_engines._create_config(
+            mode="create",
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            description=_TEST_AGENT_ENGINE_DESCRIPTION,
+            container_spec=container_spec,
+            class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            keep_alive_probe=_TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE,
+        )
+        assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
+        assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
+        assert config["spec"]["container_spec"] == container_spec
+        assert config["spec"]["class_methods"] == _TEST_AGENT_ENGINE_CLASS_METHODS
+        assert (
+            config["spec"]["identity_type"]
+            == _TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT
+        )
+        assert (
+            config["spec"]["deployment_spec"]["keep_alive_probe"]
+            == _TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE
+        )
+
+    def test_create_agent_engine_config_with_container_spec_and_others_raises(self):
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        with pytest.raises(ValueError) as excinfo:
+            self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                container_spec=container_spec,
+                agent=self.test_agent,
+            )
+        assert "please do not specify `agent`" in str(excinfo.value)
+
+        with pytest.raises(ValueError) as excinfo:
+            self.client.agent_engines._create_config(
+                mode="create",
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=_TEST_AGENT_ENGINE_DESCRIPTION,
+                container_spec=container_spec,
+                source_packages=["."],
+            )
+        assert "please do not specify `source_packages`" in str(excinfo.value)
+
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_create_base64_encoded_tarball",
+        return_value="test_tarball",
+    )
+    @mock.patch.object(_agent_engines_utils, "_validate_packages_or_raise")
+    def test_create_agent_engine_config_with_source_packages_and_build_options(
+        self, mock_validate_packages, mock_create_base64_encoded_tarball
+    ):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            test_file_path = os.path.join(tmpdir, "main.py")
+            with open(test_file_path, "w") as f:
+                f.write("app = None")
+            build_options = {
+                "installation_scripts": ["installation_scripts/install.sh"]
+            }
+            source_packages = [test_file_path, "installation_scripts/install.sh"]
+            mock_validate_packages.return_value = source_packages
+
+            self.client.agent_engines._create_config(
+                mode="create",
+                source_packages=source_packages,
+                entrypoint_module="main",
+                entrypoint_object="app",
+                build_options=build_options,
+                class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+            )
+            mock_validate_packages.assert_called_once_with(
+                packages=source_packages,
+                build_options=build_options,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_validate_packages_or_raise")
+    def test_create_agent_engine_config_with_build_options(
+        self, mock_validate_packages, mock_prepare
+    ):
+        build_options = {"installation_scripts": ["install.sh"]}
+        extra_packages = ["install.sh"]
+
+        self.client.agent_engines._create_config(
+            mode="create",
+            agent=self.test_agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            extra_packages=extra_packages,
+            build_options=build_options,
+        )
+
+        mock_validate_packages.assert_called_once_with(
+            packages=extra_packages,
+            build_options=build_options,
+        )
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     def test_update_agent_engine_config_full(self, mock_prepare):
@@ -1073,12 +1485,13 @@ class TestAgentEngineHelpers:
             env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT,
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
             identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
+            python_version=_TEST_PYTHON_VERSION_OVERRIDE,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
         assert config["spec"]["agent_framework"] == "custom"
         assert config["spec"]["package_spec"] == {
-            "python_version": _TEST_PYTHON_VERSION,
+            "python_version": _TEST_PYTHON_VERSION_OVERRIDE,
             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
             "dependency_files_gcs_uri": _TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
             "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
@@ -1392,6 +1805,160 @@ class TestAgentEngineHelpers:
             finally:
                 os.chdir(origin_dir)
 
+    @mock.patch.object(_agent_engines_utils, "_upload_requirements")
+    @mock.patch.object(_agent_engines_utils, "_upload_extra_packages")
+    @mock.patch.object(_agent_engines_utils, "_upload_agent_engine")
+    @mock.patch.object(_agent_engines_utils, "_scan_requirements")
+    @mock.patch.object(_agent_engines_utils, "_get_gcs_bucket")
+    def test_prepare_with_creds(
+        self,
+        mock_get_gcs_bucket,
+        mock_scan_requirements,
+        mock_upload_agent_engine,
+        mock_upload_extra_packages,
+        mock_upload_requirements,
+    ):
+        mock_scan_requirements.return_value = {}
+        mock_creds = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+        mock_creds.universe_domain = "googleapis.com"
+        _agent_engines_utils._prepare(
+            agent=self.test_agent,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            credentials=mock_creds,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+            requirements=[],
+            extra_packages=[],
+        )
+        mock_upload_agent_engine.assert_called_once_with(
+            agent=self.test_agent,
+            gcs_bucket=mock.ANY,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+        )
+
+    @mock.patch.object(_agent_engines_utils, "_upload_requirements")
+    @mock.patch.object(_agent_engines_utils, "_upload_extra_packages")
+    @mock.patch.object(_agent_engines_utils, "_upload_agent_engine")
+    @mock.patch.object(_agent_engines_utils, "_scan_requirements")
+    @mock.patch("google.auth.default")
+    @mock.patch.object(_agent_engines_utils, "_get_gcs_bucket")
+    def test_prepare_without_creds(
+        self,
+        mock_get_gcs_bucket,
+        mock_auth_default,
+        mock_scan_requirements,
+        mock_upload_agent_engine,
+        mock_upload_extra_packages,
+        mock_upload_requirements,
+    ):
+        mock_scan_requirements.return_value = {}
+        mock_creds = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+        mock_auth_default.return_value = (mock_creds, _TEST_PROJECT)
+        _agent_engines_utils._prepare(
+            agent=self.test_agent,
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+            requirements=[],
+            extra_packages=[],
+        )
+        mock_get_gcs_bucket.assert_called_once_with(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            credentials=None,
+        )
+        mock_upload_agent_engine.assert_called_once_with(
+            agent=self.test_agent,
+            gcs_bucket=mock.ANY,
+            gcs_dir_name=_TEST_GCS_DIR_NAME,
+        )
+
+    @pytest.mark.parametrize(
+        "operation_name,resource_name,expected_id,expected_exception,expected_message",
+        [
+            (
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}/operations/456",
+                "",
+                _TEST_RESOURCE_ID,
+                None,
+                None,
+            ),
+            (
+                "",
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}",
+                _TEST_RESOURCE_ID,
+                None,
+                None,
+            ),
+            (
+                "projects/123/locations/us-central1/reasoningEngines/other_id/operations/456",
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}",
+                _TEST_RESOURCE_ID,
+                None,
+                None,
+            ),
+            (
+                "",
+                "",
+                None,
+                ValueError,
+                "Resource name or operation name cannot be empty.",
+            ),
+            (
+                "invalid/operation/name",
+                "",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from operation name",
+            ),
+            (
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}",
+                "",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from operation name",
+            ),
+            (
+                "",
+                "invalid/resource/name",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from resource name",
+            ),
+            (
+                "",
+                f"projects/123/locations/us-central1/reasoningEngines/{_TEST_RESOURCE_ID}/operations/456",
+                None,
+                ValueError,
+                "Failed to parse reasoning engine ID from resource name",
+            ),
+        ],
+    )
+    def test_get_reasoning_engine_id(
+        self,
+        operation_name,
+        resource_name,
+        expected_id,
+        expected_exception,
+        expected_message,
+    ):
+        if expected_exception:
+            with pytest.raises(expected_exception) as excinfo:
+                _agent_engines_utils._get_reasoning_engine_id(
+                    operation_name=operation_name, resource_name=resource_name
+                )
+            assert expected_message in str(excinfo.value)
+        else:
+            assert (
+                _agent_engines_utils._get_reasoning_engine_id(
+                    operation_name=operation_name, resource_name=resource_name
+                )
+                == expected_id
+            )
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngine:
@@ -1441,7 +2008,18 @@ class TestAgentEngine:
     @pytest.mark.usefixtures("caplog")
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
-    def test_create_agent_engine(self, mock_await_operation, mock_prepare, caplog):
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_prepare,
+        caplog,
+    ):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(
                 name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
@@ -1491,8 +2069,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_lightweight(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1528,8 +2112,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_env_vars_dict(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1580,6 +2170,7 @@ class TestAgentEngine:
                 identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -1589,10 +2180,17 @@ class TestAgentEngine:
                 labels=None,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
+                build_options=None,
+                image_spec=None,
+                agent_config_source=None,
+                container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1617,8 +2215,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_custom_service_account(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1672,6 +2276,7 @@ class TestAgentEngine:
                 identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -1681,10 +2286,17 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
+                build_options=None,
+                image_spec=None,
+                agent_config_source=None,
+                container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1709,8 +2321,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_experimental_mode(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1763,6 +2381,7 @@ class TestAgentEngine:
                 identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -1772,10 +2391,17 @@ class TestAgentEngine:
                 agent_server_mode=_genai_types.AgentServerMode.EXPERIMENTAL,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
+                build_options=None,
+                image_spec=None,
+                agent_config_source=None,
+                container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1804,8 +2430,14 @@ class TestAgentEngine:
         return_value="test_tarball",
     )
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_source_packages(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_base64_encoded_tarball,
     ):
@@ -1866,8 +2498,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_class_methods(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -1917,6 +2555,7 @@ class TestAgentEngine:
                 identity_type=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -1926,10 +2565,17 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=None,
+                python_version=None,
+                build_options=None,
+                image_spec=None,
+                agent_config_source=None,
+                container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -1951,8 +2597,14 @@ class TestAgentEngine:
 
     @mock.patch.object(agent_engines.AgentEngines, "_create_config")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
     def test_create_agent_engine_with_agent_framework(
         self,
+        mock_get_reasoning_engine_id,
         mock_await_operation,
         mock_create_config,
     ):
@@ -2002,6 +2654,7 @@ class TestAgentEngine:
                 service_account=None,
                 context_spec=None,
                 psc_interface_config=None,
+                agent_gateway_config=None,
                 min_instances=None,
                 max_instances=None,
                 resource_limits=None,
@@ -2011,11 +2664,18 @@ class TestAgentEngine:
                 agent_server_mode=None,
                 class_methods=None,
                 source_packages=None,
+                developer_connect_source=None,
                 entrypoint_module=None,
                 entrypoint_object=None,
                 requirements_file=None,
                 agent_framework=_TEST_AGENT_FRAMEWORK,
                 identity_type=None,
+                python_version=None,
+                build_options=None,
+                image_spec=None,
+                agent_config_source=None,
+                container_spec=None,
+                keep_alive_probe=None,
             )
             request_mock.assert_called_with(
                 "post",
@@ -2150,6 +2810,19 @@ class TestAgentEngine:
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_deployment_config_without_agent_raises(
+        self, mock_await_operation, mock_prepare
+    ):
+        with pytest.raises(ValueError, match="To update `env_vars`"):
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentEngineConfig(
+                    env_vars=_TEST_AGENT_ENGINE_ENV_VARS_INPUT
+                ),
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
     def test_update_agent_engine_env_vars(
         self, mock_await_operation, mock_prepare, caplog
     ):
@@ -2199,6 +2872,109 @@ class TestAgentEngine:
                         "deployment_spec": _TEST_AGENT_ENGINE_SPEC.get(
                             "deployment_spec"
                         ),
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_with_empty_keep_alive_probe(
+        self, mock_await_operation, mock_prepare
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                agent=self.test_agent,
+                config=_genai_types.AgentEngineConfig(
+                    staging_bucket=_TEST_STAGING_BUCKET,
+                    keep_alive_probe={},
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.package_spec.pickle_object_gcs_uri",
+                    "spec.package_spec.requirements_gcs_uri",
+                    "spec.class_methods",
+                    "spec.deployment_spec.keep_alive_probe",
+                    "spec.agent_framework",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": mock.ANY,
+                        "package_spec": {
+                            "python_version": _TEST_PYTHON_VERSION,
+                            "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
+                            "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+                        },
+                        "deployment_spec": {"keep_alive_probe": {}},
+                    },
+                    "_query": {"updateMask": update_mask},
+                },
+                None,
+            )
+
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_agent_engine_with_container_spec_and_keep_alive_probe(
+        self, mock_await_operation
+    ):
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        container_spec = {"image_uri": "gcr.io/test-project/test-image"}
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.update(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config=_genai_types.AgentEngineConfig(
+                    container_spec=container_spec,
+                    keep_alive_probe=_TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE,
+                    class_methods=_TEST_AGENT_ENGINE_CLASS_METHODS,
+                ),
+            )
+            update_mask = ",".join(
+                [
+                    "spec.class_methods",
+                    "spec.container_spec",
+                    "spec.deployment_spec.keep_alive_probe",
+                    "spec.agent_framework",
+                ]
+            )
+            query_params = {"updateMask": update_mask}
+            request_mock.assert_called_with(
+                "patch",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}?{urlencode(query_params)}",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "spec": {
+                        "agent_framework": "custom",
+                        "container_spec": container_spec,
+                        "deployment_spec": {
+                            "keep_alive_probe": _TEST_AGENT_ENGINE_KEEP_ALIVE_PROBE,
+                        },
+                        "class_methods": mock.ANY,
                     },
                     "_query": {"updateMask": update_mask},
                 },
@@ -2322,6 +3098,224 @@ class TestAgentEngine:
                 None,
             )
 
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine(self, mock_uuid, get_mock, mock_storage_client):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            # Mock the GCS bucket and blob so we don't actually try to use GCS
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = False
+            mock_blob = mock.Mock()
+            mock_blob.exists.return_value = False
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            # mock uuid
+            mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+
+            # Mock _get to return a dummy resource
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            result = self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "output_gcs_uri": "gs://my-input-bucket/",
+                },
+            )
+
+            # Verify bucket creation
+            assert mock_bucket.create.call_count == 1
+            # Verify file upload
+            mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                output_gcs_uri="gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
+            )
+
+            request_mock.assert_called_with(
+                "post",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:asyncQuery",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "inputGcsUri": "gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                    "outputGcsUri": "gs://my-input-bucket/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
+                },
+                None,
+            )
+
+    def test_run_query_job_agent_engine_missing_query(self):
+        with pytest.raises(
+            ValueError, match="`query` is required in the config object."
+        ):
+            self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={"output_gcs_uri": "gs://my-input-bucket/"},
+            )
+
+    def test_run_query_job_agent_engine_missing_uri(self):
+        with pytest.raises(
+            ValueError, match="`output_gcs_uri` is required in the config object."
+        ):
+            self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={"query": _TEST_QUERY_PROMPT},
+            )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine_bucket_creation_forbidden(
+        self, mock_uuid, get_mock, mock_storage_client
+    ):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            from google.api_core import exceptions as api_core_exceptions
+
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.side_effect = api_core_exceptions.Forbidden(
+                "403 GET Bucket"
+            )
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            with pytest.raises(
+                ValueError, match="Permission denied to check existence of bucket"
+            ):
+                self.client.agent_engines.run_query_job(
+                    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                    config={
+                        "query": _TEST_QUERY_PROMPT,
+                        "output_gcs_uri": "gs://my-input-bucket/",
+                    },
+                )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine_file_uri(
+        self, mock_uuid, get_mock, mock_storage_client
+    ):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = True
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            result = self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "output_gcs_uri": "gs://my-input-bucket/path/output.json",
+                },
+            )
+
+            mock_blob.upload_from_string.assert_called_once_with(_TEST_QUERY_PROMPT)
+            mock_bucket.blob.assert_called_with("path/output_input.json")
+
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/path/output_input.json",
+                output_gcs_uri="gs://my-input-bucket/path/output.json",
+            )
+
+    @mock.patch("google.cloud.storage.Client")
+    @mock.patch.object(agent_engines.AgentEngines, "_get")
+    @mock.patch("uuid.uuid4")
+    def test_run_query_job_agent_engine_directory_no_slash(
+        self, mock_uuid, get_mock, mock_storage_client
+    ):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body='{"name": "projects/123/locations/us-central1/reasoningEngines/456/operations/789"}'
+            )
+
+            mock_bucket = mock.Mock()
+            mock_bucket.exists.return_value = True
+            mock_blob = mock.Mock()
+            mock_bucket.blob.return_value = mock_blob
+            mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+            mock_uuid.return_value.hex = "b92b9b89-4585-4146-8ee5-22fe99802a8e"
+
+            get_mock.return_value = _genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_genai_types.ReasoningEngineSpec(
+                    deployment_spec=_genai_types.ReasoningEngineSpecDeploymentSpec(
+                        env=[_genai_types.EnvVar(name="input_gcs_uri", value="")]
+                    )
+                ),
+            )
+
+            result = self.client.agent_engines.run_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={
+                    "query": _TEST_QUERY_PROMPT,
+                    "output_gcs_uri": "gs://my-input-bucket/path",
+                },
+            )
+
+            mock_bucket.blob.assert_called_with(
+                "path/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json"
+            )
+
+            assert result == _genai_types.RunQueryJobResult(
+                job_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                input_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_input.json",
+                output_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
+            )
+
     def test_query_agent_engine_async(self):
         agent = self.client.agent_engines._register_api_methods(
             agent_engine=_genai_types.AgentEngine(
@@ -2353,6 +3347,165 @@ class TestAgentEngine:
                 },
                 None,
             )
+
+    def test_cancel_query_job_agent_engine(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="{}")
+
+            result = self.client.agent_engines.cancel_query_job(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                config={"operation_name": _TEST_AGENT_ENGINE_OPERATION_NAME},
+            )
+
+            assert isinstance(result, _genai_types.CancelQueryJobResult)
+            request_mock.assert_called_with(
+                "post",
+                f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:cancelAsyncQuery",
+                {
+                    "_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME},
+                    "operationName": _TEST_AGENT_ENGINE_OPERATION_NAME,
+                },
+                None,
+            )
+
+    def test_check_query_job_agent_engine(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+            with mock.patch("google.cloud.storage.Client") as mock_storage_client:
+                mock_bucket = mock.Mock()
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = True
+                mock_blob.download_as_string.return_value = b'{"success": true}'
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                result = self.client.agent_engines.check_query_job(
+                    name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    config={"retrieve_result": True},
+                )
+
+                assert result == _genai_types.CheckQueryJobResult(
+                    operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    status="SUCCESS",
+                    output_gcs_uri="gs://my-output-bucket/output.json",
+                    result='{"success": true}',
+                )
+                request_mock.assert_called_once_with(
+                    "get",
+                    "projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                    {},
+                )
+
+    def test_check_query_job_agent_engine_running(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": false, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+
+            result = self.client.agent_engines.check_query_job(
+                name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                config={"retrieve_result": True},
+            )
+
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="RUNNING",
+                output_gcs_uri="gs://my-output-bucket/output.json",
+                result=None,
+            )
+
+    def test_check_query_job_agent_engine_failed(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body='{"done": true, "error": {"message": "Job failed with errors."}}',
+            )
+
+            result = self.client.agent_engines.check_query_job(
+                name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                config={"retrieve_result": True},
+            )
+
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="FAILED",
+                output_gcs_uri=None,
+                result="{'message': 'Job failed with errors.'}",
+            )
+
+    def test_check_query_job_agent_engine_no_retrieve(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+
+            result = self.client.agent_engines.check_query_job(
+                name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                config={"retrieve_result": False},
+            )
+
+            assert result == _genai_types.CheckQueryJobResult(
+                operation_name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                status="SUCCESS",
+                output_gcs_uri="gs://my-output-bucket/output.json",
+                result=None,
+            )
+
+    def test_check_query_job_agent_engine_blob_not_exists(self):
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                headers={},
+                body=(
+                    '{"done": true, "name": '
+                    '"projects/123/locations/us-central1/reasoningEngines/456/operations/789", '
+                    '"response": {"output_gcs_uri": "gs://my-output-bucket/output.json"}}'
+                ),
+            )
+
+            with mock.patch("google.cloud.storage.Client") as mock_storage_client:
+                mock_bucket = mock.Mock()
+                mock_blob = mock.Mock()
+                mock_blob.exists.return_value = False
+                mock_bucket.blob.return_value = mock_blob
+                mock_storage_client.return_value.bucket.return_value = mock_bucket
+
+                with pytest.raises(
+                    ValueError,
+                    match="Failed to retrieve blob results for gs://my-output-bucket/output.json",
+                ):
+                    self.client.agent_engines.check_query_job(
+                        name="projects/123/locations/us-central1/reasoningEngines/456/operations/789",
+                        config={"retrieve_result": True},
+                    )
 
     def test_query_agent_engine_stream(self):
         with mock.patch.object(
@@ -2554,6 +3707,137 @@ class TestAgentEngine:
             want_operation_schemas.append(want_operation_schema)
         assert test_agent_engine.operation_schemas() == want_operation_schemas
 
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine_with_creds(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_create,
+        mock_prepare,
+    ):
+        mock_operation = mock.Mock()
+        mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        self.client.agent_engines.create(
+            agent=self.test_agent,
+            config=_genai_types.AgentEngineConfig(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            ),
+        )
+        mock_args, mock_kwargs = mock_prepare.call_args
+        assert mock_kwargs["agent"] == self.test_agent
+        assert mock_kwargs["extra_packages"] == []
+        assert mock_kwargs["project"] == _TEST_PROJECT
+        assert mock_kwargs["location"] == _TEST_LOCATION
+        assert mock_kwargs["staging_bucket"] == _TEST_STAGING_BUCKET
+        assert mock_kwargs["credentials"] == _TEST_CREDENTIALS
+        assert mock_kwargs["gcs_dir_name"] == "agent_engine"
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch("google.auth.default")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine_without_creds(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_auth_default,
+        mock_create,
+        mock_prepare,
+    ):
+        mock_operation = mock.Mock()
+        mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        mock_creds = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+        mock_creds.quota_project_id = _TEST_PROJECT
+        mock_auth_default.return_value = (mock_creds, _TEST_PROJECT)
+        client = vertexai.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=mock_creds
+        )
+        client.agent_engines.create(
+            agent=self.test_agent,
+            config=_genai_types.AgentEngineConfig(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            ),
+        )
+        mock_args, mock_kwargs = mock_prepare.call_args
+        assert mock_kwargs["agent"] == self.test_agent
+        assert mock_kwargs["extra_packages"] == []
+        assert mock_kwargs["project"] == _TEST_PROJECT
+        assert mock_kwargs["location"] == _TEST_LOCATION
+        assert mock_kwargs["staging_bucket"] == _TEST_STAGING_BUCKET
+        assert mock_kwargs["credentials"] == mock_creds
+        assert mock_kwargs["gcs_dir_name"] == "agent_engine"
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine_with_no_creds_in_client(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_create,
+        mock_prepare,
+    ):
+        mock_operation = mock.Mock()
+        mock_operation.name = _TEST_AGENT_ENGINE_OPERATION_NAME
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        client = vertexai.Client(
+            project=_TEST_PROJECT, location=_TEST_LOCATION, credentials=None
+        )
+        client.agent_engines.create(
+            agent=self.test_agent,
+            config=_genai_types.AgentEngineConfig(
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            ),
+        )
+        mock_args, mock_kwargs = mock_prepare.call_args
+        assert mock_kwargs["agent"] == self.test_agent
+        assert mock_kwargs["extra_packages"] == []
+        assert mock_kwargs["project"] == _TEST_PROJECT
+        assert mock_kwargs["location"] == _TEST_LOCATION
+        assert mock_kwargs["staging_bucket"] == _TEST_STAGING_BUCKET
+        assert mock_kwargs["credentials"] is None
+        assert mock_kwargs["gcs_dir_name"] == "agent_engine"
+
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngineErrors:
@@ -2570,7 +3854,14 @@ class TestAgentEngineErrors:
 
     @mock.patch.object(_agent_engines_utils, "_prepare")
     @mock.patch.object(_agent_engines_utils, "_await_operation")
-    def test_create_agent_engine_error(self, mock_await_operation, mock_prepare):
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine_error(
+        self, mock_get_reasoning_engine_id, mock_await_operation, mock_prepare
+    ):
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             error=_TEST_AGENT_ENGINE_ERROR,
         )

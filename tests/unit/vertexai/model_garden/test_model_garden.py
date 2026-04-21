@@ -1355,6 +1355,44 @@ class TestModelGardenOpenModel:
             "google/gemma-2-2b",
         ]
 
+    def test_list_models(self, list_publisher_models_mock):
+        """Tests listing models."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+
+        mg_models = model_garden.list_models()
+        list_publisher_models_mock.assert_called_with(
+            types.ListPublisherModelsRequest(
+                parent="publishers/*",
+                list_all_versions=True,
+                filter="is_hf_wildcard(false)",
+            )
+        )
+
+        assert mg_models == [
+            "google/paligemma@001",
+            "google/paligemma@002",
+            "google/paligemma@003",
+            "google/paligemma@004",
+        ]
+
+        hf_models = model_garden.list_models(list_hf_models=True)
+        list_publisher_models_mock.assert_called_with(
+            types.ListPublisherModelsRequest(
+                parent="publishers/*",
+                list_all_versions=True,
+                filter="is_hf_wildcard(true)",
+            )
+        )
+        assert hf_models == [
+            "google/gemma-2-2b",
+            "google/gemma-2-2b",
+            "google/gemma-2-2b",
+            "google/gemma-2-2b",
+        ]
+
     def test_batch_prediction_success(self, batch_prediction_mock):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -1404,6 +1442,30 @@ class TestModelGardenOpenModel:
             parent=_TEST_PARENT,
             batch_prediction_job=expected_gapic_batch_prediction_job,
             timeout=None,
+        )
+
+    def test_deploy_with_psc_success(self, deploy_mock):
+        """Tests deploying a model with Private Service Connect."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden.OpenModel(model_name=_TEST_MODEL_FULL_RESOURCE_NAME)
+        model.deploy(
+            enable_private_service_connect=True,
+            psc_project_allow_list=["project-1", "project-2"],
+        )
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                publisher_model_name=_TEST_MODEL_FULL_RESOURCE_NAME,
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                endpoint_config=types.DeployRequest.EndpointConfig(
+                    private_service_connect_config=types.PrivateServiceConnectConfig(
+                        enable_private_service_connect=True,
+                        project_allowlist=["project-1", "project-2"],
+                    )
+                ),
+            )
         )
 
     def test_check_license_agreement_status_success(
@@ -1629,6 +1691,29 @@ class TestModelGardenCustomModel:
                             ),
                         ),
                     ),
+                ),
+            )
+        )
+
+    def test_deploy_custom_model_with_system_labels_success(self, deploy_mock):
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+        )
+        model = model_garden_preview.CustomModel(gcs_uri=_TEST_GCS_URI)
+        model.deploy(system_labels={"test-key": "test-value"})
+        deploy_mock.assert_called_once_with(
+            types.DeployRequest(
+                destination=f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}",
+                custom_model=types.DeployRequest.CustomModel(
+                    gcs_uri=_TEST_GCS_URI,
+                ),
+                deploy_config=types.DeployRequest.DeployConfig(
+                    dedicated_resources=types.DedicatedResources(
+                        min_replica_count=1,
+                        max_replica_count=1,
+                    ),
+                    system_labels={"test-key": "test-value"},
                 ),
             )
         )

@@ -23,18 +23,23 @@ from google.cloud.aiplatform_v1beta1 import (
     ImportRagFilesRequest,
     ImportRagFilesResponse,
     JiraSource as GapicJiraSource,
+    MetadataValue as GapicMetadataValue,
     RagContexts,
     RagCorpus as GapicRagCorpus,
+    RagDataSchema as GapicRagDataSchema,
     RagEngineConfig as GapicRagEngineConfig,
     RagFileChunkingConfig,
     RagFileParsingConfig,
     RagFileTransformationConfig,
     RagFile as GapicRagFile,
     RagManagedDbConfig as GapicRagManagedDbConfig,
+    RagMetadataSchemaDetails as GapicRagMetadataSchemaDetails,
+    RagMetadata as GapicRagMetadata,
     RagVectorDbConfig as GapicRagVectorDbConfig,
     RetrieveContextsResponse,
     SharePointSources as GapicSharePointSources,
     SlackSource as GapicSlackSource,
+    UserSpecifiedMetadata as GapicUserSpecifiedMetadata,
     VertexAiSearchConfig as GapicVertexAiSearchConfig,
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
@@ -54,25 +59,33 @@ from vertexai.preview.rag import (
     LlmParserConfig,
     LlmRanker,
     MemoryCorpus,
+    MetadataValue,
     Pinecone,
     RagCorpus,
     RagCorpusTypeConfig,
+    RagDataSchema,
     RagEmbeddingModelConfig,
     RagEngineConfig,
     RagFile,
     RagManagedDb,
     RagManagedDbConfig,
+    RagManagedVertexVectorSearch,
+    RagMetadata,
+    RagMetadataSchemaDetails,
     RagResource,
     RagRetrievalConfig,
     RagVectorDbConfig,
     RankService,
     Ranking,
     Scaled,
+    Serverless,
     SharePointSource,
     SharePointSources,
     SlackChannel,
     SlackChannelsSource,
+    Spanner,
     Unprovisioned,
+    UserSpecifiedMetadata,
     VertexAiSearchConfig,
     VertexFeatureStore,
     VertexPredictionEndpoint,
@@ -137,6 +150,12 @@ TEST_GAPIC_RAG_CORPUS = GapicRagCorpus(
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
 )
+TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_COLLECTION_NAME = (
+    "test-rag-managed-vertex-vector-search-collection"
+)
+TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG = RagManagedVertexVectorSearch(
+    collection_name=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_COLLECTION_NAME
+)
 TEST_GAPIC_RAG_CORPUS.rag_embedding_model_config.vertex_prediction_endpoint.endpoint = (
     "projects/{}/locations/{}/publishers/google/models/textembedding-gecko".format(
         TEST_PROJECT, TEST_REGION
@@ -200,6 +219,17 @@ TEST_GAPIC_RAG_CORPUS_PINECONE = GapicRagCorpus(
         ),
     ),
 )
+TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH = GapicRagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    rag_vector_db_config=GapicRagVectorDbConfig(
+        rag_managed_vertex_vector_search=GapicRagVectorDbConfig.RagManagedVertexVectorSearch(
+            collection_name=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_COLLECTION_NAME,
+        ),
+    ),
+)
+
 TEST_GAPIC_RAG_CORPUS_RAG_MANAGED_DB = GapicRagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
@@ -301,6 +331,13 @@ TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     description=TEST_CORPUS_DISCRIPTION,
     vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
 )
+TEST_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH = RagCorpus(
+    name=TEST_RAG_CORPUS_RESOURCE_NAME,
+    display_name=TEST_CORPUS_DISPLAY_NAME,
+    description=TEST_CORPUS_DISCRIPTION,
+    vector_db=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG,
+)
+
 TEST_PAGE_TOKEN = "test-page-token"
 # Backend Config
 TEST_GAPIC_RAG_CORPUS_BACKEND_CONFIG = GapicRagCorpus(
@@ -559,6 +596,34 @@ TEST_IMPORT_REQUEST_DRIVE_FOLDER_PARSING = ImportRagFilesRequest(
 TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME = (
     f"projects/{TEST_PROJECT_NUMBER}/locations/{TEST_REGION}/ragEngineConfig"
 )
+TEST_RAG_ENGINE_CONFIG_SERVERLESS = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(mode=Serverless()),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_BASIC = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Basic()),
+    ),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_SCALED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Scaled()),
+    ),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Unprovisioned()),
+    ),
+)
+TEST_RAG_ENGINE_CONFIG_SPANNER_NO_TIER = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(),
+    ),
+)
 TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
@@ -578,6 +643,39 @@ TEST_RAG_ENGINE_CONFIG_ENTERPRISE = RagEngineConfig(
 TEST_DEFAULT_RAG_ENGINE_CONFIG = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=None,
+)
+TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER = RagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=RagManagedDbConfig(
+        mode=Spanner(tier=Basic()),
+        tier=Scaled(),
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        serverless=GapicRagManagedDbConfig.Serverless()
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_BASIC = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        spanner=GapicRagManagedDbConfig.Spanner(basic=GapicRagManagedDbConfig.Basic())
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_SCALED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        spanner=GapicRagManagedDbConfig.Spanner(scaled=GapicRagManagedDbConfig.Scaled())
+    ),
+)
+TEST_GAPIC_RAG_ENGINE_CONFIG_SPANNER_UNPROVISIONED = GapicRagEngineConfig(
+    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
+    rag_managed_db_config=GapicRagManagedDbConfig(
+        spanner=GapicRagManagedDbConfig.Spanner(
+            unprovisioned=GapicRagManagedDbConfig.Unprovisioned()
+        )
+    ),
 )
 TEST_GAPIC_RAG_ENGINE_CONFIG_BASIC = GapicRagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
@@ -1057,4 +1155,55 @@ TEST_RAG_RETRIEVAL_CONFIG_LLM_RANKER = RagRetrievalConfig(
     top_k=2,
     filter=Filter(vector_distance_threshold=0.5),
     ranking=Ranking(llm_ranker=LlmRanker(model_name="test-model-name")),
+)
+
+# RagMetadata and RagDataSchema
+TEST_RAG_DATA_SCHEMA_ID = "test-data-schema-id"
+TEST_RAG_DATA_SCHEMA_RESOURCE_NAME = (
+    f"{TEST_RAG_CORPUS_RESOURCE_NAME}/ragDataSchemas/{TEST_RAG_DATA_SCHEMA_ID}"
+)
+TEST_RAG_METADATA_ID = "test-metadata-id"
+TEST_RAG_METADATA_RESOURCE_NAME = (
+    f"{TEST_RAG_FILE_RESOURCE_NAME}/ragMetadata/{TEST_RAG_METADATA_ID}"
+)
+
+TEST_GAPIC_RAG_DATA_SCHEMA = GapicRagDataSchema(
+    name=TEST_RAG_DATA_SCHEMA_RESOURCE_NAME,
+    key="key1",
+    schema_details=GapicRagMetadataSchemaDetails(
+        type=GapicRagMetadataSchemaDetails.DataType.STRING,
+        search_strategy=GapicRagMetadataSchemaDetails.SearchStrategy(
+            search_strategy_type=GapicRagMetadataSchemaDetails.SearchStrategy.SearchStrategyType.EXACT_SEARCH
+        ),
+        granularity=GapicRagMetadataSchemaDetails.Granularity.GRANULARITY_FILE_LEVEL,
+    ),
+)
+
+TEST_RAG_DATA_SCHEMA = RagDataSchema(
+    name=TEST_RAG_DATA_SCHEMA_RESOURCE_NAME,
+    key="key1",
+    schema_details=RagMetadataSchemaDetails(
+        type="STRING",
+        search_strategy=RagMetadataSchemaDetails.SearchStrategy(
+            search_strategy_type="EXACT_SEARCH"
+        ),
+        granularity="GRANULARITY_FILE_LEVEL",
+    ),
+)
+
+TEST_GAPIC_RAG_METADATA = GapicRagMetadata(
+    name=TEST_RAG_METADATA_RESOURCE_NAME,
+    user_specified_metadata=GapicUserSpecifiedMetadata(
+        key="key1",
+        value=GapicMetadataValue(str_value="value1"),
+    ),
+)
+
+TEST_RAG_METADATA = RagMetadata(
+    name=TEST_RAG_METADATA_RESOURCE_NAME,
+    user_specified_metadata=UserSpecifiedMetadata(
+        values={
+            "key1": MetadataValue(string_value="value1"),
+        }
+    ),
 )

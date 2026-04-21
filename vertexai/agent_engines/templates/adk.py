@@ -27,6 +27,7 @@ from typing import (
 import asyncio
 from collections.abc import Awaitable
 import queue
+import sys
 import threading
 import warnings
 
@@ -135,8 +136,13 @@ def is_version_sufficient(version_to_check: str) -> bool:
 
 class _ArtifactVersion:
     def __init__(self, **kwargs):
+        from google.genai import types
+
         self.version: Optional[str] = kwargs.get("version")
-        self.data = kwargs.get("data")
+        data = kwargs.get("data")
+        self.data: Optional[types.Part] = (
+            types.Part.model_validate(data) if isinstance(data, dict) else data
+        )
 
     def dump(self) -> Dict[str, Any]:
         result = {}
@@ -277,12 +283,18 @@ async def _force_flush_otel(tracing_enabled: bool, logging_enabled: bool):
 
 
 def _default_instrumentor_builder(
-    project_id: str,
+    project_id: Optional[str],
     *,
     enable_tracing: bool = False,
     enable_logging: bool = False,
 ):
     if not enable_tracing and not enable_logging:
+        return None
+
+    if project_id is None:
+        _warn(
+            "telemetry is only supported when project is specified, proceeding with no telemetry"
+        )
         return None
 
     import os
@@ -306,8 +318,10 @@ def _default_instrumentor_builder(
         return None
 
     def _detect_cloud_resource_id(project_id: str) -> Optional[str]:
-        location = os.getenv("GOOGLE_CLOUD_LOCATION", None)
-        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", None)
+        location = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "") or os.getenv(
+            "GOOGLE_CLOUD_LOCATION", ""
+        )
+        agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID")
         if all(v is not None for v in (location, agent_engine_id)):
             return f"//aiplatform.googleapis.com/projects/{project_id}/locations/{location}/reasoningEngines/{agent_engine_id}"
         return None
@@ -343,10 +357,14 @@ def _default_instrumentor_builder(
         attributes={
             "gcp.project_id": project_id,
             "cloud.account.id": project_id,
+            "cloud.provider": "gcp",
             "cloud.platform": "gcp.agent_engine",
             "service.name": os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", ""),
             "service.instance.id": f"{uuid.uuid4().hex}-{os.getpid()}",
-            "cloud.region": os.getenv("GOOGLE_CLOUD_LOCATION", ""),
+            "cloud.region": (
+                os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", "")
+                or os.getenv("GOOGLE_CLOUD_LOCATION", "")
+            ),
         }
         | (
             {"cloud.resource_id": cloud_resource_id}
@@ -425,17 +443,47 @@ def _default_instrumentor_builder(
                 "opentelemetry-exporter-gcp-logging", needed_for_logging=True
             )
 
+        class _SimpleLogRecordProcessor(
+            opentelemetry.sdk._logs.export.SimpleLogRecordProcessor
+        ):
+            def force_flush(
+                self, timeout_millis: int = 30000
+            ) -> bool:  # pylint: disable=no-self-use
+                sys.stdout.flush()
+                sys.stderr.flush()
+                return True
+
         logger_provider = opentelemetry.sdk._logs.LoggerProvider(resource=resource)
-        logger_provider.add_log_record_processor(
-            opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
-                opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
-                    project_id=project_id,
-                    default_log_name=os.getenv(
-                        "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+        # Use the legacy log processor when experimental semconv is enabled.
+        # Exporting JSON logs to stdout is bugged; Agent Engine fails to
+        # correctly parse the `gen_ai.client.inference.operation.details`
+        # messages.
+        # TODO: b/480102541 - Unify both branches once the regression is fixed.
+        if "gen_ai_latest_experimental" in os.getenv(
+            "OTEL_SEMCONV_STABILITY_OPT_IN", ""
+        ).split(","):
+            logger_provider.add_log_record_processor(
+                opentelemetry.sdk._logs.export.BatchLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
                     ),
-                ),
+                )
             )
-        )
+        else:
+            logger_provider.add_log_record_processor(
+                _SimpleLogRecordProcessor(
+                    opentelemetry.exporter.cloud_logging.CloudLoggingExporter(
+                        project_id=project_id,
+                        default_log_name=os.getenv(
+                            "GCP_DEFAULT_LOG_NAME", "adk-on-agent-engine"
+                        ),
+                        structured_json_file=sys.stdout,
+                    ),
+                )
+            )
         event_logger_provider = opentelemetry.sdk._events.EventLoggerProvider(
             logger_provider=logger_provider
         )
@@ -494,6 +542,20 @@ def _validate_run_config(run_config: Optional[Dict[str, Any]]):
     elif isinstance(run_config, Dict):
         return RunConfig.model_validate(run_config)
     raise TypeError("run_config must be a dictionary representing a RunConfig object.")
+
+
+def _warn_if_telemetry_api_disabled():
+    """Warn if telemetry API is disabled."""
+    try:
+        import google.auth.transport.requests
+        import google.auth
+    except (ImportError, AttributeError):
+        return
+    credentials, project = google.auth.default()
+    session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
+    r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+    if "Telemetry API has not been used in project" in r.text:
+        _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
 
 class AdkApp:
@@ -567,7 +629,8 @@ class AdkApp:
         if app:
             if app_name:
                 raise ValueError(
-                    "When app is provided, app_name should not be provided."
+                    "When app is provided, app_name should not be provided, "
+                    "since it will be derived from app.name."
                 )
             if agent:
                 raise ValueError("When app is provided, agent should not be provided.")
@@ -594,6 +657,11 @@ class AdkApp:
             ),
         }
 
+    def _app_name(self) -> str:
+        """Returns the app name."""
+        app = self._tmpl_attrs.get("app")
+        return app.name if app else self._tmpl_attrs.get("app_name")
+
     async def _init_session(
         self,
         session_service: "BaseSessionService",
@@ -611,7 +679,7 @@ class AdkApp:
                 session_state[auth_id] = auth.access_token
 
         session = await session_service.create_session(
-            app_name=self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=request.user_id,
             state=session_state,
         )
@@ -621,6 +689,17 @@ class AdkApp:
             for event in request.events:
                 await session_service.append_event(session, Event(**event))
         if request.artifacts:
+            await self._save_artifacts(session.id, artifact_service, request)
+        return session
+
+    async def _save_artifacts(
+        self,
+        session_id: str,
+        artifact_service: "BaseArtifactService",
+        request: _StreamRunRequest,
+    ):
+        """Saves the artifacts."""
+        if request.artifacts:
             for artifact in request.artifacts:
                 artifact = _Artifact(**artifact)
                 for version_data in sorted(
@@ -628,9 +707,9 @@ class AdkApp:
                 ):
                     version_data = _ArtifactVersion(**version_data)
                     saved_version = await artifact_service.save_artifact(
-                        app_name=self._tmpl_attrs.get("app_name"),
+                        app_name=self._app_name(),
                         user_id=request.user_id,
-                        session_id=session.id,
+                        session_id=session_id,
                         filename=artifact.file_name,
                         artifact=version_data.data,
                     )
@@ -644,7 +723,6 @@ class AdkApp:
                             saved_version,
                             version_data.version,
                         )
-        return session
 
     async def _convert_response_events(
         self,
@@ -675,7 +753,7 @@ class AdkApp:
                         _ArtifactVersion(
                             version=version,
                             data=await artifact_service.load_artifact(
-                                app_name=self._tmpl_attrs.get("app_name"),
+                                app_name=self._app_name(),
                                 user_id=user_id,
                                 session_id=session_id,
                                 filename=key,
@@ -728,16 +806,29 @@ class AdkApp:
         from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
+        # --- BEGIN BOUND TOKEN PATCH ---
+        # Set GOOGLE_API_PREVENT_AGENT_TOKEN_SHARING_FOR_GCP_SERVICES to false
+        # to disable bound token sharing.
+        os.environ["GOOGLE_API_PREVENT_AGENT_TOKEN_SHARING_FOR_GCP_SERVICES"] = "false"
+        # --- END BOUND TOKEN PATCH ---
         project = self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
         location = self._tmpl_attrs.get("location")
         if location:
-            os.environ["GOOGLE_CLOUD_LOCATION"] = location
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
+        agent_engine_location = os.environ.get(
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",  # the runtime env var (if set)
+            location,  # the location set in the AdkApp template
+        )
         express_mode_api_key = self._tmpl_attrs.get("express_mode_api_key")
         if express_mode_api_key and not project:
             os.environ["GOOGLE_API_KEY"] = express_mode_api_key
             # Clear location and project env vars if express mode api key is provided.
+            os.environ.pop("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", None)
             os.environ.pop("GOOGLE_CLOUD_LOCATION", None)
             os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
             location = None
@@ -755,7 +846,7 @@ class AdkApp:
         custom_instrumentor = self._tmpl_attrs.get("instrumentor_builder")
 
         if self._tmpl_attrs.get("enable_tracing"):
-            self._warn_if_telemetry_api_disabled()
+            _warn_if_telemetry_api_disabled()
 
         if self._tmpl_attrs.get("enable_tracing") is False:
             _warn(
@@ -784,11 +875,11 @@ class AdkApp:
             )
 
         if custom_instrumentor and self._tracing_enabled():
-            self._tmpl_attrs["instrumentor"] = custom_instrumentor(project)
+            self._tmpl_attrs["instrumentor"] = custom_instrumentor(self.project_id())
 
         if not custom_instrumentor:
             self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
-                project,
+                self.project_id(),
                 enable_tracing=self._tracing_enabled(),
                 enable_logging=enable_logging,
             )
@@ -820,7 +911,7 @@ class AdkApp:
                 # environment variable when initializing the session service.
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
             except (ImportError, AttributeError):
@@ -832,7 +923,7 @@ class AdkApp:
                 # environment variable when initializing the session service.
                 self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
 
@@ -854,12 +945,21 @@ class AdkApp:
                 # environment variable when initializing the memory service.
                 self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
                     project=project,
-                    location=location,
+                    location=agent_engine_location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
             except (ImportError, AttributeError):
-                # TODO(ysian): Handle this via _g3 import for google3.
-                pass
+                from google.adk.memory.vertex_ai_memory_bank_service_g3 import (
+                    VertexAiMemoryBankService,
+                )
+
+                # If the express mode api key is set, it will be read from the
+                # environment variable when initializing the memory service.
+                self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+                    project=project,
+                    location=agent_engine_location,
+                    agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
+                )
         else:
             self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
@@ -907,6 +1007,7 @@ class AdkApp:
         message: Union[str, Dict[str, Any]],
         user_id: str,
         session_id: Optional[str] = None,
+        session_events: Optional[List[Dict[str, Any]]] = None,
         run_config: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncIterable[Dict[str, Any]]:
@@ -919,7 +1020,11 @@ class AdkApp:
                 Required. The ID of the user.
             session_id (str):
                 Optional. The ID of the session. If not provided, a new
-                session will be created for the user.
+                session will be created for the user. If this is specified, then
+                `session_events` will be ignored.
+            session_events (Optional[List[Dict[str, Any]]]):
+                Optional. The session events to use for the query. This will be
+                used to initialize the session if `session_id` is not provided.
             run_config (Optional[Dict[str, Any]]):
                 Optional. The run config to use for the query. If you want to
                 pass in a `run_config` pydantic object, you can pass in a dict
@@ -930,6 +1035,11 @@ class AdkApp:
 
         Yields:
             Event dictionaries asynchronously.
+
+        Raises:
+            TypeError: If message is not a string or a dictionary representing
+            a Content object.
+            ValueError: If both session_id and session_events are specified.
         """
         from vertexai.agent_engines import _utils
         from google.genai import types
@@ -946,9 +1056,25 @@ class AdkApp:
 
         if not self._tmpl_attrs.get("runner"):
             self.set_up()
+        if session_id and session_events:
+            raise ValueError(
+                "Only one of session_id and session_events should be specified."
+            )
         if not session_id:
             session = await self.async_create_session(user_id=user_id)
             session_id = session.id
+            if session_events is not None:
+                # We allow for session_events to be an empty list.
+                from google.adk.events.event import Event
+
+                session_service = self._tmpl_attrs.get("session_service")
+                for event in session_events:
+                    if not isinstance(event, Event):
+                        event = Event.model_validate(event)
+                    await session_service.append_event(
+                        session=session,
+                        event=event,
+                    )
 
         run_config = _validate_run_config(run_config)
         if run_config:
@@ -1075,33 +1201,42 @@ class AdkApp:
         from google.genai.errors import ClientError
 
         request = _StreamRunRequest(**json.loads(request_json))
-        if not self._tmpl_attrs.get("in_memory_runner"):
+        if not any(
+            self._tmpl_attrs.get(service)
+            for service in (
+                "in_memory_runner",
+                "runner",
+                "in_memory_artifact_service",
+                "artifact_service",
+                "in_memory_session_service",
+                "session_service",
+                "in_memory_memory_service",
+                "memory_service",
+            )
+        ):
             self.set_up()
-        if not self._tmpl_attrs.get("runner"):
-            self.set_up()
-        # Prepare the in-memory session.
-        if not self._tmpl_attrs.get("in_memory_artifact_service"):
-            self.set_up()
-        if not self._tmpl_attrs.get("artifact_service"):
-            self.set_up()
-        if not self._tmpl_attrs.get("in_memory_session_service"):
-            self.set_up()
-        if not self._tmpl_attrs.get("session_service"):
-            self.set_up()
-        app = self._tmpl_attrs.get("app")
 
         # Try to get the session, if it doesn't exist, create a new one.
         if request.session_id:
             session_service = self._tmpl_attrs.get("session_service")
             artifact_service = self._tmpl_attrs.get("artifact_service")
             runner = self._tmpl_attrs.get("runner")
+            session = None
             try:
                 session = await session_service.get_session(
-                    app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+                    app_name=self._app_name(),
                     user_id=request.user_id,
                     session_id=request.session_id,
                 )
+                if session:
+                    await self._save_artifacts(
+                        session_id=request.session_id,
+                        artifact_service=artifact_service,
+                        request=request,
+                    )
             except ClientError:
+                pass
+            if not session:
                 #  Fall back to create session if the session is not found.
                 #  Specifying session_id on creation is not supported,
                 #  so session id will be regenerated.
@@ -1140,9 +1275,8 @@ class AdkApp:
                 yield converted_event
         finally:
             if session and not request.session_id:
-                app = self._tmpl_attrs.get("app")
                 await session_service.delete_session(
-                    app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+                    app_name=self._app_name(),
                     user_id=request.user_id,
                     session_id=session.id,
                 )
@@ -1179,9 +1313,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         session = await self._tmpl_attrs.get("session_service").get_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
@@ -1257,9 +1390,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         return await self._tmpl_attrs.get("session_service").list_sessions(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             **kwargs,
         )
@@ -1330,9 +1462,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         session = await self._tmpl_attrs.get("session_service").create_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             session_id=session_id,
             state=state,
@@ -1412,9 +1543,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("session_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         await self._tmpl_attrs.get("session_service").delete_session(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
@@ -1503,9 +1633,8 @@ class AdkApp:
         """
         if not self._tmpl_attrs.get("memory_service"):
             self.set_up()
-        app = self._tmpl_attrs.get("app")
         return await self._tmpl_attrs.get("memory_service").search_memory(
-            app_name=app.name if app else self._tmpl_attrs.get("app_name"),
+            app_name=self._app_name(),
             user_id=user_id,
             query=query,
         )
@@ -1586,17 +1715,17 @@ class AdkApp:
             and is_version_sufficient("1.17.0")
         )
 
-    def _warn_if_telemetry_api_disabled(self):
-        """Warn if telemetry API is disabled."""
-        try:
-            import google.auth.transport.requests
-            import google.auth
-        except (ImportError, AttributeError):
-            return
-        credentials, project = google.auth.default()
-        session = google.auth.transport.requests.AuthorizedSession(
-            credentials=credentials
-        )
-        r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
-        if "Telemetry API has not been used in project" in r.text:
-            _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+    def project_id(self) -> Optional[str]:
+        if project := self._tmpl_attrs.get("project"):
+            try:
+                from google.cloud.aiplatform.utils import (
+                    resource_manager_utils,
+                )
+                from google.api_core import exceptions
+
+                return resource_manager_utils.get_project_id(project)
+            # Fail open as temporary workaround for identity_type config parameter
+            except (exceptions.PermissionDenied, exceptions.Unauthenticated):
+                return project
+
+        return None

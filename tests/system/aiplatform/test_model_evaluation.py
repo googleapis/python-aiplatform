@@ -82,6 +82,13 @@ class TestModelEvaluationJob(e2e_base.TestEndToEnd):
 
         yield bucket
 
+        try:
+            blobs = list(bucket.list_blobs())
+            bucket.delete_blobs(blobs)
+            bucket.delete()
+        except Exception as e:
+            _LOGGER.info(f"Failed to delete bucket {new_staging_bucket}: {e}")
+
     def test_model_evaluate_custom_tabular_model(self, staging_bucket, shared_state):
         credentials, _ = auth.default(
             scopes=["https://www.googleapis.com/auth/cloud-platform"]

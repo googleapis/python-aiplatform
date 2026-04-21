@@ -29,6 +29,7 @@ from google.protobuf import json_format
 import json
 import math
 import pytest
+from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
@@ -60,7 +61,6 @@ from google.api_core import gapic_v1
 from google.api_core import grpc_helpers
 from google.api_core import grpc_helpers_async
 from google.api_core import operation
-from google.api_core import operation_async  # type: ignore
 from google.api_core import operations_v1
 from google.api_core import path_template
 from google.api_core import retry as retries
@@ -80,6 +80,7 @@ from google.cloud.aiplatform_v1beta1.types import evaluation_service
 from google.cloud.aiplatform_v1beta1.types import genai_tuning_service
 from google.cloud.aiplatform_v1beta1.types import io
 from google.cloud.aiplatform_v1beta1.types import job_state
+from google.cloud.aiplatform_v1beta1.types import openapi
 from google.cloud.aiplatform_v1beta1.types import tool
 from google.cloud.aiplatform_v1beta1.types import tuning_job
 from google.cloud.aiplatform_v1beta1.types import tuning_job as gca_tuning_job
@@ -89,12 +90,13 @@ from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 from google.oauth2 import service_account
-from google.protobuf import any_pb2  # type: ignore
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
-from google.rpc import status_pb2  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
+import google.protobuf.any_pb2 as any_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+import google.rpc.status_pb2 as status_pb2  # type: ignore
 
 
 CRED_INFO_JSON = {
@@ -199,12 +201,19 @@ def test__read_environment_variables():
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
     ):
-        with pytest.raises(ValueError) as excinfo:
-            GenAiTuningServiceClient._read_environment_variables()
-    assert (
-        str(excinfo.value)
-        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-    )
+        if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+            with pytest.raises(ValueError) as excinfo:
+                GenAiTuningServiceClient._read_environment_variables()
+            assert (
+                str(excinfo.value)
+                == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
+            )
+        else:
+            assert GenAiTuningServiceClient._read_environment_variables() == (
+                False,
+                "auto",
+                None,
+            )
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         assert GenAiTuningServiceClient._read_environment_variables() == (
@@ -241,6 +250,105 @@ def test__read_environment_variables():
             "auto",
             "foo.com",
         )
+
+
+def test_use_client_cert_effective():
+    # Test case 1: Test when `should_use_client_cert` returns True.
+    # We mock the `should_use_client_cert` function to simulate a scenario where
+    # the google-auth library supports automatic mTLS and determines that a
+    # client certificate should be used.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch(
+            "google.auth.transport.mtls.should_use_client_cert", return_value=True
+        ):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is True
+
+    # Test case 2: Test when `should_use_client_cert` returns False.
+    # We mock the `should_use_client_cert` function to simulate a scenario where
+    # the google-auth library supports automatic mTLS and determines that a
+    # client certificate should NOT be used.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch(
+            "google.auth.transport.mtls.should_use_client_cert", return_value=False
+        ):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is False
+
+    # Test case 3: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "true".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is True
+
+    # Test case 4: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "false".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}
+        ):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is False
+
+    # Test case 5: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "True".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "True"}):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is True
+
+    # Test case 6: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "False".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "False"}
+        ):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is False
+
+    # Test case 7: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "TRUE".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "TRUE"}):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is True
+
+    # Test case 8: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "FALSE".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "FALSE"}
+        ):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is False
+
+    # Test case 9: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is not set.
+    # In this case, the method should return False, which is the default value.
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, clear=True):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is False
+
+    # Test case 10: Test when `should_use_client_cert` is unavailable and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
+    # The method should raise a ValueError as the environment variable must be either
+    # "true" or "false".
+    if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}
+        ):
+            with pytest.raises(ValueError):
+                GenAiTuningServiceClient._use_client_cert_effective()
+
+    # Test case 11: Test when `should_use_client_cert` is available and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
+    # The method should return False as the environment variable is set to an invalid value.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(
+            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}
+        ):
+            assert GenAiTuningServiceClient._use_client_cert_effective() is False
+
+    # Test case 12: Test when `should_use_client_cert` is available and the
+    # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is unset. Also,
+    # the GOOGLE_API_CONFIG environment variable is unset.
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": ""}):
+            with mock.patch.dict(os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": ""}):
+                assert GenAiTuningServiceClient._use_client_cert_effective() is False
 
 
 def test__get_client_cert_source():
@@ -620,17 +728,6 @@ def test_gen_ai_tuning_service_client_client_options(
         == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
     )
 
-    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
-    ):
-        with pytest.raises(ValueError) as excinfo:
-            client = client_class(transport=transport_name)
-    assert (
-        str(excinfo.value)
-        == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
-    )
-
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
     with mock.patch.object(transport_class, "__init__") as patched:
@@ -866,6 +963,117 @@ def test_gen_ai_tuning_service_client_get_mtls_endpoint_and_cert_source(client_c
         assert api_endpoint == mock_api_endpoint
         assert cert_source is None
 
+    # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "Unsupported".
+    with mock.patch.dict(
+        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
+    ):
+        if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+            mock_client_cert_source = mock.Mock()
+            mock_api_endpoint = "foo"
+            options = client_options.ClientOptions(
+                client_cert_source=mock_client_cert_source,
+                api_endpoint=mock_api_endpoint,
+            )
+            api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
+                options
+            )
+            assert api_endpoint == mock_api_endpoint
+            assert cert_source is None
+
+    # Test cases for mTLS enablement when GOOGLE_API_USE_CLIENT_CERTIFICATE is unset.
+    test_cases = [
+        (
+            # With workloads present in config, mTLS is enabled.
+            {
+                "version": 1,
+                "cert_configs": {
+                    "workload": {
+                        "cert_path": "path/to/cert/file",
+                        "key_path": "path/to/key/file",
+                    }
+                },
+            },
+            mock_client_cert_source,
+        ),
+        (
+            # With workloads not present in config, mTLS is disabled.
+            {
+                "version": 1,
+                "cert_configs": {},
+            },
+            None,
+        ),
+    ]
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        for config_data, expected_cert_source in test_cases:
+            env = os.environ.copy()
+            env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", None)
+            with mock.patch.dict(os.environ, env, clear=True):
+                config_filename = "mock_certificate_config.json"
+                config_file_content = json.dumps(config_data)
+                m = mock.mock_open(read_data=config_file_content)
+                with mock.patch("builtins.open", m):
+                    with mock.patch.dict(
+                        os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
+                    ):
+                        mock_api_endpoint = "foo"
+                        options = client_options.ClientOptions(
+                            client_cert_source=mock_client_cert_source,
+                            api_endpoint=mock_api_endpoint,
+                        )
+                        api_endpoint, cert_source = (
+                            client_class.get_mtls_endpoint_and_cert_source(options)
+                        )
+                        assert api_endpoint == mock_api_endpoint
+                        assert cert_source is expected_cert_source
+
+    # Test cases for mTLS enablement when GOOGLE_API_USE_CLIENT_CERTIFICATE is unset(empty).
+    test_cases = [
+        (
+            # With workloads present in config, mTLS is enabled.
+            {
+                "version": 1,
+                "cert_configs": {
+                    "workload": {
+                        "cert_path": "path/to/cert/file",
+                        "key_path": "path/to/key/file",
+                    }
+                },
+            },
+            mock_client_cert_source,
+        ),
+        (
+            # With workloads not present in config, mTLS is disabled.
+            {
+                "version": 1,
+                "cert_configs": {},
+            },
+            None,
+        ),
+    ]
+    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        for config_data, expected_cert_source in test_cases:
+            env = os.environ.copy()
+            env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", "")
+            with mock.patch.dict(os.environ, env, clear=True):
+                config_filename = "mock_certificate_config.json"
+                config_file_content = json.dumps(config_data)
+                m = mock.mock_open(read_data=config_file_content)
+                with mock.patch("builtins.open", m):
+                    with mock.patch.dict(
+                        os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
+                    ):
+                        mock_api_endpoint = "foo"
+                        options = client_options.ClientOptions(
+                            client_cert_source=mock_client_cert_source,
+                            api_endpoint=mock_api_endpoint,
+                        )
+                        api_endpoint, cert_source = (
+                            client_class.get_mtls_endpoint_and_cert_source(options)
+                        )
+                        assert api_endpoint == mock_api_endpoint
+                        assert cert_source is expected_cert_source
+
     # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
         api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
@@ -913,18 +1121,6 @@ def test_gen_ai_tuning_service_client_get_mtls_endpoint_and_cert_source(client_c
         assert (
             str(excinfo.value)
             == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-        )
-
-    # Check the case GOOGLE_API_USE_CLIENT_CERTIFICATE has unsupported value.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
-    ):
-        with pytest.raises(ValueError) as excinfo:
-            client_class.get_mtls_endpoint_and_cert_source()
-
-        assert (
-            str(excinfo.value)
-            == "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be either `true` or `false`"
         )
 
 
@@ -4586,6 +4782,23 @@ def test_create_tuning_job_rest_call_success(request_type):
             "evaluation_config": {
                 "metrics": [
                     {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                            },
+                            "additional_config": {},
+                        },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
@@ -4611,10 +4824,89 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
-                "autorater_config": {
-                    "sampling_count": 1507,
-                    "flip_enabled": True,
-                    "autorater_model": "autorater_model_value",
+                "autorater_config": {},
+                "inference_generation_config": {
+                    "temperature": 0.1198,
+                    "top_p": 0.546,
+                    "top_k": 0.541,
+                    "candidate_count": 1573,
+                    "max_output_tokens": 1865,
+                    "stop_sequences": [
+                        "stop_sequences_value1",
+                        "stop_sequences_value2",
+                    ],
+                    "response_logprobs": True,
+                    "logprobs": 872,
+                    "presence_penalty": 0.1713,
+                    "frequency_penalty": 0.18380000000000002,
+                    "seed": 417,
+                    "response_mime_type": "response_mime_type_value",
+                    "response_schema": {
+                        "type_": 1,
+                        "format_": "format__value",
+                        "title": "title_value",
+                        "description": "description_value",
+                        "nullable": True,
+                        "default": {
+                            "null_value": 0,
+                            "number_value": 0.1285,
+                            "string_value": "string_value_value",
+                            "bool_value": True,
+                            "struct_value": {},
+                            "list_value": {"values": {}},
+                        },
+                        "items": {},
+                        "min_items": 965,
+                        "max_items": 967,
+                        "enum": ["enum_value1", "enum_value2"],
+                        "properties": {},
+                        "property_ordering": [
+                            "property_ordering_value1",
+                            "property_ordering_value2",
+                        ],
+                        "required": ["required_value1", "required_value2"],
+                        "min_properties": 1520,
+                        "max_properties": 1522,
+                        "minimum": 0.764,
+                        "maximum": 0.766,
+                        "min_length": 1061,
+                        "max_length": 1063,
+                        "pattern": "pattern_value",
+                        "example": {},
+                        "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
+                    },
+                    "response_json_schema": {},
+                    "routing_config": {
+                        "auto_mode": {"model_routing_preference": 1},
+                        "manual_mode": {"model_name": "model_name_value"},
+                    },
+                    "audio_timestamp": True,
+                    "response_modalities": [1],
+                    "media_resolution": 1,
+                    "speech_config": {
+                        "voice_config": {
+                            "prebuilt_voice_config": {"voice_name": "voice_name_value"},
+                            "replicated_voice_config": {
+                                "mime_type": "mime_type_value",
+                                "voice_sample_audio": b"voice_sample_audio_blob",
+                            },
+                        },
+                        "language_code": "language_code_value",
+                        "multi_speaker_voice_config": {
+                            "speaker_voice_configs": [
+                                {"speaker": "speaker_value", "voice_config": {}}
+                            ]
+                        },
+                    },
+                    "thinking_config": {
+                        "include_thoughts": True,
+                        "thinking_budget": 1590,
+                    },
+                    "model_config": {"feature_selection_preference": 1},
+                    "image_config": {"aspect_ratio": "aspect_ratio_value"},
                 },
             },
             "tuning_mode": 1,
@@ -4716,12 +5008,37 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "function_call": {
                                     "id": "id_value",
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
+                                    "partial_args": [
+                                        {
+                                            "null_value": 0,
+                                            "number_value": 0.1285,
+                                            "string_value": "string_value_value",
+                                            "bool_value": True,
+                                            "json_path": "json_path_value",
+                                            "will_continue": True,
+                                        }
+                                    ],
+                                    "will_continue": True,
                                 },
                                 "function_response": {
                                     "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
+                                    "parts": [
+                                        {
+                                            "inline_data": {
+                                                "mime_type": "mime_type_value",
+                                                "data": b"data_blob",
+                                                "display_name": "display_name_value",
+                                            },
+                                            "file_data": {
+                                                "mime_type": "mime_type_value",
+                                                "file_uri": "file_uri_value",
+                                                "display_name": "display_name_value",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "executable_code": {
                                     "language": 1,
@@ -4777,6 +5094,7 @@ def test_create_tuning_job_rest_call_success(request_type):
         "evaluate_dataset_runs": [
             {
                 "operation_name": "operation_name_value",
+                "evaluation_run": "evaluation_run_value",
                 "checkpoint_id": "checkpoint_id_value",
                 "evaluate_dataset_response": {
                     "aggregation_output": {
@@ -6337,6 +6655,23 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
             "evaluation_config": {
                 "metrics": [
                     {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                            },
+                            "additional_config": {},
+                        },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
@@ -6362,10 +6697,89 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
-                "autorater_config": {
-                    "sampling_count": 1507,
-                    "flip_enabled": True,
-                    "autorater_model": "autorater_model_value",
+                "autorater_config": {},
+                "inference_generation_config": {
+                    "temperature": 0.1198,
+                    "top_p": 0.546,
+                    "top_k": 0.541,
+                    "candidate_count": 1573,
+                    "max_output_tokens": 1865,
+                    "stop_sequences": [
+                        "stop_sequences_value1",
+                        "stop_sequences_value2",
+                    ],
+                    "response_logprobs": True,
+                    "logprobs": 872,
+                    "presence_penalty": 0.1713,
+                    "frequency_penalty": 0.18380000000000002,
+                    "seed": 417,
+                    "response_mime_type": "response_mime_type_value",
+                    "response_schema": {
+                        "type_": 1,
+                        "format_": "format__value",
+                        "title": "title_value",
+                        "description": "description_value",
+                        "nullable": True,
+                        "default": {
+                            "null_value": 0,
+                            "number_value": 0.1285,
+                            "string_value": "string_value_value",
+                            "bool_value": True,
+                            "struct_value": {},
+                            "list_value": {"values": {}},
+                        },
+                        "items": {},
+                        "min_items": 965,
+                        "max_items": 967,
+                        "enum": ["enum_value1", "enum_value2"],
+                        "properties": {},
+                        "property_ordering": [
+                            "property_ordering_value1",
+                            "property_ordering_value2",
+                        ],
+                        "required": ["required_value1", "required_value2"],
+                        "min_properties": 1520,
+                        "max_properties": 1522,
+                        "minimum": 0.764,
+                        "maximum": 0.766,
+                        "min_length": 1061,
+                        "max_length": 1063,
+                        "pattern": "pattern_value",
+                        "example": {},
+                        "any_of": {},
+                        "additional_properties": {},
+                        "ref": "ref_value",
+                        "defs": {},
+                    },
+                    "response_json_schema": {},
+                    "routing_config": {
+                        "auto_mode": {"model_routing_preference": 1},
+                        "manual_mode": {"model_name": "model_name_value"},
+                    },
+                    "audio_timestamp": True,
+                    "response_modalities": [1],
+                    "media_resolution": 1,
+                    "speech_config": {
+                        "voice_config": {
+                            "prebuilt_voice_config": {"voice_name": "voice_name_value"},
+                            "replicated_voice_config": {
+                                "mime_type": "mime_type_value",
+                                "voice_sample_audio": b"voice_sample_audio_blob",
+                            },
+                        },
+                        "language_code": "language_code_value",
+                        "multi_speaker_voice_config": {
+                            "speaker_voice_configs": [
+                                {"speaker": "speaker_value", "voice_config": {}}
+                            ]
+                        },
+                    },
+                    "thinking_config": {
+                        "include_thoughts": True,
+                        "thinking_budget": 1590,
+                    },
+                    "model_config": {"feature_selection_preference": 1},
+                    "image_config": {"aspect_ratio": "aspect_ratio_value"},
                 },
             },
             "tuning_mode": 1,
@@ -6467,12 +6881,37 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "function_call": {
                                     "id": "id_value",
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
+                                    "partial_args": [
+                                        {
+                                            "null_value": 0,
+                                            "number_value": 0.1285,
+                                            "string_value": "string_value_value",
+                                            "bool_value": True,
+                                            "json_path": "json_path_value",
+                                            "will_continue": True,
+                                        }
+                                    ],
+                                    "will_continue": True,
                                 },
                                 "function_response": {
                                     "id": "id_value",
                                     "name": "name_value",
                                     "response": {},
+                                    "parts": [
+                                        {
+                                            "inline_data": {
+                                                "mime_type": "mime_type_value",
+                                                "data": b"data_blob",
+                                                "display_name": "display_name_value",
+                                            },
+                                            "file_data": {
+                                                "mime_type": "mime_type_value",
+                                                "file_uri": "file_uri_value",
+                                                "display_name": "display_name_value",
+                                            },
+                                        }
+                                    ],
                                 },
                                 "executable_code": {
                                     "language": 1,
@@ -6528,6 +6967,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         "evaluate_dataset_runs": [
             {
                 "operation_name": "operation_name_value",
+                "evaluation_run": "evaluation_run_value",
                 "checkpoint_id": "checkpoint_id_value",
                 "evaluate_dataset_response": {
                     "aggregation_output": {
@@ -8606,6 +9046,7 @@ def test_gen_ai_tuning_service_grpc_asyncio_transport_channel():
 
 # Remove this test when deprecated arguments (api_mtls_endpoint, client_cert_source) are
 # removed from grpc/grpc_asyncio transport constructor.
+@pytest.mark.filterwarnings("ignore::FutureWarning")
 @pytest.mark.parametrize(
     "transport_class",
     [

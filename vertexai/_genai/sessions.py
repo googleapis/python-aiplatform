@@ -19,6 +19,7 @@ import functools
 import importlib
 import json
 import logging
+import typing
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
@@ -30,6 +31,11 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import _agent_engines_utils
 from . import types
+
+if typing.TYPE_CHECKING:
+    from . import session_events as session_events_module
+
+    _ = session_events_module
 
 
 logger = logging.getLogger("vertexai_genai.sessions")
@@ -55,6 +61,12 @@ def _CreateAgentEngineSessionConfig_to_vertex(
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["session_id"]) is not None:
+        setv(parent_object, ["_query", "sessionId"], getv(from_object, ["session_id"]))
+
     return to_object
 
 
@@ -70,12 +82,8 @@ def _CreateAgentEngineSessionRequestParameters_to_vertex(
         setv(to_object, ["userId"], getv(from_object, ["user_id"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _CreateAgentEngineSessionConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _CreateAgentEngineSessionConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -88,9 +96,6 @@ def _DeleteAgentEngineSessionRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -105,9 +110,6 @@ def _GetAgentEngineSessionOperationParameters_to_vertex(
             to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     return to_object
 
 
@@ -118,9 +120,6 @@ def _GetAgentEngineSessionRequestParameters_to_vertex(
     to_object: dict[str, Any] = {}
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
-
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -152,12 +151,8 @@ def _ListAgentEngineSessionsRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _ListAgentEngineSessionsConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _ListAgentEngineSessionsConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -181,6 +176,12 @@ def _UpdateAgentEngineSessionConfig_to_vertex(
     if getv(from_object, ["expire_time"]) is not None:
         setv(parent_object, ["expireTime"], getv(from_object, ["expire_time"]))
 
+    if getv(from_object, ["labels"]) is not None:
+        setv(parent_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["session_id"]) is not None:
+        setv(parent_object, ["_query", "sessionId"], getv(from_object, ["session_id"]))
+
     if getv(from_object, ["update_mask"]) is not None:
         setv(
             parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
@@ -201,12 +202,8 @@ def _UpdateAgentEngineSessionRequestParameters_to_vertex(
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(
-            to_object,
-            ["config"],
-            _UpdateAgentEngineSessionConfig_to_vertex(
-                getv(from_object, ["config"]), to_object
-            ),
+        _UpdateAgentEngineSessionConfig_to_vertex(
+            getv(from_object, ["config"]), to_object
         )
 
     return to_object
@@ -276,7 +273,24 @@ class Sessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -341,7 +355,24 @@ class Sessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -406,7 +437,24 @@ class Sessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Session._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -471,7 +519,24 @@ class Sessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListReasoningEnginesSessionsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -522,7 +587,24 @@ class Sessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -587,7 +669,24 @@ class Sessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -596,11 +695,7 @@ class Sessions(_api_module.BaseModule):
     _events = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sessions.events module is "
-        "experimental, and may change in future versions."
-    )
-    def events(self):
+    def events(self) -> "session_events_module.SessionEvents":
         if self._events is None:
             try:
                 # We need to lazy load the sessions.events module to handle the
@@ -612,7 +707,7 @@ class Sessions(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._events.SessionEvents(self._api_client)
+        return self._events.SessionEvents(self._api_client)  # type: ignore[no-any-return]
 
     def create(
         self,
@@ -643,12 +738,15 @@ class Sessions(_api_module.BaseModule):
             user_id=user_id,
             config=config,
         )
-        if config.wait_for_completion and not operation.done:
-            operation = _agent_engines_utils._await_operation(
-                operation_name=operation.name,
-                get_operation_fn=self._get_session_operation,
-                poll_interval_seconds=0.5,
-            )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = _agent_engines_utils._await_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_session_operation,
+                    poll_interval_seconds=0.5,
+                )
+            # We need to make a call to get the session because the operation
+            # response might not contain the relevant fields.
             if operation.response:
                 operation.response = self.get(name=operation.response.name)
             elif operation.error:
@@ -752,7 +850,24 @@ class AsyncSessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -819,7 +934,24 @@ class AsyncSessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.DeleteAgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -886,7 +1018,24 @@ class AsyncSessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.Session._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -953,7 +1102,24 @@ class AsyncSessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListReasoningEnginesSessionsResponse._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1006,7 +1172,24 @@ class AsyncSessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1073,7 +1256,24 @@ class AsyncSessions(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.AgentEngineSessionOperation._from_response(
-            response=response_dict, kwargs=parameter_model.model_dump()
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
         )
 
         self._api_client._verify_response(return_value)
@@ -1082,11 +1282,7 @@ class AsyncSessions(_api_module.BaseModule):
     _events = None
 
     @property
-    @_common.experimental_warning(
-        "The Vertex SDK GenAI agent_engines.sessions.events module is "
-        "experimental, and may change in future versions."
-    )
-    def events(self):
+    def events(self) -> "session_events_module.AsyncSessionEvents":
         if self._events is None:
             try:
                 # We need to lazy load the sessions.events module to handle the
@@ -1098,7 +1294,7 @@ class AsyncSessions(_api_module.BaseModule):
                     "additional packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._events.AsyncSessionEvents(self._api_client)
+        return self._events.AsyncSessionEvents(self._api_client)  # type: ignore[no-any-return]
 
     async def create(
         self,
@@ -1129,12 +1325,15 @@ class AsyncSessions(_api_module.BaseModule):
             user_id=user_id,
             config=config,
         )
-        if config.wait_for_completion and not operation.done:
-            operation = await _agent_engines_utils._await_async_operation(
-                operation_name=operation.name,
-                get_operation_fn=self._get_session_operation,
-                poll_interval_seconds=0.5,
-            )
+        if config.wait_for_completion:
+            if not operation.done:
+                operation = await _agent_engines_utils._await_async_operation(
+                    operation_name=operation.name,
+                    get_operation_fn=self._get_session_operation,
+                    poll_interval_seconds=0.5,
+                )
+            # We need to make a call to get the session because the operation
+            # response might not contain the relevant fields.
             if operation.response:
                 operation.response = await self.get(name=operation.response.name)
             elif operation.error:

@@ -21,7 +21,6 @@ from typing import (
     Iterable,
     Mapping,
     Optional,
-    Sequence,
     Union,
 )
 
@@ -46,9 +45,9 @@ if TYPE_CHECKING:
     try:
         from langchain_google_vertexai.functions_utils import _ToolsType
 
-        _ToolLike = _ToolsType
+        _ToolsType = _ToolsType
     except ImportError:
-        _ToolLike = Any
+        _ToolsType = Any
 
     try:
         from opentelemetry.sdk import trace
@@ -116,7 +115,7 @@ def _default_runnable_builder(
     model: "BaseLanguageModel",
     *,
     system_instruction: Optional[str] = None,
-    tools: Optional[Sequence["_ToolLike"]] = None,
+    tools: Optional["_ToolsType"] = None,
     prompt: Optional["RunnableSerializable"] = None,
     output_parser: Optional["RunnableSerializable"] = None,
     chat_history: Optional["GetSessionHistoryCallable"] = None,
@@ -320,7 +319,7 @@ def _validate_callable_parameters_are_annotated(callable: Callable):
             )
 
 
-def _validate_tools(tools: Sequence["_ToolLike"]):
+def _validate_tools(tools: "_ToolsType"):
     """Validates that the tools are usable for tool calling."""
     for tool in tools:
         if isinstance(tool, Callable):
@@ -370,7 +369,7 @@ class LangchainAgent:
         *,
         system_instruction: Optional[str] = None,
         prompt: Optional["RunnableSerializable"] = None,
-        tools: Optional[Sequence["_ToolLike"]] = None,
+        tools: Optional["_ToolsType"] = None,
         output_parser: Optional["RunnableSerializable"] = None,
         chat_history: Optional["GetSessionHistoryCallable"] = None,
         model_kwargs: Optional[Mapping[str, Any]] = None,

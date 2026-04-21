@@ -20,9 +20,9 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import content as gca_content
-from google.protobuf import duration_pb2  # type: ignore
-from google.protobuf import struct_pb2  # type: ignore
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
+import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -32,6 +32,7 @@ __protobuf__ = proto.module(
         "SessionEvent",
         "EventMetadata",
         "EventActions",
+        "Transcription",
     },
 )
 
@@ -51,12 +52,13 @@ class Session(proto.Message):
         expire_time (google.protobuf.timestamp_pb2.Timestamp):
             Optional. Timestamp of when this session is considered
             expired. This is *always* provided on output, regardless of
-            what was sent on input.
+            what was sent on input. The minimum value is 24 hours from
+            the time of creation.
 
             This field is a member of `oneof`_ ``expiration``.
         ttl (google.protobuf.duration_pb2.Duration):
             Optional. Input only. The TTL for this
-            session.
+            session. The minimum value is 24 hours.
 
             This field is a member of `oneof`_ ``expiration``.
         name (str):
@@ -70,6 +72,17 @@ class Session(proto.Message):
             updated.
         display_name (str):
             Optional. The display name of the session.
+        labels (MutableMapping[str, str]):
+            The labels with user-defined metadata to
+            organize your Sessions.
+            Label keys and values can be no longer than 64
+            characters (Unicode codepoints), can only
+            contain lowercase letters, numeric characters,
+            underscores and dashes. International characters
+            are allowed.
+
+            See https://goo.gl/xmQnxf for more information
+            and examples of labels.
         session_state (google.protobuf.struct_pb2.Struct):
             Optional. Session specific memory which
             stores key conversation points.
@@ -107,6 +120,11 @@ class Session(proto.Message):
     display_name: str = proto.Field(
         proto.STRING,
         number=5,
+    )
+    labels: MutableMapping[str, str] = proto.MapField(
+        proto.STRING,
+        proto.STRING,
+        number=8,
     )
     session_state: struct_pb2.Struct = proto.Field(
         proto.MESSAGE,
@@ -148,6 +166,9 @@ class SessionEvent(proto.Message):
             error.
         event_metadata (google.cloud.aiplatform_v1beta1.types.EventMetadata):
             Optional. Metadata relating to this event.
+        raw_event (google.protobuf.struct_pb2.Struct):
+            Optional. Weakly typed raw event data in
+            proto struct format.
     """
 
     name: str = proto.Field(
@@ -190,6 +211,11 @@ class SessionEvent(proto.Message):
         number=11,
         message="EventMetadata",
     )
+    raw_event: struct_pb2.Struct = proto.Field(
+        proto.MESSAGE,
+        number=12,
+        message=struct_pb2.Struct,
+    )
 
 
 class EventMetadata(proto.Message):
@@ -226,6 +252,11 @@ class EventMetadata(proto.Message):
             siblings' conversation history.
         custom_metadata (google.protobuf.struct_pb2.Struct):
             The custom metadata of the LlmResponse.
+        input_transcription (google.cloud.aiplatform_v1beta1.types.Transcription):
+            Optional. Audio transcription of user input.
+        output_transcription (google.cloud.aiplatform_v1beta1.types.Transcription):
+            Optional. Audio transcription of model
+            output.
     """
 
     grounding_metadata: gca_content.GroundingMetadata = proto.Field(
@@ -258,6 +289,16 @@ class EventMetadata(proto.Message):
         number=7,
         message=struct_pb2.Struct,
     )
+    input_transcription: "Transcription" = proto.Field(
+        proto.MESSAGE,
+        number=10,
+        message="Transcription",
+    )
+    output_transcription: "Transcription" = proto.Field(
+        proto.MESSAGE,
+        number=11,
+        message="Transcription",
+    )
 
 
 class EventActions(proto.Message):
@@ -274,9 +315,6 @@ class EventActions(proto.Message):
             Optional. Indicates that the event is
             updating an artifact. key is the filename, value
             is the version.
-        transfer_to_agent (bool):
-            Deprecated. If set, the event transfers to
-            the specified agent.
         escalate (bool):
             Optional. The agent is escalating to a higher
             level agent.
@@ -307,10 +345,6 @@ class EventActions(proto.Message):
         proto.INT32,
         number=3,
     )
-    transfer_to_agent: bool = proto.Field(
-        proto.BOOL,
-        number=5,
-    )
     escalate: bool = proto.Field(
         proto.BOOL,
         number=6,
@@ -323,6 +357,27 @@ class EventActions(proto.Message):
     transfer_agent: str = proto.Field(
         proto.STRING,
         number=8,
+    )
+
+
+class Transcription(proto.Message):
+    r"""Audio transcription in Server Content.
+
+    Attributes:
+        text (str):
+            Optional. Transcription text.
+        finished (bool):
+            Optional. The bool indicates the end of the
+            transcription.
+    """
+
+    text: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    finished: bool = proto.Field(
+        proto.BOOL,
+        number=2,
     )
 
 

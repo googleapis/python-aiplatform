@@ -20,7 +20,7 @@ from typing import MutableMapping, MutableSequence
 import proto  # type: ignore
 
 from google.cloud.aiplatform_v1beta1.types import machine_resources
-from google.protobuf import timestamp_pb2  # type: ignore
+import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 
 
 __protobuf__ = proto.module(
@@ -680,7 +680,7 @@ class FeatureView(proto.Message):
     )
     bigtable_metadata: BigtableMetadata = proto.Field(
         proto.MESSAGE,
-        number=21,
+        number=22,
         message=BigtableMetadata,
     )
 

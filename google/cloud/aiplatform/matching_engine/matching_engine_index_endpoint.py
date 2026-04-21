@@ -16,7 +16,7 @@
 #
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple, Union, Any, Mapping
 
 from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base
@@ -151,7 +151,7 @@ class NumericNamespace:
 @dataclass
 class HybridQuery:
     """
-    Hyrbid query. Could be used for dense-only or sparse-only or hybrid queries.
+    Hybrid query. Could be used for dense-only or sparse-only or hybrid queries.
 
     dense_embedding (List[float]):
         Optional. The dense part of the hybrid queries.
@@ -208,6 +208,8 @@ class MatchNeighbor:
             For example, values [1,2,3] with dimensions [4,5,6] means value 1 is
             of the 4th dimension, value 2 is of the 4th dimension, and value 3 is
             of the 6th dimension.
+        embedding_metadata (Mapping[str, Any]):
+            Optional. The corresponding embedding metadata of the matching datapoint.
 
     """
 
@@ -220,6 +222,7 @@ class MatchNeighbor:
     numeric_restricts: Optional[List[NumericNamespace]] = None
     sparse_embedding_values: Optional[List[float]] = None
     sparse_embedding_dimensions: Optional[List[int]] = None
+    embedding_metadata: Optional[Mapping[str, Any]] = None
 
     def from_index_datapoint(
         self, index_datapoint: gca_index_v1beta1.IndexDatapoint
@@ -276,6 +279,9 @@ class MatchNeighbor:
             self.sparse_embedding_dimensions = (
                 index_datapoint.sparse_embedding.dimensions
             )
+        # retrieve embedding metadata
+        if index_datapoint.embedding_metadata is not None:
+            self.embedding_metadata = dict(index_datapoint.embedding_metadata)
         return self
 
     def from_embedding(self, embedding: match_service_pb2.Embedding) -> "MatchNeighbor":
@@ -322,6 +328,10 @@ class MatchNeighbor:
         if embedding.sparse_embedding:
             self.sparse_embedding_values = embedding.sparse_embedding.float_val
             self.sparse_embedding_dimensions = embedding.sparse_embedding.dimension
+
+        # retrieve embedding metadata
+        if embedding.embedding_metadata:
+            self.embedding_metadata = dict(embedding.embedding_metadata)
         return self
 
 
@@ -702,10 +712,10 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         psc_network: Optional[str] = None,
     ) -> str:
         """Helper method to get the ip address for a psc automated endpoint.
-        Returns:
+        Args:
             deployed_index_id (str):
-                    Optional. Required for private service access endpoint.
-                    The user specified ID of the DeployedIndex.
+                Optional. Required for private service access endpoint.
+                The user specified ID of the DeployedIndex.
             deployed_index (gca_matching_engine_index_endpoint.DeployedIndex):
                 Optional. Required for private service access endpoint.
                 The DeployedIndex resource.
@@ -721,6 +731,9 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
                 `private_service_connect_ip_address` field for this
                 MatchingEngineIndexEndpoint instance, if the ip address is
                 already known.
+
+        Returns:
+            str: The IP address for the PSC automated endpoint.
 
         Raises:
             RuntimeError: No valid ip found for deployed index with id
@@ -1874,7 +1887,7 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
             [
                 MatchNeighbor(
                     id=neighbor.datapoint.datapoint_id,
-                    distance=neighbor.distance,
+                    distance=neighbor.distance if neighbor.distance else None,
                     sparse_distance=(
                         neighbor.sparse_distance if neighbor.sparse_distance else None
                     ),
@@ -2210,19 +2223,18 @@ class MatchingEngineIndexEndpoint(base.VertexAiResourceNounWithFutureManager):
         # Wrap the results in MatchNeighbor objects and return
         match_neighbors_response = []
         for resp in response.responses[0].responses:
-            match_neighbors_id_map = {}
+            embedding_map = {embedding.id: embedding for embedding in resp.embeddings}
+            neighbors_list = []
             for neighbor in resp.neighbor:
-                match_neighbors_id_map[neighbor.id] = MatchNeighbor(
+                match_neighbor = MatchNeighbor(
                     id=neighbor.id,
-                    distance=neighbor.distance,
+                    distance=neighbor.distance if neighbor.distance else None,
                     sparse_distance=(
                         neighbor.sparse_distance if neighbor.sparse_distance else None
                     ),
                 )
-            for embedding in resp.embeddings:
-                if embedding.id in match_neighbors_id_map:
-                    match_neighbors_id_map[embedding.id] = match_neighbors_id_map[
-                        embedding.id
-                    ].from_embedding(embedding=embedding)
-            match_neighbors_response.append(list(match_neighbors_id_map.values()))
+                if neighbor.id in embedding_map:
+                    match_neighbor.from_embedding(embedding=embedding_map[neighbor.id])
+                neighbors_list.append(match_neighbor)
+            match_neighbors_response.append(neighbors_list)
         return match_neighbors_response
