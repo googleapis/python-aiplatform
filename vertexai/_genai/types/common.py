@@ -324,17 +324,6 @@ class MachineConfig(_common.CaseInSensitiveEnum):
     """The default value: milligcu 4000, memory 4 Gib"""
 
 
-class Framework(_common.CaseInSensitiveEnum):
-    """Framework used to build the application."""
-
-    FRAMEWORK_UNSPECIFIED = "FRAMEWORK_UNSPECIFIED"
-    """Unspecified framework."""
-    REACT = "REACT"
-    """React framework."""
-    ANGULAR = "ANGULAR"
-    """Angular framework."""
-
-
 class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The type of the EvaluationItem."""
 
@@ -14283,60 +14272,49 @@ class SchemaPromptSpecPromptMessage(_common.BaseModel):
     """Represents a prompt message."""
 
     generation_config: Optional[genai_types.GenerationConfig] = Field(
-        default=None, description="""Generation config."""
+        default=None, description=""""""
     )
     tool_config: Optional[genai_types.FunctionCallingConfig] = Field(
-        default=None,
-        description="""Tool config. This config is shared for all tools provided in the request.""",
+        default=None, description=""""""
     )
-    tools: Optional[list[genai_types.Tool]] = Field(
-        default=None,
-        description="""A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model.""",
-    )
+    tools: Optional[list[genai_types.Tool]] = Field(default=None, description="""""")
     safety_settings: Optional[list[genai_types.SafetySetting]] = Field(
-        default=None,
-        description="""Per request settings for blocking unsafe content. Enforced on GenerateContentResponse.candidates.""",
+        default=None, description=""""""
     )
     contents: Optional[list[genai_types.Content]] = Field(
-        default=None,
-        description="""The content of the current conversation with the model. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.""",
+        default=None, description=""""""
     )
     system_instruction: Optional[genai_types.Content] = Field(
-        default=None,
-        description="""The user provided system instructions for the model. Note: only text should be used in parts and content in each part will be in a separate paragraph.""",
+        default=None, description=""""""
     )
     variables: Optional[list[dict[str, genai_types.Part]]] = Field(
         default=None, description=""""""
     )
-    model: Optional[str] = Field(default=None, description="""The model name.""")
 
 
 class SchemaPromptSpecPromptMessageDict(TypedDict, total=False):
     """Represents a prompt message."""
 
     generation_config: Optional[genai_types.GenerationConfigDict]
-    """Generation config."""
+    """"""
 
     tool_config: Optional[genai_types.FunctionCallingConfigDict]
-    """Tool config. This config is shared for all tools provided in the request."""
+    """"""
 
     tools: Optional[list[genai_types.ToolDict]]
-    """A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model."""
+    """"""
 
     safety_settings: Optional[list[genai_types.SafetySettingDict]]
-    """Per request settings for blocking unsafe content. Enforced on GenerateContentResponse.candidates."""
+    """"""
 
     contents: Optional[list[genai_types.ContentDict]]
-    """The content of the current conversation with the model. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
+    """"""
 
     system_instruction: Optional[genai_types.ContentDict]
-    """The user provided system instructions for the model. Note: only text should be used in parts and content in each part will be in a separate paragraph."""
+    """"""
 
     variables: Optional[list[dict[str, genai_types.PartDict]]]
     """"""
-
-    model: Optional[str]
-    """The model name."""
 
 
 SchemaPromptSpecPromptMessageOrDict = Union[
@@ -14364,166 +14342,17 @@ SchemaPromptSpecMultimodalPromptOrDict = Union[
 ]
 
 
-class SchemaPromptSpecAppBuilderDataLinkedResource(_common.BaseModel):
-    """A linked resource attached to the application by the user."""
-
-    display_name: Optional[str] = Field(
-        default=None,
-        description="""A user-friendly name for the data source shown in the UI.""",
-    )
-    name: Optional[str] = Field(
-        default=None,
-        description="""The unique resource name of the data source. The format is determined by the 'type' field. For type "SAVED_PROMPT": projects/{project}/locations/{location}/datasets/{dataset} For type "AI_AGENT": projects/{project}/locations/{location}/agents/{agent}""",
-    )
-    type: Optional[str] = Field(
-        default=None,
-        description="""The type of the linked resource. e.g., "SAVED_PROMPT", "AI_AGENT" This string corresponds to the name of the LinkedResourceType enum member. See: google3/cloud/console/web/ai/platform/llm/prompts/build/services/specs_repository_service/linked_resources/linked_resource.ts""",
-    )
-
-
-class SchemaPromptSpecAppBuilderDataLinkedResourceDict(TypedDict, total=False):
-    """A linked resource attached to the application by the user."""
-
-    display_name: Optional[str]
-    """A user-friendly name for the data source shown in the UI."""
-
-    name: Optional[str]
-    """The unique resource name of the data source. The format is determined by the 'type' field. For type "SAVED_PROMPT": projects/{project}/locations/{location}/datasets/{dataset} For type "AI_AGENT": projects/{project}/locations/{location}/agents/{agent}"""
-
-    type: Optional[str]
-    """The type of the linked resource. e.g., "SAVED_PROMPT", "AI_AGENT" This string corresponds to the name of the LinkedResourceType enum member. See: google3/cloud/console/web/ai/platform/llm/prompts/build/services/specs_repository_service/linked_resources/linked_resource.ts"""
-
-
-SchemaPromptSpecAppBuilderDataLinkedResourceOrDict = Union[
-    SchemaPromptSpecAppBuilderDataLinkedResource,
-    SchemaPromptSpecAppBuilderDataLinkedResourceDict,
-]
-
-
-class SchemaPromptSpecAppBuilderData(_common.BaseModel):
-    """Defines data for an application builder."""
-
-    code_repository_state: Optional[str] = Field(
-        default=None,
-        description="""Serialized state of the code repository. This string will typically contain a JSON representation of the UI's CodeRepositoryService state (files, folders, content, and any metadata). The UI is responsible for serialization and deserialization.""",
-    )
-    framework: Optional[Framework] = Field(
-        default=None,
-        description="""Optional. Framework used to build the application.""",
-    )
-    linked_resources: Optional[list[SchemaPromptSpecAppBuilderDataLinkedResource]] = (
-        Field(
-            default=None,
-            description="""Linked resources attached to the application by the user.""",
-        )
-    )
-
-
-class SchemaPromptSpecAppBuilderDataDict(TypedDict, total=False):
-    """Defines data for an application builder."""
-
-    code_repository_state: Optional[str]
-    """Serialized state of the code repository. This string will typically contain a JSON representation of the UI's CodeRepositoryService state (files, folders, content, and any metadata). The UI is responsible for serialization and deserialization."""
-
-    framework: Optional[Framework]
-    """Optional. Framework used to build the application."""
-
-    linked_resources: Optional[list[SchemaPromptSpecAppBuilderDataLinkedResourceDict]]
-    """Linked resources attached to the application by the user."""
-
-
-SchemaPromptSpecAppBuilderDataOrDict = Union[
-    SchemaPromptSpecAppBuilderData, SchemaPromptSpecAppBuilderDataDict
-]
-
-
-class SchemaPromptSpecPartList(_common.BaseModel):
-    """Represents a prompt spec part list."""
-
-    parts: Optional[list[genai_types.Part]] = Field(
-        default=None, description="""A list of elements that can be part of a prompt."""
-    )
-
-
-class SchemaPromptSpecPartListDict(TypedDict, total=False):
-    """Represents a prompt spec part list."""
-
-    parts: Optional[list[genai_types.PartDict]]
-    """A list of elements that can be part of a prompt."""
-
-
-SchemaPromptSpecPartListOrDict = Union[
-    SchemaPromptSpecPartList, SchemaPromptSpecPartListDict
-]
-
-
 class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
     """Represents a structured prompt."""
 
-    context: Optional[genai_types.Content] = Field(
-        default=None, description="""Preamble: The context of the prompt."""
-    )
-    app_builder_data: Optional[SchemaPromptSpecAppBuilderData] = Field(
-        default=None, description="""Data for app builder use case."""
-    )
-    examples: Optional[list[SchemaPromptSpecPartList]] = Field(
-        default=None,
-        description="""Preamble: A set of examples for expected model response.""",
-    )
-    infill_prefix: Optional[str] = Field(
-        default=None,
-        description="""Preamble: For infill prompt, the prefix before expected model response.""",
-    )
-    infill_suffix: Optional[str] = Field(
-        default=None,
-        description="""Preamble: For infill prompt, the suffix after expected model response.""",
-    )
-    input_prefixes: Optional[list[str]] = Field(
-        default=None,
-        description="""Preamble: The input prefixes before each example input.""",
-    )
-    output_prefixes: Optional[list[str]] = Field(
-        default=None,
-        description="""Preamble: The output prefixes before each example output.""",
-    )
-    prediction_inputs: Optional[list[SchemaPromptSpecPartList]] = Field(
-        default=None,
-        description="""Preamble: The input test data for prediction. Each PartList in this field represents one text-only input set for a single model request.""",
-    )
-    prompt_message: Optional[SchemaPromptSpecPromptMessage] = Field(
-        default=None, description="""The prompt message."""
-    )
+    context: Optional[genai_types.Content] = Field(default=None, description="""""")
 
 
 class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
     """Represents a structured prompt."""
 
     context: Optional[genai_types.ContentDict]
-    """Preamble: The context of the prompt."""
-
-    app_builder_data: Optional[SchemaPromptSpecAppBuilderDataDict]
-    """Data for app builder use case."""
-
-    examples: Optional[list[SchemaPromptSpecPartListDict]]
-    """Preamble: A set of examples for expected model response."""
-
-    infill_prefix: Optional[str]
-    """Preamble: For infill prompt, the prefix before expected model response."""
-
-    infill_suffix: Optional[str]
-    """Preamble: For infill prompt, the suffix after expected model response."""
-
-    input_prefixes: Optional[list[str]]
-    """Preamble: The input prefixes before each example input."""
-
-    output_prefixes: Optional[list[str]]
-    """Preamble: The output prefixes before each example output."""
-
-    prediction_inputs: Optional[list[SchemaPromptSpecPartListDict]]
-    """Preamble: The input test data for prediction. Each PartList in this field represents one text-only input set for a single model request."""
-
-    prompt_message: Optional[SchemaPromptSpecPromptMessageDict]
-    """The prompt message."""
+    """"""
 
 
 SchemaPromptSpecStructuredPromptOrDict = Union[
@@ -17660,6 +17489,26 @@ class PromptDict(TypedDict, total=False):
 
 
 PromptOrDict = Union[Prompt, PromptDict]
+
+
+class SchemaPromptSpecPartList(_common.BaseModel):
+    """Represents a prompt spec part list."""
+
+    parts: Optional[list[genai_types.Part]] = Field(
+        default=None, description="""A list of elements that can be part of a prompt."""
+    )
+
+
+class SchemaPromptSpecPartListDict(TypedDict, total=False):
+    """Represents a prompt spec part list."""
+
+    parts: Optional[list[genai_types.PartDict]]
+    """A list of elements that can be part of a prompt."""
+
+
+SchemaPromptSpecPartListOrDict = Union[
+    SchemaPromptSpecPartList, SchemaPromptSpecPartListDict
+]
 
 
 class SchemaPromptInstanceVariableValue(_common.BaseModel):

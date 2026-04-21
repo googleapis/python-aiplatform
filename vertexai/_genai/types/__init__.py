@@ -448,7 +448,6 @@ from .common import ExecuteSandboxEnvironmentResponseOrDict
 from .common import FailedRubric
 from .common import FailedRubricDict
 from .common import FailedRubricOrDict
-from .common import Framework
 from .common import GeminiExample
 from .common import GeminiExampleDict
 from .common import GeminiExampleOrDict
@@ -1056,12 +1055,6 @@ from .common import SchemaPromptInstancePromptExecutionOrDict
 from .common import SchemaPromptInstanceVariableValue
 from .common import SchemaPromptInstanceVariableValueDict
 from .common import SchemaPromptInstanceVariableValueOrDict
-from .common import SchemaPromptSpecAppBuilderData
-from .common import SchemaPromptSpecAppBuilderDataDict
-from .common import SchemaPromptSpecAppBuilderDataLinkedResource
-from .common import SchemaPromptSpecAppBuilderDataLinkedResourceDict
-from .common import SchemaPromptSpecAppBuilderDataLinkedResourceOrDict
-from .common import SchemaPromptSpecAppBuilderDataOrDict
 from .common import SchemaPromptSpecMultimodalPrompt
 from .common import SchemaPromptSpecMultimodalPromptDict
 from .common import SchemaPromptSpecMultimodalPromptOrDict
@@ -2168,15 +2161,6 @@ __all__ = [
     "SchemaPromptSpecMultimodalPrompt",
     "SchemaPromptSpecMultimodalPromptDict",
     "SchemaPromptSpecMultimodalPromptOrDict",
-    "SchemaPromptSpecAppBuilderDataLinkedResource",
-    "SchemaPromptSpecAppBuilderDataLinkedResourceDict",
-    "SchemaPromptSpecAppBuilderDataLinkedResourceOrDict",
-    "SchemaPromptSpecAppBuilderData",
-    "SchemaPromptSpecAppBuilderDataDict",
-    "SchemaPromptSpecAppBuilderDataOrDict",
-    "SchemaPromptSpecPartList",
-    "SchemaPromptSpecPartListDict",
-    "SchemaPromptSpecPartListOrDict",
     "SchemaPromptSpecStructuredPrompt",
     "SchemaPromptSpecStructuredPromptDict",
     "SchemaPromptSpecStructuredPromptOrDict",
@@ -2324,6 +2308,9 @@ __all__ = [
     "Prompt",
     "PromptDict",
     "PromptOrDict",
+    "SchemaPromptSpecPartList",
+    "SchemaPromptSpecPartListDict",
+    "SchemaPromptSpecPartListOrDict",
     "SchemaPromptInstanceVariableValue",
     "SchemaPromptInstanceVariableValueDict",
     "SchemaPromptInstanceVariableValueOrDict",
@@ -2358,7 +2345,6 @@ __all__ = [
     "Operator",
     "Language",
     "MachineConfig",
-    "Framework",
     "EvaluationItemType",
     "SamplingMethod",
     "EvaluationRunState",
