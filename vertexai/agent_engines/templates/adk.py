@@ -659,6 +659,13 @@ class AdkApp:
 
     def _app_name(self) -> str:
         """Returns the app name."""
+        import os
+
+        # Use the Cloud ML Job ID if running in a deployed environment (Agent Engine).
+        # This ensures that artifact lookups correctly use the Resource ID.
+        if "CLOUD_ML_JOB_ID" in os.environ:
+            return os.environ["CLOUD_ML_JOB_ID"]
+
         app = self._tmpl_attrs.get("app")
         return app.name if app else self._tmpl_attrs.get("app_name")
 
