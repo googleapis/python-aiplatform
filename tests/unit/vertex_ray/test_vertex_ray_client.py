@@ -24,14 +24,25 @@ import ray
 
 # -*- coding: utf-8 -*-
 
-_TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
-    dashboard_url=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
-    python_version="MOCK_PYTHON_VERSION",
-    ray_version="MOCK_RAY_VERSION",
-    ray_commit="MOCK_RAY_COMMIT",
-    _num_clients=1,
-    _context_to_restore=None,
-)
+try:
+    _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
+        dashboard_url=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        python_version="MOCK_PYTHON_VERSION",
+        ray_version="MOCK_RAY_VERSION",
+        ray_commit="MOCK_RAY_COMMIT",
+        protocol_version=0,
+        _num_clients=1,
+        _context_to_restore=None,
+    )
+except TypeError:
+    _TEST_CLIENT_CONTEXT = ray.client_builder.ClientContext(
+        dashboard_url=tc.ClusterConstants.TEST_VERTEX_RAY_DASHBOARD_ADDRESS,
+        python_version="MOCK_PYTHON_VERSION",
+        ray_version="MOCK_RAY_VERSION",
+        ray_commit="MOCK_RAY_COMMIT",
+        _num_clients=1,
+        _context_to_restore=None,
+    )
 
 _TEST_VERTEX_RAY_CLIENT_CONTEXT = vertex_ray.client_builder._VertexRayClientContext(
     persistent_resource_id="MOCK_PERSISTENT_RESOURCE_ID",
