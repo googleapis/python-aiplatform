@@ -1085,6 +1085,11 @@ from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
 from .types.reasoning_engine import ReasoningEngineContextSpec
 from .types.reasoning_engine import ReasoningEngineSpec
+from .types.reasoning_engine_execution_service import (
+    AsyncQueryReasoningEngineOperationMetadata,
+)
+from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineRequest
+from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
@@ -1522,6 +1527,9 @@ __all__ = (
     "AssessDataResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "AsyncQueryReasoningEngineOperationMetadata",
+    "AsyncQueryReasoningEngineRequest",
+    "AsyncQueryReasoningEngineResponse",
     "AsyncRetrieveContextsOperationMetadata",
     "AsyncRetrieveContextsRequest",
     "AsyncRetrieveContextsResponse",

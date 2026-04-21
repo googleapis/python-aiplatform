@@ -1180,6 +1180,9 @@ from .reasoning_engine import (
     ReasoningEngineSpec,
 )
 from .reasoning_engine_execution_service import (
+    AsyncQueryReasoningEngineOperationMetadata,
+    AsyncQueryReasoningEngineRequest,
+    AsyncQueryReasoningEngineResponse,
     QueryReasoningEngineRequest,
     QueryReasoningEngineResponse,
     StreamQueryReasoningEngineRequest,
@@ -2465,6 +2468,9 @@ __all__ = (
     "ReasoningEngine",
     "ReasoningEngineContextSpec",
     "ReasoningEngineSpec",
+    "AsyncQueryReasoningEngineOperationMetadata",
+    "AsyncQueryReasoningEngineRequest",
+    "AsyncQueryReasoningEngineResponse",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
     "StreamQueryReasoningEngineRequest",

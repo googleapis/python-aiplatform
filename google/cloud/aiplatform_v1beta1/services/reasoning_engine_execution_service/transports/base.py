@@ -23,6 +23,7 @@ import google.api_core
 from google.api_core import exceptions as core_exceptions
 from google.api_core import gapic_v1
 from google.api_core import retry as retries
+from google.api_core import operations_v1
 from google.auth import credentials as ga_credentials  # type: ignore
 from google.oauth2 import service_account  # type: ignore
 import google.protobuf
@@ -152,6 +153,11 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.async_query_reasoning_engine: gapic_v1.method.wrap_method(
+                self.async_query_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -214,6 +220,11 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
         raise NotImplementedError()
 
     @property
+    def operations_client(self):
+        """Return the client designed to process long-running operations."""
+        raise NotImplementedError()
+
+    @property
     def query_reasoning_engine(
         self,
     ) -> Callable[
@@ -231,6 +242,15 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
     ) -> Callable[
         [reasoning_engine_execution_service.StreamQueryReasoningEngineRequest],
         Union[httpbody_pb2.HttpBody, Awaitable[httpbody_pb2.HttpBody]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def async_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.AsyncQueryReasoningEngineRequest],
+        Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
     ]:
         raise NotImplementedError()
 
