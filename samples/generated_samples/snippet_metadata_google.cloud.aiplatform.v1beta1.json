@@ -6568,6 +6568,159 @@
       "clientMethod": {
         "async": true,
         "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.EvaluationServiceAsyncClient",
+          "shortName": "EvaluationServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.EvaluationServiceAsyncClient.generate_instance_rubrics",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.EvaluationService.GenerateInstanceRubrics",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.EvaluationService",
+            "shortName": "EvaluationService"
+          },
+          "shortName": "GenerateInstanceRubrics"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GenerateInstanceRubricsRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.GenerateInstanceRubricsResponse",
+        "shortName": "generate_instance_rubrics"
+      },
+      "description": "Sample for GenerateInstanceRubrics",
+      "file": "aiplatform_v1beta1_generated_evaluation_service_generate_instance_rubrics_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_EvaluationService_GenerateInstanceRubrics_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_evaluation_service_generate_instance_rubrics_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.EvaluationServiceClient",
+          "shortName": "EvaluationServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.EvaluationServiceClient.generate_instance_rubrics",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.EvaluationService.GenerateInstanceRubrics",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.EvaluationService",
+            "shortName": "EvaluationService"
+          },
+          "shortName": "GenerateInstanceRubrics"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GenerateInstanceRubricsRequest"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.GenerateInstanceRubricsResponse",
+        "shortName": "generate_instance_rubrics"
+      },
+      "description": "Sample for GenerateInstanceRubrics",
+      "file": "aiplatform_v1beta1_generated_evaluation_service_generate_instance_rubrics_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_EvaluationService_GenerateInstanceRubrics_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 49,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 50,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_evaluation_service_generate_instance_rubrics_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
           "fullName": "google.cloud.aiplatform_v1beta1.ExampleStoreServiceAsyncClient",
           "shortName": "ExampleStoreServiceAsyncClient"
         },
@@ -45200,6 +45353,1149 @@
         }
       ],
       "title": "aiplatform_v1beta1_generated_notebook_service_upgrade_notebook_runtime_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.activate_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.ActivateOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "ActivateOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ActivateOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "activate_online_evaluator"
+      },
+      "description": "Sample for ActivateOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_activate_online_evaluator_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_ActivateOnlineEvaluator_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_activate_online_evaluator_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.activate_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.ActivateOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "ActivateOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ActivateOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "activate_online_evaluator"
+      },
+      "description": "Sample for ActivateOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_activate_online_evaluator_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_ActivateOnlineEvaluator_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_activate_online_evaluator_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.create_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.CreateOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "CreateOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateOnlineEvaluatorRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "online_evaluator",
+            "type": "google.cloud.aiplatform_v1beta1.types.OnlineEvaluator"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "create_online_evaluator"
+      },
+      "description": "Sample for CreateOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_create_online_evaluator_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_CreateOnlineEvaluator_async",
+      "segments": [
+        {
+          "end": 62,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 62,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 59,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 63,
+          "start": 60,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_create_online_evaluator_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.create_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.CreateOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "CreateOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.CreateOnlineEvaluatorRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "online_evaluator",
+            "type": "google.cloud.aiplatform_v1beta1.types.OnlineEvaluator"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "create_online_evaluator"
+      },
+      "description": "Sample for CreateOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_create_online_evaluator_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_CreateOnlineEvaluator_sync",
+      "segments": [
+        {
+          "end": 62,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 62,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 59,
+          "start": 53,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 63,
+          "start": 60,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_create_online_evaluator_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.delete_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.DeleteOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "DeleteOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "delete_online_evaluator"
+      },
+      "description": "Sample for DeleteOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_delete_online_evaluator_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_DeleteOnlineEvaluator_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_delete_online_evaluator_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.delete_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.DeleteOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "DeleteOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.DeleteOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "delete_online_evaluator"
+      },
+      "description": "Sample for DeleteOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_delete_online_evaluator_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_DeleteOnlineEvaluator_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_delete_online_evaluator_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.get_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.GetOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "GetOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.OnlineEvaluator",
+        "shortName": "get_online_evaluator"
+      },
+      "description": "Sample for GetOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_get_online_evaluator_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_GetOnlineEvaluator_async",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_get_online_evaluator_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.get_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.GetOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "GetOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.GetOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.types.OnlineEvaluator",
+        "shortName": "get_online_evaluator"
+      },
+      "description": "Sample for GetOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_get_online_evaluator_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_GetOnlineEvaluator_sync",
+      "segments": [
+        {
+          "end": 51,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 51,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 52,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_get_online_evaluator_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.list_online_evaluators",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.ListOnlineEvaluators",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "ListOnlineEvaluators"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListOnlineEvaluatorsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.online_evaluator_service.pagers.ListOnlineEvaluatorsAsyncPager",
+        "shortName": "list_online_evaluators"
+      },
+      "description": "Sample for ListOnlineEvaluators",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_list_online_evaluators_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_ListOnlineEvaluators_async",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_list_online_evaluators_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.list_online_evaluators",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.ListOnlineEvaluators",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "ListOnlineEvaluators"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.ListOnlineEvaluatorsRequest"
+          },
+          {
+            "name": "parent",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.cloud.aiplatform_v1beta1.services.online_evaluator_service.pagers.ListOnlineEvaluatorsPager",
+        "shortName": "list_online_evaluators"
+      },
+      "description": "Sample for ListOnlineEvaluators",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_list_online_evaluators_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_ListOnlineEvaluators_sync",
+      "segments": [
+        {
+          "end": 52,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 52,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 48,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 53,
+          "start": 49,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_list_online_evaluators_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.suspend_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.SuspendOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "SuspendOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SuspendOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "suspend_online_evaluator"
+      },
+      "description": "Sample for SuspendOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_suspend_online_evaluator_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_SuspendOnlineEvaluator_async",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_suspend_online_evaluator_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.suspend_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.SuspendOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "SuspendOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.SuspendOnlineEvaluatorRequest"
+          },
+          {
+            "name": "name",
+            "type": "str"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "suspend_online_evaluator"
+      },
+      "description": "Sample for SuspendOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_suspend_online_evaluator_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_SuspendOnlineEvaluator_sync",
+      "segments": [
+        {
+          "end": 55,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 55,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 45,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 52,
+          "start": 46,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 56,
+          "start": 53,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_suspend_online_evaluator_sync.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "async": true,
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient",
+          "shortName": "OnlineEvaluatorServiceAsyncClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceAsyncClient.update_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.UpdateOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "UpdateOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateOnlineEvaluatorRequest"
+          },
+          {
+            "name": "online_evaluator",
+            "type": "google.cloud.aiplatform_v1beta1.types.OnlineEvaluator"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation_async.AsyncOperation",
+        "shortName": "update_online_evaluator"
+      },
+      "description": "Sample for UpdateOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_update_online_evaluator_async.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_UpdateOnlineEvaluator_async",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_update_online_evaluator_async.py"
+    },
+    {
+      "canonical": true,
+      "clientMethod": {
+        "client": {
+          "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient",
+          "shortName": "OnlineEvaluatorServiceClient"
+        },
+        "fullName": "google.cloud.aiplatform_v1beta1.OnlineEvaluatorServiceClient.update_online_evaluator",
+        "method": {
+          "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService.UpdateOnlineEvaluator",
+          "service": {
+            "fullName": "google.cloud.aiplatform.v1beta1.OnlineEvaluatorService",
+            "shortName": "OnlineEvaluatorService"
+          },
+          "shortName": "UpdateOnlineEvaluator"
+        },
+        "parameters": [
+          {
+            "name": "request",
+            "type": "google.cloud.aiplatform_v1beta1.types.UpdateOnlineEvaluatorRequest"
+          },
+          {
+            "name": "online_evaluator",
+            "type": "google.cloud.aiplatform_v1beta1.types.OnlineEvaluator"
+          },
+          {
+            "name": "update_mask",
+            "type": "google.protobuf.field_mask_pb2.FieldMask"
+          },
+          {
+            "name": "retry",
+            "type": "google.api_core.retry.Retry"
+          },
+          {
+            "name": "timeout",
+            "type": "float"
+          },
+          {
+            "name": "metadata",
+            "type": "Sequence[Tuple[str, Union[str, bytes]]]"
+          }
+        ],
+        "resultType": "google.api_core.operation.Operation",
+        "shortName": "update_online_evaluator"
+      },
+      "description": "Sample for UpdateOnlineEvaluator",
+      "file": "aiplatform_v1beta1_generated_online_evaluator_service_update_online_evaluator_sync.py",
+      "language": "PYTHON",
+      "origin": "API_DEFINITION",
+      "regionTag": "aiplatform_v1beta1_generated_OnlineEvaluatorService_UpdateOnlineEvaluator_sync",
+      "segments": [
+        {
+          "end": 61,
+          "start": 27,
+          "type": "FULL"
+        },
+        {
+          "end": 61,
+          "start": 27,
+          "type": "SHORT"
+        },
+        {
+          "end": 40,
+          "start": 38,
+          "type": "CLIENT_INITIALIZATION"
+        },
+        {
+          "end": 51,
+          "start": 41,
+          "type": "REQUEST_INITIALIZATION"
+        },
+        {
+          "end": 58,
+          "start": 52,
+          "type": "REQUEST_EXECUTION"
+        },
+        {
+          "end": 62,
+          "start": 59,
+          "type": "RESPONSE_HANDLING"
+        }
+      ],
+      "title": "aiplatform_v1beta1_generated_online_evaluator_service_update_online_evaluator_sync.py"
     },
     {
       "canonical": true,

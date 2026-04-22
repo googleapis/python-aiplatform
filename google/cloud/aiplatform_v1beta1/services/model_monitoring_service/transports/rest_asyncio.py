@@ -3338,6 +3338,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
@@ -3403,6 +3407,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -3748,6 +3756,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -3837,6 +3849,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -4190,6 +4206,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -4279,6 +4299,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -4628,6 +4652,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
@@ -4717,6 +4745,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -5066,6 +5098,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
@@ -5151,6 +5187,10 @@ class AsyncModelMonitoringServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:wait",
                     },
                 ],
             }
