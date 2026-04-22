@@ -182,7 +182,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -260,7 +262,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -334,7 +338,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -412,7 +418,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -494,7 +502,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
                 parameter_model
@@ -562,7 +572,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
                 parameter_model
@@ -982,7 +994,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1062,7 +1076,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1138,7 +1154,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1218,7 +1236,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1302,7 +1322,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
                 parameter_model
@@ -1372,7 +1394,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
                 parameter_model

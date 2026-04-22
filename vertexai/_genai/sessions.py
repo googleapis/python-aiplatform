@@ -241,7 +241,9 @@ class Sessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _CreateAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -323,7 +325,9 @@ class Sessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _DeleteAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -405,7 +409,9 @@ class Sessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -487,7 +493,9 @@ class Sessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _ListAgentEngineSessionsRequestParameters_to_vertex(
                 parameter_model
@@ -555,7 +563,9 @@ class Sessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSessionOperationParameters_to_vertex(
                 parameter_model
@@ -637,7 +647,9 @@ class Sessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _UpdateAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -816,7 +828,9 @@ class AsyncSessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _CreateAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -900,7 +914,9 @@ class AsyncSessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _DeleteAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -984,7 +1000,9 @@ class AsyncSessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
@@ -1068,7 +1086,9 @@ class AsyncSessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _ListAgentEngineSessionsRequestParameters_to_vertex(
                 parameter_model
@@ -1138,7 +1158,9 @@ class AsyncSessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _GetAgentEngineSessionOperationParameters_to_vertex(
                 parameter_model
@@ -1222,7 +1244,9 @@ class AsyncSessions(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
         else:
             request_dict = _UpdateAgentEngineSessionRequestParameters_to_vertex(
                 parameter_model
