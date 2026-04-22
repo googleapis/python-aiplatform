@@ -546,12 +546,12 @@ class TestAdkApp:
     async def test_async_create_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = await app.async_create_session(user_id=_TEST_USER_ID)
-        assert session1.user_id == _TEST_USER_ID
+        assert session1["user_id"] == _TEST_USER_ID
         session2 = await app.async_create_session(
             user_id=_TEST_USER_ID, session_id="test_session_id"
         )
-        assert session2.user_id == _TEST_USER_ID
-        assert session2.id == "test_session_id"
+        assert session2["user_id"] == _TEST_USER_ID
+        assert session2["id"] == "test_session_id"
 
     @pytest.mark.asyncio
     async def test_async_get_session(self, get_project_id_mock: mock.Mock):
@@ -559,10 +559,10 @@ class TestAdkApp:
         session1 = await app.async_create_session(user_id=_TEST_USER_ID)
         session2 = await app.async_get_session(
             user_id=_TEST_USER_ID,
-            session_id=session1.id,
+            session_id=session1["id"],
         )
         assert session2.user_id == _TEST_USER_ID
-        assert session1.id == session2.id
+        assert session1["id"] == session2.id
 
     @pytest.mark.asyncio
     async def test_async_list_sessions(self, get_project_id_mock: mock.Mock):
@@ -572,12 +572,12 @@ class TestAdkApp:
         session = await app.async_create_session(user_id=_TEST_USER_ID)
         response1 = await app.async_list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
-        assert response1.sessions[0].id == session.id
+        assert response1.sessions[0].id == session["id"]
         session2 = await app.async_create_session(user_id=_TEST_USER_ID)
         response2 = await app.async_list_sessions(user_id=_TEST_USER_ID)
         assert len(response2.sessions) == 2
-        assert response2.sessions[0].id == session.id
-        assert response2.sessions[1].id == session2.id
+        assert response2.sessions[0].id == session["id"]
+        assert response2.sessions[1].id == session2["id"]
 
     @pytest.mark.asyncio
     async def test_async_delete_session(self, get_project_id_mock: mock.Mock):
@@ -592,7 +592,7 @@ class TestAdkApp:
         assert len(response1.sessions) == 1
         await app.async_delete_session(
             user_id=_TEST_USER_ID,
-            session_id=session.id,
+            session_id=session["id"],
         )
         response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
@@ -600,22 +600,22 @@ class TestAdkApp:
     def test_create_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = app.create_session(user_id=_TEST_USER_ID)
-        assert session1.user_id == _TEST_USER_ID
+        assert session1["user_id"] == _TEST_USER_ID
         session2 = app.create_session(
             user_id=_TEST_USER_ID, session_id="test_session_id"
         )
-        assert session2.user_id == _TEST_USER_ID
-        assert session2.id == "test_session_id"
+        assert session2["user_id"] == _TEST_USER_ID
+        assert session2["id"] == "test_session_id"
 
     def test_get_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         session1 = app.create_session(user_id=_TEST_USER_ID)
         session2 = app.get_session(
             user_id=_TEST_USER_ID,
-            session_id=session1.id,
+            session_id=session1["id"],
         )
         assert session2.user_id == _TEST_USER_ID
-        assert session1.id == session2.id
+        assert session1["id"] == session2.id
 
     def test_list_sessions(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
@@ -624,12 +624,12 @@ class TestAdkApp:
         session = app.create_session(user_id=_TEST_USER_ID)
         response1 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
-        assert response1.sessions[0].id == session.id
+        assert response1.sessions[0].id == session["id"]
         session2 = app.create_session(user_id=_TEST_USER_ID)
         response2 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response2.sessions) == 2
-        assert response2.sessions[0].id == session.id
-        assert response2.sessions[1].id == session2.id
+        assert response2.sessions[0].id == session["id"]
+        assert response2.sessions[1].id == session2["id"]
 
     def test_delete_session(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
@@ -638,7 +638,7 @@ class TestAdkApp:
         session = app.create_session(user_id=_TEST_USER_ID)
         response1 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
-        app.delete_session(user_id=_TEST_USER_ID, session_id=session.id)
+        app.delete_session(user_id=_TEST_USER_ID, session_id=session["id"])
         response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
 
@@ -817,7 +817,8 @@ class TestAdkApp:
             "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
         )
         monkeypatch.setattr("os.getpid", lambda: 123123123)
-        app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        with mock.patch.object(initializer.global_config, "_project", _TEST_PROJECT):
+            app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app.set_up()
 
         otlp_span_exporter_mock.assert_called_once_with(
@@ -826,7 +827,7 @@ class TestAdkApp:
             headers=mock.ANY,
         )
 
-        get_project_id_mock.assert_called_with(_TEST_PROJECT_ID)
+        get_project_id_mock.assert_called_with(_TEST_PROJECT)
 
         user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
         assert (
