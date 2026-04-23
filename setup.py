@@ -36,7 +36,9 @@ version = version["__version__"]
 packages = [
     package
     for package in setuptools.PEP420PackageFinder.find()
-    if package.startswith("google") or package.startswith("vertexai")
+    if package.startswith("google")
+    or package.startswith("vertexai")
+    or package.startswith("agentplatform")
 ]
 
 # Add vertex_ray relative packages
