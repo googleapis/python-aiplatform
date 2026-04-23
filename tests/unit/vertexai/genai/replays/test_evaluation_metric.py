@@ -17,12 +17,15 @@ import re
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import errors
+import pytest
+
 
 _TEST_PROJECT = "977012026409"
 _TEST_LOCATION = "us-central1"
 
 
-def test_create_and_get_evaluation_metric(client):
+def test_create_get_delete_evaluation_metric(client):
     client._api_client._http_options.api_version = "v1beta1"
     result = client.evals.create_evaluation_metric(
         display_name="test_metric",
@@ -39,6 +42,12 @@ def test_create_and_get_evaluation_metric(client):
     metric = client.evals.get_evaluation_metric(metric_resource_name=result)
     assert isinstance(metric, types.EvaluationMetric)
     assert metric.display_name == "test_metric"
+
+    client.evals.delete_evaluation_metric(metric_resource_name=result)
+
+    # Verify that the metric no longer exists
+    with pytest.raises(errors.ClientError, match="404"):
+        client.evals.get_evaluation_metric(metric_resource_name=result)
 
 
 def test_list_evaluation_metrics(client):
