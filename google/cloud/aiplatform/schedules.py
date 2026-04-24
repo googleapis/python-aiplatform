@@ -223,7 +223,7 @@ class _Schedule(
                     % (
                         self.__class__.__name__,
                         self._gca_resource.name,
-                        self._gca_resource.state,
+                        self._gca_resource.state.name,
                     )
                 )
                 log_wait = min(log_wait * multiplier, max_wait)
