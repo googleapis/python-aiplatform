@@ -57,6 +57,18 @@ def test_list_evaluation_metrics(client):
     assert len(response.evaluation_metrics) >= 0
 
 
+def test_list_evaluation_metrics_with_filter(client):
+    client._api_client._http_options.api_version = "v1beta1"
+    response = client.evals.list_evaluation_metrics(
+        filter='display_name="tone-check-v1"',
+        order_by="create_time desc",
+    )
+    assert isinstance(response, types.ListEvaluationMetricsResponse)
+    assert len(response.evaluation_metrics) >= 1
+    for metric in response.evaluation_metrics:
+        assert metric.display_name == "tone-check-v1"
+
+
 # The setup function registers the module and method for the recorder
 pytestmark = pytest_helper.setup(
     file=__file__,
