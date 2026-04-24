@@ -21,7 +21,6 @@ import re
 import statistics
 import sys
 import tempfile
-import unittest
 from unittest import mock
 
 import google.auth.credentials
@@ -8423,11 +8422,10 @@ class TestEvaluationDataset:
         )
 
 
-class TestEvalsGenerateConversationScenarios(unittest.TestCase):
+class TestEvalsGenerateConversationScenarios:
     """Unit tests for the Evals generate_conversation_scenarios method."""
 
-    def setUp(self):
-        self.addCleanup(mock.patch.stopall)
+    def setup_method(self, method):
         self.mock_client = mock.MagicMock(spec=client.Client)
         self.mock_client.vertexai = True
         self.mock_api_client = mock.MagicMock()

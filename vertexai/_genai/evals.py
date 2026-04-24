@@ -194,6 +194,24 @@ def _CustomCodeExecutionSpec_to_vertex(
     return to_object
 
 
+def _DeleteEvaluationMetricParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["_url", "evaluation_metric"],
+            getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
 def _EvaluateInstancesRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -728,13 +746,40 @@ def _GetEvaluationSetParameters_to_vertex(
     return to_object
 
 
+def _ListEvaluationMetricsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    if getv(from_object, ["order_by"]) is not None:
+        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
+
+    return to_object
+
+
 def _ListEvaluationMetricsParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+        setv(
+            to_object,
+            ["config"],
+            _ListEvaluationMetricsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
 
     return to_object
 
@@ -1219,6 +1264,78 @@ class Evals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> types.DeleteEvaluationMetricOperation:
+        """
+        Deletes an EvaluationMetric.
+        """
+
+        parameter_model = types._DeleteEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationMetricOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2900,10 +3017,61 @@ class Evals(_api_module.BaseModule):
     def list_evaluation_metrics(
         self,
         *,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
         config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
     ) -> types.ListEvaluationMetricsResponse:
-        """Lists EvaluationMetrics."""
+        """Lists EvaluationMetrics.
+
+        Args:
+          filter: An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported. For more
+            information about filter syntax, see
+            `AIP-160 <https://google.aip.dev/160>`_.
+            Example: ``'display_name="my_metric"'``.
+          order_by: A comma-separated list of fields to order by, sorted in
+            ascending order by default. Use ``desc`` after a field name for
+            descending. Example: ``"create_time desc"``.
+          config: Optional configuration for the list operation, including
+            pagination (``page_size``, ``page_token``), ``filter``, and
+            ``order_by``. Top-level ``filter`` and ``order_by`` arguments
+            take precedence over values set in ``config``.
+
+        Returns:
+          The list evaluation metrics response.
+        """
+        if config is None:
+            config = types.ListEvaluationMetricsConfig()
+        if isinstance(config, dict):
+            config = types.ListEvaluationMetricsConfig.model_validate(config)
+        if filter is not None:
+            config.filter = filter
+        if order_by is not None:
+            config.order_by = order_by
         return self._list_evaluation_metrics(
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.delete_evaluation_metric method is experimental, "
+        "and may change in future versions."
+    )
+    def delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> None:
+        """Deletes an EvaluationMetric.
+
+        Args:
+          metric_resource_name: The resource name of the EvaluationMetric to delete.
+            Format:
+            `projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric}`
+          config: The optional configuration for the delete operation.
+        """
+        self._delete_evaluation_metric(
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
@@ -3211,6 +3379,80 @@ class AsyncEvals(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.EvaluationSet._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> types.DeleteEvaluationMetricOperation:
+        """
+        Deletes an EvaluationMetric.
+        """
+
+        parameter_model = types._DeleteEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationMetricOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -4542,9 +4784,60 @@ class AsyncEvals(_api_module.BaseModule):
     async def list_evaluation_metrics(
         self,
         *,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
         config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
     ) -> types.ListEvaluationMetricsResponse:
-        """Lists EvaluationMetrics."""
+        """Lists EvaluationMetrics.
+
+        Args:
+          filter: An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported. For more
+            information about filter syntax, see
+            `AIP-160 <https://google.aip.dev/160>`_.
+            Example: ``'display_name="my_metric"'``.
+          order_by: A comma-separated list of fields to order by, sorted in
+            ascending order by default. Use ``desc`` after a field name for
+            descending. Example: ``"create_time desc"``.
+          config: Optional configuration for the list operation, including
+            pagination (``page_size``, ``page_token``), ``filter``, and
+            ``order_by``. Top-level ``filter`` and ``order_by`` arguments
+            take precedence over values set in ``config``.
+
+        Returns:
+          The list evaluation metrics response.
+        """
+        if config is None:
+            config = types.ListEvaluationMetricsConfig()
+        if isinstance(config, dict):
+            config = types.ListEvaluationMetricsConfig.model_validate(config)
+        if filter is not None:
+            config.filter = filter
+        if order_by is not None:
+            config.order_by = order_by
         return await self._list_evaluation_metrics(
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.delete_evaluation_metric method is experimental, "
+        "and may change in future versions."
+    )
+    async def delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> None:
+        """Deletes an EvaluationMetric.
+
+        Args:
+          metric_resource_name: The resource name of the EvaluationMetric to delete.
+            Format:
+            `projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric}`
+          config: The optional configuration for the delete operation.
+        """
+        await self._delete_evaluation_metric(
+            metric_resource_name=metric_resource_name,
             config=config,
         )

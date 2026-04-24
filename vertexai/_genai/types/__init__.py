@@ -48,6 +48,7 @@ from .common import _DeleteAgentEngineSandboxRequestParameters
 from .common import _DeleteAgentEngineSessionRequestParameters
 from .common import _DeleteAgentEngineTaskRequestParameters
 from .common import _DeleteDatasetRequestParameters
+from .common import _DeleteEvaluationMetricParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _EvaluateInstancesRequestParameters
@@ -315,6 +316,12 @@ from .common import DeleteAgentEngineSessionOperationOrDict
 from .common import DeleteAgentEngineTaskConfig
 from .common import DeleteAgentEngineTaskConfigDict
 from .common import DeleteAgentEngineTaskConfigOrDict
+from .common import DeleteEvaluationMetricConfig
+from .common import DeleteEvaluationMetricConfigDict
+from .common import DeleteEvaluationMetricConfigOrDict
+from .common import DeleteEvaluationMetricOperation
+from .common import DeleteEvaluationMetricOperationDict
+from .common import DeleteEvaluationMetricOperationOrDict
 from .common import DeletePromptConfig
 from .common import DeletePromptConfigDict
 from .common import DeletePromptConfigOrDict
@@ -1457,6 +1464,12 @@ __all__ = [
     "EvaluationSet",
     "EvaluationSetDict",
     "EvaluationSetOrDict",
+    "DeleteEvaluationMetricConfig",
+    "DeleteEvaluationMetricConfigDict",
+    "DeleteEvaluationMetricConfigOrDict",
+    "DeleteEvaluationMetricOperation",
+    "DeleteEvaluationMetricOperationDict",
+    "DeleteEvaluationMetricOperationOrDict",
     "BleuInstance",
     "BleuInstanceDict",
     "BleuInstanceOrDict",
@@ -2399,6 +2412,7 @@ __all__ = [
     "_CreateEvaluationMetricParameters",
     "_CreateEvaluationRunParameters",
     "_CreateEvaluationSetParameters",
+    "_DeleteEvaluationMetricParameters",
     "_EvaluateInstancesRequestParameters",
     "_GenerateUserScenariosParameters",
     "_GenerateLossClustersParameters",

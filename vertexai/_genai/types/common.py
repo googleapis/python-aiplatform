@@ -3541,6 +3541,92 @@ class EvaluationSetDict(TypedDict, total=False):
 EvaluationSetOrDict = Union[EvaluationSet, EvaluationSetDict]
 
 
+class DeleteEvaluationMetricConfig(_common.BaseModel):
+    """Config for deleting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteEvaluationMetricConfigDict(TypedDict, total=False):
+    """Config for deleting an evaluation metric."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteEvaluationMetricConfigOrDict = Union[
+    DeleteEvaluationMetricConfig, DeleteEvaluationMetricConfigDict
+]
+
+
+class _DeleteEvaluationMetricParameters(_common.BaseModel):
+    """Parameters for deleting an evaluation metric."""
+
+    metric_resource_name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteEvaluationMetricConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteEvaluationMetricParametersDict(TypedDict, total=False):
+    """Parameters for deleting an evaluation metric."""
+
+    metric_resource_name: Optional[str]
+    """"""
+
+    config: Optional[DeleteEvaluationMetricConfigDict]
+    """"""
+
+
+_DeleteEvaluationMetricParametersOrDict = Union[
+    _DeleteEvaluationMetricParameters, _DeleteEvaluationMetricParametersDict
+]
+
+
+class DeleteEvaluationMetricOperation(_common.BaseModel):
+    """Operation for deleting an evaluation metric."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteEvaluationMetricOperationDict(TypedDict, total=False):
+    """Operation for deleting an evaluation metric."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteEvaluationMetricOperationOrDict = Union[
+    DeleteEvaluationMetricOperation, DeleteEvaluationMetricOperationDict
+]
+
+
 class BleuInstance(_common.BaseModel):
     """Bleu instance."""
 
@@ -5390,6 +5476,21 @@ class ListEvaluationMetricsConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None,
+        description="""A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``.""",
+    )
 
 
 class ListEvaluationMetricsConfigDict(TypedDict, total=False):
@@ -5397,6 +5498,23 @@ class ListEvaluationMetricsConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request.
+      For field names both snake_case and camelCase are supported.
+      For more information about filter syntax, see
+      `AIP-160 <https://google.aip.dev/160>`_."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by, sorted in ascending
+      order by default. Use ``desc`` after a field name for descending.
+      Example: ``"create_time desc"``."""
 
 
 ListEvaluationMetricsConfigOrDict = Union[
