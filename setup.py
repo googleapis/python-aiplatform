@@ -320,7 +320,7 @@ setuptools.setup(
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 4.0.0; python_version<'3.13'",
-        "google-cloud-storage >= 2.10.0, < 4.0.0; python_version>='3.13'",
+        "google-cloud-storage >= 3.10.0, < 4.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "google-genai >= 1.37.0, <2.0.0; python_version<'3.10'",
