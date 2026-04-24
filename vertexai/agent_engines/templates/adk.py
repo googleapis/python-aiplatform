@@ -657,6 +657,18 @@ class AdkApp:
             ),
         }
 
+    def _serialize(self, obj: Any) -> Any:
+        """Serializes an object to be JSON compatible."""
+        if hasattr(obj, "model_dump"):
+            return obj.model_dump(mode="json")
+        elif hasattr(obj, "dict"):
+            return self._serialize(obj.dict())
+        elif isinstance(obj, dict):
+            return {k: self._serialize(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._serialize(v) for v in obj]
+        return obj
+
     def _app_name(self) -> str:
         """Returns the app name."""
         app = self._tmpl_attrs.get("app")
@@ -1062,7 +1074,7 @@ class AdkApp:
             )
         if not session_id:
             session = await self.async_create_session(user_id=user_id)
-            session_id = session.id
+            session_id = session["id"]
             if session_events is not None:
                 # We allow for session_events to be an empty list.
                 from google.adk.events.event import Event
@@ -1163,7 +1175,7 @@ class AdkApp:
             self.set_up()
         if not session_id:
             session = self.create_session(user_id=user_id)
-            session_id = session.id
+            session_id = session["id"]
         run_config = _validate_run_config(run_config)
         if run_config:
             for event in self._tmpl_attrs.get("runner").run(
@@ -1469,7 +1481,7 @@ class AdkApp:
             state=state,
             **kwargs,
         )
-        return session
+        return self._serialize(session)
 
     def create_session(
         self,

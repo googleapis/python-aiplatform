@@ -735,7 +735,14 @@ def _is_litellm_vertex_maas_model(model: str) -> bool:
 
 def _is_litellm_model(model: str) -> bool:
     """Checks if the model name corresponds to a valid LiteLLM model name."""
-    return model in litellm.utils.get_valid_models(model)
+    if litellm is None:
+        return False
+
+    try:
+        litellm.get_llm_provider(model)
+        return True
+    except ValueError:
+        return False
 
 
 def _is_gemini_model(model: str) -> bool:
@@ -838,7 +845,7 @@ def _run_inference_internal(
             # Unsupported model string
             raise TypeError(
                 f"Unsupported string model name: {model}. Expecting a Gemini model"
-                " name (e.g., 'gemini-1.5-pro', 'projects/.../models/...') or a"
+                " name (e.g., 'gemini-2.5-pro', 'projects/.../models/...') or a"
                 " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
                 " If using a third-party model via LiteLLM, ensure the"
                 " necessary environment variables are set (e.g., for OpenAI:"

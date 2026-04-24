@@ -92,6 +92,8 @@ from .services.model_service import ModelServiceClient
 from .services.model_service import ModelServiceAsyncClient
 from .services.notebook_service import NotebookServiceClient
 from .services.notebook_service import NotebookServiceAsyncClient
+from .services.online_evaluator_service import OnlineEvaluatorServiceClient
+from .services.online_evaluator_service import OnlineEvaluatorServiceAsyncClient
 from .services.persistent_resource_service import PersistentResourceServiceClient
 from .services.persistent_resource_service import PersistentResourceServiceAsyncClient
 from .services.pipeline_service import PipelineServiceClient
@@ -276,6 +278,13 @@ from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_agent_data import AgentConfig
+from .types.evaluation_agent_data import AgentData
+from .types.evaluation_agent_data import AgentEvent
+from .types.evaluation_agent_data import ConversationTurn
+from .types.evaluation_rubric import Rubric
+from .types.evaluation_rubric import RubricGroup
+from .types.evaluation_rubric import RubricVerdict
 from .types.evaluation_service import AggregationOutput
 from .types.evaluation_service import AggregationResult
 from .types.evaluation_service import AutoraterConfig
@@ -294,6 +303,8 @@ from .types.evaluation_service import CometResult
 from .types.evaluation_service import CometSpec
 from .types.evaluation_service import ComputationBasedMetricSpec
 from .types.evaluation_service import ContentMap
+from .types.evaluation_service import CustomCodeExecutionResult
+from .types.evaluation_service import CustomCodeExecutionSpec
 from .types.evaluation_service import CustomOutput
 from .types.evaluation_service import CustomOutputFormatConfig
 from .types.evaluation_service import EvaluateDatasetOperationMetadata
@@ -302,6 +313,8 @@ from .types.evaluation_service import EvaluateDatasetResponse
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
 from .types.evaluation_service import EvaluationDataset
+from .types.evaluation_service import EvaluationInstance
+from .types.evaluation_service import EvaluationParserConfig
 from .types.evaluation_service import ExactMatchInput
 from .types.evaluation_service import ExactMatchInstance
 from .types.evaluation_service import ExactMatchMetricValue
@@ -315,13 +328,17 @@ from .types.evaluation_service import FulfillmentInput
 from .types.evaluation_service import FulfillmentInstance
 from .types.evaluation_service import FulfillmentResult
 from .types.evaluation_service import FulfillmentSpec
+from .types.evaluation_service import GenerateInstanceRubricsRequest
+from .types.evaluation_service import GenerateInstanceRubricsResponse
 from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
 from .types.evaluation_service import LLMBasedMetricSpec
 from .types.evaluation_service import Metric
+from .types.evaluation_service import MetricMetadata
 from .types.evaluation_service import MetricResult
+from .types.evaluation_service import MetricSource
 from .types.evaluation_service import MetricxInput
 from .types.evaluation_service import MetricxInstance
 from .types.evaluation_service import MetricxResult
@@ -372,6 +389,7 @@ from .types.evaluation_service import RubricBasedInstructionFollowingInstance
 from .types.evaluation_service import RubricBasedInstructionFollowingResult
 from .types.evaluation_service import RubricBasedInstructionFollowingSpec
 from .types.evaluation_service import RubricCritiqueResult
+from .types.evaluation_service import RubricGenerationSpec
 from .types.evaluation_service import SafetyInput
 from .types.evaluation_service import SafetyInstance
 from .types.evaluation_service import SafetyResult
@@ -1006,6 +1024,20 @@ from .types.notebook_service import NotebookExecutionJobView
 from .types.notebook_software_config import ColabImage
 from .types.notebook_software_config import NotebookSoftwareConfig
 from .types.notebook_software_config import PostStartupScriptConfig
+from .types.online_evaluator import OnlineEvaluator
+from .types.online_evaluator_service import ActivateOnlineEvaluatorOperationMetadata
+from .types.online_evaluator_service import ActivateOnlineEvaluatorRequest
+from .types.online_evaluator_service import CreateOnlineEvaluatorOperationMetadata
+from .types.online_evaluator_service import CreateOnlineEvaluatorRequest
+from .types.online_evaluator_service import DeleteOnlineEvaluatorOperationMetadata
+from .types.online_evaluator_service import DeleteOnlineEvaluatorRequest
+from .types.online_evaluator_service import GetOnlineEvaluatorRequest
+from .types.online_evaluator_service import ListOnlineEvaluatorsRequest
+from .types.online_evaluator_service import ListOnlineEvaluatorsResponse
+from .types.online_evaluator_service import SuspendOnlineEvaluatorOperationMetadata
+from .types.online_evaluator_service import SuspendOnlineEvaluatorRequest
+from .types.online_evaluator_service import UpdateOnlineEvaluatorOperationMetadata
+from .types.online_evaluator_service import UpdateOnlineEvaluatorRequest
 from .types.openapi import Schema
 from .types.openapi import Type
 from .types.operation import DeleteOperationMetadata
@@ -1085,6 +1117,11 @@ from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
 from .types.reasoning_engine import ReasoningEngineContextSpec
 from .types.reasoning_engine import ReasoningEngineSpec
+from .types.reasoning_engine_execution_service import (
+    AsyncQueryReasoningEngineOperationMetadata,
+)
+from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineRequest
+from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
@@ -1249,6 +1286,7 @@ from .types.tuning_job import TunedModelRef
 from .types.tuning_job import TuningDataStats
 from .types.tuning_job import TuningJob
 from .types.tuning_job import VeoHyperParameters
+from .types.tuning_job import VeoLoraTuningSpec
 from .types.tuning_job import VeoTuningSpec
 from .types.types import BoolArray
 from .types.types import DoubleArray
@@ -1481,6 +1519,7 @@ __all__ = (
     "ModelMonitoringServiceAsyncClient",
     "ModelServiceAsyncClient",
     "NotebookServiceAsyncClient",
+    "OnlineEvaluatorServiceAsyncClient",
     "PersistentResourceServiceAsyncClient",
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
@@ -1495,6 +1534,8 @@ __all__ = (
     "VizierServiceAsyncClient",
     "AcceleratorType",
     "AcceptPublisherModelEulaRequest",
+    "ActivateOnlineEvaluatorOperationMetadata",
+    "ActivateOnlineEvaluatorRequest",
     "ActiveLearningConfig",
     "AddContextArtifactsAndExecutionsRequest",
     "AddContextArtifactsAndExecutionsResponse",
@@ -1503,6 +1544,9 @@ __all__ = (
     "AddExecutionEventsRequest",
     "AddExecutionEventsResponse",
     "AddTrialMeasurementRequest",
+    "AgentConfig",
+    "AgentData",
+    "AgentEvent",
     "AggregationOutput",
     "AggregationResult",
     "Annotation",
@@ -1522,6 +1566,9 @@ __all__ = (
     "AssessDataResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "AsyncQueryReasoningEngineOperationMetadata",
+    "AsyncQueryReasoningEngineRequest",
+    "AsyncQueryReasoningEngineResponse",
     "AsyncRetrieveContextsOperationMetadata",
     "AsyncRetrieveContextsRequest",
     "AsyncRetrieveContextsResponse",
@@ -1619,6 +1666,7 @@ __all__ = (
     "ContentMap",
     "ContentsExample",
     "Context",
+    "ConversationTurn",
     "CopyModelOperationMetadata",
     "CopyModelRequest",
     "CopyModelResponse",
@@ -1678,6 +1726,8 @@ __all__ = (
     "CreateNotebookExecutionJobRequest",
     "CreateNotebookRuntimeTemplateOperationMetadata",
     "CreateNotebookRuntimeTemplateRequest",
+    "CreateOnlineEvaluatorOperationMetadata",
+    "CreateOnlineEvaluatorRequest",
     "CreatePersistentResourceOperationMetadata",
     "CreatePersistentResourceRequest",
     "CreatePipelineJobRequest",
@@ -1704,6 +1754,8 @@ __all__ = (
     "CreateTuningJobRequest",
     "CsvDestination",
     "CsvSource",
+    "CustomCodeExecutionResult",
+    "CustomCodeExecutionSpec",
     "CustomJob",
     "CustomJobSpec",
     "CustomOutput",
@@ -1757,6 +1809,8 @@ __all__ = (
     "DeleteNotebookExecutionJobRequest",
     "DeleteNotebookRuntimeRequest",
     "DeleteNotebookRuntimeTemplateRequest",
+    "DeleteOnlineEvaluatorOperationMetadata",
+    "DeleteOnlineEvaluatorRequest",
     "DeleteOperationMetadata",
     "DeletePersistentResourceRequest",
     "DeletePipelineJobRequest",
@@ -1829,6 +1883,8 @@ __all__ = (
     "EvaluatedAnnotationExplanation",
     "EvaluationConfig",
     "EvaluationDataset",
+    "EvaluationInstance",
+    "EvaluationParserConfig",
     "EvaluationServiceClient",
     "Event",
     "EventActions",
@@ -1949,6 +2005,8 @@ __all__ = (
     "GenerateContentResponse",
     "GenerateFetchAccessTokenRequest",
     "GenerateFetchAccessTokenResponse",
+    "GenerateInstanceRubricsRequest",
+    "GenerateInstanceRubricsResponse",
     "GenerateMemoriesOperationMetadata",
     "GenerateMemoriesRequest",
     "GenerateMemoriesResponse",
@@ -1996,6 +2054,7 @@ __all__ = (
     "GetNotebookExecutionJobRequest",
     "GetNotebookRuntimeRequest",
     "GetNotebookRuntimeTemplateRequest",
+    "GetOnlineEvaluatorRequest",
     "GetPersistentResourceRequest",
     "GetPipelineJobRequest",
     "GetPublisherModelRequest",
@@ -2151,6 +2210,8 @@ __all__ = (
     "ListNotebookRuntimeTemplatesResponse",
     "ListNotebookRuntimesRequest",
     "ListNotebookRuntimesResponse",
+    "ListOnlineEvaluatorsRequest",
+    "ListOnlineEvaluatorsResponse",
     "ListOptimalTrialsRequest",
     "ListOptimalTrialsResponse",
     "ListPersistentResourcesRequest",
@@ -2210,7 +2271,9 @@ __all__ = (
     "MetadataStore",
     "MetadataValue",
     "Metric",
+    "MetricMetadata",
     "MetricResult",
+    "MetricSource",
     "MetricxInput",
     "MetricxInstance",
     "MetricxResult",
@@ -2285,6 +2348,8 @@ __all__ = (
     "NotebookRuntimeType",
     "NotebookServiceClient",
     "NotebookSoftwareConfig",
+    "OnlineEvaluator",
+    "OnlineEvaluatorServiceClient",
     "OutputConfig",
     "OutputInfo",
     "PSCAutomationConfig",
@@ -2455,11 +2520,15 @@ __all__ = (
     "RougeMetricValue",
     "RougeResults",
     "RougeSpec",
+    "Rubric",
     "RubricBasedInstructionFollowingInput",
     "RubricBasedInstructionFollowingInstance",
     "RubricBasedInstructionFollowingResult",
     "RubricBasedInstructionFollowingSpec",
     "RubricCritiqueResult",
+    "RubricGenerationSpec",
+    "RubricGroup",
+    "RubricVerdict",
     "RuntimeArtifact",
     "RuntimeConfig",
     "SafetyInput",
@@ -2563,6 +2632,8 @@ __all__ = (
     "SupervisedTuningDataStats",
     "SupervisedTuningDatasetDistribution",
     "SupervisedTuningSpec",
+    "SuspendOnlineEvaluatorOperationMetadata",
+    "SuspendOnlineEvaluatorRequest",
     "SyncFeatureViewRequest",
     "SyncFeatureViewResponse",
     "TFRecordDestination",
@@ -2694,6 +2765,8 @@ __all__ = (
     "UpdateModelMonitorRequest",
     "UpdateModelRequest",
     "UpdateNotebookRuntimeTemplateRequest",
+    "UpdateOnlineEvaluatorOperationMetadata",
+    "UpdateOnlineEvaluatorRequest",
     "UpdatePersistentResourceOperationMetadata",
     "UpdatePersistentResourceRequest",
     "UpdateRagCorpusOperationMetadata",
@@ -2733,6 +2806,7 @@ __all__ = (
     "UserSpecifiedMetadata",
     "Value",
     "VeoHyperParameters",
+    "VeoLoraTuningSpec",
     "VeoTuningSpec",
     "VertexAISearch",
     "VertexAiSearchConfig",

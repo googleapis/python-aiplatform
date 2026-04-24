@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +20,7 @@ import pytest
 from unittest import mock
 
 from google.cloud import aiplatform
-import vertexai
+import agentplatform
 from google.cloud.aiplatform import base as aiplatform_base
 from google.cloud.aiplatform import initializer as aiplatform_initializer
 from google.cloud.aiplatform.compat.services import (
@@ -35,8 +33,7 @@ from google.cloud.aiplatform.compat.types import (
     job_state as gca_job_state_compat,
     model as gca_model,
 )
-from vertexai.preview import batch_prediction
-from vertexai.generative_models import GenerativeModel
+from agentplatform import batch_prediction
 
 
 _TEST_PROJECT = "test-project"
@@ -93,7 +90,6 @@ _TEST_GAPIC_BATCH_PREDICTION_JOB = gca_batch_prediction_job_compat.BatchPredicti
 )
 
 
-# TODO(b/339230025) Mock the whole service instead of methods.
 @pytest.fixture
 def generate_display_name_mock():
     with mock.patch.object(
@@ -355,8 +351,8 @@ class TestBatchPredictionJob:
     def setup_method(self):
         importlib.reload(aiplatform_initializer)
         importlib.reload(aiplatform)
-        importlib.reload(vertexai)
-        vertexai.init(
+        importlib.reload(agentplatform)
+        agentplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
@@ -564,10 +560,9 @@ class TestBatchPredictionJob:
     def test_submit_batch_prediction_job_with_gcs_input_without_output_uri_prefix(
         self, create_batch_prediction_job_mock
     ):
-        vertexai.init(staging_bucket=_TEST_BUCKET)
-        model = GenerativeModel(_TEST_GEMINI_MODEL_NAME)
+        agentplatform.init(staging_bucket=_TEST_BUCKET)
         job = batch_prediction.BatchPredictionJob.submit(
-            source_model=model,
+            source_model=_TEST_GEMINI_MODEL_NAME,
             input_dataset=[_TEST_GCS_INPUT_URI, _TEST_GCS_INPUT_URI_2],
         )
 
@@ -598,9 +593,8 @@ class TestBatchPredictionJob:
     def test_submit_batch_prediction_job_with_bq_input_without_output_uri_prefix(
         self, create_batch_prediction_job_mock
     ):
-        model = GenerativeModel(_TEST_GEMINI_MODEL_NAME)
         job = batch_prediction.BatchPredictionJob.submit(
-            source_model=model,
+            source_model=_TEST_GEMINI_MODEL_NAME,
             input_dataset=_TEST_BQ_INPUT_URI,
         )
 
@@ -970,7 +964,7 @@ class TestBatchPredictionJob:
             ValueError,
             match=(
                 "Please either specify output_uri_prefix or "
-                "set staging_bucket in vertexai.init()."
+                "set staging_bucket in agentplatform.init()."
             ),
         ):
             batch_prediction.BatchPredictionJob.submit(
