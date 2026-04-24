@@ -708,6 +708,45 @@ class TestPipelineJob:
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
 
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0)
+    def test_block_until_complete_logs_symbolic_state_name(
+        self,
+        mock_pipeline_service_create,
+        mock_pipeline_service_get,
+        mock_pipeline_bucket_exists,
+    ):
+        """State log must use symbolic enum name, not a bare integer (regression for Python 3.11+)."""
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            staging_bucket=_TEST_GCS_BUCKET_NAME,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+
+        logged_messages = []
+
+        with patch.object(storage.Blob, "download_as_bytes") as mock_load, \
+             mock.patch.object(
+                 pipeline_jobs._LOGGER, "info",
+                 side_effect=lambda msg, *a, **kw: logged_messages.append(msg)
+             ):
+            mock_load.return_value = _TEST_PIPELINE_SPEC_JSON.encode()
+
+            job = pipeline_jobs.PipelineJob(
+                display_name=_TEST_PIPELINE_JOB_DISPLAY_NAME,
+                template_path=_TEST_TEMPLATE_PATH,
+                job_id=_TEST_PIPELINE_JOB_ID,
+            )
+            job.run(sync=True, create_request_timeout=None)
+
+        state_log = next(
+            (m for m in logged_messages if "current state" in m), None
+        )
+        assert state_log is not None, "No 'current state' log message found"
+        assert "PIPELINE_STATE_RUNNING" in state_log
+        assert "current state:\n3" not in state_log
+
     @pytest.mark.parametrize(
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],

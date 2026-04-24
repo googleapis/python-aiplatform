@@ -43,6 +43,7 @@ from google.cloud.aiplatform.compat.types import (
 )
 from google.cloud.aiplatform import (
     pipeline_job_schedules,
+    schedules as aiplatform_schedules,
 )
 from google.cloud.aiplatform.preview.pipelinejob import (
     pipeline_jobs as preview_pipeline_jobs,
@@ -433,6 +434,47 @@ class TestPipelineJobSchedule:
 
     def teardown_method(self):
         initializer.global_pool.shutdown(wait=True)
+
+    def test_block_until_complete_logs_symbolic_state_name(self):
+        """State log must use symbolic enum name, not a bare integer (regression for Python 3.11+)."""
+        state_sequence = [
+            gca_schedule.Schedule.State.ACTIVE,     # first loop check
+            gca_schedule.Schedule.State.COMPLETED,  # second check exits loop
+        ]
+        state_index = [0]
+
+        def get_state():
+            s = state_sequence[state_index[0]]
+            state_index[0] = min(state_index[0] + 1, len(state_sequence) - 1)
+            return s
+
+        mock_schedule = mock.Mock()
+        type(mock_schedule).state = mock.PropertyMock(side_effect=get_state)
+
+        active_gca = gca_schedule.Schedule(
+            name=_TEST_PIPELINE_JOB_SCHEDULE_NAME,
+            state=gca_schedule.Schedule.State.ACTIVE,
+        )
+        mock_schedule._gca_resource = active_gca
+
+        logged_messages = []
+
+        # time.time: first call sets previous_time=0; second gives 10 → triggers log (10 >= 5)
+        time_vals = iter([0.0, 10.0, 20.0])
+        with mock.patch("google.cloud.aiplatform.schedules.time.time", side_effect=time_vals), \
+             mock.patch("google.cloud.aiplatform.schedules.time.sleep"), \
+             mock.patch.object(
+                 aiplatform_schedules._LOGGER, "info",
+                 side_effect=lambda msg, *a, **kw: logged_messages.append(msg)
+             ):
+            aiplatform_schedules._Schedule._block_until_complete(mock_schedule)
+
+        state_log = next(
+            (m for m in logged_messages if "current state" in m), None
+        )
+        assert state_log is not None, "No 'current state' log message found"
+        assert "ACTIVE" in state_log
+        assert "current state:\n1" not in state_log
 
     @pytest.mark.parametrize(
         "job_spec",
