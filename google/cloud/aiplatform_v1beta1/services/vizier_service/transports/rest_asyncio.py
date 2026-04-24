@@ -4009,6 +4009,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
@@ -4074,6 +4078,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -4419,6 +4427,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -4508,6 +4520,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -4861,6 +4877,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -4950,6 +4970,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -5299,6 +5323,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
@@ -5388,6 +5416,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -5737,6 +5769,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
@@ -5822,6 +5858,10 @@ class AsyncVizierServiceRestTransport(_BaseVizierServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:wait",
                     },
                 ],
             }

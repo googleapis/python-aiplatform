@@ -1162,6 +1162,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                 },
                 {
@@ -1227,6 +1231,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:cancel",
                 },
             ]
             return http_options
@@ -1591,6 +1599,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                },
+                {
+                    "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -1680,6 +1692,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                 },
             ]
             return http_options
@@ -2052,6 +2068,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                 },
                 {
@@ -2141,6 +2161,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                 },
             ]
             return http_options
@@ -2509,6 +2533,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
                 },
                 {
@@ -2598,6 +2626,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                },
+                {
+                    "method": "get",
+                    "uri": "/v1beta1/{name=onlineEvaluators/*}/operations",
                 },
             ]
             return http_options
@@ -2966,6 +2998,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                 },
                 {
@@ -3051,6 +3087,10 @@ class _BaseModelGardenServiceRestTransport(ModelGardenServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:wait",
                 },
             ]
             return http_options
