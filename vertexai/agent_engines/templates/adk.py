@@ -26,6 +26,7 @@ from typing import (
 
 import asyncio
 from collections.abc import Awaitable
+import os
 import queue
 import sys
 import threading
@@ -105,6 +106,10 @@ _TELEMETRY_API_DISABLED_WARNING = (
     "\n"
     "(If you enabled this API recently, you can safely ignore this warning.)"
 )
+
+
+def _get_default_app_name() -> str:
+    return os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID") or _DEFAULT_APP_NAME
 
 
 def get_adk_version() -> Optional[str]:
@@ -892,12 +897,7 @@ class AdkApp:
             )
 
         if not self._tmpl_attrs.get("app_name"):
-            if "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-                self._tmpl_attrs["app_name"] = os.environ.get(
-                    "GOOGLE_CLOUD_AGENT_ENGINE_ID",
-                )
-            else:
-                self._tmpl_attrs["app_name"] = _DEFAULT_APP_NAME
+            self._tmpl_attrs["app_name"] = _get_default_app_name()
 
         artifact_service_builder = self._tmpl_attrs.get("artifact_service_builder")
         if artifact_service_builder:
