@@ -262,3 +262,10 @@ async def save_dataframe_to_bigquery_async(
     )
     await asyncio.to_thread(copy_job.result)
     await asyncio.to_thread(bq_client.delete_table, temp_table_id)
+
+
+def resolve_dataset_name(resource_name_or_id: str, project: str, location: str) -> str:
+    """Resolves a dataset name or ID to a full resource name."""
+    if "/" not in resource_name_or_id:
+        return f"projects/{project}/locations/{location}/datasets/{resource_name_or_id}"
+    return resource_name_or_id

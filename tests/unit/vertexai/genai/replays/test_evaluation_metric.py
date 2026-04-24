@@ -17,12 +17,15 @@ import re
 
 from tests.unit.vertexai.genai.replays import pytest_helper
 from vertexai._genai import types
+from google.genai import errors
+import pytest
+
 
 _TEST_PROJECT = "977012026409"
 _TEST_LOCATION = "us-central1"
 
 
-def test_create_and_get_evaluation_metric(client):
+def test_create_get_delete_evaluation_metric(client):
     client._api_client._http_options.api_version = "v1beta1"
     result = client.evals.create_evaluation_metric(
         display_name="test_metric",
@@ -40,12 +43,30 @@ def test_create_and_get_evaluation_metric(client):
     assert isinstance(metric, types.EvaluationMetric)
     assert metric.display_name == "test_metric"
 
+    client.evals.delete_evaluation_metric(metric_resource_name=result)
+
+    # Verify that the metric no longer exists
+    with pytest.raises(errors.ClientError, match="404"):
+        client.evals.get_evaluation_metric(metric_resource_name=result)
+
 
 def test_list_evaluation_metrics(client):
     client._api_client._http_options.api_version = "v1beta1"
     response = client.evals.list_evaluation_metrics()
     assert isinstance(response, types.ListEvaluationMetricsResponse)
     assert len(response.evaluation_metrics) >= 0
+
+
+def test_list_evaluation_metrics_with_filter(client):
+    client._api_client._http_options.api_version = "v1beta1"
+    response = client.evals.list_evaluation_metrics(
+        filter='display_name="tone-check-v1"',
+        order_by="create_time desc",
+    )
+    assert isinstance(response, types.ListEvaluationMetricsResponse)
+    assert len(response.evaluation_metrics) >= 1
+    for metric in response.evaluation_metrics:
+        assert metric.display_name == "tone-check-v1"
 
 
 # The setup function registers the module and method for the recorder

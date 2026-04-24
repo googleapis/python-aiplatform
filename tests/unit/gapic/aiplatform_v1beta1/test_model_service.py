@@ -5949,6 +5949,7 @@ def test_copy_model_non_empty_request_with_auto_populated_field():
         parent_model="parent_model_value",
         parent="parent_value",
         source_model="source_model_value",
+        custom_service_account="custom_service_account_value",
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
@@ -5964,6 +5965,7 @@ def test_copy_model_non_empty_request_with_auto_populated_field():
             parent_model="parent_model_value",
             parent="parent_value",
             source_model="source_model_value",
+            custom_service_account="custom_service_account_value",
         )
 
 

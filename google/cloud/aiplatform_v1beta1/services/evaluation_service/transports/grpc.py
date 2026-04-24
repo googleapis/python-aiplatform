@@ -401,6 +401,40 @@ class EvaluationServiceGrpcTransport(EvaluationServiceTransport):
             )
         return self._stubs["evaluate_dataset"]
 
+    @property
+    def generate_instance_rubrics(
+        self,
+    ) -> Callable[
+        [evaluation_service.GenerateInstanceRubricsRequest],
+        evaluation_service.GenerateInstanceRubricsResponse,
+    ]:
+        r"""Return a callable for the generate instance rubrics method over gRPC.
+
+        Generates rubrics for a given prompt.
+        A rubric represents a single testable criterion for
+        evaluation. One input prompt could have multiple rubrics
+        This RPC allows users to get suggested rubrics based on
+        provided prompt, which can then be reviewed and used for
+        subsequent evaluations.
+
+        Returns:
+            Callable[[~.GenerateInstanceRubricsRequest],
+                    ~.GenerateInstanceRubricsResponse]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "generate_instance_rubrics" not in self._stubs:
+            self._stubs["generate_instance_rubrics"] = self._logged_channel.unary_unary(
+                "/google.cloud.aiplatform.v1beta1.EvaluationService/GenerateInstanceRubrics",
+                request_serializer=evaluation_service.GenerateInstanceRubricsRequest.serialize,
+                response_deserializer=evaluation_service.GenerateInstanceRubricsResponse.deserialize,
+            )
+        return self._stubs["generate_instance_rubrics"]
+
     def close(self):
         self._logged_channel.close()
 
