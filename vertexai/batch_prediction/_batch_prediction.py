@@ -292,7 +292,7 @@ class BatchPredictionJob(aiplatform_base._VertexAiResourceNounPlus):
         project = fields.pop("project")
         job = list(fields.values())[0]
         return (
-            "https://console.cloud.google.com/ai/platform/locations/"
+            "https://console.cloud.google.com/agent-platform/locations/"
             f"{location}/{self._job_type}/{job}?project={project}"
         )
 
