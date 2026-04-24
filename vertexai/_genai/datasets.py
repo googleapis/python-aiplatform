@@ -1146,8 +1146,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset. The name should be in
-            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           config:
             Optional. A configuration for getting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -1161,6 +1161,10 @@ class Datasets(_api_module.BaseModule):
         elif not config:
             config = types.VertexBaseConfig()
 
+        name = _datasets_utils.resolve_dataset_name(
+            name, self._api_client.project, self._api_client.location
+        )
+
         return self._get_multimodal_dataset(config=config, name=name)
 
     def delete_multimodal_dataset(
@@ -1173,8 +1177,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset. The name should be in
-            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           config:
             Optional. A configuration for deleting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -1187,6 +1191,10 @@ class Datasets(_api_module.BaseModule):
             config = types.VertexBaseConfig(**config)
         elif not config:
             config = types.VertexBaseConfig()
+
+        name = _datasets_utils.resolve_dataset_name(
+            name, self._api_client.project, self._api_client.location
+        )
 
         return self._delete_multimodal_dataset(config=config, name=name)
 
@@ -1205,8 +1213,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. The name of the dataset to assemble. The name should be in
-            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           gemini_request_read_config:
             Optional. The read config to use to assemble the dataset. If
             not provided, the read config attached to the dataset will be
@@ -1222,6 +1230,10 @@ class Datasets(_api_module.BaseModule):
             config = types.AssembleDatasetConfig(**config)
         elif not config:
             config = types.AssembleDatasetConfig()
+
+        name = _datasets_utils.resolve_dataset_name(
+            name, self._api_client.project, self._api_client.location
+        )
 
         operation = self._assemble_multimodal_dataset(
             name=name,
@@ -1248,8 +1260,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the tuning resources
-            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
@@ -1270,6 +1282,10 @@ class Datasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = self._assess_multimodal_dataset(
             name=dataset_name,
@@ -1304,8 +1320,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the tuning validity
-            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
               Required. The name of the model to assess the tuning validity
               for.
@@ -1331,6 +1347,10 @@ class Datasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = self._assess_multimodal_dataset(
             name=dataset_name,
@@ -1364,8 +1384,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the batch prediction
-            resources. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
@@ -1391,6 +1411,10 @@ class Datasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = self._assess_multimodal_dataset(
             name=dataset_name,
@@ -1425,8 +1449,8 @@ class Datasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the batch prediction
-            validity for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
@@ -1450,6 +1474,10 @@ class Datasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = self._assess_multimodal_dataset(
             name=dataset_name,
@@ -2384,20 +2412,24 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset. The name should be in
-            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           config:
             Optional. A configuration for getting the multimodal dataset. If not
             provided, the default configuration will be used.
 
         Returns:
-          A types.MultimodalDataset object representing the updated multimodal
+          A types.MultimodalDataset object representing the retrieved multimodal
           dataset.
         """
         if isinstance(config, dict):
             config = types.VertexBaseConfig(**config)
         elif not config:
             config = types.VertexBaseConfig()
+
+        name = _datasets_utils.resolve_dataset_name(
+            name, self._api_client.project, self._api_client.location
+        )
 
         return await self._get_multimodal_dataset(config=config, name=name)
 
@@ -2411,8 +2443,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. name of a multimodal dataset. The name should be in
-            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           config:
             Optional. A configuration for deleting the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -2425,6 +2457,10 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.VertexBaseConfig(**config)
         elif not config:
             config = types.VertexBaseConfig()
+
+        name = _datasets_utils.resolve_dataset_name(
+            name, self._api_client.project, self._api_client.location
+        )
 
         return await self._delete_multimodal_dataset(config=config, name=name)
 
@@ -2443,8 +2479,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           name:
-            Required. The name of the dataset to assemble. The name should be in
-            the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           gemini_request_read_config:
             Optional. The read config to use to assemble the dataset. If
             not provided, the read config attached to the dataset will be
@@ -2460,6 +2496,10 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.AssembleDatasetConfig(**config)
         elif not config:
             config = types.AssembleDatasetConfig()
+
+        name = _datasets_utils.resolve_dataset_name(
+            name, self._api_client.project, self._api_client.location
+        )
 
         operation = await self._assemble_multimodal_dataset(
             name=name,
@@ -2486,8 +2526,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the tuning resources
-            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
             Required. The name of the model to assess the tuning resources
             for.
@@ -2508,6 +2548,10 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = await self._assess_multimodal_dataset(
             name=dataset_name,
@@ -2542,8 +2586,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the tuning validity
-            for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
               Required. The name of the model to assess the tuning validity
               for.
@@ -2569,6 +2613,10 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = await self._assess_multimodal_dataset(
             name=dataset_name,
@@ -2602,8 +2650,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the batch prediction
-            resources. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
               Required. The name of the model to assess the batch prediction
               resources.
@@ -2629,6 +2677,10 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = await self._assess_multimodal_dataset(
             name=dataset_name,
@@ -2663,8 +2715,8 @@ class AsyncDatasets(_api_module.BaseModule):
 
         Args:
           dataset_name:
-            Required. The name of the dataset to assess the batch prediction
-            validity for. The name should be in the format of "projects/{project}/locations/{location}/datasets/{dataset}".
+            Required. A fully-qualified resource name or ID of the dataset.
+            Example: "projects/.../locations/.../datasets/123" or "123".
           model_name:
             Required. The name of the model to assess the batch prediction
             validity for.
@@ -2688,6 +2740,10 @@ class AsyncDatasets(_api_module.BaseModule):
             config = types.AssessDatasetConfig(**config)
         elif not config:
             config = types.AssessDatasetConfig()
+
+        dataset_name = _datasets_utils.resolve_dataset_name(
+            dataset_name, self._api_client.project, self._api_client.location
+        )
 
         operation = await self._assess_multimodal_dataset(
             name=dataset_name,
