@@ -359,7 +359,8 @@ class TestAdkApp:
         os.environ,
         {"GOOGLE_CLOUD_AGENT_ENGINE_ID": _TEST_RESOURCE_ID},
     )
-    def test_initialization_keeps_explicit_app_name(self):
+    @mock.patch.object(adk_template, "get_adk_version", return_value="1.5.0")
+    def test_initialization_keeps_explicit_app_name(self, unused_get_adk_version_mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT, app_name="custom_app")
 
         assert app._tmpl_attrs["app_name"] == "custom_app"
