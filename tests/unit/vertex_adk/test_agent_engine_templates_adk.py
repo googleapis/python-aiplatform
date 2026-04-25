@@ -368,6 +368,106 @@ class TestAdkApp:
             for operation in operations:
                 assert operation in dir(app)
 
+    @mock.patch("os.rename")
+    @mock.patch("tempfile.NamedTemporaryFile")
+    @mock.patch("time.time", return_value=1000.0)
+    @mock.patch("os.getpid", return_value=12345)
+    @mock.patch("os.path.exists", return_value=True)
+    @mock.patch("os.path.isdir", return_value=True)
+    def test__update_keep_alive_timestamp(
+        self,
+        isdir_mock,
+        exists_mock,
+        getpid_mock,
+        time_mock,
+        tempfile_mock,
+        rename_mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+
+        mock_tf_ret = mock.MagicMock()  # this is result of NamedTemporaryFile call
+        mock_tf_ret.name = "/dev/shm/tmp_xyz123"
+        mock_tf_ret.__enter__.return_value = mock_tf_ret
+        mock_tf_ret.__exit__.return_value = (None, None, None)
+        tempfile_mock.return_value = mock_tf_ret
+
+        app._update_keep_alive_timestamp()
+
+        tempfile_mock.assert_called_once_with(
+            "w",
+            dir="/dev/shm",
+            delete=False,
+            prefix="tmp_keep_alive_timestamp_12345_",
+        )
+        pid = 12345
+        lease = 60 * 60
+        expected_timestamp = str(1000.0 + lease)
+        mock_tf_ret.write.assert_called_once_with(expected_timestamp)
+        rename_mock.assert_called_once_with(
+            "/dev/shm/tmp_xyz123", f"/dev/shm/keep_alive_timestamp_{pid}"
+        )
+
+    @mock.patch("glob.glob")
+    @mock.patch("os.kill")
+    @mock.patch("os.remove")
+    @mock.patch("time.time")
+    def test_keep_alive_no_files(self, time_mock, remove_mock, kill_mock, glob_mock):
+        glob_mock.return_value = []
+        time_mock.return_value = 1000.0
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert not app.keep_alive()
+
+    @mock.patch("glob.glob")
+    @mock.patch("os.kill")
+    @mock.patch("os.remove")
+    @mock.patch("time.time")
+    def test_keep_alive_one_file_busy(
+        self, time_mock, remove_mock, kill_mock, glob_mock
+    ):
+        pid = 12345
+        glob_mock.return_value = [f"/dev/shm/keep_alive_timestamp_{pid}"]
+        time_mock.return_value = 1500.0
+        mock_read_data = str(2000.0)  # Timestamp in file is in future
+        with mock.patch("builtins.open", mock.mock_open(read_data=mock_read_data)):
+            app = agent_engines.AdkApp(agent=_TEST_AGENT)
+            assert app.keep_alive()
+        kill_mock.assert_called_once_with(pid, 0)
+        remove_mock.assert_not_called()
+
+    @mock.patch("glob.glob")
+    @mock.patch("os.kill")
+    @mock.patch("os.remove")
+    @mock.patch("time.time")
+    def test_keep_alive_one_file_not_busy(
+        self, time_mock, remove_mock, kill_mock, glob_mock
+    ):
+        pid = 12345
+        glob_mock.return_value = [f"/dev/shm/keep_alive_timestamp_{pid}"]
+        time_mock.return_value = 2500.0
+        mock_read_data = str(2000.0)  # Timestamp in file is in past
+        with mock.patch("builtins.open", mock.mock_open(read_data=mock_read_data)):
+            app = agent_engines.AdkApp(agent=_TEST_AGENT)
+            assert not app.keep_alive()
+        kill_mock.assert_called_once_with(pid, 0)
+        remove_mock.assert_not_called()
+
+    @mock.patch("glob.glob")
+    @mock.patch("os.kill")
+    @mock.patch("os.remove")
+    @mock.patch("time.time")
+    def test_keep_alive_stale_file_process_dead(
+        self, time_mock, remove_mock, kill_mock, glob_mock
+    ):
+        pid = 12345
+        stale_file = f"/dev/shm/keep_alive_timestamp_{pid}"
+        glob_mock.return_value = [stale_file]
+        kill_mock.side_effect = ProcessLookupError()
+        time_mock.return_value = 1000.0
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert not app.keep_alive()
+        kill_mock.assert_called_once_with(pid, 0)
+        remove_mock.assert_called_once_with(stale_file)
+
     def test_stream_query(
         self,
         default_instrumentor_builder_mock: mock.Mock,
