@@ -541,7 +541,7 @@ class LanggraphAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
-        from langchain.load import dump as langchain_load_dump
+        from langchain_core.load import dump as langchain_load_dump
 
         if isinstance(input, str):
             input = {"input": input}
@@ -572,7 +572,7 @@ class LanggraphAgent:
         Yields:
             The output of querying the Agent with the given input and config.
         """
-        from langchain.load import dump as langchain_load_dump
+        from langchain_core.load import dump as langchain_load_dump
 
         if isinstance(input, str):
             input = {"input": input}
