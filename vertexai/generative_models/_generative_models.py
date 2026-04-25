@@ -1764,6 +1764,7 @@ class GenerationConfig:
 
     Modality = gapic_content_types.GenerationConfig.Modality
     ModelConfig = gapic_content_types.GenerationConfig.ModelConfig
+    ThinkingConfig = types_v1.GenerationConfig.ThinkingConfig
 
     def __init__(
         self,
@@ -1785,6 +1786,7 @@ class GenerationConfig:
         response_logprobs: Optional[bool] = None,
         response_modalities: Optional[List["GenerationConfig.Modality"]] = None,
         model_config: Optional["GenerationConfig.ModelConfig"] = None,
+        thinking_config: Optional["GenerationConfig.ThinkingConfig"] = None,
     ):
         r"""Constructs a GenerationConfig object.
 
@@ -1817,6 +1819,11 @@ class GenerationConfig:
             logprobs: Logit probabilities.
             reponse_logprobs: If true, export the logprobs results in response.
             model_config: Sets cost vs quality preference for model routing requests.
+            thinking_config: Configuration for thinking features
+                (thinking_level, thinking_budget, include_thoughts). Use
+                ``GenerationConfig.ThinkingConfig`` to construct. Note:
+                ``thinking_level`` is not preserved by ``to_dict()``/``from_dict()``
+                due to v1beta1 proto limitations.
 
         Usage:
 
@@ -1863,6 +1870,15 @@ class GenerationConfig:
         if routing_config is not None:
             self._raw_generation_config.routing_config = (
                 routing_config._gapic_routing_config
+            )
+        if thinking_config is not None:
+            # Convert v1 ThinkingConfig to v1beta1 via binary serialization.
+            # This preserves thinking_level (field 4) as an unknown field in
+            # v1beta1, which survives the v1beta1 → v1 conversion in GA model.
+            self._raw_generation_config.thinking_config = (
+                gapic_content_types.GenerationConfig.ThinkingConfig.deserialize(
+                    type(thinking_config).serialize(thinking_config)
+                )
             )
 
     @classmethod
