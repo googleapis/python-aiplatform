@@ -16905,9 +16905,7 @@ EvalRunInferenceConfigOrDict = Union[EvalRunInferenceConfig, EvalRunInferenceCon
 class AgentEngine(_common.BaseModel):
     """An agent engine instance."""
 
-    api_client: Optional[Any] = Field(
-        default=None, description="""The underlying API client."""
-    )
+    api_client: Optional[Any] = Field(default=None, description="""Test.""")
     api_async_client: Optional[Any] = Field(
         default=None,
         description="""The underlying API client for asynchronous operations.""",
@@ -16990,7 +16988,7 @@ class AgentEngineDict(TypedDict, total=False):
     """An agent engine instance."""
 
     api_client: Optional[Any]
-    """The underlying API client."""
+    """Test."""
 
     api_async_client: Optional[Any]
     """The underlying API client for asynchronous operations."""
