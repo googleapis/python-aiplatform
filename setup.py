@@ -325,6 +325,7 @@ setuptools.setup(
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
         "google-genai >= 1.37.0, <2.0.0; python_version<'3.10'",
         "google-genai >= 1.66.0, <2.0.0; python_version>='3.10'",
+        "msgpack >= 1.0.0",
     )
     + genai_requires,
     extras_require={
