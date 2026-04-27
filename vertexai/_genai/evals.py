@@ -683,6 +683,13 @@ def _GenerateUserScenariosParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["allow_cross_region_model"]) is not None:
+        setv(
+            to_object,
+            ["allowCrossRegionModel"],
+            getv(from_object, ["allow_cross_region_model"]),
+        )
+
     return to_object
 
 
@@ -1473,6 +1480,7 @@ class Evals(_api_module.BaseModule):
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
         config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.GenerateUserScenariosResponse:
         """
         Generates user scenarios for agent evaluation.
@@ -1484,6 +1492,7 @@ class Evals(_api_module.BaseModule):
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2852,6 +2861,7 @@ class Evals(_api_module.BaseModule):
         *,
         agent_info: evals_types.AgentInfoOrDict,
         config: evals_types.UserScenarioGenerationConfigOrDict,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
@@ -2860,6 +2870,8 @@ class Evals(_api_module.BaseModule):
         Args:
             agent_info: The agent info to generate user scenarios for.
             config: Configuration for generating user scenarios.
+            allow_cross_region_model: Opt-in flag to authorize cross-region
+                routing for model inference.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
@@ -2873,6 +2885,7 @@ class Evals(_api_module.BaseModule):
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
             user_scenario_generation_config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
@@ -3592,6 +3605,7 @@ class AsyncEvals(_api_module.BaseModule):
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
         config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.GenerateUserScenariosResponse:
         """
         Generates user scenarios for agent evaluation.
@@ -3603,6 +3617,7 @@ class AsyncEvals(_api_module.BaseModule):
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4622,6 +4637,7 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         agent_info: evals_types.AgentInfoOrDict,
         config: evals_types.UserScenarioGenerationConfigOrDict,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
@@ -4630,6 +4646,8 @@ class AsyncEvals(_api_module.BaseModule):
         Args:
             agent_info: The agent info to generate user scenarios for.
             config: Configuration for generating user scenarios.
+            allow_cross_region_model: Opt-in flag to authorize cross-region
+                routing for model inference.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
@@ -4643,6 +4661,7 @@ class AsyncEvals(_api_module.BaseModule):
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
             user_scenario_generation_config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 

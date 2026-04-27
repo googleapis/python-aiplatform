@@ -5012,6 +5012,10 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
     config: Optional[GenerateUserScenariosConfig] = Field(
         default=None, description=""""""
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Opt-in flag to authorize cross-region routing for LLM models.""",
+    )
 
 
 class _GenerateUserScenariosParametersDict(TypedDict, total=False):
@@ -5031,6 +5035,9 @@ class _GenerateUserScenariosParametersDict(TypedDict, total=False):
 
     config: Optional[GenerateUserScenariosConfigDict]
     """"""
+
+    allow_cross_region_model: Optional[bool]
+    """Opt-in flag to authorize cross-region routing for LLM models."""
 
 
 _GenerateUserScenariosParametersOrDict = Union[
