@@ -963,7 +963,9 @@ class Datasets(_api_module.BaseModule):
             operation=multimodal_dataset_operation,
             timeout_seconds=config.timeout,
         )
-        return _datasets_utils.create_from_response(types.MultimodalDataset, response)
+        return _datasets_utils.create_from_response(
+            types.MultimodalDataset, response, config
+        )
 
     def create_from_pandas(
         self,
@@ -1302,6 +1304,7 @@ class Datasets(_api_module.BaseModule):
         return _datasets_utils.create_from_response(
             types.TuningResourceUsageAssessmentResult,
             response["tuningResourceUsageAssessmentResult"],
+            config,
         )
 
     def assess_tuning_validity(
@@ -1368,6 +1371,7 @@ class Datasets(_api_module.BaseModule):
         return _datasets_utils.create_from_response(
             types.TuningValidationAssessmentResult,
             response["tuningValidationAssessmentResult"],
+            config,
         )
 
     def assess_batch_prediction_resources(
@@ -1430,7 +1434,7 @@ class Datasets(_api_module.BaseModule):
         )
         result = response["batchPredictionResourceUsageAssessmentResult"]
         return _datasets_utils.create_from_response(
-            types.BatchPredictionResourceUsageAssessmentResult, result
+            types.BatchPredictionResourceUsageAssessmentResult, result, config
         )
 
     def assess_batch_prediction_validity(
@@ -1493,7 +1497,7 @@ class Datasets(_api_module.BaseModule):
         )
         result = response["batchPredictionValidationAssessmentResult"]
         return _datasets_utils.create_from_response(
-            types.BatchPredictionValidationAssessmentResult, result
+            types.BatchPredictionValidationAssessmentResult, result, config
         )
 
 
@@ -2231,7 +2235,9 @@ class AsyncDatasets(_api_module.BaseModule):
             operation=multimodal_dataset_operation,
             timeout_seconds=config.timeout,
         )
-        return _datasets_utils.create_from_response(types.MultimodalDataset, response)
+        return _datasets_utils.create_from_response(
+            types.MultimodalDataset, response, config
+        )
 
     async def create_from_pandas(
         self,
@@ -2568,6 +2574,7 @@ class AsyncDatasets(_api_module.BaseModule):
         return _datasets_utils.create_from_response(
             types.TuningResourceUsageAssessmentResult,
             response["tuningResourceUsageAssessmentResult"],
+            config,
         )
 
     async def assess_tuning_validity(
@@ -2634,6 +2641,7 @@ class AsyncDatasets(_api_module.BaseModule):
         return _datasets_utils.create_from_response(
             types.TuningValidationAssessmentResult,
             response["tuningValidationAssessmentResult"],
+            config,
         )
 
     async def assess_batch_prediction_resources(
@@ -2696,7 +2704,7 @@ class AsyncDatasets(_api_module.BaseModule):
         )
         result = response["batchPredictionResourceUsageAssessmentResult"]
         return _datasets_utils.create_from_response(
-            types.BatchPredictionResourceUsageAssessmentResult, result
+            types.BatchPredictionResourceUsageAssessmentResult, result, config
         )
 
     async def assess_batch_prediction_validity(
@@ -2759,5 +2767,5 @@ class AsyncDatasets(_api_module.BaseModule):
         )
         result = response["batchPredictionValidationAssessmentResult"]
         return _datasets_utils.create_from_response(
-            types.BatchPredictionValidationAssessmentResult, result
+            types.BatchPredictionValidationAssessmentResult, result, config
         )
