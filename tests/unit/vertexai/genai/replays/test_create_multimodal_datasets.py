@@ -74,11 +74,20 @@ def mock_import_bigframes(is_replay_mode):
 
 @pytest.fixture
 def mock_generate_multimodal_dataset_display_name():
-    with mock.patch.object(
+  with mock.patch.object(
         _datasets_utils, "generate_multimodal_dataset_display_name"
     ) as mock_generate:
-        mock_generate.return_value = "test-generated-name"
-        yield mock_generate
+    mock_generate.return_value = "test-generated-name"
+    yield mock_generate
+
+
+@pytest.fixture
+def mock_get_batch_job_unique_name():
+  with mock.patch.object(
+      _datasets_utils, "get_batch_job_unique_name"
+  ) as mock_unique_name:
+    mock_unique_name.return_value = "12345678901234_abcde"
+    yield mock_unique_name
 
 
 def test_create_dataset(client):
@@ -169,21 +178,21 @@ def test_create_dataset_from_pandas(client, is_replay_mode):
 )
 @pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
 def test_create_dataset_from_bigframes(client, is_replay_mode):
-    import bigframes.pandas
+  import bigframes.pandas
 
-    dataframe = pd.DataFrame(
+  dataframe = pd.DataFrame(
         {
             "col1": ["col1"],
             "col2": ["col2"],
         }
     )
-    if is_replay_mode:
-        bf_dataframe = mock.MagicMock()
-        bf_dataframe.to_gbq.return_value = "temp_table_id"
-    else:
-        bf_dataframe = bigframes.pandas.DataFrame(dataframe)
+  if is_replay_mode:
+    bf_dataframe = mock.MagicMock()
+    bf_dataframe.to_gbq.return_value = "temp_table_id"
+  else:
+    bf_dataframe = bigframes.pandas.DataFrame(dataframe)
 
-    dataset = client.datasets.create_from_bigframes(
+  dataset = client.datasets.create_from_bigframes(
         dataframe=bf_dataframe,
         target_table_id=BIGQUERY_TABLE_NAME,
         multimodal_dataset={
@@ -191,21 +200,21 @@ def test_create_dataset_from_bigframes(client, is_replay_mode):
         },
     )
 
-    assert isinstance(dataset, types.MultimodalDataset)
-    assert dataset.display_name == "test-from-bigframes"
-    assert dataset.metadata.input_config.bigquery_source.uri == (
+  assert isinstance(dataset, types.MultimodalDataset)
+  assert dataset.display_name == "test-from-bigframes"
+  assert dataset.metadata.input_config.bigquery_source.uri == (
         f"bq://{BIGQUERY_TABLE_NAME}"
     )
-    if not is_replay_mode:
-        bigquery_client = bigquery.Client(
+  if not is_replay_mode:
+    bigquery_client = bigquery.Client(
             project=client._api_client.project,
             location=client._api_client.location,
             credentials=client._api_client._credentials,
         )
-        rows = bigquery_client.list_rows(
+    rows = bigquery_client.list_rows(
             dataset.metadata.input_config.bigquery_source.uri[5:]
         )
-        pd.testing.assert_frame_equal(
+    pd.testing.assert_frame_equal(
             rows.to_dataframe(), dataframe, check_index_type=False
         )
 

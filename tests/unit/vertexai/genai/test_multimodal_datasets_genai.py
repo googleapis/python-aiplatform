@@ -23,23 +23,32 @@ import pytest
 
 @pytest.fixture
 def mock_import_bigframes():
-    with mock.patch.object(
+  with mock.patch.object(
         _datasets_utils, "_try_import_bigframes"
     ) as mock_import_bigframes:
-        mock_read_gbq_table_result = mock.MagicMock()
-        mock_read_gbq_table_result.sql = "SELECT * FROM `project.dataset.table`"
+    mock_read_gbq_table_result = mock.MagicMock()
+    mock_read_gbq_table_result.sql = "SELECT * FROM `project.dataset.table`"
 
-        bigframes = mock.MagicMock()
-        bigframes.pandas.read_gbq_table.return_value = mock_read_gbq_table_result
+    bigframes = mock.MagicMock()
+    bigframes.pandas.read_gbq_table.return_value = mock_read_gbq_table_result
 
-        mock_import_bigframes.return_value = bigframes
-        yield mock_import_bigframes
+    mock_import_bigframes.return_value = bigframes
+    yield mock_import_bigframes
+
+
+@pytest.fixture
+def mock_get_batch_job_unique_name():
+  with mock.patch.object(
+      _datasets_utils, "get_batch_job_unique_name"
+  ) as mock_unique_name:
+    mock_unique_name.return_value = "12345678901234_abcde"
+    yield mock_unique_name
 
 
 class TestMultimodalDataset:
 
-    def test_read_config(self):
-        dataset = types.MultimodalDataset(
+  def test_read_config(self):
+    dataset = types.MultimodalDataset(
             metadata={
                 "gemini_request_read_config": {
                     "assembled_request_column_name": "test_column",
@@ -47,30 +56,30 @@ class TestMultimodalDataset:
             },
         )
 
-        assert isinstance(dataset.read_config, types.GeminiRequestReadConfig)
-        assert dataset.read_config.assembled_request_column_name == "test_column"
+    assert isinstance(dataset.read_config, types.GeminiRequestReadConfig)
+    assert dataset.read_config.assembled_request_column_name == "test_column"
 
-    def test_read_config_empty(self):
-        dataset = types.MultimodalDataset()
-        assert dataset.read_config is None
+  def test_read_config_empty(self):
+    dataset = types.MultimodalDataset()
+    assert dataset.read_config is None
 
-    def test_set_read_config(self):
-        dataset = types.MultimodalDataset()
+  def test_set_read_config(self):
+    dataset = types.MultimodalDataset()
 
-        dataset.set_read_config(
+    dataset.set_read_config(
             read_config={
                 "assembled_request_column_name": "test_column",
             },
         )
 
-        assert isinstance(dataset, types.MultimodalDataset)
-        assert (
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert (
             dataset.metadata.gemini_request_read_config.assembled_request_column_name
             == "test_column"
         )
 
-    def test_set_read_config_preserves_other_fields(self):
-        dataset = types.MultimodalDataset(
+  def test_set_read_config_preserves_other_fields(self):
+    dataset = types.MultimodalDataset(
             metadata={
                 "inputConfig": {
                     "bigquerySource": {"uri": "bq://test_table"},
@@ -78,21 +87,21 @@ class TestMultimodalDataset:
             },
         )
 
-        dataset.set_read_config(
+    dataset.set_read_config(
             read_config={
                 "assembled_request_column_name": "test_column",
             },
         )
 
-        assert isinstance(dataset, types.MultimodalDataset)
-        assert (
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert (
             dataset.metadata.gemini_request_read_config.assembled_request_column_name
             == "test_column"
         )
-        assert dataset.metadata.input_config.bigquery_source.uri == "bq://test_table"
+    assert dataset.metadata.input_config.bigquery_source.uri == "bq://test_table"
 
-    def test_bigquery_uri(self):
-        dataset = types.MultimodalDataset(
+  def test_bigquery_uri(self):
+    dataset = types.MultimodalDataset(
             metadata={
                 "inputConfig": {
                     "bigquerySource": {"uri": "bq://project.dataset.table"},
@@ -100,36 +109,36 @@ class TestMultimodalDataset:
             },
         )
 
-        assert dataset.bigquery_uri == "bq://project.dataset.table"
+    assert dataset.bigquery_uri == "bq://project.dataset.table"
 
-    def test_bigquery_uri_empty(self):
-        dataset = types.MultimodalDataset()
-        assert dataset.bigquery_uri is None
+  def test_bigquery_uri_empty(self):
+    dataset = types.MultimodalDataset()
+    assert dataset.bigquery_uri is None
 
-    def test_set_bigquery_uri(self):
-        dataset = types.MultimodalDataset()
+  def test_set_bigquery_uri(self):
+    dataset = types.MultimodalDataset()
 
-        dataset.set_bigquery_uri("bq://project.dataset.table")
+    dataset.set_bigquery_uri("bq://project.dataset.table")
 
-        assert isinstance(dataset, types.MultimodalDataset)
-        assert (
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert (
             dataset.metadata.input_config.bigquery_source.uri
             == "bq://project.dataset.table"
         )
 
-    def test_set_bigquery_uri_without_prefix(self):
-        dataset = types.MultimodalDataset()
+  def test_set_bigquery_uri_without_prefix(self):
+    dataset = types.MultimodalDataset()
 
-        dataset.set_bigquery_uri("project.dataset.table")
+    dataset.set_bigquery_uri("project.dataset.table")
 
-        assert isinstance(dataset, types.MultimodalDataset)
-        assert (
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert (
             dataset.metadata.input_config.bigquery_source.uri
             == "bq://project.dataset.table"
         )
 
-    def test_set_bigquery_uri_preserves_other_fields(self):
-        dataset = types.MultimodalDataset(
+  def test_set_bigquery_uri_preserves_other_fields(self):
+    dataset = types.MultimodalDataset(
             metadata={
                 "gemini_request_read_config": {
                     "assembled_request_column_name": "test_column",
@@ -137,25 +146,47 @@ class TestMultimodalDataset:
             },
         )
 
-        dataset.set_bigquery_uri("bq://test_table")
+    dataset.set_bigquery_uri("bq://test_table")
 
-        assert isinstance(dataset, types.MultimodalDataset)
-        assert dataset.metadata.input_config.bigquery_source.uri == "bq://test_table"
-        assert (
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.metadata.input_config.bigquery_source.uri == "bq://test_table"
+    assert (
             dataset.metadata.gemini_request_read_config.assembled_request_column_name
             == "test_column"
         )
 
-    def test_to_bigframes(self, mock_import_bigframes):
-        dataset = types.MultimodalDataset()
-        dataset.set_bigquery_uri("bq://project.dataset.table")
+  def test_to_bigframes(self, mock_import_bigframes):
+    dataset = types.MultimodalDataset()
+    dataset.set_bigquery_uri("bq://project.dataset.table")
 
-        df = dataset.to_bigframes()
+    df = dataset.to_bigframes()
 
-        assert "project.dataset.table" in df.sql
-        mock_import_bigframes.return_value.pandas.read_gbq_table.assert_called_once_with(
+    assert "project.dataset.table" in df.sql
+    mock_import_bigframes.return_value.pandas.read_gbq_table.assert_called_once_with(
             "project.dataset.table"
         )
+
+  def test_get_batch_job_destination(self, mock_get_batch_job_unique_name):
+    dataset = types.MultimodalDataset(
+        name="projects/vertex-sdk-dev/locations/us-central1/datasets/12345",
+        display_name="test_multimodal_dataset",
+        metadata={
+            "inputConfig": {
+                "bigquerySource": {
+                    "uri": "bq://target_project.target_dataset.target_table"
+                },
+            },
+        },
+    )
+    destination = dataset.get_batch_job_destination()
+    assert (
+        destination.vertex_dataset.display_name
+        == "test_multimodal_dataset_batch_output_12345678901234_abcde"
+    )
+    assert (
+        destination.vertex_dataset.bigquery_destination
+        == "bq://target_project.target_dataset.target_table_batch_output_12345678901234_abcde"
+    )
 
 
 class TestGeminiRequestReadConfig:

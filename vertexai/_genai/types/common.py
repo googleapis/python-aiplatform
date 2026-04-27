@@ -14094,6 +14094,28 @@ class MultimodalDataset(_common.BaseModel):
             raise ValueError("Multimodal dataset bigquery source uri is not set.")
         return bigframes.pandas.read_gbq_table(self.bigquery_uri.removeprefix("bq://"))
 
+    def to_batch_job_source(self) -> "genai_types.BatchJobSource":
+        """Converts the dataset to a BatchJobSource."""
+        return genai_types.BatchJobSource(
+            vertex_dataset_name=self.name,
+        )
+
+    def get_batch_job_destination(self) -> "genai_types.BatchJobDestination":
+        """Converts the dataset to a BatchJobDestination."""
+        from .. import _datasets_utils
+
+        unique_name = _datasets_utils.get_batch_job_unique_name()
+        bigquery_uri = self.bigquery_uri
+        if bigquery_uri is None:
+            raise ValueError("Multimodal dataset bigquery source uri is not set.")
+        curr_display_name = self.display_name or "genai_batch_job"
+        return genai_types.BatchJobDestination(
+            vertex_dataset=genai_types.VertexMultimodalDatasetDestination(
+                display_name=f"{curr_display_name}_batch_output_{unique_name}",
+                bigquery_destination=f"{bigquery_uri}_batch_output_{unique_name}",
+            )
+        )
+
 
 class MultimodalDatasetDict(TypedDict, total=False):
     """Represents a multimodal dataset."""
