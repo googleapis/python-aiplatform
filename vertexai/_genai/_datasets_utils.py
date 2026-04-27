@@ -229,8 +229,15 @@ def _generate_target_table_id(dataset_id: str) -> str:
 
 
 def generate_multimodal_dataset_display_name() -> str:
-    """Generates a display name with a timestamp."""
-    return f"MultimodalDataset {datetime.datetime.now().isoformat(sep=' ')}"
+  """Generates a display name with a timestamp."""
+  return f"MultimodalDataset {datetime.datetime.now().isoformat(sep=' ')}"
+
+
+def get_batch_job_unique_name() -> str:
+  """Generates a unique name suffix for a batch job destination."""
+  timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+  unique_id = uuid.uuid4().hex[0:5]
+  return f"{timestamp}_{unique_id}"
 
 
 def save_dataframe_to_bigquery(
