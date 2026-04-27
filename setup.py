@@ -183,9 +183,10 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm>=1.75.5, <1.83.7, !=1.82.7, !=1.82.8",
-    # For LiteLLM tests. Upper bound pinned below latest version.
-    # Exclude 1.82.7 and 1.82.8 due to supply chain attack.
+    "litellm>=1.83.7, <1.83.15",
+    # For LiteLLM tests. Lower bound: CVE-2026-35030 plus 4 follow-on
+    # advisories patched in 1.83.7. Upper bound <1.83.15 admits current
+    # latest (1.83.14).
 ]
 
 langchain_extra_require = [
