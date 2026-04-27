@@ -7502,7 +7502,7 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
     )
     min_instances: Optional[int] = Field(
         default=None,
-        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10].""",
+        description="""Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 75].""",
     )
     psc_interface_config: Optional[PscInterfaceConfig] = Field(
         default=None, description="""Optional. Configuration for PSC-I."""
@@ -7543,7 +7543,7 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
     """Optional. The maximum number of application instances that can be launched to handle increased traffic. Defaults to 100. Range: [1, 1000]. If VPC-SC or PSC-I is enabled, the acceptable range is [1, 100]."""
 
     min_instances: Optional[int]
-    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 10]."""
+    """Optional. The minimum number of application instances that will be kept running at all times. Defaults to 1. Range: [0, 75]."""
 
     psc_interface_config: Optional[PscInterfaceConfigDict]
     """Optional. Configuration for PSC-I."""
@@ -11788,6 +11788,10 @@ class SandboxEnvironmentConnectionInfo(_common.BaseModel):
         default=None,
         description="""Output only. The hostname of the SandboxEnvironment.""",
     )
+    routing_token: Optional[str] = Field(
+        default=None,
+        description="""Output only. The routing token for the SandboxEnvironment.""",
+    )
 
 
 class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
@@ -11804,6 +11808,9 @@ class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
 
     sandbox_hostname: Optional[str]
     """Output only. The hostname of the SandboxEnvironment."""
+
+    routing_token: Optional[str]
+    """Output only. The routing token for the SandboxEnvironment."""
 
 
 SandboxEnvironmentConnectionInfoOrDict = Union[
@@ -11850,6 +11857,22 @@ class SandboxEnvironment(_common.BaseModel):
         default=None,
         description="""Output only. The timestamp when this SandboxEnvironment was most recently updated.""",
     )
+    latest_sandbox_environment_snapshot: Optional[str] = Field(
+        default=None,
+        description="""Output only. The resource name of the latest snapshot taken for this SandboxEnvironment.""",
+    )
+    owner: Optional[str] = Field(
+        default=None,
+        description="""Optional. Owner information for this sandbox environment. A Sandbox can only be restored from a snapshot that belongs to the same owner. If not set, sandbox will be created as the default owner.""",
+    )
+    sandbox_environment_snapshot: Optional[str] = Field(
+        default=None,
+        description="""Optional. The resource name of the SandboxEnvironmentSnapshot to use for creating this SandboxEnvironment. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentSnapshots/{sandbox_environment_snapshot}`""",
+    )
+    sandbox_environment_template: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the SandboxEnvironmentTemplate specified in the parent Agent Engine resource that this SandboxEnvironment is created from. Only one of `sandbox_environment_template` and `spec` should be set.""",
+    )
 
 
 class SandboxEnvironmentDict(TypedDict, total=False):
@@ -11882,6 +11905,18 @@ class SandboxEnvironmentDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironment was most recently updated."""
+
+    latest_sandbox_environment_snapshot: Optional[str]
+    """Output only. The resource name of the latest snapshot taken for this SandboxEnvironment."""
+
+    owner: Optional[str]
+    """Optional. Owner information for this sandbox environment. A Sandbox can only be restored from a snapshot that belongs to the same owner. If not set, sandbox will be created as the default owner."""
+
+    sandbox_environment_snapshot: Optional[str]
+    """Optional. The resource name of the SandboxEnvironmentSnapshot to use for creating this SandboxEnvironment. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentSnapshots/{sandbox_environment_snapshot}`"""
+
+    sandbox_environment_template: Optional[str]
+    """Optional. The name of the SandboxEnvironmentTemplate specified in the parent Agent Engine resource that this SandboxEnvironment is created from. Only one of `sandbox_environment_template` and `spec` should be set."""
 
 
 SandboxEnvironmentOrDict = Union[SandboxEnvironment, SandboxEnvironmentDict]
