@@ -81,6 +81,15 @@ def mock_generate_multimodal_dataset_display_name():
         yield mock_generate
 
 
+@pytest.fixture
+def mock_get_batch_job_unique_name():
+    with mock.patch.object(
+        _datasets_utils, "get_batch_job_unique_name"
+    ) as mock_unique_name:
+        mock_unique_name.return_value = "12345678901234_abcde"
+        yield mock_unique_name
+
+
 def test_create_dataset(client):
     create_dataset_operation = client.datasets._create_multimodal_dataset(
         name="projects/vertex-sdk-dev/locations/us-central1",
