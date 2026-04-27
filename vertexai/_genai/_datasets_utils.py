@@ -21,7 +21,7 @@ import uuid
 
 import google.auth.credentials
 from vertexai._genai.types import common
-from pydantic import BaseModel
+from google.genai import _common
 
 
 METADATA_SCHEMA_URI = (
@@ -31,18 +31,27 @@ _BQ_MULTIREGIONS = {"us", "eu"}
 _DEFAULT_BQ_DATASET_PREFIX = "vertex_datasets"
 _DEFAULT_BQ_TABLE_PREFIX = "multimodal_dataset"
 
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar("T", bound=_common.BaseModel)
 
 
-def create_from_response(model_type: Type[T], response: dict[str, Any]) -> T:
+def create_from_response(
+    model_type: Type[T],
+    response: dict[str, Any],
+    config: Any | None = None,
+) -> T:
     """Creates a model from a response."""
-    model_field_names = model_type.model_fields.keys()
-    filtered_response = {}
-    for key, value in response.items():
-        snake_key = common.camel_to_snake(key)
-        if snake_key in model_field_names:
-            filtered_response[snake_key] = value
-    return model_type(**filtered_response)
+    kwargs = (
+        {
+            "config": {
+                "response_schema": getattr(config, "response_schema", None),
+                "response_json_schema": getattr(config, "response_json_schema", None),
+                "include_all_fields": getattr(config, "include_all_fields", None),
+            }
+        }
+        if config
+        else {}
+    )
+    return model_type._from_response(response=response, kwargs=kwargs)
 
 
 def validate_multimodal_dataset_bigquery_uri(
