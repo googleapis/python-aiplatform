@@ -212,7 +212,7 @@ class _Job(base.VertexAiStatefulResource):
         location = fields.pop("location")
         project = fields.pop("project")
         job = list(fields.values())[0]
-        url = f"https://console.cloud.google.com/ai/platform/locations/{location}/{self._job_type}/{job}?project={project}"
+        url = f"https://console.cloud.google.com/agent-platform/locations/{location}/{self._job_type}/{job}?project={project}"
         return url
 
     def _log_job_state(self):
