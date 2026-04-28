@@ -23,6 +23,8 @@ from typing import (
     Sequence,
     Union,
 )
+import os
+import copy
 
 if TYPE_CHECKING:
     try:
@@ -250,53 +252,55 @@ class AG2Agent:
         """
         from google.cloud.aiplatform import initializer
 
-        # Set up llm config.
-        self._project = initializer.global_config.project
-        self._location = initializer.global_config.location
-        self._model_name = model or "gemini-1.0-pro-001"
-        self._api_type = api_type or "google"
-        self._llm_config = llm_config or {
-            "config_list": [
-                {
-                    "project_id": self._project,
-                    "location": self._location,
-                    "model": self._model_name,
-                    "api_type": self._api_type,
-                }
-            ]
+        self._tmpl_attrs: dict[str, Any] = {
+            "project": initializer.global_config.project,
+            "location": initializer.global_config.location,
+            "model_name": model,
+            "api_type": api_type or "google",
+            "system_instruction": system_instruction,
+            "runnable_name": runnable_name,
+            "tools": [],
+            "ag2_tool_objects": [],
+            "runnable": None,
+            "runnable_builder": runnable_builder,
+            "instrumentor": None,
+            "enable_tracing": enable_tracing,
+            "provided_llm_config": copy.deepcopy(llm_config),
+            "provided_runnable_kwargs": copy.deepcopy(runnable_kwargs),
         }
-        self._system_instruction = system_instruction
-        self._runnable_name = runnable_name
-        self._runnable_kwargs = _prepare_runnable_kwargs(
-            runnable_kwargs=runnable_kwargs,
-            llm_config=self._llm_config,
-            system_instruction=self._system_instruction,
-            runnable_name=self._runnable_name,
-        )
-
-        self._tools = []
         if tools:
-            # We validate tools at initialization for actionable feedback before
-            # they are deployed.
             _validate_tools(tools)
-            self._tools = tools
-        self._ag2_tool_objects = []
-        self._runnable = None
-        self._runnable_builder = runnable_builder
-
-        self._instrumentor = None
-        self._enable_tracing = enable_tracing
+            self._tmpl_attrs["tools"] = tools
 
     def set_up(self):
         """Sets up the agent for execution of queries at runtime.
 
         It initializes the runnable, binds the runnable with tools.
-
-        This method should not be called for an object that being passed to
-        the ReasoningEngine service for deployment, as it initializes clients
-        that can not be serialized.
+        Project and Location are sourced from environment variables.
         """
-        if self._enable_tracing:
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or self._tmpl_attrs.get("project")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION") or self._tmpl_attrs.get("location")
+
+        llm_config = {
+                "config_list": [
+                    {
+                        "project_id": project,
+                        "location": location,
+                        "model": self._tmpl_attrs.get("model_name"),
+                        "api_type": self._tmpl_attrs.get("api_type"),
+                    }
+                ]
+            }
+        if self._tmpl_attrs.get("provided_llm_config"):
+            llm_config = self._tmpl_attrs.get("provided_llm_config")
+
+        runnable_kwargs = _prepare_runnable_kwargs(
+            runnable_kwargs=self._tmpl_attrs.get("provided_runnable_kwargs"),
+            llm_config=llm_config,
+            system_instruction=self._tmpl_attrs.get("system_instruction"),
+            runnable_name=self._tmpl_attrs.get("runnable_name"),
+        )
+        if self._tmpl_attrs.get("enable_tracing"):
             from vertexai.reasoning_engines import _utils
 
             cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
@@ -317,9 +321,9 @@ class AG2Agent:
 
                 credentials, _ = google.auth.default()
                 span_exporter = cloud_trace_exporter.CloudTraceSpanExporter(
-                    project_id=self._project,
+                    project_id=project,
                     client=cloud_trace_v2.TraceServiceClient(
-                        credentials=credentials.with_quota_project(self._project),
+                        credentials=credentials.with_quota_project(project),
                     ),
                 )
                 span_processor: SpanProcessor = (
@@ -381,34 +385,35 @@ class AG2Agent:
                 )
 
         # Set up tools.
-        if self._tools and not self._ag2_tool_objects:
+        tools = self._tmpl_attrs.get("tools")
+        ag2_tool_objects = self._tmpl_attrs.get("ag2_tool_objects")
+        if tools and not ag2_tool_objects:
             from vertexai.reasoning_engines import _utils
 
             autogen_tools = _utils._import_autogen_tools_or_warn()
             if autogen_tools:
-                for tool in self._tools:
-                    self._ag2_tool_objects.append(autogen_tools.Tool(func_or_tool=tool))
+                for tool in tools:
+                    ag2_tool_objects.append(autogen_tools.Tool(func_or_tool=tool))
 
-        # Set up runnable.
-        runnable_builder = self._runnable_builder or _default_runnable_builder
-        self._runnable = runnable_builder(
-            **self._runnable_kwargs,
+        runnable_builder = (
+            self._tmpl_attrs.get("runnable_builder") or _default_runnable_builder
+        )
+        self._tmpl_attrs["runnable"] = runnable_builder(
+            **runnable_kwargs
         )
 
     def clone(self) -> "AG2Agent":
         """Returns a clone of the AG2Agent."""
-        import copy
-
         return AG2Agent(
-            model=self._model_name,
-            api_type=self._api_type,
-            llm_config=copy.deepcopy(self._llm_config),
-            system_instruction=self._system_instruction,
-            runnable_name=self._runnable_name,
-            tools=copy.deepcopy(self._tools),
-            runnable_kwargs=copy.deepcopy(self._runnable_kwargs),
-            runnable_builder=self._runnable_builder,
-            enable_tracing=self._enable_tracing,
+            model=self._tmpl_attrs.get("model_name"),
+            api_type=self._tmpl_attrs.get("api_type"),
+            llm_config=copy.deepcopy(self._tmpl_attrs.get("provided_llm_config")),
+            system_instruction=self._tmpl_attrs.get("system_instruction"),
+            runnable_name=self._tmpl_attrs.get("runnable_name"),
+            tools=copy.deepcopy(self._tmpl_attrs.get("tools")),
+            runnable_kwargs=copy.deepcopy(self._tmpl_attrs.get("provided_runnable_kwargs")),
+            runnable_builder=self._tmpl_attrs.get("runnable_builder"),
+            enable_tracing=self._tmpl_attrs.get("enable_tracing"),
         )
 
     def query(
@@ -456,8 +461,16 @@ class AG2Agent:
             )
             kwargs.pop("user_input")
 
-        if not self._runnable:
+        if not self._tmpl_attrs.get("runnable"):
             self.set_up()
+
+        response = self._tmpl_attrs.get("runnable").run(
+            message=input,
+            user_input=False,
+            tools=self._tmpl_attrs.get("ag2_tool_objects"),
+            max_turns=max_turns,
+            **kwargs,
+        )
 
         from vertexai.reasoning_engines import _utils
 
@@ -465,12 +478,4 @@ class AG2Agent:
         # We need to convert it to a JSON-serializable object.
         # More details of `ChatResult` can be found in
         # https://docs.ag2.ai/docs/api-reference/autogen/ChatResult.
-        return _utils.dataclass_to_dict(
-            self._runnable.run(
-                input,
-                user_input=False,
-                tools=self._ag2_tool_objects,
-                max_turns=max_turns,
-                **kwargs,
-            )
-        )
+        return _utils.dataclass_to_dict(response)

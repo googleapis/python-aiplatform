@@ -823,10 +823,10 @@ class AdkApp:
         # to disable bound token sharing.
         os.environ["GOOGLE_API_PREVENT_AGENT_TOKEN_SHARING_FOR_GCP_SERVICES"] = "false"
         # --- END BOUND TOKEN PATCH ---
-        project = self._tmpl_attrs.get("project")
+        project = os.environ.get("GOOGLE_CLOUD_PROJECT") or self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
+        location = os.environ.get("GOOGLE_CLOUD_LOCATION") or self._tmpl_attrs.get("location")
         if location:
             if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
