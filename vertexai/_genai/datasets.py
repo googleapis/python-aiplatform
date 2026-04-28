@@ -1083,19 +1083,10 @@ class Datasets(_api_module.BaseModule):
             client,
         )
 
+        multimodal_dataset = multimodal_dataset.model_copy(deep=True)
+        multimodal_dataset.set_bigquery_uri(f"bq://{target_table_id}")
         return self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
+            multimodal_dataset=multimodal_dataset, config=config
         )
 
     def update_multimodal_dataset(
@@ -2357,19 +2348,10 @@ class AsyncDatasets(_api_module.BaseModule):
             client,
         )
 
+        multimodal_dataset = multimodal_dataset.model_copy(deep=True)
+        multimodal_dataset.set_bigquery_uri(f"bq://{target_table_id}")
         return await self.create_from_bigquery(
-            multimodal_dataset=multimodal_dataset.model_copy(
-                update={
-                    "metadata": types.SchemaTablesDatasetMetadata(
-                        input_config=types.SchemaTablesDatasetMetadataInputConfig(
-                            bigquery_source=types.SchemaTablesDatasetMetadataBigQuerySource(
-                                uri=f"bq://{target_table_id}"
-                            )
-                        )
-                    )
-                }
-            ),
-            config=config,
+            multimodal_dataset=multimodal_dataset, config=config
         )
 
     async def update_multimodal_dataset(
