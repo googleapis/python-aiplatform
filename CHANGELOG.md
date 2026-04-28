@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.150.0](https://github.com/googleapis/python-aiplatform/compare/v1.149.0...v1.150.0) (2026-04-28)
+
+
+### Features
+
+* GenAI SDK client(multimodal) - Accept an explicit bigquery_uri parameter in create_from_bigquery ([0bb2ecd](https://github.com/googleapis/python-aiplatform/commit/0bb2ecd2bca01554d91b1f5f3d69f88237adaa3d))
+
+
+### Bug Fixes
+
+* GenAI SDK client(multimodal) - Preserve existing metadata when creating from bigframes ([bc2260d](https://github.com/googleapis/python-aiplatform/commit/bc2260dada6cc9f3d6179dc544cc20414de59653))
+
 ## [1.149.0](https://github.com/googleapis/python-aiplatform/compare/v1.148.1...v1.149.0) (2026-04-27)
 
 
