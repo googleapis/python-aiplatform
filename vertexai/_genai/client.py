@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         prompt_optimizer as prompt_optimizer_module,
     )
     from vertexai._genai import prompts as prompts_module
+    from vertexai._genai import skills as skills_module
     from vertexai._genai import live as live_module
 
 
@@ -52,6 +53,7 @@ class AsyncClient:
         self._prompt_optimizer: Optional[ModuleType] = None
         self._prompts: Optional[ModuleType] = None
         self._datasets: Optional[ModuleType] = None
+        self._skills: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -123,6 +125,15 @@ class AsyncClient:
                 __package__,
             )
         return self._datasets.AsyncDatasets(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def skills(self) -> "skills_module.AsyncSkills":
+        if self._skills is None:
+            self._skills = importlib.import_module(
+                ".skills",
+                __package__,
+            )
+        return self._skills.AsyncSkills(self._api_client)  # type: ignore[no-any-return]
 
     async def aclose(self) -> None:
         """Closes the async client explicitly.
@@ -239,6 +250,7 @@ class Client:
         self._agent_engines: Optional[ModuleType] = None
         self._prompts: Optional[ModuleType] = None
         self._datasets: Optional[ModuleType] = None
+        self._skills: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -335,3 +347,12 @@ class Client:
                 __package__,
             )
         return self._datasets.Datasets(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def skills(self) -> "skills_module.Skills":
+        if self._skills is None:
+            self._skills = importlib.import_module(
+                ".skills",
+                __package__,
+            )
+        return self._skills.Skills(self._api_client)  # type: ignore[no-any-return]
