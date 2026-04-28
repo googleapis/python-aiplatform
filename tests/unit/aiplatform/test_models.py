@@ -4701,6 +4701,42 @@ class TestModel:
         # The Model yielded from upload SHOULD have a version in the versioned resource name
         assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
 
+    def test_sync_gca_resource_uses_versioned_name(self, get_model_with_version):
+        # Regression test for https://github.com/googleapis/python-aiplatform/issues/2619
+        # _sync_gca_resource must use versioned_resource_name so the non-default
+        # version is not silently replaced by the default version.
+        model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
+        get_model_with_version.reset_mock()
+
+        model._sync_gca_resource()
+
+        versioned_name = models.ModelRegistry._get_versioned_name(
+            _TEST_MODEL_PARENT, _TEST_VERSION_ID
+        )
+        get_model_with_version.assert_called_once_with(
+            name=versioned_name, retry=base._DEFAULT_RETRY
+        )
+
+    def test_update_preserves_version(
+        self, update_model_mock, get_model_with_version
+    ):
+        # Regression test for https://github.com/googleapis/python-aiplatform/issues/2619
+        # Model.update() calls _sync_gca_resource(); verify it fetches the versioned name.
+        model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
+        get_model_with_version.reset_mock()
+
+        model.update(display_name=_TEST_MODEL_NAME)
+
+        versioned_name = models.ModelRegistry._get_versioned_name(
+            _TEST_MODEL_PARENT, _TEST_VERSION_ID
+        )
+        get_model_with_version.assert_called_once_with(
+            name=versioned_name, retry=base._DEFAULT_RETRY
+        )
+        # Version must still be intact after update
+        assert model.version_id == _TEST_VERSION_ID
+        assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
+
     @pytest.mark.parametrize(
         "parent,location,project",
         [
