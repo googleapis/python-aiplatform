@@ -530,22 +530,7 @@ async def async_retrieve_contexts(
         response_lro = await client.async_retrieve_contexts(
             request=request, timeout=timeout
         )
-        try:
-            response = await response_lro.result(timeout=timeout)
-        except Exception as e:
-            if response_lro.done():
-                raw_op = response_lro.operation
-                if raw_op.WhichOneof("result") == "response":
-                    any_response = raw_op.response
-                    inner_any = any_pb2.Any()
-                    if any_response.Unpack(inner_any):
-                        inner_any.type_url = "type.googleapis.com/google.cloud.aiplatform.v1beta1.RagContexts"
-                        rag_contexts = aiplatform_v1beta1.RagContexts()
-                        if inner_any.Unpack(rag_contexts._pb):
-                            return aiplatform_v1beta1.AsyncRetrieveContextsResponse(
-                                contexts=rag_contexts
-                            )
-            raise e
+        response = await response_lro.result(timeout=timeout)
     except Exception as e:
         raise RuntimeError(
             "Failed in retrieving contexts asynchronously due to: ", e
