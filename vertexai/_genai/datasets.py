@@ -924,14 +924,24 @@ class Datasets(_api_module.BaseModule):
     def create_from_bigquery(
         self,
         *,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        bigquery_uri: Optional[str] = None,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Creates a multimodal dataset from a BigQuery table.
 
         Args:
+          bigquery_uri:
+            Optional. The BigQuery URI of the table to create the dataset from.
+            e.g. "bq://project.dataset.table". If both `bigquery_uri` and
+            `multimodal_dataset` are provided, and `multimodal_dataset` also
+            contains a BigQuery URI, the `bigquery_uri` parameter takes precedence.
           multimodal_dataset:
-            Required. A representation of a multimodal dataset.
+            Optional. A representation of a multimodal dataset. If `bigquery_uri`
+            is set, `multimodal_dataset` can still be used to set other metadata
+            fields. If both `bigquery_uri` and `multimodal_dataset` are provided,
+            and `multimodal_dataset` also contains a BigQuery URI, the
+            `bigquery_uri` parameter takes precedence.
           config:
             Optional. A configuration for creating the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -939,8 +949,21 @@ class Datasets(_api_module.BaseModule):
         Returns:
           A types.MultimodalDataset object representing a multimodal dataset.
         """
-        if isinstance(multimodal_dataset, dict):
+        if not bigquery_uri and not multimodal_dataset:
+            raise ValueError(
+                "At least one of `bigquery_uri` or `multimodal_dataset` must be"
+                " provided."
+            )
+
+        if multimodal_dataset is None:
+            multimodal_dataset = types.MultimodalDataset()
+        elif isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+
+        if bigquery_uri:
+            multimodal_dataset = multimodal_dataset.model_copy(deep=True)
+            multimodal_dataset.set_bigquery_uri(bigquery_uri)
+
         _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
         if isinstance(config, dict):
@@ -2187,14 +2210,24 @@ class AsyncDatasets(_api_module.BaseModule):
     async def create_from_bigquery(
         self,
         *,
-        multimodal_dataset: types.MultimodalDatasetOrDict,
+        bigquery_uri: Optional[str] = None,
+        multimodal_dataset: Optional[types.MultimodalDatasetOrDict] = None,
         config: Optional[types.CreateMultimodalDatasetConfigOrDict] = None,
     ) -> types.MultimodalDataset:
         """Creates a multimodal dataset from a BigQuery table.
 
         Args:
+          bigquery_uri:
+            Optional. The BigQuery URI of the table to create the dataset from.
+            e.g. "bq://project.dataset.table". If both `bigquery_uri` and
+            `multimodal_dataset` are provided, and `multimodal_dataset` also
+            contains a BigQuery URI, the `bigquery_uri` parameter takes precedence.
           multimodal_dataset:
-            Required. A representation of a multimodal dataset.
+            Optional. A representation of a multimodal dataset. If `bigquery_uri`
+            is set, `multimodal_dataset` can still be used to set other metadata
+            fields. If both `bigquery_uri` and `multimodal_dataset` are provided,
+            and `multimodal_dataset` also contains a BigQuery URI, the
+            `bigquery_uri` parameter takes precedence.
           config:
             Optional. A configuration for creating the multimodal dataset. If not
             provided, the default configuration will be used.
@@ -2202,8 +2235,21 @@ class AsyncDatasets(_api_module.BaseModule):
         Returns:
           A types.MultimodalDataset object representing a multimodal dataset.
         """
-        if isinstance(multimodal_dataset, dict):
+        if not bigquery_uri and not multimodal_dataset:
+            raise ValueError(
+                "At least one of `bigquery_uri` or `multimodal_dataset` must be"
+                " provided."
+            )
+
+        if multimodal_dataset is None:
+            multimodal_dataset = types.MultimodalDataset()
+        elif isinstance(multimodal_dataset, dict):
             multimodal_dataset = types.MultimodalDataset(**multimodal_dataset)
+
+        if bigquery_uri:
+            multimodal_dataset = multimodal_dataset.model_copy(deep=True)
+            multimodal_dataset.set_bigquery_uri(bigquery_uri)
+
         _datasets_utils.validate_multimodal_dataset_bigquery_uri(multimodal_dataset)
 
         if isinstance(config, dict):
