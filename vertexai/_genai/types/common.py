@@ -324,6 +324,17 @@ class MachineConfig(_common.CaseInSensitiveEnum):
     """The default value: milligcu 4000, memory 4 Gib"""
 
 
+class PostSnapshotAction(_common.CaseInSensitiveEnum):
+    """Input only. Action to take on the source SandboxEnvironment after the snapshot is taken. This field is only used in CreateSandboxEnvironmentSnapshotRequest and it is not stored in the resource."""
+
+    POST_SNAPSHOT_ACTION_UNSPECIFIED = "POST_SNAPSHOT_ACTION_UNSPECIFIED"
+    """The default value. This value is unused."""
+    RUNNING = "RUNNING"
+    """Sandbox environment will continue to run after snapshot is taken."""
+    PAUSE = "PAUSE"
+    """Sandbox environment will be paused after snapshot is taken."""
+
+
 class Framework(_common.CaseInSensitiveEnum):
     """Framework used to build the application."""
 
@@ -12351,6 +12362,396 @@ class _GetAgentEngineSandboxOperationParametersDict(TypedDict, total=False):
 _GetAgentEngineSandboxOperationParametersOrDict = Union[
     _GetAgentEngineSandboxOperationParameters,
     _GetAgentEngineSandboxOperationParametersDict,
+]
+
+
+class CreateAgentEngineSandboxSnapshotConfig(_common.BaseModel):
+    """Config for creating a Sandbox Environment Snapshot."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""The display name of the sandbox snapshot."""
+    )
+    owner: Optional[str] = Field(
+        default=None, description="""The owner of the sandbox snapshot."""
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""The TTL for this resource. The expiration time is computed: now + TTL.""",
+    )
+
+
+class CreateAgentEngineSandboxSnapshotConfigDict(TypedDict, total=False):
+    """Config for creating a Sandbox Environment Snapshot."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    display_name: Optional[str]
+    """The display name of the sandbox snapshot."""
+
+    owner: Optional[str]
+    """The owner of the sandbox snapshot."""
+
+    ttl: Optional[str]
+    """The TTL for this resource. The expiration time is computed: now + TTL."""
+
+
+CreateAgentEngineSandboxSnapshotConfigOrDict = Union[
+    CreateAgentEngineSandboxSnapshotConfig, CreateAgentEngineSandboxSnapshotConfigDict
+]
+
+
+class _CreateSandboxEnvironmentSnapshotRequestParameters(_common.BaseModel):
+    """Parameters for creating a sandbox environment snapshot."""
+
+    source_sandbox_environment_name: Optional[str] = Field(
+        default=None, description="""Name of the sandbox environment to snapshot."""
+    )
+    config: Optional[CreateAgentEngineSandboxSnapshotConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateSandboxEnvironmentSnapshotRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating a sandbox environment snapshot."""
+
+    source_sandbox_environment_name: Optional[str]
+    """Name of the sandbox environment to snapshot."""
+
+    config: Optional[CreateAgentEngineSandboxSnapshotConfigDict]
+    """"""
+
+
+_CreateSandboxEnvironmentSnapshotRequestParametersOrDict = Union[
+    _CreateSandboxEnvironmentSnapshotRequestParameters,
+    _CreateSandboxEnvironmentSnapshotRequestParametersDict,
+]
+
+
+class SandboxEnvironmentSnapshot(_common.BaseModel):
+    """A sandbox environment snapshot."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""The display name of the sandbox environment snapshot.""",
+    )
+    expire_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Expiration time of the sandbox environment snapshot.
+      """,
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The timestamp when this SandboxEnvironmentSnapshot was created.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the SandboxEnvironmentSnapshot. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentSnapshots/{sandbox_environment_snapshot}`""",
+    )
+    owner: Optional[str] = Field(
+        default=None,
+        description="""Optional. Owner information for this sandbox snapshot. Different owners will have isolations on snapshot storage and identity. If not set, snapshot will be created as the default owner.""",
+    )
+    parent_snapshot: Optional[str] = Field(
+        default=None,
+        description="""Output only. The resource name of the parent SandboxEnvironmentSnapshot. Empty if this is a root Snapshot (the first snapshot from a newly created sandbox). Can be used to reconstruct the whole ancestry tree of snapshots.""",
+    )
+    post_snapshot_action: Optional[PostSnapshotAction] = Field(
+        default=None,
+        description="""Optional. Input only. Action to take on the source SandboxEnvironment after the snapshot is taken. This field is only used in CreateSandboxEnvironmentSnapshotRequest and it is not stored in the resource.""",
+    )
+    size_bytes: Optional[int] = Field(
+        default=None,
+        description="""Optional. Output only. Size of the snapshot data in bytes.""",
+    )
+    source_sandbox_environment: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the source SandboxEnvironment this snapshot was taken from.""",
+    )
+    ttl: Optional[str] = Field(
+        default=None,
+        description="""Optional. Input only. The TTL for the sandbox environment snapshot. The expiration time is computed: now + TTL.""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. The timestamp when this SandboxEnvironment was most recently updated.""",
+    )
+
+
+class SandboxEnvironmentSnapshotDict(TypedDict, total=False):
+    """A sandbox environment snapshot."""
+
+    display_name: Optional[str]
+    """The display name of the sandbox environment snapshot."""
+
+    expire_time: Optional[datetime.datetime]
+    """Expiration time of the sandbox environment snapshot.
+      """
+
+    create_time: Optional[datetime.datetime]
+    """Output only. The timestamp when this SandboxEnvironmentSnapshot was created."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the SandboxEnvironmentSnapshot. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentSnapshots/{sandbox_environment_snapshot}`"""
+
+    owner: Optional[str]
+    """Optional. Owner information for this sandbox snapshot. Different owners will have isolations on snapshot storage and identity. If not set, snapshot will be created as the default owner."""
+
+    parent_snapshot: Optional[str]
+    """Output only. The resource name of the parent SandboxEnvironmentSnapshot. Empty if this is a root Snapshot (the first snapshot from a newly created sandbox). Can be used to reconstruct the whole ancestry tree of snapshots."""
+
+    post_snapshot_action: Optional[PostSnapshotAction]
+    """Optional. Input only. Action to take on the source SandboxEnvironment after the snapshot is taken. This field is only used in CreateSandboxEnvironmentSnapshotRequest and it is not stored in the resource."""
+
+    size_bytes: Optional[int]
+    """Optional. Output only. Size of the snapshot data in bytes."""
+
+    source_sandbox_environment: Optional[str]
+    """Required. The resource name of the source SandboxEnvironment this snapshot was taken from."""
+
+    ttl: Optional[str]
+    """Optional. Input only. The TTL for the sandbox environment snapshot. The expiration time is computed: now + TTL."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. The timestamp when this SandboxEnvironment was most recently updated."""
+
+
+SandboxEnvironmentSnapshotOrDict = Union[
+    SandboxEnvironmentSnapshot, SandboxEnvironmentSnapshotDict
+]
+
+
+class DeleteSandboxEnvironmentSnapshotConfig(_common.BaseModel):
+    """Config for deleting a Sandbox Environment Snapshot."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteSandboxEnvironmentSnapshotConfigDict(TypedDict, total=False):
+    """Config for deleting a Sandbox Environment Snapshot."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteSandboxEnvironmentSnapshotConfigOrDict = Union[
+    DeleteSandboxEnvironmentSnapshotConfig, DeleteSandboxEnvironmentSnapshotConfigDict
+]
+
+
+class _DeleteSandboxEnvironmentSnapshotRequestParameters(_common.BaseModel):
+    """Parameters for deleting sandbox environment snapshots."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the sandbox environment snapshot to delete.""",
+    )
+    config: Optional[DeleteSandboxEnvironmentSnapshotConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteSandboxEnvironmentSnapshotRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting sandbox environment snapshots."""
+
+    name: Optional[str]
+    """Name of the sandbox environment snapshot to delete."""
+
+    config: Optional[DeleteSandboxEnvironmentSnapshotConfigDict]
+    """"""
+
+
+_DeleteSandboxEnvironmentSnapshotRequestParametersOrDict = Union[
+    _DeleteSandboxEnvironmentSnapshotRequestParameters,
+    _DeleteSandboxEnvironmentSnapshotRequestParametersDict,
+]
+
+
+class DeleteSandboxEnvironmentSnapshotOperation(_common.BaseModel):
+    """Operation for deleting sandbox environment snapshots."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteSandboxEnvironmentSnapshotOperationDict(TypedDict, total=False):
+    """Operation for deleting sandbox environment snapshots."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteSandboxEnvironmentSnapshotOperationOrDict = Union[
+    DeleteSandboxEnvironmentSnapshotOperation,
+    DeleteSandboxEnvironmentSnapshotOperationDict,
+]
+
+
+class GetSandboxEnvironmentSnapshotConfig(_common.BaseModel):
+    """Config for getting a Sandbox Environment Snapshot."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetSandboxEnvironmentSnapshotConfigDict(TypedDict, total=False):
+    """Config for getting a Sandbox Environment Snapshot."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetSandboxEnvironmentSnapshotConfigOrDict = Union[
+    GetSandboxEnvironmentSnapshotConfig, GetSandboxEnvironmentSnapshotConfigDict
+]
+
+
+class _GetSandboxEnvironmentSnapshotRequestParameters(_common.BaseModel):
+    """Parameters for getting a sandbox environment snapshot."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the sandbox environment snapshot."""
+    )
+    config: Optional[GetSandboxEnvironmentSnapshotConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetSandboxEnvironmentSnapshotRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting a sandbox environment snapshot."""
+
+    name: Optional[str]
+    """Name of the sandbox environment snapshot."""
+
+    config: Optional[GetSandboxEnvironmentSnapshotConfigDict]
+    """"""
+
+
+_GetSandboxEnvironmentSnapshotRequestParametersOrDict = Union[
+    _GetSandboxEnvironmentSnapshotRequestParameters,
+    _GetSandboxEnvironmentSnapshotRequestParametersDict,
+]
+
+
+class ListSandboxEnvironmentSnapshotsConfig(_common.BaseModel):
+    """Config for listing sandbox environment snapshots."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.""",
+    )
+
+
+class ListSandboxEnvironmentSnapshotsConfigDict(TypedDict, total=False):
+    """Config for listing sandbox environment snapshots."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request."""
+
+
+ListSandboxEnvironmentSnapshotsConfigOrDict = Union[
+    ListSandboxEnvironmentSnapshotsConfig, ListSandboxEnvironmentSnapshotsConfigDict
+]
+
+
+class _ListSandboxEnvironmentSnapshotsRequestParameters(_common.BaseModel):
+    """Parameters for listing sandbox environment snapshots."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the reasoning engine to list snapshots from.""",
+    )
+    config: Optional[ListSandboxEnvironmentSnapshotsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListSandboxEnvironmentSnapshotsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing sandbox environment snapshots."""
+
+    name: Optional[str]
+    """Name of the reasoning engine to list snapshots from."""
+
+    config: Optional[ListSandboxEnvironmentSnapshotsConfigDict]
+    """"""
+
+
+_ListSandboxEnvironmentSnapshotsRequestParametersOrDict = Union[
+    _ListSandboxEnvironmentSnapshotsRequestParameters,
+    _ListSandboxEnvironmentSnapshotsRequestParametersDict,
+]
+
+
+class ListSandboxEnvironmentSnapshotsResponse(_common.BaseModel):
+    """Response for listing sandbox environment snapshots."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    sandbox_environment_snapshots: Optional[list[SandboxEnvironmentSnapshot]] = Field(
+        default=None, description="""List of sandbox environment snapshots."""
+    )
+
+
+class ListSandboxEnvironmentSnapshotsResponseDict(TypedDict, total=False):
+    """Response for listing sandbox environment snapshots."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    sandbox_environment_snapshots: Optional[list[SandboxEnvironmentSnapshotDict]]
+    """List of sandbox environment snapshots."""
+
+
+ListSandboxEnvironmentSnapshotsResponseOrDict = Union[
+    ListSandboxEnvironmentSnapshotsResponse, ListSandboxEnvironmentSnapshotsResponseDict
 ]
 
 
