@@ -1288,6 +1288,59 @@ class TestCustomTrainingJob:
         pathlib.Path(self._local_script_file_name).unlink()
         initializer.global_pool.shutdown(wait=True)
 
+    def test_block_until_complete_logs_symbolic_state_name(
+        self, mock_model_service_get
+    ):
+        """State log must use symbolic enum name, not a bare integer (regression for Python 3.11+)."""
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        logged_messages = []
+
+        with mock.patch.object(
+            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+        ) as mock_create, mock.patch.object(
+            source_utils._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
+        ) as mock_pkg, mock.patch.object(
+            pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+        ) as mock_get, mock.patch.object(
+            training_jobs, "_LOG_WAIT_TIME", 0
+        ), mock.patch.object(
+            training_jobs, "_JOB_WAIT_TIME", 0
+        ), mock.patch.object(
+            training_jobs._LOGGER, "info", side_effect=lambda msg, *a, **kw: logged_messages.append(msg)
+        ):
+            mock_pkg.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
+            mock_create.return_value = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
+            _running = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+                training_task_inputs={},
+            )
+            _succeeded = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                training_task_inputs={},
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
+            mock_get.side_effect = [_running, _running] + [_succeeded] * 8
+            job = training_jobs.CustomTrainingJob(
+                display_name=_TEST_DISPLAY_NAME,
+                script_path=self._local_script_file_name,
+                container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            )
+            job.run(base_output_dir=_TEST_BASE_OUTPUT_DIR, sync=True)
+
+        state_log = next(
+            (m for m in logged_messages if "current state" in m), None
+        )
+        assert state_log is not None, "No 'current state' log message found"
+        assert "PIPELINE_STATE_RUNNING" in state_log
+        assert "current state:\n3" not in state_log
+
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)
     @pytest.mark.parametrize("sync", [True, False])
