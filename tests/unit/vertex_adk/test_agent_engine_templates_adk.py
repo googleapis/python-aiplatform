@@ -348,6 +348,27 @@ class TestAdkApp:
         app.set_up()
         assert app._tmpl_attrs.get("runner") is not None
 
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ID": _TEST_RESOURCE_ID},
+    )
+    def test_default_app_name_uses_agent_engine_id(self):
+        assert adk_template._get_default_app_name() == _TEST_RESOURCE_ID
+
+    @mock.patch.dict(
+        os.environ,
+        {"GOOGLE_CLOUD_AGENT_ENGINE_ID": _TEST_RESOURCE_ID},
+    )
+    @mock.patch.object(adk_template, "get_adk_version", return_value="1.5.0")
+    def test_initialization_keeps_explicit_app_name(self, unused_get_adk_version_mock):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT, app_name="custom_app")
+
+        assert app._tmpl_attrs["app_name"] == "custom_app"
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_default_app_name_uses_fallback_without_agent_engine_id(self):
+        assert adk_template._get_default_app_name() == "default-app-name"
+
     def test_clone(
         self,
         default_instrumentor_builder_mock: mock.Mock,
