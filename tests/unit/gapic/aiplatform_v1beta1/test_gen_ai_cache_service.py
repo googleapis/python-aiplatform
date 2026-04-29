@@ -4962,6 +4962,10 @@ def test_create_cached_content_rest_call_success(request_type):
                     ],
                     "blocking_confidence": 30,
                 },
+                "parallel_ai_search": {
+                    "api_key": "api_key_value",
+                    "custom_configs": {},
+                },
                 "code_execution": {},
                 "url_context": {},
                 "computer_use": {
@@ -5511,6 +5515,10 @@ def test_update_cached_content_rest_call_success(request_type):
                         "exclude_domains_value2",
                     ],
                     "blocking_confidence": 30,
+                },
+                "parallel_ai_search": {
+                    "api_key": "api_key_value",
+                    "custom_configs": {},
                 },
                 "code_execution": {},
                 "url_context": {},
@@ -6924,6 +6932,10 @@ async def test_create_cached_content_rest_asyncio_call_success(request_type):
                     ],
                     "blocking_confidence": 30,
                 },
+                "parallel_ai_search": {
+                    "api_key": "api_key_value",
+                    "custom_configs": {},
+                },
                 "code_execution": {},
                 "url_context": {},
                 "computer_use": {
@@ -7509,6 +7521,10 @@ async def test_update_cached_content_rest_asyncio_call_success(request_type):
                         "exclude_domains_value2",
                     ],
                     "blocking_confidence": 30,
+                },
+                "parallel_ai_search": {
+                    "api_key": "api_key_value",
+                    "custom_configs": {},
                 },
                 "code_execution": {},
                 "url_context": {},
