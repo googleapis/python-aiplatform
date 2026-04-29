@@ -1350,9 +1350,7 @@ class TestBatchPredictionJob:
         assert "/agent-platform/" in uri
         assert "/ai/platform/" not in uri
 
-    def test_batch_prediction_dashboard_uri_format(
-        self, get_batch_prediction_job_mock
-    ):
+    def test_batch_prediction_dashboard_uri_format(self, get_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
         bp = jobs.BatchPredictionJob(
             batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
