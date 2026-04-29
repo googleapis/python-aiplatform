@@ -5012,6 +5012,10 @@ class _GenerateUserScenariosParameters(_common.BaseModel):
     config: Optional[GenerateUserScenariosConfig] = Field(
         default=None, description=""""""
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Opt-in flag to authorize cross-region routing for LLM models.""",
+    )
 
 
 class _GenerateUserScenariosParametersDict(TypedDict, total=False):
@@ -5031,6 +5035,9 @@ class _GenerateUserScenariosParametersDict(TypedDict, total=False):
 
     config: Optional[GenerateUserScenariosConfigDict]
     """"""
+
+    allow_cross_region_model: Optional[bool]
+    """Opt-in flag to authorize cross-region routing for LLM models."""
 
 
 _GenerateUserScenariosParametersOrDict = Union[
@@ -8342,14 +8349,12 @@ class CreateAgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]] = (
-        Field(
-            default=None,
-            description="""The Python version to be used for the Agent Engine.
+    python_version: Optional[Literal["3.10", "3.11", "3.12", "3.13", "3.14"]] = Field(
+        default=None,
+        description="""The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
+      Supported versions: "3.10", "3.11", "3.12", "3.13", "3.14".
       """,
-        )
     )
     build_options: Optional[dict[str, list[str]]] = Field(
         default=None,
@@ -8489,10 +8494,10 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
 
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]]
+    python_version: Optional[Literal["3.10", "3.11", "3.12", "3.13", "3.14"]]
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
+      Supported versions: "3.10", "3.11", "3.12", "3.13", "3.14".
       """
 
     build_options: Optional[dict[str, list[str]]]
@@ -9011,14 +9016,12 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]] = (
-        Field(
-            default=None,
-            description="""The Python version to be used for the Agent Engine.
+    python_version: Optional[Literal["3.10", "3.11", "3.12", "3.13", "3.14"]] = Field(
+        default=None,
+        description="""The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
+      Supported versions: "3.10", "3.11", "3.12", "3.13", "3.14".
       """,
-        )
     )
     build_options: Optional[dict[str, list[str]]] = Field(
         default=None,
@@ -9163,10 +9166,10 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
 
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]]
+    python_version: Optional[Literal["3.10", "3.11", "3.12", "3.13", "3.14"]]
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
+      Supported versions: "3.10", "3.11", "3.12", "3.13", "3.14".
       """
 
     build_options: Optional[dict[str, list[str]]]
@@ -17203,14 +17206,12 @@ class AgentEngineConfig(_common.BaseModel):
       - If `source_packages` is specified, the agent framework will
         default to "custom".""",
     )
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]] = (
-        Field(
-            default=None,
-            description="""The Python version to be used for the Agent Engine.
+    python_version: Optional[Literal["3.10", "3.11", "3.12", "3.13", "3.14"]] = Field(
+        default=None,
+        description="""The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
+      Supported versions: "3.10", "3.11", "3.12", "3.13", "3.14".
       """,
-        )
     )
     build_options: Optional[dict[str, list[str]]] = Field(
         default=None,
@@ -17393,10 +17394,10 @@ class AgentEngineConfigDict(TypedDict, total=False):
       - If `source_packages` is specified, the agent framework will
         default to "custom"."""
 
-    python_version: Optional[Literal["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]]
+    python_version: Optional[Literal["3.10", "3.11", "3.12", "3.13", "3.14"]]
     """The Python version to be used for the Agent Engine.
       If not specified, it will use the current Python version of the environment.
-      Supported versions: "3.9", "3.10", "3.11", "3.12", "3.13", "3.14".
+      Supported versions: "3.10", "3.11", "3.12", "3.13", "3.14".
       """
 
     build_options: Optional[dict[str, list[str]]]

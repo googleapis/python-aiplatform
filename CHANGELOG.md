@@ -1,5 +1,46 @@
 # Changelog
 
+## [1.149.0](https://github.com/googleapis/python-aiplatform/compare/v1.148.1...v1.149.0) (2026-04-27)
+
+
+### Features
+
+* Add asyncQueryReasoningEngine to aiplatform v1 API ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Add asyncQueryReasoningEngine to aiplatform v1beta1 API ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Add delete_evaluation_metric to GenAI SDK ([6b63480](https://github.com/googleapis/python-aiplatform/commit/6b63480d38f52bb8757768928ea5cdd65ae4b02c))
+* Add evaluation configuration and dataset runs to TuningJob ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Add evaluation metrics and autorater configuration to the AI Platform v1 API ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Add filter and order_by support to list_evaluation_metrics ([a7acc97](https://github.com/googleapis/python-aiplatform/commit/a7acc971ca41bd4816e77662b135fb76387a5190))
+* Add multimodal input support and custom output formats to evaluation metrics ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Add OnlineEvaluator API and update Evaluation API ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Add origin to AttributeContext.Request ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* GenAI Client(evals):  Add allow_cross_region_model to generate_conversation_scenarios to enable cross region support for gemini 3 based model ([dc3b639](https://github.com/googleapis/python-aiplatform/commit/dc3b639826c66a16045f221259bae22764fb6500))
+* GenAI SDK client(multimodal) - Allow passing dataset ID in addition to full resource name in dataset methods. ([2fd8ca0](https://github.com/googleapis/python-aiplatform/commit/2fd8ca098677e0b430f4246940821ddc6f0de798))
+* Migrate batch_predictions to agentplatform ([53e16ba](https://github.com/googleapis/python-aiplatform/commit/53e16ba8d19cfc0404450113812eca455d528a63))
+* Model Registry CopyModel BYOSA ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* New field CopyModelRequest.custome_service_account for Model Registry CopyModel BYOSA ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Support VeoLoraTuningSpec in the tuning jobs ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Synchronize google/api/expr/v1alpha1 ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+
+
+### Bug Fixes
+
+* Add serializer to async_create_session to address 500 error in Agent Engine (AgentServerMode.EXPERIMENTAL). ([ffe7fc7](https://github.com/googleapis/python-aiplatform/commit/ffe7fc7fbaa6234ec785a0795f8d515c56f525a7))
+* **deps:** Bump litellm cap to &gt;=1.83.7 for additional CVE remediation ([3bd0b25](https://github.com/googleapis/python-aiplatform/commit/3bd0b256395d279b5d3ed9b91ddf33aecfa133b4))
+* GenAI SDK client(multimodal) - Fix Pydantic validation errors when using `create_*` in some cases ([ca6b45e](https://github.com/googleapis/python-aiplatform/commit/ca6b45e3fa09bfa53c2f2c1b1d44f9a3c7aa79d7))
+* PrivateEndpoint.raw_predict parameter name ([3d380ba](https://github.com/googleapis/python-aiplatform/commit/3d380bab6fd89ca58b0f095f57c97363168748d2))
+* Removing Python 3.9 support due to EOL ([dbdd7b1](https://github.com/googleapis/python-aiplatform/commit/dbdd7b1ef9e5bd0c6fecab083ef9d45581d44110))
+* Unpin litellm upper bound to allow CVE-2026-35030 remediation ([e5e6346](https://github.com/googleapis/python-aiplatform/commit/e5e63464320ca072ae5baa31d9aacfc0a45bff79))
+* Update litellm to &gt;=1.83.0 to resolve security vulnerability ([ac5a5e4](https://github.com/googleapis/python-aiplatform/commit/ac5a5e4dd07890d07a553218d42040a6136fbb41))
+
+
+### Documentation
+
+* Update comments and formatting ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Update doc string to replace `Vertex AI` with `Gemini Enterprise Agent Platform`, update method error message to replace `Vertex AI` with `Gemini Enterprise Agent Platform (previously known as Vertex AI)`, update converter error message to replace `Vertex AI` with `Gemini Enterprise Agent Platform` ([18d97b6](https://github.com/googleapis/python-aiplatform/commit/18d97b6d742a9d8ec3194ef43541196933bbfae5))
+* Update SelectiveGapicGeneration usage doc ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+* Update various comments ([6332d33](https://github.com/googleapis/python-aiplatform/commit/6332d3338e18b05cfb4b5f6dd115a454036d7c01))
+
 ## [1.148.1](https://github.com/googleapis/python-aiplatform/compare/v1.148.0...v1.148.1) (2026-04-17)
 
 
