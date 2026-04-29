@@ -1373,7 +1373,9 @@ class TestCustomTrainingJob:
         ), mock.patch.object(
             training_jobs, "_JOB_WAIT_TIME", 0
         ), mock.patch.object(
-            training_jobs._LOGGER, "info", side_effect=lambda msg, *a, **kw: logged_messages.append(msg)
+            training_jobs._LOGGER,
+            "info",
+            side_effect=lambda msg, *a, **kw: logged_messages.append(msg),
         ):
             mock_pkg.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
             mock_create.return_value = gca_training_pipeline.TrainingPipeline(
@@ -1400,9 +1402,7 @@ class TestCustomTrainingJob:
             )
             job.run(base_output_dir=_TEST_BASE_OUTPUT_DIR, sync=True)
 
-        state_log = next(
-            (m for m in logged_messages if "current state" in m), None
-        )
+        state_log = next((m for m in logged_messages if "current state" in m), None)
         assert state_log is not None, "No 'current state' log message found"
         assert "PIPELINE_STATE_RUNNING" in state_log
         assert "current state:\n3" not in state_log

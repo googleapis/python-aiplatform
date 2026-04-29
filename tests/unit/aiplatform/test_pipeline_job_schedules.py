@@ -438,7 +438,7 @@ class TestPipelineJobSchedule:
     def test_block_until_complete_logs_symbolic_state_name(self):
         """State log must use symbolic enum name, not a bare integer (regression for Python 3.11+)."""
         state_sequence = [
-            gca_schedule.Schedule.State.ACTIVE,     # first loop check
+            gca_schedule.Schedule.State.ACTIVE,  # first loop check
             gca_schedule.Schedule.State.COMPLETED,  # second check exits loop
         ]
         state_index = [0]
@@ -461,17 +461,18 @@ class TestPipelineJobSchedule:
 
         # time.time: first call sets previous_time=0; second gives 10 → triggers log (10 >= 5)
         time_vals = iter([0.0, 10.0, 20.0])
-        with mock.patch("google.cloud.aiplatform.schedules.time.time", side_effect=time_vals), \
-             mock.patch("google.cloud.aiplatform.schedules.time.sleep"), \
-             mock.patch.object(
-                 aiplatform_schedules._LOGGER, "info",
-                 side_effect=lambda msg, *a, **kw: logged_messages.append(msg)
-             ):
+        with mock.patch(
+            "google.cloud.aiplatform.schedules.time.time", side_effect=time_vals
+        ), mock.patch(
+            "google.cloud.aiplatform.schedules.time.sleep"
+        ), mock.patch.object(
+            aiplatform_schedules._LOGGER,
+            "info",
+            side_effect=lambda msg, *a, **kw: logged_messages.append(msg),
+        ):
             aiplatform_schedules._Schedule._block_until_complete(mock_schedule)
 
-        state_log = next(
-            (m for m in logged_messages if "current state" in m), None
-        )
+        state_log = next((m for m in logged_messages if "current state" in m), None)
         assert state_log is not None, "No 'current state' log message found"
         assert "ACTIVE" in state_log
         assert "current state:\n1" not in state_log
