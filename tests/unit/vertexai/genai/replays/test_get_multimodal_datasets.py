@@ -41,6 +41,15 @@ def test_get_dataset_from_public_method(client):
     assert dataset.display_name == "test-display-name"
 
 
+def test_get_dataset_by_id(client):
+    dataset = client.datasets.get_multimodal_dataset(
+        name="8810841321427173376",
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.name == DATASET
+    assert dataset.display_name == "test-display-name"
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -63,6 +72,16 @@ async def test_get_dataset_async(client):
 async def test_get_dataset_from_public_method_async(client):
     dataset = await client.aio.datasets.get_multimodal_dataset(
         name=DATASET,
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.name == DATASET
+    assert dataset.display_name == "test-display-name"
+
+
+@pytest.mark.asyncio
+async def test_get_dataset_by_id_async(client):
+    dataset = await client.aio.datasets.get_multimodal_dataset(
+        name="8810841321427173376",
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.name == DATASET
