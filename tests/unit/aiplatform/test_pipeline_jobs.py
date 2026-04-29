@@ -726,11 +726,13 @@ class TestPipelineJob:
 
         logged_messages = []
 
-        with patch.object(storage.Blob, "download_as_bytes") as mock_load, \
-             mock.patch.object(
-                 pipeline_jobs._LOGGER, "info",
-                 side_effect=lambda msg, *a, **kw: logged_messages.append(msg)
-             ):
+        with patch.object(
+            storage.Blob, "download_as_bytes"
+        ) as mock_load, mock.patch.object(
+            pipeline_jobs._LOGGER,
+            "info",
+            side_effect=lambda msg, *a, **kw: logged_messages.append(msg),
+        ):
             mock_load.return_value = _TEST_PIPELINE_SPEC_JSON.encode()
 
             job = pipeline_jobs.PipelineJob(
@@ -740,9 +742,7 @@ class TestPipelineJob:
             )
             job.run(sync=True, create_request_timeout=None)
 
-        state_log = next(
-            (m for m in logged_messages if "current state" in m), None
-        )
+        state_log = next((m for m in logged_messages if "current state" in m), None)
         assert state_log is not None, "No 'current state' log message found"
         assert "PIPELINE_STATE_RUNNING" in state_log
         assert "current state:\n3" not in state_log
