@@ -7608,7 +7608,7 @@ class ReasoningEngineSpecPackageSpec(_common.BaseModel):
     )
     python_version: Optional[str] = Field(
         default=None,
-        description="""Optional. The Python version. Supported values are 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10.""",
+        description="""Optional. The Python version. Supported values are 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10.""",
     )
     requirements_gcs_uri: Optional[str] = Field(
         default=None,
@@ -7626,7 +7626,7 @@ class ReasoningEngineSpecPackageSpecDict(TypedDict, total=False):
     """Optional. The Cloud Storage URI of the pickled python object."""
 
     python_version: Optional[str]
-    """Optional. The Python version. Supported values are 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10."""
+    """Optional. The Python version. Supported values are 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10."""
 
     requirements_gcs_uri: Optional[str]
     """Optional. The Cloud Storage URI of the `requirements.txt` file"""
@@ -7820,7 +7820,7 @@ class ReasoningEngineSpecSourceCodeSpecPythonSpec(_common.BaseModel):
     )
     version: Optional[str] = Field(
         default=None,
-        description="""Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10.""",
+        description="""Optional. The version of Python to use. Supported versions include 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10.""",
     )
 
 
@@ -7837,7 +7837,7 @@ class ReasoningEngineSpecSourceCodeSpecPythonSpecDict(TypedDict, total=False):
     """Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt"."""
 
     version: Optional[str]
-    """Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10."""
+    """Optional. The version of Python to use. Supported versions include 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10."""
 
 
 ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
