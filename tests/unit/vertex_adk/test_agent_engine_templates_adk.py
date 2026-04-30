@@ -507,6 +507,43 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    async def test_streaming_agent_run_with_events_extracts_user_id_from_headers(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+
+        request_json = json.dumps(
+            {
+                "message": {
+                    "parts": [{"text": "Hello"}],
+                    "role": "user",
+                },
+            }
+        )
+        headers = {
+            "X-Goog-Authenticated-User-Email": "test_user_from_header@google.com"
+        }
+
+        with mock.patch.object(app, "_init_session") as mock_init_session:
+            mock_session = mock.Mock()
+            mock_session.id = "mock_session_id"
+            mock_init_session.return_value = mock_session
+
+            async for _ in app.streaming_agent_run_with_events(
+                request_json=request_json, headers=headers
+            ):
+                pass
+
+            mock_init_session.assert_called_once()
+            # Assert that the extracted request object correctly pulled the user_id from headers
+            request_obj = mock_init_session.call_args.kwargs["request"]
+            assert request_obj.user_id == "test_user_from_header@google.com"
+
+    @pytest.mark.asyncio
     @mock.patch.dict(
         os.environ,
         {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
