@@ -4717,9 +4717,7 @@ class TestModel:
             name=versioned_name, retry=base._DEFAULT_RETRY
         )
 
-    def test_update_preserves_version(
-        self, update_model_mock, get_model_with_version
-    ):
+    def test_update_preserves_version(self, update_model_mock, get_model_with_version):
         # Regression test for https://github.com/googleapis/python-aiplatform/issues/2619
         # Model.update() calls _sync_gca_resource(); verify it fetches the versioned name.
         model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
