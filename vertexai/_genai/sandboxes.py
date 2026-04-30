@@ -629,6 +629,23 @@ class Sandboxes(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    _templates = None
+
+    @property
+    def templates(self) -> Any:
+        if self._templates is None:
+            try:
+                self._templates = __import__("importlib").import_module(
+                    ".sandbox_templates", __package__
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.sandboxes.sandbox_templates' module requires "
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._templates.SandboxTemplates(self._api_client)
+
     def create(
         self,
         *,

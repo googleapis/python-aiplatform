@@ -116,6 +116,40 @@ def test_create_dataset_from_bigquery(client):
 
 
 @pytest.mark.usefixtures("mock_generate_multimodal_dataset_display_name")
+def test_create_dataset_from_bigquery_with_uri(client):
+    dataset = client.datasets.create_from_bigquery(
+        bigquery_uri=f"bq://{BIGQUERY_TABLE_NAME}",
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+
+
+def test_create_dataset_from_bigquery_preserves_other_metadata(client):
+    dataset = client.datasets.create_from_bigquery(
+        bigquery_uri=f"bq://{BIGQUERY_TABLE_NAME}",
+        multimodal_dataset={
+            "display_name": "test-from-bigquery-uri",
+            "metadata": {
+                "gemini_request_read_config": {
+                    "assembled_request_column_name": "test_column"
+                }
+            },
+        },
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigquery-uri"
+    assert (
+        dataset.metadata.gemini_request_read_config.assembled_request_column_name
+        == "test_column"
+    )
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+
+
+@pytest.mark.usefixtures("mock_generate_multimodal_dataset_display_name")
 def test_create_dataset_from_bigquery_no_display_name(client):
     dataset = client.datasets.create_from_bigquery(
         multimodal_dataset={
@@ -128,6 +162,13 @@ def test_create_dataset_from_bigquery_no_display_name(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-generated-name"
+
+
+def test_create_dataset_from_bigquery_raises_if_neither(client):
+    with pytest.raises(
+        ValueError, match="At least one of `bigquery_uri` or `multimodal_dataset`"
+    ):
+        client.datasets.create_from_bigquery()
 
 
 @pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
@@ -210,6 +251,50 @@ def test_create_dataset_from_bigframes(client, is_replay_mode):
         )
 
 
+@pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="bigframes requires python 3.10 or higher",
+)
+@pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
+def test_create_dataset_from_bigframes_preserves_other_metadata(client, is_replay_mode):
+    import bigframes.pandas
+
+    dataframe = pd.DataFrame(
+        {
+            "col1": ["col1"],
+            "col2": ["col2"],
+        }
+    )
+    if is_replay_mode:
+        bf_dataframe = mock.MagicMock()
+        bf_dataframe.to_gbq.return_value = "temp_table_id"
+    else:
+        bf_dataframe = bigframes.pandas.DataFrame(dataframe)
+
+    dataset = client.datasets.create_from_bigframes(
+        dataframe=bf_dataframe,
+        target_table_id=BIGQUERY_TABLE_NAME,
+        multimodal_dataset={
+            "display_name": "test-from-bigframes",
+            "metadata": {
+                "gemini_request_read_config": {
+                    "assembled_request_column_name": "test_column"
+                }
+            },
+        },
+    )
+
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigframes"
+    assert (
+        dataset.metadata.gemini_request_read_config.assembled_request_column_name
+        == "test_column"
+    )
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -256,6 +341,44 @@ async def test_create_dataset_from_bigquery_async(client):
 
 @pytest.mark.asyncio
 @pytest.mark.usefixtures("mock_generate_multimodal_dataset_display_name")
+async def test_create_dataset_from_bigquery_with_uri_async(client):
+    dataset = await client.aio.datasets.create_from_bigquery(
+        bigquery_uri=f"bq://{BIGQUERY_TABLE_NAME}",
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_from_bigquery_preserves_other_metadata_async(
+    client,
+):
+    dataset = await client.aio.datasets.create_from_bigquery(
+        bigquery_uri=f"bq://{BIGQUERY_TABLE_NAME}",
+        multimodal_dataset={
+            "display_name": "test-from-bigquery-uri",
+            "metadata": {
+                "gemini_request_read_config": {
+                    "assembled_request_column_name": "test_column"
+                }
+            },
+        },
+    )
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigquery-uri"
+    assert (
+        dataset.metadata.gemini_request_read_config.assembled_request_column_name
+        == "test_column"
+    )
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("mock_generate_multimodal_dataset_display_name")
 async def test_create_dataset_from_bigquery_no_display_name_async(client):
     dataset = await client.aio.datasets.create_from_bigquery(
         multimodal_dataset={
@@ -268,6 +391,14 @@ async def test_create_dataset_from_bigquery_no_display_name_async(client):
     )
     assert isinstance(dataset, types.MultimodalDataset)
     assert dataset.display_name == "test-generated-name"
+
+
+@pytest.mark.asyncio
+async def test_create_dataset_from_bigquery_raises_if_neither_async(client):
+    with pytest.raises(
+        ValueError, match="At least one of `bigquery_uri` or `multimodal_dataset`"
+    ):
+        await client.aio.datasets.create_from_bigquery()
 
 
 @pytest.mark.asyncio
@@ -371,3 +502,50 @@ async def test_create_dataset_from_bigframes_async(client, is_replay_mode):
         pd.testing.assert_frame_equal(
             rows.to_dataframe(), dataframe, check_index_type=False
         )
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 10),
+    reason="bigframes requires python 3.10 or higher",
+)
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
+async def test_create_dataset_from_bigframes_preserves_other_metadata_async(
+    client, is_replay_mode
+):
+    import bigframes.pandas
+
+    dataframe = pd.DataFrame(
+        {
+            "col1": ["col1"],
+            "col2": ["col2"],
+        }
+    )
+    if is_replay_mode:
+        bf_dataframe = mock.MagicMock()
+        bf_dataframe.to_gbq.return_value = "temp_table_id"
+    else:
+        bf_dataframe = bigframes.pandas.DataFrame(dataframe)
+
+    dataset = await client.aio.datasets.create_from_bigframes(
+        dataframe=bf_dataframe,
+        target_table_id=BIGQUERY_TABLE_NAME,
+        multimodal_dataset={
+            "display_name": "test-from-bigframes",
+            "metadata": {
+                "gemini_request_read_config": {
+                    "assembled_request_column_name": "test_column"
+                }
+            },
+        },
+    )
+
+    assert isinstance(dataset, types.MultimodalDataset)
+    assert dataset.display_name == "test-from-bigframes"
+    assert (
+        dataset.metadata.gemini_request_read_config.assembled_request_column_name
+        == "test_column"
+    )
+    assert dataset.metadata.input_config.bigquery_source.uri == (
+        f"bq://{BIGQUERY_TABLE_NAME}"
+    )
