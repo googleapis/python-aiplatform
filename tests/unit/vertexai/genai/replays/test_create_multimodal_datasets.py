@@ -81,6 +81,26 @@ def mock_generate_multimodal_dataset_display_name():
         yield mock_generate
 
 
+@pytest.fixture
+def mock_try_import_storage():
+    with mock.patch.object(
+        _datasets_utils, "_try_import_storage"
+    ) as mock_import_storage:
+        blob = mock.MagicMock()
+        blob.download_as_text.return_value = (
+            '{"contents": ["test1"]}\n{"contents": ["test2"]}'
+        )
+
+        bucket = mock.MagicMock()
+        bucket.blob.return_value = blob
+
+        client = mock.MagicMock()
+        client.bucket.return_value = bucket
+        mock_import_storage.return_value.Client.return_value = client
+
+        yield mock_import_storage
+
+
 def test_create_dataset(client):
     create_dataset_operation = client.datasets._create_multimodal_dataset(
         name="projects/vertex-sdk-dev/locations/us-central1",
@@ -293,6 +313,43 @@ def test_create_dataset_from_bigframes_preserves_other_metadata(client, is_repla
     assert dataset.metadata.input_config.bigquery_source.uri == (
         f"bq://{BIGQUERY_TABLE_NAME}"
     )
+
+
+@pytest.mark.usefixtures(
+    "mock_bigquery_client", "mock_import_bigframes", "mock_try_import_storage"
+)
+def test_create_from_gemini_request_jsonl(client, is_replay_mode):
+    if is_replay_mode:
+        with mock.patch.object(client.datasets, "create_from_bigframes") as mock_create:
+            mock_ds = mock.MagicMock()
+            mock_ds.display_name = "test-from-gemini-jsonl"
+            mock_create.return_value = mock_ds
+
+            dataset = client.datasets.create_from_gemini_request_jsonl(
+                gcs_uri="gs://test-bucket/test-blob.jsonl",
+                target_table_id=BIGQUERY_TABLE_NAME,
+                multimodal_dataset={
+                    "display_name": "test-from-gemini-jsonl",
+                },
+            )
+            assert dataset.display_name == "test-from-gemini-jsonl"
+            assert (
+                dataset.metadata.gemini_request_read_config.assembled_request_column_name
+                == "requests"
+            )
+    else:
+        dataset = client.datasets.create_from_gemini_request_jsonl(
+            gcs_uri="gs://test-bucket/test-blob.jsonl",
+            target_table_id=BIGQUERY_TABLE_NAME,
+            multimodal_dataset={
+                "display_name": "test-from-gemini-jsonl",
+            },
+        )
+        assert dataset.display_name == "test-from-gemini-jsonl"
+        assert (
+            dataset.metadata.gemini_request_read_config.assembled_request_column_name
+            == "requests"
+        )
 
 
 pytestmark = pytest_helper.setup(
@@ -549,3 +606,43 @@ async def test_create_dataset_from_bigframes_preserves_other_metadata_async(
     assert dataset.metadata.input_config.bigquery_source.uri == (
         f"bq://{BIGQUERY_TABLE_NAME}"
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures(
+    "mock_bigquery_client", "mock_import_bigframes", "mock_try_import_storage"
+)
+async def test_create_from_gemini_request_jsonl_async(client, is_replay_mode):
+    if is_replay_mode:
+        with mock.patch.object(
+            client.aio.datasets, "create_from_bigframes"
+        ) as mock_create:
+            mock_ds = mock.MagicMock()
+            mock_ds.display_name = "test-from-gemini-jsonl-async"
+            mock_create.return_value = mock_ds
+
+            dataset = await client.aio.datasets.create_from_gemini_request_jsonl(
+                gcs_uri="gs://test-bucket/test-blob-async.jsonl",
+                target_table_id=BIGQUERY_TABLE_NAME,
+                multimodal_dataset={
+                    "display_name": "test-from-gemini-jsonl-async",
+                },
+            )
+            assert dataset.display_name == "test-from-gemini-jsonl-async"
+            assert (
+                dataset.metadata.gemini_request_read_config.assembled_request_column_name
+                == "requests"
+            )
+    else:
+        dataset = await client.aio.datasets.create_from_gemini_request_jsonl(
+            gcs_uri="gs://test-bucket/test-blob-async.jsonl",
+            target_table_id=BIGQUERY_TABLE_NAME,
+            multimodal_dataset={
+                "display_name": "test-from-gemini-jsonl-async",
+            },
+        )
+        assert dataset.display_name == "test-from-gemini-jsonl-async"
+        assert (
+            dataset.metadata.gemini_request_read_config.assembled_request_column_name
+            == "requests"
+        )
