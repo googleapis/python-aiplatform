@@ -196,6 +196,9 @@ class TestDataset(e2e_base.TestEndToEnd):
         with pytest.raises(exceptions.NotFound):
             aiplatform.ImageDataset(dataset_name="0")
 
+    @pytest.mark.skip(
+        reason="Creating a Text Dataset/training AutoML TEXT models is no longer supported"
+    )
     def test_get_new_dataset_and_import(self, dataset_gapic_client):
         """Retrieve new, empty dataset and import a text dataset using import().
         Then verify data items were successfully imported."""

@@ -14,6 +14,7 @@
 # limitations under the License.
 #
 
+import datetime
 import pytest
 import logging
 
@@ -729,6 +730,101 @@ class TestCustomJob:
             job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
         )
         assert job.network == _TEST_NETWORK
+
+    def test_submit_custom_job_with_zero_max_wait_duration(
+        self, create_custom_job_mock, get_custom_job_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+            max_wait_duration=0,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+        expected_custom_job.job_spec.scheduling.max_wait_duration = datetime.timedelta(
+            seconds=0
+        )
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
+        )
+
+    def test_submit_custom_job_with_default_max_wait_duration(
+        self, create_custom_job_mock, get_custom_job_mock
+    ):
+
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            staging_bucket=_TEST_STAGING_BUCKET,
+            encryption_spec_key_name=_TEST_DEFAULT_ENCRYPTION_KEY_NAME,
+        )
+
+        job = aiplatform.CustomJob(
+            display_name=_TEST_DISPLAY_NAME,
+            worker_pool_specs=_TEST_WORKER_POOL_SPEC,
+            base_output_dir=_TEST_BASE_OUTPUT_DIR,
+            labels=_TEST_LABELS,
+        )
+
+        job.submit(
+            service_account=_TEST_SERVICE_ACCOUNT,
+            network=_TEST_NETWORK,
+            timeout=_TEST_TIMEOUT,
+            restart_job_on_worker_restart=_TEST_RESTART_JOB_ON_WORKER_RESTART,
+            create_request_timeout=None,
+            disable_retries=_TEST_DISABLE_RETRIES,
+        )
+
+        job.wait_for_resource_creation()
+
+        assert job.resource_name == _TEST_CUSTOM_JOB_NAME
+
+        job.wait()
+
+        expected_custom_job = _get_custom_job_proto()
+        expected_custom_job.job_spec.scheduling.max_wait_duration = None
+
+        create_custom_job_mock.assert_called_once_with(
+            parent=_TEST_PARENT,
+            custom_job=expected_custom_job,
+            timeout=None,
+        )
+
+        assert "max_wait_duration" not in expected_custom_job.job_spec.scheduling
+        assert (
+            job._gca_resource.state == gca_job_state_compat.JobState.JOB_STATE_PENDING
+        )
 
     @pytest.mark.usefixtures(
         "get_experiment_run_mock", "get_tensorboard_run_artifact_not_found_mock"

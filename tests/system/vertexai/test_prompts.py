@@ -30,6 +30,8 @@ from vertexai.preview.prompts import Prompt
 from tests.system.aiplatform import e2e_base
 from google import auth
 
+MODEL_NAME = "gemini-2.5-flash"
+
 _REQUEST_FUNCTION_PARAMETER_SCHEMA_STRUCT = {
     "type": "object",
     "properties": {
@@ -74,7 +76,7 @@ class TestPrompts(e2e_base.TestEndToEnd):
                 {"name": "Bob", "day": "Tuesday"},
             ],
             generation_config=GenerationConfig(temperature=0.1),
-            model_name="gemini-1.5-pro-002",
+            model_name=MODEL_NAME,
             safety_settings=[
                 SafetySetting(
                     category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
@@ -140,11 +142,11 @@ class TestPrompts(e2e_base.TestEndToEnd):
             prompt_data="What is the weather like in Boston?",
             tools=[weather_tool],
             tool_config=tool_config,
-            model_name="gemini-1.5-pro-002",
+            model_name=MODEL_NAME,
         )
 
         # (Optional) Create a separate prompt resource to save the version to
-        prompt_temp = Prompt(model_name="gemini-1.5-pro-002")
+        prompt_temp = Prompt(model_name=MODEL_NAME)
         prompt_temp1 = prompts.create_version(prompt=prompt_temp, version_name="empty")
 
         # Create a new version to an existing prompt
@@ -190,6 +192,6 @@ class TestPrompts(e2e_base.TestEndToEnd):
 
         # Generate content using the prompt
         response = prompt.generate_content(
-            model_name="gemini-1.5-pro-002", contents=prompt.assemble_contents()
+            model_name=MODEL_NAME, contents=prompt.assemble_contents()
         )
         assert response

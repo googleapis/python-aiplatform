@@ -107,6 +107,7 @@ PROD_API_ENDPOINT = "PROD_ENDPOINT"
 
 
 @pytest.mark.parametrize("api_endpoint_env_name", [PROD_API_ENDPOINT])
+@pytest.mark.skip(reason="Models are deprecated.")
 class TestTokenization(e2e_base.TestEndToEnd):
     """System tests for tokenization."""
 
