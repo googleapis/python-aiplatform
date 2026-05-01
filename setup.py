@@ -273,6 +273,7 @@ testing_extra_require = (
         "pytest-cov",
         "mock",
         "pytest-xdist",
+        "pytest-shard",
         "Pillow",
         "scikit-learn<1.6.0; python_version<='3.10'",
         "scikit-learn; python_version>'3.10'",
