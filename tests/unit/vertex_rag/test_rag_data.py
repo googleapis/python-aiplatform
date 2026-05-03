@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +14,12 @@
 #
 import importlib
 from google.api_core import operation as ga_operation
-from vertexai import rag
-from vertexai.rag.utils._gapic_utils import (
+from agentplatform import rag
+from agentplatform.rag.utils._gapic_utils import (
     prepare_import_files_request,
     set_embedding_model_config,
 )
-from vertexai.rag.utils.resources import (
+from agentplatform.rag.utils.resources import (
     ChunkingConfig,
     TransformationConfig,
 )

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +14,12 @@
 #
 import importlib
 from google.api_core import operation as ga_operation
-from vertexai.preview import rag
-from vertexai.preview.rag.utils._gapic_utils import (
+from agentplatform.preview import rag
+from agentplatform.preview.rag.utils._gapic_utils import (
     prepare_import_files_request,
     set_embedding_model_config,
 )
-from vertexai.rag.utils.resources import (
+from agentplatform.rag.utils.resources import (
     ChunkingConfig,
     TransformationConfig,
 )
@@ -923,7 +921,7 @@ def update_rag_metadata_mock():
 
 @pytest.fixture
 def rag_data_client_preview_mock_exception():
-    from vertexai.preview.rag.utils import _gapic_utils
+    from agentplatform.preview.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_client"
