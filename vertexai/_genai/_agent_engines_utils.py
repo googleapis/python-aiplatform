@@ -633,9 +633,9 @@ def _generate_class_methods_spec_or_raise(
             class_method = _to_proto(schema_dict)
             class_method[_MODE_KEY_IN_SCHEMA] = mode
             if hasattr(agent, "agent_card"):
-                class_method[_A2A_AGENT_CARD] = getattr(
-                    agent, "agent_card"
-                ).model_dump_json()
+                class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(
+                    getattr(agent, "agent_card")
+                )
             class_methods_spec.append(class_method)
 
     return class_methods_spec
@@ -1234,9 +1234,16 @@ def _upload_agent_engine(
             cloudpickle.dump(agent, f)
         except Exception as e:
             url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
-            raise TypeError(
-                f"Failed to serialize agent engine. Visit {url} for details."
-            ) from e
+            error_msg = f"Failed to serialize agent engine. Visit {url} for details."
+            if "google._upb._message" in str(e) or "Descriptor" in str(e):
+                error_msg += (
+                    " This is often caused by protobuf objects (like Part, AgentCard) "
+                    "being imported at the global module level. Please move these "
+                    "imports inside the functions or methods where they are used. "
+                    "Alternatively, you can import the entire module: "
+                    "`from a2a import types`."
+                )
+            raise TypeError(error_msg) from e
     with blob.open("rb") as f:
         try:
             _ = cloudpickle.load(f)
@@ -1795,13 +1802,6 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
         # Set preferred transport to HTTP+JSON if not set.
         if not hasattr(a2a_agent_card, "preferred_transport"):
             a2a_agent_card.preferred_transport = TransportProtocol.http_json
-
-        # AE cannot support streaming yet. Turn off streaming for now.
-        if a2a_agent_card.capabilities and a2a_agent_card.capabilities.streaming:
-            raise ValueError(
-                "Streaming is not supported in Agent Engine, please change "
-                "a2a_agent_card.capabilities.streaming to False."
-            )
 
         if not hasattr(a2a_agent_card.capabilities, "streaming"):
             a2a_agent_card.capabilities.streaming = False
