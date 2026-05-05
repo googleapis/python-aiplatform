@@ -24,7 +24,7 @@ from vertexai.agent_engines import _utils
 import pytest
 
 from langchain_core import runnables
-from langchain.load import dump as langchain_load_dump
+from langchain_core.load import dump as langchain_load_dump
 from langchain.tools.base import StructuredTool
 
 

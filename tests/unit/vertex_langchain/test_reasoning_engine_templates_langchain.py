@@ -27,7 +27,7 @@ import pytest
 
 
 from langchain_core import prompts
-from langchain.load import dump as langchain_load_dump
+from langchain_core.load import dump as langchain_load_dump
 from langchain.agents.format_scratchpad import format_to_openai_function_messages
 from langchain.tools.base import StructuredTool
 
