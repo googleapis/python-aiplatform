@@ -4887,6 +4887,17 @@ def test_create_reasoning_engine_rest_call_success(request_type):
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "labels": {},
+        "traffic_config": {
+            "traffic_split_manual": {
+                "targets": [
+                    {
+                        "runtime_revision_name": "runtime_revision_name_value",
+                        "percent": 753,
+                    }
+                ]
+            },
+            "traffic_split_always_latest": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -5450,6 +5461,17 @@ def test_update_reasoning_engine_rest_call_success(request_type):
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "labels": {},
+        "traffic_config": {
+            "traffic_split_manual": {
+                "targets": [
+                    {
+                        "runtime_revision_name": "runtime_revision_name_value",
+                        "percent": 753,
+                    }
+                ]
+            },
+            "traffic_split_always_latest": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6635,6 +6657,17 @@ async def test_create_reasoning_engine_rest_asyncio_call_success(request_type):
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "labels": {},
+        "traffic_config": {
+            "traffic_split_manual": {
+                "targets": [
+                    {
+                        "runtime_revision_name": "runtime_revision_name_value",
+                        "percent": 753,
+                    }
+                ]
+            },
+            "traffic_split_always_latest": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -7252,6 +7285,17 @@ async def test_update_reasoning_engine_rest_asyncio_call_success(request_type):
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "labels": {},
+        "traffic_config": {
+            "traffic_split_manual": {
+                "targets": [
+                    {
+                        "runtime_revision_name": "runtime_revision_name_value",
+                        "percent": 753,
+                    }
+                ]
+            },
+            "traffic_split_always_latest": {},
+        },
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -9090,8 +9134,43 @@ def test_parse_reasoning_engine_path():
     assert expected == actual
 
 
+def test_reasoning_engine_runtime_revision_path():
+    project = "whelk"
+    location = "octopus"
+    reasoning_engine = "oyster"
+    runtime_revision = "nudibranch"
+    expected = "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/runtimeRevisions/{runtime_revision}".format(
+        project=project,
+        location=location,
+        reasoning_engine=reasoning_engine,
+        runtime_revision=runtime_revision,
+    )
+    actual = ReasoningEngineServiceClient.reasoning_engine_runtime_revision_path(
+        project, location, reasoning_engine, runtime_revision
+    )
+    assert expected == actual
+
+
+def test_parse_reasoning_engine_runtime_revision_path():
+    expected = {
+        "project": "cuttlefish",
+        "location": "mussel",
+        "reasoning_engine": "winkle",
+        "runtime_revision": "nautilus",
+    }
+    path = ReasoningEngineServiceClient.reasoning_engine_runtime_revision_path(
+        **expected
+    )
+
+    # Check that the path construction is reversible.
+    actual = ReasoningEngineServiceClient.parse_reasoning_engine_runtime_revision_path(
+        path
+    )
+    assert expected == actual
+
+
 def test_common_billing_account_path():
-    billing_account = "whelk"
+    billing_account = "scallop"
     expected = "billingAccounts/{billing_account}".format(
         billing_account=billing_account,
     )
@@ -9101,7 +9180,7 @@ def test_common_billing_account_path():
 
 def test_parse_common_billing_account_path():
     expected = {
-        "billing_account": "octopus",
+        "billing_account": "abalone",
     }
     path = ReasoningEngineServiceClient.common_billing_account_path(**expected)
 
@@ -9111,7 +9190,7 @@ def test_parse_common_billing_account_path():
 
 
 def test_common_folder_path():
-    folder = "oyster"
+    folder = "squid"
     expected = "folders/{folder}".format(
         folder=folder,
     )
@@ -9121,7 +9200,7 @@ def test_common_folder_path():
 
 def test_parse_common_folder_path():
     expected = {
-        "folder": "nudibranch",
+        "folder": "clam",
     }
     path = ReasoningEngineServiceClient.common_folder_path(**expected)
 
@@ -9131,7 +9210,7 @@ def test_parse_common_folder_path():
 
 
 def test_common_organization_path():
-    organization = "cuttlefish"
+    organization = "whelk"
     expected = "organizations/{organization}".format(
         organization=organization,
     )
@@ -9141,7 +9220,7 @@ def test_common_organization_path():
 
 def test_parse_common_organization_path():
     expected = {
-        "organization": "mussel",
+        "organization": "octopus",
     }
     path = ReasoningEngineServiceClient.common_organization_path(**expected)
 
@@ -9151,7 +9230,7 @@ def test_parse_common_organization_path():
 
 
 def test_common_project_path():
-    project = "winkle"
+    project = "oyster"
     expected = "projects/{project}".format(
         project=project,
     )
@@ -9161,7 +9240,7 @@ def test_common_project_path():
 
 def test_parse_common_project_path():
     expected = {
-        "project": "nautilus",
+        "project": "nudibranch",
     }
     path = ReasoningEngineServiceClient.common_project_path(**expected)
 
@@ -9171,8 +9250,8 @@ def test_parse_common_project_path():
 
 
 def test_common_location_path():
-    project = "scallop"
-    location = "abalone"
+    project = "cuttlefish"
+    location = "mussel"
     expected = "projects/{project}/locations/{location}".format(
         project=project,
         location=location,
@@ -9183,8 +9262,8 @@ def test_common_location_path():
 
 def test_parse_common_location_path():
     expected = {
-        "project": "squid",
-        "location": "clam",
+        "project": "winkle",
+        "location": "nautilus",
     }
     path = ReasoningEngineServiceClient.common_location_path(**expected)
 
