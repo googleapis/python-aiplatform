@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.150.0](https://github.com/googleapis/python-aiplatform/compare/v1.149.0...v1.150.0) (2026-05-05)
+
+
+### Features
+
+* Add Agent Engine Runtime Versioning support to SDK. ([b8eaefb](https://github.com/googleapis/python-aiplatform/commit/b8eaefb5236669953865a770ba5fddfaf2dbe2b3))
+* Add Agent Engine Sandbox Snapshots Module ([f48e54b](https://github.com/googleapis/python-aiplatform/commit/f48e54b56948108aa11e49f6c56fa9b69d7f18ef))
+* Add support for templates sub-module for Sandboxes in Vertex AI GenAI SDK. ([68f053e](https://github.com/googleapis/python-aiplatform/commit/68f053ea4160fa1fd1a96435fe83965030d0e2eb))
+* Add support for wait for operation complete for sandbox sub-modules ([737ad1c](https://github.com/googleapis/python-aiplatform/commit/737ad1c4489e9a9535b210b8a49bd864dabc80e4))
+* Disable streaming check that should have already been disabled ([762d20c](https://github.com/googleapis/python-aiplatform/commit/762d20ca21af55df75b003ad79a0e79596dbb4f8))
+* Faster sandbox creation with templates and snapshots and improve dataplane routing and security. ([9dccee2](https://github.com/googleapis/python-aiplatform/commit/9dccee26ddcad4e13e26b669906ba82945cbff58))
+* GenAI Client(evals) - Support eval_cases with multi-turn agent_data in run_inference() ([a1680d3](https://github.com/googleapis/python-aiplatform/commit/a1680d3a3f5fc4a55316c6071209a15e6753d4f6))
+* GenAI Client(evals) - Support N+1 Agent Engine inference via agent_data in run_inference() ([9ea4aa6](https://github.com/googleapis/python-aiplatform/commit/9ea4aa64ad64a4b55860f064a5284bba64034f6e))
+* GenAI SDK client(multimodal) - Accept an explicit bigquery_uri parameter in create_from_bigquery ([0bb2ecd](https://github.com/googleapis/python-aiplatform/commit/0bb2ecd2bca01554d91b1f5f3d69f88237adaa3d))
+* Migrate model garden to agentplatform ([d5e71ff](https://github.com/googleapis/python-aiplatform/commit/d5e71ff860e926cc1877a5f1bba1a00617a23e7a))
+* Migrate resources to agentplatform ([5788c50](https://github.com/googleapis/python-aiplatform/commit/5788c50bb6dad16081ba0966ceba61b6e70f95cd))
+* Update sdk to support python-a2a sdk 1.0 via a new GA A2a framework template ([762d20c](https://github.com/googleapis/python-aiplatform/commit/762d20ca21af55df75b003ad79a0e79596dbb4f8))
+
+
+### Bug Fixes
+
+* Allow setting max_wait_duration to 0 for indefinite waiting with DWS ([d9675fd](https://github.com/googleapis/python-aiplatform/commit/d9675fdf051233539f478187143f2833fd6e6af0))
+* Custom job url after rebrand ([aabe816](https://github.com/googleapis/python-aiplatform/commit/aabe81676432e96f2c2dff49b64fdcdaed5deb8a))
+* Flaky tests in feature store relates cases due to class instantiation ([9fd0fe0](https://github.com/googleapis/python-aiplatform/commit/9fd0fe06eeceb77fa3ba12cfb43532824cf61d26))
+* GenAI SDK client(multimodal) - Preserve existing metadata when creating from bigframes ([bc2260d](https://github.com/googleapis/python-aiplatform/commit/bc2260dada6cc9f3d6179dc544cc20414de59653))
+
 ## [1.149.0](https://github.com/googleapis/python-aiplatform/compare/v1.148.1...v1.149.0) (2026-04-27)
 
 
