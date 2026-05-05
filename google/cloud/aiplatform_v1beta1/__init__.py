@@ -106,6 +106,12 @@ from .services.reasoning_engine_execution_service import (
 from .services.reasoning_engine_execution_service import (
     ReasoningEngineExecutionServiceAsyncClient,
 )
+from .services.reasoning_engine_runtime_revision_service import (
+    ReasoningEngineRuntimeRevisionServiceClient,
+)
+from .services.reasoning_engine_runtime_revision_service import (
+    ReasoningEngineRuntimeRevisionServiceAsyncClient,
+)
 from .services.reasoning_engine_service import ReasoningEngineServiceClient
 from .services.reasoning_engine_service import ReasoningEngineServiceAsyncClient
 from .services.schedule_service import ScheduleServiceClient
@@ -1125,6 +1131,22 @@ from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineR
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
+from .types.reasoning_engine_runtime_revision import ReasoningEngineRuntimeRevision
+from .types.reasoning_engine_runtime_revision_service import (
+    DeleteReasoningEngineRuntimeRevisionOperationMetadata,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    DeleteReasoningEngineRuntimeRevisionRequest,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    GetReasoningEngineRuntimeRevisionRequest,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    ListReasoningEngineRuntimeRevisionsRequest,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    ListReasoningEngineRuntimeRevisionsResponse,
+)
 from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
 from .types.reasoning_engine_service import CreateReasoningEngineRequest
 from .types.reasoning_engine_service import DeleteReasoningEngineRequest
@@ -1524,6 +1546,7 @@ __all__ = (
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
     "ReasoningEngineExecutionServiceAsyncClient",
+    "ReasoningEngineRuntimeRevisionServiceAsyncClient",
     "ReasoningEngineServiceAsyncClient",
     "ScheduleServiceAsyncClient",
     "SessionServiceAsyncClient",
@@ -1819,6 +1842,8 @@ __all__ = (
     "DeleteRagFileRequest",
     "DeleteRagMetadataRequest",
     "DeleteReasoningEngineRequest",
+    "DeleteReasoningEngineRuntimeRevisionOperationMetadata",
+    "DeleteReasoningEngineRuntimeRevisionRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
     "DeleteSessionRequest",
@@ -2064,6 +2089,7 @@ __all__ = (
     "GetRagFileRequest",
     "GetRagMetadataRequest",
     "GetReasoningEngineRequest",
+    "GetReasoningEngineRuntimeRevisionRequest",
     "GetScheduleRequest",
     "GetSessionRequest",
     "GetSpecialistPoolRequest",
@@ -2228,6 +2254,8 @@ __all__ = (
     "ListRagFilesResponse",
     "ListRagMetadataRequest",
     "ListRagMetadataResponse",
+    "ListReasoningEngineRuntimeRevisionsRequest",
+    "ListReasoningEngineRuntimeRevisionsResponse",
     "ListReasoningEnginesRequest",
     "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
@@ -2483,6 +2511,8 @@ __all__ = (
     "ReasoningEngine",
     "ReasoningEngineContextSpec",
     "ReasoningEngineExecutionServiceClient",
+    "ReasoningEngineRuntimeRevision",
+    "ReasoningEngineRuntimeRevisionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
     "RebaseTunedModelOperationMetadata",

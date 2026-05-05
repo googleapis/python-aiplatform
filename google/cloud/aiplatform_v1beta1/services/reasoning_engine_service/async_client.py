@@ -108,6 +108,12 @@ class ReasoningEngineServiceAsyncClient:
     parse_reasoning_engine_path = staticmethod(
         ReasoningEngineServiceClient.parse_reasoning_engine_path
     )
+    reasoning_engine_runtime_revision_path = staticmethod(
+        ReasoningEngineServiceClient.reasoning_engine_runtime_revision_path
+    )
+    parse_reasoning_engine_runtime_revision_path = staticmethod(
+        ReasoningEngineServiceClient.parse_reasoning_engine_runtime_revision_path
+    )
     common_billing_account_path = staticmethod(
         ReasoningEngineServiceClient.common_billing_account_path
     )

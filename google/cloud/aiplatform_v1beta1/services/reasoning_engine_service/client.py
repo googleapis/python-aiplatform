@@ -343,6 +343,30 @@ class ReasoningEngineServiceClient(metaclass=ReasoningEngineServiceClientMeta):
         return m.groupdict() if m else {}
 
     @staticmethod
+    def reasoning_engine_runtime_revision_path(
+        project: str,
+        location: str,
+        reasoning_engine: str,
+        runtime_revision: str,
+    ) -> str:
+        """Returns a fully-qualified reasoning_engine_runtime_revision string."""
+        return "projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/runtimeRevisions/{runtime_revision}".format(
+            project=project,
+            location=location,
+            reasoning_engine=reasoning_engine,
+            runtime_revision=runtime_revision,
+        )
+
+    @staticmethod
+    def parse_reasoning_engine_runtime_revision_path(path: str) -> Dict[str, str]:
+        """Parses a reasoning_engine_runtime_revision path into its component segments."""
+        m = re.match(
+            r"^projects/(?P<project>.+?)/locations/(?P<location>.+?)/reasoningEngines/(?P<reasoning_engine>.+?)/runtimeRevisions/(?P<runtime_revision>.+?)$",
+            path,
+        )
+        return m.groupdict() if m else {}
+
+    @staticmethod
     def common_billing_account_path(
         billing_account: str,
     ) -> str:
