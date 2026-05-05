@@ -69,6 +69,7 @@ UNIT_TEST_STANDARD_DEPENDENCIES = [
     "pytest-asyncio",
     # Preventing: py.test: error: unrecognized arguments: -n=auto --dist=loadscope
     "pytest-xdist",
+    "pytest-shard",
 ]
 UNIT_TEST_EXTERNAL_DEPENDENCIES = []
 UNIT_TEST_LOCAL_DEPENDENCIES = []
@@ -196,41 +197,51 @@ def install_unittest_dependencies(session, *constraints):
 
 
 def default(session):
-    # Install all test dependencies, then install this package in-place.
+  # Install all test dependencies, then install this package in-place.
 
-    constraints_path = str(
+  constraints_path = str(
         CURRENT_DIRECTORY / "testing" / f"constraints-{session.python}.txt"
     )
-    install_unittest_dependencies(session, "-c", constraints_path)
+  install_unittest_dependencies(session, "-c", constraints_path)
 
-    # Run py.test against the unit tests.
-    session.run(
-        "py.test",
-        "--quiet",
-        f"--junitxml=unit_{session.python}_sponge_log.xml",
-        "--cov=google",
-        "--cov-append",
-        "--cov-config=.coveragerc",
-        "--cov-report=",
-        "--cov-fail-under=0",
-        "--ignore=tests/unit/vertex_ray",
-        "--ignore=tests/unit/vertex_adk",
-        "--ignore=tests/unit/vertex_langchain",
-        "--ignore=tests/unit/vertex_ag2",
-        "--ignore=tests/unit/vertex_llama_index",
-        "--ignore=tests/unit/architecture",
-        os.path.join("tests", "unit"),
-        *session.posargs,
+  pytest_args = [
+      "py.test",
+      "--quiet",
+      f"--junitxml=unit_{session.python}_sponge_log.xml",
+      "--cov=google",
+      "--cov-append",
+      "--cov-config=.coveragerc",
+      "--cov-report=",
+      "--cov-fail-under=0",
+      "--ignore=tests/unit/vertex_ray",
+      "--ignore=tests/unit/vertex_adk",
+      "--ignore=tests/unit/vertex_langchain",
+      "--ignore=tests/unit/vertex_ag2",
+      "--ignore=tests/unit/vertex_llama_index",
+      "--ignore=tests/unit/architecture",
+  ]
+
+  shard_id = os.environ.get("PYTEST_SHARD_ID")
+  shard_count = os.environ.get("PYTEST_SHARD_COUNT")
+  if shard_id and shard_count:
+    pytest_args.extend(
+        [f"--shard-id={shard_id}", f"--shard-count={shard_count}"]
     )
 
-    # Run tests that require isolation.
-    session.run(
-        "py.test",
-        "--quiet",
-        f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
-        os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
-        *session.posargs,
-    )
+  pytest_args.append(os.path.join("tests", "unit"))
+  pytest_args.extend(session.posargs)
+
+  # Run py.test against the unit tests.
+  session.run(*pytest_args)
+
+  # Run tests that require isolation.
+  session.run(
+      "py.test",
+      "--quiet",
+      f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
+      os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
+      *session.posargs,
+  )
 
 
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
