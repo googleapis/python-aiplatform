@@ -2409,7 +2409,8 @@ class EvaluationRunConfig(_common.BaseModel):
         default=None, description="""The output config for the evaluation run."""
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description="""The autorater config for the evaluation run."""
+        default=None,
+        description="""The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2439,7 +2440,7 @@ class EvaluationRunConfigDict(TypedDict, total=False):
     """The output config for the evaluation run."""
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """The autorater config for the evaluation run."""
+    """The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -4746,7 +4747,8 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
         default=None, description=""""""
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
     )
     metrics: Optional[list[Metric]] = Field(
         default=None,
@@ -4797,7 +4799,7 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     """"""
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """"""
+    """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     metrics: Optional[list[MetricDict]]
     """The metrics used for evaluation.
@@ -19028,7 +19030,8 @@ class EvaluateDatasetRequestParameters(_common.BaseModel):
         default=None, description=""""""
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
     )
     config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
 
@@ -19046,7 +19049,7 @@ class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
     """"""
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """"""
+    """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     config: Optional[EvaluateDatasetConfigDict]
     """"""

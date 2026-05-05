@@ -972,6 +972,17 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             raise ValueError(
                 f"Metric '{self.metric.name}' is not a supported predefined metric."
             )
+        if (
+            self.metric.judge_model
+            or self.metric.judge_model_generation_config
+            or self.metric.judge_model_sampling_count
+        ):
+            logger.warning(
+                "Autorater config settings (judge_model, "
+                "judge_model_generation_config, judge_model_sampling_count) "
+                "are ignored for predefined metric '%s'.",
+                self.metric.name,
+            )
 
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int

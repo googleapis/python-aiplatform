@@ -106,6 +106,39 @@ def test_evaluation_result(client):
 #         assert case_result.response_candidate_results is not None
 
 
+def test_predefined_metric_with_judge_model_ignores_autorater_config(client):
+    """Tests that autorater_config is ignored for predefined metrics in replays."""
+    prompts_df = pd.DataFrame(
+        {
+            "prompt": ["Explain the concept of machine learning in simple terms."],
+            "response": [
+                "Machine learning is a type of artificial intelligence that allows"
+                " computers to learn from data without being explicitly programmed."
+            ],
+        }
+    )
+
+    eval_dataset = types.EvaluationDataset(
+        eval_dataset_df=prompts_df,
+        candidate_name="gemini-2.5-flash",
+    )
+
+    # Set judge_model, which should be ignored for predefined metrics
+    metric = types.Metric(
+        name="safety_v1",
+        judge_model="projects/model-evaluation-dev/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+    )
+
+    evaluation_result = client.evals.evaluate(
+        dataset=eval_dataset,
+        metrics=[metric],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    assert evaluation_result.summary_metrics is not None
+    assert evaluation_result.summary_metrics[0].metric_name == "safety_v1"
+
+
 def test_multi_turn_predefined_metric(client):
     """Tests that evaluate works with multi-turn predefined metrics."""
     prompts_data = {
