@@ -150,11 +150,11 @@ class TestAG2Agent:
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL, runnable_name=_TEST_RUNNABLE_NAME
         )
-        assert agent._model_name == _TEST_MODEL
-        assert agent._runnable_name == _TEST_RUNNABLE_NAME
-        assert agent._project == _TEST_PROJECT
-        assert agent._location == _TEST_LOCATION
-        assert agent._runnable is None
+        assert agent._tmpl_attrs["model_name"] == _TEST_MODEL
+        assert agent._tmpl_attrs["runnable_name"] == _TEST_RUNNABLE_NAME
+        assert agent._tmpl_attrs["project"] == _TEST_PROJECT
+        assert agent._tmpl_attrs["location"] == _TEST_LOCATION
+        assert agent._tmpl_attrs["runnable"] is None
 
     def test_initialization_with_tools(self, autogen_tools_mock):
         tools = [
@@ -168,12 +168,12 @@ class TestAG2Agent:
             tools=tools,
             runnable_builder=lambda **kwargs: kwargs,
         )
-        assert agent._runnable is None
-        assert agent._tools
-        assert not agent._ag2_tool_objects
+        assert agent._tmpl_attrs["runnable"] is None
+        assert agent._tmpl_attrs["tools"]
+        assert not agent._tmpl_attrs["ag2_tool_objects"]
         agent.set_up()
-        assert agent._runnable is not None
-        assert agent._ag2_tool_objects
+        assert agent._tmpl_attrs["runnable"] is not None
+        assert agent._tmpl_attrs["ag2_tool_objects"]
 
     def test_set_up(self):
         agent = reasoning_engines.AG2Agent(
@@ -181,9 +181,9 @@ class TestAG2Agent:
             runnable_name=_TEST_RUNNABLE_NAME,
             runnable_builder=lambda **kwargs: kwargs,
         )
-        assert agent._runnable is None
+        assert agent._tmpl_attrs["runnable"] is None
         agent.set_up()
-        assert agent._runnable is not None
+        assert agent._tmpl_attrs["runnable"] is not None
 
     def test_clone(self):
         agent = reasoning_engines.AG2Agent(
@@ -192,26 +192,26 @@ class TestAG2Agent:
             runnable_builder=lambda **kwargs: kwargs,
         )
         agent.set_up()
-        assert agent._runnable is not None
+        assert agent._tmpl_attrs["runnable"] is not None
         agent_clone = agent.clone()
-        assert agent._runnable is not None
-        assert agent_clone._runnable is None
+        assert agent._tmpl_attrs["runnable"] is not None
+        assert agent_clone._tmpl_attrs["runnable"] is None
         agent_clone.set_up()
-        assert agent_clone._runnable is not None
+        assert agent_clone._tmpl_attrs["runnable"] is not None
 
     def test_query(self, dataclasses_asdict_mock):
         agent = reasoning_engines.AG2Agent(
             model=_TEST_MODEL,
             runnable_name=_TEST_RUNNABLE_NAME,
         )
-        agent._runnable = mock.Mock()
+        agent._tmpl_attrs["runnable"] = mock.Mock()
         mocks = mock.Mock()
-        mocks.attach_mock(mock=agent._runnable, attribute="run")
+        mocks.attach_mock(mock=agent._tmpl_attrs["runnable"], attribute="run")
         agent.query(input="test query")
         mocks.assert_has_calls(
             [
                 mock.call.run.run(
-                    {"content": "test query"},
+                    message={"content": "test query"},
                     user_input=False,
                     tools=[],
                     max_turns=None,
@@ -233,10 +233,10 @@ class TestAG2Agent:
             runnable_name=_TEST_RUNNABLE_NAME,
             enable_tracing=True,
         )
-        assert agent._instrumentor is None
+        assert agent._tmpl_attrs["instrumentor"] is None
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # agent.set_up()
-        # assert agent._instrumentor is not None
+        # assert agent._tmpl_attrs["instrumentor"] is not None
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
 
     @pytest.mark.usefixtures("caplog")
@@ -246,7 +246,7 @@ class TestAG2Agent:
             runnable_name=_TEST_RUNNABLE_NAME,
             enable_tracing=True,
         )
-        assert agent._instrumentor is None
+        assert agent._tmpl_attrs["instrumentor"] is None
         # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
         # agent.set_up()
         # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
