@@ -1952,6 +1952,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                     },
                     {
@@ -2351,6 +2355,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2804,6 +2812,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                     },
                     {
@@ -3250,6 +3262,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                     },
                     {
@@ -3693,6 +3709,10 @@ class ModelServiceRestTransport(_BaseModelServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

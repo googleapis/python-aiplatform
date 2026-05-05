@@ -1225,6 +1225,16 @@ from .reasoning_engine_execution_service import (
     QueryReasoningEngineResponse,
     StreamQueryReasoningEngineRequest,
 )
+from .reasoning_engine_runtime_revision import (
+    ReasoningEngineRuntimeRevision,
+)
+from .reasoning_engine_runtime_revision_service import (
+    DeleteReasoningEngineRuntimeRevisionOperationMetadata,
+    DeleteReasoningEngineRuntimeRevisionRequest,
+    GetReasoningEngineRuntimeRevisionRequest,
+    ListReasoningEngineRuntimeRevisionsRequest,
+    ListReasoningEngineRuntimeRevisionsResponse,
+)
 from .reasoning_engine_service import (
     CreateReasoningEngineOperationMetadata,
     CreateReasoningEngineRequest,
@@ -2543,6 +2553,12 @@ __all__ = (
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
     "StreamQueryReasoningEngineRequest",
+    "ReasoningEngineRuntimeRevision",
+    "DeleteReasoningEngineRuntimeRevisionOperationMetadata",
+    "DeleteReasoningEngineRuntimeRevisionRequest",
+    "GetReasoningEngineRuntimeRevisionRequest",
+    "ListReasoningEngineRuntimeRevisionsRequest",
+    "ListReasoningEngineRuntimeRevisionsResponse",
     "CreateReasoningEngineOperationMetadata",
     "CreateReasoningEngineRequest",
     "DeleteReasoningEngineRequest",

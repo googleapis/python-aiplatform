@@ -2424,6 +2424,10 @@ class AsyncSessionServiceRestTransport(_BaseSessionServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                     },
                     {
@@ -2823,6 +2827,10 @@ class AsyncSessionServiceRestTransport(_BaseSessionServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -3276,6 +3284,10 @@ class AsyncSessionServiceRestTransport(_BaseSessionServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                     },
                     {
@@ -3722,6 +3734,10 @@ class AsyncSessionServiceRestTransport(_BaseSessionServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                     },
                     {
@@ -4165,6 +4181,10 @@ class AsyncSessionServiceRestTransport(_BaseSessionServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

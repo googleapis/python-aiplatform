@@ -1983,6 +1983,10 @@ class AsyncExtensionRegistryServiceRestTransport(
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                     },
                     {
@@ -2382,6 +2386,10 @@ class AsyncExtensionRegistryServiceRestTransport(
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -2835,6 +2843,10 @@ class AsyncExtensionRegistryServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                     },
                     {
@@ -3281,6 +3293,10 @@ class AsyncExtensionRegistryServiceRestTransport(
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                     },
                     {
@@ -3724,6 +3740,10 @@ class AsyncExtensionRegistryServiceRestTransport(
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:wait",
                     },
                     {
                         "method": "post",

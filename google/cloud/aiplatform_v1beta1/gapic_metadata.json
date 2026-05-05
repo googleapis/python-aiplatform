@@ -5409,6 +5409,70 @@
         }
       }
     },
+    "ReasoningEngineRuntimeRevisionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ReasoningEngineRuntimeRevisionServiceClient",
+          "rpcs": {
+            "DeleteReasoningEngineRuntimeRevision": {
+              "methods": [
+                "delete_reasoning_engine_runtime_revision"
+              ]
+            },
+            "GetReasoningEngineRuntimeRevision": {
+              "methods": [
+                "get_reasoning_engine_runtime_revision"
+              ]
+            },
+            "ListReasoningEngineRuntimeRevisions": {
+              "methods": [
+                "list_reasoning_engine_runtime_revisions"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ReasoningEngineRuntimeRevisionServiceAsyncClient",
+          "rpcs": {
+            "DeleteReasoningEngineRuntimeRevision": {
+              "methods": [
+                "delete_reasoning_engine_runtime_revision"
+              ]
+            },
+            "GetReasoningEngineRuntimeRevision": {
+              "methods": [
+                "get_reasoning_engine_runtime_revision"
+              ]
+            },
+            "ListReasoningEngineRuntimeRevisions": {
+              "methods": [
+                "list_reasoning_engine_runtime_revisions"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ReasoningEngineRuntimeRevisionServiceClient",
+          "rpcs": {
+            "DeleteReasoningEngineRuntimeRevision": {
+              "methods": [
+                "delete_reasoning_engine_runtime_revision"
+              ]
+            },
+            "GetReasoningEngineRuntimeRevision": {
+              "methods": [
+                "get_reasoning_engine_runtime_revision"
+              ]
+            },
+            "ListReasoningEngineRuntimeRevisions": {
+              "methods": [
+                "list_reasoning_engine_runtime_revisions"
+              ]
+            }
+          }
+        }
+      }
+    },
     "ReasoningEngineService": {
       "clients": {
         "grpc": {

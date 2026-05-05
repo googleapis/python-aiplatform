@@ -495,7 +495,102 @@ class ReasoningEngine(proto.Message):
             will be secured by this key.
         labels (MutableMapping[str, str]):
             Labels for the ReasoningEngine.
+        traffic_config (google.cloud.aiplatform_v1beta1.types.ReasoningEngine.TrafficConfig):
+            Optional. Traffic distribution configuration
+            for the Reasoning Engine.
     """
+
+    class TrafficConfig(proto.Message):
+        r"""Traffic distribution configuration.
+
+        This message has `oneof`_ fields (mutually exclusive fields).
+        For each oneof, at most one member field can be set at the same time.
+        Setting any member of the oneof automatically clears all other
+        members.
+
+        .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
+        Attributes:
+            traffic_split_manual (google.cloud.aiplatform_v1beta1.types.ReasoningEngine.TrafficConfig.TrafficSplitManual):
+                Optional. Manual traffic distribution
+                configuration, where the user specifies the
+                Runtime Revision IDs and the percentage of
+                traffic to send to each.
+
+                This field is a member of `oneof`_ ``traffic_split``.
+            traffic_split_always_latest (google.cloud.aiplatform_v1beta1.types.ReasoningEngine.TrafficConfig.TrafficSplitAlwaysLatest):
+                Optional. Traffic distribution configuration,
+                where all traffic is sent to the latest Runtime
+                Revision.
+
+                This field is a member of `oneof`_ ``traffic_split``.
+        """
+
+        class TrafficSplitManual(proto.Message):
+            r"""Manual traffic distribution configuration, where the user
+            specifies the Runtime Revision IDs and the percentage of traffic
+            to send to each.
+
+            Attributes:
+                targets (MutableSequence[google.cloud.aiplatform_v1beta1.types.ReasoningEngine.TrafficConfig.TrafficSplitManual.Target]):
+                    A list of traffic targets for the Runtimes
+                    Revisions. The sum of percentages must equal to
+                    100.
+            """
+
+            class Target(proto.Message):
+                r"""A single target for the traffic split, specifying a Runtime
+                Revision and the percentage of traffic to send to it.
+
+                Attributes:
+                    runtime_revision_name (str):
+                        Required. The Runtime Revision name to which
+                        to send this portion of traffic, if traffic
+                        allocation is by Runtime Revision.
+                    percent (int):
+                        Required. Specifies percent of the traffic to
+                        this Runtime Revision.
+                """
+
+                runtime_revision_name: str = proto.Field(
+                    proto.STRING,
+                    number=1,
+                )
+                percent: int = proto.Field(
+                    proto.INT32,
+                    number=2,
+                )
+
+            targets: MutableSequence[
+                "ReasoningEngine.TrafficConfig.TrafficSplitManual.Target"
+            ] = proto.RepeatedField(
+                proto.MESSAGE,
+                number=1,
+                message="ReasoningEngine.TrafficConfig.TrafficSplitManual.Target",
+            )
+
+        class TrafficSplitAlwaysLatest(proto.Message):
+            r"""Traffic distribution configuration, where all traffic is sent
+            to the latest Runtime Revision.
+
+            """
+
+        traffic_split_manual: "ReasoningEngine.TrafficConfig.TrafficSplitManual" = (
+            proto.Field(
+                proto.MESSAGE,
+                number=18,
+                oneof="traffic_split",
+                message="ReasoningEngine.TrafficConfig.TrafficSplitManual",
+            )
+        )
+        traffic_split_always_latest: (
+            "ReasoningEngine.TrafficConfig.TrafficSplitAlwaysLatest"
+        ) = proto.Field(
+            proto.MESSAGE,
+            number=19,
+            oneof="traffic_split",
+            message="ReasoningEngine.TrafficConfig.TrafficSplitAlwaysLatest",
+        )
 
     name: str = proto.Field(
         proto.STRING,
@@ -542,6 +637,11 @@ class ReasoningEngine(proto.Message):
         proto.STRING,
         proto.STRING,
         number=17,
+    )
+    traffic_config: TrafficConfig = proto.Field(
+        proto.MESSAGE,
+        number=20,
+        message=TrafficConfig,
     )
 
 
