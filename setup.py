@@ -271,7 +271,6 @@ testing_extra_require = (
         "kfp >= 2.6.0, < 3.0.0; python_version<'3.13'",
         "pytest-asyncio",
         "pytest-cov",
-        "mock",
         "pytest-xdist",
         "Pillow",
         "scikit-learn<1.6.0; python_version<='3.10'",

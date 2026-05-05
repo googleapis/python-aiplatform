@@ -20,19 +20,19 @@ from google.auth import credentials as auth_credentials
 from google.cloud.aiplatform import base, initializer
 from google.cloud.aiplatform import utils
 from google.cloud.aiplatform.compat.types import (
-    feature as gca_feature,
     feature_group as gca_feature_group,
-    io as gca_io,
     feature_monitor_v1beta1 as gca_feature_monitor,
+    feature as gca_feature,
+    io as gca_io,
 )
-from vertexai.resources.preview.feature_store.utils import (
-    FeatureGroupBigQuerySource,
-)
-from vertexai.resources.preview.feature_store import (
+from vertexai.resources.preview.feature_store.feature import (
     Feature,
 )
 from vertexai.resources.preview.feature_store.feature_monitor import (
     FeatureMonitor,
+)
+from vertexai.resources.preview.feature_store.utils import (
+    FeatureGroupBigQuerySource,
 )
 
 

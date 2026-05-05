@@ -465,6 +465,10 @@ class VertexAiResourceNoun(metaclass=abc.ABCMeta):
     service representation of the resource noun.
     """
 
+    def __new__(cls, *args, **kwargs):
+        """Explicit __new__ to prevent argument forwarding to object.__new__."""
+        return super().__new__(cls)
+
     @property
     @classmethod
     @abc.abstractmethod
