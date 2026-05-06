@@ -15,10 +15,15 @@
 """The agentplatform module."""
 
 import importlib
+import sys
+
 from google.cloud.aiplatform import init
 from google.cloud.aiplatform import version as aiplatform_version
 
 __version__ = aiplatform_version.__version__
+
+_genai_client = None
+_genai_types = None
 
 
 def __getattr__(name):  # type: ignore[no-untyped-def]
@@ -30,10 +35,26 @@ def __getattr__(name):  # type: ignore[no-untyped-def]
         # `import google.cloud.aiplatform.agentplatform.preview as`
         #    `agentplatform_preview`
         return importlib.import_module(".preview", __name__)
+    if name == "Client":
+        global _genai_client
+        if _genai_client is None:
+            _genai_client = importlib.import_module("._genai.client", __name__)
+        return getattr(_genai_client, name)
+
+    if name == "types":
+        global _genai_types
+        if _genai_types is None:
+            _genai_types = importlib.import_module("._genai.types", __name__)
+        if "vertexai.types" not in sys.modules:
+            sys.modules["vertexai.types"] = _genai_types
+        return _genai_types
+
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 __all__ = [
     "init",
     "preview",
+    "Client",
+    "types",
 ]
