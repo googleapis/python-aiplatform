@@ -3,7 +3,6 @@ ray==2.47.1
 google-api-core
 proto-plus==1.22.3
 protobuf
-mock==4.0.2
 google-cloud-storage==3.0.0 # Updated to v3.x, backward compatible with v2.x via wrapper
 packaging==24.1 # Increased to unbreak canonicalize_version error (b/377774673)
 grpcio-testing==1.34.0
