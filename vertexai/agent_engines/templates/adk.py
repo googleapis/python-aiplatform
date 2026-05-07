@@ -13,23 +13,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import asyncio
+from collections.abc import Awaitable
+import enum
+import os
+import queue
+import sys
+import threading
 from typing import (
-    TYPE_CHECKING,
     Any,
     AsyncIterable,
     Callable,
     Dict,
     List,
     Optional,
+    TYPE_CHECKING,
     Union,
 )
-
-import asyncio
-from collections.abc import Awaitable
-import queue
-import sys
-import threading
 import warnings
+
+import google.auth
+from google.auth.transport import mtls
+from google.auth.transport import requests as requests_auth
 
 if TYPE_CHECKING:
     try:
@@ -95,16 +100,26 @@ if TYPE_CHECKING:
 
 _DEFAULT_APP_NAME = "default_app_name"
 _DEFAULT_USER_ID = "default-user-id"
-_TELEMETRY_API_DISABLED_WARNING = (
-    "Tracing integration for Agent Engine has migrated to a new API.\n"
-    "The 'telemetry.googleapis.com' has not been enabled in project %s. \n"
-    "**Impact:** Until this API is enabled, telemetry data will not be stored."
-    "\n"
-    "**Action:** Please enable the API by visiting "
-    "https://console.developers.google.com/apis/api/telemetry.googleapis.com/overview?project=%s."
-    "\n"
-    "(If you enabled this API recently, you can safely ignore this warning.)"
-)
+_TELEMETRY_API_DISABLED_WARNING = """\
+Tracing integration for Agent Engine has migrated to a new API.
+The 'telemetry.googleapis.com' has not been enabled in project %s.
+**Impact:** Until this API is enabled, telemetry data will not be stored.
+
+**Action:** Please enable the API by visiting https://console.developers.google.com/apis/api/telemetry.googleapis.com/overview?project=%s.
+
+(If you enabled this API recently, you can safely ignore this warning.)
+"""
+
+_DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.googleapis.com/v1/traces"
+_DEFAULT_MTLS_TELEMETRY_ENDPOINT = "https://telemetry.mtls.googleapis.com/v1/traces"
+
+
+class _MtlsEndpoint(enum.Enum):
+    """Enum for the mTLS endpoint setting."""
+
+    AUTO = "auto"
+    ALWAYS = "always"
+    NEVER = "never"
 
 
 def get_adk_version() -> Optional[str]:
@@ -293,7 +308,8 @@ def _default_instrumentor_builder(
 
     if project_id is None:
         _warn(
-            "telemetry is only supported when project is specified, proceeding with no telemetry"
+            "telemetry is only supported when project is specified, proceeding with"
+            " no telemetry"
         )
         return None
 
@@ -306,10 +322,19 @@ def _default_instrumentor_builder(
         needed_for_tracing: bool = False,
     ) -> None:
         _warn(
-            f"{package} is not installed. Please call 'pip install google-cloud-aiplatform[agent_engines]'."
+            f"{package} is not installed. Please call 'pip install"
+            " google-cloud-aiplatform[agent_engines]'."
         )
-        MISSING_TRACE_IMPORT_ERROR_MESSAGE = "proceeding with tracing disabled because not all packages (i.e. `google-cloud-trace`, `opentelemetry-sdk`, `opentelemetry-exporter-gcp-trace`) for tracing have been installed"
-        MISSING_LOGGING_IMPORT_ERROR_MESSAGE = "proceeding with logging disabled because not all packages (i.e. `google-cloud-logging`, `opentelemetry-sdk`, `opentelemetry-exporter-gcp-logging`) for tracing have been installed"
+        MISSING_TRACE_IMPORT_ERROR_MESSAGE = (
+            "proceeding with tracing disabled because not all packages (i.e."
+            " `google-cloud-trace`, `opentelemetry-sdk`,"
+            " `opentelemetry-exporter-gcp-trace`) for tracing have been installed"
+        )
+        MISSING_LOGGING_IMPORT_ERROR_MESSAGE = (
+            "proceeding with logging disabled because not all packages (i.e."
+            " `google-cloud-logging`, `opentelemetry-sdk`,"
+            " `opentelemetry-exporter-gcp-logging`) for tracing have been installed"
+        )
 
         if needed_for_tracing and enable_tracing:
             _warn(MISSING_TRACE_IMPORT_ERROR_MESSAGE)
@@ -389,14 +414,29 @@ def _default_instrumentor_builder(
         credentials, _ = google.auth.default()
         vertex_sdk_version = aip_version.__version__
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
-        user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
+        user_agent = (
+            f"Vertex-Agent-Engine/{vertex_sdk_version}"
+            f" OTel-OTLP-Exporter-Python/{otlp_http_version}"
+        )
+
+        session = requests_auth.AuthorizedSession(credentials=credentials)
+
+        use_client_cert = _use_client_cert_effective()
+        if use_client_cert:
+            client_cert_source = (
+                mtls.default_client_cert_source()
+                if mtls.has_default_client_cert_source()
+                else None
+            )
+            session.configure_mtls_channel()
+            endpoint = _get_api_endpoint(client_cert_source)
+        else:
+            endpoint = _DEFAULT_TELEMETRY_ENDPOINT
 
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
-                session=google.auth.transport.requests.AuthorizedSession(
-                    credentials=credentials
-                ),
-                endpoint="https://telemetry.googleapis.com/v1/traces",
+                session=session,
+                endpoint=endpoint,
                 headers={"User-Agent": user_agent},
             )
         )
@@ -446,6 +486,7 @@ def _default_instrumentor_builder(
         class _SimpleLogRecordProcessor(
             opentelemetry.sdk._logs.export.SimpleLogRecordProcessor
         ):
+
             def force_flush(
                 self, timeout_millis: int = 30000
             ) -> bool:  # pylint: disable=no-self-use
@@ -499,7 +540,9 @@ def _default_instrumentor_builder(
         google_genai.GoogleGenAiSdkInstrumentor().instrument()
     except (ImportError, AttributeError):
         _warn(
-            "telemetry enabled but proceeding without GenAI instrumentation, because not all packages (i.e. opentelemetry-instrumentation-google-genai) have been installed"
+            "telemetry enabled but proceeding without GenAI instrumentation,"
+            " because not all packages (i.e."
+            " opentelemetry-instrumentation-google-genai) have been installed"
         )
 
     return None
@@ -546,16 +589,81 @@ def _validate_run_config(run_config: Optional[Dict[str, Any]]):
 
 def _warn_if_telemetry_api_disabled():
     """Warn if telemetry API is disabled."""
-    try:
-        import google.auth.transport.requests
-        import google.auth
-    except (ImportError, AttributeError):
-        return
     credentials, project = google.auth.default()
-    session = google.auth.transport.requests.AuthorizedSession(credentials=credentials)
-    r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+    session = requests_auth.AuthorizedSession(credentials=credentials)
+
+    use_client_cert = _use_client_cert_effective()
+    if use_client_cert:
+        client_cert_source = (
+            mtls.default_client_cert_source()
+            if mtls.has_default_client_cert_source()
+            else None
+        )
+        session.configure_mtls_channel()
+        endpoint = _get_api_endpoint(client_cert_source)
+    else:
+        endpoint = _DEFAULT_TELEMETRY_ENDPOINT
+    r = session.post(endpoint, data=None)
     if "Telemetry API has not been used in project" in r.text:
         _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+
+
+def _get_api_endpoint(client_cert_source: bytes | None = None) -> str:
+    """Returns API endpoint based on mTLS configuration and cert availability.
+
+    Args:
+        client_cert_source (bytes | None): The client certificate source.
+
+    Returns:
+        str: The API endpoint to be used.
+    """
+    use_mtls_endpoint_str = os.getenv(
+        "GOOGLE_API_USE_MTLS_ENDPOINT", _MtlsEndpoint.AUTO.value
+    ).lower()
+
+    try:
+        use_mtls_endpoint = _MtlsEndpoint(use_mtls_endpoint_str)
+    except ValueError:
+        _warn(
+            f"Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be one of "
+            f"{[e.value for e in _MtlsEndpoint]}. Defaulting to"
+            f" {_MtlsEndpoint.AUTO.value}."
+        )
+        use_mtls_endpoint = _MtlsEndpoint.AUTO
+
+    if (use_mtls_endpoint == _MtlsEndpoint.ALWAYS) or (
+        use_mtls_endpoint == _MtlsEndpoint.AUTO and client_cert_source
+    ):
+        return _DEFAULT_MTLS_TELEMETRY_ENDPOINT
+
+    return _DEFAULT_TELEMETRY_ENDPOINT
+
+
+def _use_client_cert_effective() -> bool:
+    """Returns whether client certificate should be used for mTLS.
+
+    This checks if the google-auth version supports should_use_client_cert
+    automatic mTLS enablement. Alternatively, it reads from the
+    GOOGLE_API_USE_CLIENT_CERTIFICATE env var.
+
+    Returns:
+        bool: whether client certificate should be used for mTLS.
+    """
+    # check if google-auth version supports should_use_client_cert for automatic
+    # mTLS enablement
+    try:
+        return mtls.should_use_client_cert()
+    except (ImportError, AttributeError):
+        # if unsupported, fallback to reading from env var
+        use_client_cert_str = os.getenv(
+            "GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"
+        ).lower()
+        if use_client_cert_str not in ("true", "false"):
+            _warn(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be"
+                " either `true` or `false`"
+            )
+        return use_client_cert_str == "true"
 
 
 class AdkApp:

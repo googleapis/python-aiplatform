@@ -16,29 +16,30 @@ import base64
 import importlib
 import json
 import os
-import cloudpickle
-import sys
 import re
-from unittest import mock
+import sys
 from typing import Optional
+from unittest import mock
+import uuid
 
+import cloudpickle
 from google import auth
+from google.api_core import operation as ga_operation
 from google.auth import credentials as auth_credentials
+from google.auth.transport import mtls
 from google.cloud import storage
-import vertexai
 from google.cloud import aiplatform
-from google.cloud.aiplatform_v1 import types as aip_types
-from google.cloud.aiplatform_v1.services import reasoning_engine_service
+import vertexai
 from google.cloud.aiplatform import base
 from google.cloud.aiplatform import initializer
-from vertexai.agent_engines import _utils
+from google.cloud.aiplatform_v1 import types as aip_types
+from google.cloud.aiplatform_v1.services import reasoning_engine_service
 from vertexai import agent_engines
-from vertexai.agent_engines.templates import adk as adk_template
 from vertexai.agent_engines import _agent_engines
-from google.api_core import operation as ga_operation
+from vertexai.agent_engines import _utils
+from vertexai.agent_engines.templates import adk as adk_template
 from google.genai import types
 import pytest
-import uuid
 
 
 try:
@@ -1066,6 +1067,7 @@ def update_agent_engine_mock():
 
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEngines:
+
     def setup_method(self):
         importlib.reload(initializer)
         importlib.reload(aiplatform)
@@ -1167,3 +1169,260 @@ class TestAgentEngines:
         assert _utils.to_dict(deployment_spec)["env"] == [
             {"name": key, "value": value} for key, value in expected_env_vars.items()
         ]
+
+
+class TestAdkAppMtls:
+    """Test cases for mTLS functionality in AdkApp."""
+
+    def test_use_client_cert_effective_with_should_use_client_cert(self):
+        """Verifies that it respects the google-auth mTLS enablement check."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            return_value=True,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is True
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"})
+    def test_use_client_cert_effective_with_env_var_true(self):
+        """Verifies that it falls back to the environment variable if google-auth check fails."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is True
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"})
+    def test_use_client_cert_effective_with_env_var_false(self):
+        """Verifies that it respects the environment variable being set to false."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is False
+
+    def test_get_api_endpoint_default(self):
+        """Verifies the default telemetry endpoint is returned when no mTLS is configured."""
+        assert (
+            adk_template._get_api_endpoint() == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"})
+    def test_get_api_endpoint_always_with_cert(self):
+        """Verifies the mTLS endpoint is used when forced and a certificate is available."""
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
+    def test_get_api_endpoint_auto_no_cert(self):
+        """Verifies it falls back to regular endpoint even if forced if no certificate is provided."""
+        assert (
+            adk_template._get_api_endpoint() == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"})
+    def test_get_api_endpoint_never(self):
+        """Verifies the regular endpoint is used when mTLS is explicitly disabled."""
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    @mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+    def test_default_instrumentor_builder_with_mtls(
+        self,
+        mock_exporter,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the instrumentor builder with mTLS enabled."""
+        # Mocking to enable mTLS
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=True
+        ):
+            with mock.patch.object(
+                mtls, "has_default_client_cert_source", return_value=True
+            ):
+                with mock.patch.object(
+                    mtls,
+                    "default_client_cert_source",
+                    return_value=lambda: b"cert",
+                ):
+                    adk_template._default_instrumentor_builder(
+                        _TEST_PROJECT_ID, enable_tracing=True
+                    )
+
+        # Verify the session was configured for mTLS
+        mock_session_cls.return_value.configure_mtls_channel.assert_called_once()
+        # Verify the exporter was initialized with the mTLS endpoint
+        mock_exporter.assert_called_once()
+        assert (
+            mock_exporter.call_args.kwargs["endpoint"]
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    def test_warn_if_telemetry_api_disabled_with_mtls(
+        self,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the telemetry API check with mTLS enabled."""
+        mock_session = mock_session_cls.return_value
+        mock_session.post.return_value = mock.Mock(text="")
+
+        # Mocking to enable mTLS
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=True
+        ):
+            with mock.patch.object(
+                mtls, "has_default_client_cert_source", return_value=True
+            ):
+                with mock.patch.object(
+                    mtls,
+                    "default_client_cert_source",
+                    return_value=lambda: b"cert",
+                ):
+                    adk_template._warn_if_telemetry_api_disabled()
+
+        # Verify mTLS channel was configured for the check request
+        mock_session.configure_mtls_channel.assert_called_once()
+        # Verify the check was performed against the mTLS endpoint
+        mock_session.post.assert_called_once_with(
+            adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT, data=None
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "invalid_value"})
+    def test_get_api_endpoint_invalid_env(self):
+        """Verifies it defaults to AUTO and warns on invalid env var."""
+        with mock.patch.object(adk_template, "_warn") as mock_warn:
+            assert (
+                adk_template._get_api_endpoint()
+                == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+            )
+            mock_warn.assert_called_once()
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "not_a_bool"})
+    def test_use_client_cert_effective_invalid_env(self):
+        """Verifies it warns on invalid boolean env var."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            with mock.patch.object(adk_template, "_warn") as mock_warn:
+                assert adk_template._use_client_cert_effective() is False
+                mock_warn.assert_called_once()
+
+    def test_use_client_cert_effective_with_should_use_client_cert_false(self):
+        """Verifies that it respects google-auth returning False for mTLS."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            return_value=False,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is False
+
+    def test_get_api_endpoint_auto_with_cert(self):
+        """Verifies the mTLS endpoint is used in AUTO mode when a cert is available."""
+        # AUTO is the default, so we just pass a cert
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    @mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+    def test_default_instrumentor_builder_no_mtls(
+        self,
+        mock_exporter,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the instrumentor builder with mTLS disabled."""
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=False
+        ):
+            adk_template._default_instrumentor_builder(
+                _TEST_PROJECT_ID, enable_tracing=True
+            )
+
+        # Verify mTLS channel was NOT configured
+        mock_session_cls.return_value.configure_mtls_channel.assert_not_called()
+        # Verify the exporter was initialized with the regular endpoint
+        mock_exporter.assert_called_once()
+        assert (
+            mock_exporter.call_args.kwargs["endpoint"]
+            == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    def test_warn_if_telemetry_api_disabled_no_mtls(
+        self,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the telemetry API check with mTLS disabled."""
+        mock_session = mock_session_cls.return_value
+        mock_session.post.return_value = mock.Mock(text="")
+
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=False
+        ):
+            adk_template._warn_if_telemetry_api_disabled()
+
+        # Verify mTLS channel was NOT configured
+        mock_session.configure_mtls_channel.assert_not_called()
+        # Verify the check was performed against the regular endpoint
+        mock_session.post.assert_called_once_with(
+            adk_template._DEFAULT_TELEMETRY_ENDPOINT, data=None
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    @mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+    def test_default_instrumentor_builder_mtls_no_cert_source(
+        self,
+        mock_exporter,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Tests that it falls back to regular endpoint if mTLS is on but no cert is found."""
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=True
+        ):
+            with mock.patch.object(
+                mtls,
+                "has_default_client_cert_source",
+                return_value=False,
+            ):
+                adk_template._default_instrumentor_builder(
+                    _TEST_PROJECT_ID, enable_tracing=True
+                )
+
+        # Channel is configured, but endpoint remains default due to missing cert source
+        mock_session_cls.return_value.configure_mtls_channel.assert_called_once()
+        assert (
+            mock_exporter.call_args.kwargs["endpoint"]
+            == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
