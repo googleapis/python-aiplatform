@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.151.0](https://github.com/googleapis/python-aiplatform/compare/v1.150.0...v1.151.0) (2026-05-07)
+
+
+### Features
+
+* Add client for Vertex AI Skill Registry - Get Skill method ([6f89fd3](https://github.com/googleapis/python-aiplatform/commit/6f89fd346c58d7e11fa4fa787c09da2656c073ef))
+* Add Create Skill method for Vertex AI Skill Registry SDK ([67097eb](https://github.com/googleapis/python-aiplatform/commit/67097ebe514f315030cd154315fbcdb08fcd29cd))
+* Add RetrieveSkills semantic search method in Vertex AI Skill Registry SDK ([f5909b2](https://github.com/googleapis/python-aiplatform/commit/f5909b2289e203d8a41021d42515cce45b91038c))
+* Migrate rag to agentplatform ([d947295](https://github.com/googleapis/python-aiplatform/commit/d9472958a05525650960a11e06aec011109a26bc))
+
+
+### Bug Fixes
+
+* Disable bound token sharing check for this Vertex AI SDK code path: google3/third_party/py/google/cloud/aiplatform/vertexai/agent_engines/ ([b234d9d](https://github.com/googleapis/python-aiplatform/commit/b234d9dbc02acd5f91422632d3059ec31ea8b9a3))
+* GenAI Client(evals) - fix `reference` column visualization for eval_result ([42de11b](https://github.com/googleapis/python-aiplatform/commit/42de11bb29d6d2607f64d84738e171787e2f1f3d))
+
+
+### Documentation
+
+* Update Prompts sample in readme to use create_version ([e50f375](https://github.com/googleapis/python-aiplatform/commit/e50f375fbd74a161b5be1f94ec61e97ec1570a3d))
+
 ## [1.150.0](https://github.com/googleapis/python-aiplatform/compare/v1.149.0...v1.150.0) (2026-05-05)
 
 
