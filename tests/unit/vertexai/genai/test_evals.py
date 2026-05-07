@@ -9136,3 +9136,104 @@ class TestComputationMetricRetry:
         summary_metric = result.summary_metrics[0]
         assert summary_metric.metric_name == "bleu"
         assert summary_metric.mean_score == 0.85
+
+
+class TestAllowCrossRegionModel:
+    """Tests for allow_cross_region_model flag for create_evaluation_run."""
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationRuns/456",
+                "displayName": "test_run",
+                "state": "PENDING",
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_create_evaluation_run_config_has_allow_cross_region_model(self):
+        """Verifies allow_cross_region_model field exists on CreateEvaluationRunConfig."""
+        config = vertexai_genai_types.CreateEvaluationRunConfig(
+            allow_cross_region_model=True,
+        )
+        assert config.allow_cross_region_model is True
+
+    def test_create_evaluation_run_config_from_dict(self):
+        """Verifies allow_cross_region_model can be set via dict on CreateEvaluationRunConfig."""
+        config = vertexai_genai_types.CreateEvaluationRunConfig.model_validate(
+            {"allow_cross_region_model": True}
+        )
+        assert config.allow_cross_region_model is True
+
+    def test_create_evaluation_run_config_default_is_none(self):
+        """Verifies the default value of allow_cross_region_model is None."""
+        config = vertexai_genai_types.CreateEvaluationRunConfig()
+        assert config.allow_cross_region_model is None
+
+    def test_create_evaluation_run_passes_allow_cross_region_model(self):
+        """Verifies allow_cross_region_model is sent inside evaluationConfig in the API request."""
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=vertexai_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                vertexai_genai_types.EvaluationRunMetric(
+                    metric="general_quality_v1",
+                    metric_config=vertexai_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="general_quality_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            config={"allow_cross_region_model": True},
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        request_body = call_args[0][2]  # Third positional arg is the request dict
+        assert (
+            request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
+            is True
+        )
+
+    @pytest.mark.asyncio
+    async def test_create_evaluation_run_async_passes_allow_cross_region_model(self):
+        """Verifies allow_cross_region_model is sent inside evaluationConfig in the async API request."""
+        self.mock_api_client.async_request = mock.AsyncMock(
+            return_value=self.mock_response
+        )
+        async_evals_module = evals.AsyncEvals(api_client_=self.mock_api_client)
+
+        await async_evals_module.create_evaluation_run(
+            dataset=vertexai_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                vertexai_genai_types.EvaluationRunMetric(
+                    metric="general_quality_v1",
+                    metric_config=vertexai_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="general_quality_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            config={"allow_cross_region_model": True},
+        )
+
+        self.mock_api_client.async_request.assert_called_once()
+        call_args = self.mock_api_client.async_request.call_args
+        request_body = call_args[0][2]  # Third positional arg is the request dict
+        assert (
+            request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
+            is True
+        )

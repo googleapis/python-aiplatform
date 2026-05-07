@@ -391,6 +391,13 @@ def _EvaluationRunConfig_from_vertex(
             [item for item in getv(from_object, ["lossAnalysisConfig"])],
         )
 
+    if getv(from_object, ["allowCrossRegionModel"]) is not None:
+        setv(
+            to_object,
+            ["allow_cross_region_model"],
+            getv(from_object, ["allowCrossRegionModel"]),
+        )
+
     return to_object
 
 
@@ -423,6 +430,13 @@ def _EvaluationRunConfig_to_vertex(
             to_object,
             ["lossAnalysisConfig"],
             [item for item in getv(from_object, ["loss_analysis_config"])],
+        )
+
+    if getv(from_object, ["allow_cross_region_model"]) is not None:
+        setv(
+            to_object,
+            ["allowCrossRegionModel"],
+            getv(from_object, ["allow_cross_region_model"]),
         )
 
     return to_object
@@ -2653,6 +2667,13 @@ class Evals(_api_module.BaseModule):
               ``max_top_cluster_count``. Mutually exclusive with
               ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
+            - allow_cross_region_model: Allows the evaluation run to use cross
+              region models. When this flag is set, the service may route traffic to
+              other regions if a model is unavailable in the current region (e.g.,
+              to a `global`endpoint). If a fully-qualified model endpoint resource
+              name with a different region than the run location is provided
+              elsewhere in the runconfig, this flag must be set to true or the
+              request will fail.
 
         Returns:
             The created evaluation run.
@@ -2671,6 +2692,11 @@ class Evals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+
+        if not config:
+            config = types.CreateEvaluationRunConfig()
+        if isinstance(config, dict):
+            config = types.CreateEvaluationRunConfig.model_validate(config)
 
         if agent_info and not inference_configs:
             parsed_user_simulator_config = (
@@ -2712,6 +2738,7 @@ class Evals(_api_module.BaseModule):
             output_config=output_config,
             metrics=resolved_metrics,
             loss_analysis_config=resolved_loss_configs,
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", None),
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
@@ -4422,6 +4449,8 @@ class AsyncEvals(_api_module.BaseModule):
               ``max_top_cluster_count``. Mutually exclusive with
               ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
+            - allow_cross_region_model: Opt-in flag to authorize cross-region
+              routing for model inference. Applies to both scraping and evaluation.
 
         Returns:
             The created evaluation run.
@@ -4440,6 +4469,11 @@ class AsyncEvals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+
+        if not config:
+            config = types.CreateEvaluationRunConfig()
+        if isinstance(config, dict):
+            config = types.CreateEvaluationRunConfig.model_validate(config)
 
         if agent_info and not inference_configs:
             parsed_user_simulator_config = (
@@ -4481,6 +4515,7 @@ class AsyncEvals(_api_module.BaseModule):
             output_config=output_config,
             metrics=resolved_metrics,
             loss_analysis_config=resolved_loss_configs,
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", None),
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info

@@ -294,6 +294,31 @@ def test_create_eval_run_with_inference_configs(client):
     assert evaluation_run.error is None
 
 
+def test_create_eval_run_with_allow_cross_region_model(client):
+    """Tests that create_evaluation_run() works with allow_cross_region_model in config."""
+    client._api_client._http_options.api_version = "v1beta1"
+    inference_config = types.EvaluationRunInferenceConfig(
+        model=MODEL_NAME,
+        prompt_template=types.EvaluationRunPromptTemplate(
+            prompt_template="test prompt template"
+        ),
+    )
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_inference_config",
+        display_name="test_inference_config",
+        dataset=types.EvaluationRunDataSource(evaluation_set=EVAL_SET_NAME),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        inference_configs={"model_1": inference_config},
+        labels={"label1": "value1"},
+        config={"allow_cross_region_model": True},
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_inference_config"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert evaluation_run.error is None
+
+
 @mock.patch("uuid.uuid4")
 def test_create_eval_run_with_metric_resource_name(mock_uuid4, client):
     """Tests create_evaluation_run with metric_resource_name."""

@@ -2401,6 +2401,15 @@ class EvaluationRunConfig(_common.BaseModel):
         default=None,
         description="""Specifications for loss analysis. Each config specifies a metric and candidate to analyze for loss patterns.""",
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Allows the evaluation run to use cross region models. When this
+            flag is set, the service may route traffic to other regions if a model is
+            unavailable in the current region (e.g., to a `global`endpoint). If a
+            fully-qualified model endpoint resource name with a different region than
+            the run location is provided elsewhere in the run config, this flag must
+            be set to true or the request will fail.""",
+    )
 
 
 class EvaluationRunConfigDict(TypedDict, total=False):
@@ -2420,6 +2429,14 @@ class EvaluationRunConfigDict(TypedDict, total=False):
 
     loss_analysis_config: Optional[list[LossAnalysisConfigDict]]
     """Specifications for loss analysis. Each config specifies a metric and candidate to analyze for loss patterns."""
+
+    allow_cross_region_model: Optional[bool]
+    """Allows the evaluation run to use cross region models. When this
+            flag is set, the service may route traffic to other regions if a model is
+            unavailable in the current region (e.g., to a `global`endpoint). If a
+            fully-qualified model endpoint resource name with a different region than
+            the run location is provided elsewhere in the run config, this flag must
+            be set to true or the request will fail."""
 
 
 EvaluationRunConfigOrDict = Union[EvaluationRunConfig, EvaluationRunConfigDict]
@@ -2551,6 +2568,15 @@ class CreateEvaluationRunConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    allow_cross_region_model: Optional[bool] = Field(
+        default=None,
+        description="""Allows the evaluation run to use cross region models. When this
+      flag is set, the service may route traffic to other regions if a model is
+      unavailable in the current region (e.g., to a `global`endpoint). If a
+      fully-qualified model endpoint resource name with a different region than
+      the run location is provided elsewhere in the run config, this flag must
+      be set to true or the request will fail.""",
+    )
 
 
 class CreateEvaluationRunConfigDict(TypedDict, total=False):
@@ -2558,6 +2584,14 @@ class CreateEvaluationRunConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    allow_cross_region_model: Optional[bool]
+    """Allows the evaluation run to use cross region models. When this
+      flag is set, the service may route traffic to other regions if a model is
+      unavailable in the current region (e.g., to a `global`endpoint). If a
+      fully-qualified model endpoint resource name with a different region than
+      the run location is provided elsewhere in the run config, this flag must
+      be set to true or the request will fail."""
 
 
 CreateEvaluationRunConfigOrDict = Union[
