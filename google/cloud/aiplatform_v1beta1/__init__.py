@@ -1128,6 +1128,12 @@ from .types.reasoning_engine_execution_service import (
 )
 from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineResponse
+from .types.reasoning_engine_execution_service import (
+    CancelAsyncQueryReasoningEngineRequest,
+)
+from .types.reasoning_engine_execution_service import (
+    CancelAsyncQueryReasoningEngineResponse,
+)
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
@@ -1649,6 +1655,8 @@ __all__ = (
     "BlurBaselineConfig",
     "BoolArray",
     "CachedContent",
+    "CancelAsyncQueryReasoningEngineRequest",
+    "CancelAsyncQueryReasoningEngineResponse",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",

@@ -446,6 +446,40 @@ class ReasoningEngineExecutionServiceGrpcAsyncIOTransport(
             )
         return self._stubs["async_query_reasoning_engine"]
 
+    @property
+    def cancel_async_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest],
+        Awaitable[
+            reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse
+        ],
+    ]:
+        r"""Return a callable for the cancel async query reasoning
+        engine method over gRPC.
+
+        Cancels an AsyncQueryReasoningEngine operation.
+
+        Returns:
+            Callable[[~.CancelAsyncQueryReasoningEngineRequest],
+                    Awaitable[~.CancelAsyncQueryReasoningEngineResponse]]:
+                A function that, when called, will call the underlying RPC
+                on the server.
+        """
+        # Generate a "stub function" on-the-fly which will actually make
+        # the request.
+        # gRPC handles serialization and deserialization, so we just need
+        # to pass in the functions for each.
+        if "cancel_async_query_reasoning_engine" not in self._stubs:
+            self._stubs["cancel_async_query_reasoning_engine"] = (
+                self._logged_channel.unary_unary(
+                    "/google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService/CancelAsyncQueryReasoningEngine",
+                    request_serializer=reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest.serialize,
+                    response_deserializer=reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse.deserialize,
+                )
+            )
+        return self._stubs["cancel_async_query_reasoning_engine"]
+
     def _prep_wrapped_messages(self, client_info):
         """Precompute the wrapped methods, overriding the base class method to use async wrappers."""
         self._wrapped_methods = {
@@ -461,6 +495,11 @@ class ReasoningEngineExecutionServiceGrpcAsyncIOTransport(
             ),
             self.async_query_reasoning_engine: self._wrap_method(
                 self.async_query_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.cancel_async_query_reasoning_engine: self._wrap_method(
+                self.cancel_async_query_reasoning_engine,
                 default_timeout=None,
                 client_info=client_info,
             ),

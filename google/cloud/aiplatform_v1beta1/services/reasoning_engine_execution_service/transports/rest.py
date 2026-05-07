@@ -92,6 +92,14 @@ class ReasoningEngineExecutionServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            def pre_cancel_async_query_reasoning_engine(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            def post_cancel_async_query_reasoning_engine(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
             def pre_query_reasoning_engine(self, request, metadata):
                 logging.log(f"Received request: {request}")
                 return request, metadata
@@ -160,6 +168,59 @@ class ReasoningEngineExecutionServiceRestInterceptor:
         `post_async_query_reasoning_engine` interceptor. The (possibly modified) response returned by
         `post_async_query_reasoning_engine` will be passed to
         `post_async_query_reasoning_engine_with_metadata`.
+        """
+        return response, metadata
+
+    def pre_cancel_async_query_reasoning_engine(
+        self,
+        request: reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for cancel_async_query_reasoning_engine
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the ReasoningEngineExecutionService server.
+        """
+        return request, metadata
+
+    def post_cancel_async_query_reasoning_engine(
+        self,
+        response: reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse,
+    ) -> reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse:
+        """Post-rpc interceptor for cancel_async_query_reasoning_engine
+
+        DEPRECATED. Please use the `post_cancel_async_query_reasoning_engine_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the ReasoningEngineExecutionService server but before
+        it is returned to user code. This `post_cancel_async_query_reasoning_engine` interceptor runs
+        before the `post_cancel_async_query_reasoning_engine_with_metadata` interceptor.
+        """
+        return response
+
+    def post_cancel_async_query_reasoning_engine_with_metadata(
+        self,
+        response: reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for cancel_async_query_reasoning_engine
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the ReasoningEngineExecutionService server but before it is returned to user code.
+
+        We recommend only using this `post_cancel_async_query_reasoning_engine_with_metadata`
+        interceptor in new development instead of the `post_cancel_async_query_reasoning_engine` interceptor.
+        When both interceptors are used, this `post_cancel_async_query_reasoning_engine_with_metadata` interceptor runs after the
+        `post_cancel_async_query_reasoning_engine` interceptor. The (possibly modified) response returned by
+        `post_cancel_async_query_reasoning_engine` will be passed to
+        `post_cancel_async_query_reasoning_engine_with_metadata`.
         """
         return response, metadata
 
@@ -2987,6 +3048,176 @@ class ReasoningEngineExecutionServiceRestTransport(
                 )
             return resp
 
+    class _CancelAsyncQueryReasoningEngine(
+        _BaseReasoningEngineExecutionServiceRestTransport._BaseCancelAsyncQueryReasoningEngine,
+        ReasoningEngineExecutionServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash(
+                "ReasoningEngineExecutionServiceRestTransport.CancelAsyncQueryReasoningEngine"
+            )
+
+        @staticmethod
+        def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        def __call__(
+            self,
+            request: reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse:
+            r"""Call the cancel async query
+            reasoning engine method over HTTP.
+
+                Args:
+                    request (~.reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest):
+                        The request object. Request message for
+                    [ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine].
+                    retry (google.api_core.retry.Retry): Designation of what errors, if any,
+                        should be retried.
+                    timeout (float): The timeout for this request.
+                    metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                        sent along with the request as metadata. Normally, each value must be of type `str`,
+                        but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                        be of type `bytes`.
+
+                Returns:
+                    ~.reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse:
+                        Response message for
+                    [ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine].
+
+            """
+
+            http_options = (
+                _BaseReasoningEngineExecutionServiceRestTransport._BaseCancelAsyncQueryReasoningEngine._get_http_options()
+            )
+
+            request, metadata = (
+                self._interceptor.pre_cancel_async_query_reasoning_engine(
+                    request, metadata
+                )
+            )
+            transcoded_request = _BaseReasoningEngineExecutionServiceRestTransport._BaseCancelAsyncQueryReasoningEngine._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseReasoningEngineExecutionServiceRestTransport._BaseCancelAsyncQueryReasoningEngine._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseReasoningEngineExecutionServiceRestTransport._BaseCancelAsyncQueryReasoningEngine._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.ReasoningEngineExecutionServiceClient.CancelAsyncQueryReasoningEngine",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService",
+                        "rpcName": "CancelAsyncQueryReasoningEngine",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = ReasoningEngineExecutionServiceRestTransport._CancelAsyncQueryReasoningEngine._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                raise core_exceptions.from_http_response(response)
+
+            # Return the response
+            resp = (
+                reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse()
+            )
+            pb_resp = reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse.pb(
+                resp
+            )
+
+            json_format.Parse(response.content, pb_resp, ignore_unknown_fields=True)
+
+            resp = self._interceptor.post_cancel_async_query_reasoning_engine(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = (
+                self._interceptor.post_cancel_async_query_reasoning_engine_with_metadata(
+                    resp, response_metadata
+                )
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse.to_json(
+                        response
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": response.status_code,
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.ReasoningEngineExecutionServiceClient.cancel_async_query_reasoning_engine",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService",
+                        "rpcName": "CancelAsyncQueryReasoningEngine",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+            return resp
+
     class _QueryReasoningEngine(
         _BaseReasoningEngineExecutionServiceRestTransport._BaseQueryReasoningEngine,
         ReasoningEngineExecutionServiceRestStub,
@@ -3362,6 +3593,17 @@ class ReasoningEngineExecutionServiceRestTransport(
         # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
         # In C++ this would require a dynamic_cast
         return self._AsyncQueryReasoningEngine(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def cancel_async_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest],
+        reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse,
+    ]:
+        # The return type is fine, but mypy isn't sophisticated enough to determine what's going on here.
+        # In C++ this would require a dynamic_cast
+        return self._CancelAsyncQueryReasoningEngine(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def query_reasoning_engine(
