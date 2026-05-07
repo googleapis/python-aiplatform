@@ -7629,6 +7629,10 @@ class ReasoningEngineSpecDeploymentSpec(_common.BaseModel):
         default=None,
         description="""Optional. Specifies the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings.""",
     )
+    dedicated_ingress_endpoint_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint.""",
+    )
 
 
 class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
@@ -7665,6 +7669,9 @@ class ReasoningEngineSpecDeploymentSpecDict(TypedDict, total=False):
 
     keep_alive_probe: Optional[KeepAliveProbeDict]
     """Optional. Specifies the configuration for keep-alive probe. Contains configuration on a specified endpoint that a deployment host should use to keep the container alive based on the probe settings."""
+
+    dedicated_ingress_endpoint_enabled: Optional[bool]
+    """Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint."""
 
 
 ReasoningEngineSpecDeploymentSpecOrDict = Union[
@@ -8476,6 +8483,10 @@ class CreateAgentEngineConfig(_common.BaseModel):
       Contains configuration on a specified endpoint that a deployment host
       should use to keep the container alive based on the probe settings.""",
     )
+    dedicated_ingress_endpoint_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint.""",
+    )
 
 
 class CreateAgentEngineConfigDict(TypedDict, total=False):
@@ -8616,6 +8627,9 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
       should use to keep the container alive based on the probe settings."""
+
+    dedicated_ingress_endpoint_enabled: Optional[bool]
+    """Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint."""
 
 
 CreateAgentEngineConfigOrDict = Union[
@@ -9143,6 +9157,10 @@ class UpdateAgentEngineConfig(_common.BaseModel):
       Contains configuration on a specified endpoint that a deployment host
       should use to keep the container alive based on the probe settings.""",
     )
+    dedicated_ingress_endpoint_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint.""",
+    )
     update_mask: Optional[str] = Field(
         default=None,
         description="""The update mask to apply. For the `FieldMask` definition, see
@@ -9292,6 +9310,9 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
     """Optional. Specifies the configuration for keep-alive probe.
       Contains configuration on a specified endpoint that a deployment host
       should use to keep the container alive based on the probe settings."""
+
+    dedicated_ingress_endpoint_enabled: Optional[bool]
+    """Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint."""
 
     update_mask: Optional[str]
     """The update mask to apply. For the `FieldMask` definition, see
@@ -19574,6 +19595,10 @@ class AgentEngineConfig(_common.BaseModel):
     traffic_config: Optional[ReasoningEngineTrafficConfig] = Field(
         default=None, description="""The traffic config for the Agent Engine."""
     )
+    dedicated_ingress_endpoint_enabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint.""",
+    )
 
 
 class AgentEngineConfigDict(TypedDict, total=False):
@@ -19760,6 +19785,9 @@ class AgentEngineConfigDict(TypedDict, total=False):
 
     traffic_config: Optional[ReasoningEngineTrafficConfigDict]
     """The traffic config for the Agent Engine."""
+
+    dedicated_ingress_endpoint_enabled: Optional[bool]
+    """Optional. If true, the Reasoning Engine will be deployed with a dedicated ingress endpoint."""
 
 
 AgentEngineConfigOrDict = Union[AgentEngineConfig, AgentEngineConfigDict]

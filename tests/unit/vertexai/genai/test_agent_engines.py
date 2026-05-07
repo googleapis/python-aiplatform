@@ -1002,6 +1002,7 @@ class TestAgentEngineHelpers:
             container_concurrency=_TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
             encryption_spec=_TEST_AGENT_ENGINE_ENCRYPTION_SPEC,
             python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            dedicated_ingress_endpoint_enabled=True,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1032,6 +1033,7 @@ class TestAgentEngineHelpers:
             "max_instances": _TEST_AGENT_ENGINE_MAX_INSTANCES,
             "resource_limits": _TEST_AGENT_ENGINE_RESOURCE_LIMITS,
             "container_concurrency": _TEST_AGENT_ENGINE_CONTAINER_CONCURRENCY,
+            "dedicated_ingress_endpoint_enabled": True,
         }
         assert config["encryption_spec"] == _TEST_AGENT_ENGINE_ENCRYPTION_SPEC
         assert config["spec"]["class_methods"] == [_TEST_AGENT_ENGINE_CLASS_METHOD_1]
@@ -1486,6 +1488,7 @@ class TestAgentEngineHelpers:
             service_account=_TEST_AGENT_ENGINE_CUSTOM_SERVICE_ACCOUNT,
             identity_type=_TEST_AGENT_ENGINE_IDENTITY_TYPE_SERVICE_ACCOUNT,
             python_version=_TEST_PYTHON_VERSION_OVERRIDE,
+            dedicated_ingress_endpoint_enabled=True,
         )
         assert config["display_name"] == _TEST_AGENT_ENGINE_DISPLAY_NAME
         assert config["description"] == _TEST_AGENT_ENGINE_DESCRIPTION
@@ -1510,6 +1513,7 @@ class TestAgentEngineHelpers:
                     },
                 },
             ],
+            "dedicated_ingress_endpoint_enabled": True,
         }
         assert config["spec"]["class_methods"] == [_TEST_AGENT_ENGINE_CLASS_METHOD_1]
         assert (
@@ -1530,6 +1534,7 @@ class TestAgentEngineHelpers:
                 "spec.class_methods",
                 "spec.deployment_spec.env",
                 "spec.deployment_spec.secret_env",
+                "spec.deployment_spec.dedicated_ingress_endpoint_enabled",
                 "spec.agent_framework",
                 "spec.identity_type",
                 "spec.service_account",
@@ -2190,6 +2195,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                dedicated_ingress_endpoint_enabled=None,
                 keep_alive_probe=None,
             )
             request_mock.assert_called_with(
@@ -2201,6 +2207,116 @@ class TestAgentEngine:
                     "spec": {
                         "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
                         "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                        "package_spec": {
+                            "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
+                            "python_version": _TEST_PYTHON_VERSION,
+                            "requirements_gcs_uri": (
+                                _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI
+                            ),
+                        },
+                    },
+                },
+                None,
+            )
+
+    @mock.patch.object(agent_engines.AgentEngines, "_create_config")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    @mock.patch.object(
+        _agent_engines_utils,
+        "_get_reasoning_engine_id",
+        return_value=_TEST_RESOURCE_ID,
+    )
+    def test_create_agent_engine_with_dedicated_ingress_endpoint(
+        self,
+        mock_get_reasoning_engine_id,
+        mock_await_operation,
+        mock_create_config,
+    ):
+        mock_create_config.return_value = {
+            "display_name": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+            "description": _TEST_AGENT_ENGINE_DESCRIPTION,
+            "spec": {
+                "package_spec": {
+                    "python_version": _TEST_PYTHON_VERSION,
+                    "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
+                    "requirements_gcs_uri": _TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+                },
+                "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                "deployment_spec": {
+                    "dedicated_ingress_endpoint_enabled": True,
+                },
+                "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+            },
+        }
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+                spec=_TEST_AGENT_ENGINE_SPEC,
+            )
+        )
+        with mock.patch.object(
+            self.client.agent_engines._api_client, "request"
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(body="")
+            self.client.agent_engines.create(
+                agent=self.test_agent,
+                config=_genai_types.AgentEngineConfig(
+                    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                    extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+                    staging_bucket=_TEST_STAGING_BUCKET,
+                    dedicated_ingress_endpoint_enabled=True,
+                ),
+            )
+            mock_create_config.assert_called_with(
+                mode="create",
+                agent=self.test_agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+                requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+                display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+                description=None,
+                gcs_dir_name=None,
+                extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+                env_vars=None,
+                service_account=None,
+                identity_type=None,
+                context_spec=None,
+                psc_interface_config=None,
+                agent_gateway_config=None,
+                min_instances=None,
+                max_instances=None,
+                resource_limits=None,
+                container_concurrency=None,
+                encryption_spec=None,
+                agent_server_mode=None,
+                labels=None,
+                class_methods=None,
+                source_packages=None,
+                developer_connect_source=None,
+                entrypoint_module=None,
+                entrypoint_object=None,
+                requirements_file=None,
+                agent_framework=None,
+                python_version=None,
+                build_options=None,
+                image_spec=None,
+                agent_config_source=None,
+                container_spec=None,
+                dedicated_ingress_endpoint_enabled=True,
+                keep_alive_probe=None,
+            )
+            request_mock.assert_called_with(
+                "post",
+                "reasoningEngines",
+                {
+                    "displayName": _TEST_AGENT_ENGINE_DISPLAY_NAME,
+                    "description": _TEST_AGENT_ENGINE_DESCRIPTION,
+                    "spec": {
+                        "agent_framework": _TEST_AGENT_ENGINE_FRAMEWORK,
+                        "class_methods": [_TEST_AGENT_ENGINE_CLASS_METHOD_1],
+                        "deployment_spec": {
+                            "dedicated_ingress_endpoint_enabled": True,
+                        },
                         "package_spec": {
                             "pickle_object_gcs_uri": _TEST_AGENT_ENGINE_GCS_URI,
                             "python_version": _TEST_PYTHON_VERSION,
@@ -2296,6 +2412,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                dedicated_ingress_endpoint_enabled=None,
                 keep_alive_probe=None,
             )
             request_mock.assert_called_with(
@@ -2401,6 +2518,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                dedicated_ingress_endpoint_enabled=None,
                 keep_alive_probe=None,
             )
             request_mock.assert_called_with(
@@ -2575,6 +2693,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                dedicated_ingress_endpoint_enabled=None,
                 keep_alive_probe=None,
             )
             request_mock.assert_called_with(
@@ -2675,6 +2794,7 @@ class TestAgentEngine:
                 image_spec=None,
                 agent_config_source=None,
                 container_spec=None,
+                dedicated_ingress_endpoint_enabled=None,
                 keep_alive_probe=None,
             )
             request_mock.assert_called_with(
