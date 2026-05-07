@@ -5355,6 +5355,11 @@
                 "async_query_reasoning_engine"
               ]
             },
+            "CancelAsyncQueryReasoningEngine": {
+              "methods": [
+                "cancel_async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
@@ -5375,6 +5380,11 @@
                 "async_query_reasoning_engine"
               ]
             },
+            "CancelAsyncQueryReasoningEngine": {
+              "methods": [
+                "cancel_async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
@@ -5393,6 +5403,11 @@
             "AsyncQueryReasoningEngine": {
               "methods": [
                 "async_query_reasoning_engine"
+              ]
+            },
+            "CancelAsyncQueryReasoningEngine": {
+              "methods": [
+                "cancel_async_query_reasoning_engine"
               ]
             },
             "QueryReasoningEngine": {
