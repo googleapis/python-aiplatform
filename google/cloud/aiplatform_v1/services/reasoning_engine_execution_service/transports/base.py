@@ -158,6 +158,11 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.cancel_async_query_reasoning_engine: gapic_v1.method.wrap_method(
+                self.cancel_async_query_reasoning_engine,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -251,6 +256,20 @@ class ReasoningEngineExecutionServiceTransport(abc.ABC):
     ) -> Callable[
         [reasoning_engine_execution_service.AsyncQueryReasoningEngineRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def cancel_async_query_reasoning_engine(
+        self,
+    ) -> Callable[
+        [reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineRequest],
+        Union[
+            reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse,
+            Awaitable[
+                reasoning_engine_execution_service.CancelAsyncQueryReasoningEngineResponse
+            ],
+        ],
     ]:
         raise NotImplementedError()
 
