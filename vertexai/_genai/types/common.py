@@ -18295,6 +18295,174 @@ _UpdateSkillRequestParametersOrDict = Union[
 ]
 
 
+class ListSkillsConfig(_common.BaseModel):
+    """Config for listing skills."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None, description="""Optional. The standard list filter."""
+    )
+
+
+class ListSkillsConfigDict(TypedDict, total=False):
+    """Config for listing skills."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """Optional. The standard list filter."""
+
+
+ListSkillsConfigOrDict = Union[ListSkillsConfig, ListSkillsConfigDict]
+
+
+class _ListSkillsRequestParameters(_common.BaseModel):
+    """Parameters for listing skills."""
+
+    config: Optional[ListSkillsConfig] = Field(default=None, description="""""")
+
+
+class _ListSkillsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing skills."""
+
+    config: Optional[ListSkillsConfigDict]
+    """"""
+
+
+_ListSkillsRequestParametersOrDict = Union[
+    _ListSkillsRequestParameters, _ListSkillsRequestParametersDict
+]
+
+
+class ListSkillsResponse(_common.BaseModel):
+    """Response for listing skills."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    skills: Optional[list[Skill]] = Field(
+        default=None, description="""List of Skills."""
+    )
+
+
+class ListSkillsResponseDict(TypedDict, total=False):
+    """Response for listing skills."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    skills: Optional[list[SkillDict]]
+    """List of Skills."""
+
+
+ListSkillsResponseOrDict = Union[ListSkillsResponse, ListSkillsResponseDict]
+
+
+class DeleteSkillConfig(_common.BaseModel):
+    """Config for deleting a skill."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the long running operation to complete.""",
+    )
+
+
+class DeleteSkillConfigDict(TypedDict, total=False):
+    """Config for deleting a skill."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the long running operation to complete."""
+
+
+DeleteSkillConfigOrDict = Union[DeleteSkillConfig, DeleteSkillConfigDict]
+
+
+class _DeleteSkillRequestParameters(_common.BaseModel):
+    """Parameters for deleting a skill."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Skill to delete.""",
+    )
+    config: Optional[DeleteSkillConfig] = Field(default=None, description="""""")
+
+
+class _DeleteSkillRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a skill."""
+
+    name: Optional[str]
+    """Required. The resource name of the Skill to delete."""
+
+    config: Optional[DeleteSkillConfigDict]
+    """"""
+
+
+_DeleteSkillRequestParametersOrDict = Union[
+    _DeleteSkillRequestParameters, _DeleteSkillRequestParametersDict
+]
+
+
+class DeleteSkillOperation(_common.BaseModel):
+    """Operation for deleting a skill."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteSkillOperationDict(TypedDict, total=False):
+    """Operation for deleting a skill."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteSkillOperationOrDict = Union[DeleteSkillOperation, DeleteSkillOperationDict]
+
+
 class GetSkillOperationConfig(_common.BaseModel):
 
     http_options: Optional[genai_types.HttpOptions] = Field(

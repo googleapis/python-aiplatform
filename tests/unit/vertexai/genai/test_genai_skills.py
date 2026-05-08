@@ -1,11 +1,29 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # //third_party/py/google/cloud/aiplatform/tests/unit/vertexai/genai/test_genai_skills.py
 import json
+import os
+import tempfile
 from unittest import mock
 import google.auth.credentials
 from vertexai import _genai as genai
 from vertexai._genai import client as vertexai_client
 from google.genai import types as genai_types
 import pytest
+import asyncio
+import time
 
 
 @pytest.fixture
@@ -29,6 +47,8 @@ def async_skills_client():
 
 
 class TestGenaiSkills:
+    """Tests the Genai Skills client."""
+
     mock_get_skill_response = {
         "name": "projects/test-project/locations/test-location/skills/test-skill",
         "displayName": "My Test Skill",
@@ -143,4 +163,736 @@ class TestGenaiSkills:
                 "skills:retrieve?query=test+query&topK=1",
                 {"_query": {"query": "test query", "topK": 1}},
                 None,
+            )
+
+    def test_create_skill(self, skills_client):
+        """Tests the create_skill method with wait_for_completion=True."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a dummy file in tmpdir
+            with open(os.path.join(tmpdir, "SKILL.md"), "w") as f:
+                f.write("# Test Skill")
+
+            # Prepare mock responses
+            pending_op = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                ),
+                "done": False,
+            }
+            finished_op = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                ),
+                "done": True,
+                "response": {
+                    "name": (
+                        "projects/test-project/locations/test-location/skills/test-skill"
+                    ),
+                    "displayName": "My Test Skill",
+                    "description": "My Test Skill Description",
+                },
+            }
+
+            # Final Skill response returned by get call
+            skill_response = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill"
+                ),
+                "displayName": "My Test Skill",
+                "description": "My Test Skill Description",
+            }
+
+            with mock.patch.object(
+                skills_client._api_client, "request", autospec=True
+            ) as request_mock:
+                request_mock.side_effect = [
+                    genai_types.HttpResponse(body=json.dumps(pending_op)),
+                    genai_types.HttpResponse(body=json.dumps(finished_op)),
+                    genai_types.HttpResponse(body=json.dumps(skill_response)),
+                ]
+
+                # We mock time.sleep to speed up the test
+                with mock.patch.object(time, "sleep", return_value=None):
+                    skill = skills_client.create(
+                        display_name="My Test Skill",
+                        description="My Test Skill Description",
+                        config={"local_path": tmpdir, "wait_for_completion": True},
+                    )
+
+                # Verify requests using robust assert_has_calls matching mock.ANY for base64 zipped Filesystem
+                request_mock.assert_has_calls(
+                    [
+                        mock.call(
+                            "post",
+                            "skills",
+                            {
+                                "displayName": "My Test Skill",
+                                "description": "My Test Skill Description",
+                                "zippedFilesystem": mock.ANY,
+                            },
+                            None,
+                        ),
+                        mock.call(
+                            "get",
+                            "projects/test-project/locations/test-location/skills/test-skill/operations/op-123",
+                            {
+                                "_url": {
+                                    "operationName": "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                                }
+                            },
+                            None,
+                        ),
+                        mock.call(
+                            "get",
+                            "projects/test-project/locations/test-location/skills/test-skill",
+                            {
+                                "_url": {
+                                    "name": "projects/test-project/locations/test-location/skills/test-skill"
+                                }
+                            },
+                            None,
+                        ),
+                    ]
+                )
+
+                # Verify returned skill
+                assert isinstance(skill, genai.types.Skill)
+                assert (
+                    skill.name
+                    == "projects/test-project/locations/test-location/skills/test-skill"
+                )
+                assert skill.display_name == "My Test Skill"
+                assert skill.description == "My Test Skill Description"
+
+    def test_create_skill_no_wait(self, skills_client):
+        """Tests the create_skill method with wait_for_completion=False."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with open(os.path.join(tmpdir, "SKILL.md"), "w") as f:
+                f.write("# Test Skill")
+
+            pending_op = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                ),
+                "done": False,
+            }
+
+            with mock.patch.object(
+                skills_client._api_client, "request", autospec=True
+            ) as request_mock:
+                request_mock.return_value = genai_types.HttpResponse(
+                    body=json.dumps(pending_op)
+                )
+
+                operation = skills_client.create(
+                    display_name="My Test Skill",
+                    description="My Test Skill Description",
+                    config={"local_path": tmpdir, "wait_for_completion": False},
+                )
+
+                # Assertions
+                assert request_mock.call_count == 1
+                assert isinstance(operation, genai.types.SkillOperation)
+                assert (
+                    operation.name
+                    == "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                )
+                assert not operation.done
+
+    @pytest.mark.asyncio
+    async def test_create_skill_async(self, async_skills_client):
+        """Tests the create_skill method asynchronously with wait_for_completion=True."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with open(os.path.join(tmpdir, "SKILL.md"), "w") as f:
+                f.write("# Test Skill")
+
+            pending_op = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                ),
+                "done": False,
+            }
+            finished_op = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                ),
+                "done": True,
+                "response": {
+                    "name": (
+                        "projects/test-project/locations/test-location/skills/test-skill"
+                    ),
+                    "displayName": "My Test Skill",
+                    "description": "My Test Skill Description",
+                },
+            }
+
+            # Final Skill response returned by async get call
+            skill_response = {
+                "name": (
+                    "projects/test-project/locations/test-location/skills/test-skill"
+                ),
+                "displayName": "My Test Skill",
+                "description": "My Test Skill Description",
+            }
+
+            with mock.patch.object(
+                async_skills_client._api_client, "async_request", autospec=True
+            ) as request_mock:
+                request_mock.side_effect = [
+                    genai_types.HttpResponse(body=json.dumps(pending_op)),
+                    genai_types.HttpResponse(body=json.dumps(finished_op)),
+                    genai_types.HttpResponse(body=json.dumps(skill_response)),
+                ]
+
+                with mock.patch.object(asyncio, "sleep", new_callable=mock.AsyncMock):
+                    skill = await async_skills_client.create(
+                        display_name="My Test Skill",
+                        description="My Test Skill Description",
+                        config={"local_path": tmpdir, "wait_for_completion": True},
+                    )
+
+                # Verify requests using robust assert_has_calls
+                request_mock.assert_has_calls(
+                    [
+                        mock.call(
+                            "post",
+                            "skills",
+                            {
+                                "displayName": "My Test Skill",
+                                "description": "My Test Skill Description",
+                                "zippedFilesystem": mock.ANY,
+                            },
+                            None,
+                        ),
+                        mock.call(
+                            "get",
+                            "projects/test-project/locations/test-location/skills/test-skill/operations/op-123",
+                            {
+                                "_url": {
+                                    "operationName": "projects/test-project/locations/test-location/skills/test-skill/operations/op-123"
+                                }
+                            },
+                            None,
+                        ),
+                        mock.call(
+                            "get",
+                            "projects/test-project/locations/test-location/skills/test-skill",
+                            {
+                                "_url": {
+                                    "name": "projects/test-project/locations/test-location/skills/test-skill"
+                                }
+                            },
+                            None,
+                        ),
+                    ]
+                )
+
+                # Verify returned skill
+                assert isinstance(skill, genai.types.Skill)
+                assert (
+                    skill.name
+                    == "projects/test-project/locations/test-location/skills/test-skill"
+                )
+                assert skill.display_name == "My Test Skill"
+                assert skill.description == "My Test Skill Description"
+
+    def test_update_skill(self, skills_client):
+        """Tests the update method with wait_for_completion=True (default)."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        # Prepare mock responses
+        pending_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+            ),
+            "done": False,
+        }
+        finished_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+            ),
+            "done": True,
+            "response": {
+                "name": skill_name,
+                "displayName": "Updated Skill",
+                "description": "Updated Description",
+            },
+        }
+        skill_response = {
+            "name": skill_name,
+            "displayName": "Updated Skill",
+            "description": "Updated Description",
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(pending_op)),
+                genai_types.HttpResponse(body=json.dumps(finished_op)),
+                genai_types.HttpResponse(body=json.dumps(skill_response)),
+            ]
+
+            with mock.patch.object(time, "sleep", return_value=None):
+                skill = skills_client.update(
+                    name=skill_name,
+                    config={
+                        "display_name": "Updated Skill",
+                        "description": "Updated Description",
+                    },
+                )
+
+            # Verify requests using robust assert_has_calls
+            request_mock.assert_has_calls(
+                [
+                    mock.call(
+                        "patch",
+                        f"{skill_name}?updateMask=displayName%2Cdescription",
+                        {
+                            "_url": {
+                                "name": "projects/test-project/locations/test-location/skills/test-skill"
+                            },
+                            "displayName": "Updated Skill",
+                            "description": "Updated Description",
+                            "_query": {
+                                "updateMask": "displayName,description",
+                            },
+                        },
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        "projects/test-project/locations/test-location/skills/test-skill/operations/op-456",
+                        {
+                            "_url": {
+                                "operationName": "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+                            }
+                        },
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        skill_name,
+                        {
+                            "_url": {
+                                "name": "projects/test-project/locations/test-location/skills/test-skill"
+                            }
+                        },
+                        None,
+                    ),
+                ]
+            )
+
+            # Verify returned skill
+            assert isinstance(skill, genai.types.Skill)
+            assert skill.name == skill_name
+            assert skill.display_name == "Updated Skill"
+            assert skill.description == "Updated Description"
+
+    def test_update_skill_no_wait(self, skills_client):
+        """Tests the update method with wait_for_completion=False."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        pending_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+            ),
+            "done": False,
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(pending_op)
+            )
+
+            operation = skills_client.update(
+                name=skill_name,
+                config={
+                    "display_name": "Updated Skill",
+                    "wait_for_completion": False,
+                },
+            )
+
+            # Assertions
+            assert isinstance(operation, genai.types.SkillOperation)
+            assert (
+                operation.name
+                == "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+            )
+            assert not operation.done
+
+            request_mock.assert_called_once_with(
+                "patch",
+                f"{skill_name}?updateMask=displayName",
+                {
+                    "_url": {
+                        "name": (
+                            "projects/test-project/locations/test-location/skills/test-skill"
+                        )
+                    },
+                    "displayName": "Updated Skill",
+                    "_query": {
+                        "updateMask": "displayName",
+                    },
+                },
+                None,
+            )
+
+    @pytest.mark.asyncio
+    async def test_update_skill_async(self, async_skills_client):
+        """Tests the async update method with wait_for_completion=True."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        pending_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+            ),
+            "done": False,
+        }
+        finished_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+            ),
+            "done": True,
+            "response": {
+                "name": skill_name,
+                "displayName": "Updated Skill",
+            },
+        }
+        skill_response = {
+            "name": skill_name,
+            "displayName": "Updated Skill",
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(pending_op)),
+                genai_types.HttpResponse(body=json.dumps(finished_op)),
+                genai_types.HttpResponse(body=json.dumps(skill_response)),
+            ]
+
+            with mock.patch.object(asyncio, "sleep", new_callable=mock.AsyncMock):
+                skill = await async_skills_client.update(
+                    name=skill_name,
+                    config={
+                        "display_name": "Updated Skill",
+                        "wait_for_completion": True,
+                    },
+                )
+
+            # Verify requests using robust assert_has_calls
+            request_mock.assert_has_calls(
+                [
+                    mock.call(
+                        "patch",
+                        f"{skill_name}?updateMask=displayName",
+                        {
+                            "_url": {
+                                "name": "projects/test-project/locations/test-location/skills/test-skill"
+                            },
+                            "displayName": "Updated Skill",
+                            "_query": {
+                                "updateMask": "displayName",
+                            },
+                        },
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        "projects/test-project/locations/test-location/skills/test-skill/operations/op-456",
+                        {
+                            "_url": {
+                                "operationName": "projects/test-project/locations/test-location/skills/test-skill/operations/op-456"
+                            }
+                        },
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        skill_name,
+                        {
+                            "_url": {
+                                "name": "projects/test-project/locations/test-location/skills/test-skill"
+                            }
+                        },
+                        None,
+                    ),
+                ]
+            )
+
+            # Verify returned skill
+            assert isinstance(skill, genai.types.Skill)
+            assert skill.name == skill_name
+            assert skill.display_name == "Updated Skill"
+
+    def test_update_skill_invalid_args(self, skills_client):
+        """Verifies ValueError is raised when no update fields are provided."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        with pytest.raises(
+            ValueError,
+            match=(
+                "At least one of `display_name`, `description`, `local_path`, or"
+                " `zipped_filesystem` must be provided for update in config."
+            ),
+        ):
+            skills_client.update(name=skill_name)
+
+    def test_update_skill_mutually_exclusive_args(self, skills_client):
+        """Verifies ValueError is raised when both local_path and zipped_filesystem are provided."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        with pytest.raises(
+            ValueError,
+            match="Only one of `local_path` or `zipped_filesystem` can be provided",
+        ):
+            skills_client.update(
+                name=skill_name,
+                config={
+                    "local_path": "/some/path",
+                    "zipped_filesystem": b"zipped_bytes",
+                },
+            )
+
+    def test_list_skills(self, skills_client):
+        """Tests the list method using the standard Pager."""
+        mock_list_response = {
+            "skills": [
+                {
+                    "name": (
+                        "projects/test-project/locations/test-location/skills/skill-1"
+                    ),
+                    "displayName": "Skill 1",
+                },
+                {
+                    "name": (
+                        "projects/test-project/locations/test-location/skills/skill-2"
+                    ),
+                    "displayName": "Skill 2",
+                },
+            ],
+            "nextPageToken": "token-123",
+        }
+        mock_list_response_page_2 = {
+            "skills": [
+                {
+                    "name": (
+                        "projects/test-project/locations/test-location/skills/skill-3"
+                    ),
+                    "displayName": "Skill 3",
+                },
+            ],
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(mock_list_response)),
+                genai_types.HttpResponse(body=json.dumps(mock_list_response_page_2)),
+            ]
+
+            skills = list(skills_client.list())
+
+            # Verify Pager correct retrieval across pages
+            assert len(skills) == 3
+            assert skills[0].display_name == "Skill 1"
+            assert skills[1].display_name == "Skill 2"
+            assert skills[2].display_name == "Skill 3"
+
+            # Verify requests using robust assert_has_calls
+            request_mock.assert_has_calls(
+                [
+                    mock.call(
+                        "get",
+                        "skills",
+                        {},
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        "skills?pageToken=token-123",
+                        {"_query": {"pageToken": "token-123"}},
+                        None,
+                    ),
+                ]
+            )
+
+    @pytest.mark.asyncio
+    async def test_list_skills_async(self, async_skills_client):
+        """Tests the async list method returning AsyncPager."""
+        mock_list_response = {
+            "skills": [
+                {
+                    "name": (
+                        "projects/test-project/locations/test-location/skills/skill-1"
+                    ),
+                    "displayName": "Skill 1",
+                },
+            ],
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(mock_list_response)
+            )
+
+            skills = []
+            pager = await async_skills_client.list()
+            async for skill in pager:
+                skills.append(skill)
+
+            assert len(skills) == 1
+            assert skills[0].display_name == "Skill 1"
+            request_mock.assert_called_once_with(
+                "get",
+                "skills",
+                {},
+                None,
+            )
+
+    def test_delete_skill(self, skills_client):
+        """Tests the delete method with wait_for_completion=True (default)."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        pending_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+            ),
+            "done": False,
+        }
+        finished_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+            ),
+            "done": True,
+            "response": {},
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(pending_op)),
+                genai_types.HttpResponse(body=json.dumps(finished_op)),
+            ]
+
+            with mock.patch("time.sleep", return_value=None):
+                result = skills_client.delete(name=skill_name)
+
+            assert result is None
+
+            # Verify both DELETE and LRO GET requests using robust assert_has_calls
+            request_mock.assert_has_calls(
+                [
+                    mock.call(
+                        "delete",
+                        skill_name,
+                        {"_url": {"name": skill_name}},
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        "projects/test-project/locations/test-location/skills/test-skill/operations/op-789",
+                        {
+                            "_url": {
+                                "operationName": (
+                                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+                                )
+                            }
+                        },
+                        None,
+                    ),
+                ]
+            )
+
+    def test_delete_skill_no_wait(self, skills_client):
+        """Tests the delete method with wait_for_completion=False."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        pending_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+            ),
+            "done": False,
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(pending_op)
+            )
+
+            operation = skills_client.delete(
+                name=skill_name, config={"wait_for_completion": False}
+            )
+
+            assert isinstance(operation, genai.types.DeleteSkillOperation)
+            assert (
+                operation.name
+                == "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+            )
+            assert not operation.done
+            request_mock.assert_called_once_with(
+                "delete",
+                skill_name,
+                {"_url": {"name": skill_name}},
+                None,
+            )
+
+    @pytest.mark.asyncio
+    async def test_delete_skill_async(self, async_skills_client):
+        """Tests the async delete method with wait_for_completion=True."""
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        pending_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+            ),
+            "done": False,
+        }
+        finished_op = {
+            "name": (
+                "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+            ),
+            "done": True,
+            "response": {},
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(pending_op)),
+                genai_types.HttpResponse(body=json.dumps(finished_op)),
+            ]
+
+            with mock.patch("asyncio.sleep", new_callable=mock.AsyncMock):
+                result = await async_skills_client.delete(
+                    name=skill_name, config={"wait_for_completion": True}
+                )
+
+            assert result is None
+
+            # Verify both DELETE and LRO GET requests asynchronously using robust assert_has_calls
+            request_mock.assert_has_calls(
+                [
+                    mock.call(
+                        "delete",
+                        skill_name,
+                        {"_url": {"name": skill_name}},
+                        None,
+                    ),
+                    mock.call(
+                        "get",
+                        "projects/test-project/locations/test-location/skills/test-skill/operations/op-789",
+                        {
+                            "_url": {
+                                "operationName": (
+                                    "projects/test-project/locations/test-location/skills/test-skill/operations/op-789"
+                                )
+                            }
+                        },
+                        None,
+                    ),
+                ]
             )

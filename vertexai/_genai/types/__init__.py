@@ -57,6 +57,7 @@ from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
+from .common import _DeleteSkillRequestParameters
 from .common import _EvaluateInstancesRequestParameters
 from .common import _ExecuteCodeAgentEngineSandboxRequestParameters
 from .common import _GenerateAgentEngineMemoriesRequestParameters
@@ -109,6 +110,7 @@ from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
 from .common import _ListSandboxEnvironmentTemplatesRequestParameters
+from .common import _ListSkillsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _PurgeAgentEngineMemoriesRequestParameters
@@ -385,6 +387,12 @@ from .common import DeleteSandboxEnvironmentTemplateConfigOrDict
 from .common import DeleteSandboxEnvironmentTemplateOperation
 from .common import DeleteSandboxEnvironmentTemplateOperationDict
 from .common import DeleteSandboxEnvironmentTemplateOperationOrDict
+from .common import DeleteSkillConfig
+from .common import DeleteSkillConfigDict
+from .common import DeleteSkillConfigOrDict
+from .common import DeleteSkillOperation
+from .common import DeleteSkillOperationDict
+from .common import DeleteSkillOperationOrDict
 from .common import DiskSpec
 from .common import DiskSpecDict
 from .common import DiskSpecOrDict
@@ -731,6 +739,12 @@ from .common import ListSandboxEnvironmentTemplatesConfigOrDict
 from .common import ListSandboxEnvironmentTemplatesResponse
 from .common import ListSandboxEnvironmentTemplatesResponseDict
 from .common import ListSandboxEnvironmentTemplatesResponseOrDict
+from .common import ListSkillsConfig
+from .common import ListSkillsConfigDict
+from .common import ListSkillsConfigOrDict
+from .common import ListSkillsResponse
+from .common import ListSkillsResponseDict
+from .common import ListSkillsResponseOrDict
 from .common import LLMMetric
 from .common import LossAnalysisConfig
 from .common import LossAnalysisConfigDict
@@ -2536,6 +2550,18 @@ __all__ = [
     "UpdateSkillConfig",
     "UpdateSkillConfigDict",
     "UpdateSkillConfigOrDict",
+    "ListSkillsConfig",
+    "ListSkillsConfigDict",
+    "ListSkillsConfigOrDict",
+    "ListSkillsResponse",
+    "ListSkillsResponseDict",
+    "ListSkillsResponseOrDict",
+    "DeleteSkillConfig",
+    "DeleteSkillConfigDict",
+    "DeleteSkillConfigOrDict",
+    "DeleteSkillOperation",
+    "DeleteSkillOperationDict",
+    "DeleteSkillOperationOrDict",
     "GetSkillOperationConfig",
     "GetSkillOperationConfigDict",
     "GetSkillOperationConfigOrDict",
@@ -2781,6 +2807,8 @@ __all__ = [
     "_RetrieveSkillsRequestParameters",
     "_CreateSkillRequestParameters",
     "_UpdateSkillRequestParameters",
+    "_ListSkillsRequestParameters",
+    "_DeleteSkillRequestParameters",
     "_GetSkillOperationParameters",
     "evals",
     "agent_engines",

@@ -19,13 +19,14 @@ import asyncio
 import base64
 import json
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
+from google.genai.pagers import AsyncPager, Pager
 
 from . import _skills_utils
 from . import types
@@ -69,6 +70,17 @@ def _CreateSkillRequestParameters_to_vertex(
     return to_object
 
 
+def _DeleteSkillRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
 def _GetSkillOperationParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -92,6 +104,39 @@ def _GetSkillRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ListSkillsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    return to_object
+
+
+def _ListSkillsRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["config"]) is not None:
+        setv(
+            to_object,
+            ["config"],
+            _ListSkillsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
 
     return to_object
 
@@ -451,6 +496,143 @@ class Skills(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _list(
+        self, *, config: Optional[types.ListSkillsConfigOrDict] = None
+    ) -> types.ListSkillsResponse:
+        """
+        Lists Skills in the Skill Registry.
+        """
+
+        parameter_model = types._ListSkillsRequestParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _ListSkillsRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "skills".format_map(request_url_dict)
+            else:
+                path = "skills"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ListSkillsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _delete(
+        self, *, name: str, config: Optional[types.DeleteSkillConfigOrDict] = None
+    ) -> types.DeleteSkillOperation:
+        """
+        Deletes a Skill.
+        """
+
+        parameter_model = types._DeleteSkillRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _DeleteSkillRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteSkillOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _get_skill_operation(
         self,
         *,
@@ -693,6 +875,68 @@ class Skills(_api_module.BaseModule):
                 raise RuntimeError(f"Failed to update Skill: {operation.error}")
             # Fetch the fully populated Skill resource from the server
             return self.get(name=name)
+
+        return operation
+
+    def list(
+        self,
+        *,
+        config: Optional[types.ListSkillsConfigOrDict] = None,
+    ) -> Iterator[types.Skill]:
+        """Lists Skills in the Skill Registry.
+
+        Args:
+            config (ListSkillsConfigOrDict):
+                Optional. Additional configuration for listing Skills.
+
+        Returns:
+            Iterator[Skill]: An iterator (Pager) of Skills.
+        """
+        return Pager(
+            "skills",
+            self._list,
+            self._list(config=config),
+            config,
+        )
+
+    def delete(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteSkillConfigOrDict] = None,
+    ) -> Optional[types.DeleteSkillOperation]:
+        """Deletes a Skill.
+
+        Args:
+            name (str):
+                Required. The resource name of the Skill to delete.
+                Format: projects/{project}/locations/{location}/skills/{skill}
+            config (DeleteSkillConfigOrDict):
+                Optional. Additional configuration for the delete operation.
+
+        Returns:
+            DeleteSkillOperation: The pending LRO if wait_for_completion is False,
+                otherwise None (blocks until done).
+        """
+        if config is None:
+            config = types.DeleteSkillConfig()
+        elif isinstance(config, dict):
+            config = types.DeleteSkillConfig.model_validate(config)
+        elif not isinstance(config, types.DeleteSkillConfig):
+            raise TypeError(
+                f"config must be a dict or DeleteSkillConfig, but got {type(config)}."
+            )
+
+        operation = self._delete(name=name, config=config)
+
+        if config.wait_for_completion:
+            operation = _skills_utils.await_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_skill_operation,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to delete Skill: {operation.error}")
+            return None
 
         return operation
 
@@ -989,6 +1233,147 @@ class AsyncSkills(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _list(
+        self, *, config: Optional[types.ListSkillsConfigOrDict] = None
+    ) -> types.ListSkillsResponse:
+        """
+        Lists Skills in the Skill Registry.
+        """
+
+        parameter_model = types._ListSkillsRequestParameters(
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _ListSkillsRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "skills".format_map(request_url_dict)
+            else:
+                path = "skills"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ListSkillsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _delete(
+        self, *, name: str, config: Optional[types.DeleteSkillConfigOrDict] = None
+    ) -> types.DeleteSkillOperation:
+        """
+        Deletes a Skill.
+        """
+
+        parameter_model = types._DeleteSkillRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _DeleteSkillRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteSkillOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_skill_operation(
         self,
         *,
@@ -1235,5 +1620,67 @@ class AsyncSkills(_api_module.BaseModule):
                 raise RuntimeError(f"Failed to update Skill: {operation.error}")
             # Fetch the fully populated Skill resource asynchronously
             return await self.get(name=name)
+
+        return operation
+
+    async def list(
+        self,
+        *,
+        config: Optional[types.ListSkillsConfigOrDict] = None,
+    ) -> AsyncPager[types.Skill]:
+        """Lists Skills in the Skill Registry asynchronously.
+
+        Args:
+            config (ListSkillsConfigOrDict):
+                Optional. Additional configuration for listing Skills.
+
+        Returns:
+            AsyncPager[Skill]: An async pager of Skills.
+        """
+        return AsyncPager(
+            "skills",
+            self._list,
+            await self._list(config=config),
+            config,
+        )
+
+    async def delete(
+        self,
+        *,
+        name: str,
+        config: Optional[types.DeleteSkillConfigOrDict] = None,
+    ) -> Optional[types.DeleteSkillOperation]:
+        """Deletes a Skill asynchronously.
+
+        Args:
+            name (str):
+                Required. The resource name of the Skill to delete.
+                Format: projects/{project}/locations/{location}/skills/{skill}
+            config (DeleteSkillConfigOrDict):
+                Optional. Additional configuration for the delete operation.
+
+        Returns:
+            DeleteSkillOperation: The pending LRO if wait_for_completion is False,
+                otherwise None (blocks until done).
+        """
+        if config is None:
+            config = types.DeleteSkillConfig()
+        elif isinstance(config, dict):
+            config = types.DeleteSkillConfig.model_validate(config)
+        elif not isinstance(config, types.DeleteSkillConfig):
+            raise TypeError(
+                f"config must be a dict or DeleteSkillConfig, but got {type(config)}."
+            )
+
+        operation = await self._delete(name=name, config=config)
+
+        if config.wait_for_completion:
+            operation = await _skills_utils.await_operation_async(
+                operation_name=operation.name,
+                get_operation_fn=self._get_skill_operation,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to delete Skill: {operation.error}")
+            return None
 
         return operation
