@@ -324,6 +324,23 @@ class MachineConfig(_common.CaseInSensitiveEnum):
     """The default value: milligcu 4000, memory 4 Gib"""
 
 
+class SandboxState(_common.CaseInSensitiveEnum):
+    """Output only. The runtime state of the SandboxEnvironment."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """The default value. This value is unused."""
+    STATE_PROVISIONING = "STATE_PROVISIONING"
+    """Runtime resources are being allocated for the sandbox environment."""
+    STATE_RUNNING = "STATE_RUNNING"
+    """Sandbox runtime is ready for serving."""
+    STATE_DEPROVISIONING = "STATE_DEPROVISIONING"
+    """Sandbox runtime is halted, performing tear down tasks."""
+    STATE_TERMINATED = "STATE_TERMINATED"
+    """Sandbox has terminated with underlying runtime failure."""
+    STATE_DELETED = "STATE_DELETED"
+    """Sandbox runtime has been deleted."""
+
+
 class Protocol(_common.CaseInSensitiveEnum):
     """Protocol for port. Defaults to TCP if not specified."""
 
@@ -12356,7 +12373,7 @@ class SandboxEnvironment(_common.BaseModel):
         default=None,
         description="""Optional. The configuration of the SandboxEnvironment.""",
     )
-    state: Optional[State] = Field(
+    state: Optional[SandboxState] = Field(
         default=None,
         description="""Output only. The runtime state of the SandboxEnvironment.""",
     )
@@ -12408,7 +12425,7 @@ class SandboxEnvironmentDict(TypedDict, total=False):
     spec: Optional[SandboxEnvironmentSpecDict]
     """Optional. The configuration of the SandboxEnvironment."""
 
-    state: Optional[State]
+    state: Optional[SandboxState]
     """Output only. The runtime state of the SandboxEnvironment."""
 
     ttl: Optional[str]

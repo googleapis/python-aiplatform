@@ -38,6 +38,7 @@ def test_get_sandbox(client):
     )
     assert isinstance(sandbox, types.SandboxEnvironment)
     assert sandbox.name == operation.response.name
+    assert isinstance(sandbox.state, types.SandboxState)
 
 
 pytestmark = pytest_helper.setup(

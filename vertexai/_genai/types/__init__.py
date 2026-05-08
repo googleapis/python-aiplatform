@@ -1179,6 +1179,7 @@ from .common import SandboxEnvironmentTemplateResourceRequirementsOrDict
 from .common import SandboxEnvironmentTemplateWarmPoolConfig
 from .common import SandboxEnvironmentTemplateWarmPoolConfigDict
 from .common import SandboxEnvironmentTemplateWarmPoolConfigOrDict
+from .common import SandboxState
 from .common import SavedQuery
 from .common import SavedQueryDict
 from .common import SavedQueryOrDict
@@ -2641,6 +2642,7 @@ __all__ = [
     "Operator",
     "Language",
     "MachineConfig",
+    "SandboxState",
     "Protocol",
     "DefaultContainerCategory",
     "PostSnapshotAction",
