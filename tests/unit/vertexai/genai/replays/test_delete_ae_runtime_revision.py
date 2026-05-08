@@ -79,18 +79,18 @@ def test_delete_runtime_revision(
             },
         )
 
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=updated_agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
     assert len(runtime_revisions_list) == 2
     revision_to_delete = runtime_revisions_list[1]
-    operation = client.agent_engines.runtimes.revisions.delete(
+    operation = client.agent_engines.revisions.delete(
         name=revision_to_delete.api_resource.name,
     )
     assert isinstance(operation, types.DeleteAgentEngineRuntimeRevisionOperation)
     assert operation.done
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=updated_agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -105,7 +105,7 @@ def test_delete_runtime_revision(
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.runtimes.revisions.delete",
+    test_method="agent_engines.revisions.delete",
 )
 
 
@@ -167,7 +167,7 @@ async def test_delete_runtime_revision_async(
             },
         )
 
-    runtime_revisions_iter = client.aio.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.aio.agent_engines.revisions.list(
         name=updated_agent_engine.api_resource.name,
     )
     runtime_revisions_list = []
@@ -175,7 +175,7 @@ async def test_delete_runtime_revision_async(
         runtime_revisions_list.append(revision)
     assert len(runtime_revisions_list) == 2
     revision_to_delete = runtime_revisions_list[1]
-    operation = await client.aio.agent_engines.runtimes.revisions.delete(
+    operation = await client.aio.agent_engines.revisions.delete(
         name=revision_to_delete.api_resource.name,
     )
     assert isinstance(operation, types.DeleteAgentEngineRuntimeRevisionOperation)

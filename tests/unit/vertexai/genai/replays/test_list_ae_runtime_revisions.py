@@ -58,7 +58,7 @@ def test_list_runtime_revisions(
         agent_engine.api_resource.display_name
         == "test-agent-engine-list-runtime-revisions"
     )
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -74,7 +74,7 @@ def test_list_runtime_revisions(
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.runtimes.revisions.list",
+    test_method="agent_engines.revisions.list",
 )
 
 pytest_plugins = ("pytest_asyncio",)
@@ -115,7 +115,7 @@ async def test_async_list_runtime_revisions(
         agent_engine.api_resource.display_name
         == "test-agent-engine-list-runtime-revisions"
     )
-    runtime_revisions_iter = client.aio.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.aio.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = []

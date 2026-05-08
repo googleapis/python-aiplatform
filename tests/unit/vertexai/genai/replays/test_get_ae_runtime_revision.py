@@ -58,7 +58,7 @@ def test_get_runtime_revisions(
         agent_engine.api_resource.display_name
         == "test-agent-engine-get-runtime-revisions"
     )
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -66,7 +66,7 @@ def test_get_runtime_revisions(
 
     assert isinstance(runtime_revisions_list[0], types.AgentEngineRuntimeRevision)
     runtime_revision_name = runtime_revisions_list[0].api_resource.name
-    runtime_revision = client.agent_engines.runtimes.revisions.get(
+    runtime_revision = client.agent_engines.revisions.get(
         name=runtime_revision_name,
     )
     assert isinstance(runtime_revision, types.AgentEngineRuntimeRevision)
@@ -78,7 +78,7 @@ def test_get_runtime_revisions(
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
-    test_method="agent_engines.runtimes.revisions.get",
+    test_method="agent_engines.revisions.get",
 )
 
 pytest_plugins = ("pytest_asyncio",)
@@ -119,7 +119,7 @@ async def test_async_get_runtime_revisions(
         agent_engine.api_resource.display_name
         == "test-agent-engine-get-runtime-revisions"
     )
-    runtime_revisions_iter = client.aio.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.aio.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = []
@@ -128,7 +128,7 @@ async def test_async_get_runtime_revisions(
     assert len(runtime_revisions_list) == 1
     assert isinstance(runtime_revisions_list[0], types.AgentEngineRuntimeRevision)
     runtime_revision_name = runtime_revisions_list[0].api_resource.name
-    runtime_revision = await client.aio.agent_engines.runtimes.revisions.get(
+    runtime_revision = await client.aio.agent_engines.revisions.get(
         name=runtime_revision_name,
     )
     assert isinstance(runtime_revision, types.AgentEngineRuntimeRevision)
