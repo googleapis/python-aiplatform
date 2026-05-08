@@ -219,6 +219,10 @@ class Client:
         if http_options.headers is None:
             http_options.headers = {}
 
+        # Set the base URL for MREP locations.
+        if location in ["us", "eu"] and not http_options.base_url:
+            http_options.base_url = f"https://aiplatform.{location}.rep.googleapis.com/"
+
         tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
 
         if "user-agent" in http_options.headers:

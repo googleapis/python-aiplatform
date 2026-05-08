@@ -52,6 +52,13 @@ class TestGenAiClient:
         assert test_client._api_client.project == _TEST_PROJECT
         assert test_client._api_client.location == _TEST_LOCATION
 
+    @pytest.mark.parametrize("location", ["us", "eu"])
+    @pytest.mark.usefixtures("google_auth_mock")
+    def test_genai_client_mrep(self, location):
+        test_client = vertexai.Client(project=_TEST_PROJECT, location=location)
+        expected_url = f"https://aiplatform.{location}.rep.googleapis.com/"
+        assert test_client._api_client._http_options.base_url == expected_url
+
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("google_auth_mock")
     async def test_async_client(self):
