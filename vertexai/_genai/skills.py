@@ -126,6 +126,47 @@ def _RetrieveSkillsRequestParameters_to_vertex(
     return to_object
 
 
+def _UpdateSkillConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["display_name"]) is not None:
+        setv(parent_object, ["displayName"], getv(from_object, ["display_name"]))
+
+    if getv(from_object, ["description"]) is not None:
+        setv(parent_object, ["description"], getv(from_object, ["description"]))
+
+    if getv(from_object, ["zipped_filesystem"]) is not None:
+        setv(
+            parent_object,
+            ["zippedFilesystem"],
+            getv(from_object, ["zipped_filesystem"]),
+        )
+
+    if getv(from_object, ["update_mask"]) is not None:
+        setv(
+            parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
+        )
+
+    return to_object
+
+
+def _UpdateSkillRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _UpdateSkillConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
 class Skills(_api_module.BaseModule):
     """Class for managing Skills in the Skill Registry."""
 
@@ -341,6 +382,75 @@ class Skills(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _update(
+        self, *, name: str, config: Optional[types.UpdateSkillConfigOrDict] = None
+    ) -> types.SkillOperation:
+        """
+        Updates a Skill.
+        """
+
+        parameter_model = types._UpdateSkillRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _UpdateSkillRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("patch", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.SkillOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _get_skill_operation(
         self,
         *,
@@ -489,6 +599,100 @@ class Skills(_api_module.BaseModule):
                 raise RuntimeError(f"Failed to create Skill: {operation.error}")
             # Fetch the fully populated Skill resource from the server
             return self.get(name=operation.response.name)
+
+        return operation
+
+    def update(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateSkillConfigOrDict] = None,
+    ) -> Union[types.Skill, types.SkillOperation]:
+        """Updates an existing Skill.
+
+        Args:
+            name (str):
+                Required. The resource name of the Skill to update.
+                Format: projects/{project}/locations/{location}/skills/{skill}
+            config (UpdateSkillConfigOrDict):
+                Optional. The configuration for updating the Skill.
+
+        Returns:
+            Skill: The updated Skill if wait_for_completion is True.
+            SkillOperation: The operation for updating the Skill if
+            wait_for_completion is False.
+        """
+        if config is None:
+            config = types.UpdateSkillConfig()
+        elif isinstance(config, dict):
+            config = types.UpdateSkillConfig.model_validate(config)
+        elif not isinstance(config, types.UpdateSkillConfig):
+            raise TypeError(
+                f"config must be a dict or UpdateSkillConfig, but got {type(config)}."
+            )
+
+        config = config.model_copy()
+
+        display_name = config.display_name
+        description = config.description
+        local_path = config.local_path
+        zipped_filesystem = config.zipped_filesystem
+
+        if local_path and zipped_filesystem:
+            raise ValueError(
+                "Only one of `local_path` or `zipped_filesystem` can be provided in config."
+            )
+
+        # Construct update_mask and prepare payload
+        update_mask_paths = []
+        zipped_filesystem_payload = None
+
+        if display_name is not None:
+            update_mask_paths.append("displayName")
+
+        if description is not None:
+            update_mask_paths.append("description")
+
+        if local_path:
+            zipped_filesystem_payload = _skills_utils.get_zipped_filesystem_payload(
+                local_path
+            )
+            update_mask_paths.append("zippedFilesystem")
+        elif zipped_filesystem is not None:
+            if isinstance(zipped_filesystem, bytes):
+                zipped_filesystem_payload = base64.b64encode(zipped_filesystem).decode(
+                    "utf-8"
+                )
+            else:
+                zipped_filesystem_payload = zipped_filesystem
+            update_mask_paths.append("zippedFilesystem")
+
+        if not update_mask_paths:
+            raise ValueError(
+                "At least one of `display_name`, `description`, `local_path`, or "
+                "`zipped_filesystem` must be provided for update in config."
+            )
+
+        update_mask = ",".join(update_mask_paths)
+
+        # Mutate config in place to populate the generated update_mask and zipped_filesystem
+        config.update_mask = update_mask
+        config.zipped_filesystem = zipped_filesystem_payload
+
+        operation = self._update(
+            name=name,
+            config=config,
+        )
+
+        if config.wait_for_completion:
+            operation = _skills_utils.await_operation(
+                operation_name=operation.name,
+                get_operation_fn=self._get_skill_operation,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to update Skill: {operation.error}")
+            # Fetch the fully populated Skill resource from the server
+            return self.get(name=name)
 
         return operation
 
@@ -714,6 +918,77 @@ class AsyncSkills(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _update(
+        self, *, name: str, config: Optional[types.UpdateSkillConfigOrDict] = None
+    ) -> types.SkillOperation:
+        """
+        Updates a Skill.
+        """
+
+        parameter_model = types._UpdateSkillRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+            )
+        else:
+            request_dict = _UpdateSkillRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "patch", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.SkillOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _get_skill_operation(
         self,
         *,
@@ -865,5 +1140,100 @@ class AsyncSkills(_api_module.BaseModule):
                 raise RuntimeError(f"Failed to create Skill: {operation.error}")
             # Fetch the fully populated Skill resource asynchronously
             return await self.get(name=operation.response.name)
+
+        return operation
+
+    async def update(
+        self,
+        *,
+        name: str,
+        config: Optional[types.UpdateSkillConfigOrDict] = None,
+    ) -> Union[types.Skill, types.SkillOperation]:
+        """Updates an existing Skill asynchronously.
+
+        Args:
+            name (str):
+                Required. The resource name of the Skill to update.
+                Format: projects/{project}/locations/{location}/skills/{skill}
+            config (UpdateSkillConfigOrDict):
+                Optional. The configuration for updating the Skill.
+
+        Returns:
+            Skill: The updated Skill if wait_for_completion is True.
+            SkillOperation: The operation for updating the Skill if
+            wait_for_completion is False.
+        """
+        if config is None:
+            config = types.UpdateSkillConfig()
+        elif isinstance(config, dict):
+            config = types.UpdateSkillConfig.model_validate(config)
+        elif not isinstance(config, types.UpdateSkillConfig):
+            raise TypeError(
+                f"config must be a dict or UpdateSkillConfig, but got {type(config)}."
+            )
+
+        config = config.model_copy()
+
+        display_name = config.display_name
+        description = config.description
+        local_path = config.local_path
+        zipped_filesystem = config.zipped_filesystem
+
+        if local_path and zipped_filesystem:
+            raise ValueError(
+                "Only one of `local_path` or `zipped_filesystem` can be provided in config."
+            )
+
+        # Construct update_mask and prepare payload
+        update_mask_paths = []
+        zipped_filesystem_payload = None
+
+        if display_name is not None:
+            update_mask_paths.append("displayName")
+
+        if description is not None:
+            update_mask_paths.append("description")
+
+        if local_path:
+            loop = asyncio.get_running_loop()
+            zipped_filesystem_payload = await loop.run_in_executor(
+                None, _skills_utils.get_zipped_filesystem_payload, local_path
+            )
+            update_mask_paths.append("zippedFilesystem")
+        elif zipped_filesystem is not None:
+            if isinstance(zipped_filesystem, bytes):
+                zipped_filesystem_payload = base64.b64encode(zipped_filesystem).decode(
+                    "utf-8"
+                )
+            else:
+                zipped_filesystem_payload = zipped_filesystem
+            update_mask_paths.append("zippedFilesystem")
+
+        if not update_mask_paths:
+            raise ValueError(
+                "At least one of `display_name`, `description`, `local_path`, or "
+                "`zipped_filesystem` must be provided for update in config."
+            )
+
+        update_mask = ",".join(update_mask_paths)
+
+        # Mutate config in place to populate the generated update_mask and zipped_filesystem
+        config.update_mask = update_mask
+        config.zipped_filesystem = zipped_filesystem_payload
+
+        operation = await self._update(
+            name=name,
+            config=config,
+        )
+
+        if config.wait_for_completion:
+            operation = await _skills_utils.await_operation_async(
+                operation_name=operation.name,
+                get_operation_fn=self._get_skill_operation,
+            )
+            if operation.error:
+                raise RuntimeError(f"Failed to update Skill: {operation.error}")
+            # Fetch the fully populated Skill resource asynchronously
+            return await self.get(name=name)
 
         return operation

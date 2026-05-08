@@ -18193,6 +18193,91 @@ class SkillOperationDict(TypedDict, total=False):
 SkillOperationOrDict = Union[SkillOperation, SkillOperationDict]
 
 
+class UpdateSkillConfig(_common.BaseModel):
+    """Config for updating a skill."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Whether to wait for the long running operation to complete.""",
+    )
+    local_path: Optional[str] = Field(
+        default=None,
+        description="""Optional. The local path to the directory containing the Skill to
+      be zipped and uploaded.
+      """,
+    )
+    display_name: Optional[str] = Field(
+        default=None, description="""Optional. The display name of the Skill."""
+    )
+    description: Optional[str] = Field(
+        default=None, description="""Optional. The description of the Skill."""
+    )
+    zipped_filesystem: Optional[Any] = Field(
+        default=None, description="""Optional. The zipped filesystem of the Skill."""
+    )
+    update_mask: Optional[str] = Field(
+        default=None, description="""Optional. The update mask to apply."""
+    )
+
+
+class UpdateSkillConfigDict(TypedDict, total=False):
+    """Config for updating a skill."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Whether to wait for the long running operation to complete."""
+
+    local_path: Optional[str]
+    """Optional. The local path to the directory containing the Skill to
+      be zipped and uploaded.
+      """
+
+    display_name: Optional[str]
+    """Optional. The display name of the Skill."""
+
+    description: Optional[str]
+    """Optional. The description of the Skill."""
+
+    zipped_filesystem: Optional[Any]
+    """Optional. The zipped filesystem of the Skill."""
+
+    update_mask: Optional[str]
+    """Optional. The update mask to apply."""
+
+
+UpdateSkillConfigOrDict = Union[UpdateSkillConfig, UpdateSkillConfigDict]
+
+
+class _UpdateSkillRequestParameters(_common.BaseModel):
+    """Parameters for updating a skill."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource name of the Skill to update.""",
+    )
+    config: Optional[UpdateSkillConfig] = Field(default=None, description="""""")
+
+
+class _UpdateSkillRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a skill."""
+
+    name: Optional[str]
+    """Required. The resource name of the Skill to update."""
+
+    config: Optional[UpdateSkillConfigDict]
+    """"""
+
+
+_UpdateSkillRequestParametersOrDict = Union[
+    _UpdateSkillRequestParameters, _UpdateSkillRequestParametersDict
+]
+
+
 class GetSkillOperationConfig(_common.BaseModel):
 
     http_options: Optional[genai_types.HttpOptions] = Field(

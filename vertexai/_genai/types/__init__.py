@@ -128,6 +128,7 @@ from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
 from .common import _UpdateMultimodalDatasetParameters
+from .common import _UpdateSkillRequestParameters
 from .common import A2aTask
 from .common import A2aTaskDict
 from .common import A2aTaskOrDict
@@ -1404,6 +1405,9 @@ from .common import UpdateAgentEngineSessionConfigOrDict
 from .common import UpdatePromptConfig
 from .common import UpdatePromptConfigDict
 from .common import UpdatePromptConfigOrDict
+from .common import UpdateSkillConfig
+from .common import UpdateSkillConfigDict
+from .common import UpdateSkillConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
@@ -2528,6 +2532,9 @@ __all__ = [
     "SkillOperation",
     "SkillOperationDict",
     "SkillOperationOrDict",
+    "UpdateSkillConfig",
+    "UpdateSkillConfigDict",
+    "UpdateSkillConfigOrDict",
     "GetSkillOperationConfig",
     "GetSkillOperationConfigDict",
     "GetSkillOperationConfigOrDict",
@@ -2771,6 +2778,7 @@ __all__ = [
     "_GetSkillRequestParameters",
     "_RetrieveSkillsRequestParameters",
     "_CreateSkillRequestParameters",
+    "_UpdateSkillRequestParameters",
     "_GetSkillOperationParameters",
     "evals",
     "agent_engines",
