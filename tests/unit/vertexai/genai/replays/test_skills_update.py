@@ -15,7 +15,6 @@
 """Tests the skills.update() method against the Vertex AI endpoint using replays."""
 
 import io
-import os
 import zipfile
 
 from tests.unit.vertexai.genai.replays import pytest_helper
@@ -26,9 +25,6 @@ pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
 )
-
-PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "srbai-testing")
-REGION = "us-central1"
 
 
 def test_update_skill(client, tmp_path):
