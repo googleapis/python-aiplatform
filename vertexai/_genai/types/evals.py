@@ -502,6 +502,10 @@ class UserScenario(_common.BaseModel):
         default=None,
         description="""The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset.""",
     )
+    test_case_title: Optional[str] = Field(
+        default=None,
+        description="""Represents a short 3-5 word title for eval test case.""",
+    )
 
 
 class UserScenarioDict(TypedDict, total=False):
@@ -512,6 +516,9 @@ class UserScenarioDict(TypedDict, total=False):
 
     conversation_plan: Optional[str]
     """The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset."""
+
+    test_case_title: Optional[str]
+    """Represents a short 3-5 word title for eval test case."""
 
 
 UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
@@ -536,6 +543,17 @@ class UserScenarioGenerationConfig(_common.BaseModel):
         default=None,
         description="""Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
     )
+    environment_data: Optional[str] = Field(
+        default=None, description="""Optional. Environment data in string type."""
+    )
+    simulation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Optional. Simulation instruction to guide the user scenario generation.""",
+    )
+    user_scenario_count: Optional[int] = Field(
+        default=None,
+        description="""Required. The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
 
 
 class UserScenarioGenerationConfigDict(TypedDict, total=False):
@@ -552,6 +570,15 @@ class UserScenarioGenerationConfigDict(TypedDict, total=False):
 
     environment_context: Optional[str]
     """Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
+
+    environment_data: Optional[str]
+    """Optional. Environment data in string type."""
+
+    simulation_instruction: Optional[str]
+    """Optional. Simulation instruction to guide the user scenario generation."""
+
+    user_scenario_count: Optional[int]
+    """Required. The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
 
 
 UserScenarioGenerationConfigOrDict = Union[

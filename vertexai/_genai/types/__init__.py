@@ -1213,9 +1213,6 @@ from .common import SandboxEnvironmentTemplateOrDict
 from .common import SandboxEnvironmentTemplateResourceRequirements
 from .common import SandboxEnvironmentTemplateResourceRequirementsDict
 from .common import SandboxEnvironmentTemplateResourceRequirementsOrDict
-from .common import SandboxEnvironmentTemplateWarmPoolConfig
-from .common import SandboxEnvironmentTemplateWarmPoolConfigDict
-from .common import SandboxEnvironmentTemplateWarmPoolConfigOrDict
 from .common import SandboxState
 from .common import SavedQuery
 from .common import SavedQueryDict
@@ -1244,6 +1241,9 @@ from .common import SchemaPromptSpecAppBuilderDataLinkedResource
 from .common import SchemaPromptSpecAppBuilderDataLinkedResourceDict
 from .common import SchemaPromptSpecAppBuilderDataLinkedResourceOrDict
 from .common import SchemaPromptSpecAppBuilderDataOrDict
+from .common import SchemaPromptSpecInteractionData
+from .common import SchemaPromptSpecInteractionDataDict
+from .common import SchemaPromptSpecInteractionDataOrDict
 from .common import SchemaPromptSpecMultimodalPrompt
 from .common import SchemaPromptSpecMultimodalPromptDict
 from .common import SchemaPromptSpecMultimodalPromptOrDict
@@ -1313,6 +1313,7 @@ from .common import SkillOrDict
 from .common import SkillRevision
 from .common import SkillRevisionDict
 from .common import SkillRevisionOrDict
+from .common import SkillSource
 from .common import SkillState
 from .common import State
 from .common import Strategy
@@ -2315,9 +2316,6 @@ __all__ = [
     "CreateSandboxEnvironmentTemplateConfig",
     "CreateSandboxEnvironmentTemplateConfigDict",
     "CreateSandboxEnvironmentTemplateConfigOrDict",
-    "SandboxEnvironmentTemplateWarmPoolConfig",
-    "SandboxEnvironmentTemplateWarmPoolConfigDict",
-    "SandboxEnvironmentTemplateWarmPoolConfigOrDict",
     "SandboxEnvironmentTemplate",
     "SandboxEnvironmentTemplateDict",
     "SandboxEnvironmentTemplateOrDict",
@@ -2489,6 +2487,9 @@ __all__ = [
     "SchemaPromptSpecPartList",
     "SchemaPromptSpecPartListDict",
     "SchemaPromptSpecPartListOrDict",
+    "SchemaPromptSpecInteractionData",
+    "SchemaPromptSpecInteractionDataDict",
+    "SchemaPromptSpecInteractionDataOrDict",
     "SchemaPromptSpecStructuredPrompt",
     "SchemaPromptSpecStructuredPromptDict",
     "SchemaPromptSpecStructuredPromptOrDict",
@@ -2729,6 +2730,7 @@ __all__ = [
     "DefaultContainerCategory",
     "PostSnapshotAction",
     "Framework",
+    "SkillSource",
     "EvaluationItemType",
     "SamplingMethod",
     "EvaluationRunState",
