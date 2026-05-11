@@ -17,8 +17,10 @@
 
 import asyncio
 import base64
+import importlib
 import json
 import logging
+import typing
 from typing import Any, Iterator, Optional, Union
 from urllib.parse import urlencode
 
@@ -30,6 +32,12 @@ from google.genai.pagers import AsyncPager, Pager
 
 from . import _skills_utils
 from . import types
+
+if typing.TYPE_CHECKING:
+    from . import skill_revisions as skill_revisions_module
+
+    _ = skill_revisions_module
+
 
 logger = logging.getLogger("vertexai_genai.skills")
 
@@ -940,6 +948,16 @@ class Skills(_api_module.BaseModule):
 
         return operation
 
+    _revisions = None
+
+    @property
+    def revisions(self) -> "skill_revisions_module.SkillRevisions":
+        """Returns the revisions sub-module."""
+        if self._revisions is None:
+            # Lazy load to avoid circular imports
+            self._revisions = importlib.import_module(".skill_revisions", __package__)
+        return self._revisions.SkillRevisions(self._api_client)  # type: ignore[no-any-return]
+
 
 class AsyncSkills(_api_module.BaseModule):
     """Class for managing Skills in the Skill Registry."""
@@ -1684,3 +1702,12 @@ class AsyncSkills(_api_module.BaseModule):
             return None
 
         return operation
+
+    _revisions = None
+
+    @property
+    def revisions(self) -> "skill_revisions_module.AsyncSkillRevisions":
+        """Returns the revisions sub-module asynchronously."""
+        if self._revisions is None:
+            self._revisions = importlib.import_module(".skill_revisions", __package__)
+        return self._revisions.AsyncSkillRevisions(self._api_client)  # type: ignore[no-any-return]

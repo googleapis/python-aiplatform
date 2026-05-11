@@ -94,6 +94,7 @@ from .common import _GetSandboxEnvironmentTemplateOperationParameters
 from .common import _GetSandboxEnvironmentTemplateRequestParameters
 from .common import _GetSkillOperationParameters
 from .common import _GetSkillRequestParameters
+from .common import _GetSkillRevisionRequestParameters
 from .common import _IngestEventsRequestParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
@@ -110,6 +111,7 @@ from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
 from .common import _ListSandboxEnvironmentTemplatesRequestParameters
+from .common import _ListSkillRevisionsRequestParameters
 from .common import _ListSkillsRequestParameters
 from .common import _OptimizeRequestParameters
 from .common import _OptimizeRequestParameters
@@ -630,6 +632,9 @@ from .common import GetSkillConfigOrDict
 from .common import GetSkillOperationConfig
 from .common import GetSkillOperationConfigDict
 from .common import GetSkillOperationConfigOrDict
+from .common import GetSkillRevisionConfig
+from .common import GetSkillRevisionConfigDict
+from .common import GetSkillRevisionConfigOrDict
 from .common import IdentityType
 from .common import Importance
 from .common import IngestEventsConfig
@@ -739,6 +744,12 @@ from .common import ListSandboxEnvironmentTemplatesConfigOrDict
 from .common import ListSandboxEnvironmentTemplatesResponse
 from .common import ListSandboxEnvironmentTemplatesResponseDict
 from .common import ListSandboxEnvironmentTemplatesResponseOrDict
+from .common import ListSkillRevisionsConfig
+from .common import ListSkillRevisionsConfigDict
+from .common import ListSkillRevisionsConfigOrDict
+from .common import ListSkillRevisionsResponse
+from .common import ListSkillRevisionsResponseDict
+from .common import ListSkillRevisionsResponseOrDict
 from .common import ListSkillsConfig
 from .common import ListSkillsConfigDict
 from .common import ListSkillsConfigOrDict
@@ -1287,6 +1298,9 @@ from .common import SkillOperation
 from .common import SkillOperationDict
 from .common import SkillOperationOrDict
 from .common import SkillOrDict
+from .common import SkillRevision
+from .common import SkillRevisionDict
+from .common import SkillRevisionOrDict
 from .common import SkillState
 from .common import State
 from .common import Strategy
@@ -2565,6 +2579,18 @@ __all__ = [
     "GetSkillOperationConfig",
     "GetSkillOperationConfigDict",
     "GetSkillOperationConfigOrDict",
+    "GetSkillRevisionConfig",
+    "GetSkillRevisionConfigDict",
+    "GetSkillRevisionConfigOrDict",
+    "SkillRevision",
+    "SkillRevisionDict",
+    "SkillRevisionOrDict",
+    "ListSkillRevisionsConfig",
+    "ListSkillRevisionsConfigDict",
+    "ListSkillRevisionsConfigOrDict",
+    "ListSkillRevisionsResponse",
+    "ListSkillRevisionsResponseDict",
+    "ListSkillRevisionsResponseOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -2810,6 +2836,8 @@ __all__ = [
     "_ListSkillsRequestParameters",
     "_DeleteSkillRequestParameters",
     "_GetSkillOperationParameters",
+    "_GetSkillRevisionRequestParameters",
+    "_ListSkillRevisionsRequestParameters",
     "evals",
     "agent_engines",
     "prompts",

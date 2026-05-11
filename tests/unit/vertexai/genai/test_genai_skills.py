@@ -47,7 +47,6 @@ def async_skills_client():
 
 
 class TestGenaiSkills:
-    """Tests the Genai Skills client."""
 
     mock_get_skill_response = {
         "name": "projects/test-project/locations/test-location/skills/test-skill",
@@ -219,7 +218,8 @@ class TestGenaiSkills:
                         config={"local_path": tmpdir, "wait_for_completion": True},
                     )
 
-                # Verify requests using robust assert_has_calls matching mock.ANY for base64 zipped Filesystem
+                # Verify requests using robust assert_has_calls matching
+                # mock.ANY for base64 zipped Filesystem
                 request_mock.assert_has_calls(
                     [
                         mock.call(
@@ -895,4 +895,122 @@ class TestGenaiSkills:
                         None,
                     ),
                 ]
+            )
+
+    def test_get_skill_revision(self, skills_client):
+        revision_name = "projects/test-project/locations/test-location/skills/test-skill/revisions/rev-1"
+        mock_response = {
+            "name": revision_name,
+            "state": "ACTIVE",
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(mock_response)
+            )
+
+            revision = skills_client.revisions.get(name=revision_name)
+
+            assert isinstance(revision, genai.types.SkillRevision)
+            assert revision.name == revision_name
+            assert revision.state == "ACTIVE"
+
+            request_mock.assert_called_once_with(
+                "get",
+                revision_name,
+                {"_url": {"name": revision_name}},
+                None,
+            )
+
+    @pytest.mark.asyncio
+    async def test_get_skill_revision_async(self, async_skills_client):
+        revision_name = "projects/test-project/locations/test-location/skills/test-skill/revisions/rev-1"
+        mock_response = {
+            "name": revision_name,
+            "state": "ACTIVE",
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(mock_response)
+            )
+
+            revision = await async_skills_client.revisions.get(name=revision_name)
+
+            assert isinstance(revision, genai.types.SkillRevision)
+            assert revision.name == revision_name
+            assert revision.state == "ACTIVE"
+
+            request_mock.assert_called_once_with(
+                "get",
+                revision_name,
+                {"_url": {"name": revision_name}},
+                None,
+            )
+
+    def test_list_skill_revisions(self, skills_client):
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        mock_response = {
+            "skillRevisions": [
+                {
+                    "name": f"{skill_name}/revisions/rev-1",
+                    "state": "ACTIVE",
+                }
+            ]
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(mock_response)
+            )
+
+            response = skills_client.revisions.list(name=skill_name)
+
+            assert isinstance(response, genai.types.ListSkillRevisionsResponse)
+            assert len(response.skill_revisions) == 1
+            assert response.skill_revisions[0].name == f"{skill_name}/revisions/rev-1"
+
+            request_mock.assert_called_once_with(
+                "get",
+                f"{skill_name}/revisions",
+                {"_url": {"name": skill_name}},
+                None,
+            )
+
+    @pytest.mark.asyncio
+    async def test_list_skill_revisions_async(self, async_skills_client):
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        mock_response = {
+            "skillRevisions": [
+                {
+                    "name": f"{skill_name}/revisions/rev-1",
+                    "state": "ACTIVE",
+                }
+            ]
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(mock_response)
+            )
+
+            response = await async_skills_client.revisions.list(name=skill_name)
+
+            assert isinstance(response, genai.types.ListSkillRevisionsResponse)
+            assert len(response.skill_revisions) == 1
+            assert response.skill_revisions[0].name == f"{skill_name}/revisions/rev-1"
+
+            request_mock.assert_called_once_with(
+                "get",
+                f"{skill_name}/revisions",
+                {"_url": {"name": skill_name}},
+                None,
             )

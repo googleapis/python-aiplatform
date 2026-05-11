@@ -18507,6 +18507,161 @@ _GetSkillOperationParametersOrDict = Union[
 ]
 
 
+class GetSkillRevisionConfig(_common.BaseModel):
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetSkillRevisionConfigDict(TypedDict, total=False):
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetSkillRevisionConfigOrDict = Union[GetSkillRevisionConfig, GetSkillRevisionConfigDict]
+
+
+class _GetSkillRevisionRequestParameters(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the Skill Revision to retrieve. Format: projects/{project}/locations/{location}/skills/{skill}/revisions/{revision}""",
+    )
+    config: Optional[GetSkillRevisionConfig] = Field(default=None, description="""""")
+
+
+class _GetSkillRevisionRequestParametersDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """The resource name of the Skill Revision to retrieve. Format: projects/{project}/locations/{location}/skills/{skill}/revisions/{revision}"""
+
+    config: Optional[GetSkillRevisionConfigDict]
+    """"""
+
+
+_GetSkillRevisionRequestParametersOrDict = Union[
+    _GetSkillRevisionRequestParameters, _GetSkillRevisionRequestParametersDict
+]
+
+
+class SkillRevision(_common.BaseModel):
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the Skill Revision. Format: `projects/{project}/locations/{location}/skills/{skill}/revisions/{revision}`""",
+    )
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when this Skill Revision was created.""",
+    )
+    skill: Optional[Skill] = Field(
+        default=None,
+        description="""Output only. The state of the Skill at this revision. TODO(b/503772996) Use a different proto for skill data included in skill revision""",
+    )
+    state: Optional[SkillState] = Field(
+        default=None, description="""Output only. The state of the Skill Revision."""
+    )
+
+
+class SkillRevisionDict(TypedDict, total=False):
+
+    name: Optional[str]
+    """Identifier. The resource name of the Skill Revision. Format: `projects/{project}/locations/{location}/skills/{skill}/revisions/{revision}`"""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when this Skill Revision was created."""
+
+    skill: Optional[SkillDict]
+    """Output only. The state of the Skill at this revision. TODO(b/503772996) Use a different proto for skill data included in skill revision"""
+
+    state: Optional[SkillState]
+    """Output only. The state of the Skill Revision."""
+
+
+SkillRevisionOrDict = Union[SkillRevision, SkillRevisionDict]
+
+
+class ListSkillRevisionsConfig(_common.BaseModel):
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+
+
+class ListSkillRevisionsConfigDict(TypedDict, total=False):
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+
+ListSkillRevisionsConfigOrDict = Union[
+    ListSkillRevisionsConfig, ListSkillRevisionsConfigDict
+]
+
+
+class _ListSkillRevisionsRequestParameters(_common.BaseModel):
+    """Parameters for ListSkillRevisionsRequest."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The name of the Skill to list revisions for.""",
+    )
+    config: Optional[ListSkillRevisionsConfig] = Field(default=None, description="""""")
+
+
+class _ListSkillRevisionsRequestParametersDict(TypedDict, total=False):
+    """Parameters for ListSkillRevisionsRequest."""
+
+    name: Optional[str]
+    """Required. The name of the Skill to list revisions for."""
+
+    config: Optional[ListSkillRevisionsConfigDict]
+    """"""
+
+
+_ListSkillRevisionsRequestParametersOrDict = Union[
+    _ListSkillRevisionsRequestParameters, _ListSkillRevisionsRequestParametersDict
+]
+
+
+class ListSkillRevisionsResponse(_common.BaseModel):
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    skill_revisions: Optional[list[SkillRevision]] = Field(
+        default=None, description="""List of Skill Revisions."""
+    )
+
+
+class ListSkillRevisionsResponseDict(TypedDict, total=False):
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    skill_revisions: Optional[list[SkillRevisionDict]]
+    """List of Skill Revisions."""
+
+
+ListSkillRevisionsResponseOrDict = Union[
+    ListSkillRevisionsResponse, ListSkillRevisionsResponseDict
+]
+
+
 class PromptOptimizerConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
