@@ -870,8 +870,6 @@ class Sandboxes(_api_module.BaseModule):
     def generate_access_token(
         self,
         service_account_email: str,
-        sandbox_hostname: str,
-        port: str = "8080",
         timeout: int = 3600,
     ) -> str:
         """Signs a JWT with a Google Cloud service account.
@@ -879,10 +877,6 @@ class Sandboxes(_api_module.BaseModule):
         Args:
             service_account_email (str):
                 Required. The email of the service account to use for signing.
-            sandbox_hostname (str):
-                Required. The hostname of the sandbox to generate a token for.
-            port (str):
-                Optional. The port to use for the token. Defaults to "8080".
             timeout (int):
                 Optional. The timeout in seconds for the token. Defaults to 3600.
 
@@ -891,7 +885,6 @@ class Sandboxes(_api_module.BaseModule):
         """
         client = iam_credentials_v1.IAMCredentialsClient()
         name = f"projects/-/serviceAccounts/{service_account_email}"
-        custom_claims = {"hostname": sandbox_hostname, "port": port}
         payload = {
             "iat": int(time.time()),
             "exp": int(time.time()) + timeout,
@@ -899,7 +892,6 @@ class Sandboxes(_api_module.BaseModule):
             "sub": service_account_email,
             "nonce": secrets.randbelow(1000000000) + 1,
             "aud": "https://aiplatform.googleapis.com/",  # default audience for sandbox proxy
-            **custom_claims,
         }
         request = iam_credentials_v1.SignJwtRequest(
             name=name,
@@ -1010,9 +1002,7 @@ class Sandboxes(_api_module.BaseModule):
         else:
             raise ValueError("Load balancer hostname or ip is not available.")
 
-        http_access_token = self.generate_access_token(
-            service_account_email, connection_info.load_balancer_hostname, port, timeout
-        )
+        http_access_token = self.generate_access_token(service_account_email, timeout)
         response = self.send_command(
             http_method="GET",
             access_token=http_access_token,
@@ -1027,12 +1017,7 @@ class Sandboxes(_api_module.BaseModule):
         ws_url = ws_base_url + "/" + ws_path
 
         # port 9222 is the default port for the browser websocket endpoint.
-        ws_access_token = self.generate_access_token(
-            service_account_email,
-            connection_info.load_balancer_hostname,
-            "9222",
-            timeout,
-        )
+        ws_access_token = self.generate_access_token(service_account_email, timeout)
 
         routing_token = connection_info.routing_token
 
