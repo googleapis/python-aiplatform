@@ -80,7 +80,7 @@ def test_agent_engines_update_traffic_to_manual_split(
             },
         )
 
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -148,7 +148,7 @@ def test_agent_engines_update_traffic_with_agent_update(
         == "test-agent-engine-update-traffic-with-agent-before-update"
     )
     assert agent_engine.api_resource.traffic_config is None
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)
@@ -197,7 +197,7 @@ def test_agent_engines_update_traffic_with_agent_update(
         == "test-agent-engine-update-traffic-with-agent-after-update"
     )
     assert updated_agent_engine.api_resource.traffic_config == traffic_config
-    runtime_revisions_iter = client.agent_engines.runtimes.revisions.list(
+    runtime_revisions_iter = client.agent_engines.revisions.list(
         name=agent_engine.api_resource.name,
     )
     runtime_revisions_list = list(runtime_revisions_iter)

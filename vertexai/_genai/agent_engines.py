@@ -38,12 +38,12 @@ if typing.TYPE_CHECKING:
     from . import sessions as sessions_module
     from . import memories as memories_module
     from . import a2a_tasks as a2a_tasks_module
-    from . import runtimes as runtimes_module
+    from . import runtime_revisions as runtime_revisions_module
 
     _ = sessions_module
     __ = memories_module
     ___ = a2a_tasks_module
-    ____ = runtimes_module
+    ____ = runtime_revisions_module
 
 
 logger = logging.getLogger("vertexai_genai.agentengines")
@@ -1515,22 +1515,24 @@ class AgentEngines(_api_module.BaseModule):
     _memories = None
     _sandboxes = None
     _sessions = None
-    _runtimes = None
+    _runtime_revisions = None
 
     @property
-    def runtimes(self) -> "runtimes_module.Runtimes":
-        if self._runtimes is None:
+    def revisions(self) -> "runtime_revisions_module.RuntimeRevisions":
+        if self._runtime_revisions is None:
             try:
-                # We need to lazy load the runtimes module to handle the
+                # We need to lazy load the runtime_revisions module to handle the
                 # possibility of ImportError when dependencies are not installed.
-                self._runtimes = importlib.import_module(".runtimes", __package__)
+                self._runtime_revisions = importlib.import_module(
+                    ".runtime_revisions", __package__
+                )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.runtimes' module requires additional "
+                    "The 'agent_engines.runtime_revisions' module requires additional "
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._runtimes.Runtimes(self._api_client)  # type: ignore[no-any-return]
+        return self._runtime_revisions.RuntimeRevisions(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def a2a_tasks(self) -> "a2a_tasks_module.A2aTasks":
@@ -3929,7 +3931,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
     _a2a_tasks = None
     _memories = None
     _sessions = None
-    _runtimes = None
+    _runtime_revisions = None
 
     async def delete(
         self,
@@ -3960,19 +3962,21 @@ class AsyncAgentEngines(_api_module.BaseModule):
         return operation
 
     @property
-    def runtimes(self) -> "runtimes_module.AsyncRuntimes":
-        if self._runtimes is None:
+    def revisions(self) -> "runtime_revisions_module.AsyncRuntimeRevisions":
+        if self._runtime_revisions is None:
             try:
-                # We need to lazy load the runtimes module to handle the
+                # We need to lazy load the runtime_revisions module to handle the
                 # possibility of ImportError when dependencies are not installed.
-                self._runtimes = importlib.import_module(".runtimes", __package__)
+                self._runtime_revisions = importlib.import_module(
+                    ".runtime_revisions", __package__
+                )
             except ImportError as e:
                 raise ImportError(
-                    "The 'agent_engines.runtimes' module requires additional "
+                    "The 'agent_engines.runtime_revisions' module requires additional "
                     "packages. Please install them using pip install "
                     "google-cloud-aiplatform[agent_engines]"
                 ) from e
-        return self._runtimes.AsyncRuntimes(self._api_client)  # type: ignore[no-any-return]
+        return self._runtime_revisions.AsyncRuntimeRevisions(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def a2a_tasks(self) -> "a2a_tasks_module.AsyncA2aTasks":

@@ -844,7 +844,7 @@ class TestRuntimeRevisionsHelpers:
 
     def test_get_delete_runtime_revision_operation(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request"
+            self.client.agent_engines.revisions._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(
                 body=json.dumps(
@@ -854,7 +854,7 @@ class TestRuntimeRevisionsHelpers:
                     }
                 ),
             )
-            operation = self.client.agent_engines.runtimes.revisions._get_delete_runtime_revision_operation(
+            operation = self.client.agent_engines.revisions._get_delete_runtime_revision_operation(
                 operation_name=_TEST_AGENT_ENGINE_REVISION_OPERATION_NAME,
             )
             request_mock.assert_called_with(
@@ -870,7 +870,7 @@ class TestRuntimeRevisionsHelpers:
 
     def test_await_operation(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request"
+            self.client.agent_engines.revisions._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(
                 body=json.dumps(
@@ -882,7 +882,7 @@ class TestRuntimeRevisionsHelpers:
             )
             operation = _agent_engines_utils._await_operation(
                 operation_name=_TEST_AGENT_ENGINE_REVISION_OPERATION_NAME,
-                get_operation_fn=self.client.agent_engines.runtimes.revisions._get_delete_runtime_revision_operation,
+                get_operation_fn=self.client.agent_engines.revisions._get_delete_runtime_revision_operation,
             )
             request_mock.assert_called_with(
                 "get",
@@ -895,9 +895,9 @@ class TestRuntimeRevisionsHelpers:
             )
 
     def test_register_api_methods(self):
-        agent = self.client.agent_engines.runtimes.revisions._register_api_methods(
+        agent = self.client.agent_engines.revisions._register_api_methods(
             agent_engine_runtime_revision=_genai_types.AgentEngineRuntimeRevision(
-                api_client=self.client.agent_engines.runtimes.revisions._api_client,
+                api_client=self.client.agent_engines.revisions._api_client,
                 api_resource=_genai_types.ReasoningEngineRuntimeRevision(
                     spec=_genai_types.ReasoningEngineSpec(
                         class_methods=[
@@ -932,10 +932,10 @@ class TestRuntimeRevisions:
 
     def test_get_runtime_revision(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request"
+            self.client.agent_engines.revisions._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
-            self.client.agent_engines.runtimes.revisions.get(
+            self.client.agent_engines.revisions.get(
                 name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME
             )
             request_mock.assert_called_with(
@@ -947,12 +947,12 @@ class TestRuntimeRevisions:
 
     def test_list_runtime_revisions(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request"
+            self.client.agent_engines.revisions._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             expected_query_params = {"filter": _TEST_LIST_FILTER}
             list(
-                self.client.agent_engines.runtimes.revisions.list(
+                self.client.agent_engines.revisions.list(
                     name=_TEST_AGENT_ENGINE_RESOURCE_NAME, config=expected_query_params
                 )
             )
@@ -968,7 +968,7 @@ class TestRuntimeRevisions:
 
     def test_delete_runtime_revision(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request"
+            self.client.agent_engines.revisions._api_client, "request"
         ) as request_mock:
             request_mock.side_effect = [
                 # First call: response to delete.
@@ -984,7 +984,7 @@ class TestRuntimeRevisions:
                 ),
             ]
 
-            self.client.agent_engines.runtimes.revisions.delete(
+            self.client.agent_engines.revisions.delete(
                 name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME
             )
             request_mock.call_args_list[0].assert_called_with(
@@ -1003,12 +1003,12 @@ class TestRuntimeRevisions:
 
     def test_query_runtime_revision(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request"
+            self.client.agent_engines.revisions._api_client, "request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
-            agent = self.client.agent_engines.runtimes.revisions._register_api_methods(
+            agent = self.client.agent_engines.revisions._register_api_methods(
                 agent_engine_runtime_revision=_genai_types.AgentEngineRuntimeRevision(
-                    api_client=self.client.agent_engines.runtimes.revisions,
+                    api_client=self.client.agent_engines.revisions,
                     api_resource=_genai_types.ReasoningEngineRuntimeRevision(
                         name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME,
                         spec=_genai_types.ReasoningEngineSpec(
@@ -1032,10 +1032,10 @@ class TestRuntimeRevisions:
             )
 
     def test_query_agent_engine_async(self):
-        agent = self.client.agent_engines.runtimes.revisions._register_api_methods(
+        agent = self.client.agent_engines.revisions._register_api_methods(
             agent_engine_runtime_revision=_genai_types.AgentEngineRuntimeRevision(
                 api_async_client=runtime_revisions.AsyncRuntimeRevisions(
-                    api_client_=self.client.agent_engines.runtimes.revisions._api_client
+                    api_client_=self.client.agent_engines.revisions._api_client
                 ),
                 api_resource=_genai_types.ReasoningEngineRuntimeRevision(
                     name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME,
@@ -1048,7 +1048,7 @@ class TestRuntimeRevisions:
             )
         )
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "async_request"
+            self.client.agent_engines.revisions._api_client, "async_request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
             asyncio.run(agent.async_query(query=_TEST_QUERY_PROMPT))
@@ -1065,11 +1065,11 @@ class TestRuntimeRevisions:
 
     def test_query_agent_engine_stream(self):
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client, "request_streamed"
+            self.client.agent_engines.revisions._api_client, "request_streamed"
         ) as request_mock:
-            agent = self.client.agent_engines.runtimes.revisions._register_api_methods(
+            agent = self.client.agent_engines.revisions._register_api_methods(
                 agent_engine_runtime_revision=_genai_types.AgentEngineRuntimeRevision(
-                    api_client=self.client.agent_engines.runtimes.revisions,
+                    api_client=self.client.agent_engines.revisions,
                     api_resource=_genai_types.ReasoningEngineRuntimeRevision(
                         name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME,
                         spec=_genai_types.ReasoningEngineSpec(
@@ -1097,13 +1097,13 @@ class TestRuntimeRevisions:
             yield genai_types.HttpResponse(body=b"")
 
         with mock.patch.object(
-            self.client.agent_engines.runtimes.revisions._api_client,
+            self.client.agent_engines.revisions._api_client,
             "async_request_streamed",
         ) as request_mock:
             request_mock.return_value = mock_async_generator()
-            agent = self.client.agent_engines.runtimes.revisions._register_api_methods(
+            agent = self.client.agent_engines.revisions._register_api_methods(
                 agent_engine_runtime_revision=_genai_types.AgentEngineRuntimeRevision(
-                    api_client=self.client.agent_engines.runtimes.revisions,
+                    api_client=self.client.agent_engines.revisions,
                     api_resource=_genai_types.ReasoningEngine(
                         name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME,
                         spec=_genai_types.ReasoningEngineSpec(
@@ -1154,8 +1154,7 @@ class TestAsyncRuntimeRevisions:
 
     def test_delete_runtime_revision(self):
         with mock.patch.object(
-            self.client.aio.agent_engines.runtimes.revisions._api_client,
-            "async_request",
+            self.client.aio.agent_engines.revisions._api_client, "async_request"
         ) as request_mock:
             request_mock.side_effect = [
                 # First call: response to delete.
@@ -1171,7 +1170,7 @@ class TestAsyncRuntimeRevisions:
                 ),
             ]
             asyncio.run(
-                self.client.aio.agent_engines.runtimes.revisions.delete(
+                self.client.aio.agent_engines.revisions.delete(
                     name=_TEST_AGENT_ENGINE_RUNTIME_REVISION_RESOURCE_NAME
                 )
             )
