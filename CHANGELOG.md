@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.152.0](https://github.com/googleapis/python-aiplatform/compare/v1.151.0...v1.152.0) (2026-05-11)
+
+
+### Features
+
+* Add GetSkillRevision and ListSkillRevisions methods in Vertex AI Skill Registry SDK ([e4fdb7a](https://github.com/googleapis/python-aiplatform/commit/e4fdb7a5d9129cb46aa060f4c69f276b14b6864a))
+* Add ListSkills and DeleteSkill methods in Vertex AI Skill Registry SDK ([8578bfd](https://github.com/googleapis/python-aiplatform/commit/8578bfd09b78990051b2839e8b0cf1f9e0cca4ef))
+* Add mTLS support for telemetry endpoint in adk.py. ([7b0c995](https://github.com/googleapis/python-aiplatform/commit/7b0c9956c9f73e76a2ca3a2c8ad00f79d06f1e13))
+* Add Update Skill method for Vertex AI Skill Registry SDK ([48f792b](https://github.com/googleapis/python-aiplatform/commit/48f792b07cda215cc62d16fac0df84eb3f60cba5))
+* GenAI Client(evals) - Add allow_cross_region_model support for create_evaluation_run ([3ce4b02](https://github.com/googleapis/python-aiplatform/commit/3ce4b0264174463372b7e980c71231b651b7d411))
+
+
+### Bug Fixes
+
+* Fix name collision on SandboxEnvironment.state by renaming enum to SandboxState ([1f9c8e0](https://github.com/googleapis/python-aiplatform/commit/1f9c8e014b46a77ce64843434b1cad253bc4ce05))
+* Remove sandbox_hostname from JWT payload. ([ea87edc](https://github.com/googleapis/python-aiplatform/commit/ea87edc469c9b5d2b464d474d9d3e8af95074a14))
+* Support multi-regional locations in vertexai.Client ([2834b9b](https://github.com/googleapis/python-aiplatform/commit/2834b9b65d87d187721c944bf5181239e30c4666))
+
 ## [1.151.0](https://github.com/googleapis/python-aiplatform/compare/v1.150.0...v1.151.0) (2026-05-07)
 
 
