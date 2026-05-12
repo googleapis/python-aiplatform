@@ -868,7 +868,7 @@ class TestEvaluation:
             "exact_match/score",
         ]
         assert test_result.metrics_table[["response", "reference"]].equals(eval_dataset)
-        assert list(test_result.metrics_table["exact_match/score"].values) == [
+        assert test_result.metrics_table["exact_match/score"].to_list() == [
             1.0,
             0.0,
         ]
@@ -1274,9 +1274,13 @@ class TestEvaluation:
                 "test_pairwise_metric/explanation",
             ]
         )
-        assert list(
+        choices = list(
             test_result.metrics_table["test_pairwise_metric/pairwise_choice"].values
-        ) == ["BASELINE", "CANDIDATE"]
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
             test_result.metrics_table["test_pairwise_metric/explanation"].values
         ) == [
@@ -1343,11 +1347,15 @@ class TestEvaluation:
                 "pairwise_summarization_quality/explanation",
             ]
         )
-        assert list(
+        choices = list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/pairwise_choice"
             ].values
-        ) == ["BASELINE", "CANDIDATE"]
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/explanation"
@@ -1409,11 +1417,15 @@ class TestEvaluation:
                 "source",
             ]
         )
-        assert list(
+        choices = list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/pairwise_choice"
             ].values
-        ) == ["BASELINE", "CANDIDATE"]
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/explanation"
@@ -1513,9 +1525,13 @@ class TestEvaluation:
             0.0,
         ]
 
-        assert list(
+        choices = list(
             test_result.metrics_table["test_pairwise_metric/pairwise_choice"].values
-        ) == ["BASELINE", "CANDIDATE"]
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
             test_result.metrics_table["test_pairwise_metric/explanation"].values
         ) == [

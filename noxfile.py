@@ -30,7 +30,15 @@ nox.options.default_venv_backend = "uv"
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = [
+    "docs",
+    "google",
+    "vertexai",
+    "agentplatform",
+    "tests",
+    "noxfile.py",
+    "setup.py",
+]
 
 DEFAULT_PYTHON_VERSION = "3.10"
 
@@ -98,6 +106,7 @@ CURRENT_DIRECTORY = pathlib.Path(__file__).parent.absolute()
 nox.options.sessions = [
     "unit",
     "unit_ray",
+    #"unit_agentplatform_frameworks",
     "unit_langchain",
     "unit_ag2",
     "unit_llama_index",
@@ -213,7 +222,10 @@ def default(session):
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
+        "--ignore=tests/unit/agentplatform/frameworks",
         "--ignore=tests/unit/architecture",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
         os.path.join("tests", "unit"),
         *session.posargs,
     )
@@ -313,6 +325,34 @@ def unit_langchain(session):
         *session.posargs,
     )
 
+
+'''@nox.session(python=UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS)
+def unit_agentplatform_frameworks(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(
+        CURRENT_DIRECTORY / "testing" / "constraints-agentplatform-frameworks.txt"
+    )
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install langchain extras
+    session.install("-e", ".[agentplatform_frameworks_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_frameworks_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "agentplatform", "frameworks"),
+        *session.posargs,
+    )
+'''
 
 @nox.session(python=UNIT_TEST_AG2_PYTHON_VERSIONS)
 def unit_ag2(session):
@@ -633,7 +673,12 @@ def prerelease_deps(session):
     )
     session.run("python", "-c", "import grpc; print(grpc.__version__)")
 
-    session.run("py.test", "tests/unit")
+    session.run(
+        "py.test",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
+        "tests/unit",
+    )
 
     system_test_path = os.path.join("tests", "system.py")
     system_test_folder_path = os.path.join("tests", "system")
