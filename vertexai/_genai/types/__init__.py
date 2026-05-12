@@ -181,6 +181,9 @@ from .common import AgentServerMode
 from .common import AggregatedMetricResult
 from .common import AggregatedMetricResultDict
 from .common import AggregatedMetricResultOrDict
+from .common import AnalysisConfig
+from .common import AnalysisConfigDict
+from .common import AnalysisConfigOrDict
 from .common import AppendAgentEngineSessionEventConfig
 from .common import AppendAgentEngineSessionEventConfigDict
 from .common import AppendAgentEngineSessionEventConfigOrDict
@@ -202,6 +205,9 @@ from .common import AssembleDatasetOrDict
 from .common import AssessDatasetConfig
 from .common import AssessDatasetConfigDict
 from .common import AssessDatasetConfigOrDict
+from .common import AttackCategoryResult
+from .common import AttackCategoryResultDict
+from .common import AttackCategoryResultOrDict
 from .common import BatchPredictionResourceUsageAssessmentConfig
 from .common import BatchPredictionResourceUsageAssessmentConfigDict
 from .common import BatchPredictionResourceUsageAssessmentConfigOrDict
@@ -1063,6 +1069,12 @@ from .common import ReasoningEngineTrafficConfigTrafficSplitManualOrDict
 from .common import ReasoningEngineTrafficConfigTrafficSplitManualTarget
 from .common import ReasoningEngineTrafficConfigTrafficSplitManualTargetDict
 from .common import ReasoningEngineTrafficConfigTrafficSplitManualTargetOrDict
+from .common import RedTeamingAnalysisConfig
+from .common import RedTeamingAnalysisConfigDict
+from .common import RedTeamingAnalysisConfigOrDict
+from .common import RedTeamingAnalysisResult
+from .common import RedTeamingAnalysisResultDict
+from .common import RedTeamingAnalysisResultOrDict
 from .common import ReservationAffinity
 from .common import ReservationAffinityDict
 from .common import ReservationAffinityOrDict
@@ -1440,6 +1452,9 @@ from .common import UpdateSkillConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
+from .common import VulnerableTool
+from .common import VulnerableToolDict
+from .common import VulnerableToolOrDict
 from .common import WinRateStats
 from .common import WinRateStatsDict
 from .common import WinRateStatsOrDict
@@ -1577,12 +1592,27 @@ __all__ = [
     "EvaluationRunInferenceConfig",
     "EvaluationRunInferenceConfigDict",
     "EvaluationRunInferenceConfigOrDict",
+    "VulnerableTool",
+    "VulnerableToolDict",
+    "VulnerableToolOrDict",
+    "RedTeamingAnalysisConfig",
+    "RedTeamingAnalysisConfigDict",
+    "RedTeamingAnalysisConfigOrDict",
+    "AnalysisConfig",
+    "AnalysisConfigDict",
+    "AnalysisConfigOrDict",
     "CreateEvaluationRunConfig",
     "CreateEvaluationRunConfigDict",
     "CreateEvaluationRunConfigOrDict",
     "SummaryMetric",
     "SummaryMetricDict",
     "SummaryMetricOrDict",
+    "AttackCategoryResult",
+    "AttackCategoryResultDict",
+    "AttackCategoryResultOrDict",
+    "RedTeamingAnalysisResult",
+    "RedTeamingAnalysisResultDict",
+    "RedTeamingAnalysisResultOrDict",
     "LossTaxonomyEntry",
     "LossTaxonomyEntryDict",
     "LossTaxonomyEntryOrDict",

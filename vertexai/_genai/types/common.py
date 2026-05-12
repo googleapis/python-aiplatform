@@ -2579,6 +2579,85 @@ EvaluationRunInferenceConfigOrDict = Union[
 ]
 
 
+class VulnerableTool(_common.BaseModel):
+    """A tool considered high risk for prompt injection."""
+
+    tool_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the vulnerable function/tool (e.g., "search_flights").""",
+    )
+    json_paths: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. JSON Paths within the tool's FunctionResponse where malicious content could be injected.""",
+    )
+
+
+class VulnerableToolDict(TypedDict, total=False):
+    """A tool considered high risk for prompt injection."""
+
+    tool_name: Optional[str]
+    """Optional. The name of the vulnerable function/tool (e.g., "search_flights")."""
+
+    json_paths: Optional[list[str]]
+    """Optional. JSON Paths within the tool's FunctionResponse where malicious content could be injected."""
+
+
+VulnerableToolOrDict = Union[VulnerableTool, VulnerableToolDict]
+
+
+class RedTeamingAnalysisConfig(_common.BaseModel):
+    """Configuration for the automated Agent Red Teaming analysis."""
+
+    attack_categories: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Specific attack categories to test against.""",
+    )
+    vulnerable_tools: Optional[list[VulnerableTool]] = Field(
+        default=None,
+        description="""Optional. Manually defined vulnerable tools and their injection paths.""",
+    )
+
+
+class RedTeamingAnalysisConfigDict(TypedDict, total=False):
+    """Configuration for the automated Agent Red Teaming analysis."""
+
+    attack_categories: Optional[list[str]]
+    """Optional. Specific attack categories to test against."""
+
+    vulnerable_tools: Optional[list[VulnerableToolDict]]
+    """Optional. Manually defined vulnerable tools and their injection paths."""
+
+
+RedTeamingAnalysisConfigOrDict = Union[
+    RedTeamingAnalysisConfig, RedTeamingAnalysisConfigDict
+]
+
+
+class AnalysisConfig(_common.BaseModel):
+    """Configuration for an analysis to be performed on an evaluation run."""
+
+    analysis_name: Optional[str] = Field(
+        default=None, description="""Optional. A name for this analysis."""
+    )
+    red_teaming_analysis_config: Optional[RedTeamingAnalysisConfig] = Field(
+        default=None,
+        description="""Configuration for the automated Agent Red Teaming analysis.""",
+    )
+
+
+class AnalysisConfigDict(TypedDict, total=False):
+    """Configuration for an analysis to be performed on an evaluation run."""
+
+    analysis_name: Optional[str]
+    """Optional. A name for this analysis."""
+
+    red_teaming_analysis_config: Optional[RedTeamingAnalysisConfigDict]
+    """Configuration for the automated Agent Red Teaming analysis."""
+
+
+AnalysisConfigOrDict = Union[AnalysisConfig, AnalysisConfigDict]
+
+
 class CreateEvaluationRunConfig(_common.BaseModel):
     """Config to create an evaluation run."""
 
@@ -2634,6 +2713,9 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     config: Optional[CreateEvaluationRunConfig] = Field(
         default=None, description=""""""
     )
+    analysis_configs: Optional[list[AnalysisConfig]] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -2658,6 +2740,9 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """"""
 
     config: Optional[CreateEvaluationRunConfigDict]
+    """"""
+
+    analysis_configs: Optional[list[AnalysisConfigDict]]
     """"""
 
 
@@ -2694,6 +2779,70 @@ class SummaryMetricDict(TypedDict, total=False):
 
 
 SummaryMetricOrDict = Union[SummaryMetric, SummaryMetricDict]
+
+
+class AttackCategoryResult(_common.BaseModel):
+    """The red teaming outcome for a specific attack category."""
+
+    attack_category: Optional[str] = Field(
+        default=None, description="""The category of the attack evaluated."""
+    )
+    attack_success_rate: Optional[float] = Field(
+        default=None,
+        description="""The ratio of successful attacks given a fixed budget.""",
+    )
+    vulnerability_insight: Optional[str] = Field(
+        default=None, description="""Insights into why an attack succeeded or failed."""
+    )
+
+
+class AttackCategoryResultDict(TypedDict, total=False):
+    """The red teaming outcome for a specific attack category."""
+
+    attack_category: Optional[str]
+    """The category of the attack evaluated."""
+
+    attack_success_rate: Optional[float]
+    """The ratio of successful attacks given a fixed budget."""
+
+    vulnerability_insight: Optional[str]
+    """Insights into why an attack succeeded or failed."""
+
+
+AttackCategoryResultOrDict = Union[AttackCategoryResult, AttackCategoryResultDict]
+
+
+class RedTeamingAnalysisResult(_common.BaseModel):
+    """The top-level result for Red Teaming analysis."""
+
+    config: Optional[RedTeamingAnalysisConfig] = Field(
+        default=None,
+        description="""The configuration used to generate this analysis.""",
+    )
+    analysis_time: Optional[str] = Field(
+        default=None, description="""The timestamp when this analysis was performed."""
+    )
+    category_results: Optional[list[AttackCategoryResult]] = Field(
+        default=None, description="""Detailed results by attack category."""
+    )
+
+
+class RedTeamingAnalysisResultDict(TypedDict, total=False):
+    """The top-level result for Red Teaming analysis."""
+
+    config: Optional[RedTeamingAnalysisConfigDict]
+    """The configuration used to generate this analysis."""
+
+    analysis_time: Optional[str]
+    """The timestamp when this analysis was performed."""
+
+    category_results: Optional[list[AttackCategoryResultDict]]
+    """Detailed results by attack category."""
+
+
+RedTeamingAnalysisResultOrDict = Union[
+    RedTeamingAnalysisResult, RedTeamingAnalysisResultDict
+]
 
 
 class LossTaxonomyEntry(_common.BaseModel):
@@ -2879,6 +3028,9 @@ class EvaluationRunResults(_common.BaseModel):
         default=None,
         description="""The loss analysis results for the evaluation run.""",
     )
+    red_teaming_analysis_results: Optional[list[RedTeamingAnalysisResult]] = Field(
+        default=None, description="""The Red Teaming analysis results."""
+    )
 
 
 class EvaluationRunResultsDict(TypedDict, total=False):
@@ -2892,6 +3044,9 @@ class EvaluationRunResultsDict(TypedDict, total=False):
 
     loss_analysis_results: Optional[list[LossAnalysisResultDict]]
     """The loss analysis results for the evaluation run."""
+
+    red_teaming_analysis_results: Optional[list[RedTeamingAnalysisResultDict]]
+    """The Red Teaming analysis results."""
 
 
 EvaluationRunResultsOrDict = Union[EvaluationRunResults, EvaluationRunResultsDict]
@@ -3437,6 +3592,10 @@ class EvaluationRun(_common.BaseModel):
         description="""This field is experimental and may change in future versions. The inference configs for the evaluation run.""",
     )
     labels: Optional[dict[str, str]] = Field(default=None, description="""""")
+    analysis_configs: Optional[list[AnalysisConfig]] = Field(
+        default=None,
+        description="""The analysis configurations for the evaluation run.""",
+    )
 
     # TODO(b/448806531): Remove all the overridden _from_response methods once the
     # ticket is resolved and published.
@@ -3536,6 +3695,9 @@ class EvaluationRunDict(TypedDict, total=False):
 
     labels: Optional[dict[str, str]]
     """"""
+
+    analysis_configs: Optional[list[AnalysisConfigDict]]
+    """The analysis configurations for the evaluation run."""
 
 
 EvaluationRunOrDict = Union[EvaluationRun, EvaluationRunDict]

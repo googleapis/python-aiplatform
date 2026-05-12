@@ -130,6 +130,13 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["analysis_configs"]) is not None:
+        setv(
+            to_object,
+            ["analysisConfigs"],
+            [item for item in getv(from_object, ["analysis_configs"])],
+        )
+
     return to_object
 
 
@@ -602,6 +609,13 @@ def _EvaluationRun_from_vertex(
 
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
+
+    if getv(from_object, ["analysisConfigs"]) is not None:
+        setv(
+            to_object,
+            ["analysis_configs"],
+            [item for item in getv(from_object, ["analysisConfigs"])],
+        )
 
     return to_object
 
@@ -1159,6 +1173,7 @@ class Evals(_api_module.BaseModule):
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1172,6 +1187,7 @@ class Evals(_api_module.BaseModule):
             labels=labels,
             inference_configs=inference_configs,
             config=config,
+            analysis_configs=analysis_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2616,6 +2632,7 @@ class Evals(_api_module.BaseModule):
         labels: Optional[dict[str, str]] = None,
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -2734,6 +2751,9 @@ class Evals(_api_module.BaseModule):
             loss_analysis_configs=loss_analysis_configs,
             inference_configs=inference_configs,
         )
+        resolved_analysis_configs = _evals_utils._resolve_red_teaming_config(
+            red_teaming_config
+        )
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config,
             metrics=resolved_metrics,
@@ -2751,6 +2771,7 @@ class Evals(_api_module.BaseModule):
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,
+            analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
             config=config,
         )
@@ -3299,6 +3320,7 @@ class AsyncEvals(_api_module.BaseModule):
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -3312,6 +3334,7 @@ class AsyncEvals(_api_module.BaseModule):
             labels=labels,
             inference_configs=inference_configs,
             config=config,
+            analysis_configs=analysis_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -4395,6 +4418,7 @@ class AsyncEvals(_api_module.BaseModule):
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
         labels: Optional[dict[str, str]] = None,
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
@@ -4426,6 +4450,11 @@ class AsyncEvals(_api_module.BaseModule):
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+          red_teaming_config: This field is experimental and may change in future
+              versions. Optional configuration for automated Agent Red Teaming
+              analysis. Specifies attack categories and vulnerable tools to
+              test. When provided, the server runs a red teaming pipeline
+              instead of standard evaluation metrics.
           labels: The labels to apply to the evaluation run.
           loss_analysis_metrics: This field is experimental and may change in future
               versions. Optional list of metrics to run loss analysis on. The
@@ -4511,6 +4540,9 @@ class AsyncEvals(_api_module.BaseModule):
             loss_analysis_configs=loss_analysis_configs,
             inference_configs=inference_configs,
         )
+        resolved_analysis_configs = _evals_utils._resolve_red_teaming_config(
+            red_teaming_config
+        )
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config,
             metrics=resolved_metrics,
@@ -4529,6 +4561,7 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,
+            analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
             config=config,
         )

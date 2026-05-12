@@ -614,6 +614,7 @@ def test_create_eval_run_with_metric_resource_name(mock_uuid4, client):
 #         assert eval_item.evaluation_request.candidate_responses == []
 #     assert evaluation_run.error is None
 
+
 # def test_create_eval_run_data_source_evaluation_dataset_with_agent_info_and_prompt_template_data(
 #     client,
 # ):
@@ -708,6 +709,35 @@ def test_create_eval_run_with_metric_resource_name(mock_uuid4, client):
 #             == INPUT_DF_WITH_CONTEXT_AND_HISTORY.iloc[i]["response"]
 #         )
 #     assert evaluation_run.error is None
+def test_create_eval_run_with_red_teaming_config(client):
+    """Tests that create_evaluation_run() with red_teaming_config sends analysisConfigs."""
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_red_teaming",
+        display_name="test_red_teaming",
+        dataset=types.EvaluationRunDataSource(evaluation_set=EVAL_SET_NAME),
+        dest=GCS_DEST,
+        metrics=[],
+        red_teaming_config=types.RedTeamingAnalysisConfig(
+            attack_categories=["FINANCIAL_OR_CREDENTIAL_PHISHING"],
+            vulnerable_tools=[
+                types.VulnerableTool(
+                    tool_name="search_flights",
+                    json_paths=["$.flights[0].description"],
+                ),
+            ],
+        ),
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    assert evaluation_run.display_name == "test_red_teaming"
+    assert evaluation_run.state == types.EvaluationRunState.PENDING
+    assert evaluation_run.analysis_configs is not None
+    assert len(evaluation_run.analysis_configs) == 1
+    rt_config = evaluation_run.analysis_configs[0].red_teaming_analysis_config
+    assert rt_config.attack_categories == ["FINANCIAL_OR_CREDENTIAL_PHISHING"]
+    assert rt_config.vulnerable_tools[0].tool_name == "search_flights"
+    assert evaluation_run.error is None
+
+
 pytest_plugins = ("pytest_asyncio",)
 
 

@@ -541,6 +541,20 @@ def _resolve_eval_run_loss_configs(
     return configs
 
 
+def _resolve_red_teaming_config(
+    red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
+) -> Optional[list[types.AnalysisConfig]]:
+    """Wraps a RedTeamingAnalysisConfig into analysis_configs for the API."""
+    if not red_teaming_config:
+        return None
+    config = (
+        types.RedTeamingAnalysisConfig.model_validate(red_teaming_config)
+        if isinstance(red_teaming_config, dict)
+        else red_teaming_config
+    )
+    return [types.AnalysisConfig(red_teaming_analysis_config=config)]
+
+
 def _resolve_loss_analysis_config(
     eval_result: types.EvaluationResult,
     config: Optional[types.LossAnalysisConfig] = None,

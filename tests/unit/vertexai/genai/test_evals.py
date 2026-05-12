@@ -1835,6 +1835,89 @@ class TestResolveEvalRunLossConfigs:
         assert result[0].candidate == "agent-1"
 
 
+class TestRedTeamingTypes:
+    """Unit tests for red teaming type definitions."""
+
+    def test_red_teaming_analysis_config_construction(self):
+        config = common_types.RedTeamingAnalysisConfig(
+            attack_categories=["FINANCIAL_OR_CREDENTIAL_PHISHING"],
+            vulnerable_tools=[
+                common_types.VulnerableTool(
+                    tool_name="search_flights",
+                    json_paths=["$.flights[0].description"],
+                ),
+            ],
+        )
+        assert len(config.attack_categories) == 1
+        assert config.vulnerable_tools[0].tool_name == "search_flights"
+
+    def test_red_teaming_analysis_config_optional_fields(self):
+        config = common_types.RedTeamingAnalysisConfig()
+        assert config.attack_categories is None
+        assert config.vulnerable_tools is None
+
+    def test_evaluation_run_results_has_red_teaming_results(self):
+        results = common_types.EvaluationRunResults(
+            red_teaming_analysis_results=[
+                common_types.RedTeamingAnalysisResult(
+                    category_results=[
+                        common_types.AttackCategoryResult(
+                            attack_category="FINANCIAL_OR_CREDENTIAL_PHISHING",
+                            attack_success_rate=0.9,
+                        ),
+                    ],
+                )
+            ],
+        )
+        assert len(results.red_teaming_analysis_results) == 1
+        assert (
+            results.red_teaming_analysis_results[0]
+            .category_results[0]
+            .attack_success_rate
+            == 0.9
+        )
+
+    def test_create_params_accepts_analysis_configs(self):
+        params = common_types._CreateEvaluationRunParameters(
+            name="test-run",
+            analysis_configs=[
+                common_types.AnalysisConfig(
+                    red_teaming_analysis_config=common_types.RedTeamingAnalysisConfig(
+                        attack_categories=["FINANCIAL_OR_CREDENTIAL_PHISHING"],
+                    ),
+                ),
+            ],
+        )
+        assert len(params.analysis_configs) == 1
+
+
+class TestResolveRedTeamingConfig:
+    """Unit tests for _resolve_red_teaming_config."""
+
+    def test_none_when_no_config(self):
+        result = _evals_utils._resolve_red_teaming_config()
+        assert result is None
+
+    def test_wraps_config_in_analysis_configs(self):
+        config = common_types.RedTeamingAnalysisConfig(
+            attack_categories=["FINANCIAL_OR_CREDENTIAL_PHISHING"],
+        )
+        result = _evals_utils._resolve_red_teaming_config(config)
+        assert len(result) == 1
+        assert isinstance(result[0], common_types.AnalysisConfig)
+        assert (
+            result[0].red_teaming_analysis_config.attack_categories[0]
+            == "FINANCIAL_OR_CREDENTIAL_PHISHING"
+        )
+
+    def test_accepts_dict_input(self):
+        result = _evals_utils._resolve_red_teaming_config(
+            {"attack_categories": ["INJECTED_HOSTILITY_AND_HARASSMENT"]}
+        )
+        assert len(result) == 1
+        assert isinstance(result[0], common_types.AnalysisConfig)
+
+
 class TestResolveMetricName:
     """Unit tests for _resolve_metric_name."""
 
