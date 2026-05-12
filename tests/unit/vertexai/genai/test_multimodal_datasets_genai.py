@@ -36,6 +36,15 @@ def mock_import_bigframes():
         yield mock_import_bigframes
 
 
+@pytest.fixture
+def mock_get_batch_job_unique_name():
+    with mock.patch.object(
+        _datasets_utils, "get_batch_job_unique_name"
+    ) as mock_unique_name:
+        mock_unique_name.return_value = "12345678901234_abcde"
+        yield mock_unique_name
+
+
 class TestMultimodalDataset:
 
     def test_read_config(self):
@@ -155,6 +164,28 @@ class TestMultimodalDataset:
         assert "project.dataset.table" in df.sql
         mock_import_bigframes.return_value.pandas.read_gbq_table.assert_called_once_with(
             "project.dataset.table"
+        )
+
+    def test_get_batch_job_destination(self, mock_get_batch_job_unique_name):
+        dataset = types.MultimodalDataset(
+            name="projects/vertex-sdk-dev/locations/us-central1/datasets/12345",
+            display_name="test_multimodal_dataset",
+            metadata={
+                "inputConfig": {
+                    "bigquerySource": {
+                        "uri": "bq://target_project.target_dataset.target_table"
+                    },
+                },
+            },
+        )
+        destination = dataset.get_batch_job_destination()
+        assert (
+            destination.vertex_dataset.display_name
+            == "test_multimodal_dataset_batch_output_12345678901234_abcde"
+        )
+        assert (
+            destination.vertex_dataset.bigquery_destination
+            == "bq://target_project.target_dataset.target_table_batch_output_12345678901234_abcde"
         )
 
 
