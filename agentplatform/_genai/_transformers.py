@@ -1,0 +1,538 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+"""Transformers module for Vertex addons."""
+import json
+import re
+from typing import Any
+
+from google.genai._common import get_value_by_path as getv
+
+from . import _evals_constant
+from . import _evals_data_converters
+from . import types
+
+_METRIC_RES_NAME_RE = r"^projects/[^/]+/locations/[^/]+/evaluationMetrics/[^/]+$"
+
+
+def t_metrics(
+    metrics: "list[types.MetricSubclass]",
+    set_default_aggregation_metrics: bool = False,
+) -> list[dict[str, Any]]:
+    """Prepares the metric payload for the evaluation request.
+
+    Args:
+        metrics: A list of metrics used for evaluation.
+        set_default_aggregation_metrics: Whether to set default aggregation metrics.
+    Returns:
+        A list of resolved metric payloads for the evaluation request.
+    """
+    metrics_payload = []
+
+    for metric in metrics:
+        metric_payload_item: dict[str, Any] = {}
+
+        metric_id = getv(metric, ["metric"]) or getv(metric, ["name"])
+        metric_name = metric_id.lower() if metric_id else None
+
+        if set_default_aggregation_metrics:
+            metric_payload_item["aggregation_metrics"] = [
+                "AVERAGE",
+                "STANDARD_DEVIATION",
+            ]
+
+        if metric_name == "exact_match":
+            metric_payload_item["exact_match_spec"] = {}
+        elif metric_name == "bleu":
+            metric_payload_item["bleu_spec"] = {}
+        elif metric_name and metric_name.startswith("rouge"):
+            rouge_type = metric_name.replace("_", "")
+            metric_payload_item["rouge_spec"] = {"rouge_type": rouge_type}
+        # API Pre-defined metrics
+        elif (
+            metric_name and metric_name in _evals_constant.SUPPORTED_PREDEFINED_METRICS
+        ):
+            metric_payload_item["predefined_metric_spec"] = {
+                "metric_spec_name": metric_name,
+                "metric_spec_parameters": metric.metric_spec_parameters,
+            }
+        # Custom Code Execution Metric
+        elif (
+            hasattr(metric, "remote_custom_function") and metric.remote_custom_function
+        ):
+            metric_payload_item["custom_code_execution_spec"] = {
+                "evaluation_function": metric.remote_custom_function
+            }
+        elif (
+            isinstance(metric, types.CodeExecutionMetric)
+            or (
+                isinstance(metric, types.Metric)
+                and isinstance(getattr(metric, "custom_function", None), str)
+            )
+        ) and getattr(metric, "custom_function", None):
+            metric_payload_item["custom_code_execution_spec"] = {
+                "evaluation_function": metric.custom_function
+            }
+        # LLM-based metrics
+        elif hasattr(metric, "prompt_template") and metric.prompt_template:
+            llm_based_spec: dict[str, Any] = {
+                "metric_prompt_template": metric.prompt_template
+            }
+            system_instruction = getv(metric, ["judge_model_system_instruction"])
+            if system_instruction:
+                llm_based_spec["system_instruction"] = system_instruction
+            rubric_group_name = getv(metric, ["rubric_group_name"])
+            if rubric_group_name:
+                llm_based_spec["rubric_group_key"] = rubric_group_name
+            return_raw_output = getv(metric, ["return_raw_output"])
+            if return_raw_output:
+                llm_based_spec["custom_output_format_config"] = {
+                    "return_raw_output": return_raw_output
+                }
+
+            autorater_config: dict[str, Any] = {}
+            if hasattr(metric, "judge_model") and metric.judge_model:
+                autorater_config["autorater_model"] = metric.judge_model
+            if (
+                hasattr(metric, "judge_model_generation_config")
+                and metric.judge_model_generation_config
+            ):
+                autorater_config["generation_config"] = (
+                    metric.judge_model_generation_config
+                )
+            if (
+                hasattr(metric, "judge_model_sampling_count")
+                and metric.judge_model_sampling_count
+            ):
+                autorater_config["sampling_count"] = metric.judge_model_sampling_count
+
+            if autorater_config:
+                llm_based_spec["judge_autorater_config"] = autorater_config
+
+            result_parsing_function = getv(metric, ["result_parsing_function"])
+            if result_parsing_function:
+                llm_based_spec["result_parser_config"] = {
+                    "custom_code_parser_config": {
+                        "parsing_function": result_parsing_function
+                    }
+                }
+
+            metric_payload_item["llm_based_metric_spec"] = llm_based_spec
+        elif getattr(metric, "metric_resource_name", None) is not None:
+            # Safe pass
+            pass
+        else:
+            raise ValueError(
+                f"Unsupported metric type or invalid metric name: {metric_name}"
+            )
+        metrics_payload.append(metric_payload_item)
+    return metrics_payload
+
+
+def t_metric_sources(metrics: list[Any]) -> list[dict[str, Any]]:
+    """Prepares the MetricSource payload."""
+    sources_payload = []
+    for metric in metrics:
+        resource_name = getattr(metric, "metric_resource_name", None)
+        if (
+            not resource_name
+            and isinstance(metric, str)
+            and re.match(_METRIC_RES_NAME_RE, metric)
+        ):
+            resource_name = metric
+
+        if resource_name:
+            sources_payload.append({"metric_resource_name": resource_name})
+        else:
+            if hasattr(metric, "metric") and not isinstance(metric, str):
+                metric = metric.metric
+
+            if not hasattr(metric, "name"):
+                metric = types.Metric(name=str(metric))
+
+            metric_payload = t_metrics([metric])[0]
+            sources_payload.append({"metric": metric_payload})
+    return sources_payload
+
+
+def t_user_scenario_generation_config(
+    config: "types.evals.UserScenarioGenerationConfigOrDict",
+) -> dict[str, Any]:
+    """Transforms UserScenarioGenerationConfig to Vertex AI format."""
+    payload: dict[str, Any] = {}
+    config_dict = config if isinstance(config, dict) else config.model_dump()
+
+    if getv(config_dict, ["count"]) is not None:
+        payload["user_scenario_count"] = getv(config_dict, ["count"])
+    if getv(config_dict, ["generation_instruction"]) is not None:
+        payload["simulation_instruction"] = getv(
+            config_dict, ["generation_instruction"]
+        )
+    if getv(config_dict, ["environment_context"]) is not None:
+        payload["environment_data"] = getv(config_dict, ["environment_context"])
+    if getv(config_dict, ["model_name"]) is not None:
+        payload["model_name"] = getv(config_dict, ["model_name"])
+
+    return payload
+
+
+def t_metric_for_registry(
+    metric: "types.Metric",
+) -> dict[str, Any]:
+    """Prepares the metric payload specifically for EvaluationMetric registration."""
+    metric_payload_item: dict[str, Any] = {}
+    metric_name = getattr(metric, "name", None)
+    if metric_name:
+        metric_name = metric_name.lower()
+
+    # Custom Code Execution Metric
+    if hasattr(metric, "remote_custom_function") and metric.remote_custom_function:
+        metric_payload_item["custom_code_execution_spec"] = {
+            "evaluation_function": metric.remote_custom_function
+        }
+    elif (
+        isinstance(metric, types.CodeExecutionMetric)
+        or (
+            isinstance(metric, types.Metric)
+            and isinstance(getattr(metric, "custom_function", None), str)
+        )
+    ) and getattr(metric, "custom_function", None):
+        metric_payload_item["custom_code_execution_spec"] = {
+            "evaluation_function": metric.custom_function
+        }
+
+    # LLM-based metric
+    elif (hasattr(metric, "prompt_template") and metric.prompt_template) or (
+        hasattr(metric, "rubric_group_name") and metric.rubric_group_name
+    ):
+        llm_based_spec: dict[str, Any] = {}
+
+        if hasattr(metric, "prompt_template") and metric.prompt_template:
+            llm_based_spec["metric_prompt_template"] = metric.prompt_template
+        system_instruction = getv(metric, ["judge_model_system_instruction"])
+        if system_instruction:
+            llm_based_spec["system_instruction"] = system_instruction
+        rubric_group_name = getv(metric, ["rubric_group_name"])
+        if rubric_group_name:
+            llm_based_spec["rubric_group_key"] = rubric_group_name
+
+        autorater_config: dict[str, Any] = {}
+        if hasattr(metric, "judge_model") and metric.judge_model:
+            autorater_config["autorater_model"] = metric.judge_model
+        if (
+            hasattr(metric, "judge_model_generation_config")
+            and metric.judge_model_generation_config
+        ):
+            autorater_config["generation_config"] = metric.judge_model_generation_config
+        if (
+            hasattr(metric, "judge_model_sampling_count")
+            and metric.judge_model_sampling_count
+        ):
+            autorater_config["sampling_count"] = metric.judge_model_sampling_count
+
+        if autorater_config:
+            llm_based_spec["judge_autorater_config"] = autorater_config
+
+        result_parsing_function = getv(metric, ["result_parsing_function"])
+        if result_parsing_function:
+            llm_based_spec["result_parser_config"] = {
+                "custom_code_parser_config": {
+                    "parsing_function": result_parsing_function
+                }
+            }
+
+        metric_payload_item["llm_based_metric_spec"] = llm_based_spec
+
+    else:
+        raise ValueError(f"Unsupported metric type: {metric_name}")
+
+    return metric_payload_item
+
+
+_ALLOWED_PART_FIELDS = frozenset(
+    {
+        "text",
+        "inline_data",
+        "file_data",
+        "function_call",
+        "function_response",
+        "video_metadata",
+        "thought",
+        "thought_signature",
+        "code_execution_result",
+        "executable_code",
+        "media_resolution",
+    }
+)
+
+
+def _sanitize_agent_data(agent_data: dict[str, Any]) -> dict[str, Any]:
+    """Strips SDK-only fields from agent_data so the API accepts the payload.
+
+    The SDK's AgentData model may contain fields like 'tool_call',
+    'tool_response', 'part_metadata', and 'will_continue' that don't exist
+    in the API's AgentData / Content proto. This function recursively removes
+    them from content parts and keeps only API-recognized top-level fields.
+    """
+    if not isinstance(agent_data, dict):
+        return agent_data
+
+    sanitized: dict[str, Any] = {}
+    for key, value in agent_data.items():
+        if key == "turns" and isinstance(value, list):
+            sanitized["turns"] = [
+                _sanitize_turn(t) for t in value if isinstance(t, dict)
+            ]
+        elif key == "agents" and isinstance(value, dict):
+            sanitized["agents"] = {
+                k: _sanitize_agent_config(v) if isinstance(v, dict) else v
+                for k, v in value.items()
+            }
+        # Skip unknown top-level fields (e.g. "error" from failed agent runs).
+    return sanitized
+
+
+def _sanitize_agent_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes an AgentConfig dict, keeping only API-known fields."""
+    allowed = {
+        "agent_id",
+        "agent_type",
+        "description",
+        "instruction",
+        "tools",
+        "sub_agents",
+    }
+    return {k: v for k, v in config.items() if k in allowed}
+
+
+def _sanitize_turn(turn: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes a ConversationTurn dict."""
+    sanitized: dict[str, Any] = {}
+    for key, value in turn.items():
+        if key == "events" and isinstance(value, list):
+            sanitized["events"] = [
+                _sanitize_event(e) for e in value if isinstance(e, dict)
+            ]
+        else:
+            sanitized[key] = value
+    return sanitized
+
+
+def _sanitize_event(event: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes an AgentEvent dict."""
+    sanitized: dict[str, Any] = {}
+    for key, value in event.items():
+        if key == "content" and isinstance(value, dict):
+            sanitized["content"] = _sanitize_content(value)
+        elif key in ("author", "event_time", "state_delta", "active_tools"):
+            sanitized[key] = value
+        # Skip unknown event-level fields.
+    return sanitized
+
+
+def _sanitize_content(content: dict[str, Any]) -> dict[str, Any]:
+    """Sanitizes a Content dict, stripping unknown fields from parts."""
+    sanitized: dict[str, Any] = {}
+    for key, value in content.items():
+        if key == "parts" and isinstance(value, list):
+            sanitized["parts"] = [
+                _sanitize_part(p) for p in value if isinstance(p, dict)
+            ]
+        elif key == "role":
+            sanitized["role"] = value
+    return sanitized
+
+
+def _sanitize_part(part: dict[str, Any]) -> dict[str, Any]:
+    """Keeps only API-recognized fields in a Part dict."""
+    sanitized: dict[str, Any] = {}
+    for key, value in part.items():
+        if key in _ALLOWED_PART_FIELDS:
+            if key == "function_response" and isinstance(value, dict):
+                # Strip unknown sub-fields like 'will_continue'.
+                sanitized[key] = {
+                    k: v for k, v in value.items() if k in ("name", "id", "response")
+                }
+            else:
+                sanitized[key] = value
+    return sanitized
+
+
+def _extract_agent_data_from_df(
+    eval_dataset: Any,
+    case_idx: int,
+) -> Any:
+    """Extracts agent_data from a DataFrame-based EvaluationDataset by row index."""
+    if not eval_dataset:
+        return None
+    ds = eval_dataset[0] if isinstance(eval_dataset, list) else eval_dataset
+    df = getv(ds, ["eval_dataset_df"])
+    if df is None or not hasattr(df, "iloc"):
+        return None
+    if case_idx < 0 or case_idx >= len(df):
+        return None
+    row = df.iloc[case_idx]
+    if "agent_data" not in row or row["agent_data"] is None:
+        return None
+    return row["agent_data"]
+
+
+def t_inline_results(
+    eval_results: list[Any],
+) -> list[dict[str, Any]]:
+    """Transforms a list of SDK EvaluationResults into API EvaluationResults."""
+    api_results: list[dict[str, Any]] = []
+
+    for eval_result in eval_results:
+        metadata = getv(eval_result, ["metadata"])
+        candidate_names = getv(metadata, ["candidate_names"]) if metadata else []
+        candidate_names = candidate_names or []
+
+        eval_dataset = getv(eval_result, ["evaluation_dataset"])
+        eval_cases: list[Any] = []
+        if isinstance(eval_dataset, list) and eval_dataset:
+            eval_cases = getv(eval_dataset[0], ["eval_cases"]) or []
+
+        eval_case_results = getv(eval_result, ["eval_case_results"]) or []
+
+        for case_result in eval_case_results:
+            case_idx = getv(case_result, ["eval_case_index"]) or 0
+
+            eval_case = None
+            if 0 <= case_idx < len(eval_cases):
+                eval_case = eval_cases[case_idx]
+
+            prompt_payload: dict[str, Any] = {}
+            if eval_case:
+                agent_data = getv(eval_case, ["agent_data"])
+                prompt = getv(eval_case, ["prompt"])
+
+                if agent_data:
+                    if hasattr(agent_data, "model_dump"):
+                        prompt_payload["agent_data"] = _sanitize_agent_data(
+                            agent_data.model_dump(exclude_none=True)
+                        )
+                    elif isinstance(agent_data, dict):
+                        prompt_payload["agent_data"] = _sanitize_agent_data(agent_data)
+                    else:
+                        prompt_payload["agent_data"] = agent_data
+                elif prompt:
+                    text = _evals_data_converters._get_content_text(
+                        prompt
+                    )  # pylint: disable=protected-access
+                    if text:
+                        prompt_payload["text"] = str(text)
+
+            # Fallback: extract agent_data from the DataFrame when eval_cases
+            # are not available (e.g., run_inference -> evaluate flow).
+            if not prompt_payload:
+                df_agent_data = _extract_agent_data_from_df(eval_dataset, case_idx)
+                if df_agent_data is not None:
+                    if hasattr(df_agent_data, "model_dump"):
+                        prompt_payload["agent_data"] = _sanitize_agent_data(
+                            df_agent_data.model_dump(exclude_none=True)
+                        )
+                    elif isinstance(df_agent_data, str):
+                        try:
+                            parsed = json.loads(df_agent_data)
+                            if isinstance(parsed, dict) and "error" in parsed:
+                                pass  # Skip error payloads from failed agent runs.
+                            else:
+                                prompt_payload["agent_data"] = _sanitize_agent_data(
+                                    parsed
+                                )
+                        except (json.JSONDecodeError, ValueError):
+                            pass
+                    elif isinstance(df_agent_data, dict):
+                        if "error" not in df_agent_data:
+                            prompt_payload["agent_data"] = _sanitize_agent_data(
+                                df_agent_data
+                            )
+
+            cand_results = getv(case_result, ["response_candidate_results"]) or []
+            for resp_cand_result in cand_results:
+                resp_idx = getv(resp_cand_result, ["response_index"]) or 0
+                cand_name = f"candidate-{resp_idx}"
+                if 0 <= resp_idx < len(candidate_names):
+                    cand_name = candidate_names[resp_idx]
+
+                metric_results = getv(resp_cand_result, ["metric_results"]) or {}
+
+                for metric_name, metric_res in metric_results.items():
+                    api_rubric_verdicts: list[dict[str, Any]] = []
+                    rubric_verdicts = getv(metric_res, ["rubric_verdicts"]) or []
+
+                    for verdict in rubric_verdicts:
+                        verdict_dict: dict[str, Any] = {}
+                        eval_rubric = getv(verdict, ["evaluated_rubric"])
+
+                        if eval_rubric:
+                            rubric_dict: dict[str, Any] = {}
+                            rubric_id = getv(eval_rubric, ["rubric_id"])
+                            if rubric_id:
+                                rubric_dict["rubric_id"] = str(rubric_id)
+
+                            rubric_content = getv(eval_rubric, ["content"])
+                            if rubric_content:
+                                text = getv(rubric_content, ["text"])
+                                prop = getv(rubric_content, ["property"])
+
+                                content_dict: dict[str, Any] = {}
+                                if text:
+                                    content_dict["text"] = str(text)
+                                if prop:
+                                    desc = getv(prop, ["description"])
+                                    if desc:
+                                        content_dict["property"] = {
+                                            "description": str(desc)
+                                        }
+                                rubric_dict["content"] = content_dict
+                            verdict_dict["evaluated_rubric"] = rubric_dict
+
+                        verdict_bool = getv(verdict, ["verdict"])
+                        if verdict_bool is not None:
+                            verdict_dict["verdict"] = bool(verdict_bool)
+
+                        reasoning = getv(verdict, ["reasoning"])
+                        if reasoning:
+                            verdict_dict["reasoning"] = str(reasoning)
+
+                        if verdict_dict:
+                            api_rubric_verdicts.append(verdict_dict)
+
+                    score = getv(metric_res, ["score"])
+                    explanation = getv(metric_res, ["explanation"])
+
+                    candidate_result_payload: dict[str, Any] = {
+                        "candidate": str(cand_name),
+                        "metric": str(metric_name),
+                    }
+                    if score is not None:
+                        candidate_result_payload["score"] = float(score)
+                    if explanation:
+                        candidate_result_payload["explanation"] = str(explanation)
+                    if api_rubric_verdicts:
+                        candidate_result_payload["rubric_verdicts"] = (
+                            api_rubric_verdicts
+                        )
+
+                    api_eval_result = {
+                        "request": {"prompt": prompt_payload},
+                        "metric": str(metric_name),
+                        "candidate_results": [candidate_result_payload],
+                    }
+                    api_results.append(api_eval_result)
+
+    return api_results

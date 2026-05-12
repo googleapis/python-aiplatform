@@ -61,7 +61,7 @@ _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
 _TEST_BUCKET_NAME = "gs://test-bucket"
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def google_auth_mock():
     with mock.patch.object(auth, "default") as auth_mock:
         auth_mock.return_value = (
