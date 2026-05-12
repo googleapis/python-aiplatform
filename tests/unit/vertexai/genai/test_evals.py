@@ -606,7 +606,7 @@ class TestLossAnalysis:
         assert result.clusters[1].cluster_id == "cluster-2"
 
     def test_get_loss_analysis_html(self):
-        """Tests that _get_loss_analysis_html generates valid HTML with data."""
+        """Tests that get_loss_analysis_html generates valid HTML with data."""
         from vertexai._genai import _evals_visualization
         import json
 
@@ -666,7 +666,7 @@ class TestLossAnalysis:
                 }
             ]
         }
-        html = _evals_visualization._get_loss_analysis_html(json.dumps(data))
+        html = _evals_visualization.get_loss_analysis_html(json.dumps(data))
         assert "Loss Pattern Analysis" in html
         assert "test_metric" not in html  # data is Base64-encoded in the HTML
         assert "<!DOCTYPE html>" in html
@@ -675,6 +675,91 @@ class TestLossAnalysis:
         assert "DOMPurify" in html  # uses DOMPurify for sanitization
         assert "example-section-label" in html  # labels for scenario/rubrics
         assert "Analysis Summary" in html  # summary heading
+
+    def test_get_evaluation_html(self):
+        """Tests that get_evaluation_html generates valid HTML with data."""
+        from vertexai._genai import _evals_visualization
+        import base64
+        import json
+
+        data = {
+            "summary_metrics": [{"metric_name": "test_metric", "mean_score": 0.85}],
+            "eval_case_results": [
+                {
+                    "eval_case_index": 0,
+                    "response_candidate_results": [
+                        {"display_text": "candidate response"}
+                    ],
+                }
+            ],
+            "metadata": {"dataset": []},
+        }
+        payload_json = json.dumps(data)
+        html = _evals_visualization.get_evaluation_html(payload_json)
+
+        assert "<!DOCTYPE html>" in html
+        assert "<title>Evaluation Report</title>" in html
+        assert "test_metric" not in html
+        payload_b64 = base64.b64encode(payload_json.encode("utf-8")).decode("ascii")
+        assert payload_b64 in html
+        assert "DOMPurify" in html
+
+    def test_get_comparison_html(self):
+        """Tests that get_comparison_html generates valid HTML with data."""
+        from vertexai._genai import _evals_visualization
+        import base64
+        import json
+
+        data = {
+            "summary_metrics": [
+                {
+                    "metric_name": "test_metric",
+                    "win_rate": 0.6,
+                    "loss_rate": 0.4,
+                }
+            ],
+            "eval_case_results": [
+                {
+                    "eval_case_index": 0,
+                    "response_candidate_results": [
+                        {"display_text": "candidate A"},
+                        {"display_text": "candidate B"},
+                    ],
+                }
+            ],
+            "metadata": {"dataset": []},
+        }
+        payload_json = json.dumps(data)
+        html = _evals_visualization.get_comparison_html(payload_json)
+
+        assert "<!DOCTYPE html>" in html
+        assert "<title>Eval Comparison Report</title>" in html
+        assert "test_metric" not in html
+        payload_b64 = base64.b64encode(payload_json.encode("utf-8")).decode("ascii")
+        assert payload_b64 in html
+        assert "DOMPurify" in html
+
+    def test_get_inference_html(self):
+        """Tests that get_inference_html generates valid HTML with data."""
+        from vertexai._genai import _evals_visualization
+        import base64
+        import json
+
+        data = [
+            {
+                "prompt": "What is the capital of France?",
+                "response": "Paris",
+            }
+        ]
+        payload_json = json.dumps(data, ensure_ascii=False)
+        html = _evals_visualization.get_inference_html(payload_json)
+
+        assert "<!DOCTYPE html>" in html
+        assert "<title>Evaluation Dataset</title>" in html
+        assert "Paris" not in html
+        payload_b64 = base64.b64encode(payload_json.encode("utf-8")).decode("ascii")
+        assert payload_b64 in html
+        assert "DOMPurify" in html
 
     def test_display_loss_clusters_response_no_ipython(self):
         """Tests graceful fallback when not in IPython."""
@@ -1488,7 +1573,7 @@ class TestEvalRunLossAnalysis:
             },
             ensure_ascii=False,
         )
-        html = _evals_visualization._get_loss_analysis_html(payload_json)
+        html = _evals_visualization.get_loss_analysis_html(payload_json)
         # The HTML is a self-contained report with base64-encoded JSON payload
         # decoded by JavaScript at runtime. Verify structure, not content.
         assert "<!DOCTYPE html>" in html

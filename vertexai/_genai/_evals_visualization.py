@@ -231,7 +231,7 @@ def _extract_dataset_rows(dataset: types.EvaluationDataset) -> list[dict[str, An
     return processed_rows
 
 
-def _get_evaluation_html(eval_result_json: str) -> str:
+def get_evaluation_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for single evaluation visualization."""
     payload_b64 = _encode_to_base64(eval_result_json)
     return textwrap.dedent(
@@ -787,7 +787,7 @@ def _get_evaluation_html(eval_result_json: str) -> str:
     )
 
 
-def _get_comparison_html(eval_result_json: str) -> str:
+def get_comparison_html(eval_result_json: str) -> str:
     """Returns a self-contained HTML for a side-by-side eval comparison."""
     payload_b64 = _encode_to_base64(eval_result_json)
     return textwrap.dedent(
@@ -1277,7 +1277,7 @@ def _get_comparison_html(eval_result_json: str) -> str:
     )
 
 
-def _get_inference_html(dataframe_json: str) -> str:
+def get_inference_html(dataframe_json: str) -> str:
     """Returns a self-contained HTML for displaying inference results."""
     payload_b64 = _encode_to_base64(dataframe_json)
     return textwrap.dedent(
@@ -1475,7 +1475,7 @@ def display_evaluation_result(
                     summary.update(win_rates[summary["metric_name"]])
 
         result_dump["metadata"] = metadata_payload
-        html_content = _get_comparison_html(json.dumps(result_dump))
+        html_content = get_comparison_html(json.dumps(result_dump))
     else:
         single_dataset = input_dataset_list[0] if input_dataset_list else None
         processed_rows = []
@@ -1499,7 +1499,7 @@ def display_evaluation_result(
                         cand_res["raw_json"] = original_case["response_raw_json"]
 
         result_dump["metadata"] = metadata_payload
-        html_content = _get_evaluation_html(json.dumps(result_dump))
+        html_content = get_evaluation_html(json.dumps(result_dump))
 
     display.display(display.HTML(html_content))
 
@@ -1553,11 +1553,11 @@ def display_evaluation_dataset(eval_dataset_obj: types.EvaluationDataset) -> Non
         processed_rows.append(processed_row)
 
     dataframe_json_string = json.dumps(processed_rows, ensure_ascii=False, default=str)
-    html_content = _get_inference_html(dataframe_json_string)
+    html_content = get_inference_html(dataframe_json_string)
     display.display(display.HTML(html_content))
 
 
-def _get_loss_analysis_html(loss_analysis_json: str) -> str:
+def get_loss_analysis_html(loss_analysis_json: str) -> str:
     """Returns self-contained HTML for loss pattern analysis visualization."""
     payload_b64 = _encode_to_base64(loss_analysis_json)
     return textwrap.dedent(
@@ -1865,7 +1865,7 @@ def display_loss_clusters_response(
         )
         raise
 
-    html_content = _get_loss_analysis_html(
+    html_content = get_loss_analysis_html(
         json.dumps(result_dump, ensure_ascii=False, default=_pydantic_serializer)
     )
     display.display(display.HTML(html_content))
@@ -1892,7 +1892,7 @@ def display_loss_analysis_result(
         )
         raise
 
-    html_content = _get_loss_analysis_html(
+    html_content = get_loss_analysis_html(
         json.dumps(wrapped, ensure_ascii=False, default=_pydantic_serializer)
     )
     display.display(display.HTML(html_content))
@@ -1968,7 +1968,7 @@ def display_loss_analysis_results(
 
     Wraps the list of LossAnalysisResult objects into the same JSON
     structure used by GenerateLossClustersResponse and renders using
-    the shared _get_loss_analysis_html() function.
+    the shared get_loss_analysis_html() function.
 
     When ``eval_item_map`` is provided (from
     ``get_evaluation_run(include_evaluation_items=True)``), the examples
@@ -1997,7 +1997,7 @@ def display_loss_analysis_results(
         )
         raise
 
-    html_content = _get_loss_analysis_html(
+    html_content = get_loss_analysis_html(
         json.dumps(wrapped, ensure_ascii=False, default=_pydantic_serializer)
     )
     display.display(display.HTML(html_content))
@@ -2015,3 +2015,12 @@ def display_evaluation_run_status(eval_run_obj: "types.EvaluationRun") -> None:
     error_message = str(eval_run_obj.error) if eval_run_obj.error else None
     html_content = _get_status_html(status, error_message)
     display.display(display.HTML(html_content))
+
+
+# Backward-compatible private aliases for the public HTML generators.
+# These are kept temporarily to avoid breaking existing callers that depend on
+# the previous private names. New code should use the public names above.
+_get_evaluation_html = get_evaluation_html
+_get_comparison_html = get_comparison_html
+_get_inference_html = get_inference_html
+_get_loss_analysis_html = get_loss_analysis_html
