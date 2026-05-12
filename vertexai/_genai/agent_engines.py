@@ -2005,6 +2005,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_config_source=agent_config_source,
             container_spec=config.container_spec,
             keep_alive_probe=keep_alive_probe,
+            dedicated_ingress_endpoint_enabled=config.dedicated_ingress_endpoint_enabled,
         )
         operation = self._create(config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -2316,6 +2317,7 @@ class AgentEngines(_api_module.BaseModule):
             types.ReasoningEngineSpecSourceCodeSpecAgentConfigSourceDict
         ] = None,
         container_spec: Optional[types.ReasoningEngineSpecContainerSpecDict] = None,
+        dedicated_ingress_endpoint_enabled: Optional[bool] = None,
         keep_alive_probe: Optional[dict[str, Any]] = None,
         traffic_config: Optional[types.ReasoningEngineTrafficConfigDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
@@ -2452,12 +2454,13 @@ class AgentEngines(_api_module.BaseModule):
             or resource_limits is not None
             or container_concurrency is not None
             or keep_alive_probe is not None
+            or dedicated_ingress_endpoint_enabled is not None
         )
         if agent_engine_spec is None and is_deployment_spec_updated:
             raise ValueError(
                 "To update `env_vars`, `psc_interface_config`, `min_instances`, "
-                "`max_instances`, `resource_limits`, `container_concurrency`, or "
-                "`keep_alive_probe`, you must also provide the `agent` variable or "
+                "`max_instances`, `resource_limits`, `container_concurrency`, "
+                "`keep_alive_probe`, or `dedicated_ingress_endpoint_enabled`, you must also provide the `agent` variable or "
                 "the source code options (`source_packages`, "
                 "`developer_connect_source` or `agent_config_source`)."
             )
@@ -2476,6 +2479,7 @@ class AgentEngines(_api_module.BaseModule):
                     resource_limits=resource_limits,
                     container_concurrency=container_concurrency,
                     keep_alive_probe=keep_alive_probe,
+                    dedicated_ingress_endpoint_enabled=dedicated_ingress_endpoint_enabled,
                 )
                 update_masks.extend(deployment_update_masks)
                 agent_engine_spec["deployment_spec"] = deployment_spec
@@ -2544,6 +2548,7 @@ class AgentEngines(_api_module.BaseModule):
         resource_limits: Optional[dict[str, str]] = None,
         container_concurrency: Optional[int] = None,
         keep_alive_probe: Optional[dict[str, Any]] = None,
+        dedicated_ingress_endpoint_enabled: Optional[bool] = None,
     ) -> Tuple[dict[str, Any], Sequence[str]]:
         deployment_spec: dict[str, Any] = {}
         update_masks = []
@@ -2597,6 +2602,13 @@ class AgentEngines(_api_module.BaseModule):
         if keep_alive_probe is not None:
             deployment_spec["keep_alive_probe"] = keep_alive_probe
             update_masks.append("spec.deployment_spec.keep_alive_probe")
+        if dedicated_ingress_endpoint_enabled is not None:
+            deployment_spec["dedicated_ingress_endpoint_enabled"] = (
+                dedicated_ingress_endpoint_enabled
+            )
+            update_masks.append(
+                "spec.deployment_spec.dedicated_ingress_endpoint_enabled"
+            )
         return deployment_spec, update_masks
 
     def _update_deployment_spec_with_env_vars_dict_or_raise(
@@ -2794,6 +2806,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_config_source=agent_config_source,
             container_spec=container_spec,
             keep_alive_probe=keep_alive_probe,
+            dedicated_ingress_endpoint_enabled=config.dedicated_ingress_endpoint_enabled,
             traffic_config=traffic_config,
         )
         operation = self._update(name=name, config=api_config)
