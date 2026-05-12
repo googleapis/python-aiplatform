@@ -115,6 +115,19 @@ def _try_import_bigquery() -> Any:
         ) from exc
 
 
+def _try_import_storage() -> Any:
+    """Tries to import `storage`."""
+    try:
+        from google.cloud import storage  # type: ignore[attr-defined]
+
+        return storage
+    except ImportError as exc:
+        raise ImportError(
+            "`storage` is not installed. Please call 'pip install"
+            " google-cloud-storage'."
+        ) from exc
+
+
 def _bq_dataset_location_allowed(
     vertex_location: str, bq_dataset_location: str
 ) -> bool:
