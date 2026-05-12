@@ -438,6 +438,7 @@ def _resolve_dataset(
             dest,
             eval_df,
             candidate_name,
+            parsed_agent_info=parsed_agent_info,
         )
         dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
     return dataset
@@ -2845,6 +2846,7 @@ def _create_evaluation_set_from_dataframe(
     gcs_dest_prefix: str,
     eval_df: pd.DataFrame,
     candidate_name: Optional[str] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> Union[types.EvaluationSet, Any]:
     """Converts a dataframe to an EvaluationSet."""
     eval_item_requests = []
@@ -2877,6 +2879,18 @@ def _create_evaluation_set_from_dataframe(
             elif isinstance(agent_data_val, types.evals.AgentData):
                 agent_data_obj = agent_data_val
 
+        # When agent_data exists but has no agents map (e.g. from remote
+        # agent_engine inference), inject the agents map from agent_info so
+        # the server-side autorater can access tool definitions and
+        # instructions.
+        if (
+            agent_data_obj
+            and not agent_data_obj.agents
+            and parsed_agent_info
+            and parsed_agent_info.agents
+        ):
+            agent_data_obj.agents = parsed_agent_info.agents
+
         candidate_responses = []
         if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
             # Resolve the oneof conflict: prioritize agent_data over flat text
@@ -2884,9 +2898,9 @@ def _create_evaluation_set_from_dataframe(
 
             if agent_data_obj and response_text:
                 logger.info(
-                    "Both 'response' and 'agent_data' columns found in the evaluation dataset. "
-                    "Prioritizing 'agent_data' and omitting 'response' text to satisfy "
-                    "CandidateResponse protobuf oneof constraints."
+                    "Both 'response' and 'agent_data' columns found in the evaluation"
+                    " dataset. Prioritizing 'agent_data' and omitting 'response' text"
+                    " to satisfy CandidateResponse protobuf oneof constraints."
                 )
                 response_text = None
 

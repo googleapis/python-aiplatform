@@ -8871,6 +8871,133 @@ class TestCreateEvaluationSetFromDataFrame:
 
     @mock.patch.object(_evals_common, "evals")
     @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_injects_agents_map_from_agent_info(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that agents map is injected from agent_info when agent_data has no agents."""
+        agent_data = {
+            "turns": [
+                {
+                    "turn_index": 0,
+                    "turn_id": "turn_0",
+                    "events": [
+                        {
+                            "author": "my_agent",
+                            "content": {
+                                "parts": [{"text": "hello"}],
+                                "role": "model",
+                            },
+                        }
+                    ],
+                }
+            ]
+        }
+        eval_df = pd.DataFrame([{"prompt": "test prompt", "agent_data": agent_data}])
+
+        agent_info = vertexai_genai_types.evals.AgentInfo(
+            name="my_agent",
+            agents={
+                "my_agent": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="my_agent",
+                    instruction="You are a helpful agent.",
+                )
+            },
+            root_agent_id="my_agent",
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+            parsed_agent_info=agent_info,
+        )
+
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        candidate_response = uploaded_data["candidate_responses"][0]
+        uploaded_agent_data = candidate_response["agent_data"]
+        assert "agents" in uploaded_agent_data
+        assert "my_agent" in uploaded_agent_data["agents"]
+        assert (
+            uploaded_agent_data["agents"]["my_agent"]["instruction"]
+            == "You are a helpful agent."
+        )
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
+    def test_create_evaluation_set_preserves_existing_agents_map(
+        self, mock_gcs_utils, mock_evals_module
+    ):
+        """Tests that an existing agents map in agent_data is not overwritten."""
+        agent_data = {
+            "turns": [{"turn_id": "turn1", "events": []}],
+            "agents": {
+                "original_agent": {
+                    "agent_id": "original_agent",
+                    "instruction": "original instruction",
+                }
+            },
+        }
+        eval_df = pd.DataFrame([{"prompt": "test prompt", "agent_data": agent_data}])
+
+        agent_info = vertexai_genai_types.evals.AgentInfo(
+            name="different_agent",
+            agents={
+                "different_agent": vertexai_genai_types.evals.AgentConfig(
+                    agent_id="different_agent",
+                    instruction="different instruction",
+                )
+            },
+            root_agent_id="different_agent",
+        )
+
+        mock_gcs_instance = mock_gcs_utils.GcsUtils.return_value
+        mock_gcs_instance.upload_json_to_prefix.return_value = (
+            "gs://bucket/path/request.json"
+        )
+
+        mock_evals_instance = mock_evals_module.Evals.return_value
+        mock_eval_item = mock.Mock()
+        mock_eval_item.name = "eval_item_1"
+        mock_evals_instance.create_evaluation_item.return_value = mock_eval_item
+
+        mock_eval_set = mock.Mock()
+        mock_evals_instance.create_evaluation_set.return_value = mock_eval_set
+
+        _evals_common._create_evaluation_set_from_dataframe(
+            api_client=self.mock_api_client,
+            gcs_dest_prefix="gs://bucket/prefix",
+            eval_df=eval_df,
+            candidate_name="test-candidate",
+            parsed_agent_info=agent_info,
+        )
+
+        call_args = mock_gcs_instance.upload_json_to_prefix.call_args
+        uploaded_data = call_args.kwargs["data"]
+
+        candidate_response = uploaded_data["candidate_responses"][0]
+        uploaded_agent_data = candidate_response["agent_data"]
+        # Original agents map should be preserved, not overwritten
+        assert "original_agent" in uploaded_agent_data["agents"]
+        assert "different_agent" not in uploaded_agent_data["agents"]
+
+    @mock.patch.object(_evals_common, "evals")
+    @mock.patch.object(_evals_common, "_gcs_utils")
     def test_create_evaluation_set_with_history_column(
         self, mock_gcs_utils, mock_evals_module
     ):
