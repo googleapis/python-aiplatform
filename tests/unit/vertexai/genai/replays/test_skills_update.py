@@ -28,10 +28,6 @@ pytestmark = pytest_helper.setup(
 
 
 def test_update_skill(client, tmp_path):
-    # Target the autopush sandbox endpoint for the Skill Registry API
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    )
 
     # 1. Create a fresh unique skill first
     with open(tmp_path / "SKILL.md", "w") as f:
@@ -61,10 +57,6 @@ def test_update_skill(client, tmp_path):
 
 
 def test_update_skill_with_zipped_bytes(client, tmp_path):
-    # Target the autopush sandbox endpoint for the Skill Registry API
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    )
 
     # 1. Create a fresh unique skill first
     with open(tmp_path / "SKILL.md", "w") as f:

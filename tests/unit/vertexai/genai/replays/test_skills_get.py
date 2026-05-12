@@ -1,4 +1,4 @@
-"""Tests the skills.get() method against the autopush endpoint."""
+"""Tests the skills.get() method against the prod endpoint."""
 
 from google.api_core import exceptions
 from tests.unit.vertexai.genai.replays import pytest_helper
@@ -7,8 +7,6 @@ import pytest
 PROJECT_ID = "demo-project"
 REGION = "us-central1"
 SKILL_ID = "7184367305562783744"
-# target the autopush sandbox endpoint for the Skill Registry API
-ENDPOINT = f"{REGION}-autopush-aiplatform.sandbox.googleapis.com"
 
 
 pytestmark = pytest_helper.setup(
@@ -18,11 +16,8 @@ pytestmark = pytest_helper.setup(
 
 
 def test_get_skill(client):  # client fixture is injected by pytest_helper.setup
-    """Tests the skills.get() method against the autopush endpoint."""
+    """Tests the skills.get() method against the prod endpoint."""
 
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    )
     skill_name = f"projects/{PROJECT_ID}/locations/{REGION}/skills/{SKILL_ID}"
 
     try:
