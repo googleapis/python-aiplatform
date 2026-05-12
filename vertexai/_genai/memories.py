@@ -553,7 +553,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateAgentEngineMemoryRequestParameters_to_vertex(
@@ -635,7 +635,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteAgentEngineMemoryRequestParameters_to_vertex(
@@ -723,7 +723,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
@@ -803,7 +803,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineMemoryRequestParameters_to_vertex(
@@ -889,7 +889,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _IngestEventsRequestParameters_to_vertex(parameter_model)
@@ -961,7 +961,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListAgentEngineMemoryRequestParameters_to_vertex(
@@ -1031,7 +1031,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineMemoryOperationParameters_to_vertex(
@@ -1101,7 +1101,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
@@ -1185,7 +1185,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
@@ -1287,7 +1287,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RetrieveMemoryProfilesRequestParameters_to_vertex(
@@ -1363,7 +1363,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RollbackAgentEngineMemoryRequestParameters_to_vertex(
@@ -1441,7 +1441,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _UpdateAgentEngineMemoryRequestParameters_to_vertex(
@@ -1521,7 +1521,7 @@ class Memories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
@@ -1989,7 +1989,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateAgentEngineMemoryRequestParameters_to_vertex(
@@ -2073,7 +2073,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteAgentEngineMemoryRequestParameters_to_vertex(
@@ -2163,7 +2163,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateAgentEngineMemoriesRequestParameters_to_vertex(
@@ -2245,7 +2245,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineMemoryRequestParameters_to_vertex(
@@ -2333,7 +2333,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _IngestEventsRequestParameters_to_vertex(parameter_model)
@@ -2407,7 +2407,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListAgentEngineMemoryRequestParameters_to_vertex(
@@ -2479,7 +2479,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineMemoryOperationParameters_to_vertex(
@@ -2551,7 +2551,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineGenerateMemoriesOperationParameters_to_vertex(
@@ -2637,7 +2637,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RetrieveAgentEngineMemoriesRequestParameters_to_vertex(
@@ -2741,7 +2741,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RetrieveMemoryProfilesRequestParameters_to_vertex(
@@ -2819,7 +2819,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RollbackAgentEngineMemoryRequestParameters_to_vertex(
@@ -2899,7 +2899,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _UpdateAgentEngineMemoryRequestParameters_to_vertex(
@@ -2981,7 +2981,7 @@ class AsyncMemories(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _PurgeAgentEngineMemoriesRequestParameters_to_vertex(
