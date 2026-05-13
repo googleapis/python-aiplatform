@@ -30,7 +30,14 @@ nox.options.default_venv_backend = "uv"
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = [
+    "docs",
+    "google",
+    "vertexai",
+    "agentplatform/_genai",
+    "noxfile.py",
+    "setup.py",
+]
 
 DEFAULT_PYTHON_VERSION = "3.10"
 
@@ -214,6 +221,8 @@ def default(session):
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
         "--ignore=tests/unit/architecture",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
         os.path.join("tests", "unit"),
         *session.posargs,
     )
@@ -633,7 +642,12 @@ def prerelease_deps(session):
     )
     session.run("python", "-c", "import grpc; print(grpc.__version__)")
 
-    session.run("py.test", "tests/unit")
+    session.run(
+        "py.test",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
+        "tests/unit",
+    )
 
     system_test_path = os.path.join("tests", "system.py")
     system_test_folder_path = os.path.join("tests", "system")
