@@ -1,23 +1,5 @@
 # Changelog
 
-## [1.153.0](https://github.com/googleapis/python-aiplatform/compare/v1.152.0...v1.153.0) (2026-05-14)
-
-
-### Features
-
-* GenAI Client(evals) - Add red_teaming_config support for create_evaluation_run ([657f379](https://github.com/googleapis/python-aiplatform/commit/657f379dc516a1db75eca1686731b7a4944a3b41))
-* Migrate Agent Engines, Evaluation, Prompt Management, and Skill features to agentplatform ([74ec5e1](https://github.com/googleapis/python-aiplatform/commit/74ec5e1e8234713d16024c9bea06778366c4dd64))
-
-
-### Bug Fixes
-
-* Inject agents map from agent_info into agent_data for create_evaluation_run ([a4ffb67](https://github.com/googleapis/python-aiplatform/commit/a4ffb673911fb4e0e25174c1b92054eb4a443d34))
-
-
-### Documentation
-
-* Add Skill Registry Python SDK section in README ([9f8e24c](https://github.com/googleapis/python-aiplatform/commit/9f8e24c04f577bba7bb17a730a2264a94502cf4c))
-
 ## [1.152.0](https://github.com/googleapis/python-aiplatform/compare/v1.151.0...v1.152.0) (2026-05-11)
 
 
