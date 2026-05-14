@@ -27,9 +27,11 @@ import pytest
 
 
 from langchain_core import prompts
-from langchain.load import dump as langchain_load_dump
-from langchain.agents.format_scratchpad import format_to_openai_function_messages
-from langchain.tools.base import StructuredTool
+from langchain_core.load import dump as langchain_load_dump
+from langchain_classic.agents.format_scratchpad import (
+    format_to_openai_function_messages,
+)
+from langchain_core.tools import StructuredTool
 
 
 _DEFAULT_PLACE_TOOL_ACTIVITY = "museums"

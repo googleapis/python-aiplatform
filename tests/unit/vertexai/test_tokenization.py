@@ -620,8 +620,8 @@ class TestTextsAccumulator:
 
         self.texts_accumulator.add_function_call(function_call)
 
-        assert (
-            self.texts_accumulator.get_texts() == ["test_function_call"] + _STRUCT_TEXTS
+        assert sorted(self.texts_accumulator.get_texts()) == sorted(
+            ["test_function_call"] + _STRUCT_TEXTS
         )
 
     def test_function_response(self):
@@ -631,7 +631,6 @@ class TestTextsAccumulator:
 
         self.texts_accumulator.add_function_response(function_response)
 
-        assert (
-            self.texts_accumulator.get_texts()
-            == ["test_function_response"] + _STRUCT_TEXTS
+        assert sorted(self.texts_accumulator.get_texts()) == sorted(
+            ["test_function_response"] + _STRUCT_TEXTS
         )

@@ -590,6 +590,18 @@ class AdkApp:
             "env_vars": env_vars or {},
         }
 
+    def _serialize(self, obj: Any) -> Any:
+        """Serializes an object to be JSON compatible."""
+        if hasattr(obj, "model_dump"):
+            return obj.model_dump(mode="json")
+        elif hasattr(obj, "dict"):
+            return self._serialize(obj.dict())
+        elif isinstance(obj, dict):
+            return {k: self._serialize(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [self._serialize(v) for v in obj]
+        return obj
+
     async def _init_session(
         self,
         session_service: "BaseSessionService",
@@ -927,7 +939,7 @@ class AdkApp:
             self.set_up()
         if not session_id:
             session = self.create_session(user_id=user_id)
-            session_id = session.id
+            session_id = session["id"]
         run_config = _validate_run_config(run_config)
         if run_config:
             for event in self._tmpl_attrs.get("runner").run(
@@ -994,7 +1006,7 @@ class AdkApp:
             self.set_up()
         if not session_id:
             session = await self.async_create_session(user_id=user_id)
-            session_id = session.id
+            session_id = session["id"]
 
         run_config = _validate_run_config(run_config)
         if run_config:
@@ -1180,7 +1192,7 @@ class AdkApp:
         if not session_id:
             state = first_request.get("state")
             session = await self.async_create_session(user_id=user_id, state=state)
-            session_id = session.id
+            session_id = session["id"] if isinstance(session, dict) else session.id
         run_config = _validate_run_config(run_config)
 
         live_request_queue = LiveRequestQueue()
@@ -1382,7 +1394,7 @@ class AdkApp:
             state=state,
             **kwargs,
         )
-        return session
+        return self._serialize(session)
 
     def create_session(
         self,

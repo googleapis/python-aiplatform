@@ -196,7 +196,9 @@ class _FlattenEvalDataConverter(_evals_utils.EvalDataConverter):
             if not prompt_data:
                 prompt_data = item.pop("source", None)
 
-            conversation_history_data = item.pop("history", None)
+            conversation_history_data = item.pop("conversation_history", None)
+            if conversation_history_data is None:
+                conversation_history_data = item.pop("history", None)
             response_data = item.pop("response", None)
             reference_data = item.pop("reference", None)
             system_instruction_data = item.pop("instruction", None)

@@ -130,6 +130,13 @@ def _CreateEvaluationRunParameters_to_vertex(
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
 
+    if getv(from_object, ["analysis_configs"]) is not None:
+        setv(
+            to_object,
+            ["analysisConfigs"],
+            [item for item in getv(from_object, ["analysis_configs"])],
+        )
+
     return to_object
 
 
@@ -190,6 +197,24 @@ def _CustomCodeExecutionSpec_to_vertex(
             ["evaluation_function"],
             getv(from_object, ["remote_custom_function"]),
         )
+
+    return to_object
+
+
+def _DeleteEvaluationMetricParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["metric_resource_name"]) is not None:
+        setv(
+            to_object,
+            ["_url", "evaluation_metric"],
+            getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -276,9 +301,6 @@ def _EvaluateInstancesRequestParameters_to_vertex(
             _EvaluationInstance_to_vertex(getv(from_object, ["instance"]), to_object),
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["metric_sources"]) is not None:
         setv(
             to_object,
@@ -288,6 +310,9 @@ def _EvaluateInstancesRequestParameters_to_vertex(
                 for item in t.t_metric_sources(getv(from_object, ["metric_sources"]))
             ],
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -373,6 +398,13 @@ def _EvaluationRunConfig_from_vertex(
             [item for item in getv(from_object, ["lossAnalysisConfig"])],
         )
 
+    if getv(from_object, ["allowCrossRegionModel"]) is not None:
+        setv(
+            to_object,
+            ["allow_cross_region_model"],
+            getv(from_object, ["allowCrossRegionModel"]),
+        )
+
     return to_object
 
 
@@ -405,6 +437,13 @@ def _EvaluationRunConfig_to_vertex(
             to_object,
             ["lossAnalysisConfig"],
             [item for item in getv(from_object, ["loss_analysis_config"])],
+        )
+
+    if getv(from_object, ["allow_cross_region_model"]) is not None:
+        setv(
+            to_object,
+            ["allowCrossRegionModel"],
+            getv(from_object, ["allow_cross_region_model"]),
         )
 
     return to_object
@@ -464,18 +503,18 @@ def _EvaluationRunMetric_from_vertex(
     if getv(from_object, ["metric"]) is not None:
         setv(to_object, ["metric"], getv(from_object, ["metric"]))
 
-    if getv(from_object, ["metricConfig"]) is not None:
-        setv(
-            to_object,
-            ["metric_config"],
-            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
-        )
-
     if getv(from_object, ["metricResourceName"]) is not None:
         setv(
             to_object,
             ["metric_resource_name"],
             getv(from_object, ["metricResourceName"]),
+        )
+
+    if getv(from_object, ["metricConfig"]) is not None:
+        setv(
+            to_object,
+            ["metric_config"],
+            _UnifiedMetric_from_vertex(getv(from_object, ["metricConfig"]), to_object),
         )
 
     return to_object
@@ -489,18 +528,18 @@ def _EvaluationRunMetric_to_vertex(
     if getv(from_object, ["metric"]) is not None:
         setv(to_object, ["metric"], getv(from_object, ["metric"]))
 
-    if getv(from_object, ["metric_config"]) is not None:
-        setv(
-            to_object,
-            ["metricConfig"],
-            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
-        )
-
     if getv(from_object, ["metric_resource_name"]) is not None:
         setv(
             to_object,
             ["metricResourceName"],
             getv(from_object, ["metric_resource_name"]),
+        )
+
+    if getv(from_object, ["metric_config"]) is not None:
+        setv(
+            to_object,
+            ["metricConfig"],
+            _UnifiedMetric_to_vertex(getv(from_object, ["metric_config"]), to_object),
         )
 
     return to_object
@@ -571,6 +610,13 @@ def _EvaluationRun_from_vertex(
     if getv(from_object, ["labels"]) is not None:
         setv(to_object, ["labels"], getv(from_object, ["labels"]))
 
+    if getv(from_object, ["analysisConfigs"]) is not None:
+        setv(
+            to_object,
+            ["analysis_configs"],
+            [item for item in getv(from_object, ["analysisConfigs"])],
+        )
+
     return to_object
 
 
@@ -596,15 +642,15 @@ def _GenerateInstanceRubricsRequest_to_vertex(
             getv(from_object, ["rubric_generation_spec"]),
         )
 
-    if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
     if getv(from_object, ["metric_resource_name"]) is not None:
         setv(
             to_object,
             ["metricResourceName"],
             getv(from_object, ["metric_resource_name"]),
         )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
 
     return to_object
 
@@ -664,6 +710,13 @@ def _GenerateUserScenariosParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    if getv(from_object, ["allow_cross_region_model"]) is not None:
+        setv(
+            to_object,
+            ["allowCrossRegionModel"],
+            getv(from_object, ["allow_cross_region_model"]),
+        )
 
     return to_object
 
@@ -728,13 +781,40 @@ def _GetEvaluationSetParameters_to_vertex(
     return to_object
 
 
+def _ListEvaluationMetricsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["page_size"]) is not None:
+        setv(parent_object, ["_query", "pageSize"], getv(from_object, ["page_size"]))
+
+    if getv(from_object, ["page_token"]) is not None:
+        setv(parent_object, ["_query", "pageToken"], getv(from_object, ["page_token"]))
+
+    if getv(from_object, ["filter"]) is not None:
+        setv(parent_object, ["_query", "filter"], getv(from_object, ["filter"]))
+
+    if getv(from_object, ["order_by"]) is not None:
+        setv(parent_object, ["_query", "orderBy"], getv(from_object, ["order_by"]))
+
+    return to_object
+
+
 def _ListEvaluationMetricsParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
 ) -> dict[str, Any]:
     to_object: dict[str, Any] = {}
     if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
+        setv(
+            to_object,
+            ["config"],
+            _ListEvaluationMetricsConfig_to_vertex(
+                getv(from_object, ["config"]), to_object
+            ),
+        )
 
     return to_object
 
@@ -947,7 +1027,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1021,7 +1103,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1089,6 +1173,7 @@ class Evals(_api_module.BaseModule):
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1102,11 +1187,14 @@ class Evals(_api_module.BaseModule):
             labels=labels,
             inference_configs=inference_configs,
             config=config,
+            analysis_configs=analysis_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1181,7 +1269,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1234,6 +1324,78 @@ class Evals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> types.DeleteEvaluationMetricOperation:
+        """
+        Deletes an EvaluationMetric.
+        """
+
+        parameter_model = types._DeleteEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("delete", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationMetricOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def _evaluate_instances(
         self,
         *,
@@ -1254,8 +1416,8 @@ class Evals(_api_module.BaseModule):
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
-        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
         Evaluates instances based on a given metric.
@@ -1275,13 +1437,15 @@ class Evals(_api_module.BaseModule):
             autorater_config=autorater_config,
             metrics=metrics,
             instance=instance,
-            config=config,
             metric_sources=metric_sources,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
                 parameter_model
@@ -1346,6 +1510,7 @@ class Evals(_api_module.BaseModule):
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
         config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.GenerateUserScenariosResponse:
         """
         Generates user scenarios for agent evaluation.
@@ -1357,11 +1522,14 @@ class Evals(_api_module.BaseModule):
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1437,7 +1605,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1498,8 +1668,8 @@ class Evals(_api_module.BaseModule):
             genai_types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
-        config: Optional[types.RubricGenerationConfigOrDict] = None,
         metric_resource_name: Optional[str] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
         Generates rubrics for a given prompt.
@@ -1509,13 +1679,15 @@ class Evals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
-            config=config,
             metric_resource_name=metric_resource_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1585,7 +1757,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1655,7 +1829,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1725,7 +1901,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1792,7 +1970,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1858,7 +2038,9 @@ class Evals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1944,9 +2126,11 @@ class Evals(_api_module.BaseModule):
         Args:
           src: The source of the dataset. Can be a string (path to a local file,
                 a GCS path, or a BigQuery table), a Pandas DataFrame, or an
-                EvaluationDataset object. If an Evalu
-                ationDataset is provided,
-                it must have `eval_dataset_df` populated.
+                EvaluationDataset object. An EvaluationDataset may have either
+                ``eval_dataset_df`` or ``eval_cases`` populated. When
+                ``eval_cases`` with ``agent_data`` is provided, the last user
+                event in the turns is used as the current prompt and prior
+                events are replayed as session history for local ADK agents.
           model: Optional type is experimental and may change in future versions.
                 The model to use for inference, optional for agent evaluations.
               - For Google Gemini models, provide the model name string (e.g., "gemini-2.5-flash").
@@ -1982,11 +2166,15 @@ class Evals(_api_module.BaseModule):
             config = types.EvalRunInferenceConfig.model_validate(config)
 
         if isinstance(src, types.EvaluationDataset):
-            if src.eval_dataset_df is None:
+            if src.eval_dataset_df is not None:
+                src = src.eval_dataset_df
+            elif src.eval_cases:
+                src = _evals_common._eval_cases_to_dataframe(src.eval_cases)
+            else:
                 raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
+                    "EvaluationDataset must have eval_dataset_df or eval_cases"
+                    " populated."
                 )
-            src = src.eval_dataset_df
 
         agent_engine_instance = None
         agent_instance = None
@@ -2221,11 +2409,15 @@ class Evals(_api_module.BaseModule):
             {rubric_group_name: [list[Rubric]]}.
         """
         if isinstance(src, types.EvaluationDataset):
-            if src.eval_dataset_df is None:
+            if src.eval_dataset_df is not None:
+                prompts_df = src.eval_dataset_df
+            elif src.eval_cases:
+                prompts_df = _evals_common._eval_cases_to_dataframe(src.eval_cases)
+            else:
                 raise ValueError(
-                    "EvaluationDataset must have eval_dataset_df populated."
+                    "EvaluationDataset must have eval_dataset_df or eval_cases"
+                    " populated."
                 )
-            prompts_df = src.eval_dataset_df
         elif isinstance(src, (str, pd.DataFrame)):
             try:
                 prompts_df = _evals_common._load_dataframe(self._api_client, src)
@@ -2440,6 +2632,7 @@ class Evals(_api_module.BaseModule):
         labels: Optional[dict[str, str]] = None,
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
+        red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
     ) -> types.EvaluationRun:
         """Creates an EvaluationRun.
@@ -2491,6 +2684,13 @@ class Evals(_api_module.BaseModule):
               ``max_top_cluster_count``. Mutually exclusive with
               ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
+            - allow_cross_region_model: Allows the evaluation run to use cross
+              region models. When this flag is set, the service may route traffic to
+              other regions if a model is unavailable in the current region (e.g.,
+              to a `global`endpoint). If a fully-qualified model endpoint resource
+              name with a different region than the run location is provided
+              elsewhere in the runconfig, this flag must be set to true or the
+              request will fail.
 
         Returns:
             The created evaluation run.
@@ -2509,6 +2709,11 @@ class Evals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+
+        if not config:
+            config = types.CreateEvaluationRunConfig()
+        if isinstance(config, dict):
+            config = types.CreateEvaluationRunConfig.model_validate(config)
 
         if agent_info and not inference_configs:
             parsed_user_simulator_config = (
@@ -2546,10 +2751,14 @@ class Evals(_api_module.BaseModule):
             loss_analysis_configs=loss_analysis_configs,
             inference_configs=inference_configs,
         )
+        resolved_analysis_configs = _evals_utils._resolve_red_teaming_config(
+            red_teaming_config
+        )
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config,
             metrics=resolved_metrics,
             loss_analysis_config=resolved_loss_configs,
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", None),
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
@@ -2562,6 +2771,7 @@ class Evals(_api_module.BaseModule):
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,
+            analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
             config=config,
         )
@@ -2709,6 +2919,7 @@ class Evals(_api_module.BaseModule):
         *,
         agent_info: evals_types.AgentInfoOrDict,
         config: evals_types.UserScenarioGenerationConfigOrDict,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
@@ -2717,6 +2928,8 @@ class Evals(_api_module.BaseModule):
         Args:
             agent_info: The agent info to generate user scenarios for.
             config: Configuration for generating user scenarios.
+            allow_cross_region_model: Opt-in flag to authorize cross-region
+                routing for model inference.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
@@ -2730,6 +2943,7 @@ class Evals(_api_module.BaseModule):
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
             user_scenario_generation_config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
@@ -2874,10 +3088,61 @@ class Evals(_api_module.BaseModule):
     def list_evaluation_metrics(
         self,
         *,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
         config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
     ) -> types.ListEvaluationMetricsResponse:
-        """Lists EvaluationMetrics."""
+        """Lists EvaluationMetrics.
+
+        Args:
+          filter: An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported. For more
+            information about filter syntax, see
+            `AIP-160 <https://google.aip.dev/160>`_.
+            Example: ``'display_name="my_metric"'``.
+          order_by: A comma-separated list of fields to order by, sorted in
+            ascending order by default. Use ``desc`` after a field name for
+            descending. Example: ``"create_time desc"``.
+          config: Optional configuration for the list operation, including
+            pagination (``page_size``, ``page_token``), ``filter``, and
+            ``order_by``. Top-level ``filter`` and ``order_by`` arguments
+            take precedence over values set in ``config``.
+
+        Returns:
+          The list evaluation metrics response.
+        """
+        if config is None:
+            config = types.ListEvaluationMetricsConfig()
+        if isinstance(config, dict):
+            config = types.ListEvaluationMetricsConfig.model_validate(config)
+        if filter is not None:
+            config.filter = filter
+        if order_by is not None:
+            config.order_by = order_by
         return self._list_evaluation_metrics(
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.delete_evaluation_metric method is experimental, "
+        "and may change in future versions."
+    )
+    def delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> None:
+        """Deletes an EvaluationMetric.
+
+        Args:
+          metric_resource_name: The resource name of the EvaluationMetric to delete.
+            Format:
+            `projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric}`
+          config: The optional configuration for the delete operation.
+        """
+        self._delete_evaluation_metric(
+            metric_resource_name=metric_resource_name,
             config=config,
         )
 
@@ -2905,7 +3170,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -2981,7 +3248,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3051,6 +3320,7 @@ class AsyncEvals(_api_module.BaseModule):
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
+        analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -3064,11 +3334,14 @@ class AsyncEvals(_api_module.BaseModule):
             labels=labels,
             inference_configs=inference_configs,
             config=config,
+            analysis_configs=analysis_configs,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3145,7 +3418,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3200,6 +3475,80 @@ class AsyncEvals(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> types.DeleteEvaluationMetricOperation:
+        """
+        Deletes an EvaluationMetric.
+        """
+
+        parameter_model = types._DeleteEvaluationMetricParameters(
+            metric_resource_name=metric_resource_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{evaluation_metric}".format_map(request_url_dict)
+            else:
+                path = "{evaluation_metric}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "delete", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.DeleteEvaluationMetricOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def _evaluate_instances(
         self,
         *,
@@ -3220,8 +3569,8 @@ class AsyncEvals(_api_module.BaseModule):
         autorater_config: Optional[genai_types.AutoraterConfigOrDict] = None,
         metrics: Optional[list[types.MetricOrDict]] = None,
         instance: Optional[types.EvaluationInstanceOrDict] = None,
-        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
         metric_sources: Optional[list[types.MetricSourceOrDict]] = None,
+        config: Optional[types.EvaluateInstancesConfigOrDict] = None,
     ) -> types.EvaluateInstancesResponse:
         """
         Evaluates instances based on a given metric.
@@ -3241,13 +3590,15 @@ class AsyncEvals(_api_module.BaseModule):
             autorater_config=autorater_config,
             metrics=metrics,
             instance=instance,
-            config=config,
             metric_sources=metric_sources,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
                 parameter_model
@@ -3314,6 +3665,7 @@ class AsyncEvals(_api_module.BaseModule):
             evals_types.UserScenarioGenerationConfigOrDict
         ] = None,
         config: Optional[types.GenerateUserScenariosConfigOrDict] = None,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.GenerateUserScenariosResponse:
         """
         Generates user scenarios for agent evaluation.
@@ -3325,11 +3677,14 @@ class AsyncEvals(_api_module.BaseModule):
             root_agent_id=root_agent_id,
             user_scenario_generation_config=user_scenario_generation_config,
             config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3407,7 +3762,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3470,8 +3827,8 @@ class AsyncEvals(_api_module.BaseModule):
             genai_types.PredefinedMetricSpecOrDict
         ] = None,
         rubric_generation_spec: Optional[genai_types.RubricGenerationSpecOrDict] = None,
-        config: Optional[types.RubricGenerationConfigOrDict] = None,
         metric_resource_name: Optional[str] = None,
+        config: Optional[types.RubricGenerationConfigOrDict] = None,
     ) -> types.GenerateInstanceRubricsResponse:
         """
         Generates rubrics for a given prompt.
@@ -3481,13 +3838,15 @@ class AsyncEvals(_api_module.BaseModule):
             contents=contents,
             predefined_rubric_generation_spec=predefined_rubric_generation_spec,
             rubric_generation_spec=rubric_generation_spec,
-            config=config,
             metric_resource_name=metric_resource_name,
+            config=config,
         )
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3559,7 +3918,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3631,7 +3992,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3703,7 +4066,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3772,7 +4137,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3840,7 +4207,9 @@ class AsyncEvals(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -4049,6 +4418,7 @@ class AsyncEvals(_api_module.BaseModule):
         inference_configs: Optional[
             dict[str, types.EvaluationRunInferenceConfigOrDict]
         ] = None,
+        red_teaming_config: Optional[types.RedTeamingAnalysisConfigOrDict] = None,
         labels: Optional[dict[str, str]] = None,
         loss_analysis_metrics: Optional[list[Union[str, types.MetricOrDict]]] = None,
         loss_analysis_configs: Optional[list[types.LossAnalysisConfigOrDict]] = None,
@@ -4080,6 +4450,11 @@ class AsyncEvals(_api_module.BaseModule):
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
+          red_teaming_config: This field is experimental and may change in future
+              versions. Optional configuration for automated Agent Red Teaming
+              analysis. Specifies attack categories and vulnerable tools to
+              test. When provided, the server runs a red teaming pipeline
+              instead of standard evaluation metrics.
           labels: The labels to apply to the evaluation run.
           loss_analysis_metrics: This field is experimental and may change in future
               versions. Optional list of metrics to run loss analysis on. The
@@ -4103,6 +4478,8 @@ class AsyncEvals(_api_module.BaseModule):
               ``max_top_cluster_count``. Mutually exclusive with
               ``loss_analysis_metrics``.
           config: The configuration for the evaluation run.
+            - allow_cross_region_model: Opt-in flag to authorize cross-region
+              routing for model inference. Applies to both scraping and evaluation.
 
         Returns:
             The created evaluation run.
@@ -4121,6 +4498,11 @@ class AsyncEvals(_api_module.BaseModule):
             if isinstance(agent_info, dict)
             else (agent_info or evals_types.AgentInfo())
         )
+
+        if not config:
+            config = types.CreateEvaluationRunConfig()
+        if isinstance(config, dict):
+            config = types.CreateEvaluationRunConfig.model_validate(config)
 
         if agent_info and not inference_configs:
             parsed_user_simulator_config = (
@@ -4158,10 +4540,14 @@ class AsyncEvals(_api_module.BaseModule):
             loss_analysis_configs=loss_analysis_configs,
             inference_configs=inference_configs,
         )
+        resolved_analysis_configs = _evals_utils._resolve_red_teaming_config(
+            red_teaming_config
+        )
         evaluation_config = types.EvaluationRunConfig(
             output_config=output_config,
             metrics=resolved_metrics,
             loss_analysis_config=resolved_loss_configs,
+            allow_cross_region_model=getattr(config, "allow_cross_region_model", None),
         )
         resolved_inference_configs = _evals_common._resolve_inference_configs(
             self._api_client, resolved_dataset, inference_configs, parsed_agent_info
@@ -4175,6 +4561,7 @@ class AsyncEvals(_api_module.BaseModule):
             data_source=resolved_dataset,
             evaluation_config=evaluation_config,
             inference_configs=resolved_inference_configs,
+            analysis_configs=resolved_analysis_configs,
             labels=resolved_labels,
             config=config,
         )
@@ -4328,6 +4715,7 @@ class AsyncEvals(_api_module.BaseModule):
         *,
         agent_info: evals_types.AgentInfoOrDict,
         config: evals_types.UserScenarioGenerationConfigOrDict,
+        allow_cross_region_model: Optional[bool] = None,
     ) -> types.EvaluationDataset:
         """Generates an evaluation dataset with user scenarios,
            which helps to generate conversations between a simulated user
@@ -4336,6 +4724,8 @@ class AsyncEvals(_api_module.BaseModule):
         Args:
             agent_info: The agent info to generate user scenarios for.
             config: Configuration for generating user scenarios.
+            allow_cross_region_model: Opt-in flag to authorize cross-region
+                routing for model inference.
 
         Returns:
             An EvaluationDataset containing the generated user scenarios.
@@ -4349,6 +4739,7 @@ class AsyncEvals(_api_module.BaseModule):
             agents=parsed_agent_info.agents,
             root_agent_id=parsed_agent_info.root_agent_id,
             user_scenario_generation_config=config,
+            allow_cross_region_model=allow_cross_region_model,
         )
         return _evals_utils._postprocess_user_scenarios_response(response)
 
@@ -4490,9 +4881,60 @@ class AsyncEvals(_api_module.BaseModule):
     async def list_evaluation_metrics(
         self,
         *,
+        filter: Optional[str] = None,
+        order_by: Optional[str] = None,
         config: Optional[types.ListEvaluationMetricsConfigOrDict] = None,
     ) -> types.ListEvaluationMetricsResponse:
-        """Lists EvaluationMetrics."""
+        """Lists EvaluationMetrics.
+
+        Args:
+          filter: An expression for filtering the results of the request. For
+            field names both snake_case and camelCase are supported. For more
+            information about filter syntax, see
+            `AIP-160 <https://google.aip.dev/160>`_.
+            Example: ``'display_name="my_metric"'``.
+          order_by: A comma-separated list of fields to order by, sorted in
+            ascending order by default. Use ``desc`` after a field name for
+            descending. Example: ``"create_time desc"``.
+          config: Optional configuration for the list operation, including
+            pagination (``page_size``, ``page_token``), ``filter``, and
+            ``order_by``. Top-level ``filter`` and ``order_by`` arguments
+            take precedence over values set in ``config``.
+
+        Returns:
+          The list evaluation metrics response.
+        """
+        if config is None:
+            config = types.ListEvaluationMetricsConfig()
+        if isinstance(config, dict):
+            config = types.ListEvaluationMetricsConfig.model_validate(config)
+        if filter is not None:
+            config.filter = filter
+        if order_by is not None:
+            config.order_by = order_by
         return await self._list_evaluation_metrics(
+            config=config,
+        )
+
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI evals.delete_evaluation_metric method is experimental, "
+        "and may change in future versions."
+    )
+    async def delete_evaluation_metric(
+        self,
+        *,
+        metric_resource_name: str,
+        config: Optional[types.DeleteEvaluationMetricConfigOrDict] = None,
+    ) -> None:
+        """Deletes an EvaluationMetric.
+
+        Args:
+          metric_resource_name: The resource name of the EvaluationMetric to delete.
+            Format:
+            `projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric}`
+          config: The optional configuration for the delete operation.
+        """
+        await self._delete_evaluation_metric(
+            metric_resource_name=metric_resource_name,
             config=config,
         )

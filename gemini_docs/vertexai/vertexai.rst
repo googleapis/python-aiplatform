@@ -18,6 +18,7 @@ Vertex AI SDK
     .. autoattribute:: agent_engines
     .. autoattribute:: prompt_optimizer
     .. autoattribute:: prompts
+    .. autoattribute:: skills
 
 .. automodule:: vertexai._genai.evals
     :members:
@@ -84,6 +85,22 @@ Vertex AI SDK
     Sandboxes
     --------
     .. automodule:: vertexai._genai.sandboxes
+        :members:
+        :undoc-members:
+        :show-inheritance:
+
+.. automodule:: vertexai._genai.skills
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+    .. autoclass:: vertexai._genai.skills.Skills
+        :members:
+        .. autoattribute:: revisions
+
+    Revisions
+    ---------
+    .. automodule:: vertexai._genai.skill_revisions
         :members:
         :undoc-members:
         :show-inheritance:

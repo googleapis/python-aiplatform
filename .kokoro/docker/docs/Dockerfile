@@ -21,7 +21,10 @@ ENV PATH /usr/local/bin:$PATH
 
 # Install dependencies.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
+  && apt-get install -y ca-certificates --fix-missing \
+  && update-ca-certificates
+
+RUN apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
     ca-certificates \
@@ -60,16 +63,16 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* \
   && rm -f /var/cache/apt/archives/*.deb
 
-###################### Install python 3.9.13
+###################### Install python 3.10.20
 
-# Download python 3.9.13
-RUN wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tgz
+# Download python 3.10.20
+RUN wget https://www.python.org/ftp/python/3.10.20/Python-3.10.20.tgz
 
 # Extract files
-RUN tar -xvf Python-3.9.13.tgz
+RUN tar -xvf Python-3.10.20.tgz
 
-# Install python 3.9.13
-RUN ./Python-3.9.13/configure --enable-optimizations
+# Install python 3.10.20
+RUN ./Python-3.10.20/configure --enable-optimizations
 RUN make altinstall
 
 ###################### Install pip
@@ -80,4 +83,4 @@ RUN wget -O /tmp/get-pip.py 'https://bootstrap.pypa.io/get-pip.py' \
 # Test pip
 RUN python3 -m pip
 
-CMD ["python3.9"]
+CMD ["python3.10"]

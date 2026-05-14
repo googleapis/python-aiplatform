@@ -84,6 +84,16 @@ class AgentConfig(_common.BaseModel):
         """
         tool_declarations: genai_types.ToolListUnion = []
         for tool in agent.tools:
+            # ADK tools (e.g. AgentTool) provide their own declaration via
+            # _get_declaration(). Use it when available to avoid calling
+            # typing.get_type_hints() on tool instances whose classes use
+            # `from __future__ import annotations`, which causes NameError.
+            if hasattr(tool, "_get_declaration") and callable(tool._get_declaration):
+                declaration = tool._get_declaration()
+                if declaration is not None:
+                    tool_declarations.append({"function_declarations": [declaration]})
+                    continue
+
             tool_declarations.append(
                 {
                     "function_declarations": [

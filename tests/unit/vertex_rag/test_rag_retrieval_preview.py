@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +19,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform_v1beta1 import VertexRagServiceAsyncClient
 from google.cloud.aiplatform_v1beta1 import VertexRagServiceClient
 import test_rag_constants_preview
-from vertexai.preview import rag
+from agentplatform.preview import rag
 import mock
 import pytest
 
@@ -99,15 +97,11 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
 
     @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_resources_success(self):
-        with pytest.warns(DeprecationWarning):
-            response = rag.retrieval_query(
-                rag_resources=[tc.TEST_RAG_RESOURCE],
-                text=tc.TEST_QUERY_TEXT,
-                similarity_top_k=2,
-                vector_distance_threshold=0.5,
-                vector_search_alpha=0.5,
-            )
-            retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
+        response = rag.retrieval_query(
+            rag_resources=[tc.TEST_RAG_RESOURCE],
+            text=tc.TEST_QUERY_TEXT,
+        )
+        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.usefixtures("ask_contexts_mock")
     def test_ask_contexts_rag_resources_success(self):
@@ -138,16 +132,6 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
             rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
-
-    @pytest.mark.usefixtures("ask_contexts_mock")
-    def test_ask_contexts_multiple_rag_corpora_success(self):
-        with pytest.warns(DeprecationWarning):
-            response = rag.ask_contexts(
-                rag_corpora=[tc.TEST_RAG_CORPUS_ID, tc.TEST_RAG_CORPUS_ID],
-                text=tc.TEST_QUERY_TEXT,
-                rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
-            )
-            retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
     @pytest.mark.asyncio
     async def test_async_retrieve_contexts_rag_resources_success(
@@ -185,18 +169,6 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
-    @pytest.mark.asyncio
-    async def test_async_retrieve_contexts_multiple_rag_corpora_success(
-        self, async_retrieve_contexts_mock
-    ):
-        with pytest.warns(DeprecationWarning):
-            response = await rag.async_retrieve_contexts(
-                rag_corpora=[tc.TEST_RAG_CORPUS_ID, tc.TEST_RAG_CORPUS_ID],
-                text=tc.TEST_QUERY_TEXT,
-                rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_ALPHA,
-            )
-            retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
-
     @pytest.mark.usefixtures("retrieve_contexts_mock")
     def test_retrieval_query_rag_resources_config_success(self):
         response = rag.retrieval_query(
@@ -223,73 +195,12 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
         )
         retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
 
-    @pytest.mark.usefixtures("retrieve_contexts_mock")
-    def test_retrieval_query_rag_corpora_success(self):
-        with pytest.warns(DeprecationWarning):
-            response = rag.retrieval_query(
-                rag_corpora=[tc.TEST_RAG_CORPUS_ID],
-                text=tc.TEST_QUERY_TEXT,
-                similarity_top_k=2,
-                vector_distance_threshold=0.5,
-            )
-            retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
-
-    @pytest.mark.usefixtures("retrieve_contexts_mock")
-    def test_retrieval_query_rag_corpora_config_success(self):
-        response = rag.retrieval_query(
-            rag_corpora=[tc.TEST_RAG_CORPUS_ID],
-            text=tc.TEST_QUERY_TEXT,
-            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
-        )
-        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
-
-    @pytest.mark.usefixtures("retrieve_contexts_mock")
-    def test_retrieval_query_rag_corpora_config_rank_service_success(self):
-        response = rag.retrieval_query(
-            rag_corpora=[tc.TEST_RAG_CORPUS_ID],
-            text=tc.TEST_QUERY_TEXT,
-            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_RANK_SERVICE,
-        )
-        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
-
-    @pytest.mark.usefixtures("retrieve_contexts_mock")
-    def test_retrieval_query_with_metadata_filter(self, retrieve_contexts_mock):
-        metadata_filter = 'doc.metadata.genre == "fiction"'
-        rag_retrieval_config = rag.RagRetrievalConfig(
-            top_k=10,
-            filter=rag.Filter(
-                vector_distance_threshold=0.5, metadata_filter=metadata_filter
-            ),
-        )
-        rag.retrieval_query(
-            rag_resources=[tc.TEST_RAG_RESOURCE],
-            text=tc.TEST_QUERY_TEXT,
-            rag_retrieval_config=rag_retrieval_config,
-        )
-        retrieve_contexts_mock.assert_called_once()
-        args, kwargs = retrieve_contexts_mock.call_args
-        request = kwargs["request"]
-        assert (
-            request.query.rag_retrieval_config.filter.metadata_filter == metadata_filter
-        )
-
-    @pytest.mark.usefixtures("retrieve_contexts_mock")
-    def test_retrieval_query_rag_corpora_config_llm_ranker_success(self):
-        response = rag.retrieval_query(
-            rag_corpora=[tc.TEST_RAG_CORPUS_ID],
-            text=tc.TEST_QUERY_TEXT,
-            rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG_LLM_RANKER,
-        )
-        retrieve_contexts_eq(response, tc.TEST_RETRIEVAL_RESPONSE)
-
     @pytest.mark.usefixtures("rag_client_mock_exception")
     def test_retrieval_query_failure(self):
         with pytest.raises(RuntimeError) as e:
             rag.retrieval_query(
                 rag_resources=[tc.TEST_RAG_RESOURCE],
                 text=tc.TEST_QUERY_TEXT,
-                similarity_top_k=2,
-                vector_distance_threshold=0.5,
             )
         e.match("Failed in retrieving contexts due to")
 
@@ -308,8 +219,6 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
             rag.retrieval_query(
                 rag_resources=[tc.TEST_RAG_RESOURCE_INVALID_NAME],
                 text=tc.TEST_QUERY_TEXT,
-                similarity_top_k=2,
-                vector_distance_threshold=0.5,
             )
         e.match("Invalid RagCorpus name")
 
@@ -322,31 +231,6 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
             )
         e.match("Invalid RagCorpus name")
 
-    def test_retrieval_query_multiple_rag_corpora(self):
-        with pytest.raises(ValueError) as e:
-            rag.retrieval_query(
-                rag_corpora=[
-                    tc.TEST_RAG_CORPUS_ID,
-                    tc.TEST_RAG_CORPUS_ID,
-                ],
-                text=tc.TEST_QUERY_TEXT,
-                similarity_top_k=2,
-                vector_distance_threshold=0.5,
-            )
-        e.match("Currently only support 1 RagCorpus")
-
-    def test_retrieval_query_multiple_rag_corpora_config(self):
-        with pytest.raises(ValueError) as e:
-            rag.retrieval_query(
-                rag_corpora=[
-                    tc.TEST_RAG_CORPUS_ID,
-                    tc.TEST_RAG_CORPUS_ID,
-                ],
-                text=tc.TEST_QUERY_TEXT,
-                rag_retrieval_config=tc.TEST_RAG_RETRIEVAL_CONFIG,
-            )
-        e.match("Currently only support 1 RagCorpus")
-
     def test_retrieval_query_multiple_rag_resources(self):
         with pytest.raises(ValueError) as e:
             rag.retrieval_query(
@@ -355,8 +239,6 @@ class TestRagRetrieval:  # pylint: disable=missing-class-docstring, bad-indentat
                     tc.TEST_RAG_RESOURCE,
                 ],
                 text=tc.TEST_QUERY_TEXT,
-                similarity_top_k=2,
-                vector_distance_threshold=0.5,
             )
         e.match("Currently only support 1 RagResource")
 

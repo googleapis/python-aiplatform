@@ -232,7 +232,12 @@ class TestTrainingUtils:
         )
 
         with tempfile.TemporaryDirectory() as destination_directory_name:
-            _ = packager.make_package(package_directory=destination_directory_name)
+            with mock.patch("subprocess.Popen") as mock_popen:
+                mock_subprocess = mock.Mock()
+                mock_subprocess.communicate.return_value = (b"", b"")
+                mock_subprocess.returncode = 0
+                mock_popen.return_value = mock_subprocess
+                _ = packager.make_package(package_directory=destination_directory_name)
 
             # Check that contents of source_distribution_path is the same as destination_directory_name
             destination_inner_path = f"{destination_directory_name}/{packager._TRAINER_FOLDER}/{packager._ROOT_MODULE}/{packager.task_module_name}.py"
@@ -275,7 +280,12 @@ class TestTrainingUtils:
             with open(existing_file.name, "w") as handle:
                 handle.write("existing")
 
-            _ = packager.make_package(package_directory=destination_directory_name)
+            with mock.patch("subprocess.Popen") as mock_popen:
+                mock_subprocess = mock.Mock()
+                mock_subprocess.communicate.return_value = (b"", b"")
+                mock_subprocess.returncode = 0
+                mock_popen.return_value = mock_subprocess
+                _ = packager.make_package(package_directory=destination_directory_name)
 
             # Check that contents of source_distribution_path is the same as destination_directory_name
             destination_inner_path = f"{destination_directory_name}/{packager._TRAINER_FOLDER}/{packager._ROOT_MODULE}"

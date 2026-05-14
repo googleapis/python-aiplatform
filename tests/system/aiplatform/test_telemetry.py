@@ -23,7 +23,7 @@ from tests.system.aiplatform import e2e_base
 
 from vertexai.generative_models import GenerativeModel
 
-GEMINI_MODEL_NAME = "gemini-1.5-pro-002"
+GEMINI_MODEL_NAME = "gemini-2.5-flash"
 
 
 class TestTelemetry(e2e_base.TestEndToEnd):

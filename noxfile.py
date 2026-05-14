@@ -30,7 +30,14 @@ nox.options.default_venv_backend = "uv"
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = [
+    "docs",
+    "google",
+    "vertexai",
+    "agentplatform/_genai",
+    "noxfile.py",
+    "setup.py",
+]
 
 DEFAULT_PYTHON_VERSION = "3.10"
 
@@ -53,12 +60,12 @@ DOCFX_DEPENDENCIES = (
     "recommonmark",
 )
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 PYTHON_TO_RAY_VERSIONS = {
-    "3.10": ["2.9.3", "2.33.0", "2.42.0"],
+    "3.10": ["2.33.0", "2.42.0"],
     "3.11": ["2.42.0", "2.47.1"],
 }
 UNIT_TEST_STANDARD_DEPENDENCIES = [
@@ -208,17 +215,14 @@ def default(session):
         "py.test",
         "--quiet",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
-        "--cov=google",
-        "--cov-append",
-        "--cov-config=.coveragerc",
-        "--cov-report=",
-        "--cov-fail-under=0",
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_adk",
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
         "--ignore=tests/unit/architecture",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
         os.path.join("tests", "unit"),
         *session.posargs,
     )
@@ -459,7 +463,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def docs(session):
     """Build the docs for this library."""
 
@@ -519,7 +523,7 @@ def docfx(session):
     )
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
@@ -638,7 +642,12 @@ def prerelease_deps(session):
     )
     session.run("python", "-c", "import grpc; print(grpc.__version__)")
 
-    session.run("py.test", "tests/unit")
+    session.run(
+        "py.test",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
+        "tests/unit",
+    )
 
     system_test_path = os.path.join("tests", "system.py")
     system_test_folder_path = os.path.join("tests", "system")

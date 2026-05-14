@@ -54,7 +54,7 @@ from google.cloud.aiplatform_v1beta1.types.persistent_resource import (
     ResourceRuntimeSpec,
     ServiceAccountSpec,
 )
-from feature_store_constants import (
+from vertexai_feature_store_constants import (
     _TEST_BIGTABLE_FOS1,
     _TEST_EMBEDDING_FV1,
     _TEST_ESF_OPTIMIZED_FOS,

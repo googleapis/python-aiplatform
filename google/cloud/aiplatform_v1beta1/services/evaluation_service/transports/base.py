@@ -152,6 +152,11 @@ class EvaluationServiceTransport(abc.ABC):
                 default_timeout=None,
                 client_info=client_info,
             ),
+            self.generate_instance_rubrics: gapic_v1.method.wrap_method(
+                self.generate_instance_rubrics,
+                default_timeout=None,
+                client_info=client_info,
+            ),
             self.get_location: gapic_v1.method.wrap_method(
                 self.get_location,
                 default_timeout=None,
@@ -236,6 +241,18 @@ class EvaluationServiceTransport(abc.ABC):
     ) -> Callable[
         [evaluation_service.EvaluateDatasetRequest],
         Union[operations_pb2.Operation, Awaitable[operations_pb2.Operation]],
+    ]:
+        raise NotImplementedError()
+
+    @property
+    def generate_instance_rubrics(
+        self,
+    ) -> Callable[
+        [evaluation_service.GenerateInstanceRubricsRequest],
+        Union[
+            evaluation_service.GenerateInstanceRubricsResponse,
+            Awaitable[evaluation_service.GenerateInstanceRubricsResponse],
+        ],
     ]:
         raise NotImplementedError()
 

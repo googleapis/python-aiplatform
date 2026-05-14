@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,11 +15,12 @@
 """Tests for vertex_rag.retrieval."""
 
 import importlib
+
 from google.cloud import aiplatform
+from agentplatform import rag
 from google.cloud.aiplatform_v1 import VertexRagServiceAsyncClient
 from google.cloud.aiplatform_v1 import VertexRagServiceClient
 import test_rag_constants as tc
-from vertexai import rag
 import mock
 import pytest
 

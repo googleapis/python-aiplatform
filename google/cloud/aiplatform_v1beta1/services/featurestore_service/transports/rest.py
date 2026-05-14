@@ -1964,6 +1964,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
@@ -2029,6 +2033,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -2374,6 +2382,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -2463,6 +2475,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -2816,6 +2832,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -2905,6 +2925,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -3254,6 +3278,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
@@ -3343,6 +3371,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -3692,6 +3724,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
@@ -3777,6 +3813,10 @@ class FeaturestoreServiceRestTransport(_BaseFeaturestoreServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:wait",
                     },
                 ],
             }

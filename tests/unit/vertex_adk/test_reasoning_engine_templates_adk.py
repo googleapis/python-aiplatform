@@ -251,13 +251,18 @@ def adk_version_mock():
         yield adk_version_mock
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def get_project_id_mock():
     with mock.patch(
         "google.cloud.aiplatform.aiplatform.utils.resource_manager_utils.get_project_id"
     ) as get_project_id_mock:
         get_project_id_mock.return_value = _TEST_PROJECT_ID
-        yield get_project_id_mock
+        with mock.patch.object(initializer.global_config, "_project", _TEST_PROJECT):
+            with mock.patch(
+                "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.AdkApp._warn_if_telemetry_api_disabled",
+                return_value=None,
+            ):
+                yield get_project_id_mock
 
 
 class _MockRunner:
@@ -376,7 +381,7 @@ class TestAdkApp:
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL),
         )
-        assert app._tmpl_attrs.get("project") == _TEST_PROJECT
+        assert app._tmpl_attrs.get("project") == _TEST_PROJECT_ID
         assert app._tmpl_attrs.get("location") == _TEST_LOCATION
         assert app._tmpl_attrs.get("runner") is None
 
@@ -568,7 +573,17 @@ class TestAdkApp:
                 "artifacts": [
                     {
                         "file_name": "test_file_name",
-                        "versions": [{"version": "v1", "data": "v1data"}],
+                        "versions": [
+                            {
+                                "version": "v1",
+                                "data": {
+                                    "inline_data": {
+                                        "data": "djFkYXRh",
+                                        "mime_type": "text/plain",
+                                    }
+                                },
+                            }
+                        ],
                     }
                 ],
                 "authorizations": {
@@ -606,7 +621,17 @@ class TestAdkApp:
                 "artifacts": [
                     {
                         "file_name": "test_file_name",
-                        "versions": [{"version": "v1", "data": "v1data"}],
+                        "versions": [
+                            {
+                                "version": "v1",
+                                "data": {
+                                    "inline_data": {
+                                        "data": "djFkYXRh",
+                                        "mime_type": "text/plain",
+                                    }
+                                },
+                            }
+                        ],
                     }
                 ],
                 "authorizations": {
@@ -682,12 +707,12 @@ class TestAdkApp:
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
         )
         session1 = app.create_session(user_id=_TEST_USER_ID)
-        assert session1.user_id == _TEST_USER_ID
+        assert session1["user_id"] == _TEST_USER_ID
         session2 = app.create_session(
             user_id=_TEST_USER_ID, session_id="test_session_id"
         )
-        assert session2.user_id == _TEST_USER_ID
-        assert session2.id == "test_session_id"
+        assert session2["user_id"] == _TEST_USER_ID
+        assert session2["id"] == "test_session_id"
 
     def test_get_session(self):
         app = reasoning_engines.AdkApp(
@@ -696,10 +721,10 @@ class TestAdkApp:
         session1 = app.create_session(user_id=_TEST_USER_ID)
         session2 = app.get_session(
             user_id=_TEST_USER_ID,
-            session_id=session1.id,
+            session_id=session1["id"],
         )
         assert session2.user_id == _TEST_USER_ID
-        assert session1.id == session2.id
+        assert session1["id"] == session2.id
 
     def test_list_sessions(self):
         app = reasoning_engines.AdkApp(
@@ -710,12 +735,12 @@ class TestAdkApp:
         session = app.create_session(user_id=_TEST_USER_ID)
         response1 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
-        assert response1.sessions[0].id == session.id
+        assert response1.sessions[0].id == session["id"]
         session2 = app.create_session(user_id=_TEST_USER_ID)
         response2 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response2.sessions) == 2
-        assert response2.sessions[0].id == session.id
-        assert response2.sessions[1].id == session2.id
+        assert response2.sessions[0].id == session["id"]
+        assert response2.sessions[1].id == session2["id"]
 
     def test_delete_session(self):
         app = reasoning_engines.AdkApp(
@@ -726,7 +751,7 @@ class TestAdkApp:
         session = app.create_session(user_id=_TEST_USER_ID)
         response1 = app.list_sessions(user_id=_TEST_USER_ID)
         assert len(response1.sessions) == 1
-        app.delete_session(user_id=_TEST_USER_ID, session_id=session.id)
+        app.delete_session(user_id=_TEST_USER_ID, session_id=session["id"])
         response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
 
@@ -740,14 +765,14 @@ class TestAdkApp:
         list(
             app.stream_query(
                 user_id=_TEST_USER_ID,
-                session_id=session.id,
+                session_id=session["id"],
                 message="My cat's name is Garfield",
             )
         )
         await app.async_add_session_to_memory(
             session=app.get_session(
                 user_id=_TEST_USER_ID,
-                session_id=session.id,
+                session_id=session["id"],
             )
         )
         response = await app.async_search_memory(
@@ -838,7 +863,7 @@ class TestAdkApp:
 
         # Assert
         default_instrumentor_builder_mock.assert_called_once_with(
-            _TEST_PROJECT,
+            _TEST_PROJECT_ID,
             enable_tracing=want_tracing_setup,
             enable_logging=want_logging_setup,
         )
@@ -863,11 +888,16 @@ class TestAdkApp:
         monkeypatch.setattr("os.getpid", lambda: 123123123)
         app = reasoning_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app._warn_if_telemetry_api_disabled = lambda: None
-        app.set_up()
+        with mock.patch(
+            "google.cloud.aiplatform.vertexai.agent_engines._utils.is_noop_or_proxy_tracer_provider",
+            return_value=True,
+        ):
+            app.set_up()
 
         expected_attributes = {
             "cloud.account.id": _TEST_PROJECT_ID,
             "cloud.platform": "gcp.agent_engine",
+            "cloud.provider": "gcp",
             "cloud.region": "us-central1",
             "cloud.resource_id": "//aiplatform.googleapis.com/projects/test-project-id/locations/us-central1/reasoningEngines/test_agent_id",
             "gcp.project_id": _TEST_PROJECT_ID,
@@ -876,7 +906,7 @@ class TestAdkApp:
             "some-attribute": "some-value",
             "telemetry.sdk.language": "python",
             "telemetry.sdk.name": "opentelemetry",
-            "telemetry.sdk.version": "1.36.0",
+            "telemetry.sdk.version": "1.39.0",
             "some-attribute": "some-value",
         }
 
@@ -886,7 +916,11 @@ class TestAdkApp:
             headers=mock.ANY,
         )
 
-        get_project_id_mock.assert_called_once_with(_TEST_PROJECT)
+        calls = [
+            mock.call(project_number=_TEST_PROJECT_ID, credentials=mock.ANY),
+            mock.call(_TEST_PROJECT_ID),
+        ]
+        get_project_id_mock.assert_has_calls(calls)
 
         user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
         assert (

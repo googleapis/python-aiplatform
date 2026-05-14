@@ -1075,6 +1075,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
@@ -1140,6 +1144,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -1485,6 +1493,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -1574,6 +1586,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -1927,6 +1943,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -2016,6 +2036,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -2365,6 +2389,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
@@ -2454,6 +2482,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -2803,6 +2835,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
@@ -2888,6 +2924,10 @@ class ScheduleServiceRestTransport(_BaseScheduleServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:wait",
                     },
                 ],
             }

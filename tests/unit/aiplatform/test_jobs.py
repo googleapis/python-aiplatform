@@ -380,6 +380,24 @@ class TestJob:
 
         fake_job_cancel_mock.assert_called_once_with(name=_TEST_JOB_RESOURCE_NAME)
 
+    @pytest.mark.usefixtures("fake_job_getter_mock")
+    def test_dashboard_uri_uses_agent_platform_path(self):
+        fake_job = self.FakeJob(job_name=_TEST_JOB_RESOURCE_NAME)
+        uri = fake_job._dashboard_uri()
+        assert "/agent-platform/" in uri
+        assert "/ai/platform/" not in uri
+
+    @pytest.mark.usefixtures("fake_job_getter_mock")
+    def test_dashboard_uri_format(self):
+        fake_job = self.FakeJob(job_name=_TEST_JOB_RESOURCE_NAME)
+        uri = fake_job._dashboard_uri()
+        expected = (
+            f"https://console.cloud.google.com/agent-platform/locations/"
+            f"{_TEST_LOCATION}/{self.FakeJob._job_type}/{_TEST_ID}"
+            f"?project={_TEST_PROJECT}"
+        )
+        assert uri == expected
+
 
 @pytest.fixture
 def get_batch_prediction_job_mock():
@@ -1320,6 +1338,30 @@ class TestBatchPredictionJob:
             ].model
             == _TEST_PUBLISHER_MODEL_NAME
         )
+
+    def test_batch_prediction_dashboard_uri_uses_agent_platform_path(
+        self, get_batch_prediction_job_mock
+    ):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        bp = jobs.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
+        )
+        uri = bp._dashboard_uri()
+        assert "/agent-platform/" in uri
+        assert "/ai/platform/" not in uri
+
+    def test_batch_prediction_dashboard_uri_format(self, get_batch_prediction_job_mock):
+        aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        bp = jobs.BatchPredictionJob(
+            batch_prediction_job_name=_TEST_BATCH_PREDICTION_JOB_NAME
+        )
+        uri = bp._dashboard_uri()
+        expected = (
+            f"https://console.cloud.google.com/agent-platform/locations/"
+            f"{_TEST_LOCATION}/batch-predictions/{_TEST_ID}"
+            f"?project={_TEST_PROJECT}"
+        )
+        assert uri == expected
 
 
 @pytest.fixture

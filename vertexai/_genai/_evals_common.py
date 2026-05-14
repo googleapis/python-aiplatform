@@ -54,32 +54,6 @@ try:
 except ImportError:
     litellm = None
 
-try:
-    from google.adk.agents import LlmAgent
-    from google.adk.runners import Runner
-    from google.adk.sessions import InMemorySessionService
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulator,
-    )
-    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
-        LlmBackedUserSimulatorConfig,
-    )
-    from google.adk.evaluation.conversation_scenarios import ConversationScenario
-    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
-    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
-except ImportError:
-    logging.getLogger(__name__).warning(
-        "ADK is not installed. Please install it using" " 'pip install google-adk'"
-    )
-    LlmAgent = None
-    Runner = None
-    InMemorySessionService = None
-    LlmBackedUserSimulator = None
-    LlmBackedUserSimulatorConfig = None
-    ConversationScenario = None
-    EvaluationGenerator = None
-    ADK_SessionInput = None
-
 
 _thread_local_data = threading.local()
 
@@ -279,6 +253,173 @@ def _extract_contents_for_inference(
         return request_dict_or_raw_text
 
 
+def _eval_cases_to_dataframe(
+    eval_cases: list[types.EvalCase],
+) -> pd.DataFrame:
+    """Converts a list of EvalCase objects to a pandas DataFrame.
+
+    Each EvalCase is converted to a row in the DataFrame. Structured fields
+    like ``agent_data`` are preserved as-is (not flattened) so that downstream
+    agent execution paths can consume them directly.
+
+    Args:
+        eval_cases: The list of EvalCase objects to convert.
+
+    Returns:
+        A DataFrame with one row per EvalCase.
+    """
+    rows = []
+    for case in eval_cases:
+        row: dict[str, Any] = {}
+        if case.prompt:
+            row[_evals_constant.PROMPT] = _evals_data_converters._get_content_text(
+                case.prompt
+            )
+
+        if case.responses and len(case.responses) > 0 and case.responses[0].response:
+            row[_evals_constant.RESPONSE] = _evals_data_converters._get_content_text(
+                case.responses[0].response
+            )
+
+        if case.reference and case.reference.response:
+            row[_evals_constant.REFERENCE] = _evals_data_converters._get_content_text(
+                case.reference.response
+            )
+
+        if case.agent_data:
+            row[AGENT_DATA] = case.agent_data
+
+        if case.intermediate_events:
+            row[_evals_constant.INTERMEDIATE_EVENTS] = [
+                {CONTENT: event.content}
+                for event in case.intermediate_events
+                if event.content
+            ]
+
+        if case.conversation_history:
+            history_parts = []
+            for msg in case.conversation_history:
+                if msg.content:
+                    role = msg.content.role or "user"
+                    text = _evals_data_converters._get_content_text(msg.content)
+                    history_parts.append(f"{role}: {text}")
+            if history_parts:
+                row[_evals_constant.CONVERSATION_HISTORY] = "\n".join(history_parts)
+
+        if case.user_scenario:
+            if case.user_scenario.starting_prompt:
+                row[_evals_constant.STARTING_PROMPT] = (
+                    case.user_scenario.starting_prompt
+                )
+            if case.user_scenario.conversation_plan:
+                row[_evals_constant.CONVERSATION_PLAN] = (
+                    case.user_scenario.conversation_plan
+                )
+
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _extract_prompt_from_agent_data(
+    agent_data: types.evals.AgentData,
+) -> tuple[genai_types.Content, list[types.evals.AgentEvent]]:
+    """Extracts the last user message and prior events from agent_data.
+
+    The last event across all turns must be authored by ``"user"``; it is
+    treated as the current prompt that the agent should respond to.
+    Everything before it is returned as conversation history.
+
+    Args:
+        agent_data: The AgentData containing conversation turns.
+
+    Returns:
+        A tuple of ``(last_user_content, history_events)`` where
+        ``last_user_content`` is the ``Content`` of the final user event
+        and ``history_events`` is the ordered list of all prior
+        ``AgentEvent`` objects.
+
+    Raises:
+        ValueError: If ``agent_data`` has no turns, no events, or the last
+            event is not a user event.
+    """
+    if not agent_data.turns:
+        raise ValueError("agent_data must have at least one turn.")
+
+    all_events: list[types.evals.AgentEvent] = []
+    for turn in agent_data.turns:
+        if turn.events:
+            all_events.extend(turn.events)
+
+    if not all_events:
+        raise ValueError("agent_data turns contain no events.")
+
+    last_event = all_events[-1]
+    if last_event.author != USER_AUTHOR:
+        raise ValueError(
+            "agent_data must end with a user event, but the last event has"
+            f" author='{last_event.author}'."
+        )
+
+    if not last_event.content:
+        raise ValueError("The last user event in agent_data has no content.")
+
+    return last_event.content, all_events[:-1]
+
+
+def _is_n_plus_1_inference(
+    agent_data: Union[types.evals.AgentData, dict[str, Any]],
+) -> bool:
+    """Returns True if agent_data represents an N+1 inference case.
+
+    An N+1 case means the trace is incomplete: N prior conversation turns
+    exist plus 1 final user query that the agent should respond to.  This
+    is detected by checking whether the very last event across all turns
+    is authored by ``"user"``.
+
+    Returns ``False`` for completed traces (last event from the agent),
+    empty traces, or invalid data.
+    """
+    if isinstance(agent_data, dict):
+        try:
+            agent_data = types.evals.AgentData.model_validate(agent_data)
+        except Exception:  # pylint: disable=broad-exception-caught
+            return False
+    if not isinstance(agent_data, types.evals.AgentData):
+        return False
+    if not agent_data.turns:
+        return False
+    all_events: list[types.evals.AgentEvent] = []
+    for turn in agent_data.turns or []:
+        if turn.events:
+            all_events.extend(turn.events)
+    if not all_events:
+        return False
+    return all_events[-1].author == USER_AUTHOR
+
+
+def _extract_response_from_completed_trace(
+    agent_data: types.evals.AgentData,
+) -> list[dict[str, Any]]:
+    """Extracts all events from a completed agent trace as event dicts.
+
+    For BYOD (bring-your-own-data) use cases where the agent trace is
+    already complete, this returns all events formatted as a list of
+    dicts compatible with ``_process_single_turn_agent_response``.  The
+    last element is the final agent response; preceding elements become
+    intermediate events.
+    """
+    event_dicts: list[dict[str, Any]] = []
+    for turn in agent_data.turns or []:
+        if not turn.events:
+            continue
+        for event in turn.events:
+            d: dict[str, Any] = {"author": event.author or "agent"}
+            if event.content:
+                d[CONTENT] = event.content.model_dump(exclude_none=True)
+            event_dicts.append(d)
+    return event_dicts
+
+
 def _resolve_dataset(
     api_client: BaseApiClient,
     dataset: Union[types.EvaluationRunDataSource, types.EvaluationDataset],
@@ -290,60 +431,14 @@ def _resolve_dataset(
         candidate_name = _get_candidate_name(dataset, parsed_agent_info)
         eval_df = dataset.eval_dataset_df
         if eval_df is None and dataset.eval_cases:
-            rows = []
-            for case in dataset.eval_cases:
-                row: dict[str, Any] = {}
-                if case.prompt:
-                    row[_evals_constant.PROMPT] = (
-                        _evals_data_converters._get_content_text(case.prompt)
-                    )
-
-                if (
-                    case.responses
-                    and len(case.responses) > 0
-                    and case.responses[0].response
-                ):
-                    row[_evals_constant.RESPONSE] = (
-                        _evals_data_converters._get_content_text(
-                            case.responses[0].response
-                        )
-                    )
-
-                if case.reference and case.reference.response:
-                    row[_evals_constant.REFERENCE] = (
-                        _evals_data_converters._get_content_text(
-                            case.reference.response
-                        )
-                    )
-
-                if case.agent_data:
-                    row[AGENT_DATA] = case.agent_data
-
-                if case.intermediate_events:
-                    row[_evals_constant.INTERMEDIATE_EVENTS] = [
-                        {CONTENT: event.content}
-                        for event in case.intermediate_events
-                        if event.content
-                    ]
-
-                if case.user_scenario:
-                    if case.user_scenario.starting_prompt:
-                        row[_evals_constant.STARTING_PROMPT] = (
-                            case.user_scenario.starting_prompt
-                        )
-                    if case.user_scenario.conversation_plan:
-                        row[_evals_constant.CONVERSATION_PLAN] = (
-                            case.user_scenario.conversation_plan
-                        )
-
-                rows.append(row)
-            eval_df = pd.DataFrame(rows)
+            eval_df = _eval_cases_to_dataframe(dataset.eval_cases)
 
         eval_set = _create_evaluation_set_from_dataframe(
             api_client,
             dest,
             eval_df,
             candidate_name,
+            parsed_agent_info=parsed_agent_info,
         )
         dataset = types.EvaluationRunDataSource(evaluation_set=eval_set.name)
     return dataset
@@ -489,7 +584,7 @@ def _execute_inference_concurrently(
     gemini_config: Optional[genai_types.GenerateContentConfig] = None,
     inference_fn: Optional[Callable[..., Any]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
-    agent: Optional[LlmAgent] = None,
+    agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[
     Union[
@@ -514,15 +609,24 @@ def _execute_inference_concurrently(
     ] = [None] * len(prompt_dataset)
     tasks = []
 
+    # When running with an agent and agent_data is present, we extract the
+    # prompt from the structured agent_data rather than requiring a flat
+    # prompt/request column.
+    has_agent_data = (
+        agent is not None or agent_engine is not None
+    ) and AGENT_DATA in prompt_dataset.columns
+
+    primary_prompt_column: Optional[str] = None
     if "request" in prompt_dataset.columns:
         primary_prompt_column = "request"
     elif "prompt" in prompt_dataset.columns:
         primary_prompt_column = "prompt"
     elif "starting_prompt" in prompt_dataset.columns:
         primary_prompt_column = "starting_prompt"
-    else:
+    elif not has_agent_data:
         raise ValueError(
-            "Dataset must contain either 'prompt', 'request', or 'starting_prompt'."
+            "Dataset must contain either 'prompt', 'request', or"
+            " 'starting_prompt'."
             f" Found: {prompt_dataset.columns.tolist()}"
         )
 
@@ -530,13 +634,52 @@ def _execute_inference_concurrently(
     with tqdm(total=len(prompt_dataset), desc=progress_desc) as pbar:
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             for index, row in prompt_dataset.iterrows():
-                request_dict_or_raw_text = row[primary_prompt_column]
                 try:
-                    contents = _extract_contents_for_inference(request_dict_or_raw_text)
+                    if (
+                        has_agent_data
+                        and AGENT_DATA in row.index
+                        and row.get(AGENT_DATA) is not None
+                    ):
+                        agent_data_obj = row[AGENT_DATA]
+                        if isinstance(agent_data_obj, dict):
+                            agent_data_obj = types.evals.AgentData.model_validate(
+                                agent_data_obj
+                            )
+                        if _is_n_plus_1_inference(agent_data_obj):
+                            last_user_content, _ = _extract_prompt_from_agent_data(
+                                agent_data_obj
+                            )
+                            contents = _evals_data_converters._get_content_text(
+                                last_user_content
+                            )
+                        else:
+                            logger.info(
+                                "Row %s has a completed agent trace"
+                                " (last event is not from user)."
+                                " Skipping inference and using existing"
+                                " agent response.",
+                                index,
+                            )
+                            responses[index] = _extract_response_from_completed_trace(
+                                agent_data_obj
+                            )
+                            pbar.update(1)
+                            continue
+                    else:
+                        if primary_prompt_column is None:
+                            raise ValueError(
+                                "Row has no agent_data and dataset has no"
+                                " 'prompt', 'request', or 'starting_prompt'"
+                                " column."
+                            )
+                        request_dict_or_raw_text = row[primary_prompt_column]
+                        contents = _extract_contents_for_inference(
+                            request_dict_or_raw_text
+                        )
                 except ValueError as e:
                     error_message = (
-                        f"Failed to extract contents for prompt at index {index}: {e}. "
-                        "Skipping prompt."
+                        f"Failed to extract contents for prompt at index"
+                        f" {index}: {e}. Skipping prompt."
                     )
                     logger.error(error_message)
                     responses[index] = {"error": error_message}
@@ -710,8 +853,7 @@ def _run_litellm_inference(
 ) -> list[Optional[dict[str, Any]]]:
     """Runs inference using LiteLLM with concurrency."""
     logger.info(
-        "Generating responses for %d prompts using LiteLLM for third party"
-        " model: %s",
+        "Generating responses for %d prompts using LiteLLM for third party model: %s",
         len(prompt_dataset),
         model,
     )
@@ -749,7 +891,14 @@ def _is_litellm_vertex_maas_model(model: str) -> bool:
 
 def _is_litellm_model(model: str) -> bool:
     """Checks if the model name corresponds to a valid LiteLLM model name."""
-    return model in litellm.utils.get_valid_models(model)
+    if litellm is None:
+        return False
+
+    try:
+        litellm.get_llm_provider(model)
+        return True
+    except ValueError:
+        return False
 
 
 def _is_gemini_model(model: str) -> bool:
@@ -852,7 +1001,7 @@ def _run_inference_internal(
             # Unsupported model string
             raise TypeError(
                 f"Unsupported string model name: {model}. Expecting a Gemini model"
-                " name (e.g., 'gemini-1.5-pro', 'projects/.../models/...') or a"
+                " name (e.g., 'gemini-2.5-pro', 'projects/.../models/...') or a"
                 " LiteLLM supported model name (e.g., 'openai/gpt-4o')."
                 " If using a third-party model via LiteLLM, ensure the"
                 " necessary environment variables are set (e.g., for OpenAI:"
@@ -937,11 +1086,25 @@ def _run_inference_internal(
 
     results_df_responses_only = pd.DataFrame(
         {
-            "response": responses,
+            _evals_constant.RESPONSE: responses,
         }
     )
 
     prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
+
+    # Drop existing 'response' column to prevent duplicate column names when
+    # re-running inference on a dataset that already has responses.
+    if _evals_constant.RESPONSE in prompt_dataset_indexed.columns:
+        logger.warning(
+            "A column named '%s' already exists in the prompt dataset. "
+            "The existing column will be dropped and replaced with the new "
+            "inference results.",
+            _evals_constant.RESPONSE,
+        )
+        prompt_dataset_indexed = prompt_dataset_indexed.drop(
+            columns=[_evals_constant.RESPONSE]
+        )
+
     results_df_responses_only_indexed = results_df_responses_only.reset_index(drop=True)
 
     results_df = pd.concat(
@@ -953,10 +1116,22 @@ def _run_inference_internal(
 
 async def _run_adk_user_simulation(
     row: pd.Series,
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> list[dict[str, Any]]:
     """Runs a multi-turn user simulation using ADK's EvaluationGenerator."""
+    # Lazy-import ADK dependencies to avoid top-level import failures when
+    # google-adk is not installed.
+    from google.adk.evaluation.conversation_scenarios import ConversationScenario
+    from google.adk.evaluation.eval_case import SessionInput as ADK_SessionInput
+    from google.adk.evaluation.evaluation_generator import EvaluationGenerator
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulator,
+    )
+    from google.adk.evaluation.simulation.llm_backed_user_simulator import (
+        LlmBackedUserSimulatorConfig,
+    )
+
     starting_prompt = row.get("starting_prompt")
     conversation_plan = row.get("conversation_plan")
     user_persona = "EVALUATOR"
@@ -1143,7 +1318,7 @@ def _execute_inference(
     src: Union[str, pd.DataFrame],
     model: Optional[Union[Callable[[Any], Any], str]] = None,
     agent_engine: Optional[Union[str, types.AgentEngine]] = None,
-    agent: Optional[LlmAgent] = None,
+    agent: Optional["LlmAgent"] = None,  # type: ignore # noqa: F821
     dest: Optional[str] = None,
     config: Optional[genai_types.GenerateContentConfig] = None,
     prompt_template: Optional[Union[str, types.PromptTemplateOrDict]] = None,
@@ -1824,6 +1999,14 @@ def _create_agent_results_dataframe(
     prompt_dataset_indexed = prompt_dataset.reset_index(drop=True)
     results_df_responses_only_indexed = results_df_raw.reset_index(drop=True)
 
+    # Drop columns from input that will be overwritten by results to avoid
+    # duplicate columns after concatenation (e.g. agent_data).
+    overlap = prompt_dataset_indexed.columns.intersection(
+        results_df_responses_only_indexed.columns
+    )
+    if not overlap.empty:
+        prompt_dataset_indexed = prompt_dataset_indexed.drop(columns=overlap)
+
     results_df = pd.concat(
         [prompt_dataset_indexed, results_df_responses_only_indexed], axis=1
     )
@@ -1833,7 +2016,7 @@ def _create_agent_results_dataframe(
 def _run_agent_internal(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
+    agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
     allow_cross_region_model: bool = False,
@@ -1884,7 +2067,7 @@ def _run_agent_internal(
 def _run_agent(
     api_client: BaseApiClient,
     agent_engine: Optional[Union[str, types.AgentEngine]],
-    agent: Optional[LlmAgent],
+    agent: Optional["LlmAgent"],  # type: ignore # noqa: F821
     prompt_dataset: pd.DataFrame,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
     allow_cross_region_model: bool = False,
@@ -1907,9 +2090,9 @@ def _run_agent(
                 raise ValueError(
                     f"The model '{model_name}' is currently only available in the"
                     " 'global' region. Because this request originated in"
-                    f" '{current_location}', you must explicitly set "
-                    "allow_cross_region_model=True to allow your data to be routed outside"
-                    " of your request's region."
+                    f" '{current_location}', you must explicitly set"
+                    " allow_cross_region_model=True to allow your data to be routed"
+                    " outside of your request's region."
                 )
 
             logger.warning(
@@ -1952,6 +2135,74 @@ def _run_agent(
                 os.environ["GOOGLE_CLOUD_LOCATION"] = original_location
 
 
+def _create_agent_engine_session(
+    *,
+    agent_engine: types.AgentEngine,
+    user_id: str,
+    session_state: Optional[dict[str, Any]] = None,
+) -> Any:
+    """Creates a session for an agent engine and returns the session ID.
+
+    First attempts to use the agent engine's own `create_session` operation
+    (available for agents deployed via AdkApp). If the agent engine does not
+    have `create_session` registered, falls back to the managed Vertex AI
+    Sessions API.
+
+    Args:
+        agent_engine: The AgentEngine instance.
+        user_id: The user ID for the session.
+        session_state: Optional initial state for the session.
+
+    Returns:
+        The session ID string.
+
+    Raises:
+        RuntimeError: If the session could not be created via either path.
+    """
+    try:
+        session = agent_engine.create_session(  # type: ignore[attr-defined]
+            user_id=user_id,
+            state=session_state,
+        )
+        return session["id"]
+    except AttributeError as exc:
+        # Agent engine does not have create_session registered (e.g. deployed
+        # via Console, gcloud, or source code deployment without AdkApp).
+        # Fall back to the managed Vertex AI Sessions API.
+        logger.info(
+            "Agent engine does not have 'create_session' operation registered."
+            " Falling back to managed Sessions API."
+        )
+        if agent_engine.api_resource is None:
+            raise RuntimeError(
+                "Failed to create session: agent_engine.api_resource is None."
+            ) from exc
+        if agent_engine.api_client is None:
+            raise RuntimeError(
+                "Failed to create session: agent_engine.api_client is None."
+            ) from exc
+        operation = agent_engine.api_client.sessions.create(
+            name=agent_engine.api_resource.name,
+            user_id=user_id,
+            config=types.CreateAgentEngineSessionConfig(
+                session_state=session_state,
+            ),
+        )
+        if operation.response and operation.response.name:
+            # Session name format:
+            # projects/{p}/locations/{l}/reasoningEngines/{re}/sessions/{id}
+            return operation.response.name.split("/")[-1]
+        elif operation.error:
+            raise RuntimeError(
+                f"Failed to create session via managed API: {operation.error}"
+            ) from exc
+        else:
+            raise RuntimeError(
+                "Failed to create session via managed API: "
+                "operation returned no response."
+            ) from exc
+
+
 def _execute_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
@@ -1960,23 +2211,60 @@ def _execute_agent_run_with_retry(
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run over agent engine for a single prompt."""
     try:
-        session_inputs = _get_session_inputs(row)
-        user_id = session_inputs.user_id
-        session_state = session_inputs.state
-        session = agent_engine.create_session(  # type: ignore[attr-defined]
-            user_id=user_id,
-            state=session_state,
-        )
+        if "session_inputs" in row.index and row.get("session_inputs") is not None:
+            session_inputs = _get_session_inputs(row)
+            user_id = session_inputs.user_id or str(uuid.uuid4())
+            session_state = session_inputs.state
+        else:
+            user_id = str(uuid.uuid4())
+            session_state = None
     except KeyError as e:
         return {"error": f"Failed to get all required agent engine inputs: {e}"}
-    except Exception as e:
-        return {"error": f"Failed to create a new session : {e}"}
+
+    try:
+        session_id = _create_agent_engine_session(
+            agent_engine=agent_engine,
+            user_id=user_id,
+            session_state=session_state,
+        )
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        return {"error": f"Failed to create a new session: {e}"}
+
+    # Pre-populate remote session with agent_data history (N+1 case only).
+    if (
+        AGENT_DATA in row.index
+        and row.get(AGENT_DATA) is not None
+        and _is_n_plus_1_inference(row[AGENT_DATA])
+    ):
+        agent_data_obj = row[AGENT_DATA]
+        if isinstance(agent_data_obj, dict):
+            agent_data_obj = types.evals.AgentData.model_validate(agent_data_obj)
+        _, history_events = _extract_prompt_from_agent_data(agent_data_obj)
+
+        if agent_engine.api_resource is None:
+            return {"error": "agent_engine.api_resource is None."}
+        if agent_engine.api_client is None:
+            return {"error": "agent_engine.api_client is None."}
+        session_name = f"{agent_engine.api_resource.name}/sessions/{session_id}"
+        base_ts = datetime.datetime(2000, 1, 1, tzinfo=datetime.timezone.utc)
+        for i, ag_event in enumerate(history_events):
+            agent_engine.api_client.sessions.events.append(
+                name=session_name,
+                author=ag_event.author or "user",
+                invocation_id="history",
+                timestamp=base_ts + datetime.timedelta(seconds=i),
+                config=types.AppendAgentEngineSessionEventConfig(
+                    content=ag_event.content,
+                ),
+            )
+
+    # stream_query retry loop (shared for both agent_data and prompt paths).
     for attempt in range(max_retries):
         try:
             responses = []
             for event in agent_engine.stream_query(  # type: ignore[attr-defined]
                 user_id=user_id,
-                session_id=session["id"],
+                session_id=session_id,
                 message=contents,
             ):
                 if event and CONTENT in event and PARTS in event[CONTENT]:
@@ -1996,12 +2284,11 @@ def _execute_agent_run_with_retry(
             time.sleep(2**attempt)
         except Exception as e:  # pylint: disable=broad-exception-caught
             logger.error(
-                "Unexpected error during generate_content on attempt %d/%d: %s",
+                "Unexpected error during agent engine run on attempt %d/%d: %s",
                 attempt + 1,
                 max_retries,
                 e,
             )
-
             if attempt == max_retries - 1:
                 return {"error": f"Failed after retries: {e}"}
             time.sleep(1)
@@ -2011,7 +2298,7 @@ def _execute_agent_run_with_retry(
 def _execute_local_agent_run_with_retry(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
@@ -2026,11 +2313,15 @@ def _execute_local_agent_run_with_retry(
 async def _execute_local_agent_run_with_retry_async(
     row: pd.Series,
     contents: Union[genai_types.ContentListUnion, genai_types.ContentListUnionDict],
-    agent: LlmAgent,
+    agent: "LlmAgent",  # type: ignore # noqa: F821
     max_retries: int = 3,
     user_simulator_config: Optional[types.evals.UserSimulatorConfig] = None,
 ) -> Union[list[dict[str, Any]], dict[str, Any]]:
     """Executes agent run locally for a single prompt asynchronously."""
+    # Lazy-import ADK dependencies to avoid top-level import failures when
+    # google-adk is not installed.
+    from google.adk.runners import Runner
+    from google.adk.sessions import InMemorySessionService
 
     # Multi-turn agent scraping with user simulation.
     if user_simulator_config or "conversation_plan" in row:
@@ -2040,17 +2331,47 @@ async def _execute_local_agent_run_with_retry_async(
             logger.error("Multi-turn agent run with user simulation failed: %s", e)
             return {"error": f"Multi-turn agent run with user simulation failed: {e}"}
 
-    session_inputs = _get_session_inputs(row)
-    user_id = session_inputs.user_id
+    if "session_inputs" in row.index and row.get("session_inputs") is not None:
+        session_inputs = _get_session_inputs(row)
+        user_id = session_inputs.user_id or str(uuid.uuid4())
+        app_name = session_inputs.app_name or "local agent run"
+    else:
+        user_id = str(uuid.uuid4())
+        app_name = "local agent run"
     session_id = str(uuid.uuid4())
-    app_name = session_inputs.app_name or "local agent run"
-    # TODO: Enable user to set up session service.
+
     session_service = InMemorySessionService()
     await session_service.create_session(
         app_name=app_name, user_id=user_id, session_id=session_id
     )
+
+    # Pre-populate session with agent_data history (N+1 case only).
+    if (
+        AGENT_DATA in row.index
+        and row.get(AGENT_DATA) is not None
+        and _is_n_plus_1_inference(row[AGENT_DATA])
+    ):
+        from google.adk.events.event import Event as AdkEvent
+
+        agent_data_obj = row[AGENT_DATA]
+        if isinstance(agent_data_obj, dict):
+            agent_data_obj = types.evals.AgentData.model_validate(agent_data_obj)
+        _, history_events = _extract_prompt_from_agent_data(agent_data_obj)
+        internal_session = session_service.sessions[app_name][user_id][session_id]
+        for ag_event in history_events:
+            adk_event = AdkEvent(
+                author=ag_event.author or "user",
+                content=ag_event.content,
+                invocation_id="history",
+            )
+            internal_session.events.append(adk_event)
+
     agent_runner = Runner(
         agent=agent, app_name=app_name, session_service=session_service
+    )
+    new_message_content = genai_types.Content(
+        role=USER_AUTHOR,
+        parts=[genai_types.Part(text=contents)],
     )
     # Avoid printing out warning from agent_runner.run()
     # WARNING:google_genai.types:Warning: there are non-text parts in the
@@ -2062,10 +2383,6 @@ async def _execute_local_agent_run_with_retry_async(
         for attempt in range(max_retries):
             try:
                 events = []
-                new_message_content = genai_types.Content(
-                    role=USER_AUTHOR,
-                    parts=[genai_types.Part(text=contents)],
-                )
                 async for event in agent_runner.run_async(
                     user_id=user_id,
                     session_id=session_id,
@@ -2078,8 +2395,8 @@ async def _execute_local_agent_run_with_retry_async(
                 return events
             except api_exceptions.ResourceExhausted as e:
                 logger.warning(
-                    "Resource Exhausted error on attempt %d/%d: %s. Retrying in %s"
-                    " seconds...",
+                    "Resource Exhausted error on attempt %d/%d: %s. Retrying"
+                    " in %s seconds...",
                     attempt + 1,
                     max_retries,
                     e,
@@ -2090,12 +2407,11 @@ async def _execute_local_agent_run_with_retry_async(
                 await asyncio.sleep(2**attempt)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 logger.error(
-                    "Unexpected error during generate_content on attempt %d/%d: %s",
+                    "Unexpected error during agent run on attempt %d/%d: %s",
                     attempt + 1,
                     max_retries,
                     e,
                 )
-
                 if attempt == max_retries - 1:
                     return {"error": f"Failed after retries: {e}"}
                 await asyncio.sleep(1)
@@ -2521,8 +2837,7 @@ def _get_content(row: dict[str, Any], column: str) -> Optional[genai_types.Conte
         return cast(genai_types.Content, row[column])
     else:
         raise ValueError(
-            f"{column} must be a string or a Content object. "
-            f"Got {type(row[column])}."
+            f"{column} must be a string or a Content object. Got {type(row[column])}."
         )
 
 
@@ -2531,6 +2846,7 @@ def _create_evaluation_set_from_dataframe(
     gcs_dest_prefix: str,
     eval_df: pd.DataFrame,
     candidate_name: Optional[str] = None,
+    parsed_agent_info: Optional[types.evals.AgentInfo] = None,
 ) -> Union[types.EvaluationSet, Any]:
     """Converts a dataframe to an EvaluationSet."""
     eval_item_requests = []
@@ -2563,6 +2879,18 @@ def _create_evaluation_set_from_dataframe(
             elif isinstance(agent_data_val, types.evals.AgentData):
                 agent_data_obj = agent_data_val
 
+        # When agent_data exists but has no agents map (e.g. from remote
+        # agent_engine inference), inject the agents map from agent_info so
+        # the server-side autorater can access tool definitions and
+        # instructions.
+        if (
+            agent_data_obj
+            and not agent_data_obj.agents
+            and parsed_agent_info
+            and parsed_agent_info.agents
+        ):
+            agent_data_obj.agents = parsed_agent_info.agents
+
         candidate_responses = []
         if _evals_constant.RESPONSE in row or agent_data_obj or intermediate_events:
             # Resolve the oneof conflict: prioritize agent_data over flat text
@@ -2570,9 +2898,9 @@ def _create_evaluation_set_from_dataframe(
 
             if agent_data_obj and response_text:
                 logger.info(
-                    "Both 'response' and 'agent_data' columns found in the evaluation dataset. "
-                    "Prioritizing 'agent_data' and omitting 'response' text to satisfy "
-                    "CandidateResponse protobuf oneof constraints."
+                    "Both 'response' and 'agent_data' columns found in the evaluation"
+                    " dataset. Prioritizing 'agent_data' and omitting 'response' text"
+                    " to satisfy CandidateResponse protobuf oneof constraints."
                 )
                 response_text = None
 
@@ -2586,6 +2914,14 @@ def _create_evaluation_set_from_dataframe(
             )
 
         prompt = None
+        # Determine which history column name is present, preferring
+        # "conversation_history" over "history" if both exist.
+        history_col = None
+        if _evals_constant.CONVERSATION_HISTORY in row:
+            history_col = _evals_constant.CONVERSATION_HISTORY
+        elif _evals_constant.HISTORY in row:
+            history_col = _evals_constant.HISTORY
+
         if (
             _evals_constant.STARTING_PROMPT in row
             and _evals_constant.CONVERSATION_PLAN in row
@@ -2596,15 +2932,15 @@ def _create_evaluation_set_from_dataframe(
                     conversation_plan=row[_evals_constant.CONVERSATION_PLAN],
                 )
             )
-        elif _evals_constant.CONTEXT in row or _evals_constant.HISTORY in row:
+        elif _evals_constant.CONTEXT in row or history_col:
             values = {}
             if _evals_constant.CONTEXT in row:
                 values[_evals_constant.CONTEXT] = _get_content(
                     row, _evals_constant.CONTEXT
                 )
-            if _evals_constant.HISTORY in row:
-                values[_evals_constant.HISTORY] = _get_content(
-                    row, _evals_constant.HISTORY
+            if history_col:
+                values[_evals_constant.CONVERSATION_HISTORY] = _get_content(
+                    row, history_col
                 )
             if _evals_constant.PROMPT in row:
                 values[_evals_constant.PROMPT] = _get_content(

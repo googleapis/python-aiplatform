@@ -46,7 +46,7 @@ from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
 from vertexai.reasoning_engines import _utils
 
 _LOGGER = base.Logger(__name__)
-_SUPPORTED_PYTHON_VERSIONS = ("3.9", "3.10", "3.11", "3.12", "3.13", "3.14")
+_SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "reasoning_engine"
 _BLOB_FILENAME = "reasoning_engine.msgpack"
 _REQUIREMENTS_FILE = "requirements.txt"
@@ -222,7 +222,7 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
                 use for staging the artifacts needed.
             sys_version (str):
                 Optional. The Python system version used. Currently supports any
-                of "3.9", "3.10", "3.11", "3.12", "3.13". If not specified,
+                of "3.10", "3.11", "3.12", "3.13". If not specified,
                 it defaults to the "{major}.{minor}" attributes of
                 sys.version_info.
             extra_packages (Sequence[str]):

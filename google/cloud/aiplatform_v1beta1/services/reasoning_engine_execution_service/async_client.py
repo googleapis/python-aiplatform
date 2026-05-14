@@ -53,6 +53,8 @@ from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
 from google.longrunning import operations_pb2  # type: ignore
 import google.api.httpbody_pb2 as httpbody_pb2  # type: ignore
+import google.api_core.operation as operation  # type: ignore
+import google.api_core.operation_async as operation_async  # type: ignore
 import google.protobuf.any_pb2 as any_pb2  # type: ignore
 import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
 from .transports.base import (
@@ -556,6 +558,117 @@ class ReasoningEngineExecutionServiceAsyncClient:
             retry=retry,
             timeout=timeout,
             metadata=metadata,
+        )
+
+        # Done; return the response.
+        return response
+
+    async def async_query_reasoning_engine(
+        self,
+        request: Optional[
+            Union[
+                reasoning_engine_execution_service.AsyncQueryReasoningEngineRequest,
+                dict,
+            ]
+        ] = None,
+        *,
+        retry: OptionalRetry = gapic_v1.method.DEFAULT,
+        timeout: Union[float, object] = gapic_v1.method.DEFAULT,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+    ) -> operation_async.AsyncOperation:
+        r"""Async query using a reasoning engine.
+
+        .. code-block:: python
+
+            # This snippet has been automatically generated and should be regarded as a
+            # code template only.
+            # It will require modifications to work:
+            # - It may require correct/in-range values for request initialization.
+            # - It may require specifying regional endpoints when creating the service
+            #   client as shown in:
+            #   https://googleapis.dev/python/google-api-core/latest/client_options.html
+            from google.cloud import aiplatform_v1beta1
+
+            async def sample_async_query_reasoning_engine():
+                # Create a client
+                client = aiplatform_v1beta1.ReasoningEngineExecutionServiceAsyncClient()
+
+                # Initialize request argument(s)
+                request = aiplatform_v1beta1.AsyncQueryReasoningEngineRequest(
+                    name="name_value",
+                )
+
+                # Make the request
+                operation = client.async_query_reasoning_engine(request=request)
+
+                print("Waiting for operation to complete...")
+
+                response = (await operation).result()
+
+                # Handle the response
+                print(response)
+
+        Args:
+            request (Optional[Union[google.cloud.aiplatform_v1beta1.types.AsyncQueryReasoningEngineRequest, dict]]):
+                The request object. Request message for
+                [ReasoningEngineExecutionService.AsyncQueryReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService.AsyncQueryReasoningEngine].
+            retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                should be retried.
+            timeout (float): The timeout for this request.
+            metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                sent along with the request as metadata. Normally, each value must be of type `str`,
+                but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                be of type `bytes`.
+
+        Returns:
+            google.api_core.operation_async.AsyncOperation:
+                An object representing a long-running operation.
+
+                The result type for the operation will be :class:`google.cloud.aiplatform_v1beta1.types.AsyncQueryReasoningEngineResponse` Response message for
+                   [ReasoningEngineExecutionService.AsyncQueryReasoningEngine][google.cloud.aiplatform.v1beta1.ReasoningEngineExecutionService.AsyncQueryReasoningEngine].
+
+        """
+        # Create or coerce a protobuf request object.
+        # - Use the request object if provided (there's no risk of modifying the input as
+        #   there are no flattened fields), or create one.
+        if not isinstance(
+            request, reasoning_engine_execution_service.AsyncQueryReasoningEngineRequest
+        ):
+            request = (
+                reasoning_engine_execution_service.AsyncQueryReasoningEngineRequest(
+                    request
+                )
+            )
+
+        # Wrap the RPC method; this adds retry and timeout information,
+        # and friendly error handling.
+        rpc = self._client._transport._wrapped_methods[
+            self._client._transport.async_query_reasoning_engine
+        ]
+
+        # Certain fields should be provided within the metadata header;
+        # add these here.
+        metadata = tuple(metadata) + (
+            gapic_v1.routing_header.to_grpc_metadata((("name", request.name),)),
+        )
+
+        # Validate the universe domain.
+        self._client._validate_universe_domain()
+
+        # Send the request.
+        response = await rpc(
+            request,
+            retry=retry,
+            timeout=timeout,
+            metadata=metadata,
+        )
+
+        # Wrap the response in an operation future.
+        response = operation_async.from_gapic(
+            response,
+            self._client._transport.operations_client,
+            reasoning_engine_execution_service.AsyncQueryReasoningEngineResponse,
+            metadata_type=reasoning_engine_execution_service.AsyncQueryReasoningEngineOperationMetadata,
         )
 
         # Done; return the response.

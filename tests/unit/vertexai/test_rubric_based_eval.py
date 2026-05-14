@@ -30,6 +30,7 @@ from vertexai.preview.evaluation import eval_task
 from vertexai.preview.evaluation.metrics import (
     predefined_rubric_metrics,
 )
+import copy
 import pandas as pd
 import pytest
 
@@ -281,7 +282,7 @@ class TestPredefinedRubricMetrics:
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
-            side_effect=_MOCK_POINTWISE_RESPONSE,
+            side_effect=[copy.deepcopy(x) for x in _MOCK_POINTWISE_RESPONSE],
         ):
             eval_result = EvalTask(
                 dataset=_TEST_EVAL_DATASET, metrics=[metric]

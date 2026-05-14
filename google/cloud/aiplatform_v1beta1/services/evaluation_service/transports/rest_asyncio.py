@@ -116,6 +116,14 @@ class AsyncEvaluationServiceRestInterceptor:
                 logging.log(f"Received response: {response}")
                 return response
 
+            async def pre_generate_instance_rubrics(self, request, metadata):
+                logging.log(f"Received request: {request}")
+                return request, metadata
+
+            async def post_generate_instance_rubrics(self, response):
+                logging.log(f"Received response: {response}")
+                return response
+
         transport = AsyncEvaluationServiceRestTransport(interceptor=MyCustomEvaluationServiceInterceptor())
         client = async EvaluationServiceClient(transport=transport)
 
@@ -220,6 +228,58 @@ class AsyncEvaluationServiceRestInterceptor:
         `post_evaluate_instances` interceptor. The (possibly modified) response returned by
         `post_evaluate_instances` will be passed to
         `post_evaluate_instances_with_metadata`.
+        """
+        return response, metadata
+
+    async def pre_generate_instance_rubrics(
+        self,
+        request: evaluation_service.GenerateInstanceRubricsRequest,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        evaluation_service.GenerateInstanceRubricsRequest,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Pre-rpc interceptor for generate_instance_rubrics
+
+        Override in a subclass to manipulate the request or metadata
+        before they are sent to the EvaluationService server.
+        """
+        return request, metadata
+
+    async def post_generate_instance_rubrics(
+        self, response: evaluation_service.GenerateInstanceRubricsResponse
+    ) -> evaluation_service.GenerateInstanceRubricsResponse:
+        """Post-rpc interceptor for generate_instance_rubrics
+
+        DEPRECATED. Please use the `post_generate_instance_rubrics_with_metadata`
+        interceptor instead.
+
+        Override in a subclass to read or manipulate the response
+        after it is returned by the EvaluationService server but before
+        it is returned to user code. This `post_generate_instance_rubrics` interceptor runs
+        before the `post_generate_instance_rubrics_with_metadata` interceptor.
+        """
+        return response
+
+    async def post_generate_instance_rubrics_with_metadata(
+        self,
+        response: evaluation_service.GenerateInstanceRubricsResponse,
+        metadata: Sequence[Tuple[str, Union[str, bytes]]],
+    ) -> Tuple[
+        evaluation_service.GenerateInstanceRubricsResponse,
+        Sequence[Tuple[str, Union[str, bytes]]],
+    ]:
+        """Post-rpc interceptor for generate_instance_rubrics
+
+        Override in a subclass to read or manipulate the response or metadata after it
+        is returned by the EvaluationService server but before it is returned to user code.
+
+        We recommend only using this `post_generate_instance_rubrics_with_metadata`
+        interceptor in new development instead of the `post_generate_instance_rubrics` interceptor.
+        When both interceptors are used, this `post_generate_instance_rubrics_with_metadata` interceptor runs after the
+        `post_generate_instance_rubrics` interceptor. The (possibly modified) response returned by
+        `post_generate_instance_rubrics` will be passed to
+        `post_generate_instance_rubrics_with_metadata`.
         """
         return response, metadata
 
@@ -545,6 +605,11 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
             ),
             self.evaluate_dataset: self._wrap_method(
                 self.evaluate_dataset,
+                default_timeout=None,
+                client_info=client_info,
+            ),
+            self.generate_instance_rubrics: self._wrap_method(
+                self.generate_instance_rubrics,
                 default_timeout=None,
                 client_info=client_info,
             ),
@@ -934,6 +999,175 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
 
             return resp
 
+    class _GenerateInstanceRubrics(
+        _BaseEvaluationServiceRestTransport._BaseGenerateInstanceRubrics,
+        AsyncEvaluationServiceRestStub,
+    ):
+        def __hash__(self):
+            return hash("AsyncEvaluationServiceRestTransport.GenerateInstanceRubrics")
+
+        @staticmethod
+        async def _get_response(
+            host,
+            metadata,
+            query_params,
+            session,
+            timeout,
+            transcoded_request,
+            body=None,
+        ):
+
+            uri = transcoded_request["uri"]
+            method = transcoded_request["method"]
+            headers = dict(metadata)
+            headers["Content-Type"] = "application/json"
+            response = await getattr(session, method)(
+                "{host}{uri}".format(host=host, uri=uri),
+                timeout=timeout,
+                headers=headers,
+                params=rest_helpers.flatten_query_params(query_params, strict=True),
+                data=body,
+            )
+            return response
+
+        async def __call__(
+            self,
+            request: evaluation_service.GenerateInstanceRubricsRequest,
+            *,
+            retry: OptionalRetry = gapic_v1.method.DEFAULT,
+            timeout: Optional[float] = None,
+            metadata: Sequence[Tuple[str, Union[str, bytes]]] = (),
+        ) -> evaluation_service.GenerateInstanceRubricsResponse:
+            r"""Call the generate instance rubrics method over HTTP.
+
+            Args:
+                request (~.evaluation_service.GenerateInstanceRubricsRequest):
+                    The request object. Request message for
+                EvaluationService.GenerateInstanceRubrics.
+                retry (google.api_core.retry_async.AsyncRetry): Designation of what errors, if any,
+                    should be retried.
+                timeout (float): The timeout for this request.
+                metadata (Sequence[Tuple[str, Union[str, bytes]]]): Key/value pairs which should be
+                    sent along with the request as metadata. Normally, each value must be of type `str`,
+                    but for metadata keys ending with the suffix `-bin`, the corresponding values must
+                    be of type `bytes`.
+
+            Returns:
+                ~.evaluation_service.GenerateInstanceRubricsResponse:
+                    Response message for
+                EvaluationService.GenerateInstanceRubrics.
+
+            """
+
+            http_options = (
+                _BaseEvaluationServiceRestTransport._BaseGenerateInstanceRubrics._get_http_options()
+            )
+
+            request, metadata = await self._interceptor.pre_generate_instance_rubrics(
+                request, metadata
+            )
+            transcoded_request = _BaseEvaluationServiceRestTransport._BaseGenerateInstanceRubrics._get_transcoded_request(
+                http_options, request
+            )
+
+            body = _BaseEvaluationServiceRestTransport._BaseGenerateInstanceRubrics._get_request_body_json(
+                transcoded_request
+            )
+
+            # Jsonify the query params
+            query_params = _BaseEvaluationServiceRestTransport._BaseGenerateInstanceRubrics._get_query_params_json(
+                transcoded_request
+            )
+
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                try:
+                    request_payload = type(request).to_json(request)
+                except:
+                    request_payload = None
+                http_request = {
+                    "payload": request_payload,
+                    "requestMethod": method,
+                    "requestUrl": request_url,
+                    "headers": dict(metadata),
+                }
+                _LOGGER.debug(
+                    f"Sending request for google.cloud.aiplatform_v1beta1.EvaluationServiceClient.GenerateInstanceRubrics",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.EvaluationService",
+                        "rpcName": "GenerateInstanceRubrics",
+                        "httpRequest": http_request,
+                        "metadata": http_request["headers"],
+                    },
+                )
+
+            # Send the request
+            response = await AsyncEvaluationServiceRestTransport._GenerateInstanceRubrics._get_response(
+                self._host,
+                metadata,
+                query_params,
+                self._session,
+                timeout,
+                transcoded_request,
+                body,
+            )
+
+            # In case of error, raise the appropriate core_exceptions.GoogleAPICallError exception
+            # subclass.
+            if response.status_code >= 400:
+                content = await response.read()
+                payload = json.loads(content.decode("utf-8"))
+                request_url = "{host}{uri}".format(
+                    host=self._host, uri=transcoded_request["uri"]
+                )
+                method = transcoded_request["method"]
+                raise core_exceptions.format_http_response_error(response, method, request_url, payload)  # type: ignore
+
+            # Return the response
+            resp = evaluation_service.GenerateInstanceRubricsResponse()
+            pb_resp = evaluation_service.GenerateInstanceRubricsResponse.pb(resp)
+            content = await response.read()
+            json_format.Parse(content, pb_resp, ignore_unknown_fields=True)
+            resp = await self._interceptor.post_generate_instance_rubrics(resp)
+            response_metadata = [(k, str(v)) for k, v in response.headers.items()]
+            resp, _ = (
+                await self._interceptor.post_generate_instance_rubrics_with_metadata(
+                    resp, response_metadata
+                )
+            )
+            if CLIENT_LOGGING_SUPPORTED and _LOGGER.isEnabledFor(
+                logging.DEBUG
+            ):  # pragma: NO COVER
+                try:
+                    response_payload = (
+                        evaluation_service.GenerateInstanceRubricsResponse.to_json(
+                            response
+                        )
+                    )
+                except:
+                    response_payload = None
+                http_response = {
+                    "payload": response_payload,
+                    "headers": dict(response.headers),
+                    "status": "OK",  # need to obtain this properly
+                }
+                _LOGGER.debug(
+                    "Received response for google.cloud.aiplatform_v1beta1.EvaluationServiceAsyncClient.generate_instance_rubrics",
+                    extra={
+                        "serviceName": "google.cloud.aiplatform.v1beta1.EvaluationService",
+                        "rpcName": "GenerateInstanceRubrics",
+                        "metadata": http_response["headers"],
+                        "httpResponse": http_response,
+                    },
+                )
+
+            return resp
+
     @property
     def operations_client(self) -> AsyncOperationsRestClient:
         """Create the async client designed to process long-running operations.
@@ -1267,6 +1501,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:cancel",
                     },
                     {
@@ -1332,6 +1570,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/tensorboards/*/experiments/*/runs/*/timeSeries/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:cancel",
                     },
                 ],
                 "google.longrunning.Operations.DeleteOperation": [
@@ -1677,6 +1919,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     },
                     {
                         "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -1766,6 +2012,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureOnlineStores/*/featureViews/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.GetOperation": [
@@ -2119,6 +2369,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}",
                     },
                     {
@@ -2208,6 +2462,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}",
                     },
                 ],
                 "google.longrunning.Operations.ListOperations": [
@@ -2557,6 +2815,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*}/operations",
                     },
                     {
@@ -2646,6 +2908,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     {
                         "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*}/operations",
+                    },
+                    {
+                        "method": "get",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*}/operations",
                     },
                 ],
                 "google.longrunning.Operations.WaitOperation": [
@@ -2995,6 +3261,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/onlineEvaluators/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/persistentResources/*/operations/*}:wait",
                     },
                     {
@@ -3081,6 +3351,10 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/featureGroups/*/featureMonitors/*/operations/*}:wait",
                     },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=onlineEvaluators/*/operations/*}:wait",
+                    },
                 ],
             }
 
@@ -3115,6 +3389,15 @@ class AsyncEvaluationServiceRestTransport(_BaseEvaluationServiceRestTransport):
         evaluation_service.EvaluateInstancesResponse,
     ]:
         return self._EvaluateInstances(self._session, self._host, self._interceptor)  # type: ignore
+
+    @property
+    def generate_instance_rubrics(
+        self,
+    ) -> Callable[
+        [evaluation_service.GenerateInstanceRubricsRequest],
+        evaluation_service.GenerateInstanceRubricsResponse,
+    ]:
+        return self._GenerateInstanceRubrics(self._session, self._host, self._interceptor)  # type: ignore
 
     @property
     def get_location(self):

@@ -4789,15 +4789,131 @@ def test_create_tuning_job_rest_call_success(request_type):
                         "computation_based_metric_spec": {"type_": 1, "parameters": {}},
                         "llm_based_metric_spec": {
                             "rubric_group_key": "rubric_group_key_value",
+                            "rubric_generation_spec": {
+                                "prompt_template": "prompt_template_value",
+                                "model_config": {
+                                    "sampling_count": 1507,
+                                    "flip_enabled": True,
+                                    "autorater_model": "autorater_model_value",
+                                    "generation_config": {
+                                        "temperature": 0.1198,
+                                        "top_p": 0.546,
+                                        "top_k": 0.541,
+                                        "candidate_count": 1573,
+                                        "max_output_tokens": 1865,
+                                        "stop_sequences": [
+                                            "stop_sequences_value1",
+                                            "stop_sequences_value2",
+                                        ],
+                                        "response_logprobs": True,
+                                        "logprobs": 872,
+                                        "presence_penalty": 0.1713,
+                                        "frequency_penalty": 0.18380000000000002,
+                                        "seed": 417,
+                                        "response_mime_type": "response_mime_type_value",
+                                        "response_schema": {
+                                            "type_": 1,
+                                            "format_": "format__value",
+                                            "title": "title_value",
+                                            "description": "description_value",
+                                            "nullable": True,
+                                            "default": {
+                                                "null_value": 0,
+                                                "number_value": 0.1285,
+                                                "string_value": "string_value_value",
+                                                "bool_value": True,
+                                                "struct_value": {},
+                                                "list_value": {"values": {}},
+                                            },
+                                            "items": {},
+                                            "min_items": 965,
+                                            "max_items": 967,
+                                            "enum": ["enum_value1", "enum_value2"],
+                                            "properties": {},
+                                            "property_ordering": [
+                                                "property_ordering_value1",
+                                                "property_ordering_value2",
+                                            ],
+                                            "required": [
+                                                "required_value1",
+                                                "required_value2",
+                                            ],
+                                            "min_properties": 1520,
+                                            "max_properties": 1522,
+                                            "minimum": 0.764,
+                                            "maximum": 0.766,
+                                            "min_length": 1061,
+                                            "max_length": 1063,
+                                            "pattern": "pattern_value",
+                                            "example": {},
+                                            "any_of": {},
+                                            "additional_properties": {},
+                                            "ref": "ref_value",
+                                            "defs": {},
+                                        },
+                                        "response_json_schema": {},
+                                        "routing_config": {
+                                            "auto_mode": {
+                                                "model_routing_preference": 1
+                                            },
+                                            "manual_mode": {
+                                                "model_name": "model_name_value"
+                                            },
+                                        },
+                                        "audio_timestamp": True,
+                                        "response_modalities": [1],
+                                        "media_resolution": 1,
+                                        "speech_config": {
+                                            "voice_config": {
+                                                "prebuilt_voice_config": {
+                                                    "voice_name": "voice_name_value"
+                                                },
+                                                "replicated_voice_config": {
+                                                    "mime_type": "mime_type_value",
+                                                    "voice_sample_audio": b"voice_sample_audio_blob",
+                                                },
+                                            },
+                                            "language_code": "language_code_value",
+                                            "multi_speaker_voice_config": {
+                                                "speaker_voice_configs": [
+                                                    {
+                                                        "speaker": "speaker_value",
+                                                        "voice_config": {},
+                                                    }
+                                                ]
+                                            },
+                                        },
+                                        "thinking_config": {
+                                            "include_thoughts": True,
+                                            "thinking_budget": 1590,
+                                        },
+                                        "model_config": {
+                                            "feature_selection_preference": 1
+                                        },
+                                        "image_config": {
+                                            "aspect_ratio": "aspect_ratio_value"
+                                        },
+                                    },
+                                },
+                                "rubric_content_type": 1,
+                                "rubric_type_ontology": [
+                                    "rubric_type_ontology_value1",
+                                    "rubric_type_ontology_value2",
+                                ],
+                            },
                             "predefined_rubric_generation_spec": {},
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
-                            "judge_autorater_config": {
-                                "sampling_count": 1507,
-                                "flip_enabled": True,
-                                "autorater_model": "autorater_model_value",
-                            },
+                            "judge_autorater_config": {},
                             "additional_config": {},
+                            "result_parser_config": {
+                                "custom_code_parser_config": {
+                                    "parsing_function": "parsing_function_value"
+                                }
+                            },
+                        },
+                        "custom_code_execution_spec": {
+                            "evaluation_function": "evaluation_function_value"
                         },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
@@ -4819,95 +4935,23 @@ def test_create_tuning_job_rest_call_success(request_type):
                             "split_summaries": True,
                         },
                         "aggregation_metrics": [1],
+                        "metadata": {
+                            "title": "title_value",
+                            "score_range": {
+                                "min_": 0.419,
+                                "max_": 0.421,
+                                "step": 0.444,
+                                "description": "description_value",
+                            },
+                            "other_metadata": {},
+                        },
                     }
                 ],
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
                 "autorater_config": {},
-                "inference_generation_config": {
-                    "temperature": 0.1198,
-                    "top_p": 0.546,
-                    "top_k": 0.541,
-                    "candidate_count": 1573,
-                    "max_output_tokens": 1865,
-                    "stop_sequences": [
-                        "stop_sequences_value1",
-                        "stop_sequences_value2",
-                    ],
-                    "response_logprobs": True,
-                    "logprobs": 872,
-                    "presence_penalty": 0.1713,
-                    "frequency_penalty": 0.18380000000000002,
-                    "seed": 417,
-                    "response_mime_type": "response_mime_type_value",
-                    "response_schema": {
-                        "type_": 1,
-                        "format_": "format__value",
-                        "title": "title_value",
-                        "description": "description_value",
-                        "nullable": True,
-                        "default": {
-                            "null_value": 0,
-                            "number_value": 0.1285,
-                            "string_value": "string_value_value",
-                            "bool_value": True,
-                            "struct_value": {},
-                            "list_value": {"values": {}},
-                        },
-                        "items": {},
-                        "min_items": 965,
-                        "max_items": 967,
-                        "enum": ["enum_value1", "enum_value2"],
-                        "properties": {},
-                        "property_ordering": [
-                            "property_ordering_value1",
-                            "property_ordering_value2",
-                        ],
-                        "required": ["required_value1", "required_value2"],
-                        "min_properties": 1520,
-                        "max_properties": 1522,
-                        "minimum": 0.764,
-                        "maximum": 0.766,
-                        "min_length": 1061,
-                        "max_length": 1063,
-                        "pattern": "pattern_value",
-                        "example": {},
-                        "any_of": {},
-                        "additional_properties": {},
-                        "ref": "ref_value",
-                        "defs": {},
-                    },
-                    "response_json_schema": {},
-                    "routing_config": {
-                        "auto_mode": {"model_routing_preference": 1},
-                        "manual_mode": {"model_name": "model_name_value"},
-                    },
-                    "audio_timestamp": True,
-                    "response_modalities": [1],
-                    "media_resolution": 1,
-                    "speech_config": {
-                        "voice_config": {
-                            "prebuilt_voice_config": {"voice_name": "voice_name_value"},
-                            "replicated_voice_config": {
-                                "mime_type": "mime_type_value",
-                                "voice_sample_audio": b"voice_sample_audio_blob",
-                            },
-                        },
-                        "language_code": "language_code_value",
-                        "multi_speaker_voice_config": {
-                            "speaker_voice_configs": [
-                                {"speaker": "speaker_value", "voice_config": {}}
-                            ]
-                        },
-                    },
-                    "thinking_config": {
-                        "include_thoughts": True,
-                        "thinking_budget": 1590,
-                    },
-                    "model_config": {"feature_selection_preference": 1},
-                    "image_config": {"aspect_ratio": "aspect_ratio_value"},
-                },
+                "inference_generation_config": {},
             },
             "tuning_mode": 1,
         },
@@ -4936,7 +4980,15 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "epoch_count": 1175,
                 "learning_rate_multiplier": 0.2561,
                 "tuning_task": 1,
+                "veo_data_mixture_ratio": 0.23500000000000001,
+                "tuning_speed": 1,
+                "adapter_size": 8,
             },
+        },
+        "veo_lora_tuning_spec": {
+            "training_dataset_uri": "training_dataset_uri_value",
+            "validation_dataset_uri": "validation_dataset_uri_value",
+            "hyper_parameters": {},
         },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
@@ -5124,6 +5176,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 "exact_match_metric_value": {"score": 0.54},
                                 "bleu_metric_value": {"score": 0.54},
                                 "rouge_metric_value": {"score": 0.54},
+                                "custom_code_execution_result": {"score": 0.54},
                                 "aggregation_metric": 1,
                             }
                         ],
@@ -6662,15 +6715,131 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                         "computation_based_metric_spec": {"type_": 1, "parameters": {}},
                         "llm_based_metric_spec": {
                             "rubric_group_key": "rubric_group_key_value",
+                            "rubric_generation_spec": {
+                                "prompt_template": "prompt_template_value",
+                                "model_config": {
+                                    "sampling_count": 1507,
+                                    "flip_enabled": True,
+                                    "autorater_model": "autorater_model_value",
+                                    "generation_config": {
+                                        "temperature": 0.1198,
+                                        "top_p": 0.546,
+                                        "top_k": 0.541,
+                                        "candidate_count": 1573,
+                                        "max_output_tokens": 1865,
+                                        "stop_sequences": [
+                                            "stop_sequences_value1",
+                                            "stop_sequences_value2",
+                                        ],
+                                        "response_logprobs": True,
+                                        "logprobs": 872,
+                                        "presence_penalty": 0.1713,
+                                        "frequency_penalty": 0.18380000000000002,
+                                        "seed": 417,
+                                        "response_mime_type": "response_mime_type_value",
+                                        "response_schema": {
+                                            "type_": 1,
+                                            "format_": "format__value",
+                                            "title": "title_value",
+                                            "description": "description_value",
+                                            "nullable": True,
+                                            "default": {
+                                                "null_value": 0,
+                                                "number_value": 0.1285,
+                                                "string_value": "string_value_value",
+                                                "bool_value": True,
+                                                "struct_value": {},
+                                                "list_value": {"values": {}},
+                                            },
+                                            "items": {},
+                                            "min_items": 965,
+                                            "max_items": 967,
+                                            "enum": ["enum_value1", "enum_value2"],
+                                            "properties": {},
+                                            "property_ordering": [
+                                                "property_ordering_value1",
+                                                "property_ordering_value2",
+                                            ],
+                                            "required": [
+                                                "required_value1",
+                                                "required_value2",
+                                            ],
+                                            "min_properties": 1520,
+                                            "max_properties": 1522,
+                                            "minimum": 0.764,
+                                            "maximum": 0.766,
+                                            "min_length": 1061,
+                                            "max_length": 1063,
+                                            "pattern": "pattern_value",
+                                            "example": {},
+                                            "any_of": {},
+                                            "additional_properties": {},
+                                            "ref": "ref_value",
+                                            "defs": {},
+                                        },
+                                        "response_json_schema": {},
+                                        "routing_config": {
+                                            "auto_mode": {
+                                                "model_routing_preference": 1
+                                            },
+                                            "manual_mode": {
+                                                "model_name": "model_name_value"
+                                            },
+                                        },
+                                        "audio_timestamp": True,
+                                        "response_modalities": [1],
+                                        "media_resolution": 1,
+                                        "speech_config": {
+                                            "voice_config": {
+                                                "prebuilt_voice_config": {
+                                                    "voice_name": "voice_name_value"
+                                                },
+                                                "replicated_voice_config": {
+                                                    "mime_type": "mime_type_value",
+                                                    "voice_sample_audio": b"voice_sample_audio_blob",
+                                                },
+                                            },
+                                            "language_code": "language_code_value",
+                                            "multi_speaker_voice_config": {
+                                                "speaker_voice_configs": [
+                                                    {
+                                                        "speaker": "speaker_value",
+                                                        "voice_config": {},
+                                                    }
+                                                ]
+                                            },
+                                        },
+                                        "thinking_config": {
+                                            "include_thoughts": True,
+                                            "thinking_budget": 1590,
+                                        },
+                                        "model_config": {
+                                            "feature_selection_preference": 1
+                                        },
+                                        "image_config": {
+                                            "aspect_ratio": "aspect_ratio_value"
+                                        },
+                                    },
+                                },
+                                "rubric_content_type": 1,
+                                "rubric_type_ontology": [
+                                    "rubric_type_ontology_value1",
+                                    "rubric_type_ontology_value2",
+                                ],
+                            },
                             "predefined_rubric_generation_spec": {},
                             "metric_prompt_template": "metric_prompt_template_value",
                             "system_instruction": "system_instruction_value",
-                            "judge_autorater_config": {
-                                "sampling_count": 1507,
-                                "flip_enabled": True,
-                                "autorater_model": "autorater_model_value",
-                            },
+                            "judge_autorater_config": {},
                             "additional_config": {},
+                            "result_parser_config": {
+                                "custom_code_parser_config": {
+                                    "parsing_function": "parsing_function_value"
+                                }
+                            },
+                        },
+                        "custom_code_execution_spec": {
+                            "evaluation_function": "evaluation_function_value"
                         },
                         "pointwise_metric_spec": {
                             "metric_prompt_template": "metric_prompt_template_value",
@@ -6692,95 +6861,23 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                             "split_summaries": True,
                         },
                         "aggregation_metrics": [1],
+                        "metadata": {
+                            "title": "title_value",
+                            "score_range": {
+                                "min_": 0.419,
+                                "max_": 0.421,
+                                "step": 0.444,
+                                "description": "description_value",
+                            },
+                            "other_metadata": {},
+                        },
                     }
                 ],
                 "output_config": {
                     "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
                 },
                 "autorater_config": {},
-                "inference_generation_config": {
-                    "temperature": 0.1198,
-                    "top_p": 0.546,
-                    "top_k": 0.541,
-                    "candidate_count": 1573,
-                    "max_output_tokens": 1865,
-                    "stop_sequences": [
-                        "stop_sequences_value1",
-                        "stop_sequences_value2",
-                    ],
-                    "response_logprobs": True,
-                    "logprobs": 872,
-                    "presence_penalty": 0.1713,
-                    "frequency_penalty": 0.18380000000000002,
-                    "seed": 417,
-                    "response_mime_type": "response_mime_type_value",
-                    "response_schema": {
-                        "type_": 1,
-                        "format_": "format__value",
-                        "title": "title_value",
-                        "description": "description_value",
-                        "nullable": True,
-                        "default": {
-                            "null_value": 0,
-                            "number_value": 0.1285,
-                            "string_value": "string_value_value",
-                            "bool_value": True,
-                            "struct_value": {},
-                            "list_value": {"values": {}},
-                        },
-                        "items": {},
-                        "min_items": 965,
-                        "max_items": 967,
-                        "enum": ["enum_value1", "enum_value2"],
-                        "properties": {},
-                        "property_ordering": [
-                            "property_ordering_value1",
-                            "property_ordering_value2",
-                        ],
-                        "required": ["required_value1", "required_value2"],
-                        "min_properties": 1520,
-                        "max_properties": 1522,
-                        "minimum": 0.764,
-                        "maximum": 0.766,
-                        "min_length": 1061,
-                        "max_length": 1063,
-                        "pattern": "pattern_value",
-                        "example": {},
-                        "any_of": {},
-                        "additional_properties": {},
-                        "ref": "ref_value",
-                        "defs": {},
-                    },
-                    "response_json_schema": {},
-                    "routing_config": {
-                        "auto_mode": {"model_routing_preference": 1},
-                        "manual_mode": {"model_name": "model_name_value"},
-                    },
-                    "audio_timestamp": True,
-                    "response_modalities": [1],
-                    "media_resolution": 1,
-                    "speech_config": {
-                        "voice_config": {
-                            "prebuilt_voice_config": {"voice_name": "voice_name_value"},
-                            "replicated_voice_config": {
-                                "mime_type": "mime_type_value",
-                                "voice_sample_audio": b"voice_sample_audio_blob",
-                            },
-                        },
-                        "language_code": "language_code_value",
-                        "multi_speaker_voice_config": {
-                            "speaker_voice_configs": [
-                                {"speaker": "speaker_value", "voice_config": {}}
-                            ]
-                        },
-                    },
-                    "thinking_config": {
-                        "include_thoughts": True,
-                        "thinking_budget": 1590,
-                    },
-                    "model_config": {"feature_selection_preference": 1},
-                    "image_config": {"aspect_ratio": "aspect_ratio_value"},
-                },
+                "inference_generation_config": {},
             },
             "tuning_mode": 1,
         },
@@ -6809,7 +6906,15 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "epoch_count": 1175,
                 "learning_rate_multiplier": 0.2561,
                 "tuning_task": 1,
+                "veo_data_mixture_ratio": 0.23500000000000001,
+                "tuning_speed": 1,
+                "adapter_size": 8,
             },
+        },
+        "veo_lora_tuning_spec": {
+            "training_dataset_uri": "training_dataset_uri_value",
+            "validation_dataset_uri": "validation_dataset_uri_value",
+            "hyper_parameters": {},
         },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
@@ -6997,6 +7102,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 "exact_match_metric_value": {"score": 0.54},
                                 "bleu_metric_value": {"score": 0.54},
                                 "rouge_metric_value": {"score": 0.54},
+                                "custom_code_execution_result": {"score": 0.54},
                                 "aggregation_metric": 1,
                             }
                         ],

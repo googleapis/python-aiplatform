@@ -1,0 +1,536 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+"""Retrieval query to get relevant contexts."""
+
+import re
+from typing import List, Optional
+import warnings
+
+from google.cloud import aiplatform_v1beta1
+from google.cloud.aiplatform import initializer
+from agentplatform.preview.rag.utils import _gapic_utils
+from agentplatform.preview.rag.utils import resources
+
+from google.protobuf import any_pb2
+
+
+def retrieval_query(
+    text: str,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+) -> aiplatform_v1beta1.RetrieveContextsResponse:
+    """Retrieve top k relevant docs/chunks.
+
+    Example usage:
+    ```
+    import agentplatform
+
+    agentplatform.init(project="my-project")
+
+    # Using RagRetrievalConfig.
+    config = agentplatform.preview.rag.RagRetrievalConfig(
+        top_k=2,
+        filter=agentplatform.preview.rag.Filter(
+            vector_distance_threshold=0.5
+        ),
+        hybrid_search=agentplatform.preview.rag.rag_retrieval_config.hybrid_search(
+            alpha=0.5
+        ),
+        ranking=vertex.preview.rag.Ranking(
+            llm_ranker=agentplatform.preview.rag.LlmRanker(
+                model_name="gemini-1.5-flash-002"
+            )
+        )
+    )
+
+    results = agentplatform.preview.rag.retrieval_query(
+        text="Why is the sky blue?",
+        rag_resources=[agentplatform.preview.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: The query in text format to get relevant contexts.
+        rag_resources: A list of RagResource. It can be used to specify corpus
+          only or ragfiles. Currently only support one corpus or multiple files
+          from one corpus. In the future we may open up multiple corpora support.
+        rag_retrieval_config: Optional. The config containing the retrieval
+          parameters, including top_k, vector_distance_threshold, and alpha.
+
+    Returns:
+        RetrieveContextsResonse.
+    """
+    parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_client()
+
+    if rag_resources:
+        if len(rag_resources) > 1:
+            raise ValueError("Currently only support 1 RagResource.")
+        name = rag_resources[0].rag_corpus
+    else:
+        raise ValueError("rag_resources must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client()
+    if data_client.parse_rag_corpus_path(name):
+        rag_corpus_name = name
+    elif re.match(
+        "^{}$".format(
+            _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+        ),
+        name,
+    ):
+        rag_corpus_name = parent + "/ragCorpora/" + name
+    else:
+        raise ValueError(
+            f"Invalid RagCorpus name: {name}. Proper format should be:"
+            " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+        )
+
+    gapic_rag_resource = (
+        aiplatform_v1beta1.RetrieveContextsRequest.VertexRagStore.RagResource(
+            rag_corpus=rag_corpus_name,
+            rag_file_ids=rag_resources[0].rag_file_ids,
+        )
+    )
+    vertex_rag_store = aiplatform_v1beta1.RetrieveContextsRequest.VertexRagStore(
+        rag_resources=[gapic_rag_resource],
+    )
+
+    if not rag_retrieval_config:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+    else:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+        if rag_retrieval_config.top_k:
+            api_retrival_config.top_k = rag_retrieval_config.top_k
+        if (
+            rag_retrieval_config.hybrid_search
+            and rag_retrieval_config.hybrid_search.alpha
+        ):
+            api_retrival_config.hybrid_search.alpha = (
+                rag_retrieval_config.hybrid_search.alpha
+            )
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            raise ValueError(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+        ):
+            api_retrival_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            api_retrival_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
+
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrival_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrival_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+    query = aiplatform_v1beta1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrival_config,
+    )
+    request = aiplatform_v1beta1.RetrieveContextsRequest(
+        vertex_rag_store=vertex_rag_store,
+        parent=parent,
+        query=query,
+    )
+    try:
+        response = client.retrieve_contexts(request=request)
+    except Exception as e:
+        raise RuntimeError("Failed in retrieving contexts due to: ", e) from e
+
+    return response
+
+
+async def async_retrieve_contexts(
+    text: str,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
+) -> aiplatform_v1beta1.RetrieveContextsResponse:
+    """Retrieve top k relevant docs/chunks asynchronously.
+
+    Example usage:
+    ```
+    import agentplatform
+
+    agentplatform.init(project="my-project")
+
+    config = agentplatform.preview.rag.RagRetrievalConfig(
+        top_k=2,
+    )
+
+    results = await agentplatform.preview.rag.async_retrieve_contexts(
+        text="Why is the sky blue?",
+        rag_resources=[agentplatform.preview.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: Required. The query in text format to get relevant contexts.
+        rag_resources: Optional. A list of RagResource. It can be used to specify
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
+        rag_retrieval_config: Optional. The config containing the retrieval
+            parameters, including top_k, vector_distance_threshold, and alpha.
+        timeout: Optional. The timeout for the request in seconds. Default is 600.
+
+    Returns:
+        RetrieveContextsResponse.
+    """
+    parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_async_client()
+
+    if not rag_resources:
+        raise ValueError("rag_resources must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client()
+
+    gapic_rag_resources = []
+    if rag_resources:
+        for rag_resource in rag_resources:
+            name = rag_resource.rag_corpus
+            if data_client.parse_rag_corpus_path(name):
+                rag_corpus_name = name
+            elif re.match(
+                "^{}$".format(
+                    _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+                ),
+                name,
+            ):
+                rag_corpus_name = parent + "/ragCorpora/" + name
+            else:
+                raise ValueError(
+                    f"Invalid RagCorpus name: {name}. Proper format should be:"
+                    " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+                )
+            gapic_rag_resources.append(
+                aiplatform_v1beta1.VertexRagStore.RagResource(
+                    rag_corpus=rag_corpus_name,
+                    rag_file_ids=rag_resource.rag_file_ids,
+                )
+            )
+        vertex_rag_store = aiplatform_v1beta1.VertexRagStore(
+            rag_resources=gapic_rag_resources,
+        )
+
+    if not rag_retrieval_config:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+    else:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+        if rag_retrieval_config.top_k:
+            api_retrival_config.top_k = rag_retrieval_config.top_k
+
+        if (
+            rag_retrieval_config.hybrid_search
+            and rag_retrieval_config.hybrid_search.alpha
+        ):
+            api_retrival_config.hybrid_search.alpha = (
+                rag_retrieval_config.hybrid_search.alpha
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            raise ValueError(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+        ):
+            api_retrival_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            api_retrival_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrival_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrival_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
+
+    query = aiplatform_v1beta1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrival_config,
+    )
+
+    vertex_rag_store.rag_retrieval_config = api_retrival_config
+
+    tool = aiplatform_v1beta1.Tool(
+        retrieval=aiplatform_v1beta1.Retrieval(
+            vertex_rag_store=vertex_rag_store,
+        )
+    )
+
+    request = aiplatform_v1beta1.AsyncRetrieveContextsRequest(
+        parent=parent,
+        query=query,
+        tools=[tool],
+    )
+    try:
+        response_lro = await client.async_retrieve_contexts(
+            request=request, timeout=timeout
+        )
+        try:
+            response = await response_lro.result(timeout=timeout)
+        except Exception as e:
+            if response_lro.done():
+                raw_op = response_lro.operation
+                if raw_op.WhichOneof("result") == "response":
+                    any_response = raw_op.response
+                    inner_any = any_pb2.Any()
+                    if any_response.Unpack(inner_any):
+                        inner_any.type_url = "type.googleapis.com/google.cloud.aiplatform.v1beta1.RagContexts"
+                        rag_contexts = aiplatform_v1beta1.RagContexts()
+                        if inner_any.Unpack(rag_contexts._pb):
+                            return aiplatform_v1beta1.AsyncRetrieveContextsResponse(
+                                contexts=rag_contexts
+                            )
+            raise e
+    except Exception as e:
+        raise RuntimeError(
+            "Failed in retrieving contexts asynchronously due to: ", e
+        ) from e
+
+    return response
+
+
+def ask_contexts(
+    text: str,
+    rag_resources: Optional[List[resources.RagResource]] = None,
+    rag_retrieval_config: Optional[resources.RagRetrievalConfig] = None,
+    timeout: int = 600,
+) -> aiplatform_v1beta1.AskContextsResponse:
+    """Ask questions on top k relevant docs/chunks.
+
+    Example usage:
+    ```
+    import agentplatform
+
+    agentplatform.init(project="my-project")
+
+    config = agentplatform.preview.rag.RagRetrievalConfig(
+        top_k=2,
+    )
+
+    results = agentplatform.preview.rag.ask_contexts(
+        text="Why is the sky blue?",
+        rag_resources=[agentplatform.preview.rag.RagResource(
+            rag_corpus="projects/my-project/locations/us-central1/ragCorpora/rag-corpus-1",
+            rag_file_ids=["rag-file-1", "rag-file-2", ...],
+        )],
+        rag_retrieval_config=config,
+    )
+    ```
+
+    Args:
+        text: Required. The query in text format to get relevant contexts.
+        rag_resources: Optional. A list of RagResource. It can be used to specify
+            corpus only or ragfiles. Currently only support one corpus or multiple
+            files from one corpus. In the future we may open up multiple corpora
+            support.
+        rag_retrieval_config: Optional. The config containing the retrieval
+            parameters, including top_k, vector_distance_threshold, and alpha.
+        timeout: Optional. The timeout for the request in seconds. Default is 600.
+
+    Returns:
+        AskContextsResponse.
+    """
+    parent = initializer.global_config.common_location_path()
+
+    client = _gapic_utils.create_rag_service_client()
+
+    if not rag_resources:
+        raise ValueError("rag_resources must be specified.")
+
+    data_client = _gapic_utils.create_rag_data_service_client()
+
+    gapic_rag_resources = []
+    if rag_resources:
+        for rag_resource in rag_resources:
+            name = rag_resource.rag_corpus
+            if data_client.parse_rag_corpus_path(name):
+                rag_corpus_name = name
+            elif re.match(
+                "^{}$".format(
+                    _gapic_utils._VALID_RESOURCE_NAME_REGEX  # pylint: disable=protected-access
+                ),
+                name,
+            ):
+                rag_corpus_name = parent + "/ragCorpora/" + name
+            else:
+                raise ValueError(
+                    f"Invalid RagCorpus name: {name}. Proper format should be:"
+                    " projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}"
+                )
+            gapic_rag_resources.append(
+                aiplatform_v1beta1.VertexRagStore.RagResource(
+                    rag_corpus=rag_corpus_name,
+                    rag_file_ids=rag_resource.rag_file_ids,
+                )
+            )
+        vertex_rag_store = aiplatform_v1beta1.VertexRagStore(
+            rag_resources=gapic_rag_resources,
+        )
+
+    if not rag_retrieval_config:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+    else:
+        api_retrival_config = aiplatform_v1beta1.RagRetrievalConfig()
+        if rag_retrieval_config.top_k:
+            api_retrival_config.top_k = rag_retrieval_config.top_k
+
+        if (
+            rag_retrieval_config.hybrid_search
+            and rag_retrieval_config.hybrid_search.alpha
+        ):
+            api_retrival_config.hybrid_search.alpha = (
+                rag_retrieval_config.hybrid_search.alpha
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            raise ValueError(
+                "Only one of vector_distance_threshold or"
+                " vector_similarity_threshold can be specified at a time"
+                " in rag_retrieval_config."
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_distance_threshold
+        ):
+            api_retrival_config.filter.vector_distance_threshold = (
+                rag_retrieval_config.filter.vector_distance_threshold
+            )
+
+        if (
+            rag_retrieval_config.filter
+            and rag_retrieval_config.filter.vector_similarity_threshold
+        ):
+            api_retrival_config.filter.vector_similarity_threshold = (
+                rag_retrieval_config.filter.vector_similarity_threshold
+            )
+
+        if (
+            rag_retrieval_config.ranking
+            and rag_retrieval_config.ranking.rank_service
+            and rag_retrieval_config.ranking.llm_ranker
+        ):
+            raise ValueError("Only one of rank_service and llm_ranker can be set.")
+        if rag_retrieval_config.ranking and rag_retrieval_config.ranking.rank_service:
+            api_retrival_config.ranking.rank_service.model_name = (
+                rag_retrieval_config.ranking.rank_service.model_name
+            )
+        elif rag_retrieval_config.ranking and rag_retrieval_config.ranking.llm_ranker:
+            api_retrival_config.ranking.llm_ranker.model_name = (
+                rag_retrieval_config.ranking.llm_ranker.model_name
+            )
+        if rag_retrieval_config.filter and rag_retrieval_config.filter.metadata_filter:
+            api_retrival_config.filter.metadata_filter = (
+                rag_retrieval_config.filter.metadata_filter
+            )
+
+    query = aiplatform_v1beta1.RagQuery(
+        text=text,
+        rag_retrieval_config=api_retrival_config,
+    )
+
+    vertex_rag_store.rag_retrieval_config = api_retrival_config
+
+    tool = aiplatform_v1beta1.Tool(
+        retrieval=aiplatform_v1beta1.Retrieval(
+            vertex_rag_store=vertex_rag_store,
+        )
+    )
+
+    request = aiplatform_v1beta1.AskContextsRequest(
+        parent=parent,
+        query=query,
+        tools=[tool],
+    )
+    try:
+        response = client.ask_contexts(request=request, timeout=timeout)
+    except Exception as e:
+        raise RuntimeError("Failed in asking contexts due to: ", e) from e
+
+    return response
