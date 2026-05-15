@@ -40,8 +40,8 @@ def test_list_skill_revisions(client, tmp_path):
         assert created_skill.name is not None
 
         # 2. List revisions
-        revisions_response = client.skills.revisions.list(name=created_skill.name)
-        revisions_list = revisions_response.skill_revisions
+        pager = client.skills.revisions.list(name=created_skill.name)
+        revisions_list = list(pager)
 
         assert len(revisions_list) > 0
         first_revision = revisions_list[0]

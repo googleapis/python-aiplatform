@@ -969,11 +969,15 @@ class TestGenaiSkills:
                 body=json.dumps(mock_response)
             )
 
-            response = skills_client.revisions.list(name=skill_name)
+            pager = skills_client.revisions.list(name=skill_name)
 
-            assert isinstance(response, genai.types.ListSkillRevisionsResponse)
-            assert len(response.skill_revisions) == 1
-            assert response.skill_revisions[0].name == f"{skill_name}/revisions/rev-1"
+            from google.genai import pagers
+
+            assert isinstance(pager, pagers.Pager)
+
+            revisions = list(pager)
+            assert len(revisions) == 1
+            assert revisions[0].name == f"{skill_name}/revisions/rev-1"
 
             request_mock.assert_called_once_with(
                 "get",
@@ -1001,11 +1005,18 @@ class TestGenaiSkills:
                 body=json.dumps(mock_response)
             )
 
-            response = await async_skills_client.revisions.list(name=skill_name)
+            pager = await async_skills_client.revisions.list(name=skill_name)
 
-            assert isinstance(response, genai.types.ListSkillRevisionsResponse)
-            assert len(response.skill_revisions) == 1
-            assert response.skill_revisions[0].name == f"{skill_name}/revisions/rev-1"
+            from google.genai import pagers
+
+            assert isinstance(pager, pagers.AsyncPager)
+
+            revisions = []
+            async for revision in pager:
+                revisions.append(revision)
+
+            assert len(revisions) == 1
+            assert revisions[0].name == f"{skill_name}/revisions/rev-1"
 
             request_mock.assert_called_once_with(
                 "get",
@@ -1013,3 +1024,340 @@ class TestGenaiSkills:
                 {"_url": {"name": skill_name}},
                 None,
             )
+
+    def test_list_skills_with_max_results(self, skills_client):
+        mock_list_response = {
+            "skills": [
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-1",
+                    "displayName": "Skill 1",
+                },
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-2",
+                    "displayName": "Skill 2",
+                },
+            ],
+            "nextPageToken": "token-123",
+        }
+        mock_list_response_page_2 = {
+            "skills": [
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-3",
+                    "displayName": "Skill 3",
+                },
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-4",
+                    "displayName": "Skill 4",
+                },
+            ],
+            "nextPageToken": "token-456",
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(mock_list_response)),
+                genai_types.HttpResponse(body=json.dumps(mock_list_response_page_2)),
+            ]
+
+            pager = skills_client.list(config={"max_results": 3})
+            skills = list(pager)
+
+            assert len(skills) == 3
+            assert skills[0].display_name == "Skill 1"
+            assert skills[1].display_name == "Skill 2"
+            assert skills[2].display_name == "Skill 3"
+
+            assert request_mock.call_count == 2
+            request_mock.assert_has_calls(
+                [
+                    mock.call("get", "skills", {}, None),
+                    mock.call(
+                        "get",
+                        "skills?pageToken=token-123",
+                        {"_query": {"pageToken": "token-123"}},
+                        None,
+                    ),
+                ]
+            )
+
+    @pytest.mark.asyncio
+    async def test_list_skills_with_max_results_async(self, async_skills_client):
+        mock_list_response = {
+            "skills": [
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-1",
+                    "displayName": "Skill 1",
+                },
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-2",
+                    "displayName": "Skill 2",
+                },
+            ],
+            "nextPageToken": "token-123",
+        }
+        mock_list_response_page_2 = {
+            "skills": [
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-3",
+                    "displayName": "Skill 3",
+                },
+                {
+                    "name": "projects/test-project/locations/test-location/skills/skill-4",
+                    "displayName": "Skill 4",
+                },
+            ],
+            "nextPageToken": "token-456",
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(mock_list_response)),
+                genai_types.HttpResponse(body=json.dumps(mock_list_response_page_2)),
+            ]
+
+            pager = await async_skills_client.list(config={"max_results": 3})
+            skills = []
+            async for skill in pager:
+                skills.append(skill)
+
+            assert len(skills) == 3
+            assert skills[0].display_name == "Skill 1"
+            assert skills[1].display_name == "Skill 2"
+            assert skills[2].display_name == "Skill 3"
+
+            assert request_mock.call_count == 2
+            request_mock.assert_has_calls(
+                [
+                    mock.call("get", "skills", {}, None),
+                    mock.call(
+                        "get",
+                        "skills?pageToken=token-123",
+                        {"_query": {"pageToken": "token-123"}},
+                        None,
+                    ),
+                ]
+            )
+
+    def test_list_skill_revisions_with_max_results(self, skills_client):
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        mock_response = {
+            "skillRevisions": [
+                {"name": f"{skill_name}/revisions/rev-1", "state": "ACTIVE"},
+                {"name": f"{skill_name}/revisions/rev-2", "state": "ACTIVE"},
+            ],
+            "nextPageToken": "token-123",
+        }
+        mock_response_page_2 = {
+            "skillRevisions": [
+                {"name": f"{skill_name}/revisions/rev-3", "state": "ACTIVE"},
+            ],
+        }
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(mock_response)),
+                genai_types.HttpResponse(body=json.dumps(mock_response_page_2)),
+            ]
+
+            pager = skills_client.revisions.list(
+                name=skill_name, config={"max_results": 2}
+            )
+            revisions = list(pager)
+
+            assert len(revisions) == 2
+            assert revisions[0].name == f"{skill_name}/revisions/rev-1"
+            assert revisions[1].name == f"{skill_name}/revisions/rev-2"
+
+            assert request_mock.call_count == 1
+            request_mock.assert_called_once_with(
+                "get",
+                f"{skill_name}/revisions",
+                {"_url": {"name": skill_name}},
+                None,
+            )
+
+    @pytest.mark.asyncio
+    async def test_list_skill_revisions_with_max_results_async(
+        self, async_skills_client
+    ):
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        mock_response = {
+            "skillRevisions": [
+                {"name": f"{skill_name}/revisions/rev-1", "state": "ACTIVE"},
+                {"name": f"{skill_name}/revisions/rev-2", "state": "ACTIVE"},
+            ],
+            "nextPageToken": "token-123",
+        }
+        mock_response_page_2 = {
+            "skillRevisions": [
+                {"name": f"{skill_name}/revisions/rev-3", "state": "ACTIVE"},
+            ],
+        }
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = [
+                genai_types.HttpResponse(body=json.dumps(mock_response)),
+                genai_types.HttpResponse(body=json.dumps(mock_response_page_2)),
+            ]
+
+            pager = await async_skills_client.revisions.list(
+                name=skill_name, config={"max_results": 2}
+            )
+            revisions = []
+            async for revision in pager:
+                revisions.append(revision)
+
+            assert len(revisions) == 2
+            assert revisions[0].name == f"{skill_name}/revisions/rev-1"
+            assert revisions[1].name == f"{skill_name}/revisions/rev-2"
+
+            assert request_mock.call_count == 1
+            request_mock.assert_called_once_with(
+                "get",
+                f"{skill_name}/revisions",
+                {"_url": {"name": skill_name}},
+                None,
+            )
+
+    def test_pager_invalid_max_results(self, skills_client):
+        import pydantic
+
+        mock_list_response = {"skills": []}
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.return_value = genai_types.HttpResponse(
+                body=json.dumps(mock_list_response)
+            )
+
+            with pytest.raises(ValueError, match="max_results must be greater than 0"):
+                list(skills_client.list(config={"max_results": 0}))
+
+            with pytest.raises(ValueError, match="max_results must be greater than 0"):
+                list(skills_client.list(config={"max_results": -1}))
+
+            with pytest.raises(pydantic.ValidationError):
+                list(skills_client.list(config={"max_results": "invalid"}))
+
+    def test_list_skills_default_limit(self, skills_client):
+        # 50 pages of size 2 = 100 items (reaches default limit)
+        responses = []
+        for i in range(50):
+            responses.append(genai_types.HttpResponse(body=json.dumps({
+                "skills": [
+                    {"name": f"projects/test-project/locations/test-location/skills/skill-{i*2+1}", "displayName": f"Skill {i*2+1}"},
+                    {"name": f"projects/test-project/locations/test-location/skills/skill-{i*2+2}", "displayName": f"Skill {i*2+2}"},
+                ],
+                "nextPageToken": f"token-{i+1}"
+            })))
+        # 51st page (should NOT be fetched)
+        responses.append(genai_types.HttpResponse(body=json.dumps({
+            "skills": [
+                {"name": "projects/test-project/locations/test-location/skills/skill-101", "displayName": "Skill 101"},
+            ]
+        })))
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = responses
+
+            # No max_results specified, should default to 100
+            pager = skills_client.list()
+            skills = list(pager)
+
+            assert len(skills) == 100
+            assert skills[0].display_name == "Skill 1"
+            assert skills[99].display_name == "Skill 100"
+
+            # Should have called request 50 times (fetching 100 items)
+            assert request_mock.call_count == 50
+            # Ensure the last call was with the 49th token
+            request_mock.assert_has_calls(
+                [
+                    mock.call("get", "skills", {}, None),
+                ] + [
+                    mock.call(
+                        "get",
+                        f"skills?pageToken=token-{i}",
+                        {"_query": {"pageToken": f"token-{i}"}},
+                        None,
+                    ) for i in range(1, 50)
+                ]
+            )
+
+    def test_list_skill_revisions_default_limit(self, skills_client):
+        skill_name = "projects/test-project/locations/test-location/skills/test-skill"
+        # 50 pages of size 2 = 100 items
+        responses = []
+        for i in range(50):
+            responses.append(genai_types.HttpResponse(body=json.dumps({
+                "skillRevisions": [
+                    {"name": f"{skill_name}/revisions/rev-{i*2+1}", "state": "ACTIVE"},
+                    {"name": f"{skill_name}/revisions/rev-{i*2+2}", "state": "ACTIVE"},
+                ],
+                "nextPageToken": f"token-{i+1}"
+            })))
+        # 51st page (should NOT be fetched)
+        responses.append(genai_types.HttpResponse(body=json.dumps({
+            "skillRevisions": [
+                {"name": f"{skill_name}/revisions/rev-101", "state": "ACTIVE"},
+            ]
+        })))
+
+        with mock.patch.object(
+            skills_client._api_client, "request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = responses
+
+            pager = skills_client.revisions.list(name=skill_name)
+            revisions = list(pager)
+
+            assert len(revisions) == 100
+            assert revisions[0].name == f"{skill_name}/revisions/rev-1"
+            assert revisions[99].name == f"{skill_name}/revisions/rev-100"
+
+            assert request_mock.call_count == 50
+
+    @pytest.mark.asyncio
+    async def test_list_skills_default_limit_async(self, async_skills_client):
+        # 50 pages of size 2 = 100 items
+        responses = []
+        for i in range(50):
+            responses.append(genai_types.HttpResponse(body=json.dumps({
+                "skills": [
+                    {"name": f"projects/test-project/locations/test-location/skills/skill-{i*2+1}", "displayName": f"Skill {i*2+1}"},
+                    {"name": f"projects/test-project/locations/test-location/skills/skill-{i*2+2}", "displayName": f"Skill {i*2+2}"},
+                ],
+                "nextPageToken": f"token-{i+1}"
+            })))
+        # 51st page (should NOT be fetched)
+        responses.append(genai_types.HttpResponse(body=json.dumps({
+            "skills": [
+                {"name": "projects/test-project/locations/test-location/skills/skill-101", "displayName": "Skill 101"},
+            ]
+        })))
+
+        with mock.patch.object(
+            async_skills_client._api_client, "async_request", autospec=True
+        ) as request_mock:
+            request_mock.side_effect = responses
+
+            pager = await async_skills_client.list()
+            skills = []
+            async for skill in pager:
+                skills.append(skill)
+
+            assert len(skills) == 100
+            assert skills[0].display_name == "Skill 1"
+            assert skills[99].display_name == "Skill 100"
+
+            assert request_mock.call_count == 50

@@ -18468,6 +18468,10 @@ class ListSkillsConfig(_common.BaseModel):
     filter: Optional[str] = Field(
         default=None, description="""Optional. The standard list filter."""
     )
+    max_results: Optional[int] = Field(
+        default=None,
+        description="""Optional. Maximum number of results to return. Defaults to 100.""",
+    )
 
 
 class ListSkillsConfigDict(TypedDict, total=False):
@@ -18484,6 +18488,9 @@ class ListSkillsConfigDict(TypedDict, total=False):
 
     filter: Optional[str]
     """Optional. The standard list filter."""
+
+    max_results: Optional[int]
+    """Optional. Maximum number of results to return. Defaults to 100."""
 
 
 ListSkillsConfigOrDict = Union[ListSkillsConfig, ListSkillsConfigDict]
@@ -18752,6 +18759,10 @@ class ListSkillRevisionsConfig(_common.BaseModel):
     )
     page_size: Optional[int] = Field(default=None, description="""""")
     page_token: Optional[str] = Field(default=None, description="""""")
+    max_results: Optional[int] = Field(
+        default=None,
+        description="""Optional. Maximum number of results to return. Defaults to 100.""",
+    )
 
 
 class ListSkillRevisionsConfigDict(TypedDict, total=False):
@@ -18764,6 +18775,9 @@ class ListSkillRevisionsConfigDict(TypedDict, total=False):
 
     page_token: Optional[str]
     """"""
+
+    max_results: Optional[int]
+    """Optional. Maximum number of results to return. Defaults to 100."""
 
 
 ListSkillRevisionsConfigOrDict = Union[
