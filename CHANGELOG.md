@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.153.1](https://github.com/googleapis/python-aiplatform/compare/v1.153.0...v1.153.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* Remove google-genai version contraints ([cf4f183](https://github.com/googleapis/python-aiplatform/commit/cf4f183c085421e255267787214018de209430d1))
+* Remove SDK workaround for async_retrieve_contexts. ([5aabd30](https://github.com/googleapis/python-aiplatform/commit/5aabd30b88de06f1c4d73cfd3e6d02bf4f73c943))
+* Relax google-genai dep to &gt;= 2.0 ([6a17fdc](https://github.com/googleapis/python-aiplatform/commit/6a17fdc1ed5b95839836ba0f9a29782b5af6b279))
+
+
+### Miscellaneous Chores
+
+* Release 1.153.1 ([addbff6](https://github.com/googleapis/python-aiplatform/commit/addbff629c38c172267aa5caa3f4a79c8c444837))
+
 ## [1.153.0](https://github.com/googleapis/python-aiplatform/compare/v1.152.0...v1.153.0) (2026-05-14)
 
 
