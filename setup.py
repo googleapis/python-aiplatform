@@ -173,7 +173,6 @@ agent_engines_extra_require = [
     "typing_extensions",
     "google-cloud-iam",
     "aiohttp",  # for ADK users to use aiohttp rather than httpx client
-    "google-genai >= 2.0.0, < 3.0.0",
 ]
 
 evaluation_extra_require = [
@@ -197,7 +196,6 @@ langchain_extra_require = [
     "langchain-google-genai >= 4.0.0, < 5.0.0",
     "langgraph >= 1.0.0, < 2.0.0",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
-    "google-genai < 2.0.0",
 ]
 
 langchain_testing_extra_require = list(
