@@ -69,8 +69,6 @@ PYTHON_TO_RAY_VERSIONS = {
     "3.11": ["2.42.0", "2.47.1"],
 }
 UNIT_TEST_STANDARD_DEPENDENCIES = [
-    "mock",
-    "asyncmock",
     "pytest",
     "pytest-cov",
     "pytest-asyncio",
