@@ -1537,6 +1537,73 @@ class TestGenerativeModels:
         )
         assert config.to_dict()["response_schema"] == _RENAMING_EXPECTED_SCHEMA
 
+    def test_generation_config_with_thinking_budget(self):
+        config = generative_models.GenerationConfig(
+            thinking_config=generative_models.GenerationConfig.ThinkingConfig(
+                thinking_budget=1024,
+            ),
+        )
+        config_dict = config.to_dict()
+        assert config_dict["thinking_config"]["thinking_budget"] == 1024
+
+    def test_generation_config_with_include_thoughts(self):
+        config = generative_models.GenerationConfig(
+            thinking_config=generative_models.GenerationConfig.ThinkingConfig(
+                include_thoughts=True,
+            ),
+        )
+        config_dict = config.to_dict()
+        assert config_dict["thinking_config"]["include_thoughts"] is True
+
+    def test_generation_config_with_thinking_level(self):
+        ThinkingConfig = generative_models.GenerationConfig.ThinkingConfig
+        config = generative_models.GenerationConfig(
+            thinking_config=ThinkingConfig(
+                thinking_level=ThinkingConfig.ThinkingLevel.HIGH,
+            ),
+        )
+        # thinking_level is a v1-only field; verify it survives the
+        # v1 → v1beta1 → v1 binary serialization round-trip.
+        raw = config._raw_generation_config
+        serialized = type(raw).serialize(raw)
+        deserialized_v1 = types_v1.GenerationConfig.deserialize(serialized)
+        assert deserialized_v1.thinking_config.thinking_level == (
+            types_v1.GenerationConfig.ThinkingConfig.ThinkingLevel.HIGH
+        )
+
+    def test_generation_config_with_thinking_config_combined(self):
+        ThinkingConfig = generative_models.GenerationConfig.ThinkingConfig
+        config = generative_models.GenerationConfig(
+            thinking_config=ThinkingConfig(
+                thinking_budget=4096,
+                include_thoughts=True,
+                thinking_level=ThinkingConfig.ThinkingLevel.MEDIUM,
+            ),
+        )
+        config_dict = config.to_dict()
+        assert config_dict["thinking_config"]["thinking_budget"] == 4096
+        assert config_dict["thinking_config"]["include_thoughts"] is True
+        # Verify thinking_level survives binary round-trip
+        raw = config._raw_generation_config
+        serialized = type(raw).serialize(raw)
+        deserialized_v1 = types_v1.GenerationConfig.deserialize(serialized)
+        assert deserialized_v1.thinking_config.thinking_level == (
+            types_v1.GenerationConfig.ThinkingConfig.ThinkingLevel.MEDIUM
+        )
+
+    def test_generation_config_thinking_config_from_dict(self):
+        config = generative_models.GenerationConfig.from_dict(
+            {
+                "thinking_config": {
+                    "thinking_budget": 2048,
+                    "include_thoughts": True,
+                },
+            }
+        )
+        config_dict = config.to_dict()
+        assert config_dict["thinking_config"]["thinking_budget"] == 2048
+        assert config_dict["thinking_config"]["include_thoughts"] is True
+
     def test_tool_schema_dict_renaming(self):
         # The `Tool` constructor does not take a dict so we don't test it here.
         tool = generative_models.Tool.from_dict(
