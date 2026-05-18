@@ -80,7 +80,7 @@ source_suffix = [".rst", ".md"]
 root_doc = "index"
 
 # General information about the project.
-project = "google-cloud-vertexai"
+project = "google-cloud-agentplatform"
 copyright = "2019, Google"
 author = "Google APIs"
 
