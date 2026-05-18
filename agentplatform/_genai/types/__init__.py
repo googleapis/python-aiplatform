@@ -1313,6 +1313,7 @@ from .common import SkillOrDict
 from .common import SkillRevision
 from .common import SkillRevisionDict
 from .common import SkillRevisionOrDict
+from .common import SkillRevisionState
 from .common import SkillState
 from .common import State
 from .common import Strategy
@@ -2736,6 +2737,7 @@ __all__ = [
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
+    "SkillRevisionState",
     "PromptOptimizerMethod",
     "OptimizationMethod",
     "PromptData",

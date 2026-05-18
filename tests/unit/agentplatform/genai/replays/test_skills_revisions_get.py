@@ -54,7 +54,7 @@ def test_get_skill_revision(client, tmp_path):
 
     assert isinstance(revision, types.SkillRevision)
     assert revision.name == first_revision.name
-    assert revision.state == types.SkillState.ACTIVE
+    assert revision.state == types.SkillRevisionState.ACTIVE
 
   finally:
     # 4. Clean up the temporary skill

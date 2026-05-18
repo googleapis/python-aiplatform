@@ -478,6 +478,21 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     """The memory was deleted."""
 
 
+class SkillRevisionState(_common.CaseInSensitiveEnum):
+    """State of the Skill Revision."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """The state of the Skill Revision is unspecified."""
+    ACTIVE = "ACTIVE"
+    """The Skill Revision is active."""
+    CREATING = "CREATING"
+    """The Skill Revision is being created."""
+    FAILED = "FAILED"
+    """The Skill Revision was created, but failed to process."""
+    DELETING = "DELETING"
+    """The Skill Revision is being deleted."""
+
+
 class PromptOptimizerMethod(_common.CaseInSensitiveEnum):
     """The method for data driven prompt optimization."""
 
@@ -18722,7 +18737,7 @@ class SkillRevision(_common.BaseModel):
         default=None,
         description="""Output only. The state of the Skill at this revision. TODO(b/503772996) Use a different proto for skill data included in skill revision""",
     )
-    state: Optional[SkillState] = Field(
+    state: Optional[SkillRevisionState] = Field(
         default=None, description="""Output only. The state of the Skill Revision."""
     )
 
@@ -18738,7 +18753,7 @@ class SkillRevisionDict(TypedDict, total=False):
     skill: Optional[SkillDict]
     """Output only. The state of the Skill at this revision. TODO(b/503772996) Use a different proto for skill data included in skill revision"""
 
-    state: Optional[SkillState]
+    state: Optional[SkillRevisionState]
     """Output only. The state of the Skill Revision."""
 
 
