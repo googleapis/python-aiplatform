@@ -20,6 +20,7 @@ import os
 import sys
 import types
 import typing
+from importlib import metadata as importlib_metadata
 from typing import (
     Any,
     Callable,
@@ -33,14 +34,12 @@ from typing import (
     TypedDict,
     Union,
 )
-from importlib import metadata as importlib_metadata
 
 import proto
+from google.api import httpbody_pb2
+from google.protobuf import json_format, struct_pb2
 
 from google.cloud.aiplatform import base
-from google.api import httpbody_pb2
-from google.protobuf import struct_pb2
-from google.protobuf import json_format
 
 try:
     # For LangChain templates, they might not import langchain_core and get
@@ -119,7 +118,7 @@ class _RequirementsValidationResult(TypedDict):
 LOGGER = base.Logger("vertexai.agent_engines")
 
 _BASE_MODULES = set(_BUILTIN_MODULE_NAMES + tuple(_STDLIB_MODULE_NAMES))
-_DEFAULT_REQUIRED_PACKAGES = frozenset(["cloudpickle", "pydantic"])
+_DEFAULT_REQUIRED_PACKAGES = frozenset(["msgpack", "pydantic"])
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
 _WARNINGS_KEY = "warnings"
@@ -654,16 +653,16 @@ def _import_cloud_storage_or_raise() -> types.ModuleType:
     return storage
 
 
-def _import_cloudpickle_or_raise() -> types.ModuleType:
-    """Tries to import the cloudpickle module."""
+def _import_msgpack_or_raise() -> types.ModuleType:
+    """Tries to import the msgpack module."""
     try:
-        import cloudpickle  # noqa:F401
+        import msgpack  # noqa:F401
     except ImportError as e:
         raise ImportError(
-            "cloudpickle is not installed. Please call "
+            "msgpack is not installed. Please call "
             "'pip install google-cloud-aiplatform[agent_engines]'."
         ) from e
-    return cloudpickle
+    return msgpack
 
 
 def _import_pydantic_or_raise() -> types.ModuleType:

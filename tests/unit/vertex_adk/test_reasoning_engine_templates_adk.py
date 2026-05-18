@@ -238,28 +238,29 @@ def logger_provider_force_flush_mock():
 @pytest.fixture
 def default_instrumentor_builder_mock():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk._default_instrumentor_builder"
+        "vertexai.preview.reasoning_engines.templates.adk._default_instrumentor_builder"
     ) as default_instrumentor_builder_mock:
         yield default_instrumentor_builder_mock
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def adk_version_mock():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version"
+        "vertexai.preview.reasoning_engines.templates.adk.get_adk_version"
     ) as adk_version_mock:
+        adk_version_mock.return_value = "1.0.0"
         yield adk_version_mock
 
 
 @pytest.fixture(autouse=True)
 def get_project_id_mock():
     with mock.patch(
-        "google.cloud.aiplatform.aiplatform.utils.resource_manager_utils.get_project_id"
+        "google.cloud.aiplatform.utils.resource_manager_utils.get_project_id"
     ) as get_project_id_mock:
         get_project_id_mock.return_value = _TEST_PROJECT_ID
         with mock.patch.object(initializer.global_config, "_project", _TEST_PROJECT):
             with mock.patch(
-                "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.AdkApp._warn_if_telemetry_api_disabled",
+                "vertexai.preview.reasoning_engines.templates.adk.AdkApp._warn_if_telemetry_api_disabled",
                 return_value=None,
             ):
                 yield get_project_id_mock
@@ -355,7 +356,7 @@ class _MockRunner:
 class TestAdkApp:
     def test_adk_version(self):
         with mock.patch(
-            "google.cloud.aiplatform.vertexai.preview.reasoning_engines.templates.adk.get_adk_version",
+            "vertexai.preview.reasoning_engines.templates.adk.get_adk_version",
             return_value="0.5.0",
         ):
             with pytest.raises(
@@ -889,7 +890,7 @@ class TestAdkApp:
         app = reasoning_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app._warn_if_telemetry_api_disabled = lambda: None
         with mock.patch(
-            "google.cloud.aiplatform.vertexai.agent_engines._utils.is_noop_or_proxy_tracer_provider",
+            "vertexai.agent_engines._utils.is_noop_or_proxy_tracer_provider",
             return_value=True,
         ):
             app.set_up()

@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import cloudpickle
 import dataclasses
 import datetime
 import difflib
@@ -534,10 +533,12 @@ def tarfile_open_mock():
 
 
 @pytest.fixture(scope="module")
-def cloudpickle_dump_mock():
-    with mock.patch.object(cloudpickle, "dump") as cloudpickle_dump_mock:
-        cloudpickle_dump_mock.return_value = None
-        yield cloudpickle_dump_mock
+def upload_reasoning_engine_mock():
+    with mock.patch.object(
+        _reasoning_engines, "_upload_reasoning_engine"
+    ) as upload_reasoning_engine_mock:
+        upload_reasoning_engine_mock.return_value = None
+        yield upload_reasoning_engine_mock
 
 
 @pytest.fixture(scope="module")
@@ -704,7 +705,7 @@ class InvalidCapitalizeEngineWithNoncallableQueryStreamQuery:
         pass
 
 
-@pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("google_auth_mock", "upload_reasoning_engine_mock")
 class TestReasoningEngine:
     def setup_method(self):
         importlib.reload(initializer)
@@ -723,7 +724,7 @@ class TestReasoningEngine:
     def test_prepare_with_unspecified_extra_packages(
         self,
         cloud_storage_create_bucket_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
     ):
         with mock.patch.object(
             _reasoning_engines,
@@ -743,7 +744,7 @@ class TestReasoningEngine:
     def test_prepare_with_empty_extra_packages(
         self,
         cloud_storage_create_bucket_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
     ):
         with mock.patch.object(
             _reasoning_engines,
@@ -775,7 +776,7 @@ class TestReasoningEngine:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
         get_gca_resource_mock,
     ):
@@ -801,7 +802,7 @@ class TestReasoningEngine:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         reasoning_engines.ReasoningEngine.create(
@@ -820,7 +821,7 @@ class TestReasoningEngine:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         sys_version = f"{sys.version_info.major}.{sys.version_info.minor}"
@@ -838,7 +839,7 @@ class TestReasoningEngine:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
         get_gca_resource_mock,
     ):
@@ -999,7 +1000,7 @@ class TestReasoningEngine:
         want_request,
         update_reasoning_engine_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_gca_resource_mock,
     ):
         test_reasoning_engine = _generate_reasoning_engine_to_update()
@@ -1016,7 +1017,7 @@ class TestReasoningEngine:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_gca_resource_mock,
     ):
         test_reasoning_engine = _generate_reasoning_engine_to_update()
@@ -1032,7 +1033,7 @@ class TestReasoningEngine:
         self,
         update_reasoning_engine_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_gca_resource_mock,
         unregister_api_methods_mock,
     ):
@@ -1072,7 +1073,7 @@ class TestReasoningEngine:
         create_reasoning_engine_mock,
         cloud_storage_get_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
         delete_reasoning_engine_mock,
         get_gca_resource_mock,
@@ -1713,7 +1714,7 @@ class TestReasoningEngine:
             )
 
 
-@pytest.mark.usefixtures("google_auth_mock")
+@pytest.mark.usefixtures("google_auth_mock", "upload_reasoning_engine_mock")
 class TestReasoningEngineErrors:
     def setup_method(self):
         importlib.reload(initializer)
@@ -1731,7 +1732,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(
@@ -1762,7 +1763,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(
@@ -1783,7 +1784,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(
@@ -1804,7 +1805,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(ValueError, match="Unsupported python version"):
@@ -1820,7 +1821,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(IOError, match="Failed to read requirements"):
@@ -1835,7 +1836,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(FileNotFoundError, match="not found"):
@@ -1851,7 +1852,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(ValueError, match="Invalid query signature"):
@@ -1866,7 +1867,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(ValueError, match="Invalid stream_query signature"):
@@ -1881,7 +1882,7 @@ class TestReasoningEngineErrors:
         create_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(ValueError, match="Invalid register_operations signature"):
@@ -1896,7 +1897,7 @@ class TestReasoningEngineErrors:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
     ):
         with pytest.raises(
             ValueError,
@@ -1925,7 +1926,7 @@ class TestReasoningEngineErrors:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(
@@ -1945,7 +1946,7 @@ class TestReasoningEngineErrors:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(
@@ -1965,7 +1966,7 @@ class TestReasoningEngineErrors:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(IOError, match="Failed to read requirements"):
@@ -1979,7 +1980,7 @@ class TestReasoningEngineErrors:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(FileNotFoundError, match="not found"):
@@ -1993,7 +1994,7 @@ class TestReasoningEngineErrors:
         update_reasoning_engine_mock,
         cloud_storage_create_bucket_mock,
         tarfile_open_mock,
-        cloudpickle_dump_mock,
+        upload_reasoning_engine_mock,
         get_reasoning_engine_mock,
     ):
         with pytest.raises(ValueError, match="Invalid query signature"):
