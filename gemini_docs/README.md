@@ -3,7 +3,7 @@ The Gen AI Modules in the Vertex SDK help developers use Google's generative AI
 [Gemini models](http://cloud.google.com/vertex-ai/docs/generative-ai/multimodal/overview)
 to build AI-powered features and applications in Vertex.
 
-The modules currently available are: Evaluation, Agent Engines, Prompt Management, and Prompt Optimization. See below for instructions on getting started with each module. For other Gemini features on Vertex, use the [Gen AI SDK](https://github.com/googleapis/python-genai).
+The modules currently available are: Evaluation, Agent Engines, Prompt Management, Prompt Optimization, and Skill Registry. See below for instructions on getting started with each module. For other Gemini features on Vertex, use the [Gen AI SDK](https://github.com/googleapis/python-genai).
 
 ## Installation
 
@@ -256,6 +256,88 @@ response = genai_client.models.generate_content(
     model=retrieved_prompt.prompt_data.model,
     contents=retrieved_prompt.assemble_contents(),
 )
+```
+
+#### Skill Registry
+
+Create and manage skills in Skill Registry. You must specify a unique string
+identifier using the required skill_id parameter.
+
+```python
+# Create a skill
+skill = client.skills.create(
+    skill_id="my-custom-weather-skill",
+    display_name="weather_skill",
+    description="Retrieves the weather for a given location",
+    config={
+        "local_path": "./weather_skill_dir",
+    },
+)
+```
+
+Get an existing skill by its resource name.
+
+```python
+# The `name` parameter must be a string in the following format:
+#   'projects/{project_id_or_number}/locations/{location}/skills/{skill_id}'
+#
+# Examples:
+#   'projects/my-project/locations/us-central1/skills/1234567890'
+#   'projects/my-project/locations/us-central1/skills/my-custom-weather-skill'
+#
+# Note: If you have a `Skill` object (e.g., from a `create()` call),
+# `skill.name` already contains the resource name in the correct format.
+fetched_skill = client.skills.get(name=skill.name)
+```
+
+Update an existing skill's metadata or underlying implementation.
+
+```python
+# Update skill metadata
+updated_skill = client.skills.update(
+    name=skill.name,
+    config={
+        "display_name": "Updated Weather Skill",
+        "description": "Provides localized current weather conditions and multi-day forecasts.",
+    },
+)
+```
+
+List all registered skills.
+
+```python
+# List skills with custom page size
+pager = client.skills.list(config={"page_size": 10})
+for item in pager:
+    print(item.name, item.display_name)
+```
+
+Search for skills semantically matched to a query.
+
+```python
+# Retrieve skills matched to a semantic query
+matched_skills = client.skills.retrieve(query="weather forecast")
+```
+
+List and view revisions for a skill using the `ListSkillRevisions` and `GetSkillRevision` API methods.
+
+```python
+# List skill revisions
+revisions_response = client.skills.revisions.list(name=skill.name)
+for rev in revisions_response.skill_revisions:
+    print(rev.name, rev.create_time)
+
+# Get a specific skill revision by its resource name
+if revisions_response.skill_revisions:
+    target_revision_name = revisions_response.skill_revisions[0].name
+    revision = client.skills.revisions.get(name=target_revision_name)
+```
+
+Delete a skill when it is no longer required.
+
+```python
+# Delete a skill
+client.skills.delete(name=skill.name)
 ```
 
 ## Warning
