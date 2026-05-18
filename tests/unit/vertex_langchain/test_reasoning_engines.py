@@ -42,6 +42,7 @@ from google.cloud.aiplatform_v1beta1.services import reasoning_engine_service
 from vertexai.preview import reasoning_engines
 from vertexai.reasoning_engines import _reasoning_engines
 from vertexai.reasoning_engines import _utils
+from google.iam.v1 import policy_pb2
 from google.api import httpbody_pb2
 from google.protobuf import field_mask_pb2
 from google.protobuf import struct_pb2
@@ -793,6 +794,56 @@ class TestReasoningEngine:
             name=_TEST_REASONING_ENGINE_RESOURCE_NAME,
             retry=_TEST_RETRY,
         )
+
+    def test_get_iam_policy(self):
+        """Tests that `get_iam_policy` method correctly calls the underlying API client.
+
+        It verifies that the `get_iam_policy` method is called with the expected
+        resource name and returns the policy as provided by the mocked API client.
+        """
+        with mock.patch.object(
+            base.VertexAiResourceNoun, "_get_gca_resource"
+        ) as mock_get_gca_resource:
+            mock_get_gca_resource.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME
+            )
+            reasoning_engine = reasoning_engines.ReasoningEngine(
+                _TEST_REASONING_ENGINE_RESOURCE_NAME
+            )
+
+        test_policy = policy_pb2.Policy(version=1)
+        with mock.patch.object(
+            reasoning_engine.api_client, "get_iam_policy"
+        ) as mock_get_iam_policy:
+            mock_get_iam_policy.return_value = test_policy
+            policy = reasoning_engine.get_iam_policy(policy_version=1)
+            mock_get_iam_policy.assert_called_once()
+            assert policy == test_policy
+
+    def test_set_iam_policy(self):
+        """Tests that `set_iam_policy` method correctly calls the underlying API client.
+
+        It verifies that the `set_iam_policy` method is called with the expected
+        policy and returns the policy as provided by the mocked API client.
+        """
+        with mock.patch.object(
+            base.VertexAiResourceNoun, "_get_gca_resource"
+        ) as mock_get_gca_resource:
+            mock_get_gca_resource.return_value = types.ReasoningEngine(
+                name=_TEST_REASONING_ENGINE_RESOURCE_NAME
+            )
+            reasoning_engine = reasoning_engines.ReasoningEngine(
+                _TEST_REASONING_ENGINE_RESOURCE_NAME
+            )
+
+        test_policy = policy_pb2.Policy(version=1)
+        with mock.patch.object(
+            reasoning_engine.api_client, "set_iam_policy"
+        ) as mock_set_iam_policy:
+            mock_set_iam_policy.return_value = test_policy
+            policy = reasoning_engine.set_iam_policy(test_policy)
+            mock_set_iam_policy.assert_called_once()
+            assert policy == test_policy
 
     @pytest.mark.usefixtures("caplog")
     def test_create_reasoning_engine_warn_resource_name(

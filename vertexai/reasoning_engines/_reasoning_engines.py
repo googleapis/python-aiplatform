@@ -44,6 +44,9 @@ from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1beta1 import types as aip_types
 from google.cloud.aiplatform_v1beta1.types import reasoning_engine_service
 from vertexai.reasoning_engines import _utils
+from google.iam.v1 import iam_policy_pb2
+from google.iam.v1 import options_pb2
+from google.iam.v1 import policy_pb2
 from google.protobuf import field_mask_pb2
 
 
@@ -498,6 +501,41 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         if not hasattr(self, "_operation_schemas") or self._operation_schemas is None:
             self._operation_schemas = spec.get("classMethods", [])
         return self._operation_schemas
+
+    def get_iam_policy(
+            self, policy_version: Optional[int] = None
+        ) -> policy_pb2.Policy:
+        """Gets the access control policy for this ReasoningEngine.
+
+            Args:
+                policy_version: Optional. The maximum policy version that will be used
+                to format the policy. Valid values are 0, 1, 3.
+
+            Returns:
+                The IAM policy.
+            """
+        request = iam_policy_pb2.GetIamPolicyRequest(
+                resource=self.resource_name,
+                options=options_pb2.GetPolicyOptions(
+                    requested_policy_version=policy_version
+                ),
+            )
+        return self.api_client.get_iam_policy(request=request)
+
+    def set_iam_policy(self, policy: policy_pb2.Policy) -> policy_pb2.Policy:
+        """Sets the access control policy on this ReasoningEngine.
+
+        Args:
+            policy: The complete policy to be applied to the resource.
+
+        Returns:
+            The new IAM policy.
+        """
+        request = iam_policy_pb2.SetIamPolicyRequest(
+            resource=self.resource_name,
+            policy=policy,
+        )
+        return self.api_client.set_iam_policy(request=request)
 
 
 def _validate_sys_version_or_raise(sys_version: str) -> None:
