@@ -383,6 +383,21 @@ class Framework(_common.CaseInSensitiveEnum):
     """Angular framework."""
 
 
+class SkillState(_common.CaseInSensitiveEnum):
+    """State of the Skill."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """The state of the Skill is unspecified."""
+    ACTIVE = "ACTIVE"
+    """The Skill is active."""
+    CREATING = "CREATING"
+    """The Skill is being created."""
+    FAILED = "FAILED"
+    """The Skill was created, but failed to process."""
+    DELETING = "DELETING"
+    """The Skill is being deleted."""
+
+
 class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The type of the EvaluationItem."""
 
@@ -461,21 +476,6 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     """The memory was updated. The `fact` field may not be updated if the existing fact is still accurate."""
     DELETED = "DELETED"
     """The memory was deleted."""
-
-
-class SkillState(_common.CaseInSensitiveEnum):
-    """State of the Skill."""
-
-    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
-    """The state of the Skill is unspecified."""
-    ACTIVE = "ACTIVE"
-    """The Skill is active."""
-    CREATING = "CREATING"
-    """The Skill is being created."""
-    FAILED = "FAILED"
-    """The Skill was created, but failed to process."""
-    DELETING = "DELETING"
-    """The Skill is being deleted."""
 
 
 class PromptOptimizerMethod(_common.CaseInSensitiveEnum):
