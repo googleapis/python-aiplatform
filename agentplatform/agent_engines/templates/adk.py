@@ -1568,6 +1568,10 @@ class AdkApp:
                 will be be generated for the session.
             state (dict[str, Any]):
                 Optional. The initial state of the session.
+            ttl (str):
+                Optional. The time-to-live for the session.
+            expire_time (str):
+                Optional. The expiration time for the session.
             **kwargs (dict[str, Any]):
                 Optional. Additional keyword arguments to pass to the
                 session service.
