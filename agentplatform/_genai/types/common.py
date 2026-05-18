@@ -18262,12 +18262,6 @@ class CreateSkillConfig(_common.BaseModel):
     zipped_filesystem: Optional[Any] = Field(
         default=None, description="""Optional. The zipped filesystem of the Skill."""
     )
-    skill_id: Optional[str] = Field(
-        default=None,
-        description="""Optional. The ID to use for the Skill, which will become the final
-      component of the Skill's resource name.
-      """,
-    )
 
 
 class CreateSkillConfigDict(TypedDict, total=False):
@@ -18287,11 +18281,6 @@ class CreateSkillConfigDict(TypedDict, total=False):
     zipped_filesystem: Optional[Any]
     """Optional. The zipped filesystem of the Skill."""
 
-    skill_id: Optional[str]
-    """Optional. The ID to use for the Skill, which will become the final
-      component of the Skill's resource name.
-      """
-
 
 CreateSkillConfigOrDict = Union[CreateSkillConfig, CreateSkillConfigDict]
 
@@ -18306,6 +18295,12 @@ class _CreateSkillRequestParameters(_common.BaseModel):
         default=None, description="""Required. The description of the Skill."""
     )
     config: Optional[CreateSkillConfig] = Field(default=None, description="""""")
+    skill_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The ID to use for the Skill, which will become the final
+      component of the Skill's resource name.
+      """,
+    )
 
 
 class _CreateSkillRequestParametersDict(TypedDict, total=False):
@@ -18319,6 +18314,11 @@ class _CreateSkillRequestParametersDict(TypedDict, total=False):
 
     config: Optional[CreateSkillConfigDict]
     """"""
+
+    skill_id: Optional[str]
+    """Required. The ID to use for the Skill, which will become the final
+      component of the Skill's resource name.
+      """
 
 
 _CreateSkillRequestParametersOrDict = Union[

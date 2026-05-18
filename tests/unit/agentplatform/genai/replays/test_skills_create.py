@@ -28,47 +28,49 @@ pytestmark = pytest_helper.setup(
 
 
 def test_create_skill(client, tmp_path):
-    client._api_client._http_options.base_url = (
-        "https://us-central1-aiplatform.googleapis.com"
-    )
+  client._api_client._http_options.base_url = (
+      "https://us-central1-aiplatform.googleapis.com"
+  )
 
-    # Create a dummy skill structure (SKILL.md is required by the spec)
-    with open(tmp_path / "SKILL.md", "w") as f:
-        f.write("# My Replay Skill\nThis is a test skill for replay tests.")
+  # Create a dummy skill structure (SKILL.md is required by the spec)
+  with open(tmp_path / "SKILL.md", "w") as f:
+    f.write("# My Replay Skill\nThis is a test skill for replay tests.")
 
-    skill = client.skills.create(
-        display_name="My Replay Skill",
-        description="My Replay Skill Description",
-        config=types.CreateSkillConfig(
-            local_path=str(tmp_path), wait_for_completion=True
-        ),
-    )
+  skill = client.skills.create(
+      skill_id="my-replay-skill-v2",
+      display_name="My Replay Skill",
+      description="My Replay Skill Description",
+      config=types.CreateSkillConfig(
+          local_path=str(tmp_path), wait_for_completion=True
+      ),
+  )
 
-    assert skill.name is not None
-    assert skill.display_name == "My Replay Skill"
-    assert skill.description == "My Replay Skill Description"
+  assert skill.name is not None
+  assert skill.display_name == "My Replay Skill"
+  assert skill.description == "My Replay Skill Description"
 
 
 def test_create_skill_with_prezipped_bytes(client):
-    """Tests the creation of a skill with pre-zipped bytes."""
-    client._api_client._http_options.base_url = (
-        "https://us-central1-aiplatform.googleapis.com"
-    )
+  """Tests the creation of a skill with pre-zipped bytes."""
+  client._api_client._http_options.base_url = (
+      "https://us-central1-aiplatform.googleapis.com"
+  )
 
-    zip_buffer = io.BytesIO()
-    zinfo = zipfile.ZipInfo("SKILL.md", date_time=(1980, 1, 1, 0, 0, 0))
-    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        zip_file.writestr(zinfo, "# My Zipped Replay Skill\nThis is a test.")
-    zipped_bytes = zip_buffer.getvalue()
+  zip_buffer = io.BytesIO()
+  zinfo = zipfile.ZipInfo("SKILL.md", date_time=(1980, 1, 1, 0, 0, 0))
+  with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+    zip_file.writestr(zinfo, "# My Zipped Replay Skill\nThis is a test.")
+  zipped_bytes = zip_buffer.getvalue()
 
-    skill = client.skills.create(
-        display_name="My Zipped Replay Skill",
-        description="My Zipped Replay Skill Description",
-        config=types.CreateSkillConfig(
-            zipped_filesystem=zipped_bytes, wait_for_completion=True
-        ),
-    )
+  skill = client.skills.create(
+      skill_id="my-zipped-replay-skill-v2",
+      display_name="My Zipped Replay Skill",
+      description="My Zipped Replay Skill Description",
+      config=types.CreateSkillConfig(
+          zipped_filesystem=zipped_bytes, wait_for_completion=True
+      ),
+  )
 
-    assert skill.name is not None
-    assert skill.display_name == "My Zipped Replay Skill"
-    assert skill.description == "My Zipped Replay Skill Description"
+  assert skill.name is not None
+  assert skill.display_name == "My Zipped Replay Skill"
+  assert skill.description == "My Zipped Replay Skill Description"

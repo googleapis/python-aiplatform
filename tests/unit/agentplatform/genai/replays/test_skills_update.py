@@ -29,20 +29,21 @@ pytestmark = pytest_helper.setup(
 
 def test_update_skill(client, tmp_path):
 
-    # 1. Create a fresh unique skill first
-    with open(tmp_path / "SKILL.md", "w") as f:
-        f.write("# Test Skill\nInitial content.")
+  # 1. Create a fresh unique skill first
+  with open(tmp_path / "SKILL.md", "w") as f:
+    f.write("# Test Skill\nInitial content.")
 
-    created_skill = client.skills.create(
-        display_name="Original Skill",
-        description="Original Description",
-        config=types.CreateSkillConfig(
-            local_path=str(tmp_path), wait_for_completion=True
-        ),
-    )
+  created_skill = client.skills.create(
+      skill_id="my-skill-to-update-1",
+      display_name="Original Skill",
+      description="Original Description",
+      config=types.CreateSkillConfig(
+          local_path=str(tmp_path), wait_for_completion=True
+      ),
+  )
 
-    # 2. Perform the metadata-only update on the new skill
-    updated_skill = client.skills.update(
+  # 2. Perform the metadata-only update on the new skill
+  updated_skill = client.skills.update(
         name=created_skill.name,
         config=types.UpdateSkillConfig(
             display_name="My Updated Replay Skill",
@@ -51,41 +52,42 @@ def test_update_skill(client, tmp_path):
         ),
     )
 
-    assert updated_skill.name == created_skill.name
-    assert updated_skill.display_name == "My Updated Replay Skill"
-    assert updated_skill.description == "My Updated Replay Skill Description"
+  assert updated_skill.name == created_skill.name
+  assert updated_skill.display_name == "My Updated Replay Skill"
+  assert updated_skill.description == "My Updated Replay Skill Description"
 
 
 def test_update_skill_with_zipped_bytes(client, tmp_path):
 
-    # 1. Create a fresh unique skill first
-    with open(tmp_path / "SKILL.md", "w") as f:
-        f.write("# Test Skill\nInitial content.")
+  # 1. Create a fresh unique skill first
+  with open(tmp_path / "SKILL.md", "w") as f:
+    f.write("# Test Skill\nInitial content.")
 
-    created_skill = client.skills.create(
-        display_name="Original Skill",
-        description="Original Description",
-        config=types.CreateSkillConfig(
-            local_path=str(tmp_path), wait_for_completion=True
-        ),
-    )
+  created_skill = client.skills.create(
+      skill_id="my-skill-to-update-2",
+      display_name="Original Skill",
+      description="Original Description",
+      config=types.CreateSkillConfig(
+          local_path=str(tmp_path), wait_for_completion=True
+      ),
+  )
 
-    # 2. Prepare zipped bytes for update
-    zip_buffer = io.BytesIO()
-    zinfo = zipfile.ZipInfo("SKILL.md", date_time=(1980, 1, 1, 0, 0, 0))
-    with zipfile.ZipFile(zip_buffer, "w") as zip_file:
-        zip_file.writestr(zinfo, "# My Updated Zipped Replay Skill\nThis is updated.")
-    zipped_bytes = zip_buffer.getvalue()
+  # 2. Prepare zipped bytes for update
+  zip_buffer = io.BytesIO()
+  zinfo = zipfile.ZipInfo("SKILL.md", date_time=(1980, 1, 1, 0, 0, 0))
+  with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+    zip_file.writestr(zinfo, "# My Updated Zipped Replay Skill\nThis is updated.")
+  zipped_bytes = zip_buffer.getvalue()
 
-    # 3. Update the skill with new zipped bytes
-    updated_skill = client.skills.update(
+  # 3. Update the skill with new zipped bytes
+  updated_skill = client.skills.update(
         name=created_skill.name,
         config=types.UpdateSkillConfig(
             zipped_filesystem=zipped_bytes, wait_for_completion=True
         ),
     )
 
-    assert updated_skill.name == created_skill.name
-    assert (
+  assert updated_skill.name == created_skill.name
+  assert (
         updated_skill.display_name == "Original Skill"
     )  # Display name remains unchanged

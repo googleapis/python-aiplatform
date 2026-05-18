@@ -55,9 +55,6 @@ def _CreateSkillConfig_to_vertex(
             getv(from_object, ["zipped_filesystem"]),
         )
 
-    if getv(from_object, ["skill_id"]) is not None:
-        setv(parent_object, ["_query", "skillId"], getv(from_object, ["skill_id"]))
-
     return to_object
 
 
@@ -74,6 +71,9 @@ def _CreateSkillRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         _CreateSkillConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    if getv(from_object, ["skill_id"]) is not None:
+        setv(to_object, ["_query", "skillId"], getv(from_object, ["skill_id"]))
 
     return to_object
 
@@ -367,6 +367,7 @@ class Skills(_api_module.BaseModule):
         display_name: str,
         description: str,
         config: Optional[types.CreateSkillConfigOrDict] = None,
+        skill_id: str,
     ) -> types.SkillOperation:
         """
         Creates a new Skill.
@@ -376,6 +377,7 @@ class Skills(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             config=config,
+            skill_id=skill_id,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -712,6 +714,7 @@ class Skills(_api_module.BaseModule):
     def create(
         self,
         *,
+        skill_id: str,
         display_name: str,
         description: str,
         config: Optional[types.CreateSkillConfigOrDict] = None,
@@ -719,6 +722,9 @@ class Skills(_api_module.BaseModule):
         """Creates a new Skill.
 
         Args:
+            skill_id (str):
+                Required. The ID to use for the Skill, which will become the final
+                component of the Skill's resource name.
             display_name (str):
                 Required. The display name of the Skill.
             description (str):
@@ -775,6 +781,7 @@ class Skills(_api_module.BaseModule):
         config.zipped_filesystem = zipped_filesystem_payload
 
         operation = self._create(
+            skill_id=skill_id,
             display_name=display_name,
             description=description,
             config=config,
@@ -1110,6 +1117,7 @@ class AsyncSkills(_api_module.BaseModule):
         display_name: str,
         description: str,
         config: Optional[types.CreateSkillConfigOrDict] = None,
+        skill_id: str,
     ) -> types.SkillOperation:
         """
         Creates a new Skill.
@@ -1119,6 +1127,7 @@ class AsyncSkills(_api_module.BaseModule):
             display_name=display_name,
             description=description,
             config=config,
+            skill_id=skill_id,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -1465,6 +1474,7 @@ class AsyncSkills(_api_module.BaseModule):
     async def create(
         self,
         *,
+        skill_id: str,
         display_name: str,
         description: str,
         config: Optional[types.CreateSkillConfigOrDict] = None,
@@ -1472,6 +1482,9 @@ class AsyncSkills(_api_module.BaseModule):
         """Creates a new Skill asynchronously.
 
         Args:
+            skill_id (str):
+                Required. The ID to use for the Skill, which will become the final
+                component of the Skill's resource name.
             display_name (str):
                 Required. The display name of the Skill.
             description (str):
@@ -1529,6 +1542,7 @@ class AsyncSkills(_api_module.BaseModule):
         config.zipped_filesystem = zipped_filesystem_payload
 
         operation = await self._create(
+            skill_id=skill_id,
             display_name=display_name,
             description=description,
             config=config,

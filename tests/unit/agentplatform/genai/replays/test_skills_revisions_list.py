@@ -19,39 +19,40 @@ from agentplatform._genai import types
 
 
 def test_list_skill_revisions(client, tmp_path):
-    # Target the autopush sandbox endpoint for the Skill Registry API
-    client._api_client._http_options.base_url = (
+  # Target the autopush sandbox endpoint for the Skill Registry API
+  client._api_client._http_options.base_url = (
         "https://us-central1-autopush-aiplatform.sandbox.googleapis.com"
     )
 
-    # 1. Create a fresh unique skill
-    with open(tmp_path / "SKILL.md", "w") as f:
-        f.write("# Replay List Revisions Test Skill\nThis is a test skill.")
+  # 1. Create a fresh unique skill
+  with open(tmp_path / "SKILL.md", "w") as f:
+    f.write("# Replay List Revisions Test Skill\nThis is a test skill.")
 
-    created_skill = client.skills.create(
-        display_name="Replay List Revisions Test Skill",
-        description="A temporary skill to test list revisions E2E",
-        config=types.CreateSkillConfig(
-            local_path=str(tmp_path), wait_for_completion=True
-        ),
-    )
+  created_skill = client.skills.create(
+      skill_id="my-skill-to-list-revisions",
+      display_name="Replay List Revisions Test Skill",
+      description="A temporary skill to test list revisions E2E",
+      config=types.CreateSkillConfig(
+          local_path=str(tmp_path), wait_for_completion=True
+      ),
+  )
 
-    try:
-        assert created_skill.name is not None
+  try:
+    assert created_skill.name is not None
 
-        # 2. List revisions
-        revisions_response = client.skills.revisions.list(name=created_skill.name)
-        revisions_list = revisions_response.skill_revisions
+    # 2. List revisions
+    revisions_response = client.skills.revisions.list(name=created_skill.name)
+    revisions_list = revisions_response.skill_revisions
 
-        assert len(revisions_list) > 0
-        first_revision = revisions_list[0]
-        assert isinstance(first_revision, types.SkillRevision)
-        assert first_revision.name is not None
-        assert first_revision.state == types.SkillState.ACTIVE
+    assert len(revisions_list) > 0
+    first_revision = revisions_list[0]
+    assert isinstance(first_revision, types.SkillRevision)
+    assert first_revision.name is not None
+    assert first_revision.state == types.SkillState.ACTIVE
 
-    finally:
-        # 3. Clean up the temporary skill
-        client.skills.delete(
+  finally:
+    # 3. Clean up the temporary skill
+    client.skills.delete(
             name=created_skill.name,
             config=types.DeleteSkillConfig(wait_for_completion=True),
         )
