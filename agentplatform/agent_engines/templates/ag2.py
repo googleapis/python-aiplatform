@@ -89,13 +89,13 @@ def _default_runnable_builder(
 
 
 def _default_instrumentor_builder(project_id: str):
-    from agentplatform.agent_engines import _utils
+    from agentplatform._genai import _agent_engines_utils
 
-    cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
-    openinference_autogen = _utils._import_openinference_autogen_or_warn()
-    opentelemetry = _utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
+    cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
+    cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
+    openinference_autogen = _agent_engines_utils._import_openinference_autogen_or_warn()
+    opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
+    opentelemetry_sdk_trace = _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
     if all(
         (
             cloud_trace_exporter,
@@ -142,7 +142,7 @@ def _default_instrumentor_builder(project_id: str):
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry_sdk_trace.TracerProvider()
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
@@ -396,9 +396,9 @@ class AG2Agent:
         tools = self._tmpl_attrs.get("tools")
         ag2_tool_objects = self._tmpl_attrs.get("ag2_tool_objects")
         if tools and not ag2_tool_objects:
-            from agentplatform.agent_engines import _utils
+            from agentplatform._genai import _agent_engines_utils
 
-            autogen_tools = _utils._import_autogen_tools_or_warn()
+            autogen_tools = _agent_engines_utils._import_autogen_tools_or_warn()
             if autogen_tools:
                 for tool in tools:
                     ag2_tool_objects.append(autogen_tools.Tool(func_or_tool=tool))
@@ -484,6 +484,6 @@ class AG2Agent:
             **kwargs,
         )
 
-        from agentplatform.agent_engines import _utils
+        from agentplatform._genai import _agent_engines_utils
 
-        return _utils.to_json_serializable_autogen_object(response)
+        return _agent_engines_utils.to_json_serializable_autogen_object(response)

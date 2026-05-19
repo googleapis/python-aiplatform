@@ -17,6 +17,7 @@
 import abc
 import asyncio
 import base64
+import dataclasses
 from importlib import metadata as importlib_metadata
 import inspect
 import io
@@ -134,6 +135,37 @@ except (ImportError, AttributeError):
     ClientFactory = None
     TaskIdParams = None
     TaskQueryParams = None
+try:
+    from autogen.agentchat import chat
+
+    AutogenChatResult = chat.ChatResult
+except ImportError:
+    AutogenChatResult = Any
+try:
+    from autogen.io import run_response
+
+    AutogenRunResponse = run_response.RunResponse
+except ImportError:
+    AutogenRunResponse = Any
+try:
+    from llama_index.core.base.response import schema as llama_index_schema
+    from llama_index.core.base.llms import types as llama_index_types
+
+    LlamaIndexResponse = llama_index_schema.Response
+    LlamaIndexBaseModel = llama_index_schema.BaseModel
+    LlamaIndexChatResponse = llama_index_types.ChatResponse
+except ImportError:
+    LlamaIndexResponse = Any
+    LlamaIndexBaseModel = Any
+    LlamaIndexChatResponse = Any
+try:
+    import pydantic
+
+    BaseModel = pydantic.BaseModel
+except ImportError:
+    BaseModel = Any
+
+JsonDict = Dict[str, Any]
 
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
@@ -1994,3 +2026,235 @@ def _add_telemetry_enablement_env(
         return env_vars
 
     return env_vars | env_to_add
+
+
+def _dataclass_to_dict_or_raise(obj: Any) -> Dict[str, Any]:
+    """Converts a dataclass to a JSON dictionary."""
+    if not dataclasses.is_dataclass(obj):
+        raise TypeError(f"Object is not a dataclass: {obj}")
+    return json.loads(json.dumps(dataclasses.asdict(obj)))
+
+
+def _autogen_run_response_protocol_to_dict(
+    obj: AutogenRunResponse,
+) -> Dict[str, Any]:
+    """Converts an AutogenRunResponse object into a JSON-serializable dictionary."""
+    if hasattr(obj, "process"):
+        obj.process()
+    last_speaker = None
+    if getattr(obj, "last_speaker", None) is not None:
+        last_speaker = {
+            "name": getattr(obj.last_speaker, "name", None),
+            "description": getattr(obj.last_speaker, "description", None),
+        }
+    cost = None
+    if getattr(obj, "cost", None) is not None:
+        if hasattr(obj.cost, "model_dump_json"):
+            cost = json.loads(obj.cost.model_dump_json())
+        else:
+            cost = str(obj.cost)
+    result = {
+        "summary": getattr(obj, "summary", None),
+        "messages": list(getattr(obj, "messages", [])),
+        "context_variables": getattr(obj, "context_variables", None),
+        "last_speaker": last_speaker,
+        "cost": cost,
+    }
+    return json.loads(json.dumps(result))
+
+
+def to_json_serializable_autogen_object(
+    obj: Union[
+        AutogenChatResult,
+        AutogenRunResponse,
+    ],
+) -> Dict[str, Any]:
+    """Converts an Autogen object to a JSON serializable object."""
+    if isinstance(obj, AutogenChatResult):
+        return _dataclass_to_dict_or_raise(obj)
+    return _autogen_run_response_protocol_to_dict(obj)
+
+
+def _llama_index_response_to_dict(obj: LlamaIndexResponse) -> Any:
+    response = {}
+    if hasattr(obj, "response"):
+        response["response"] = obj.response
+    if hasattr(obj, "source_nodes"):
+        response["source_nodes"] = [node.model_dump_json() for node in obj.source_nodes]
+    if hasattr(obj, "metadata"):
+        response["metadata"] = obj.metadata
+    return json.loads(json.dumps(response))
+
+
+def _llama_index_chat_response_to_dict(obj: LlamaIndexChatResponse) -> Any:
+    return json.loads(obj.message.model_dump_json())
+
+
+def _llama_index_base_model_to_dict(obj: LlamaIndexBaseModel) -> Any:
+    return json.loads(obj.model_dump_json())
+
+
+def to_json_serializable_llama_index_object(
+    obj: Union[
+        LlamaIndexResponse,
+        LlamaIndexBaseModel,
+        LlamaIndexChatResponse,
+        Sequence[LlamaIndexBaseModel],
+    ],
+) -> Union[str, Dict[str, Any], Sequence[Union[str, Dict[str, Any]]]]:
+    """Converts a LlamaIndexResponse to a JSON serializable object."""
+    if isinstance(obj, LlamaIndexResponse):
+        return _llama_index_response_to_dict(obj)
+    if isinstance(obj, LlamaIndexChatResponse):
+        return _llama_index_chat_response_to_dict(obj)
+    if isinstance(obj, Sequence):
+        seq_result = []
+        for item in obj:
+            if isinstance(item, LlamaIndexBaseModel):
+                seq_result.append(_llama_index_base_model_to_dict(item))
+                continue
+            seq_result.append(str(item))
+        return seq_result
+    if isinstance(obj, LlamaIndexBaseModel):
+        return _llama_index_base_model_to_dict(obj)
+    return str(obj)
+
+
+def is_noop_or_proxy_tracer_provider(tracer_provider) -> bool:
+    """Returns True if the tracer_provider is Proxy or NoOp."""
+    opentelemetry = _import_opentelemetry_or_warn()
+    if not opentelemetry:
+        return False
+    ProxyTracerProvider = opentelemetry.trace.ProxyTracerProvider
+    NoOpTracerProvider = opentelemetry.trace.NoOpTracerProvider
+    return isinstance(tracer_provider, (NoOpTracerProvider, ProxyTracerProvider))
+
+
+def dump_event_for_json(event: BaseModel) -> Dict[str, Any]:
+    """Dumps an ADK event to a JSON-serializable dictionary."""
+    return json.loads(event.model_dump_json(exclude_none=True))
+
+
+def _import_opentelemetry_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry module."""
+    try:
+        import opentelemetry
+
+        return opentelemetry
+    except ImportError:
+        logger.warning(
+            "opentelemetry-api is not installed. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_opentelemetry_sdk_trace_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.sdk.trace module."""
+    try:
+        import opentelemetry.sdk.trace
+
+        return opentelemetry.sdk.trace
+    except ImportError:
+        logger.warning(
+            "opentelemetry-sdk is not installed. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_cloud_trace_v2_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the google.cloud.trace_v2 module."""
+    try:
+        import google.cloud.trace_v2
+
+        return google.cloud.trace_v2
+    except ImportError:
+        logger.warning(
+            "google-cloud-trace is not installed. Please call "
+            "'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_cloud_trace_exporter_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the opentelemetry.exporter.cloud_trace module."""
+    try:
+        import opentelemetry.exporter.cloud_trace
+
+        return opentelemetry.exporter.cloud_trace
+    except ImportError:
+        logger.warning(
+            "opentelemetry-exporter-gcp-trace is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[agent_engines]'."
+        )
+    return None
+
+
+def _import_openinference_langchain_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.langchain module."""
+    try:
+        import openinference.instrumentation.langchain
+
+        return openinference.instrumentation.langchain
+    except ImportError:
+        logger.warning(
+            "openinference-instrumentation-langchain is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[langchain]'."
+        )
+    return None
+
+
+def _import_openinference_autogen_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.autogen module."""
+    try:
+        import openinference.instrumentation.autogen
+
+        return openinference.instrumentation.autogen
+    except ImportError:
+        logger.warning(
+            "openinference-instrumentation-autogen is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[ag2]'."
+        )
+    return None
+
+
+def _import_openinference_llama_index_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the openinference.instrumentation.llama_index module."""
+    try:
+        import openinference.instrumentation.llama_index  # noqa:F401
+
+        return openinference.instrumentation.llama_index
+    except ImportError:
+        logger.warning(
+            "openinference-instrumentation-llama_index is not installed. Please "
+            "call 'pip install google-cloud-aiplatform[llama_index]'."
+        )
+    return None
+
+
+def _import_nest_asyncio_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the nest_asyncio module."""
+    try:
+        import nest_asyncio
+
+        return nest_asyncio
+    except ImportError:
+        logger.warning(
+            "nest_asyncio is not installed. Please call: `pip install nest-asyncio`"
+        )
+    return None
+
+
+def _import_autogen_tools_or_warn() -> Optional[types.ModuleType]:
+    """Tries to import the autogen.tools module."""
+    try:
+        from autogen import tools
+
+        return tools
+    except ImportError:
+        logger.warning(
+            "autogen.tools is not installed. Please "
+            "call `pip install google-cloud-aiplatform[ag2]`."
+        )
+    return None

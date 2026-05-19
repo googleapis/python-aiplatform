@@ -236,13 +236,13 @@ class _StreamingRunResponse:
         # The session ID.
 
     def dump(self) -> Dict[str, Any]:
-        from agentplatform.agent_engines import _utils
+        from agentplatform._genai import _agent_engines_utils
 
         result = {}
         if self.events:
             result["events"] = []
             for event in self.events:
-                event_dict = _utils.dump_event_for_json(event)
+                event_dict = _agent_engines_utils.dump_event_for_json(event)
                 event_dict["invocation_id"] = event_dict.get("invocation_id", "")
                 result["events"].append(event_dict)
         if self.artifacts:
@@ -463,9 +463,9 @@ def _default_instrumentor_builder(
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        from agentplatform.agent_engines import _utils
+        from agentplatform._genai import _agent_engines_utils
 
-        if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry.sdk.trace.TracerProvider(resource=resource)
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.
@@ -1156,7 +1156,7 @@ class AdkApp:
             a Content object.
             ValueError: If both session_id and session_events are specified.
         """
-        from agentplatform.agent_engines import _utils
+        from agentplatform._genai import _agent_engines_utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -1211,7 +1211,7 @@ class AdkApp:
         try:
             async for event in events_async:
                 # Yield the event data as a dictionary
-                yield _utils.dump_event_for_json(event)
+                yield _agent_engines_utils.dump_event_for_json(event)
         finally:
             # Avoid telemetry data loss having to do with CPU throttling on instance turndown
             _ = await _force_flush_otel(
@@ -1261,7 +1261,7 @@ class AdkApp:
             DeprecationWarning,
             stacklevel=2,
         )
-        from agentplatform.agent_engines import _utils
+        from agentplatform._genai import _agent_engines_utils
         from google.genai import types
 
         if isinstance(message, Dict):
@@ -1288,7 +1288,7 @@ class AdkApp:
                 run_config=run_config,
                 **kwargs,
             ):
-                yield _utils.dump_event_for_json(event)
+                yield _agent_engines_utils.dump_event_for_json(event)
         else:
             for event in self._tmpl_attrs.get("runner").run(
                 user_id=user_id,
@@ -1296,7 +1296,7 @@ class AdkApp:
                 new_message=content,
                 **kwargs,
             ):
-                yield _utils.dump_event_for_json(event)
+                yield _agent_engines_utils.dump_event_for_json(event)
 
     async def streaming_agent_run_with_events(self, request_json: str):
         """Streams responses asynchronously from the ADK application.

@@ -192,13 +192,13 @@ def _default_runnable_builder(
 
 
 def _default_instrumentor_builder(project_id: str):
-    from agentplatform.agent_engines import _utils
+    from agentplatform._genai import _agent_engines_utils
 
-    cloud_trace_exporter = _utils._import_cloud_trace_exporter_or_warn()
-    cloud_trace_v2 = _utils._import_cloud_trace_v2_or_warn()
-    openinference_langchain = _utils._import_openinference_langchain_or_warn()
-    opentelemetry = _utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = _utils._import_opentelemetry_sdk_trace_or_warn()
+    cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
+    cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
+    openinference_langchain = _agent_engines_utils._import_openinference_langchain_or_warn()
+    opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
+    opentelemetry_sdk_trace = _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
     if all(
         (
             cloud_trace_exporter,
@@ -245,7 +245,7 @@ def _default_instrumentor_builder(project_id: str):
         # Avoids AttributeError:
         # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
         # attribute 'add_span_processor'.
-        if _utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+        if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
             tracer_provider = opentelemetry_sdk_trace.TracerProvider()
             opentelemetry.trace.set_tracer_provider(tracer_provider)
         # Avoids OpenTelemetry client already exists error.

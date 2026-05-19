@@ -45,14 +45,15 @@ from google.cloud.aiplatform import initializer
 from google.cloud.aiplatform import utils as aip_utils
 from google.cloud.aiplatform_v1 import types as aip_types
 from google.cloud.aiplatform_v1.types import reasoning_engine_service
-from agentplatform.agent_engines import _utils
+from agentplatform._genai import _agent_engines_utils
 import httpx
 import proto
 
 from google.protobuf import field_mask_pb2
 
 
-_LOGGER = _utils.LOGGER
+_LOGGER = base.Logger("agentplatform.agent_engines")
+
 _SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
 _DEFAULT_GCS_DIR_NAME = "agent_engine"
 _BLOB_FILENAME = "agent_engine.pkl"
@@ -907,9 +908,9 @@ class AgentEngine(base.VertexAiResourceNounWithFutureManager):
         operation_future.result()
         _LOGGER.info(f"Agent Engine deleted. Resource name: {self.resource_name}")
 
-    def operation_schemas(self) -> Sequence[_utils.JsonDict]:
+    def operation_schemas(self) -> Sequence[_agent_engines_utils.JsonDict]:
         """Returns the (Open)API schemas for the Agent Engine."""
-        spec = _utils.to_dict(self._gca_resource.spec)
+        spec = _agent_engines_utils._to_dict(self._gca_resource.spec)
         if not hasattr(self, "_operation_schemas") or self._operation_schemas is None:
             self._operation_schemas = spec.get("class_methods", [])
         return self._operation_schemas
@@ -1159,10 +1160,9 @@ def _validate_requirements_or_raise(
                 logger.info(f"Read the following lines: {requirements}")
         except IOError as err:
             raise IOError(f"Failed to read requirements from {requirements=}") from err
-    requirements = _utils.validate_requirements_or_warn(
+    requirements = _agent_engines_utils._validate_requirements_or_warn(
         obj=agent_engine,
         requirements=requirements,
-        logger=logger,
     )
     logger.info(f"The final list of requirements: {requirements}")
     return requirements
@@ -1175,9 +1175,9 @@ def _validate_extra_packages_or_raise(
     """Tries to validates the extra packages."""
     extra_packages = extra_packages or []
     if build_options and _BUILD_OPTIONS_INSTALLATION in build_options:
-        _utils.validate_installation_scripts_or_raise(
+        _agent_engines_utils._validate_installation_scripts_or_raise(
             script_paths=build_options[_BUILD_OPTIONS_INSTALLATION],
-            extra_packages=extra_packages,
+            packages=extra_packages,
         )
     for extra_package in extra_packages:
         if not os.path.exists(extra_package):
@@ -1195,7 +1195,7 @@ def _get_gcs_bucket(
     logger: base.Logger = _LOGGER,
 ) -> storage.Bucket:
     """Gets or creates the GCS bucket."""
-    storage = _utils._import_cloud_storage_or_raise()
+    storage = _agent_engines_utils._import_cloud_storage_or_raise()
     storage_client = storage.Client(project=project)
     staging_bucket = staging_bucket.replace("gs://", "")
     try:
@@ -1216,7 +1216,7 @@ def _upload_agent_engine(
     logger: base.Logger = _LOGGER,
 ) -> None:
     """Uploads the agent engine to GCS."""
-    cloudpickle = _utils._import_cloudpickle_or_raise()
+    cloudpickle = _agent_engines_utils._import_cloudpickle_or_raise()
     blob = gcs_bucket.blob(f"{gcs_dir_name}/{_BLOB_FILENAME}")
     with blob.open("wb") as f:
         try:
@@ -1342,7 +1342,7 @@ def _update_deployment_spec_with_env_vars_dict_or_raise(
     for key, value in env_vars.items():
         if isinstance(value, Dict):
             try:
-                secret_ref = _utils.to_proto(value, aip_types.SecretRef())
+                secret_ref = _agent_engines_utils._to_proto(value, aip_types.SecretRef())
             except Exception as e:
                 raise ValueError(f"Failed to convert to secret ref: {value}") from e
             deployment_spec.secret_env.append(
@@ -1546,7 +1546,9 @@ def _generate_update_request_or_raise(
     )
 
 
-def _wrap_query_operation(method_name: str) -> Callable[..., _utils.JsonDict]:
+def _wrap_query_operation(
+    method_name: str,
+) -> Callable[..., _agent_engines_utils.JsonDict]:
     """Wraps an Agent Engine method, creating a callable for `query` API.
 
     This function creates a callable object that executes the specified
@@ -1562,7 +1564,7 @@ def _wrap_query_operation(method_name: str) -> Callable[..., _utils.JsonDict]:
         the `query` API.
     """
 
-    def _method(self, **kwargs) -> _utils.JsonDict:
+    def _method(self, **kwargs) -> _agent_engines_utils.JsonDict:
         response = self.execution_api_client.query_reasoning_engine(
             request=aip_types.QueryReasoningEngineRequest(
                 name=self.resource_name,
@@ -1570,7 +1572,7 @@ def _wrap_query_operation(method_name: str) -> Callable[..., _utils.JsonDict]:
                 class_method=method_name,
             ),
         )
-        output = _utils.to_dict(response)
+        output = _agent_engines_utils._to_dict(response)
         return output.get("output", output)
 
     return _method
@@ -1592,7 +1594,7 @@ def _wrap_async_query_operation(method_name: str) -> Callable[..., Coroutine]:
         the `query` API.
     """
 
-    async def _method(self, **kwargs) -> _utils.JsonDict:
+    async def _method(self, **kwargs) -> _agent_engines_utils.JsonDict:
         response = await self.execution_async_client.query_reasoning_engine(
             request=aip_types.QueryReasoningEngineRequest(
                 name=self.resource_name,
@@ -1600,7 +1602,7 @@ def _wrap_async_query_operation(method_name: str) -> Callable[..., Coroutine]:
                 class_method=method_name,
             ),
         )
-        output = _utils.to_dict(response)
+        output = _agent_engines_utils._to_dict(response)
         return output.get("output", output)
 
     return _method
@@ -1631,7 +1633,7 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterable[
             ),
         )
         for chunk in response:
-            for parsed_json in _utils.yield_parsed_json(chunk):
+            for parsed_json in _agent_engines_utils._yield_parsed_json(chunk):
                 if parsed_json is not None:
                     yield parsed_json
 
@@ -1665,7 +1667,7 @@ def _wrap_async_stream_query_operation(
             ),
         )
         for chunk in response:
-            for parsed_json in _utils.yield_parsed_json(chunk):
+            for parsed_json in _agent_engines_utils._yield_parsed_json(chunk):
                 if parsed_json is not None:
                     yield parsed_json
 
@@ -1822,7 +1824,7 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
 
 
 def _unregister_api_methods(
-    obj: "AgentEngine", operation_schemas: Sequence[_utils.JsonDict]
+    obj: "AgentEngine", operation_schemas: Sequence[_agent_engines_utils.JsonDict]
 ):
     """Unregisters Agent Engine API methods based on operation schemas.
 
@@ -1990,12 +1992,14 @@ def _generate_class_methods_spec_or_raise(
 
             method = getattr(agent_engine, method_name)
             try:
-                schema_dict = _utils.generate_schema(method, schema_name=method_name)
+                schema_dict = _agent_engines_utils._generate_schema(
+                    method, schema_name=method_name
+                )
             except Exception as e:
                 logger.warning(f"failed to generate schema for {method_name}: {e}")
                 continue
 
-            class_method = _utils.to_proto(schema_dict)
+            class_method = _agent_engines_utils._to_proto(schema_dict)
             class_method[_MODE_KEY_IN_SCHEMA] = mode
             # A2A agent card is a special case, when running in A2A mode,
             if hasattr(agent_engine, "agent_card"):
@@ -2013,4 +2017,6 @@ def _class_methods_to_class_methods_spec(
     class_methods: List[dict[str, Any]],
 ) -> List[proto.Message]:
     """Converts a list of class methods to a list of ReasoningEngineSpec.ClassMethod messages."""
-    return [_utils.to_proto(class_method) for class_method in class_methods]
+    return [
+        _agent_engines_utils._to_proto(class_method) for class_method in class_methods
+    ]
