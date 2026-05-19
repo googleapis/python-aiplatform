@@ -210,9 +210,14 @@ class _StreamRunRequest:
         )
         # The authorizations of the user, keyed by authorization ID.
 
-        self.user_id: Optional[str] = kwargs.get("user_id") or kwargs.get(
-            "userId", _DEFAULT_USER_ID
-        )
+        extracted_user_id = kwargs.get("user_id") or kwargs.get("userId")
+        if not extracted_user_id:
+            headers = kwargs.get("headers", {})
+            extracted_user_id = headers.get(
+                "X-Goog-Authenticated-User-Email"
+            ) or headers.get("X-Endpoint-API-UserInfo")
+
+        self.user_id: Optional[str] = extracted_user_id or _DEFAULT_USER_ID
         # The user ID.
 
         self.session_id: Optional[str] = kwargs.get("session_id") or kwargs.get(
@@ -1298,7 +1303,9 @@ class AdkApp:
             ):
                 yield _utils.dump_event_for_json(event)
 
-    async def streaming_agent_run_with_events(self, request_json: str):
+    async def streaming_agent_run_with_events(
+        self, request_json: str, headers: Optional[Dict[str, str]] = None
+    ):
         """Streams responses asynchronously from the ADK application.
 
         In general, you should use `async_stream_query` instead, as it has a
@@ -1309,13 +1316,18 @@ class AdkApp:
         Args:
             request_json (str):
                 Required. The request to stream responses for.
+            headers (Dict[str, str]):
+                Optional. The HTTP request headers containing IAM metadata.
         """
 
         import json
         from google.genai import types
         from google.genai.errors import ClientError
 
-        request = _StreamRunRequest(**json.loads(request_json))
+        payload = json.loads(request_json)
+        if headers:
+            payload["headers"] = headers
+        request = _StreamRunRequest(**payload)
         if not any(
             self._tmpl_attrs.get(service)
             for service in (
