@@ -33,8 +33,8 @@ from google.cloud.aiplatform_v1beta1.services import endpoint_service
 from vertexai import generative_models
 from vertexai.preview import (
     generative_models as preview_generative_models,
-    rag,
 )
+from vertexai.preview.rag.utils import resources
 from vertexai.generative_models._generative_models import (
     prediction_service,
     gapic_prediction_service_types,
@@ -298,7 +298,7 @@ def mock_generate_content(
         tool.retrieval or tool.google_search_retrieval for tool in request.tools
     )
     has_rag_retrieval = any(
-        isinstance(tool.retrieval, rag.Retrieval) for tool in request.tools
+        isinstance(tool.retrieval, generative_models.grounding.Retrieval) and tool.retrieval._raw_retrieval._pb.WhichOneof("source") == "vertex_rag_store" for tool in request.tools
     )
     has_function_declarations = any(
         tool.function_declarations for tool in request.tools
@@ -367,6 +367,23 @@ def mock_generate_content(
             web_search_queries=[request.contents[0].parts[0].text],
         )
     elif has_rag_retrieval and request.contents[0].parts[0].text:
+        vertex_rag_store = request.tools[0].retrieval.vertex_rag_store
+        assert vertex_rag_store is not None
+        # Validate rag_resources or rag_corpora
+        if vertex_rag_store.rag_resources:
+            assert len(vertex_rag_store.rag_resources) == 1
+            assert vertex_rag_store.rag_resources[0].rag_corpus == f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556"
+            assert vertex_rag_store.rag_resources[0].rag_file_ids == ["123", "456"]
+        elif vertex_rag_store.rag_corpora:
+            assert vertex_rag_store.rag_corpora == [f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/654321"]
+
+        # Validate rag_retrieval_config and metadata_filter
+        assert vertex_rag_store.rag_retrieval_config is not None
+        assert vertex_rag_store.rag_retrieval_config.top_k == 1
+        assert (
+            vertex_rag_store.rag_retrieval_config.filter.metadata_filter
+            == "test_metadata_filter"
+        )
         grounding_metadata = gapic_content_types.GroundingMetadata(
             retrieval_queries=[request.contents[0].parts[0].text],
         )
@@ -1400,20 +1417,29 @@ class TestGenerativeModels:
         assert response.text
 
     @patch_genai_services
-    def test_generate_content_vertex_rag_retriever(self):
-        model = preview_generative_models.GenerativeModel("gemini-pro")
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_with_vertex_rag_store_tool(self, generative_models: generative_models):
+        model = generative_models.GenerativeModel("gemini-pro")
         rag_resources = [
-            rag.RagResource(
+            resources.RagResource(
                 rag_corpus=f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556",
                 rag_file_ids=["123", "456"],
             ),
         ]
-        rag_retriever_tool = preview_generative_models.Tool.from_retrieval(
-            retrieval=rag.Retrieval(
-                source=rag.VertexRagStore(
+        rag_retrieval_config = resources.RagRetrievalConfig(
+            top_k=1,
+            filter=resources.Filter(
+                metadata_filter="test_metadata_filter"
+            ),
+        )
+        rag_retriever_tool = generative_models.Tool.from_retrieval(
+            retrieval=generative_models.grounding.Retrieval(
+                source=generative_models.grounding.VertexRagStore(
                     rag_resources=rag_resources,
-                    similarity_top_k=1,
-                    vector_distance_threshold=0.4,
+                    rag_retrieval_config=rag_retrieval_config,
                 ),
             ),
         )
@@ -1421,6 +1447,103 @@ class TestGenerativeModels:
             "Why is sky blue?", tools=[rag_retriever_tool]
         )
         assert response.text
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_with_vertex_rag_store_tool_with_rag_corpora(self, generative_models: generative_models):
+        model = generative_models.GenerativeModel("gemini-pro")
+        rag_corpora = [
+            f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/654321",
+        ]
+        rag_retrieval_config = resources.RagRetrievalConfig(
+            top_k=1,
+            filter=resources.Filter(
+                metadata_filter="test_metadata_filter"
+            ),
+        )
+        rag_retriever_tool = generative_models.Tool.from_retrieval(
+            retrieval=generative_models.grounding.Retrieval(
+                source=generative_models.grounding.VertexRagStore(
+                    rag_corpora=rag_corpora,
+                    rag_retrieval_config=rag_retrieval_config,
+                ),
+            ),
+        )
+        response = model.generate_content(
+            "Why is sky blue?", tools=[rag_retriever_tool]
+        )
+        assert response.text
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_with_vertex_rag_store_tool_with_deprecated_fields(self, generative_models: generative_models):
+        model = generative_models.GenerativeModel("gemini-pro")
+        rag_resources = [
+            resources.RagResource(
+                rag_corpus=f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556",
+                rag_file_ids=["123", "456"],
+            ),
+        ]
+        # Deprecated fields are now inside RagRetrievalConfig
+        rag_retrieval_config = resources.RagRetrievalConfig(
+            top_k=1,
+            filter=resources.Filter(
+                vector_distance_threshold=0.4,
+            ),
+        )
+        # Expect warnings for deprecated fields
+        with pytest.warns(DeprecationWarning):
+            rag_retriever_tool = generative_models.Tool.from_retrieval(
+                retrieval=generative_models.grounding.Retrieval(
+                    source=generative_models.grounding.VertexRagStore(
+                        rag_resources=rag_resources,
+                        rag_retrieval_config=rag_retrieval_config,
+                    ),
+                ),
+            )
+        response = model.generate_content("Why is sky blue?", tools=[rag_retriever_tool])
+        assert response.text
+
+    @patch_genai_services
+    @pytest.mark.parametrize(
+        "generative_models",
+        [generative_models, preview_generative_models],
+    )
+    def test_generate_content_with_vertex_rag_store_tool_invalid_config(self, generative_models: generative_models):
+        model = generative_models.GenerativeModel("gemini-pro")
+        rag_resources = [
+            resources.RagResource(
+                rag_corpus=f"projects/{_TEST_PROJECT}/locations/us-central1/ragCorpora/1234556",
+                rag_file_ids=["123", "456"],
+            ),
+        ]
+        rag_retrieval_config = resources.RagRetrievalConfig(
+            top_k=1,
+            filter=resources.Filter(
+                vector_distance_threshold=0.4,
+                vector_similarity_threshold=0.6,
+            ),
+        )
+        with pytest.raises(ValueError) as e:
+            rag_retriever_tool = generative_models.Tool.from_retrieval(
+                retrieval=generative_models.grounding.Retrieval(
+                    source=generative_models.grounding.VertexRagStore(
+                        rag_resources=rag_resources,
+                        rag_retrieval_config=rag_retrieval_config,
+                    ),
+                ),
+            )
+        e.match(
+            "Only one of vector_distance_threshold or"
+            " vector_similarity_threshold can be specified at a time"
+            " in rag_retrieval_config."
+        )
 
     @patch_genai_services
     def test_chat_automatic_function_calling_with_function_returning_dict(self):
