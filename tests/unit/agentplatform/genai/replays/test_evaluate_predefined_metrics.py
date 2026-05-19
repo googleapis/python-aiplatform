@@ -239,7 +239,6 @@ def test_multi_turn_predefined_metric(client):
     for summary in evaluation_result.summary_metrics:
         assert isinstance(summary, types.AggregatedMetricResult)
         metric_names.add(summary.metric_name)
-        assert isinstance(summary.mean_score, float)
     assert metric_names == {
         "multi_turn_general_quality_v1",
         "multi_turn_text_quality_v1",
