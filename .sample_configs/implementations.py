@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 
+import base64
+
+
 def read_file(filename):
     with open(filename, 'rb') as f:
         file_content = f.read()
