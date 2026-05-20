@@ -1999,9 +1999,15 @@ def _generate_class_methods_spec_or_raise(
             if hasattr(agent_engine, "agent_card"):
                 from google.protobuf import json_format
 
-                class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(
-                    getattr(agent_engine, "agent_card")
-                )
+                card = getattr(agent_engine, "agent_card")
+                if hasattr(card, "model_dump_json"):
+                    class_method[_A2A_AGENT_CARD] = card.model_dump_json()
+                elif hasattr(card, "DESCRIPTOR"):
+                    class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(card)
+                elif isinstance(card, str):
+                    class_method[_A2A_AGENT_CARD] = card
+                else:
+                    class_method[_A2A_AGENT_CARD] = json.dumps(card)
             class_methods_spec.append(class_method)
 
     return class_methods_spec

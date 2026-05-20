@@ -1426,3 +1426,81 @@ class TestAdkAppMtls:
             mock_exporter.call_args.kwargs["endpoint"]
             == adk_template._DEFAULT_TELEMETRY_ENDPOINT
         )
+
+
+class DummyPydanticCard:
+    def model_dump_json(self):
+        return '{"name": "pydantic_card"}'
+
+
+class DummyProtoCard:
+    DESCRIPTOR = mock.Mock()
+
+
+class DummyFallbackCard(dict):
+    def __init__(self):
+        super().__init__({"fallback": "yes"})
+
+
+class DummyAgentEngine:
+    def __init__(self, card=None, has_card=True):
+        if has_card:
+            self.agent_card = card
+
+    def set_up(self):
+        pass
+
+    def query(self, query: str) -> str:
+        return query
+
+
+class TestAgentEngineGenerateClassMethodsSpec:
+    """Tests Pydantic, Protobuf, None, No Card, and Fallback AgentCard serialization in _generate_class_methods_spec_or_raise."""
+
+    def test_pydantic_card_serialization(self):
+        agent_engine = DummyAgentEngine(DummyPydanticCard())
+        specs = _agent_engines._generate_class_methods_spec_or_raise(
+            agent_engine=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][_agent_engines._A2A_AGENT_CARD] == '{"name": "pydantic_card"}'
+
+    @mock.patch("google3.net.proto2.python.public.json_format.MessageToJson")
+    def test_protobuf_card_serialization(self, mock_message_to_json):
+        mock_message_to_json.return_value = '{"name": "proto_card"}'
+        agent_engine = DummyAgentEngine(DummyProtoCard())
+        specs = _agent_engines._generate_class_methods_spec_or_raise(
+            agent_engine=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][_agent_engines._A2A_AGENT_CARD] == '{"name": "proto_card"}'
+
+    def test_fallback_card_serialization(self):
+        card = DummyFallbackCard()
+        agent_engine = DummyAgentEngine(card)
+        specs = _agent_engines._generate_class_methods_spec_or_raise(
+            agent_engine=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][_agent_engines._A2A_AGENT_CARD] == json.dumps(card)
+
+    def test_none_card_serialization(self):
+        agent_engine = DummyAgentEngine(None)
+        specs = _agent_engines._generate_class_methods_spec_or_raise(
+            agent_engine=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][_agent_engines._A2A_AGENT_CARD] == 'null'
+
+    def test_no_card_serialization(self):
+        agent_engine = DummyAgentEngine(has_card=False)
+        specs = _agent_engines._generate_class_methods_spec_or_raise(
+            agent_engine=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert _agent_engines._A2A_AGENT_CARD not in specs[0]
