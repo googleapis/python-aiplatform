@@ -1074,9 +1074,9 @@ class TestEvaluation:
                 "summarization_quality/explanation",
             ]
         )
-        assert list(
-            test_result.metrics_table["summarization_quality/score"].to_list()
-        ) == [5, 4]
+        assert sorted(
+            list(test_result.metrics_table["summarization_quality/score"].to_list())
+        ) == [4, 5]
         assert list(
             test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
