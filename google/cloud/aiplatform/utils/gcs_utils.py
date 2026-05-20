@@ -377,6 +377,16 @@ def create_gcs_bucket_for_pipeline_artifacts_if_it_does_not_exist(
             f"serviceAccount:{service_account}"
         )
         pipelines_bucket.set_iam_policy(bucket_iam_policy)
+    else:
+        # Verify bucket ownership to prevent bucket squatting attacks.
+        if not _verify_bucket_ownership(pipelines_bucket, project, storage_client):
+            raise ValueError(
+                f'Pipeline bucket "{pipelines_bucket.name}" exists but does '
+                f'not belong to project "{project}". This may indicate a '
+                f"bucket squatting attack. Please provide an explicit "
+                f"output_artifacts_gcs_dir parameter or configure a pipeline "
+                f"root via PipelineJob(pipeline_root='gs://your-bucket')."
+            )
     return output_artifacts_gcs_dir
 
 
