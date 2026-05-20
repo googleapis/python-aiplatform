@@ -16,6 +16,7 @@ import base64
 import importlib
 import json
 import os
+import asyncio
 import re
 import sys
 from typing import Optional
@@ -281,6 +282,34 @@ class _MockRunner:
         )
 
     async def run_async(self, *args, **kwargs):
+        from google.adk.events import event
+
+        yield event.Event(
+            **{
+                "author": "currency_exchange_agent",
+                "content": {
+                    "parts": [
+                        {
+                            "thought_signature": b"test_signature",
+                            "function_call": {
+                                "args": {
+                                    "currency_date": "2025-04-03",
+                                    "currency_from": "USD",
+                                    "currency_to": "SEK",
+                                },
+                                "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
+                                "name": "get_exchange_rate",
+                            },
+                        }
+                    ],
+                    "role": "model",
+                },
+                "id": "9aaItGK9",
+                "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+            }
+        )
+
+    async def run_live(self, *args, **kwargs):
         from google.adk.events import event
 
         yield event.Event(
@@ -903,6 +932,62 @@ class TestAdkApp:
         app = agent_engines.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
         app.set_up()
         assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "true"
+
+    @pytest.mark.asyncio
+    async def test_async_bidi_stream_query(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        request_queue = asyncio.Queue()
+        request_dict = {
+            "user_id": _TEST_USER_ID,
+            "live_request": {
+                "input": "What is the exchange rate from USD to SEK?",
+            },
+        }
+
+        await request_queue.put(request_dict)
+        await request_queue.put(None)  # Sentinel to end the stream.
+        events = []
+        async for event in app.bidi_stream_query(request_queue):
+            events.append(event)
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_bidi_stream_query_with_state(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        request_queue = asyncio.Queue()
+        request_dict = {
+            "user_id": _TEST_USER_ID,
+            "state": {"test_key": "test_val"},
+            "live_request": {
+                "input": "What is the exchange rate from USD to SEK?",
+            },
+        }
+
+        await request_queue.put(request_dict)
+        await request_queue.put(None)  # Sentinel to end the stream.
+
+        with mock.patch.object(
+            app, "async_create_session", wraps=app.async_create_session
+        ) as mock_create_session:
+            async for _ in app.bidi_stream_query(request_queue):
+                pass
+            mock_create_session.assert_called_once_with(
+                user_id=_TEST_USER_ID, state={"test_key": "test_val"}
+            )
 
 
 def test_dump_event_for_json():
