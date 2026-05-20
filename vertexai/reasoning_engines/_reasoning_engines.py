@@ -161,6 +161,9 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         gcs_dir_name: str = _DEFAULT_GCS_DIR_NAME,
         sys_version: Optional[str] = None,
         extra_packages: Optional[Sequence[str]] = None,
+        env_vars: Optional[
+            Union[Sequence[str], Dict[str, Union[str, aip_types.SecretRef]]]
+        ] = None,
     ) -> "ReasoningEngine":
         """Creates a new ReasoningEngine.
 
@@ -301,6 +304,11 @@ class ReasoningEngine(base.VertexAiResourceNounWithFutureManager):
         reasoning_engine_spec = aip_types.ReasoningEngineSpec(
             package_spec=package_spec,
         )
+        if env_vars:
+            deployment_spec, _ = _utils._generate_deployment_spec_or_raise(
+                env_vars=env_vars,
+            )
+            reasoning_engine_spec.deployment_spec = deployment_spec
         class_methods_spec = _generate_class_methods_spec_or_raise(
             reasoning_engine, _get_registered_operations(reasoning_engine)
         )
