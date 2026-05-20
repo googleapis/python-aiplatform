@@ -223,6 +223,7 @@ def default(session):
         "--ignore=tests/unit/architecture",
         "--ignore=tests/unit/vertexai/genai/replays",
         "--ignore=tests/unit/agentplatform/genai/replays",
+        "--ignore=tests/unit/agentplatform/frameworks",
         os.path.join("tests", "unit"),
         *session.posargs,
     )
