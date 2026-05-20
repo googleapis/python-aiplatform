@@ -222,7 +222,7 @@ class _Job(base.VertexAiStatefulResource):
             % (
                 self.__class__.__name__,
                 self._gca_resource.name,
-                self._gca_resource.state,
+                self._gca_resource.state.name,
             )
         )
 
@@ -1490,7 +1490,7 @@ class BatchPredictionJob(_Job, base.PreviewMixin):
         if self.state != gca_job_state.JobState.JOB_STATE_SUCCEEDED:
             raise RuntimeError(
                 f"Cannot read outputs until BatchPredictionJob has succeeded, "
-                f"current state: {self._gca_resource.state}"
+                f"current state: {self._gca_resource.state.name}"
             )
 
         output_info = self._gca_resource.output_info
