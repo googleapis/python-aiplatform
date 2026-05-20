@@ -21,7 +21,7 @@ import importlib
 import json
 import logging
 import typing
-from typing import Any, Iterator, Optional, Union
+from typing import Any, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
@@ -509,10 +509,6 @@ class Skills(_api_module.BaseModule):
     def _list(
         self, *, config: Optional[types.ListSkillsConfigOrDict] = None
     ) -> types.ListSkillsResponse:
-        """
-        Lists Skills in the Skill Registry.
-        """
-
         parameter_model = types._ListSkillsRequestParameters(
             config=config,
         )
@@ -893,27 +889,6 @@ class Skills(_api_module.BaseModule):
 
         return operation
 
-    def list(
-        self,
-        *,
-        config: Optional[types.ListSkillsConfigOrDict] = None,
-    ) -> Iterator[types.Skill]:
-        """Lists Skills in the Skill Registry.
-
-        Args:
-            config (ListSkillsConfigOrDict):
-                Optional. Additional configuration for listing Skills.
-
-        Returns:
-            Iterator[Skill]: An iterator (Pager) of Skills.
-        """
-        return Pager(
-            "skills",
-            self._list,
-            self._list(config=config),
-            config,
-        )
-
     def delete(
         self,
         *,
@@ -964,6 +939,21 @@ class Skills(_api_module.BaseModule):
             # Lazy load to avoid circular imports
             self._revisions = importlib.import_module(".skill_revisions", __package__)
         return self._revisions.SkillRevisions(self._api_client)  # type: ignore[no-any-return]
+
+    def list(
+        self, *, config: Optional[types.ListSkillsConfigOrDict] = None
+    ) -> Pager[types.Skill]:
+        """
+        Lists Skills in the Skill Registry.
+        """
+
+        list_request = self._list
+        return Pager(
+            "skills",
+            list_request,
+            self._list(config=config),
+            config,
+        )
 
 
 class AsyncSkills(_api_module.BaseModule):
@@ -1263,10 +1253,6 @@ class AsyncSkills(_api_module.BaseModule):
     async def _list(
         self, *, config: Optional[types.ListSkillsConfigOrDict] = None
     ) -> types.ListSkillsResponse:
-        """
-        Lists Skills in the Skill Registry.
-        """
-
         parameter_model = types._ListSkillsRequestParameters(
             config=config,
         )
@@ -1655,27 +1641,6 @@ class AsyncSkills(_api_module.BaseModule):
 
         return operation
 
-    async def list(
-        self,
-        *,
-        config: Optional[types.ListSkillsConfigOrDict] = None,
-    ) -> AsyncPager[types.Skill]:
-        """Lists Skills in the Skill Registry asynchronously.
-
-        Args:
-            config (ListSkillsConfigOrDict):
-                Optional. Additional configuration for listing Skills.
-
-        Returns:
-            AsyncPager[Skill]: An async pager of Skills.
-        """
-        return AsyncPager(
-            "skills",
-            self._list,
-            await self._list(config=config),
-            config,
-        )
-
     async def delete(
         self,
         *,
@@ -1725,3 +1690,14 @@ class AsyncSkills(_api_module.BaseModule):
         if self._revisions is None:
             self._revisions = importlib.import_module(".skill_revisions", __package__)
         return self._revisions.AsyncSkillRevisions(self._api_client)  # type: ignore[no-any-return]
+
+    async def list(
+        self, *, config: Optional[types.ListSkillsConfigOrDict] = None
+    ) -> AsyncPager[types.Skill]:
+        list_request = self._list
+        return AsyncPager(
+            "skills",
+            list_request,
+            await self._list(config=config),
+            config,
+        )
