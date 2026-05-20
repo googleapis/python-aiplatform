@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.154.0](https://github.com/googleapis/python-aiplatform/compare/v1.153.1...v1.154.0) (2026-05-20)
+
+
+### Features
+
+* Add Skill Registry module to Vertex AI client - Get Skill method ([df50ac0](https://github.com/googleapis/python-aiplatform/commit/df50ac050e82d7a04bd1f8e26ee3fac8406b1600))
+* Make skill_id a required parameter in `skills.create` ([bc4be37](https://github.com/googleapis/python-aiplatform/commit/bc4be37f5f867392f8d030435caf8c2679880150))
+
+
+### Bug Fixes
+
+* Fix SkillRevision state enum in Python SDK ([1585602](https://github.com/googleapis/python-aiplatform/commit/15856029aab3e7658ef801b41cdecbe5ae3dd894))
+
+
+### Documentation
+
+* Add Skill Registry SDK docs to Google Cloud Gen AI Modules ([9702599](https://github.com/googleapis/python-aiplatform/commit/9702599a587fd6ec0909d6d73e96628230c28a8b))
+
 ## [1.153.1](https://github.com/googleapis/python-aiplatform/compare/v1.153.0...v1.153.1) (2026-05-15)
 
 
