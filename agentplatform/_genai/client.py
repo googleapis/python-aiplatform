@@ -42,7 +42,7 @@ if TYPE_CHECKING:
     from agentplatform._genai import live as live_module
 
 
-_GENAI_MODULES_TELEMETRY_HEADER = "agentplatform-genai-modules"
+_GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
 
 def _custom_append_library_version_headers(headers: dict[str, str]) -> None:
