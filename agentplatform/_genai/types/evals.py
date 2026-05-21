@@ -496,11 +496,15 @@ class UserScenario(_common.BaseModel):
 
     starting_prompt: Optional[str] = Field(
         default=None,
-        description="""The prompt that starts the conversation between the simulated user and the agent under test.""",
+        description="""Starting prompt for the conversation between simulated user and agent under the test.""",
     )
     conversation_plan: Optional[str] = Field(
         default=None,
-        description="""The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset.""",
+        description="""Conversation plan to drive multi-turn agent run and get simulated agent eval dataset.""",
+    )
+    test_case_title: Optional[str] = Field(
+        default=None,
+        description="""Represents a short 3-5 word title for eval test case.""",
     )
 
 
@@ -508,10 +512,13 @@ class UserScenarioDict(TypedDict, total=False):
     """User scenario to help simulate multi-turn agent run results."""
 
     starting_prompt: Optional[str]
-    """The prompt that starts the conversation between the simulated user and the agent under test."""
+    """Starting prompt for the conversation between simulated user and agent under the test."""
 
     conversation_plan: Optional[str]
-    """The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset."""
+    """Conversation plan to drive multi-turn agent run and get simulated agent eval dataset."""
+
+    test_case_title: Optional[str]
+    """Represents a short 3-5 word title for eval test case."""
 
 
 UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
@@ -522,7 +529,7 @@ class UserScenarioGenerationConfig(_common.BaseModel):
 
     model_name: Optional[str] = Field(
         default=None,
-        description="""The model name to use for user scenario generation.""",
+        description="""Optional. The model name to use for generation. It can be model name, e.g. "gemini-3-pro-preview". or the fully qualified name of the publisher model or endpoint. Publisher model format: `projects/{project}/locations/{location}/publishers/&#42;/models/*` Endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`""",
     )
     count: Optional[int] = Field(
         default=None,
@@ -536,13 +543,24 @@ class UserScenarioGenerationConfig(_common.BaseModel):
         default=None,
         description="""Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
     )
+    environment_data: Optional[str] = Field(
+        default=None, description="""Optional. Environment data in string type."""
+    )
+    simulation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Optional. Simulation instruction to guide the user scenario generation.""",
+    )
+    user_scenario_count: Optional[int] = Field(
+        default=None,
+        description="""Required. The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
 
 
 class UserScenarioGenerationConfigDict(TypedDict, total=False):
     """User scenario generation configuration."""
 
     model_name: Optional[str]
-    """The model name to use for user scenario generation."""
+    """Optional. The model name to use for generation. It can be model name, e.g. "gemini-3-pro-preview". or the fully qualified name of the publisher model or endpoint. Publisher model format: `projects/{project}/locations/{location}/publishers/&#42;/models/*` Endpoint format: `projects/{project}/locations/{location}/endpoints/{endpoint}`"""
 
     count: Optional[int]
     """The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
@@ -552,6 +570,15 @@ class UserScenarioGenerationConfigDict(TypedDict, total=False):
 
     environment_context: Optional[str]
     """Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
+
+    environment_data: Optional[str]
+    """Optional. Environment data in string type."""
+
+    simulation_instruction: Optional[str]
+    """Optional. Simulation instruction to guide the user scenario generation."""
+
+    user_scenario_count: Optional[int]
+    """Required. The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
 
 
 UserScenarioGenerationConfigOrDict = Union[
