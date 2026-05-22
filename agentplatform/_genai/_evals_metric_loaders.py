@@ -277,27 +277,27 @@ class PrebuiltMetricLoader:
 
     @property
     def GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("GENERAL_QUALITY")
+        return self.__getattr__("GENERAL_QUALITY", version="v1")
 
     @property
     def TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("TEXT_QUALITY")
+        return self.__getattr__("TEXT_QUALITY", version="v1")
 
     @property
     def INSTRUCTION_FOLLOWING(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("INSTRUCTION_FOLLOWING")
+        return self.__getattr__("INSTRUCTION_FOLLOWING", version="v1")
 
     @property
     def SAFETY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("SAFETY")
+        return self.__getattr__("SAFETY", version="v1")
 
     @property
     def MULTI_TURN_GENERAL_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("MULTI_TURN_GENERAL_QUALITY")
+        return self.__getattr__("MULTI_TURN_GENERAL_QUALITY", version="v1")
 
     @property
     def MULTI_TURN_TEXT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("MULTI_TURN_TEXT_QUALITY")
+        return self.__getattr__("MULTI_TURN_TEXT_QUALITY", version="v1")
 
     @property
     def MULTI_TURN_TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
@@ -317,43 +317,43 @@ class PrebuiltMetricLoader:
 
     @property
     def FINAL_RESPONSE_REFERENCE_FREE(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("FINAL_RESPONSE_REFERENCE_FREE")
+        return self.__getattr__("FINAL_RESPONSE_REFERENCE_FREE", version="v1")
 
     @property
     def COHERENCE(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("COHERENCE")
+        return self.__getattr__("COHERENCE", version="v1")
 
     @property
     def FLUENCY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("FLUENCY")
+        return self.__getattr__("FLUENCY", version="v1")
 
     @property
     def VERBOSITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("VERBOSITY")
+        return self.__getattr__("VERBOSITY", version="v1")
 
     @property
     def SUMMARIZATION_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("SUMMARIZATION_QUALITY")
+        return self.__getattr__("SUMMARIZATION_QUALITY", version="v1")
 
     @property
     def QUESTION_ANSWERING_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("QUESTION_ANSWERING_QUALITY")
+        return self.__getattr__("QUESTION_ANSWERING_QUALITY", version="v1")
 
     @property
     def MULTI_TURN_CHAT_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("MULTI_TURN_CHAT_QUALITY")
+        return self.__getattr__("MULTI_TURN_CHAT_QUALITY", version="v1")
 
     @property
     def MULTI_TURN_SAFETY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("MULTI_TURN_SAFETY")
+        return self.__getattr__("MULTI_TURN_SAFETY", version="v1")
 
     @property
     def FINAL_RESPONSE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("FINAL_RESPONSE_QUALITY")
+        return self.__getattr__("FINAL_RESPONSE_QUALITY", version="v1")
 
     @property
     def HALLUCINATION(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("HALLUCINATION")
+        return self.__getattr__("HALLUCINATION", version="v1")
 
     @property
     def GROUNDING(self) -> LazyLoadedPrebuiltMetric:  # pylint: disable=invalid-name
@@ -374,15 +374,15 @@ class PrebuiltMetricLoader:
 
     @property
     def TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("TOOL_USE_QUALITY")
+        return self.__getattr__("TOOL_USE_QUALITY", version="v1")
 
     @property
     def GECKO_TEXT2IMAGE(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("GECKO_TEXT2IMAGE")
+        return self.__getattr__("GECKO_TEXT2IMAGE", version="v1")
 
     @property
     def GECKO_TEXT2VIDEO(self) -> LazyLoadedPrebuiltMetric:
-        return self.__getattr__("GECKO_TEXT2VIDEO")
+        return self.__getattr__("GECKO_TEXT2VIDEO", version="v1")
 
 
 PrebuiltMetric = PrebuiltMetricLoader()

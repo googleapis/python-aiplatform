@@ -123,6 +123,7 @@ def mock_api_client_fixture():
 
 @pytest.fixture
 def mock_eval_dependencies(mock_api_client_fixture):
+    _evals_metric_loaders.LazyLoadedPrebuiltMetric._cache.clear()
     # fmt: off
     with (
         mock.patch("google.cloud.storage.Client") as mock_storage_client,
@@ -6384,6 +6385,49 @@ class TestPrebuiltMetricLoaderGroundedness:
         resolved = lazy_metric.resolve(api_client=mock.MagicMock())
         assert isinstance(resolved, agentplatform_genai_types.Metric)
         assert resolved.name == "grounding_v1"
+
+
+class TestPrebuiltMetricLoaderVersionPinning:
+    """Verifies explicit version pinning for all RubricMetric properties."""
+
+    @pytest.mark.parametrize(
+        "prop_name,expected_spec",
+        [
+            ("GENERAL_QUALITY", "general_quality_v1"),
+            ("TEXT_QUALITY", "text_quality_v1"),
+            ("INSTRUCTION_FOLLOWING", "instruction_following_v1"),
+            ("SAFETY", "safety_v1"),
+            ("MULTI_TURN_GENERAL_QUALITY", "multi_turn_general_quality_v1"),
+            ("MULTI_TURN_TEXT_QUALITY", "multi_turn_text_quality_v1"),
+            ("FINAL_RESPONSE_REFERENCE_FREE", "final_response_reference_free_v1"),
+            ("FINAL_RESPONSE_QUALITY", "final_response_quality_v1"),
+            ("HALLUCINATION", "hallucination_v1"),
+            ("TOOL_USE_QUALITY", "tool_use_quality_v1"),
+            ("GECKO_TEXT2IMAGE", "gecko_text2image_v1"),
+            ("GECKO_TEXT2VIDEO", "gecko_text2video_v1"),
+        ],
+    )
+    def test_predefined_property_pins_to_v1(self, prop_name, expected_spec):
+        lazy_metric = getattr(agentplatform_genai_types.RubricMetric, prop_name)
+        assert lazy_metric.version == "v1"
+        assert lazy_metric._get_api_metric_spec_name() == expected_spec
+
+    @pytest.mark.parametrize(
+        "prop_name",
+        [
+            "COHERENCE",
+            "FLUENCY",
+            "VERBOSITY",
+            "SUMMARIZATION_QUALITY",
+            "QUESTION_ANSWERING_QUALITY",
+            "MULTI_TURN_CHAT_QUALITY",
+            "MULTI_TURN_SAFETY",
+        ],
+    )
+    def test_gcs_backed_property_pins_to_v1(self, prop_name):
+        lazy_metric = getattr(agentplatform_genai_types.RubricMetric, prop_name)
+        assert lazy_metric.version == "v1"
+        assert lazy_metric._get_api_metric_spec_name() is None
 
 
 class TestMergeResponseDatasets:

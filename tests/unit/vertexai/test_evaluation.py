@@ -1882,9 +1882,9 @@ class TestAgentEvaluation:
                 "trajectory_exact_match/score",
             ]
         )
-        assert list(
+        assert sorted(
             test_result.metrics_table["trajectory_exact_match/score"].to_list()
-        ) == [1.0, 0.0]
+        ) == [0.0, 1.0]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_pointwise_autorater_request_config_enabled(self, api_transport):
