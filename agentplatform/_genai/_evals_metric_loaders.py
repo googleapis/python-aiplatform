@@ -356,6 +356,23 @@ class PrebuiltMetricLoader:
         return self.__getattr__("HALLUCINATION")
 
     @property
+    def GROUNDING(self) -> LazyLoadedPrebuiltMetric:  # pylint: disable=invalid-name
+        return self.__getattr__("GROUNDING", version="v1")
+
+    @property
+    def GROUNDEDNESS(self) -> LazyLoadedPrebuiltMetric:  # pylint: disable=invalid-name
+        logger.warning(
+            "RubricMetric.GROUNDEDNESS is a deprecated alias and now maps to"
+            " RubricMetric.GROUNDING (grounding_v1). Note that the input"
+            " contract changed: legacy GROUNDEDNESS scored 'response' against"
+            " 'prompt'; grounding_v1 scores 'response' sentence-by-sentence"
+            " against an additional 'context' field. Add a 'context' field to"
+            " your dataset, otherwise scores will silently collapse to 0."
+            " Update your code to use RubricMetric.GROUNDING directly."
+        )
+        return self.__getattr__("GROUNDING", version="v1")
+
+    @property
     def TOOL_USE_QUALITY(self) -> LazyLoadedPrebuiltMetric:
         return self.__getattr__("TOOL_USE_QUALITY")
 

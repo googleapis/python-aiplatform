@@ -6355,6 +6355,37 @@ class TestMetric:
             metric_obj.to_yaml_file("/fake/path/error.yaml")
 
 
+class TestPrebuiltMetricLoaderGroundedness:
+    """Unit tests for legacy RubricMetric.GROUNDEDNESS alias to grounding_v1."""
+
+    def test_grounding_resolves_to_grounding_v1(self):
+        lazy_metric = agentplatform_genai_types.RubricMetric.GROUNDING
+        assert lazy_metric.name == "GROUNDING"
+        assert lazy_metric._get_api_metric_spec_name() == "grounding_v1"
+
+    def test_groundedness_aliases_grounding_v1(self):
+        lazy_metric = agentplatform_genai_types.RubricMetric.GROUNDEDNESS
+        assert lazy_metric.name == "GROUNDING"
+        assert lazy_metric._get_api_metric_spec_name() == "grounding_v1"
+
+    def test_groundedness_logs_field_difference_warning(self, caplog):
+        loader_logger = (
+            "agentplatform._genai._evals_metric_loaders"
+        )
+        with caplog.at_level("WARNING", logger=loader_logger):
+            _ = agentplatform_genai_types.RubricMetric.GROUNDEDNESS
+        messages = [r.getMessage() for r in caplog.records if r.name == loader_logger]
+        assert any("GROUNDEDNESS" in m for m in messages)
+        assert any("grounding_v1" in m for m in messages)
+        assert any("context" in m for m in messages)
+
+    def test_groundedness_resolve_returns_grounding_v1_metric(self):
+        lazy_metric = agentplatform_genai_types.RubricMetric.GROUNDEDNESS
+        resolved = lazy_metric.resolve(api_client=mock.MagicMock())
+        assert isinstance(resolved, agentplatform_genai_types.Metric)
+        assert resolved.name == "grounding_v1"
+
+
 class TestMergeResponseDatasets:
     """Unit tests for the merge_response_datasets_into_canonical_format function."""
 
