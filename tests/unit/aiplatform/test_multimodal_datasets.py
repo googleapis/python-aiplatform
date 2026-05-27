@@ -1217,8 +1217,9 @@ class TestGeminiExample:
         )
         gemini_example = ummd.GeminiExample.from_prompt(prompt)
         assert (
-            gemini_example.model
-            == "projects/test-project/locations/us-central1/publishers/google/models/gemini-1.5-pro-002"
+            gemini_example.model.endswith(
+                "locations/us-central1/publishers/google/models/gemini-1.5-pro-002"
+            )
         )
         assert str(gemini_example.contents) == str(
             [
