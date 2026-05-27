@@ -1630,6 +1630,18 @@ def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
     Agent Engine method using the `query` API.  It handles the creation of
     the API request and the processing of the API response.
 
+    The reserved keyword argument `http_options` is consumed by this
+    wrapper (rather than being forwarded to the deployed agent as part of
+    `input`) and is propagated to the underlying HTTP call. Use it to set
+    per-call HTTP options such as custom headers. For example:
+
+        from google.genai.types import HttpOptions
+
+        agent_engine.query(
+            input="hello",
+            http_options=HttpOptions(headers={"x-my-header": "value"}),
+        )
+
     Args:
         method_name: The name of the Agent Engine method to call.
         doc: Documentation string for the method.
@@ -1644,12 +1656,14 @@ def _wrap_query_operation(*, method_name: str) -> Callable[..., Any]:
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
+        http_options = kwargs.pop("http_options", None)
         response = self.api_client._query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
                 "input": kwargs,
                 "include_all_fields": True,
+                "http_options": http_options,
             },
         )
         return response.output
@@ -1665,6 +1679,10 @@ def _wrap_async_query_operation(
     This function creates a callable object that executes the specified
     Agent Engine method asynchronously using the `query` API. It handles the
     creation of the API request and the processing of the API response.
+
+    The reserved keyword argument `http_options` is consumed by this
+    wrapper (rather than being forwarded to the deployed agent as part of
+    `input`) and is propagated to the underlying HTTP call.
 
     Args:
         method_name: The name of the Agent Engine method to call.
@@ -1682,12 +1700,14 @@ def _wrap_async_query_operation(
             raise ValueError("api_async_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
+        http_options = kwargs.pop("http_options", None)
         response = await self.api_async_client._query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
                 "input": kwargs,
                 "include_all_fields": True,
+                "http_options": http_options,
             },
         )
         return response.output
@@ -1701,6 +1721,10 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
     This function creates a callable object that executes the specified
     Agent Engine method using the `stream_query` API.  It handles the
     creation of the API request and the processing of the API response.
+
+    The reserved keyword argument `http_options` is consumed by this
+    wrapper (rather than being forwarded to the deployed agent as part of
+    `input`) and is propagated to the underlying HTTP call.
 
     Args:
         method_name: The name of the Agent Engine method to call.
@@ -1716,12 +1740,14 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterator[
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
+        http_options = kwargs.pop("http_options", None)
         for http_response in self.api_client._stream_query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
                 "input": kwargs,
                 "include_all_fields": True,
+                "http_options": http_options,
             },
         ):
             for line in _yield_parsed_json(http_response=http_response):
@@ -1740,6 +1766,10 @@ def _wrap_async_stream_query_operation(
     Agent Engine method using the `stream_query` API.  It handles the
     creation of the API request and the processing of the API response.
 
+    The reserved keyword argument `http_options` is consumed by this
+    wrapper (rather than being forwarded to the deployed agent as part of
+    `input`) and is propagated to the underlying HTTP call.
+
     Args:
         method_name: The name of the Agent Engine method to call.
         doc: Documentation string for the method.
@@ -1754,12 +1784,14 @@ def _wrap_async_stream_query_operation(
             raise ValueError("api_client is not initialized.")
         if not self.api_resource:
             raise ValueError("api_resource is not initialized.")
+        http_options = kwargs.pop("http_options", None)
         async for http_response in self.api_client._async_stream_query(
             name=self.api_resource.name,
             config={
                 "class_method": method_name,
                 "input": kwargs,
                 "include_all_fields": True,
+                "http_options": http_options,
             },
         ):
             for line in _yield_parsed_json(http_response=http_response):

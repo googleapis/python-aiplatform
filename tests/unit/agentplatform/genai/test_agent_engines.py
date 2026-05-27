@@ -427,6 +427,7 @@ _TEST_CUSTOM_ASYNC_STREAM_METHOD_DEFAULT_DOCSTRING = """
 """
 _TEST_METHOD_TO_BE_UNREGISTERED_NAME = "method_to_be_unregistered"
 _TEST_QUERY_PROMPT = "Find the first fibonacci number greater than 999"
+_UNSET_HTTP_OPTIONS = object()
 _TEST_AGENT_ENGINE_ENV_KEY = "GOOGLE_CLOUD_AGENT_ENGINE_ENV"
 _TEST_AGENT_ENGINE_ENV_VALUE = "test_env_value"
 _TEST_AGENT_ENGINE_GCS_URI = "{}/{}/{}".format(
@@ -3068,7 +3069,26 @@ class TestAgentEngine:
             None,
         )
 
-    def test_query_agent_engine(self):
+    @pytest.mark.parametrize(
+        "http_options_arg, expected_http_options",
+        [
+            (_UNSET_HTTP_OPTIONS, None),
+            (
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+            (
+                {"headers": {"x-my-header": "my-value"}},
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+        ],
+        ids=["default", "http_options_instance", "http_options_dict"],
+    )
+    def test_query_agent_engine(self, http_options_arg, expected_http_options):
+        """Sync query: forwards http_options to the HTTP layer (or None by default)."""
+        kwargs = {"query": _TEST_QUERY_PROMPT}
+        if http_options_arg is not _UNSET_HTTP_OPTIONS:
+            kwargs["http_options"] = http_options_arg
         with mock.patch.object(
             self.client.agent_engines._api_client, "request"
         ) as request_mock:
@@ -3086,7 +3106,7 @@ class TestAgentEngine:
                     ),
                 )
             )
-            agent.query(query=_TEST_QUERY_PROMPT)
+            agent.query(**kwargs)
             request_mock.assert_called_with(
                 "post",
                 f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:query",
@@ -3095,7 +3115,7 @@ class TestAgentEngine:
                     "classMethod": "query",
                     "input": {"query": _TEST_QUERY_PROMPT},
                 },
-                None,
+                expected_http_options,
             )
 
     @mock.patch("google.cloud.storage.Client")
@@ -3316,7 +3336,26 @@ class TestAgentEngine:
                 output_gcs_uri="gs://my-input-bucket/path/b92b9b89-4585-4146-8ee5-22fe99802a8e_output.json",
             )
 
-    def test_query_agent_engine_async(self):
+    @pytest.mark.parametrize(
+        "http_options_arg, expected_http_options",
+        [
+            (_UNSET_HTTP_OPTIONS, None),
+            (
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+            (
+                {"headers": {"x-my-header": "my-value"}},
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+        ],
+        ids=["default", "http_options_instance", "http_options_dict"],
+    )
+    def test_query_agent_engine_async(self, http_options_arg, expected_http_options):
+        """Async query: forwards http_options to the HTTP layer (or None by default)."""
+        kwargs = {"query": _TEST_QUERY_PROMPT}
+        if http_options_arg is not _UNSET_HTTP_OPTIONS:
+            kwargs["http_options"] = http_options_arg
         agent = self.client.agent_engines._register_api_methods(
             agent_engine=_genai_types.AgentEngine(
                 api_async_client=agent_engines.AsyncAgentEngines(
@@ -3336,7 +3375,7 @@ class TestAgentEngine:
             self.client.agent_engines._api_client, "async_request"
         ) as request_mock:
             request_mock.return_value = genai_types.HttpResponse(body="")
-            asyncio.run(agent.async_query(query=_TEST_QUERY_PROMPT))
+            asyncio.run(agent.async_query(**kwargs))
             request_mock.assert_called_with(
                 "post",
                 f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:query",
@@ -3345,7 +3384,7 @@ class TestAgentEngine:
                     "classMethod": "async_query",
                     "input": {"query": _TEST_QUERY_PROMPT},
                 },
-                None,
+                expected_http_options,
             )
 
     def test_cancel_query_job_agent_engine(self):
@@ -3507,7 +3546,26 @@ class TestAgentEngine:
                         config={"retrieve_result": True},
                     )
 
-    def test_query_agent_engine_stream(self):
+    @pytest.mark.parametrize(
+        "http_options_arg, expected_http_options",
+        [
+            (_UNSET_HTTP_OPTIONS, None),
+            (
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+            (
+                {"headers": {"x-my-header": "my-value"}},
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+        ],
+        ids=["default", "http_options_instance", "http_options_dict"],
+    )
+    def test_query_agent_engine_stream(self, http_options_arg, expected_http_options):
+        """Streaming query: forwards http_options to the HTTP layer (or None by default)."""
+        kwargs = {"query": _TEST_QUERY_PROMPT}
+        if http_options_arg is not _UNSET_HTTP_OPTIONS:
+            kwargs["http_options"] = http_options_arg
         with mock.patch.object(
             self.client.agent_engines._api_client, "request_streamed"
         ) as request_mock:
@@ -3524,7 +3582,7 @@ class TestAgentEngine:
                     ),
                 )
             )
-            list(agent.stream_query(query=_TEST_QUERY_PROMPT))
+            list(agent.stream_query(**kwargs))
             request_mock.assert_called_with(
                 "post",
                 f"{_TEST_AGENT_ENGINE_RESOURCE_NAME}:streamQuery?alt=sse",
@@ -3533,11 +3591,34 @@ class TestAgentEngine:
                     "classMethod": "stream_query",
                     "input": {"query": _TEST_QUERY_PROMPT},
                 },
-                None,
+                expected_http_options,
             )
 
-    def test_query_agent_engine_async_stream(self):
+    @pytest.mark.parametrize(
+        "http_options_arg, expected_http_options",
+        [
+            (_UNSET_HTTP_OPTIONS, None),
+            (
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+            (
+                {"headers": {"x-my-header": "my-value"}},
+                genai_types.HttpOptions(headers={"x-my-header": "my-value"}),
+            ),
+        ],
+        ids=["default", "http_options_instance", "http_options_dict"],
+    )
+    def test_query_agent_engine_async_stream(
+        self, http_options_arg, expected_http_options
+    ):
+        """Async streaming query: forwards http_options to the HTTP layer (or None)."""
+        kwargs = {"query": _TEST_QUERY_PROMPT}
+        if http_options_arg is not _UNSET_HTTP_OPTIONS:
+            kwargs["http_options"] = http_options_arg
+
         async def mock_async_generator():
+            """Fake async-streamed HTTP response generator."""
             yield genai_types.HttpResponse(body=b"")
 
         with mock.patch.object(
@@ -3559,9 +3640,8 @@ class TestAgentEngine:
             )
 
             async def consume():
-                async for response in agent.async_stream_query(
-                    query=_TEST_QUERY_PROMPT
-                ):
+                """Drain the async iterator."""
+                async for response in agent.async_stream_query(**kwargs):
                     print(response)
 
             asyncio.run(consume())
@@ -3573,7 +3653,7 @@ class TestAgentEngine:
                     "classMethod": "async_stream_query",
                     "input": {"query": _TEST_QUERY_PROMPT},
                 },
-                None,
+                expected_http_options,
             )
 
     @pytest.mark.parametrize(
