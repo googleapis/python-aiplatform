@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.154.0](https://github.com/googleapis/python-aiplatform/compare/v1.153.1...v1.154.0) (2026-05-27)
+
+
+### Features
+
+* Add new fields ([027acc8](https://github.com/googleapis/python-aiplatform/commit/027acc8dc6569bda74de16e753e224f9fd5dc7de))
+* Add Skill Registry module to Vertex AI client - Get Skill method ([df50ac0](https://github.com/googleapis/python-aiplatform/commit/df50ac050e82d7a04bd1f8e26ee3fac8406b1600))
+* Make skill_id a required parameter in `skills.create` ([bc4be37](https://github.com/googleapis/python-aiplatform/commit/bc4be37f5f867392f8d030435caf8c2679880150))
+
+
+### Bug Fixes
+
+* Fix flaky evaluation test failures caused by thread execution order ([9f97738](https://github.com/googleapis/python-aiplatform/commit/9f97738a49d868c3378ad8313558a70afacb970e))
+* Fix SkillRevision state enum in Python SDK ([1585602](https://github.com/googleapis/python-aiplatform/commit/15856029aab3e7658ef801b41cdecbe5ae3dd894))
+* GenAI Client(evals) - Map legacy RubricMetric.GROUNDEDNESS to grounding_v1 ([9770c31](https://github.com/googleapis/python-aiplatform/commit/9770c31bbd37c679624ffa62865f2b15817eace1))
+
+
+### Documentation
+
+* Add Skill Registry SDK docs to Google Cloud Gen AI Modules ([9702599](https://github.com/googleapis/python-aiplatform/commit/9702599a587fd6ec0909d6d73e96628230c28a8b))
+* Rename to agentplatform ([8915d23](https://github.com/googleapis/python-aiplatform/commit/8915d239e4219c7a597fc945c82c914e84aec2d2))
+
 ## [1.153.1](https://github.com/googleapis/python-aiplatform/compare/v1.153.0...v1.153.1) (2026-05-15)
 
 
