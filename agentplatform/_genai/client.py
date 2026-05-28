@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from agentplatform._genai import prompts as prompts_module
     from agentplatform._genai import skills as skills_module
     from agentplatform._genai import live as live_module
+    from agentplatform._genai import rag as rag_module
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
@@ -83,6 +84,7 @@ class AsyncClient:
         self._prompts: Optional[ModuleType] = None
         self._datasets: Optional[ModuleType] = None
         self._skills: Optional[ModuleType] = None
+        self._rag: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -163,6 +165,19 @@ class AsyncClient:
                 __package__,
             )
         return self._skills.AsyncSkills(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI async rag module is experimental, "
+        "and may change in future versions."
+    )
+    def rag(self) -> "rag_module.AsyncRag":
+        if self._rag is None:
+            self._rag = importlib.import_module(
+                ".rag",
+                __package__,
+            )
+        return self._rag.AsyncRag(self._api_client)  # type: ignore[no-any-return]
 
     async def aclose(self) -> None:
         """Closes the async client explicitly.
@@ -268,6 +283,7 @@ class Client:
         self._prompts: Optional[ModuleType] = None
         self._datasets: Optional[ModuleType] = None
         self._skills: Optional[ModuleType] = None
+        self._rag: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -373,3 +389,16 @@ class Client:
                 __package__,
             )
         return self._skills.Skills(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    @_common.experimental_warning(
+        "The Vertex SDK GenAI rag module is experimental, "
+        "and may change in future versions."
+    )
+    def rag(self) -> "rag_module.Rag":
+        if self._rag is None:
+            self._rag = importlib.import_module(
+                ".rag",
+                __package__,
+            )
+        return self._rag.Rag(self._api_client)  # type: ignore[no-any-return]
