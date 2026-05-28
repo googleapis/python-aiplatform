@@ -199,7 +199,7 @@ langchain_extra_require = [
     "langchain >= 1.0.0, < 2.0.0",
     "langchain-classic",
     "langchain-core >= 1.0.0, < 2.0.0",
-    "langchain-google-genai >= 4.0.0, < 5.0.0",
+    "langchain-google-genai >= 4.0.0, < 4.2.3",
     "langgraph >= 1.0.0, < 2.0.0",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
