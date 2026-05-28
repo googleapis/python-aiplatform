@@ -749,7 +749,7 @@ class Sandboxes(_api_module.BaseModule):
         Args:
             name (str):
                 Required. The name of the agent engine to list sandboxes for.
-                projects/{project}/locations/{location}/reasoningEngines/{resource_id}/SandboxEnvironments/{sandbox_id}
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}
             config (ListAgentEngineSandboxConfig):
                 Optional. The configuration for the sandboxes to list.
 

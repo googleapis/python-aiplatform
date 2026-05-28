@@ -620,7 +620,7 @@ class SandboxTemplates(_api_module.BaseModule):
         Args:
             name (str):
                 Required. The name of the agent engine to list sandbox templates for.
-                projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironmentTemplates/{sandbox_template_id}
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}
             config (ListSandboxEnvironmentTemplatesConfig):
                 Optional. The configuration for the sandbox templates to list.
 

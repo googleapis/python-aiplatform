@@ -580,7 +580,7 @@ class SandboxSnapshots(_api_module.BaseModule):
         Args:
             name (str):
                 Required. The name of the agent engine to list sandbox snapshots for.
-                projects/{project}/locations/{location}/reasoningEngines/{resource_id}/sandboxEnvironmentSnapshots/{sandbox_snapshot_id}
+                projects/{project}/locations/{location}/reasoningEngines/{resource_id}
             config (ListSandboxEnvironmentSnapshotsConfig):
                 Optional. The configuration for the sandbox snapshots to list.
 
