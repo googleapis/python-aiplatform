@@ -756,6 +756,94 @@ class TestAdkApp:
         assert not response0.sessions
 
     @pytest.mark.asyncio
+    async def test_async_artifact_management(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+        session_id = session["id"]
+
+        part = types.Part(text="test artifact content")
+        version = await app.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            artifact=part,
+            session_id=session_id,
+        )
+        assert version == 0
+
+        loaded = await app.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert loaded.text == "test artifact content"
+
+        keys = await app.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id=session_id,
+        )
+        assert keys == ["test.txt"]
+
+        versions = await app.async_list_versions(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert versions == [0]
+
+        art_versions = await app.async_list_artifact_versions(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert len(art_versions) == 1
+        assert art_versions[0].version == 0
+
+        art_ver = await app.async_get_artifact_version(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+            version=0,
+        )
+        assert art_ver.version == 0
+
+        await app.async_delete_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        keys_after = await app.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id=session_id,
+        )
+        assert not keys_after
+
+    @pytest.mark.asyncio
+    async def test_async_artifact_management_lazy_init(self):
+        app = reasoning_engines.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("artifact_service") is None
+
+        part = types.Part(text="test lazy content")
+        version = await app.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            artifact=part,
+            session_id="lazy_session",
+        )
+        assert version == 0
+        assert app._tmpl_attrs.get("artifact_service") is not None
+
+        loaded = await app.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert loaded.text == "test lazy content"
+
+    @pytest.mark.asyncio
     async def test_async_add_session_to_memory(self):
         app = reasoning_engines.AdkApp(
             agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)

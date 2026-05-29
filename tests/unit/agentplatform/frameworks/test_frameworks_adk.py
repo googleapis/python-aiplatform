@@ -647,6 +647,146 @@ class TestAdkApp:
         assert not response0.sessions
 
     @pytest.mark.asyncio
+    async def test_async_artifact_management(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+        session_id = session["id"]
+
+        part = types.Part(text="test artifact content")
+        version = await app.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            artifact=part,
+            session_id=session_id,
+        )
+        assert version == 0
+
+        loaded = await app.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert loaded.text == "test artifact content"
+
+        keys = await app.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id=session_id,
+        )
+        assert keys == ["test.txt"]
+
+        versions = await app.async_list_versions(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert versions == [0]
+
+        art_versions = await app.async_list_artifact_versions(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert len(art_versions) == 1
+        assert art_versions[0].version == 0
+
+        art_ver = await app.async_get_artifact_version(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+            version=0,
+        )
+        assert art_ver.version == 0
+
+        await app.async_delete_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        keys_after = await app.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id=session_id,
+        )
+        assert not keys_after
+
+    @pytest.mark.asyncio
+    async def test_async_artifact_management_lazy_init(
+        self, get_project_id_mock: mock.Mock
+    ):
+        part = types.Part(text="test lazy content")
+
+        # 1. Save Artifact lazy init
+        app1 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app1._tmpl_attrs.get("artifact_service") is None
+        version = await app1.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            artifact=part,
+            session_id="lazy_session",
+        )
+        assert version == 0
+        assert app1._tmpl_attrs.get("artifact_service") is not None
+
+        # 2. Load Artifact lazy init
+        app2 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app2._tmpl_attrs.get("artifact_service") is None
+        await app2.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app2._tmpl_attrs.get("artifact_service") is not None
+
+        # 3. List keys lazy init
+        app3 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app3._tmpl_attrs.get("artifact_service") is None
+        await app3.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id="lazy_session",
+        )
+        assert app3._tmpl_attrs.get("artifact_service") is not None
+
+        # 4. Delete lazy init
+        app4 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app4._tmpl_attrs.get("artifact_service") is None
+        await app4.async_delete_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app4._tmpl_attrs.get("artifact_service") is not None
+
+        # 5. List versions lazy init
+        app5 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app5._tmpl_attrs.get("artifact_service") is None
+        await app5.async_list_versions(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app5._tmpl_attrs.get("artifact_service") is not None
+
+        # 6. List artifact versions lazy init
+        app6 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app6._tmpl_attrs.get("artifact_service") is None
+        await app6.async_list_artifact_versions(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app6._tmpl_attrs.get("artifact_service") is not None
+
+        # 7. Get version lazy init
+        app7 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app7._tmpl_attrs.get("artifact_service") is None
+        await app7.async_get_artifact_version(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+            version=0,
+        )
+        assert app7._tmpl_attrs.get("artifact_service") is not None
+
+    @pytest.mark.asyncio
     async def test_async_add_session_to_memory_dict(
         self,
         get_project_id_mock: mock.Mock,
@@ -1125,9 +1265,7 @@ class TestAgentEngines:
         from agentplatform._genai import types as _genai_types
 
         mock_operation = mock.Mock()
-        mock_operation.name = (
-            "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
-        )
+        mock_operation.name = "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
         mock_create.return_value = mock_operation
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(
@@ -1180,9 +1318,7 @@ class TestAgentEngines:
         from agentplatform._genai import types as _genai_types
 
         mock_operation = mock.Mock()
-        mock_operation.name = (
-            "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
-        )
+        mock_operation.name = "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
         mock_update.return_value = mock_operation
         mock_await_operation.return_value = _genai_types.AgentEngineOperation(
             response=_genai_types.ReasoningEngine(
