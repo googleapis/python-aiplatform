@@ -20472,6 +20472,7 @@ _GetSkillOperationParametersOrDict = Union[
 
 
 class GetSkillRevisionConfig(_common.BaseModel):
+    """Configuration for getting a Skill Revision."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
@@ -20479,6 +20480,7 @@ class GetSkillRevisionConfig(_common.BaseModel):
 
 
 class GetSkillRevisionConfigDict(TypedDict, total=False):
+    """Configuration for getting a Skill Revision."""
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
@@ -20488,6 +20490,7 @@ GetSkillRevisionConfigOrDict = Union[GetSkillRevisionConfig, GetSkillRevisionCon
 
 
 class _GetSkillRevisionRequestParameters(_common.BaseModel):
+    """Parameters for getting a Skill Revision."""
 
     name: Optional[str] = Field(
         default=None,
@@ -20497,6 +20500,7 @@ class _GetSkillRevisionRequestParameters(_common.BaseModel):
 
 
 class _GetSkillRevisionRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting a Skill Revision."""
 
     name: Optional[str]
     """The resource name of the Skill Revision to retrieve. Format: projects/{project}/locations/{location}/skills/{skill}/revisions/{revision}"""
@@ -20511,6 +20515,7 @@ _GetSkillRevisionRequestParametersOrDict = Union[
 
 
 class SkillRevision(_common.BaseModel):
+    """A single revision of a Skill."""
 
     name: Optional[str] = Field(
         default=None,
@@ -20530,6 +20535,7 @@ class SkillRevision(_common.BaseModel):
 
 
 class SkillRevisionDict(TypedDict, total=False):
+    """A single revision of a Skill."""
 
     name: Optional[str]
     """Identifier. The resource name of the Skill Revision. Format: `projects/{project}/locations/{location}/skills/{skill}/revisions/{revision}`"""
@@ -20548,6 +20554,7 @@ SkillRevisionOrDict = Union[SkillRevision, SkillRevisionDict]
 
 
 class ListSkillRevisionsConfig(_common.BaseModel):
+    """Configuration for listing Skill Revisions."""
 
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
@@ -20557,6 +20564,7 @@ class ListSkillRevisionsConfig(_common.BaseModel):
 
 
 class ListSkillRevisionsConfigDict(TypedDict, total=False):
+    """Configuration for listing Skill Revisions."""
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
@@ -20599,6 +20607,7 @@ _ListSkillRevisionsRequestParametersOrDict = Union[
 
 
 class ListSkillRevisionsResponse(_common.BaseModel):
+    """Response for listing Skill Revisions."""
 
     sdk_http_response: Optional[genai_types.HttpResponse] = Field(
         default=None, description="""Used to retain the full HTTP response."""
@@ -20610,6 +20619,7 @@ class ListSkillRevisionsResponse(_common.BaseModel):
 
 
 class ListSkillRevisionsResponseDict(TypedDict, total=False):
+    """Response for listing Skill Revisions."""
 
     sdk_http_response: Optional[genai_types.HttpResponseDict]
     """Used to retain the full HTTP response."""
