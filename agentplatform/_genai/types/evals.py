@@ -36,6 +36,85 @@ class Importance(_common.CaseInSensitiveEnum):
     """Low importance."""
 
 
+class SessionInput(_common.BaseModel):
+    """This field is experimental and may change in future versions.
+
+    Input to initialize a session and run an agent, used for agent evaluation.
+    """
+
+    user_id: Optional[str] = Field(default=None, description="""The user id.""")
+    state: Optional[dict[str, str]] = Field(
+        default=None, description="""The state of the session."""
+    )
+    app_name: Optional[str] = Field(
+        default=None,
+        description="""The name of the app, used for local ADK agent run Runner and Session.""",
+    )
+
+
+class SessionInputDict(TypedDict, total=False):
+    """This field is experimental and may change in future versions.
+
+    Input to initialize a session and run an agent, used for agent evaluation.
+    """
+
+    user_id: Optional[str]
+    """The user id."""
+
+    state: Optional[dict[str, str]]
+    """The state of the session."""
+
+    app_name: Optional[str]
+    """The name of the app, used for local ADK agent run Runner and Session."""
+
+
+SessionInputOrDict = Union[SessionInput, SessionInputDict]
+
+
+class UserSimulatorConfig(_common.BaseModel):
+    """Configuration for a user simulator.
+
+    Uses an LLM to generate multi-turn messages that simulate a user.
+    """
+
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The model name to get next user message for multi-turn agent run.""",
+    )
+    model_configuration: Optional[genai_types.GenerateContentConfig] = Field(
+        default=None, description="""The configuration for the model."""
+    )
+    max_turn: Optional[int] = Field(
+        default=None,
+        description="""Maximum number of invocations allowed by the multi-turn agent
+      running. This property allows us to stop a run-off conversation
+      where the agent and the user simulator get into a never ending loop.
+      The initial fixed prompt is also counted as an invocation.""",
+    )
+
+
+class UserSimulatorConfigDict(TypedDict, total=False):
+    """Configuration for a user simulator.
+
+    Uses an LLM to generate multi-turn messages that simulate a user.
+    """
+
+    model_name: Optional[str]
+    """The model name to get next user message for multi-turn agent run."""
+
+    model_configuration: Optional[genai_types.GenerateContentConfigDict]
+    """The configuration for the model."""
+
+    max_turn: Optional[int]
+    """Maximum number of invocations allowed by the multi-turn agent
+      running. This property allows us to stop a run-off conversation
+      where the agent and the user simulator get into a never ending loop.
+      The initial fixed prompt is also counted as an invocation."""
+
+
+UserSimulatorConfigOrDict = Union[UserSimulatorConfig, UserSimulatorConfigDict]
+
+
 class AgentConfig(_common.BaseModel):
     """Represents configuration for an Agent."""
 
@@ -458,41 +537,6 @@ class AgentInfoDict(TypedDict, total=False):
 AgentInfoOrDict = Union[AgentInfo, AgentInfoDict]
 
 
-class SessionInput(_common.BaseModel):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str] = Field(default=None, description="""The user id.""")
-    state: Optional[dict[str, str]] = Field(
-        default=None, description="""The state of the session."""
-    )
-    app_name: Optional[str] = Field(
-        default=None,
-        description="""The name of the app, used for local ADK agent run Runner and Session.""",
-    )
-
-
-class SessionInputDict(TypedDict, total=False):
-    """This field is experimental and may change in future versions.
-
-    Input to initialize a session and run an agent, used for agent evaluation.
-    """
-
-    user_id: Optional[str]
-    """The user id."""
-
-    state: Optional[dict[str, str]]
-    """The state of the session."""
-
-    app_name: Optional[str]
-    """The name of the app, used for local ADK agent run Runner and Session."""
-
-
-SessionInputOrDict = Union[SessionInput, SessionInputDict]
-
-
 class UserScenario(_common.BaseModel):
     """User scenario to help simulate multi-turn agent run results."""
 
@@ -586,50 +630,6 @@ class UserScenarioGenerationConfigDict(TypedDict, total=False):
 UserScenarioGenerationConfigOrDict = Union[
     UserScenarioGenerationConfig, UserScenarioGenerationConfigDict
 ]
-
-
-class UserSimulatorConfig(_common.BaseModel):
-    """Configuration for a user simulator.
-
-    Uses an LLM to generate multi-turn messages that simulate a user.
-    """
-
-    model_name: Optional[str] = Field(
-        default=None,
-        description="""The model name to get next user message for multi-turn agent run.""",
-    )
-    model_configuration: Optional[genai_types.GenerateContentConfig] = Field(
-        default=None, description="""The configuration for the model."""
-    )
-    max_turn: Optional[int] = Field(
-        default=None,
-        description="""Maximum number of invocations allowed by the multi-turn agent
-      running. This property allows us to stop a run-off conversation
-      where the agent and the user simulator get into a never ending loop.
-      The initial fixed prompt is also counted as an invocation.""",
-    )
-
-
-class UserSimulatorConfigDict(TypedDict, total=False):
-    """Configuration for a user simulator.
-
-    Uses an LLM to generate multi-turn messages that simulate a user.
-    """
-
-    model_name: Optional[str]
-    """The model name to get next user message for multi-turn agent run."""
-
-    model_configuration: Optional[genai_types.GenerateContentConfigDict]
-    """The configuration for the model."""
-
-    max_turn: Optional[int]
-    """Maximum number of invocations allowed by the multi-turn agent
-      running. This property allows us to stop a run-off conversation
-      where the agent and the user simulator get into a never ending loop.
-      The initial fixed prompt is also counted as an invocation."""
-
-
-UserSimulatorConfigOrDict = Union[UserSimulatorConfig, UserSimulatorConfigDict]
 
 
 class Event(_common.BaseModel):

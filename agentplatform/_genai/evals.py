@@ -43,6 +43,56 @@ except ImportError:
 logger = logging.getLogger("agentplatform_genai.evals")
 
 
+def _AgentRunConfig_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["sessionInput"]) is not None:
+        setv(
+            to_object,
+            ["session_input"],
+            _SessionInput_from_vertex(getv(from_object, ["sessionInput"]), to_object),
+        )
+
+    if getv(from_object, ["agentEngine"]) is not None:
+        setv(to_object, ["agent_engine"], getv(from_object, ["agentEngine"]))
+
+    if getv(from_object, ["userSimulatorConfig"]) is not None:
+        setv(
+            to_object,
+            ["user_simulator_config"],
+            getv(from_object, ["userSimulatorConfig"]),
+        )
+
+    return to_object
+
+
+def _AgentRunConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["session_input"]) is not None:
+        setv(
+            to_object,
+            ["sessionInput"],
+            _SessionInput_to_vertex(getv(from_object, ["session_input"]), to_object),
+        )
+
+    if getv(from_object, ["agent_engine"]) is not None:
+        setv(to_object, ["agentEngine"], getv(from_object, ["agent_engine"]))
+
+    if getv(from_object, ["user_simulator_config"]) is not None:
+        setv(
+            to_object,
+            ["userSimulatorConfig"],
+            getv(from_object, ["user_simulator_config"]),
+        )
+
+    return to_object
+
+
 def _CreateEvaluationItemParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -136,6 +186,9 @@ def _CreateEvaluationRunParameters_to_vertex(
             ["analysisConfigs"],
             [item for item in getv(from_object, ["analysis_configs"])],
         )
+
+    if getv(from_object, ["dummy_session_input"]) is not None:
+        _SessionInput_to_vertex(getv(from_object, ["dummy_session_input"]), to_object)
 
     return to_object
 
@@ -464,7 +517,13 @@ def _EvaluationRunInferenceConfig_from_vertex(
         setv(to_object, ["prompt_template"], getv(from_object, ["promptTemplate"]))
 
     if getv(from_object, ["agentRunConfig"]) is not None:
-        setv(to_object, ["agent_run_config"], getv(from_object, ["agentRunConfig"]))
+        setv(
+            to_object,
+            ["agent_run_config"],
+            _AgentRunConfig_from_vertex(
+                getv(from_object, ["agentRunConfig"]), to_object
+            ),
+        )
 
     if getv(from_object, ["agents"]) is not None:
         setv(to_object, ["agent_configs"], getv(from_object, ["agents"]))
@@ -487,7 +546,13 @@ def _EvaluationRunInferenceConfig_to_vertex(
         setv(to_object, ["promptTemplate"], getv(from_object, ["prompt_template"]))
 
     if getv(from_object, ["agent_run_config"]) is not None:
-        setv(to_object, ["agentRunConfig"], getv(from_object, ["agent_run_config"]))
+        setv(
+            to_object,
+            ["agentRunConfig"],
+            _AgentRunConfig_to_vertex(
+                getv(from_object, ["agent_run_config"]), to_object
+            ),
+        )
 
     if getv(from_object, ["agent_configs"]) is not None:
         setv(to_object, ["agents"], getv(from_object, ["agent_configs"]))
@@ -902,6 +967,40 @@ def _RubricBasedMetricSpec_to_vertex(
     return to_object
 
 
+def _SessionInput_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["userId"]) is not None:
+        setv(to_object, ["user_id"], getv(from_object, ["userId"]))
+
+    if getv(from_object, ["sessionState"]) is not None:
+        setv(to_object, ["state"], getv(from_object, ["sessionState"]))
+
+    if getv(from_object, ["parameters", "app_name"]) is not None:
+        setv(to_object, ["app_name"], getv(from_object, ["parameters", "app_name"]))
+
+    return to_object
+
+
+def _SessionInput_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["user_id"]) is not None:
+        setv(to_object, ["userId"], getv(from_object, ["user_id"]))
+
+    if getv(from_object, ["state"]) is not None:
+        setv(to_object, ["sessionState"], getv(from_object, ["state"]))
+
+    if getv(from_object, ["app_name"]) is not None:
+        setv(to_object, ["parameters", "app_name"], getv(from_object, ["app_name"]))
+
+    return to_object
+
+
 def _UnifiedMetric_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -1174,6 +1273,10 @@ class Evals(_api_module.BaseModule):
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
+        dummy_session_input: Optional[types.evals.SessionInputOrDict] = None,
+        dummy_user_simulator_config: Optional[
+            types.evals.UserSimulatorConfigOrDict
+        ] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -1188,6 +1291,8 @@ class Evals(_api_module.BaseModule):
             inference_configs=inference_configs,
             config=config,
             analysis_configs=analysis_configs,
+            dummy_session_input=dummy_session_input,
+            dummy_user_simulator_config=dummy_user_simulator_config,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3321,6 +3426,10 @@ class AsyncEvals(_api_module.BaseModule):
         ] = None,
         config: Optional[types.CreateEvaluationRunConfigOrDict] = None,
         analysis_configs: Optional[list[types.AnalysisConfigOrDict]] = None,
+        dummy_session_input: Optional[types.evals.SessionInputOrDict] = None,
+        dummy_user_simulator_config: Optional[
+            types.evals.UserSimulatorConfigOrDict
+        ] = None,
     ) -> types.EvaluationRun:
         """
         Creates an EvaluationRun.
@@ -3335,6 +3444,8 @@ class AsyncEvals(_api_module.BaseModule):
             inference_configs=inference_configs,
             config=config,
             analysis_configs=analysis_configs,
+            dummy_session_input=dummy_session_input,
+            dummy_user_simulator_config=dummy_user_simulator_config,
         )
 
         request_url_dict: Optional[dict[str, str]]

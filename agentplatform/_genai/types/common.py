@@ -2560,13 +2560,13 @@ class AgentRunConfig(_common.BaseModel):
 class AgentRunConfigDict(TypedDict, total=False):
     """Configuration for an Agent Run."""
 
-    session_input: Optional[evals_types.SessionInput]
+    session_input: Optional[evals_types.SessionInputDict]
     """The session input to get agent running results."""
 
     agent_engine: Optional[str]
     """The resource name of the Agent Engine."""
 
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+    user_simulator_config: Optional[evals_types.UserSimulatorConfigDict]
     """Used for multi-turn agent run.
         Contains configuration for a user simulator that
         uses an LLM to generate messages on behalf of the user."""
@@ -2765,6 +2765,12 @@ class _CreateEvaluationRunParameters(_common.BaseModel):
     analysis_configs: Optional[list[AnalysisConfig]] = Field(
         default=None, description=""""""
     )
+    dummy_session_input: Optional[evals_types.SessionInput] = Field(
+        default=None, description=""""""
+    )
+    dummy_user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+        default=None, description=""""""
+    )
 
 
 class _CreateEvaluationRunParametersDict(TypedDict, total=False):
@@ -2792,6 +2798,12 @@ class _CreateEvaluationRunParametersDict(TypedDict, total=False):
     """"""
 
     analysis_configs: Optional[list[AnalysisConfigDict]]
+    """"""
+
+    dummy_session_input: Optional[evals_types.SessionInputDict]
+    """"""
+
+    dummy_user_simulator_config: Optional[evals_types.UserSimulatorConfigDict]
     """"""
 
 
