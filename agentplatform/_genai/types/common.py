@@ -11936,6 +11936,425 @@ ListAgentEngineMemoryRevisionsResponseOrDict = Union[
 ]
 
 
+class AskContextsConfig(_common.BaseModel):
+    """Config for asking RAG Contexts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class AskContextsConfigDict(TypedDict, total=False):
+    """Config for asking RAG Contexts."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+AskContextsConfigOrDict = Union[AskContextsConfig, AskContextsConfigDict]
+
+
+class RagRetrievalConfigFilter(_common.BaseModel):
+    """Config for filters."""
+
+    metadata_filter: Optional[str] = Field(
+        default=None, description="""Optional. String for metadata filtering."""
+    )
+    vector_distance_threshold: Optional[float] = Field(
+        default=None,
+        description="""Optional. Only returns contexts with vector distance smaller than the threshold.""",
+    )
+    vector_similarity_threshold: Optional[float] = Field(
+        default=None,
+        description="""Optional. Only returns contexts with vector similarity larger than the threshold.""",
+    )
+
+
+class RagRetrievalConfigFilterDict(TypedDict, total=False):
+    """Config for filters."""
+
+    metadata_filter: Optional[str]
+    """Optional. String for metadata filtering."""
+
+    vector_distance_threshold: Optional[float]
+    """Optional. Only returns contexts with vector distance smaller than the threshold."""
+
+    vector_similarity_threshold: Optional[float]
+    """Optional. Only returns contexts with vector similarity larger than the threshold."""
+
+
+RagRetrievalConfigFilterOrDict = Union[
+    RagRetrievalConfigFilter, RagRetrievalConfigFilterDict
+]
+
+
+class RagRetrievalConfigHybridSearch(_common.BaseModel):
+    """Config for Hybrid Search."""
+
+    alpha: Optional[float] = Field(
+        default=None,
+        description="""Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally.""",
+    )
+
+
+class RagRetrievalConfigHybridSearchDict(TypedDict, total=False):
+    """Config for Hybrid Search."""
+
+    alpha: Optional[float]
+    """Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally."""
+
+
+RagRetrievalConfigHybridSearchOrDict = Union[
+    RagRetrievalConfigHybridSearch, RagRetrievalConfigHybridSearchDict
+]
+
+
+class RagRetrievalConfigRankingLlmRanker(_common.BaseModel):
+    """Config for LlmRanker."""
+
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The model name used for ranking. See [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported-models).""",
+    )
+
+
+class RagRetrievalConfigRankingLlmRankerDict(TypedDict, total=False):
+    """Config for LlmRanker."""
+
+    model_name: Optional[str]
+    """Optional. The model name used for ranking. See [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported-models)."""
+
+
+RagRetrievalConfigRankingLlmRankerOrDict = Union[
+    RagRetrievalConfigRankingLlmRanker, RagRetrievalConfigRankingLlmRankerDict
+]
+
+
+class RagRetrievalConfigRankingRankService(_common.BaseModel):
+    """Config for Rank Service."""
+
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The model name of the rank service. Format: `semantic-ranker-512@latest`""",
+    )
+
+
+class RagRetrievalConfigRankingRankServiceDict(TypedDict, total=False):
+    """Config for Rank Service."""
+
+    model_name: Optional[str]
+    """Optional. The model name of the rank service. Format: `semantic-ranker-512@latest`"""
+
+
+RagRetrievalConfigRankingRankServiceOrDict = Union[
+    RagRetrievalConfigRankingRankService, RagRetrievalConfigRankingRankServiceDict
+]
+
+
+class RagRetrievalConfigRanking(_common.BaseModel):
+    """Config for ranking and reranking."""
+
+    llm_ranker: Optional[RagRetrievalConfigRankingLlmRanker] = Field(
+        default=None, description="""Optional. Config for LlmRanker."""
+    )
+    rank_service: Optional[RagRetrievalConfigRankingRankService] = Field(
+        default=None, description="""Optional. Config for Rank Service."""
+    )
+
+
+class RagRetrievalConfigRankingDict(TypedDict, total=False):
+    """Config for ranking and reranking."""
+
+    llm_ranker: Optional[RagRetrievalConfigRankingLlmRankerDict]
+    """Optional. Config for LlmRanker."""
+
+    rank_service: Optional[RagRetrievalConfigRankingRankServiceDict]
+    """Optional. Config for Rank Service."""
+
+
+RagRetrievalConfigRankingOrDict = Union[
+    RagRetrievalConfigRanking, RagRetrievalConfigRankingDict
+]
+
+
+class RagRetrievalConfig(_common.BaseModel):
+    """Specifies the context retrieval config."""
+
+    filter: Optional[RagRetrievalConfigFilter] = Field(
+        default=None, description="""Optional. Config for filters."""
+    )
+    hybrid_search: Optional[RagRetrievalConfigHybridSearch] = Field(
+        default=None, description="""Optional. Config for Hybrid Search."""
+    )
+    ranking: Optional[RagRetrievalConfigRanking] = Field(
+        default=None, description="""Optional. Config for ranking and reranking."""
+    )
+    top_k: Optional[int] = Field(
+        default=None, description="""Optional. The number of contexts to retrieve."""
+    )
+
+
+class RagRetrievalConfigDict(TypedDict, total=False):
+    """Specifies the context retrieval config."""
+
+    filter: Optional[RagRetrievalConfigFilterDict]
+    """Optional. Config for filters."""
+
+    hybrid_search: Optional[RagRetrievalConfigHybridSearchDict]
+    """Optional. Config for Hybrid Search."""
+
+    ranking: Optional[RagRetrievalConfigRankingDict]
+    """Optional. Config for ranking and reranking."""
+
+    top_k: Optional[int]
+    """Optional. The number of contexts to retrieve."""
+
+
+RagRetrievalConfigOrDict = Union[RagRetrievalConfig, RagRetrievalConfigDict]
+
+
+class RagQueryRanking(_common.BaseModel):
+    """Configurations for hybrid search results ranking."""
+
+    alpha: Optional[float] = Field(
+        default=None,
+        description="""Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally.""",
+    )
+
+
+class RagQueryRankingDict(TypedDict, total=False):
+    """Configurations for hybrid search results ranking."""
+
+    alpha: Optional[float]
+    """Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally."""
+
+
+RagQueryRankingOrDict = Union[RagQueryRanking, RagQueryRankingDict]
+
+
+class RagQuery(_common.BaseModel):
+    """A query to retrieve relevant contexts."""
+
+    rag_retrieval_config: Optional[RagRetrievalConfig] = Field(
+        default=None, description="""Optional. The retrieval config for the query."""
+    )
+    ranking: Optional[RagQueryRanking] = Field(
+        default=None,
+        description="""Optional. Configurations for hybrid search results ranking.""",
+    )
+    similarity_top_k: Optional[int] = Field(
+        default=None, description="""Optional. The number of contexts to retrieve."""
+    )
+    text: Optional[str] = Field(
+        default=None,
+        description="""Optional. The query in text format to get relevant contexts.""",
+    )
+
+
+class RagQueryDict(TypedDict, total=False):
+    """A query to retrieve relevant contexts."""
+
+    rag_retrieval_config: Optional[RagRetrievalConfigDict]
+    """Optional. The retrieval config for the query."""
+
+    ranking: Optional[RagQueryRankingDict]
+    """Optional. Configurations for hybrid search results ranking."""
+
+    similarity_top_k: Optional[int]
+    """Optional. The number of contexts to retrieve."""
+
+    text: Optional[str]
+    """Optional. The query in text format to get relevant contexts."""
+
+
+RagQueryOrDict = Union[RagQuery, RagQueryDict]
+
+
+class _AskContextsRequestParameters(_common.BaseModel):
+    """Parameters for asking RAG Contexts."""
+
+    query: Optional[RagQuery] = Field(default=None, description="""""")
+    config: Optional[AskContextsConfig] = Field(default=None, description="""""")
+    tools: Optional[list[genai_types.Tool]] = Field(default=None, description="""""")
+
+
+class _AskContextsRequestParametersDict(TypedDict, total=False):
+    """Parameters for asking RAG Contexts."""
+
+    query: Optional[RagQueryDict]
+    """"""
+
+    config: Optional[AskContextsConfigDict]
+    """"""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """"""
+
+
+_AskContextsRequestParametersOrDict = Union[
+    _AskContextsRequestParameters, _AskContextsRequestParametersDict
+]
+
+
+class RagChunkPageSpan(_common.BaseModel):
+    """Represents where the chunk starts and ends in the document."""
+
+    first_page: Optional[int] = Field(
+        default=None,
+        description="""Page where chunk starts in the document. Inclusive. 1-indexed.""",
+    )
+    last_page: Optional[int] = Field(
+        default=None,
+        description="""Page where chunk ends in the document. Inclusive. 1-indexed.""",
+    )
+
+
+class RagChunkPageSpanDict(TypedDict, total=False):
+    """Represents where the chunk starts and ends in the document."""
+
+    first_page: Optional[int]
+    """Page where chunk starts in the document. Inclusive. 1-indexed."""
+
+    last_page: Optional[int]
+    """Page where chunk ends in the document. Inclusive. 1-indexed."""
+
+
+RagChunkPageSpanOrDict = Union[RagChunkPageSpan, RagChunkPageSpanDict]
+
+
+class RagChunk(_common.BaseModel):
+    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
+
+    chunk_id: Optional[str] = Field(
+        default=None, description="""The ID of the chunk."""
+    )
+    file_id: Optional[str] = Field(
+        default=None, description="""The ID of the file that the chunk belongs to."""
+    )
+    page_span: Optional[RagChunkPageSpan] = Field(
+        default=None,
+        description="""If populated, represents where the chunk starts and ends in the document.""",
+    )
+    text: Optional[str] = Field(
+        default=None, description="""The content of the chunk."""
+    )
+
+
+class RagChunkDict(TypedDict, total=False):
+    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
+
+    chunk_id: Optional[str]
+    """The ID of the chunk."""
+
+    file_id: Optional[str]
+    """The ID of the file that the chunk belongs to."""
+
+    page_span: Optional[RagChunkPageSpanDict]
+    """If populated, represents where the chunk starts and ends in the document."""
+
+    text: Optional[str]
+    """The content of the chunk."""
+
+
+RagChunkOrDict = Union[RagChunk, RagChunkDict]
+
+
+class RagContextsContext(_common.BaseModel):
+    """A context of the query."""
+
+    chunk: Optional[RagChunk] = Field(
+        default=None, description="""Context of the retrieved chunk."""
+    )
+    distance: Optional[float] = Field(
+        default=None,
+        description="""The distance between the query dense embedding vector and the context text vector.""",
+    )
+    score: Optional[float] = Field(
+        default=None,
+        description="""According to the underlying Vector DB and the selected metric type, the score can be either the distance or the similarity between the query and the context and its range depends on the metric type. For example, if the metric type is COSINE_DISTANCE, it represents the distance between the query and the context. The larger the distance, the less relevant the context is to the query. The range is [0, 2], while 0 means the most relevant and 2 means the least relevant.""",
+    )
+    source_display_name: Optional[str] = Field(
+        default=None, description="""The file display name."""
+    )
+    source_uri: Optional[str] = Field(
+        default=None,
+        description="""If the file is imported from Cloud Storage or Google Drive, source_uri will be original file URI in Cloud Storage or Google Drive; if file is uploaded, source_uri will be file display name.""",
+    )
+    sparse_distance: Optional[float] = Field(
+        default=None,
+        description="""The distance between the query sparse embedding vector and the context text vector.""",
+    )
+    text: Optional[str] = Field(default=None, description="""The text chunk.""")
+
+
+class RagContextsContextDict(TypedDict, total=False):
+    """A context of the query."""
+
+    chunk: Optional[RagChunkDict]
+    """Context of the retrieved chunk."""
+
+    distance: Optional[float]
+    """The distance between the query dense embedding vector and the context text vector."""
+
+    score: Optional[float]
+    """According to the underlying Vector DB and the selected metric type, the score can be either the distance or the similarity between the query and the context and its range depends on the metric type. For example, if the metric type is COSINE_DISTANCE, it represents the distance between the query and the context. The larger the distance, the less relevant the context is to the query. The range is [0, 2], while 0 means the most relevant and 2 means the least relevant."""
+
+    source_display_name: Optional[str]
+    """The file display name."""
+
+    source_uri: Optional[str]
+    """If the file is imported from Cloud Storage or Google Drive, source_uri will be original file URI in Cloud Storage or Google Drive; if file is uploaded, source_uri will be file display name."""
+
+    sparse_distance: Optional[float]
+    """The distance between the query sparse embedding vector and the context text vector."""
+
+    text: Optional[str]
+    """The text chunk."""
+
+
+RagContextsContextOrDict = Union[RagContextsContext, RagContextsContextDict]
+
+
+class RagContexts(_common.BaseModel):
+    """Relevant contexts for one query."""
+
+    contexts: Optional[list[RagContextsContext]] = Field(
+        default=None, description="""All its contexts."""
+    )
+
+
+class RagContextsDict(TypedDict, total=False):
+    """Relevant contexts for one query."""
+
+    contexts: Optional[list[RagContextsContextDict]]
+    """All its contexts."""
+
+
+RagContextsOrDict = Union[RagContexts, RagContextsDict]
+
+
+class AskContextsResponse(_common.BaseModel):
+
+    contexts: Optional[RagContexts] = Field(
+        default=None, description="""The contexts of the query."""
+    )
+    response: Optional[str] = Field(
+        default=None, description="""The Retrieval Response."""
+    )
+
+
+class AskContextsResponseDict(TypedDict, total=False):
+
+    contexts: Optional[RagContextsDict]
+    """The contexts of the query."""
+
+    response: Optional[str]
+    """The Retrieval Response."""
+
+
+AskContextsResponseOrDict = Union[AskContextsResponse, AskContextsResponseDict]
+
+
 class ApiAuthApiKeyConfig(_common.BaseModel):
     """The API secret."""
 
@@ -13675,6 +14094,150 @@ class RagEngineConfigDict(TypedDict, total=False):
 
 
 RagEngineConfigOrDict = Union[RagEngineConfig, RagEngineConfigDict]
+
+
+class RetrieveContextsConfig(_common.BaseModel):
+    """Config for retrieving RAG Contexts."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class RetrieveContextsConfigDict(TypedDict, total=False):
+    """Config for retrieving RAG Contexts."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+RetrieveContextsConfigOrDict = Union[RetrieveContextsConfig, RetrieveContextsConfigDict]
+
+
+class VertexRagStoreRagResource(_common.BaseModel):
+    """The definition of the Rag resource."""
+
+    rag_corpus: Optional[str] = Field(
+        default=None,
+        description="""Optional. RagCorpora resource name. Format: `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`""",
+    )
+    rag_file_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. rag_file_id. The files should be in the same rag_corpus set in rag_corpus field.""",
+    )
+
+
+class VertexRagStoreRagResourceDict(TypedDict, total=False):
+    """The definition of the Rag resource."""
+
+    rag_corpus: Optional[str]
+    """Optional. RagCorpora resource name. Format: `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`"""
+
+    rag_file_ids: Optional[list[str]]
+    """Optional. rag_file_id. The files should be in the same rag_corpus set in rag_corpus field."""
+
+
+VertexRagStoreRagResourceOrDict = Union[
+    VertexRagStoreRagResource, VertexRagStoreRagResourceDict
+]
+
+
+class VertexRagStore(_common.BaseModel):
+    """Retrieve from Vertex RAG Store for grounding."""
+
+    rag_corpora: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Deprecated. Please use rag_resources instead.""",
+    )
+    rag_resources: Optional[list[VertexRagStoreRagResource]] = Field(
+        default=None,
+        description="""Optional. The representation of the rag source. It can be used to specify corpus only or ragfiles. Currently only support one corpus or multiple files from one corpus. In the future we may open up multiple corpora support.""",
+    )
+    rag_retrieval_config: Optional[RagRetrievalConfig] = Field(
+        default=None,
+        description="""Optional. The retrieval config for the Rag query.""",
+    )
+    similarity_top_k: Optional[int] = Field(
+        default=None,
+        description="""Optional. Number of top k results to return from the selected corpora.""",
+    )
+    store_context: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Currently only supported for Gemini Multimodal Live API. In Gemini Multimodal Live API, if `store_context` bool is specified, Gemini will leverage it to automatically memorize the interactions between the client and Gemini, and retrieve context when needed to augment the response generation for users' ongoing and future interactions.""",
+    )
+    vector_distance_threshold: Optional[float] = Field(
+        default=None,
+        description="""Optional. Only return results with vector distance smaller than the threshold.""",
+    )
+
+
+class VertexRagStoreDict(TypedDict, total=False):
+    """Retrieve from Vertex RAG Store for grounding."""
+
+    rag_corpora: Optional[list[str]]
+    """Optional. Deprecated. Please use rag_resources instead."""
+
+    rag_resources: Optional[list[VertexRagStoreRagResourceDict]]
+    """Optional. The representation of the rag source. It can be used to specify corpus only or ragfiles. Currently only support one corpus or multiple files from one corpus. In the future we may open up multiple corpora support."""
+
+    rag_retrieval_config: Optional[RagRetrievalConfigDict]
+    """Optional. The retrieval config for the Rag query."""
+
+    similarity_top_k: Optional[int]
+    """Optional. Number of top k results to return from the selected corpora."""
+
+    store_context: Optional[bool]
+    """Optional. Currently only supported for Gemini Multimodal Live API. In Gemini Multimodal Live API, if `store_context` bool is specified, Gemini will leverage it to automatically memorize the interactions between the client and Gemini, and retrieve context when needed to augment the response generation for users' ongoing and future interactions."""
+
+    vector_distance_threshold: Optional[float]
+    """Optional. Only return results with vector distance smaller than the threshold."""
+
+
+VertexRagStoreOrDict = Union[VertexRagStore, VertexRagStoreDict]
+
+
+class _RetrieveRagContextsRequestParameters(_common.BaseModel):
+    """Parameters for retrieving RAG Contexts."""
+
+    vertex_rag_store: Optional[VertexRagStore] = Field(default=None, description="""""")
+    query: Optional[RagQuery] = Field(default=None, description="""""")
+    config: Optional[RetrieveContextsConfig] = Field(default=None, description="""""")
+
+
+class _RetrieveRagContextsRequestParametersDict(TypedDict, total=False):
+    """Parameters for retrieving RAG Contexts."""
+
+    vertex_rag_store: Optional[VertexRagStoreDict]
+    """"""
+
+    query: Optional[RagQueryDict]
+    """"""
+
+    config: Optional[RetrieveContextsConfigDict]
+    """"""
+
+
+_RetrieveRagContextsRequestParametersOrDict = Union[
+    _RetrieveRagContextsRequestParameters, _RetrieveRagContextsRequestParametersDict
+]
+
+
+class RetrieveContextsResponse(_common.BaseModel):
+
+    contexts: Optional[RagContexts] = Field(
+        default=None, description="""The contexts of the query."""
+    )
+
+
+class RetrieveContextsResponseDict(TypedDict, total=False):
+
+    contexts: Optional[RagContextsDict]
+    """The contexts of the query."""
+
+
+RetrieveContextsResponseOrDict = Union[
+    RetrieveContextsResponse, RetrieveContextsResponseDict
+]
 
 
 class GetAgentEngineRuntimeRevisionConfig(_common.BaseModel):

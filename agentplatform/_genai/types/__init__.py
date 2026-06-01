@@ -24,6 +24,7 @@ from . import evals
 from . import prompts
 from .common import _AppendAgentEngineSessionEventRequestParameters
 from .common import _AppendAgentEngineTaskEventRequestParameters
+from .common import _AskContextsRequestParameters
 from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
 from .common import _CancelQueryJobAgentEngineRequestParameters
@@ -127,6 +128,7 @@ from .common import _QueryAgentEngineRuntimeRevisionRequestParameters
 from .common import _RestoreVersionRequestParameters
 from .common import _RetrieveAgentEngineMemoriesRequestParameters
 from .common import _RetrieveMemoryProfilesRequestParameters
+from .common import _RetrieveRagContextsRequestParameters
 from .common import _RetrieveSkillsRequestParameters
 from .common import _RollbackAgentEngineMemoryRequestParameters
 from .common import _RunQueryJobAgentEngineConfig
@@ -208,6 +210,12 @@ from .common import AppendAgentEngineTaskEventConfigOrDict
 from .common import AppendAgentEngineTaskEventResponse
 from .common import AppendAgentEngineTaskEventResponseDict
 from .common import AppendAgentEngineTaskEventResponseOrDict
+from .common import AskContextsConfig
+from .common import AskContextsConfigDict
+from .common import AskContextsConfigOrDict
+from .common import AskContextsResponse
+from .common import AskContextsResponseDict
+from .common import AskContextsResponseOrDict
 from .common import AssembleDataset
 from .common import AssembleDatasetConfig
 from .common import AssembleDatasetConfigDict
@@ -1036,6 +1044,18 @@ from .common import QueryAgentEngineRuntimeRevisionConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
+from .common import RagChunk
+from .common import RagChunkDict
+from .common import RagChunkOrDict
+from .common import RagChunkPageSpan
+from .common import RagChunkPageSpanDict
+from .common import RagChunkPageSpanOrDict
+from .common import RagContexts
+from .common import RagContextsContext
+from .common import RagContextsContextDict
+from .common import RagContextsContextOrDict
+from .common import RagContextsDict
+from .common import RagContextsOrDict
 from .common import RagCorpus
 from .common import RagCorpusCorpusTypeConfig
 from .common import RagCorpusCorpusTypeConfigDict
@@ -1094,6 +1114,30 @@ from .common import RagManagedDbConfigSpannerOrDict
 from .common import RagManagedDbConfigUnprovisioned
 from .common import RagManagedDbConfigUnprovisionedDict
 from .common import RagManagedDbConfigUnprovisionedOrDict
+from .common import RagQuery
+from .common import RagQueryDict
+from .common import RagQueryOrDict
+from .common import RagQueryRanking
+from .common import RagQueryRankingDict
+from .common import RagQueryRankingOrDict
+from .common import RagRetrievalConfig
+from .common import RagRetrievalConfigDict
+from .common import RagRetrievalConfigFilter
+from .common import RagRetrievalConfigFilterDict
+from .common import RagRetrievalConfigFilterOrDict
+from .common import RagRetrievalConfigHybridSearch
+from .common import RagRetrievalConfigHybridSearchDict
+from .common import RagRetrievalConfigHybridSearchOrDict
+from .common import RagRetrievalConfigOrDict
+from .common import RagRetrievalConfigRanking
+from .common import RagRetrievalConfigRankingDict
+from .common import RagRetrievalConfigRankingLlmRanker
+from .common import RagRetrievalConfigRankingLlmRankerDict
+from .common import RagRetrievalConfigRankingLlmRankerOrDict
+from .common import RagRetrievalConfigRankingOrDict
+from .common import RagRetrievalConfigRankingRankService
+from .common import RagRetrievalConfigRankingRankServiceDict
+from .common import RagRetrievalConfigRankingRankServiceOrDict
 from .common import RagVectorDbConfig
 from .common import RagVectorDbConfigDict
 from .common import RagVectorDbConfigOrDict
@@ -1245,6 +1289,12 @@ from .common import RestoreVersionOperationOrDict
 from .common import RetrieveAgentEngineMemoriesConfig
 from .common import RetrieveAgentEngineMemoriesConfigDict
 from .common import RetrieveAgentEngineMemoriesConfigOrDict
+from .common import RetrieveContextsConfig
+from .common import RetrieveContextsConfigDict
+from .common import RetrieveContextsConfigOrDict
+from .common import RetrieveContextsResponse
+from .common import RetrieveContextsResponseDict
+from .common import RetrieveContextsResponseOrDict
 from .common import RetrievedSkill
 from .common import RetrievedSkillDict
 from .common import RetrievedSkillOrDict
@@ -1624,6 +1674,12 @@ from .common import VertexAiSearchConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
+from .common import VertexRagStore
+from .common import VertexRagStoreDict
+from .common import VertexRagStoreOrDict
+from .common import VertexRagStoreRagResource
+from .common import VertexRagStoreRagResourceDict
+from .common import VertexRagStoreRagResourceOrDict
 from .common import VulnerableTool
 from .common import VulnerableToolDict
 from .common import VulnerableToolOrDict
@@ -2394,6 +2450,48 @@ __all__ = [
     "ListAgentEngineMemoryRevisionsResponse",
     "ListAgentEngineMemoryRevisionsResponseDict",
     "ListAgentEngineMemoryRevisionsResponseOrDict",
+    "AskContextsConfig",
+    "AskContextsConfigDict",
+    "AskContextsConfigOrDict",
+    "RagRetrievalConfigFilter",
+    "RagRetrievalConfigFilterDict",
+    "RagRetrievalConfigFilterOrDict",
+    "RagRetrievalConfigHybridSearch",
+    "RagRetrievalConfigHybridSearchDict",
+    "RagRetrievalConfigHybridSearchOrDict",
+    "RagRetrievalConfigRankingLlmRanker",
+    "RagRetrievalConfigRankingLlmRankerDict",
+    "RagRetrievalConfigRankingLlmRankerOrDict",
+    "RagRetrievalConfigRankingRankService",
+    "RagRetrievalConfigRankingRankServiceDict",
+    "RagRetrievalConfigRankingRankServiceOrDict",
+    "RagRetrievalConfigRanking",
+    "RagRetrievalConfigRankingDict",
+    "RagRetrievalConfigRankingOrDict",
+    "RagRetrievalConfig",
+    "RagRetrievalConfigDict",
+    "RagRetrievalConfigOrDict",
+    "RagQueryRanking",
+    "RagQueryRankingDict",
+    "RagQueryRankingOrDict",
+    "RagQuery",
+    "RagQueryDict",
+    "RagQueryOrDict",
+    "RagChunkPageSpan",
+    "RagChunkPageSpanDict",
+    "RagChunkPageSpanOrDict",
+    "RagChunk",
+    "RagChunkDict",
+    "RagChunkOrDict",
+    "RagContextsContext",
+    "RagContextsContextDict",
+    "RagContextsContextOrDict",
+    "RagContexts",
+    "RagContextsDict",
+    "RagContextsOrDict",
+    "AskContextsResponse",
+    "AskContextsResponseDict",
+    "AskContextsResponseOrDict",
     "ApiAuthApiKeyConfig",
     "ApiAuthApiKeyConfigDict",
     "ApiAuthApiKeyConfigOrDict",
@@ -2556,6 +2654,18 @@ __all__ = [
     "RagEngineConfig",
     "RagEngineConfigDict",
     "RagEngineConfigOrDict",
+    "RetrieveContextsConfig",
+    "RetrieveContextsConfigDict",
+    "RetrieveContextsConfigOrDict",
+    "VertexRagStoreRagResource",
+    "VertexRagStoreRagResourceDict",
+    "VertexRagStoreRagResourceOrDict",
+    "VertexRagStore",
+    "VertexRagStoreDict",
+    "VertexRagStoreOrDict",
+    "RetrieveContextsResponse",
+    "RetrieveContextsResponseDict",
+    "RetrieveContextsResponseOrDict",
     "GetAgentEngineRuntimeRevisionConfig",
     "GetAgentEngineRuntimeRevisionConfigDict",
     "GetAgentEngineRuntimeRevisionConfigOrDict",
@@ -3146,12 +3256,14 @@ __all__ = [
     "_PurgeAgentEngineMemoriesRequestParameters",
     "_GetAgentEngineMemoryRevisionRequestParameters",
     "_ListAgentEngineMemoryRevisionsRequestParameters",
+    "_AskContextsRequestParameters",
     "_CreateRagCorpusRequestParameters",
     "_GetRagCorpusRequestParameters",
     "_ListRagCorporaRequestParameters",
     "_GetRagFileRequestParameters",
     "_ListRagFilesRequestParameters",
     "_GetRagConfigRequestParameters",
+    "_RetrieveRagContextsRequestParameters",
     "_GetAgentEngineRuntimeRevisionRequestParameters",
     "_ListAgentEngineRuntimeRevisionsRequestParameters",
     "_DeleteAgentEngineRuntimeRevisionRequestParameters",
