@@ -14020,7 +14020,7 @@ RagManagedDbConfigSpannerOrDict = Union[
 
 
 class RagManagedDbConfig(_common.BaseModel):
-    """Configuration message for RagManagedDb used by RagEngine."""
+    """The backend config of the RagEngineConfig."""
 
     basic: Optional[RagManagedDbConfigBasic] = Field(
         default=None,
@@ -14048,7 +14048,7 @@ class RagManagedDbConfig(_common.BaseModel):
 
 
 class RagManagedDbConfigDict(TypedDict, total=False):
-    """Configuration message for RagManagedDb used by RagEngine."""
+    """The backend config of the RagEngineConfig."""
 
     basic: Optional[RagManagedDbConfigBasicDict]
     """Deprecated: Use `mode` instead to set the tier under Spanner. Sets the RagManagedDb to the Basic tier."""
@@ -14073,6 +14073,7 @@ RagManagedDbConfigOrDict = Union[RagManagedDbConfig, RagManagedDbConfigDict]
 
 
 class RagEngineConfig(_common.BaseModel):
+    """The config of the RAG Engine."""
 
     name: Optional[str] = Field(
         default=None,
@@ -14085,6 +14086,7 @@ class RagEngineConfig(_common.BaseModel):
 
 
 class RagEngineConfigDict(TypedDict, total=False):
+    """The config of the RAG Engine."""
 
     name: Optional[str]
     """Identifier. The name of the RagEngineConfig. Format: `projects/{project}/locations/{location}/ragEngineConfig`"""
@@ -14094,6 +14096,344 @@ class RagEngineConfigDict(TypedDict, total=False):
 
 
 RagEngineConfigOrDict = Union[RagEngineConfig, RagEngineConfigDict]
+
+
+class UpdateRagCorpusConfig(_common.BaseModel):
+    """Config for updating a RAG corpus."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class UpdateRagCorpusConfigDict(TypedDict, total=False):
+    """Config for updating a RAG corpus."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+UpdateRagCorpusConfigOrDict = Union[UpdateRagCorpusConfig, UpdateRagCorpusConfigDict]
+
+
+class _UpdateRagCorpusRequestParameters(_common.BaseModel):
+    """Parameters for updating a RAG corpus."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    corpus_id: Optional[str] = Field(default=None, description="""""")
+    rag_corpus: Optional[RagCorpus] = Field(default=None, description="""""")
+    config: Optional[UpdateRagCorpusConfig] = Field(default=None, description="""""")
+
+
+class _UpdateRagCorpusRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a RAG corpus."""
+
+    name: Optional[str]
+    """"""
+
+    corpus_id: Optional[str]
+    """"""
+
+    rag_corpus: Optional[RagCorpusDict]
+    """"""
+
+    config: Optional[UpdateRagCorpusConfigDict]
+    """"""
+
+
+_UpdateRagCorpusRequestParametersOrDict = Union[
+    _UpdateRagCorpusRequestParameters, _UpdateRagCorpusRequestParametersDict
+]
+
+
+class UpdateRagCorpusOperation(_common.BaseModel):
+    """Operation for updating a RAG corpus."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class UpdateRagCorpusOperationDict(TypedDict, total=False):
+    """Operation for updating a RAG corpus."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+UpdateRagCorpusOperationOrDict = Union[
+    UpdateRagCorpusOperation, UpdateRagCorpusOperationDict
+]
+
+
+class DeleteRagCorpusConfig(_common.BaseModel):
+    """Config for deleting a RAG corpus."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteRagCorpusConfigDict(TypedDict, total=False):
+    """Config for deleting a RAG corpus."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteRagCorpusConfigOrDict = Union[DeleteRagCorpusConfig, DeleteRagCorpusConfigDict]
+
+
+class _DeleteRagCorpusRequestParameters(_common.BaseModel):
+    """Parameters for deleting a RAG corpus."""
+
+    corpus_id: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteRagCorpusConfig] = Field(default=None, description="""""")
+
+
+class _DeleteRagCorpusRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a RAG corpus."""
+
+    corpus_id: Optional[str]
+    """"""
+
+    config: Optional[DeleteRagCorpusConfigDict]
+    """"""
+
+
+_DeleteRagCorpusRequestParametersOrDict = Union[
+    _DeleteRagCorpusRequestParameters, _DeleteRagCorpusRequestParametersDict
+]
+
+
+class DeleteRagCorpusOperation(_common.BaseModel):
+    """Operation for deleting a RAG corpus."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteRagCorpusOperationDict(TypedDict, total=False):
+    """Operation for deleting a RAG corpus."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteRagCorpusOperationOrDict = Union[
+    DeleteRagCorpusOperation, DeleteRagCorpusOperationDict
+]
+
+
+class DeleteRagFileConfig(_common.BaseModel):
+    """Config for deleting a RAG File."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class DeleteRagFileConfigDict(TypedDict, total=False):
+    """Config for deleting a RAG File."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+DeleteRagFileConfigOrDict = Union[DeleteRagFileConfig, DeleteRagFileConfigDict]
+
+
+class _DeleteRagFileRequestParameters(_common.BaseModel):
+    """Parameters for deleting a RAG File."""
+
+    corpus_id: Optional[str] = Field(default=None, description="""""")
+    file_id: Optional[str] = Field(default=None, description="""""")
+    config: Optional[DeleteRagFileConfig] = Field(default=None, description="""""")
+
+
+class _DeleteRagFileRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a RAG File."""
+
+    corpus_id: Optional[str]
+    """"""
+
+    file_id: Optional[str]
+    """"""
+
+    config: Optional[DeleteRagFileConfigDict]
+    """"""
+
+
+_DeleteRagFileRequestParametersOrDict = Union[
+    _DeleteRagFileRequestParameters, _DeleteRagFileRequestParametersDict
+]
+
+
+class DeleteRagFileOperation(_common.BaseModel):
+    """Operation for deleting a RAG File."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteRagFileOperationDict(TypedDict, total=False):
+    """Operation for deleting a RAG File."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteRagFileOperationOrDict = Union[DeleteRagFileOperation, DeleteRagFileOperationDict]
+
+
+class UpdateRagConfig(_common.BaseModel):
+    """Config for updating a RAG Config."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class UpdateRagConfigDict(TypedDict, total=False):
+    """Config for updating a RAG Config."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+UpdateRagConfigOrDict = Union[UpdateRagConfig, UpdateRagConfigDict]
+
+
+class _UpdateRagConfigRequestParameters(_common.BaseModel):
+    """Parameters for updating a RAG Config."""
+
+    updated_config: Optional[RagEngineConfig] = Field(default=None, description="""""")
+    config: Optional[UpdateRagConfig] = Field(default=None, description="""""")
+
+
+class _UpdateRagConfigRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a RAG Config."""
+
+    updated_config: Optional[RagEngineConfigDict]
+    """"""
+
+    config: Optional[UpdateRagConfigDict]
+    """"""
+
+
+_UpdateRagConfigRequestParametersOrDict = Union[
+    _UpdateRagConfigRequestParameters, _UpdateRagConfigRequestParametersDict
+]
+
+
+class UpdateRagConfigOperation(_common.BaseModel):
+    """Operation for updating a RAG Config."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class UpdateRagConfigOperationDict(TypedDict, total=False):
+    """Operation for updating a RAG Config."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+UpdateRagConfigOperationOrDict = Union[
+    UpdateRagConfigOperation, UpdateRagConfigOperationDict
+]
 
 
 class RetrieveContextsConfig(_common.BaseModel):

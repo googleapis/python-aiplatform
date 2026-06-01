@@ -57,6 +57,8 @@ from .common import _DeleteDatasetRequestParameters
 from .common import _DeleteEvaluationMetricParameters
 from .common import _DeleteMultimodalDatasetRequestParameters
 from .common import _DeletePromptVersionRequestParameters
+from .common import _DeleteRagCorpusRequestParameters
+from .common import _DeleteRagFileRequestParameters
 from .common import _DeleteSandboxEnvironmentSnapshotRequestParameters
 from .common import _DeleteSandboxEnvironmentTemplateRequestParameters
 from .common import _DeleteSkillRequestParameters
@@ -140,6 +142,8 @@ from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
 from .common import _UpdateDatasetParameters
 from .common import _UpdateMultimodalDatasetParameters
+from .common import _UpdateRagConfigRequestParameters
+from .common import _UpdateRagCorpusRequestParameters
 from .common import _UpdateSkillRequestParameters
 from .common import A2aTask
 from .common import A2aTaskDict
@@ -412,6 +416,18 @@ from .common import DeletePromptOperationOrDict
 from .common import DeletePromptVersionOperation
 from .common import DeletePromptVersionOperationDict
 from .common import DeletePromptVersionOperationOrDict
+from .common import DeleteRagCorpusConfig
+from .common import DeleteRagCorpusConfigDict
+from .common import DeleteRagCorpusConfigOrDict
+from .common import DeleteRagCorpusOperation
+from .common import DeleteRagCorpusOperationDict
+from .common import DeleteRagCorpusOperationOrDict
+from .common import DeleteRagFileConfig
+from .common import DeleteRagFileConfigDict
+from .common import DeleteRagFileConfigOrDict
+from .common import DeleteRagFileOperation
+from .common import DeleteRagFileOperationDict
+from .common import DeleteRagFileOperationOrDict
 from .common import DeleteSandboxEnvironmentSnapshotConfig
 from .common import DeleteSandboxEnvironmentSnapshotConfigDict
 from .common import DeleteSandboxEnvironmentSnapshotConfigOrDict
@@ -1665,6 +1681,18 @@ from .common import UpdateAgentEngineSessionConfigOrDict
 from .common import UpdatePromptConfig
 from .common import UpdatePromptConfigDict
 from .common import UpdatePromptConfigOrDict
+from .common import UpdateRagConfig
+from .common import UpdateRagConfigDict
+from .common import UpdateRagConfigOperation
+from .common import UpdateRagConfigOperationDict
+from .common import UpdateRagConfigOperationOrDict
+from .common import UpdateRagConfigOrDict
+from .common import UpdateRagCorpusConfig
+from .common import UpdateRagCorpusConfigDict
+from .common import UpdateRagCorpusConfigOrDict
+from .common import UpdateRagCorpusOperation
+from .common import UpdateRagCorpusOperationDict
+from .common import UpdateRagCorpusOperationOrDict
 from .common import UpdateSkillConfig
 from .common import UpdateSkillConfigDict
 from .common import UpdateSkillConfigOrDict
@@ -2654,6 +2682,30 @@ __all__ = [
     "RagEngineConfig",
     "RagEngineConfigDict",
     "RagEngineConfigOrDict",
+    "UpdateRagCorpusConfig",
+    "UpdateRagCorpusConfigDict",
+    "UpdateRagCorpusConfigOrDict",
+    "UpdateRagCorpusOperation",
+    "UpdateRagCorpusOperationDict",
+    "UpdateRagCorpusOperationOrDict",
+    "DeleteRagCorpusConfig",
+    "DeleteRagCorpusConfigDict",
+    "DeleteRagCorpusConfigOrDict",
+    "DeleteRagCorpusOperation",
+    "DeleteRagCorpusOperationDict",
+    "DeleteRagCorpusOperationOrDict",
+    "DeleteRagFileConfig",
+    "DeleteRagFileConfigDict",
+    "DeleteRagFileConfigOrDict",
+    "DeleteRagFileOperation",
+    "DeleteRagFileOperationDict",
+    "DeleteRagFileOperationOrDict",
+    "UpdateRagConfig",
+    "UpdateRagConfigDict",
+    "UpdateRagConfigOrDict",
+    "UpdateRagConfigOperation",
+    "UpdateRagConfigOperationDict",
+    "UpdateRagConfigOperationOrDict",
     "RetrieveContextsConfig",
     "RetrieveContextsConfigDict",
     "RetrieveContextsConfigOrDict",
@@ -3263,6 +3315,10 @@ __all__ = [
     "_GetRagFileRequestParameters",
     "_ListRagFilesRequestParameters",
     "_GetRagConfigRequestParameters",
+    "_UpdateRagCorpusRequestParameters",
+    "_DeleteRagCorpusRequestParameters",
+    "_DeleteRagFileRequestParameters",
+    "_UpdateRagConfigRequestParameters",
     "_RetrieveRagContextsRequestParameters",
     "_GetAgentEngineRuntimeRevisionRequestParameters",
     "_ListAgentEngineRuntimeRevisionsRequestParameters",
