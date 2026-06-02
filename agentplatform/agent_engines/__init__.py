@@ -46,6 +46,9 @@ from agentplatform.agent_engines.templates.langchain import (
 from agentplatform.agent_engines.templates.langgraph import (
     LanggraphAgent,
 )
+from agentplatform.agent_engines.templates.llama_index import (
+    LlamaIndexQueryPipelineAgent,
+)
 
 
 _LOGGER = base.Logger(__name__)
@@ -421,4 +424,5 @@ __all__ = (
     "LangchainAgent",
     "LanggraphAgent",
     "AG2Agent",
+    "LlamaIndexQueryPipelineAgent",
 )

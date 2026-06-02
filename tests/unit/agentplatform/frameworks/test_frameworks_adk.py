@@ -91,6 +91,83 @@ _TEST_RUN_CONFIG = {
     "streaming_mode": "sse",
     "max_llm_calls": 500,
 }
+_TEST_SESSION_EVENTS = [
+    {
+        "author": "user",
+        "content": {
+            "parts": [
+                {
+                    "text": "What is the exchange rate from US dollars to "
+                    "Swedish krona on 2025-09-25?"
+                }
+            ],
+            "role": "user",
+        },
+        "id": "8967297909049524224",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.629513,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionCall": {
+                        "args": {
+                            "currency_date": "2025-09-25",
+                            "currency_from": "USD",
+                            "currency_to": "SEK",
+                        },
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                    }
+                }
+            ],
+            "role": "model",
+        },
+        "id": "3155402589927899136",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.723713,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionResponse": {
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                        "response": {
+                            "amount": 1,
+                            "base": "USD",
+                            "date": "2025-09-25",
+                            "rates": {"SEK": 9.4118},
+                        },
+                    }
+                }
+            ],
+            "role": "user",
+        },
+        "id": "1678221912150376448",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.764961,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "text": "The exchange rate from US dollars to Swedish "
+                    "krona on 2025-09-25 is 1 USD to 9.4118 SEK."
+                }
+            ],
+            "role": "model",
+        },
+        "id": "2470855446567583744",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.853299,
+    },
+]
 _TEST_STAGING_BUCKET = "gs://test-bucket"
 _TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
 _TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
@@ -349,8 +426,16 @@ class TestAdkApp:
     ):
         app = adk_template.AdkApp(agent=_TEST_AGENT)
         assert app._tmpl_attrs.get("runner") is None
+        assert app._tmpl_attrs.get("session_service") is None
+        assert app._tmpl_attrs.get("artifact_service") is None
+        assert app._tmpl_attrs.get("memory_service") is None
+        assert app._tmpl_attrs.get("credential_service") is None
         app.set_up()
         assert app._tmpl_attrs.get("runner") is not None
+        assert app._tmpl_attrs.get("session_service") is not None
+        assert app._tmpl_attrs.get("artifact_service") is not None
+        assert app._tmpl_attrs.get("memory_service") is not None
+        assert app._tmpl_attrs.get("credential_service") is not None
 
     def test_clone(
         self,
@@ -430,6 +515,51 @@ class TestAdkApp:
         ):
             events.append(event)
         assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_empty_session_events(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=[],
+            message="test message",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_session_events(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=_TEST_SESSION_EVENTS,
+            message="on the day after that?",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
 
     @pytest.mark.asyncio
     @mock.patch.dict(
@@ -645,6 +775,54 @@ class TestAdkApp:
         app.delete_session(user_id=_TEST_USER_ID, session_id=session["id"])
         response0 = app.list_sessions(user_id=_TEST_USER_ID)
         assert not response0.sessions
+
+    @pytest.mark.asyncio
+    async def test_async_add_session_to_memory(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("memory_service") is None
+        session = app.create_session(user_id=_TEST_USER_ID)
+        app._tmpl_attrs["runner"] = _MockRunner()
+
+        from google.adk.events.event import Event
+
+        session_obj = await app._tmpl_attrs["session_service"].get_session(
+            app_name=app._app_name(),
+            user_id=_TEST_USER_ID,
+            session_id=session["id"],
+        )
+        await app._tmpl_attrs["session_service"].append_event(
+            session=session_obj,
+            event=Event(
+                author="user",
+                content={
+                    "parts": [{"text": "My cat's name is Garfield"}],
+                    "role": "user",
+                },
+            ),
+        )
+
+        list(
+            app.stream_query(
+                user_id=_TEST_USER_ID,
+                session_id=session["id"],
+                message="My cat's name is Garfield",
+            )
+        )
+        await app.async_add_session_to_memory(
+            session=app.get_session(
+                user_id=_TEST_USER_ID,
+                session_id=session["id"],
+            )
+        )
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert len(response.memories) >= 1
 
     @pytest.mark.asyncio
     async def test_async_add_session_to_memory_dict(
@@ -984,6 +1162,14 @@ class TestAdkAppErrors:
                 session_id="test_session_id",
             )
 
+    def test_stream_query_invalid_message_type(self):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        with pytest.raises(
+            TypeError,
+            match="message must be a string or a dictionary representing a Content object.",
+        ):
+            list(app.stream_query(user_id=_TEST_USER_ID, message=123))
+
     @pytest.mark.asyncio
     async def test_async_stream_query_invalid_message_type(self):
         app = adk_template.AdkApp(agent=_TEST_AGENT)
@@ -1209,6 +1395,11 @@ class TestAgentEngines:
 
 class TestAdkAppMtls:
     """Test cases for mTLS functionality in AdkApp."""
+
+    def setup_method(self):
+        import opentelemetry.trace
+
+        opentelemetry.trace._TRACER_PROVIDER = None
 
     def test_use_client_cert_effective_with_should_use_client_cert(self):
         """Verifies that it respects the google-auth mTLS enablement check."""
