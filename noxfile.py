@@ -109,6 +109,7 @@ nox.options.sessions = [
     "unit_agentplatform_adk",
     "unit_agentplatform_langchain",
     "unit_agentplatform_ag2",
+    "unit_agentplatform_llama_index",
     "system",
     "cover",
     "lint",
@@ -389,6 +390,40 @@ def unit_agentplatform_ag2(session):
         "--cov-fail-under=0",
         os.path.join(
             "tests", "unit", "agentplatform", "frameworks", "test_frameworks_ag2.py"
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
+def unit_agentplatform_llama_index(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(
+        CURRENT_DIRECTORY / "testing" / "constraints-llama-index.txt"
+    )
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install llama_index extras
+    session.install("-e", ".[llama_index_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_llama_index_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests",
+            "unit",
+            "agentplatform",
+            "frameworks",
+            "test_frameworks_llama_index.py",
         ),
         *session.posargs,
     )
