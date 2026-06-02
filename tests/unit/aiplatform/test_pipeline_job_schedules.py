@@ -461,10 +461,10 @@ class TestPipelineJobSchedule:
 
         # time.time: first call sets previous_time=0; second gives 10 → triggers log (10 >= 5)
         time_vals = iter([0.0, 10.0, 20.0])
-        with mock.patch(
-            "google.cloud.aiplatform.schedules.time.time", side_effect=time_vals
-        ), mock.patch(
-            "google.cloud.aiplatform.schedules.time.sleep"
+        with mock.patch.object(
+            aiplatform_schedules.time, "time", side_effect=time_vals
+        ), mock.patch.object(
+            aiplatform_schedules.time, "sleep"
         ), mock.patch.object(
             aiplatform_schedules._LOGGER,
             "info",
