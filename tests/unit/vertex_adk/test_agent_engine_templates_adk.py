@@ -508,6 +508,72 @@ class TestAdkApp:
         assert len(events) == 1
 
     @pytest.mark.asyncio
+    async def test_streaming_agent_run_with_events_existing_session(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+
+        # Pre-create a session in the real in-memory session service
+        await app.async_create_session(
+            user_id=_TEST_USER_ID, session_id="test_session_id"
+        )
+
+        # Mock the main runner
+        runner_mock = mock.Mock()
+
+        # Define an async generator for run_async mock return value
+        async def mock_run_async(*args, **kwargs):
+            from google.adk.events import event
+            yield event.Event(
+                **{
+                    "author": "currency_exchange_agent",
+                    "content": {
+                        "parts": [{"text": "Sweden"}],
+                        "role": "model",
+                    },
+                    "id": "9aaItGK9",
+                    "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+                }
+            )
+
+        spy = mock.MagicMock(side_effect=mock_run_async)
+        runner_mock.run_async = spy
+        app._tmpl_attrs["runner"] = runner_mock
+
+        request_json = json.dumps(
+            {
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "session_id": "test_session_id",
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+
+        events = []
+        async for event in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            events.append(event)
+
+        assert len(events) == 1
+
+        # Assert that run_async was called with the expected state_delta!
+        spy.assert_called_once_with(
+            user_id=_TEST_USER_ID,
+            session_id="test_session_id",
+            new_message=mock.ANY,
+            state_delta={"test_user_id1": "test_access_token"},
+        )
+
+    @pytest.mark.asyncio
     @mock.patch.dict(
         os.environ,
         {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
