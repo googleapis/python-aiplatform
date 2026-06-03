@@ -38,6 +38,21 @@ def test_create_rag_corpus_private(client):
     assert isinstance(corpus_op, types.CreateRagCorpusOperation)
 
 
+def test_create_rag_corpus(client):
+
+    corpus_description = "My Test Corpus Description"
+
+    corpus = client.rag.create_corpus(
+        rag_corpus=types.RagCorpus(
+            display_name="My Test Corpus",
+            description=corpus_description,
+        ),
+    )
+
+    assert isinstance(corpus, types.RagCorpus)
+    assert corpus.description == corpus_description
+
+
 pytest_plugins = ("pytest_asyncio",)
 
 
@@ -52,3 +67,19 @@ async def test_create_rag_corpus_private_async(client):
     )
 
     assert isinstance(corpus_op, types.CreateRagCorpusOperation)
+
+
+@pytest.mark.asyncio
+async def test_create_rag_corpus_async(client):
+
+    corpus_description = "My Test Corpus Description"
+
+    corpus = await client.aio.rag.create_corpus(
+        rag_corpus=types.RagCorpus(
+            display_name="My Test Corpus",
+            description=corpus_description,
+        ),
+    )
+
+    assert isinstance(corpus, types.RagCorpus)
+    assert corpus.description == corpus_description

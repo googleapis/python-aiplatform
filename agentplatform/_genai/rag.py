@@ -26,6 +26,7 @@ from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
+from . import _operations_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.rag")
@@ -44,6 +45,33 @@ def _AskContextsRequestParameters_to_vertex(
 
     if getv(from_object, ["tools"]) is not None:
         setv(to_object, ["tools"], getv(from_object, ["tools"]))
+
+    return to_object
+
+
+def _CorpusOperation_from_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(to_object, ["metadata"], getv(from_object, ["metadata"]))
+
+    if getv(from_object, ["done"]) is not None:
+        setv(to_object, ["done"], getv(from_object, ["done"]))
+
+    if getv(from_object, ["error"]) is not None:
+        setv(to_object, ["error"], getv(from_object, ["error"]))
+
+    if getv(from_object, ["response"]) is not None:
+        setv(
+            to_object,
+            ["response"],
+            _RagCorpus_from_vertex(getv(from_object, ["response"]), to_object),
+        )
 
     return to_object
 
@@ -93,6 +121,19 @@ def _DeleteRagFileRequestParameters_to_vertex(
 
     if getv(from_object, ["config"]) is not None:
         setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _GetCorpusOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operationName"], getv(from_object, ["operation_name"])
+        )
 
     return to_object
 
@@ -542,6 +583,77 @@ class Rag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.CreateRagCorpusOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_corpus_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetCorpusOperationConfigOrDict] = None,
+    ) -> types.CorpusOperation:
+        parameter_model = types._GetCorpusOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetCorpusOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CorpusOperation_from_vertex(response_dict)
+
+        return_value = types.CorpusOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -1293,6 +1405,34 @@ class Rag(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def create_corpus(
+        self,
+        *,
+        rag_corpus: types.RagCorpusOrDict,
+        config: Optional[types.CreateRagCorpusConfigOrDict] = None,
+    ) -> types.RagCorpus:
+        """
+        Creates a new Rag Corpus and waits for completion.
+
+        Args:
+          rag_corpus: The RagCorpus to create.
+          config: The configuration to use for the RagCorpus.
+
+        Returns:
+          The created RagCorpus.
+        """
+        operation = self._create_corpus(rag_corpus=rag_corpus, config=config)
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_corpus_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(f"Failed to create RagCorpus: {operation.error}")
+
+        return self.get_corpus(name=operation.response.name)
+
 
 class AsyncRag(_api_module.BaseModule):
 
@@ -1423,6 +1563,79 @@ class AsyncRag(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.CreateRagCorpusOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_corpus_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetCorpusOperationConfigOrDict] = None,
+    ) -> types.CorpusOperation:
+        parameter_model = types._GetCorpusOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetCorpusOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operationName}".format_map(request_url_dict)
+            else:
+                path = "{operationName}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        if self._api_client.vertexai:
+            response_dict = _CorpusOperation_from_vertex(response_dict)
+
+        return_value = types.CorpusOperation._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -2193,3 +2406,31 @@ class AsyncRag(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    async def create_corpus(
+        self,
+        *,
+        rag_corpus: types.RagCorpusOrDict,
+        config: Optional[types.CreateRagCorpusConfigOrDict] = None,
+    ) -> types.RagCorpus:
+        """
+        Creates a new Rag Corpus and waits for completion asynchronously.
+
+        Args:
+          rag_corpus: The RagCorpus to create.
+          config: The configuration to use for the RagCorpus.
+
+        Returns:
+          The created RagCorpus.
+        """
+        operation = await self._create_corpus(rag_corpus=rag_corpus, config=config)
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self._get_corpus_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(f"Failed to create RagCorpus: {operation.error}")
+
+        return await self.get_corpus(name=operation.response.name)
