@@ -84,15 +84,17 @@ class AgentConfig(_common.BaseModel):
         """
         tool_declarations: genai_types.ToolListUnion = []
         for tool in agent.tools:
-            # ADK tools (e.g. AgentTool) provide their own declaration via
-            # _get_declaration(). Use it when available to avoid calling
-            # typing.get_type_hints() on tool instances whose classes use
-            # `from __future__ import annotations`, which causes NameError.
+            # ADK tools (e.g. AgentTool, VertexAiSearchTool) own their declaration
+            # via _get_declaration(). A None result means the tool has no function
+            # declaration (e.g. built-in retrieval tools). In both cases, skip the
+            # plain-callable path, which calls typing.get_type_hints() on the
+            # instance and raises NameError for classes using
+            # `from __future__ import annotations`.
             if hasattr(tool, "_get_declaration") and callable(tool._get_declaration):
                 declaration = tool._get_declaration()
                 if declaration is not None:
                     tool_declarations.append({"function_declarations": [declaration]})
-                    continue
+                continue
 
             tool_declarations.append(
                 {

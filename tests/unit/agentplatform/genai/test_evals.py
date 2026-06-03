@@ -3680,7 +3680,7 @@ class TestEvalsRunInference:
         assert mock_session_service.call_count == 2
         mock_runner.assert_called_with(
             agent=mock_agent_instance,
-            app_name="local agent run",
+            app_name="local_agent_run",
             session_service=mock_session_service.return_value,
         )
         assert mock_runner.call_count == 2
@@ -3794,6 +3794,10 @@ class TestEvalsRunInference:
         )
         assert inference_result.candidate_name == "mock_agent"
         assert inference_result.gcs_source is None
+
+    def test_local_agent_run_default_app_name_is_valid(self):
+        """Default app_name must satisfy ADK 2.x's app name validation regex."""
+        assert re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_-]*", "local_agent_run")
 
     def test_run_inference_with_litellm_string_prompt_format(
         self,
@@ -5850,8 +5854,8 @@ class TestAgentInfo:
         ]
         mock_from_callable.assert_called_once_with(callable=my_plain_tool)
 
-    def test_load_from_agent_with_none_declaration_falls_back(self):
-        """Tests that tools returning None from _get_declaration fall back to from_callable."""
+    def test_load_from_agent_with_none_declaration_is_skipped(self):
+        """Tools whose _get_declaration() returns None are skipped, not introspected."""
         mock_tool = mock.Mock()
         mock_tool._get_declaration = mock.Mock(return_value=None)
         mock_tool.__name__ = "mock_tool"
@@ -5867,19 +5871,38 @@ class TestAgentInfo:
         with mock.patch.object(
             genai_types.FunctionDeclaration, "from_callable_with_api_option"
         ) as mock_from_callable:
-            mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
-            mock_from_callable.return_value = mock_callable_declaration
-
             agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
                 agent=mock_agent,
             )
 
-            assert len(agent_info.agents["mock_agent"].tools) == 1
-            assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
-                mock_callable_declaration
-            ]
+            assert agent_info.agents["mock_agent"].tools == []
             mock_tool._get_declaration.assert_called_once()
-            mock_from_callable.assert_called_once_with(callable=mock_tool)
+            mock_from_callable.assert_not_called()
+
+    def test_load_from_agent_none_declaration_skips_get_type_hints(self):
+        """A None-returning native tool must not trigger get_type_hints (NameError repro)."""
+
+        class _BuiltinTool:
+            def _get_declaration(self):
+                return None
+
+            def run(self, query: "Optional[str]" = None):  # noqa: F821
+                return query
+
+        builtin_tool = _BuiltinTool()
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [builtin_tool]
+        mock_agent.sub_agents = []
+
+        agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+        )
+
+        assert agent_info.agents["mock_agent"].tools == []
 
 
 class TestValidateDatasetAgentData:

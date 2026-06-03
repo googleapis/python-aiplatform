@@ -2334,10 +2334,10 @@ async def _execute_local_agent_run_with_retry_async(
     if "session_inputs" in row.index and row.get("session_inputs") is not None:
         session_inputs = _get_session_inputs(row)
         user_id = session_inputs.user_id or str(uuid.uuid4())
-        app_name = session_inputs.app_name or "local agent run"
+        app_name = session_inputs.app_name or "local_agent_run"
     else:
         user_id = str(uuid.uuid4())
-        app_name = "local agent run"
+        app_name = "local_agent_run"
     session_id = str(uuid.uuid4())
 
     session_service = InMemorySessionService()
