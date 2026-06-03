@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.156.0](https://github.com/googleapis/python-aiplatform/compare/v1.155.0...v1.156.0) (2026-06-03)
+
+
+### Features
+
+* GenAI SDK client - add rag.create_corpus() method ([a76a4b6](https://github.com/googleapis/python-aiplatform/commit/a76a4b6da5b76aaebec8b94162566b74eec770d2))
+
+
+### Bug Fixes
+
+* Update agent engine utils in vertex_ai and agentplatform to support python-a2a sdk 1.0 ([2faf725](https://github.com/googleapis/python-aiplatform/commit/2faf725c2220d42b141c97e8541143cc1c33579a))
+
 ## [1.155.0](https://github.com/googleapis/python-aiplatform/compare/v1.154.0...v1.155.0) (2026-06-02)
 
 
