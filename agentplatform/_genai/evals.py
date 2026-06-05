@@ -2659,6 +2659,11 @@ class Evals(_api_module.BaseModule):
               The key is the candidate name, and the value is the inference config.
               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
+              The `model` field of an inference config accepts a short Gemini model
+              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+              fully-qualified resource name using the client's project and location,
+              or an already fully-qualified publisher-model or endpoint resource
+              name.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
@@ -4448,6 +4453,11 @@ class AsyncEvals(_api_module.BaseModule):
               The key is the candidate name, and the value is the inference config.
               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
+              The `model` field of an inference config accepts a short Gemini model
+              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+              fully-qualified resource name using the client's project and location,
+              or an already fully-qualified publisher-model or endpoint resource
+              name.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           red_teaming_config: This field is experimental and may change in future

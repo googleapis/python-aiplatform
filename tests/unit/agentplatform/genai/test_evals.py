@@ -228,6 +228,81 @@ class TestGetApiClientWithLocation:
         mock_agentplatform_client.assert_not_called()
 
 
+class TestNormalizeInferenceModelName:
+    _FQ_PREFIX = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+
+    def test_short_gemini_name_expanded(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "gemini-2.5-flash", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash")
+
+    def test_location_less_publisher_path_prepended(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "publishers/google/models/gemini-2.5-flash", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash")
+
+    def test_third_party_publisher_path_prepended(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "publishers/anthropic/models/claude-sonnet", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/anthropic/models/claude-sonnet")
+
+    def test_endpoint_path_prepended(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "endpoints/123", mock_api_client_fixture
+        )
+        assert result == f"{self._FQ_PREFIX}endpoints/123"
+
+    def test_models_path_canonicalized(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "models/gemini-2.5-flash", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash")
+
+    def test_fully_qualified_name_unchanged(self, mock_api_client_fixture):
+        fq = f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash"
+        assert (
+            _evals_common._normalize_inference_model_name(fq, mock_api_client_fixture)
+            == fq
+        )
+
+    def test_empty_model_unchanged(self, mock_api_client_fixture):
+        assert (
+            _evals_common._normalize_inference_model_name("", mock_api_client_fixture)
+            == ""
+        )
+
+    def test_missing_project_or_location_raises(self, mock_api_client_fixture):
+        mock_api_client_fixture.location = None
+        with pytest.raises(ValueError, match="missing a project or location"):
+            _evals_common._normalize_inference_model_name(
+                "gemini-2.5-flash", mock_api_client_fixture
+            )
+
+    def test_unrecognized_model_raises(self, mock_api_client_fixture):
+        with pytest.raises(ValueError, match="Unrecognized model name"):
+            _evals_common._normalize_inference_model_name(
+                "not/a/valid/model", mock_api_client_fixture
+            )
+
+    def test_resolve_inference_configs_normalizes_model(self, mock_api_client_fixture):
+        inference_configs = {
+            "candidate-1": agentplatform_genai_types.EvaluationRunInferenceConfig(
+                model="gemini-2.5-flash"
+            )
+        }
+        result = _evals_common._resolve_inference_configs(
+            mock_api_client_fixture,
+            common_types.EvaluationRunDataSource(),
+            inference_configs,
+        )
+        assert result["candidate-1"].model == (
+            f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash"
+        )
+
+
 class TestTransformers:
     """Unit tests for transformers."""
 
