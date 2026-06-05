@@ -4170,3 +4170,362 @@ class TestAsyncAgentEngine:
                 {"_url": {"name": _TEST_AGENT_ENGINE_RESOURCE_NAME}, "force": True},
                 None,
             )
+
+
+class DummyPydanticCard:
+    def model_dump(self, exclude_none=True):
+        return {"name": "pydantic_card"}
+
+    def model_dump_json(self):
+        return '{"name": "pydantic_card"}'
+
+
+class DummyAgentEngine:
+    def __init__(self, card=None, has_card=True):
+        if has_card:
+            self.agent_card = card
+
+    def set_up(self):
+        pass
+
+    def query(self, query: str) -> str:
+        return query
+
+
+class TestAgentEngineGenerateClassMethodsSpec:
+    """Tests Pydantic, Protobuf, and No Card AgentCard serialization in _generate_class_methods_spec_or_raise."""
+
+    def test_pydantic_card_serialization(self):
+        agent_engine = DummyAgentEngine(DummyPydanticCard())
+        with pytest.raises(TypeError) as excinfo:
+            _agent_engines_utils._generate_class_methods_spec_or_raise(
+                agent=agent_engine,
+                operations={"standard": ["query"]},
+            )
+        assert "Unsupported AgentCard type" in str(excinfo.value)
+
+    def test_protobuf_card_serialization(self):
+        from google.protobuf import struct_pb2
+
+        card = struct_pb2.Struct()
+        agent_engine = DummyAgentEngine(card)
+        specs = _agent_engines_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][_agent_engines_utils._A2A_AGENT_CARD] == "{}"
+
+    def test_no_card_serialization(self):
+        agent_engine = DummyAgentEngine(has_card=False)
+        specs = _agent_engines_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert _agent_engines_utils._A2A_AGENT_CARD not in specs[0]
+
+    def test_none_card_serialization(self):
+        agent_engine = DummyAgentEngine(None)
+        specs = _agent_engines_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert _agent_engines_utils._A2A_AGENT_CARD not in specs[0]
+
+    def test_unsupported_card_serialization_raises_type_error(self):
+        agent_engine = DummyAgentEngine({"unsupported": "type"})
+        with pytest.raises(TypeError) as excinfo:
+            _agent_engines_utils._generate_class_methods_spec_or_raise(
+                agent=agent_engine,
+                operations={"standard": ["query"]},
+            )
+        assert "Unsupported AgentCard type" in str(excinfo.value)
+
+
+class TestVertexAIAgentEngineGenerateClassMethodsSpec:
+    """Tests Pydantic, Protobuf, and No Card AgentCard serialization in vertexai namespace _generate_class_methods_spec_or_raise."""
+
+    def test_pydantic_card_serialization(self):
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+
+        agent_engine = DummyAgentEngine(DummyPydanticCard())
+        specs = vertexai_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][vertexai_utils._A2A_AGENT_CARD] == '{"name": "pydantic_card"}'
+
+    def test_protobuf_card_serialization(self):
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+        from google.protobuf import struct_pb2
+
+        card = struct_pb2.Struct()
+        agent_engine = DummyAgentEngine(card)
+        specs = vertexai_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert specs[0][vertexai_utils._A2A_AGENT_CARD] == "{}"
+
+    def test_no_card_serialization(self):
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+
+        agent_engine = DummyAgentEngine(has_card=False)
+        specs = vertexai_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert vertexai_utils._A2A_AGENT_CARD not in specs[0]
+
+    def test_none_card_serialization(self):
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+
+        agent_engine = DummyAgentEngine(None)
+        specs = vertexai_utils._generate_class_methods_spec_or_raise(
+            agent=agent_engine,
+            operations={"standard": ["query"]},
+        )
+        assert len(specs) == 1
+        assert vertexai_utils._A2A_AGENT_CARD not in specs[0]
+
+    def test_unsupported_card_serialization_raises_type_error(self):
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+
+        agent_engine = DummyAgentEngine({"unsupported": "type"})
+        with pytest.raises(TypeError) as excinfo:
+            vertexai_utils._generate_class_methods_spec_or_raise(
+                agent=agent_engine,
+                operations={"standard": ["query"]},
+            )
+        assert "Unsupported AgentCard type" in str(excinfo.value)
+
+
+class TestAgentEnginesCreateConfigAgentCard:
+    """Tests polymorphic AgentCard serialization in agentplatform _create_config."""
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_pydantic_card(self, mock_prepare):
+        class DummyPydanticCard:
+            def model_dump(self, exclude_none=True):
+                return {"name": "pydantic_card"}
+
+            def model_dump_json(self):
+                return '{"name": "pydantic_card"}'
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        agent = CapitalizeEngineWithCard(DummyPydanticCard())
+        client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        with pytest.raises(TypeError) as excinfo:
+            client.agent_engines._create_config(
+                mode="create",
+                agent=agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+        assert "Unsupported AgentCard type" in str(excinfo.value)
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_protobuf_card(self, mock_prepare):
+        from google.protobuf import struct_pb2
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        card = struct_pb2.Struct()
+        card["key"] = "val"
+        agent = CapitalizeEngineWithCard(card)
+        client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        config = client.agent_engines._create_config(
+            mode="create",
+            agent=agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
+        assert config["spec"]["agent_card"] == {"key": "val"}
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_unsupported_card_raises_type_error(self, mock_prepare):
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        agent = CapitalizeEngineWithCard("unsupported_string_type")
+        client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        with pytest.raises(TypeError) as excinfo:
+            client.agent_engines._create_config(
+                mode="create",
+                agent=agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+        assert "Unsupported AgentCard type" in str(excinfo.value)
+
+
+class TestVertexAIAgentEnginesCreateConfigAgentCard:
+    """Tests polymorphic AgentCard serialization in vertexai namespace _create_config."""
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_pydantic_card(self, mock_prepare):
+        import vertexai as vertexai_sdk
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+
+        class DummyPydanticCard:
+            def model_dump(self, exclude_none=True):
+                return {"name": "pydantic_card"}
+
+            def model_dump_json(self):
+                return '{"name": "pydantic_card"}'
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        with mock.patch.object(vertexai_utils, "_prepare"):
+            agent = CapitalizeEngineWithCard(DummyPydanticCard())
+            client = vertexai_sdk.Client(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+            )
+            config = client.agent_engines._create_config(
+                mode="create",
+                agent=agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+            assert config["spec"]["agent_card"] == {"name": "pydantic_card"}
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_protobuf_card(self, mock_prepare):
+        import vertexai as vertexai_sdk
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+        from google.protobuf import struct_pb2
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        with mock.patch.object(vertexai_utils, "_prepare"):
+            card = struct_pb2.Struct()
+            card["key"] = "val"
+            agent = CapitalizeEngineWithCard(card)
+            client = vertexai_sdk.Client(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+            )
+            config = client.agent_engines._create_config(
+                mode="create",
+                agent=agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+            assert config["spec"]["agent_card"] == {"key": "val"}
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_unsupported_card_raises_type_error(self, mock_prepare):
+        import vertexai as vertexai_sdk
+        from vertexai._genai import (
+            _agent_engines_utils as vertexai_utils,
+        )
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        with mock.patch.object(vertexai_utils, "_prepare"):
+            agent = CapitalizeEngineWithCard("unsupported_string_type")
+            client = vertexai_sdk.Client(
+                project=_TEST_PROJECT,
+                location=_TEST_LOCATION,
+                credentials=_TEST_CREDENTIALS,
+            )
+            with pytest.raises(TypeError) as excinfo:
+                client.agent_engines._create_config(
+                    mode="create",
+                    agent=agent,
+                    staging_bucket=_TEST_STAGING_BUCKET,
+                )
+            assert "Unsupported AgentCard type" in str(excinfo.value)
+
+
+class TestAgentEnginesCreateConfigRealAgentCard:
+    """Tests polymorphic AgentCard serialization in agentplatform _create_config utilizing real Pydantic and Protobuf structures."""
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_real_pydantic_card(self, mock_prepare):
+        import pydantic
+
+        class RealPydanticCard(pydantic.BaseModel):
+            name: str = "real_pydantic_card_instance"
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        agent = CapitalizeEngineWithCard(RealPydanticCard())
+        client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        with pytest.raises(TypeError) as excinfo:
+            client.agent_engines._create_config(
+                mode="create",
+                agent=agent,
+                staging_bucket=_TEST_STAGING_BUCKET,
+            )
+        assert "Unsupported AgentCard type" in str(excinfo.value)
+
+    @mock.patch.object(_agent_engines_utils, "_prepare")
+    def test_create_config_with_real_protobuf_card(self, mock_prepare):
+        from google.protobuf import struct_pb2
+
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        card = struct_pb2.Struct()
+        card["name"] = "real_protobuf_card_instance"
+        agent = CapitalizeEngineWithCard(card)
+        client = agentplatform.Client(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+        )
+        config = client.agent_engines._create_config(
+            mode="create",
+            agent=agent,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
+        assert config["spec"]["agent_card"] == {"name": "real_protobuf_card_instance"}

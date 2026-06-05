@@ -1061,6 +1061,53 @@ class TestAgentEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_agent_engine_with_agent_card(
+        self,
+        create_agent_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        cloudpickle_load_mock,
+        importlib_metadata_version_mock,
+        get_agent_engine_mock,
+        get_gca_resource_mock,
+    ):
+        class CapitalizeEngineWithCard(CapitalizeEngine):
+            def __init__(self, card):
+                self.agent_card = card
+
+        from google.protobuf import struct_pb2
+
+        card = struct_pb2.Struct()
+        card["name"] = "test_agent_card"
+        agent = CapitalizeEngineWithCard(card)
+
+        agent_engines.create(
+            agent,
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_AGENT_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_AGENT_ENGINE_EXTRA_PACKAGE_PATH],
+        )
+
+        expected_reasoning_engine = types.ReasoningEngine(
+            display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+            spec=types.ReasoningEngineSpec(
+                package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+                agent_framework=_agent_engines._DEFAULT_AGENT_FRAMEWORK,
+            ),
+        )
+        from google.protobuf import json_format
+
+        expected_class_method = struct_pb2.Struct()
+        expected_class_method.CopyFrom(_TEST_AGENT_ENGINE_QUERY_SCHEMA)
+        expected_class_method["a2a_agent_card"] = json_format.MessageToJson(card)
+        expected_reasoning_engine.spec.class_methods.append(expected_class_method)
+
+        create_agent_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=expected_reasoning_engine,
+        )
+
     def test_create_agent_engine_requirements_from_file(
         self,
         create_agent_engine_mock,

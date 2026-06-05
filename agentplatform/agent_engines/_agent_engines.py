@@ -2005,11 +2005,11 @@ def _generate_class_methods_spec_or_raise(
             class_method[_MODE_KEY_IN_SCHEMA] = mode
             # A2A agent card is a special case, when running in A2A mode,
             if hasattr(agent_engine, "agent_card"):
-                from google.protobuf import json_format
-
-                class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(
-                    getattr(agent_engine, "agent_card")
-                )
+                card = getattr(agent_engine, "agent_card")
+                if card is not None:
+                    class_method[_A2A_AGENT_CARD] = (
+                        _agent_engines_utils._serialize_agent_card_to_json(card)
+                    )
             class_methods_spec.append(class_method)
 
     return class_methods_spec

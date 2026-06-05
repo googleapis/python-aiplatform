@@ -2498,12 +2498,12 @@ class AgentEngines(_api_module.BaseModule):
 
             if hasattr(agent, "agent_card"):
                 agent_card = getattr(agent, "agent_card")
-                if agent_card:
+                if agent_card is not None:
                     try:
-                        from google.protobuf import json_format
-
-                        agent_engine_spec["agent_card"] = json_format.MessageToDict(
-                            agent_card
+                        agent_engine_spec["agent_card"] = (
+                            _agent_engines_utils._serialize_agent_card_to_dict(
+                                agent_card
+                            )
                         )
                     except Exception as e:
                         raise ValueError(
