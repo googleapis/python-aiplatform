@@ -1342,7 +1342,9 @@ def _update_deployment_spec_with_env_vars_dict_or_raise(
     for key, value in env_vars.items():
         if isinstance(value, Dict):
             try:
-                secret_ref = _agent_engines_utils._to_proto(value, aip_types.SecretRef())
+                secret_ref = _agent_engines_utils._to_proto(
+                    value, aip_types.SecretRef()
+                )
             except Exception as e:
                 raise ValueError(f"Failed to convert to secret ref: {value}") from e
             deployment_spec.secret_env.append(

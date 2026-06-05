@@ -16,7 +16,6 @@
 
 import re
 from typing import List, Optional
-import warnings
 
 from google.cloud import aiplatform_v1beta1
 from google.cloud.aiplatform import initializer
