@@ -34,7 +34,7 @@ LINT_PATHS = [
     "docs",
     "google",
     "vertexai",
-    "agentplatform/_genai",
+    "agentplatform",
     "noxfile.py",
     "setup.py",
 ]

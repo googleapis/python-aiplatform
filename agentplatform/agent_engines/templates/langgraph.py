@@ -172,9 +172,13 @@ def _default_instrumentor_builder(project_id: str):
 
     cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
     cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
-    openinference_langchain = _agent_engines_utils._import_openinference_langchain_or_warn()
+    openinference_langchain = (
+        _agent_engines_utils._import_openinference_langchain_or_warn()
+    )
     opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+    opentelemetry_sdk_trace = (
+        _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+    )
     if all(
         (
             cloud_trace_exporter,

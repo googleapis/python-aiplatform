@@ -384,15 +384,21 @@ class LlamaIndexQueryPipelineAgent:
         that can not be serialized.
         """
         if self._enable_tracing:
-            from agentplatform._genai.agent_engines import _agent_engines_utils
+            from agentplatform._genai.agent_engines import (
+                _agent_engines_utils,
+            )
 
-            cloud_trace_exporter = _agent_engines_utils._import_cloud_trace_exporter_or_warn()
+            cloud_trace_exporter = (
+                _agent_engines_utils._import_cloud_trace_exporter_or_warn()
+            )
             cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
             openinference_llama_index = (
                 _agent_engines_utils._import_openinference_llama_index_or_warn()
             )
             opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
-            opentelemetry_sdk_trace = _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+            opentelemetry_sdk_trace = (
+                _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+            )
             if all(
                 (
                     cloud_trace_exporter,
@@ -441,7 +447,9 @@ class LlamaIndexQueryPipelineAgent:
                 # Avoids AttributeError:
                 # 'ProxyTracerProvider' and 'NoOpTracerProvider' objects has no
                 # attribute 'add_span_processor'.
-                if _agent_engines_utils.is_noop_or_proxy_tracer_provider(tracer_provider):
+                if _agent_engines_utils.is_noop_or_proxy_tracer_provider(
+                    tracer_provider
+                ):
                     tracer_provider = opentelemetry_sdk_trace.TracerProvider()
                     opentelemetry.trace.set_tracer_provider(tracer_provider)
                 # Avoids OpenTelemetry client already exists error.
@@ -538,7 +546,9 @@ class LlamaIndexQueryPipelineAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
-        from agentplatform._genai.agent_engines import _agent_engines_utils
+        from agentplatform._genai.agent_engines import (
+            _agent_engines_utils,
+        )
 
         if isinstance(input, str):
             input = {"input": input}
