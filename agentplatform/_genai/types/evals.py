@@ -96,6 +96,15 @@ class AgentConfig(_common.BaseModel):
                     tool_declarations.append({"function_declarations": [declaration]})
                 continue
 
+            # ADK toolsets (e.g. McpToolset, OpenAPIToolset) are containers
+            # whose tools are resolved asynchronously via get_tools(); they
+            # have no _get_declaration() and are not plain callables. The
+            # fallback below would call inspect.signature() on the toolset
+            # instance and raise TypeError, so skip them — their tool
+            # declarations cannot be resolved synchronously here.
+            if hasattr(tool, "get_tools") and callable(tool.get_tools):
+                continue
+
             tool_declarations.append(
                 {
                     "function_declarations": [

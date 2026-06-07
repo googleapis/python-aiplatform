@@ -9733,3 +9733,48 @@ class TestAllowCrossRegionModel:
             request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
             is True
         )
+
+
+class TestAgentConfigToolDeclarations:
+    """Tests for AgentConfig._get_tool_declarations_from_agent."""
+
+    def test_skips_toolsets_without_declaration(self):
+        """ADK toolsets (McpToolset etc.) must be skipped, not introspected.
+
+        Regression test: toolsets have no _get_declaration() and are not
+        plain callables, so the inspect.signature() fallback raised
+        TypeError("<...McpToolset object...> is not a callable object").
+        """
+
+        class _FakeToolset:
+            """Mimics google.adk.tools.BaseToolset: exposes get_tools()."""
+
+            async def get_tools(self, readonly_context=None):
+                return []
+
+        class _FakeDeclarationTool:
+            """Mimics an ADK BaseTool with an explicit declaration."""
+
+            def _get_declaration(self):
+                return genai_types.FunctionDeclaration(name="decl_tool")
+
+        def plain_callable_tool(city: str) -> str:
+            """Returns the weather for a city."""
+            return city
+
+        agent = mock.Mock()
+        agent.tools = [_FakeToolset(), _FakeDeclarationTool(), plain_callable_tool]
+
+        declarations = agentplatform_genai_types.evals.AgentConfig._get_tool_declarations_from_agent(
+            agent
+        )
+
+        # The toolset is skipped; the declaration-bearing tool and the plain
+        # callable are both extracted.
+        assert len(declarations) == 2
+        names = {
+            getattr(fd, "name", None)
+            for decl in declarations
+            for fd in decl["function_declarations"]
+        }
+        assert names == {"decl_tool", "plain_callable_tool"}
