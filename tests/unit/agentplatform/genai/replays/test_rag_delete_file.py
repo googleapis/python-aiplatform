@@ -14,6 +14,8 @@
 #
 """Tests the rag._delete_file() method against the Agent Platform endpoint using replays."""
 
+import pytest
+
 from agentplatform._genai import types
 from tests.unit.agentplatform.genai.replays import pytest_helper
 
@@ -27,8 +29,24 @@ pytestmark = pytest_helper.setup(
 def test_delete_rag_file_private(client):
 
     file_op = client.rag._delete_file(
-        corpus_id="2227030015734710272",
-        file_id="5711059209630117604",
+        name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2227030015734710272/ragFiles/5711059209630117604"
     )
 
     assert isinstance(file_op, types.DeleteRagFileOperation)
+
+
+def test_delete_rag_file(client):
+    client.rag.delete_file(
+        name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/3671559596213796864/ragFiles/5713990948125380655",
+    )
+
+
+pytest_plugins = ("pytest_asyncio",)
+
+
+@pytest.mark.asyncio
+async def test_delete_rag_file_async(client):
+
+    await client.aio.rag.delete_file(
+        name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/3671559596213796864/ragFiles/5713993151049969908",
+    )
