@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.157.0](https://github.com/googleapis/python-aiplatform/compare/v1.156.0...v1.157.0) (2026-06-09)
+
+
+### Features
+
+* GenAI client - Add delete_file and delete_corpus methods to RAG module ([4a594dd](https://github.com/googleapis/python-aiplatform/commit/4a594dd71cf87507be8d7e6cbe30885c9a7387d5))
+* GenAI SDK client(multimodal) - Add `to_batch_job_source` and `get_batch_job_destination` to `MultimodalDataset` ([116b71c](https://github.com/googleapis/python-aiplatform/commit/116b71c2aa6589d04a7a787186285188d7d3fbe7))
+* GenAI SDK client(multimodal) - Implement `create_from_gemini_request_jsonl` in `Datasets` and `AsyncDatasets` classes. ([6e51cdf](https://github.com/googleapis/python-aiplatform/commit/6e51cdfc4e8fbea46d5bd4a2a2323b2e9693c7c2))
+
+
+### Bug Fixes
+
+* Mark async test properly ([a35f155](https://github.com/googleapis/python-aiplatform/commit/a35f155e3e9d9df0f015beae4ae3b5052bcbe79d))
+* Remove authorization handling from ADK preview template ([cb12436](https://github.com/googleapis/python-aiplatform/commit/cb12436e2fe41fb46640d62730795c34b0f0da4f))
+* Verify dedicated endpoint predict_async TLS against the certifi CA bundle ([3b3471a](https://github.com/googleapis/python-aiplatform/commit/3b3471a2dd5d9b8aeb9f9c2dce707633367ec7a6))
+
 ## [1.156.0](https://github.com/googleapis/python-aiplatform/compare/v1.155.0...v1.156.0) (2026-06-03)
 
 
