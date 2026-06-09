@@ -513,9 +513,21 @@ def _resolve_inference_configs(
             else:
                 config.agent_configs = parsed_agent_info.agents
 
-    # Resolve prompt template data
     if inference_configs:
         for inference_config in inference_configs.values():
+            model_val = (
+                inference_config.get("model")
+                if isinstance(inference_config, dict)
+                else inference_config.model
+            )
+            if model_val:
+                normalized_model = _normalize_inference_model_name(
+                    model_val, api_client
+                )
+                if isinstance(inference_config, dict):
+                    inference_config["model"] = normalized_model
+                else:
+                    inference_config.model = normalized_model
             prompt_template_val = (
                 inference_config.get("prompt_template")
                 if isinstance(inference_config, dict)
@@ -909,6 +921,62 @@ def _is_gemini_model(model: str) -> bool:
         or model.startswith("models/")
         or model.startswith("publishers/")
         or model.startswith("tunedModels/")
+    )
+
+
+def _normalize_inference_model_name(model: str, api_client: BaseApiClient) -> str:
+    """Expands a model name to a fully-qualified resource name for inference.
+
+    A short or location-less model name has no serving location for the
+    Evaluation Service to route on, so it is expanded using the client's
+    project and location. Already fully-qualified names pass through. Raises
+    ValueError if the client is missing a project or location, or if the model
+    name is not a recognized Vertex form.
+    """
+    if not model:
+        return model
+
+    if model.startswith("projects/"):
+        return model
+
+    project = getattr(api_client, "project", None)
+    location = getattr(api_client, "location", None)
+    prefix = f"projects/{project}/locations/{location}/"
+
+    def _require_project_location() -> None:
+        if not project or not location:
+            raise ValueError(
+                f"Cannot expand model name '{model}' to a fully-qualified"
+                " resource name because the client is missing a project or"
+                " location. Set project and location on the client, or pass a"
+                " fully-qualified"
+                " 'projects/{project}/locations/{location}/publishers/google/models/{model}'"
+                " resource name."
+            )
+
+    if (
+        model.startswith("publishers/")
+        or model.startswith("endpoints/")
+        or model.startswith("tunedModels/")
+    ):
+        _require_project_location()
+        return f"{prefix}{model}"
+
+    if model.startswith("models/"):
+        _require_project_location()
+        return f"{prefix}publishers/google/{model}"
+
+    if "/" not in model and _is_gemini_model(model):
+        _require_project_location()
+        return f"{prefix}publishers/google/models/{model}"
+
+    raise ValueError(
+        f"Unrecognized model name '{model}'. Provide a Gemini model name (e.g."
+        " 'gemini-2.5-flash'), or a fully-qualified publisher-model or endpoint"
+        " resource name (e.g."
+        " 'projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash'"
+        " or"
+        " 'projects/{project}/locations/{location}/endpoints/{endpoint}')."
     )
 
 
@@ -2334,10 +2402,10 @@ async def _execute_local_agent_run_with_retry_async(
     if "session_inputs" in row.index and row.get("session_inputs") is not None:
         session_inputs = _get_session_inputs(row)
         user_id = session_inputs.user_id or str(uuid.uuid4())
-        app_name = session_inputs.app_name or "local agent run"
+        app_name = session_inputs.app_name or "local_agent_run"
     else:
         user_id = str(uuid.uuid4())
-        app_name = "local agent run"
+        app_name = "local_agent_run"
     session_id = str(uuid.uuid4())
 
     session_service = InMemorySessionService()

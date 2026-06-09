@@ -1,5 +1,42 @@
 # Changelog
 
+## [1.156.0](https://github.com/googleapis/python-aiplatform/compare/v1.155.0...v1.156.0) (2026-06-03)
+
+
+### Features
+
+* GenAI SDK client - add rag.create_corpus() method ([a76a4b6](https://github.com/googleapis/python-aiplatform/commit/a76a4b6da5b76aaebec8b94162566b74eec770d2))
+
+
+### Bug Fixes
+
+* Update agent engine utils in vertex_ai and agentplatform to support python-a2a sdk 1.0 ([2faf725](https://github.com/googleapis/python-aiplatform/commit/2faf725c2220d42b141c97e8541143cc1c33579a))
+
+## [1.155.0](https://github.com/googleapis/python-aiplatform/compare/v1.154.0...v1.155.0) (2026-06-02)
+
+
+### Features
+
+* Add Skill Registry GetSkillRevision and ListSkillRevisions to SDK ([94cd20c](https://github.com/googleapis/python-aiplatform/commit/94cd20c3f6c82bda5d6dfe5249cfd3e6992eb5bc))
+* Add Skill Registry ListSkills and DeleteSkill to SDK ([57097a3](https://github.com/googleapis/python-aiplatform/commit/57097a31e1054b729bb45ec7bf1d625a7dcaeb84))
+* Forward per-call `http_options` from `AgentEngine.query` family of methods. ([e6818d3](https://github.com/googleapis/python-aiplatform/commit/e6818d3fef7f570bd520f50c31dd2dc71f2f8282))
+* GenAI client - Add retrieve_contexts and ask_contexts methods to RAG module ([b90e084](https://github.com/googleapis/python-aiplatform/commit/b90e0841e198deb86a5375414b1f67d2a7b1ff2b))
+* GenAI SDK client - Add RAG module with list_corpora, get_corpus, get_file, list_files, and get_config methods ([3bc2f58](https://github.com/googleapis/python-aiplatform/commit/3bc2f589ae85ff76a7ebcd9763f92b2c197a4966))
+
+
+### Bug Fixes
+
+* Job state name print ([be945df](https://github.com/googleapis/python-aiplatform/commit/be945df6d8e04e259ca10619145f631462e18be5))
+* Route Endpoint.predict_async via dedicated DNS when the endpoint is dedicated ([b6a9652](https://github.com/googleapis/python-aiplatform/commit/b6a965249a40d6cd3bb38c029059fccbe8cb6322))
+* Update authorization for streaming_agent_run_with_events ([ae54eb5](https://github.com/googleapis/python-aiplatform/commit/ae54eb524bbcd61fb8954e12b4719be6237f6aca))
+* Using location and project parsed from resource name if not provided ([caa416a](https://github.com/googleapis/python-aiplatform/commit/caa416ae70f42031f3cd564cf23256455c92b287))
+
+
+### Documentation
+
+* Add a warning that the autorater config is not applicable for predefined metrics in SDK ([ad4284b](https://github.com/googleapis/python-aiplatform/commit/ad4284baceccb9139e32bd68893b9699e7b35f27))
+* Corrected resource name format in docstrings for list sandbox methods. ([1f32406](https://github.com/googleapis/python-aiplatform/commit/1f324065e9e0b4395680d2bdf35a828f2a947ac0))
+
 ## [1.154.0](https://github.com/googleapis/python-aiplatform/compare/v1.153.1...v1.154.0) (2026-05-27)
 
 

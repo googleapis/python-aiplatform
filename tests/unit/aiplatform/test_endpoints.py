@@ -19,6 +19,7 @@ import copy
 from datetime import datetime, timedelta
 from importlib import reload
 import json
+import ssl
 import aiohttp
 from aiohttp import web as aiohttp_web
 import requests
@@ -3808,6 +3809,34 @@ class TestEndpoint:
             )
 
         close_mock.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @pytest.mark.usefixtures(
+        "get_dedicated_endpoint_mock", "predict_endpoint_aiohttp_mock"
+    )
+    async def test_predict_async_dedicated_endpoint_verifies_certifi(self):
+        """The aiohttp session pins TLS verification to the certifi CA bundle.
+
+        Mirrors the synchronous predict() path (requests -> certifi), so the
+        async path does not fall back to the system CA store, which is commonly
+        missing in containers and raises CERTIFICATE_VERIFY_FAILED.
+        """
+        import certifi
+
+        test_endpoint = models.Endpoint(_TEST_ENDPOINT_NAME)
+
+        sentinel_context = ssl.create_default_context(cafile=certifi.where())
+        with mock.patch.object(
+            ssl, "create_default_context", return_value=sentinel_context
+        ) as create_context_mock, mock.patch.object(
+            aiohttp, "TCPConnector", wraps=aiohttp.TCPConnector
+        ) as connector_mock:
+            await test_endpoint.predict_async(
+                instances=_TEST_INSTANCES, parameters={"param": 3.0}
+            )
+
+        create_context_mock.assert_called_once_with(cafile=certifi.where())
+        connector_mock.assert_called_once_with(ssl=sentinel_context)
 
     @pytest.mark.asyncio
     @pytest.mark.usefixtures("get_dedicated_endpoint_mock")

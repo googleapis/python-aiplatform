@@ -95,7 +95,9 @@ def _default_instrumentor_builder(project_id: str):
     cloud_trace_v2 = _agent_engines_utils._import_cloud_trace_v2_or_warn()
     openinference_autogen = _agent_engines_utils._import_openinference_autogen_or_warn()
     opentelemetry = _agent_engines_utils._import_opentelemetry_or_warn()
-    opentelemetry_sdk_trace = _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+    opentelemetry_sdk_trace = (
+        _agent_engines_utils._import_opentelemetry_sdk_trace_or_warn()
+    )
     if all(
         (
             cloud_trace_exporter,
@@ -396,7 +398,9 @@ class AG2Agent:
         tools = self._tmpl_attrs.get("tools")
         ag2_tool_objects = self._tmpl_attrs.get("ag2_tool_objects")
         if tools and not ag2_tool_objects:
-            from agentplatform._genai import _agent_engines_utils
+            from agentplatform._genai import (
+                _agent_engines_utils,
+            )
 
             autogen_tools = _agent_engines_utils._import_autogen_tools_or_warn()
             if autogen_tools:

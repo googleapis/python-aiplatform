@@ -144,7 +144,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    "google-adk >= 1.0.0, < 2.0.0",
+    "google-adk >= 1.5.0, < 3.0.0",
 ]
 
 reasoning_engine_extra_require = [
@@ -324,6 +324,7 @@ setuptools.setup(
             " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
         "google-auth >= 2.47.0, <3.0.0",
+        "certifi >= 2023.7.22",
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",

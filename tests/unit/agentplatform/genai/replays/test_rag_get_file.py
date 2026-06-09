@@ -29,8 +29,7 @@ pytestmark = pytest_helper.setup(
 def test_get_rag_file(client):
 
     rag_file = client.rag.get_file(
-        corpus_id="2305843009213693952",
-        file_id="5692491588344435788",
+        name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2305843009213693952/ragFiles/5692491588344435788",
     )
 
     assert isinstance(rag_file, types.RagFile)
@@ -43,8 +42,7 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_get_rag_file_async(client):
 
     rag_file = await client.aio.rag.get_file(
-        corpus_id="2305843009213693952",
-        file_id="5692491588344435788",
+        name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2305843009213693952/ragFiles/5692491588344435788",
     )
 
     assert isinstance(rag_file, types.RagFile)

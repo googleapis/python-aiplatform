@@ -228,6 +228,81 @@ class TestGetApiClientWithLocation:
         mock_agentplatform_client.assert_not_called()
 
 
+class TestNormalizeInferenceModelName:
+    _FQ_PREFIX = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}/"
+
+    def test_short_gemini_name_expanded(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "gemini-2.5-flash", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash")
+
+    def test_location_less_publisher_path_prepended(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "publishers/google/models/gemini-2.5-flash", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash")
+
+    def test_third_party_publisher_path_prepended(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "publishers/anthropic/models/claude-sonnet", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/anthropic/models/claude-sonnet")
+
+    def test_endpoint_path_prepended(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "endpoints/123", mock_api_client_fixture
+        )
+        assert result == f"{self._FQ_PREFIX}endpoints/123"
+
+    def test_models_path_canonicalized(self, mock_api_client_fixture):
+        result = _evals_common._normalize_inference_model_name(
+            "models/gemini-2.5-flash", mock_api_client_fixture
+        )
+        assert result == (f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash")
+
+    def test_fully_qualified_name_unchanged(self, mock_api_client_fixture):
+        fq = f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash"
+        assert (
+            _evals_common._normalize_inference_model_name(fq, mock_api_client_fixture)
+            == fq
+        )
+
+    def test_empty_model_unchanged(self, mock_api_client_fixture):
+        assert (
+            _evals_common._normalize_inference_model_name("", mock_api_client_fixture)
+            == ""
+        )
+
+    def test_missing_project_or_location_raises(self, mock_api_client_fixture):
+        mock_api_client_fixture.location = None
+        with pytest.raises(ValueError, match="missing a project or location"):
+            _evals_common._normalize_inference_model_name(
+                "gemini-2.5-flash", mock_api_client_fixture
+            )
+
+    def test_unrecognized_model_raises(self, mock_api_client_fixture):
+        with pytest.raises(ValueError, match="Unrecognized model name"):
+            _evals_common._normalize_inference_model_name(
+                "not/a/valid/model", mock_api_client_fixture
+            )
+
+    def test_resolve_inference_configs_normalizes_model(self, mock_api_client_fixture):
+        inference_configs = {
+            "candidate-1": agentplatform_genai_types.EvaluationRunInferenceConfig(
+                model="gemini-2.5-flash"
+            )
+        }
+        result = _evals_common._resolve_inference_configs(
+            mock_api_client_fixture,
+            common_types.EvaluationRunDataSource(),
+            inference_configs,
+        )
+        assert result["candidate-1"].model == (
+            f"{self._FQ_PREFIX}publishers/google/models/gemini-2.5-flash"
+        )
+
+
 class TestTransformers:
     """Unit tests for transformers."""
 
@@ -3680,7 +3755,7 @@ class TestEvalsRunInference:
         assert mock_session_service.call_count == 2
         mock_runner.assert_called_with(
             agent=mock_agent_instance,
-            app_name="local agent run",
+            app_name="local_agent_run",
             session_service=mock_session_service.return_value,
         )
         assert mock_runner.call_count == 2
@@ -3794,6 +3869,10 @@ class TestEvalsRunInference:
         )
         assert inference_result.candidate_name == "mock_agent"
         assert inference_result.gcs_source is None
+
+    def test_local_agent_run_default_app_name_is_valid(self):
+        """Default app_name must satisfy ADK 2.x's app name validation regex."""
+        assert re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_-]*", "local_agent_run")
 
     def test_run_inference_with_litellm_string_prompt_format(
         self,
@@ -5850,8 +5929,8 @@ class TestAgentInfo:
         ]
         mock_from_callable.assert_called_once_with(callable=my_plain_tool)
 
-    def test_load_from_agent_with_none_declaration_falls_back(self):
-        """Tests that tools returning None from _get_declaration fall back to from_callable."""
+    def test_load_from_agent_with_none_declaration_is_skipped(self):
+        """Tools whose _get_declaration() returns None are skipped, not introspected."""
         mock_tool = mock.Mock()
         mock_tool._get_declaration = mock.Mock(return_value=None)
         mock_tool.__name__ = "mock_tool"
@@ -5867,19 +5946,38 @@ class TestAgentInfo:
         with mock.patch.object(
             genai_types.FunctionDeclaration, "from_callable_with_api_option"
         ) as mock_from_callable:
-            mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
-            mock_from_callable.return_value = mock_callable_declaration
-
             agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
                 agent=mock_agent,
             )
 
-            assert len(agent_info.agents["mock_agent"].tools) == 1
-            assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
-                mock_callable_declaration
-            ]
+            assert agent_info.agents["mock_agent"].tools == []
             mock_tool._get_declaration.assert_called_once()
-            mock_from_callable.assert_called_once_with(callable=mock_tool)
+            mock_from_callable.assert_not_called()
+
+    def test_load_from_agent_none_declaration_skips_get_type_hints(self):
+        """A None-returning native tool must not trigger get_type_hints (NameError repro)."""
+
+        class _BuiltinTool:
+            def _get_declaration(self):
+                return None
+
+            def run(self, query: "Optional[str]" = None):  # noqa: F821
+                return query
+
+        builtin_tool = _BuiltinTool()
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [builtin_tool]
+        mock_agent.sub_agents = []
+
+        agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
+            agent=mock_agent,
+        )
+
+        assert agent_info.agents["mock_agent"].tools == []
 
 
 class TestValidateDatasetAgentData:

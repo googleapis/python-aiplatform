@@ -81,6 +81,7 @@ from .common import _GetAgentEngineSandboxSnapshotOperationParameters
 from .common import _GetAgentEngineSessionOperationParameters
 from .common import _GetAgentEngineSessionRequestParameters
 from .common import _GetAgentEngineTaskRequestParameters
+from .common import _GetCorpusOperationParameters
 from .common import _GetCustomJobParameters
 from .common import _GetCustomJobParameters
 from .common import _GetDatasetOperationParameters
@@ -292,6 +293,9 @@ from .common import ContentMapContentsDict
 from .common import ContentMapContentsOrDict
 from .common import ContentMapDict
 from .common import ContentMapOrDict
+from .common import CorpusOperation
+from .common import CorpusOperationDict
+from .common import CorpusOperationOrDict
 from .common import CorpusStatus
 from .common import CorpusStatusDict
 from .common import CorpusStatusOrDict
@@ -659,6 +663,9 @@ from .common import GetAgentEngineSessionConfigOrDict
 from .common import GetAgentEngineTaskConfig
 from .common import GetAgentEngineTaskConfigDict
 from .common import GetAgentEngineTaskConfigOrDict
+from .common import GetCorpusOperationConfig
+from .common import GetCorpusOperationConfigDict
+from .common import GetCorpusOperationConfigOrDict
 from .common import GetDatasetOperationConfig
 from .common import GetDatasetOperationConfigDict
 from .common import GetDatasetOperationConfigOrDict
@@ -2520,15 +2527,24 @@ __all__ = [
     "AskContextsResponse",
     "AskContextsResponseDict",
     "AskContextsResponseOrDict",
-    "ApiAuthApiKeyConfig",
-    "ApiAuthApiKeyConfigDict",
-    "ApiAuthApiKeyConfigOrDict",
-    "ApiAuth",
-    "ApiAuthDict",
-    "ApiAuthOrDict",
-    "RagVectorDbConfigPinecone",
-    "RagVectorDbConfigPineconeDict",
-    "RagVectorDbConfigPineconeOrDict",
+    "CorpusStatus",
+    "CorpusStatusDict",
+    "CorpusStatusOrDict",
+    "RagCorpusCorpusTypeConfigDocumentCorpus",
+    "RagCorpusCorpusTypeConfigDocumentCorpusDict",
+    "RagCorpusCorpusTypeConfigDocumentCorpusOrDict",
+    "RagFileParsingConfigLlmParser",
+    "RagFileParsingConfigLlmParserDict",
+    "RagFileParsingConfigLlmParserOrDict",
+    "RagCorpusCorpusTypeConfigMemoryCorpus",
+    "RagCorpusCorpusTypeConfigMemoryCorpusDict",
+    "RagCorpusCorpusTypeConfigMemoryCorpusOrDict",
+    "RagCorpusCorpusTypeConfig",
+    "RagCorpusCorpusTypeConfigDict",
+    "RagCorpusCorpusTypeConfigOrDict",
+    "EncryptionSpec",
+    "EncryptionSpecDict",
+    "EncryptionSpecOrDict",
     "RagEmbeddingModelConfigVertexPredictionEndpoint",
     "RagEmbeddingModelConfigVertexPredictionEndpointDict",
     "RagEmbeddingModelConfigVertexPredictionEndpointOrDict",
@@ -2544,6 +2560,15 @@ __all__ = [
     "RagEmbeddingModelConfig",
     "RagEmbeddingModelConfigDict",
     "RagEmbeddingModelConfigOrDict",
+    "ApiAuthApiKeyConfig",
+    "ApiAuthApiKeyConfigDict",
+    "ApiAuthApiKeyConfigOrDict",
+    "ApiAuth",
+    "ApiAuthDict",
+    "ApiAuthOrDict",
+    "RagVectorDbConfigPinecone",
+    "RagVectorDbConfigPineconeDict",
+    "RagVectorDbConfigPineconeOrDict",
     "RagVectorDbConfigRagManagedDbANN",
     "RagVectorDbConfigRagManagedDbANNDict",
     "RagVectorDbConfigRagManagedDbANNOrDict",
@@ -2568,24 +2593,6 @@ __all__ = [
     "RagVectorDbConfig",
     "RagVectorDbConfigDict",
     "RagVectorDbConfigOrDict",
-    "CorpusStatus",
-    "CorpusStatusDict",
-    "CorpusStatusOrDict",
-    "RagCorpusCorpusTypeConfigDocumentCorpus",
-    "RagCorpusCorpusTypeConfigDocumentCorpusDict",
-    "RagCorpusCorpusTypeConfigDocumentCorpusOrDict",
-    "RagFileParsingConfigLlmParser",
-    "RagFileParsingConfigLlmParserDict",
-    "RagFileParsingConfigLlmParserOrDict",
-    "RagCorpusCorpusTypeConfigMemoryCorpus",
-    "RagCorpusCorpusTypeConfigMemoryCorpusDict",
-    "RagCorpusCorpusTypeConfigMemoryCorpusOrDict",
-    "RagCorpusCorpusTypeConfig",
-    "RagCorpusCorpusTypeConfigDict",
-    "RagCorpusCorpusTypeConfigOrDict",
-    "EncryptionSpec",
-    "EncryptionSpecDict",
-    "EncryptionSpecOrDict",
     "VertexAiSearchConfig",
     "VertexAiSearchConfigDict",
     "VertexAiSearchConfigOrDict",
@@ -2598,6 +2605,12 @@ __all__ = [
     "CreateRagCorpusOperation",
     "CreateRagCorpusOperationDict",
     "CreateRagCorpusOperationOrDict",
+    "GetCorpusOperationConfig",
+    "GetCorpusOperationConfigDict",
+    "GetCorpusOperationConfigOrDict",
+    "CorpusOperation",
+    "CorpusOperationDict",
+    "CorpusOperationOrDict",
     "GetRagCorpusConfig",
     "GetRagCorpusConfigDict",
     "GetRagCorpusConfigOrDict",
@@ -3310,6 +3323,7 @@ __all__ = [
     "_ListAgentEngineMemoryRevisionsRequestParameters",
     "_AskContextsRequestParameters",
     "_CreateRagCorpusRequestParameters",
+    "_GetCorpusOperationParameters",
     "_GetRagCorpusRequestParameters",
     "_ListRagCorporaRequestParameters",
     "_GetRagFileRequestParameters",

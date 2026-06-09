@@ -30,7 +30,6 @@ def test_update_rag_corpus_private(client):
 
     corpus_op = client.rag._update_corpus(
         name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/5685794529555251200",
-        corpus_id="5685794529555251200",
         rag_corpus=types.RagCorpus(
             display_name="My Updated Vertex AI Search Test Corpus",
             description="My Updated Test Corpus Description",
@@ -50,7 +49,6 @@ pytest_plugins = ("pytest_asyncio",)
 async def test_update_rag_corpus_private_async(client):
     corpus_op = await client.aio.rag._update_corpus(
         name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/5685794529555251200",
-        corpus_id="5685794529555251200",
         rag_corpus=types.RagCorpus(
             display_name="My Updated Vertex AI Search Test Corpus",
             description="My Updated Test Corpus Description",

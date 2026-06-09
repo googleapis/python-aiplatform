@@ -2811,10 +2811,20 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             aiohttp.ClientTimeout(total=timeout) if timeout is not None else None
         )
 
+        # Verify TLS against certifi, like the sync path (requests). aiohttp
+        # otherwise uses the system CA store, which is often missing in
+        # containers and fails with CERTIFICATE_VERIFY_FAILED.
+        import ssl
+
+        import certifi
+
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+
         # Use a per-call session so the underlying connector is always closed,
         # avoiding leaked ClientSessions (Python has no async destructor to do
         # this for a cached session).
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.post(
                 url=url,
                 data=data,

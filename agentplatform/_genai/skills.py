@@ -30,6 +30,7 @@ from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 from google.genai.pagers import AsyncPager, Pager
 
+from . import _operations_utils
 from . import _skills_utils
 from . import types
 
@@ -784,7 +785,7 @@ class Skills(_api_module.BaseModule):
         )
 
         if config.wait_for_completion:
-            operation = _skills_utils.await_operation(
+            operation = _operations_utils.await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_skill_operation,
             )
@@ -878,7 +879,7 @@ class Skills(_api_module.BaseModule):
         )
 
         if config.wait_for_completion:
-            operation = _skills_utils.await_operation(
+            operation = _operations_utils.await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_skill_operation,
             )
@@ -920,7 +921,7 @@ class Skills(_api_module.BaseModule):
         operation = self._delete(name=name, config=config)
 
         if config.wait_for_completion:
-            operation = _skills_utils.await_operation(
+            operation = _operations_utils.await_operation(
                 operation_name=operation.name,
                 get_operation_fn=self._get_skill_operation,
             )
@@ -1539,7 +1540,7 @@ class AsyncSkills(_api_module.BaseModule):
         )
 
         if config.wait_for_completion:
-            operation = await _skills_utils.await_operation_async(
+            operation = await _operations_utils.await_operation_async(
                 operation_name=operation.name,
                 get_operation_fn=self._get_skill_operation,
             )
@@ -1634,7 +1635,7 @@ class AsyncSkills(_api_module.BaseModule):
         )
 
         if config.wait_for_completion:
-            operation = await _skills_utils.await_operation_async(
+            operation = await _operations_utils.await_operation_async(
                 operation_name=operation.name,
                 get_operation_fn=self._get_skill_operation,
             )
@@ -1676,7 +1677,7 @@ class AsyncSkills(_api_module.BaseModule):
         operation = await self._delete(name=name, config=config)
 
         if config.wait_for_completion:
-            operation = await _skills_utils.await_operation_async(
+            operation = await _operations_utils.await_operation_async(
                 operation_name=operation.name,
                 get_operation_fn=self._get_skill_operation,
             )

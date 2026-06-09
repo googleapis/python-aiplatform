@@ -2586,7 +2586,7 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
     )
     model: Optional[str] = Field(
         default=None,
-        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+        description="""The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`).""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2611,7 +2611,7 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
     """The agent config."""
 
     model: Optional[str]
-    """The fully qualified name of the publisher model or endpoint to use for inference."""
+    """The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`)."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -12355,69 +12355,153 @@ class AskContextsResponseDict(TypedDict, total=False):
 AskContextsResponseOrDict = Union[AskContextsResponse, AskContextsResponseDict]
 
 
-class ApiAuthApiKeyConfig(_common.BaseModel):
-    """The API secret."""
+class CorpusStatus(_common.BaseModel):
+    """RagCorpus status."""
 
-    api_key_secret_version: Optional[str] = Field(
+    error_status: Optional[str] = Field(
         default=None,
-        description="""Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}""",
+        description="""Output only. Only when the `state` field is ERROR.""",
     )
-    api_key_string: Optional[str] = Field(
-        default=None,
-        description="""The API key string. Either this or `api_key_secret_version` must be set.""",
-    )
-
-
-class ApiAuthApiKeyConfigDict(TypedDict, total=False):
-    """The API secret."""
-
-    api_key_secret_version: Optional[str]
-    """Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}"""
-
-    api_key_string: Optional[str]
-    """The API key string. Either this or `api_key_secret_version` must be set."""
-
-
-ApiAuthApiKeyConfigOrDict = Union[ApiAuthApiKeyConfig, ApiAuthApiKeyConfigDict]
-
-
-class ApiAuth(_common.BaseModel):
-    """The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead."""
-
-    api_key_config: Optional[ApiAuthApiKeyConfig] = Field(
-        default=None, description="""The API secret."""
+    state: Optional[Literal["UNKNOWN", "INITIALIZED", "ACTIVE", "ERROR"]] = Field(
+        default=None, description="""Output only. RagCorpus life state."""
     )
 
 
-class ApiAuthDict(TypedDict, total=False):
-    """The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead."""
+class CorpusStatusDict(TypedDict, total=False):
+    """RagCorpus status."""
 
-    api_key_config: Optional[ApiAuthApiKeyConfigDict]
-    """The API secret."""
+    error_status: Optional[str]
+    """Output only. Only when the `state` field is ERROR."""
 
-
-ApiAuthOrDict = Union[ApiAuth, ApiAuthDict]
-
-
-class RagVectorDbConfigPinecone(_common.BaseModel):
-    """The config for the Pinecone."""
-
-    index_name: Optional[str] = Field(
-        default=None,
-        description="""Pinecone index name. This value cannot be changed after it's set.""",
-    )
+    state: Optional[Literal["UNKNOWN", "INITIALIZED", "ACTIVE", "ERROR"]]
+    """Output only. RagCorpus life state."""
 
 
-class RagVectorDbConfigPineconeDict(TypedDict, total=False):
-    """The config for the Pinecone."""
-
-    index_name: Optional[str]
-    """Pinecone index name. This value cannot be changed after it's set."""
+CorpusStatusOrDict = Union[CorpusStatus, CorpusStatusDict]
 
 
-RagVectorDbConfigPineconeOrDict = Union[
-    RagVectorDbConfigPinecone, RagVectorDbConfigPineconeDict
+class RagCorpusCorpusTypeConfigDocumentCorpus(_common.BaseModel):
+    """Config for the document corpus."""
+
+    pass
+
+
+class RagCorpusCorpusTypeConfigDocumentCorpusDict(TypedDict, total=False):
+    """Config for the document corpus."""
+
+    pass
+
+
+RagCorpusCorpusTypeConfigDocumentCorpusOrDict = Union[
+    RagCorpusCorpusTypeConfigDocumentCorpus, RagCorpusCorpusTypeConfigDocumentCorpusDict
 ]
+
+
+class RagFileParsingConfigLlmParser(_common.BaseModel):
+    """Specifies the LLM parsing for RagFiles."""
+
+    custom_parsing_prompt: Optional[str] = Field(
+        default=None,
+        description="""The prompt to use for parsing. If not specified, a default prompt will be used.""",
+    )
+    global_max_parsing_requests_per_min: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of requests the job is allowed to make to the LLM model per minute in this project. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If this value is not specified, max_parsing_requests_per_min will be used by indexing pipeline job as the global limit.""",
+    )
+    max_parsing_requests_per_min: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of requests the job is allowed to make to the LLM model per minute. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If unspecified, a default value of 5000 QPM would be used.""",
+    )
+    model_name: Optional[str] = Field(
+        default=None,
+        description="""The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`""",
+    )
+
+
+class RagFileParsingConfigLlmParserDict(TypedDict, total=False):
+    """Specifies the LLM parsing for RagFiles."""
+
+    custom_parsing_prompt: Optional[str]
+    """The prompt to use for parsing. If not specified, a default prompt will be used."""
+
+    global_max_parsing_requests_per_min: Optional[int]
+    """The maximum number of requests the job is allowed to make to the LLM model per minute in this project. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If this value is not specified, max_parsing_requests_per_min will be used by indexing pipeline job as the global limit."""
+
+    max_parsing_requests_per_min: Optional[int]
+    """The maximum number of requests the job is allowed to make to the LLM model per minute. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If unspecified, a default value of 5000 QPM would be used."""
+
+    model_name: Optional[str]
+    """The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`"""
+
+
+RagFileParsingConfigLlmParserOrDict = Union[
+    RagFileParsingConfigLlmParser, RagFileParsingConfigLlmParserDict
+]
+
+
+class RagCorpusCorpusTypeConfigMemoryCorpus(_common.BaseModel):
+    """Config for the memory corpus."""
+
+    llm_parser: Optional[RagFileParsingConfigLlmParser] = Field(
+        default=None, description="""The LLM parser to use for the memory corpus."""
+    )
+
+
+class RagCorpusCorpusTypeConfigMemoryCorpusDict(TypedDict, total=False):
+    """Config for the memory corpus."""
+
+    llm_parser: Optional[RagFileParsingConfigLlmParserDict]
+    """The LLM parser to use for the memory corpus."""
+
+
+RagCorpusCorpusTypeConfigMemoryCorpusOrDict = Union[
+    RagCorpusCorpusTypeConfigMemoryCorpus, RagCorpusCorpusTypeConfigMemoryCorpusDict
+]
+
+
+class RagCorpusCorpusTypeConfig(_common.BaseModel):
+    """The config for the corpus type of the RagCorpus."""
+
+    document_corpus: Optional[RagCorpusCorpusTypeConfigDocumentCorpus] = Field(
+        default=None, description="""Optional. Config for the document corpus."""
+    )
+    memory_corpus: Optional[RagCorpusCorpusTypeConfigMemoryCorpus] = Field(
+        default=None, description="""Optional. Config for the memory corpus."""
+    )
+
+
+class RagCorpusCorpusTypeConfigDict(TypedDict, total=False):
+    """The config for the corpus type of the RagCorpus."""
+
+    document_corpus: Optional[RagCorpusCorpusTypeConfigDocumentCorpusDict]
+    """Optional. Config for the document corpus."""
+
+    memory_corpus: Optional[RagCorpusCorpusTypeConfigMemoryCorpusDict]
+    """Optional. Config for the memory corpus."""
+
+
+RagCorpusCorpusTypeConfigOrDict = Union[
+    RagCorpusCorpusTypeConfig, RagCorpusCorpusTypeConfigDict
+]
+
+
+class EncryptionSpec(_common.BaseModel):
+    """Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource."""
+
+    kms_key_name: Optional[str] = Field(
+        default=None,
+        description="""Required. Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.""",
+    )
+
+
+class EncryptionSpecDict(TypedDict, total=False):
+    """Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource."""
+
+    kms_key_name: Optional[str]
+    """Required. Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`."""
+
+
+EncryptionSpecOrDict = Union[EncryptionSpec, EncryptionSpecDict]
 
 
 class RagEmbeddingModelConfigVertexPredictionEndpoint(_common.BaseModel):
@@ -12576,6 +12660,71 @@ class RagEmbeddingModelConfigDict(TypedDict, total=False):
 
 RagEmbeddingModelConfigOrDict = Union[
     RagEmbeddingModelConfig, RagEmbeddingModelConfigDict
+]
+
+
+class ApiAuthApiKeyConfig(_common.BaseModel):
+    """The API secret."""
+
+    api_key_secret_version: Optional[str] = Field(
+        default=None,
+        description="""Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}""",
+    )
+    api_key_string: Optional[str] = Field(
+        default=None,
+        description="""The API key string. Either this or `api_key_secret_version` must be set.""",
+    )
+
+
+class ApiAuthApiKeyConfigDict(TypedDict, total=False):
+    """The API secret."""
+
+    api_key_secret_version: Optional[str]
+    """Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}"""
+
+    api_key_string: Optional[str]
+    """The API key string. Either this or `api_key_secret_version` must be set."""
+
+
+ApiAuthApiKeyConfigOrDict = Union[ApiAuthApiKeyConfig, ApiAuthApiKeyConfigDict]
+
+
+class ApiAuth(_common.BaseModel):
+    """The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead."""
+
+    api_key_config: Optional[ApiAuthApiKeyConfig] = Field(
+        default=None, description="""The API secret."""
+    )
+
+
+class ApiAuthDict(TypedDict, total=False):
+    """The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead."""
+
+    api_key_config: Optional[ApiAuthApiKeyConfigDict]
+    """The API secret."""
+
+
+ApiAuthOrDict = Union[ApiAuth, ApiAuthDict]
+
+
+class RagVectorDbConfigPinecone(_common.BaseModel):
+    """The config for the Pinecone."""
+
+    index_name: Optional[str] = Field(
+        default=None,
+        description="""Pinecone index name. This value cannot be changed after it's set.""",
+    )
+
+
+class RagVectorDbConfigPineconeDict(TypedDict, total=False):
+    """The config for the Pinecone."""
+
+    index_name: Optional[str]
+    """Pinecone index name. This value cannot be changed after it's set."""
+
+
+RagVectorDbConfigPineconeOrDict = Union[
+    RagVectorDbConfigPinecone, RagVectorDbConfigPineconeDict
 ]
 
 
@@ -12752,7 +12901,7 @@ RagVectorDbConfigWeaviateOrDict = Union[
 
 
 class RagVectorDbConfig(_common.BaseModel):
-    """The backend config of the RagCorpus."""
+    """Config for the Vector DB to use for RAG."""
 
     api_auth: Optional[ApiAuth] = Field(
         default=None, description="""Authentication config for the chosen Vector DB."""
@@ -12785,7 +12934,7 @@ class RagVectorDbConfig(_common.BaseModel):
 
 
 class RagVectorDbConfigDict(TypedDict, total=False):
-    """The backend config of the RagCorpus."""
+    """Config for the Vector DB to use for RAG."""
 
     api_auth: Optional[ApiAuthDict]
     """Authentication config for the chosen Vector DB."""
@@ -12815,155 +12964,6 @@ class RagVectorDbConfigDict(TypedDict, total=False):
 
 
 RagVectorDbConfigOrDict = Union[RagVectorDbConfig, RagVectorDbConfigDict]
-
-
-class CorpusStatus(_common.BaseModel):
-    """RagCorpus status."""
-
-    error_status: Optional[str] = Field(
-        default=None,
-        description="""Output only. Only when the `state` field is ERROR.""",
-    )
-    state: Optional[Literal["UNKNOWN", "INITIALIZED", "ACTIVE", "ERROR"]] = Field(
-        default=None, description="""Output only. RagCorpus life state."""
-    )
-
-
-class CorpusStatusDict(TypedDict, total=False):
-    """RagCorpus status."""
-
-    error_status: Optional[str]
-    """Output only. Only when the `state` field is ERROR."""
-
-    state: Optional[Literal["UNKNOWN", "INITIALIZED", "ACTIVE", "ERROR"]]
-    """Output only. RagCorpus life state."""
-
-
-CorpusStatusOrDict = Union[CorpusStatus, CorpusStatusDict]
-
-
-class RagCorpusCorpusTypeConfigDocumentCorpus(_common.BaseModel):
-    """Config for the document corpus."""
-
-    pass
-
-
-class RagCorpusCorpusTypeConfigDocumentCorpusDict(TypedDict, total=False):
-    """Config for the document corpus."""
-
-    pass
-
-
-RagCorpusCorpusTypeConfigDocumentCorpusOrDict = Union[
-    RagCorpusCorpusTypeConfigDocumentCorpus, RagCorpusCorpusTypeConfigDocumentCorpusDict
-]
-
-
-class RagFileParsingConfigLlmParser(_common.BaseModel):
-    """Specifies the LLM parsing for RagFiles."""
-
-    custom_parsing_prompt: Optional[str] = Field(
-        default=None,
-        description="""The prompt to use for parsing. If not specified, a default prompt will be used.""",
-    )
-    global_max_parsing_requests_per_min: Optional[int] = Field(
-        default=None,
-        description="""The maximum number of requests the job is allowed to make to the LLM model per minute in this project. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If this value is not specified, max_parsing_requests_per_min will be used by indexing pipeline job as the global limit.""",
-    )
-    max_parsing_requests_per_min: Optional[int] = Field(
-        default=None,
-        description="""The maximum number of requests the job is allowed to make to the LLM model per minute. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If unspecified, a default value of 5000 QPM would be used.""",
-    )
-    model_name: Optional[str] = Field(
-        default=None,
-        description="""The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`""",
-    )
-
-
-class RagFileParsingConfigLlmParserDict(TypedDict, total=False):
-    """Specifies the LLM parsing for RagFiles."""
-
-    custom_parsing_prompt: Optional[str]
-    """The prompt to use for parsing. If not specified, a default prompt will be used."""
-
-    global_max_parsing_requests_per_min: Optional[int]
-    """The maximum number of requests the job is allowed to make to the LLM model per minute in this project. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If this value is not specified, max_parsing_requests_per_min will be used by indexing pipeline job as the global limit."""
-
-    max_parsing_requests_per_min: Optional[int]
-    """The maximum number of requests the job is allowed to make to the LLM model per minute. Consult https://cloud.google.com/vertex-ai/generative-ai/docs/quotas and your document size to set an appropriate value here. If unspecified, a default value of 5000 QPM would be used."""
-
-    model_name: Optional[str]
-    """The name of a LLM model used for parsing. Format: * `projects/{project_id}/locations/{location}/publishers/{publisher}/models/{model}`"""
-
-
-RagFileParsingConfigLlmParserOrDict = Union[
-    RagFileParsingConfigLlmParser, RagFileParsingConfigLlmParserDict
-]
-
-
-class RagCorpusCorpusTypeConfigMemoryCorpus(_common.BaseModel):
-    """Config for the memory corpus."""
-
-    llm_parser: Optional[RagFileParsingConfigLlmParser] = Field(
-        default=None, description="""The LLM parser to use for the memory corpus."""
-    )
-
-
-class RagCorpusCorpusTypeConfigMemoryCorpusDict(TypedDict, total=False):
-    """Config for the memory corpus."""
-
-    llm_parser: Optional[RagFileParsingConfigLlmParserDict]
-    """The LLM parser to use for the memory corpus."""
-
-
-RagCorpusCorpusTypeConfigMemoryCorpusOrDict = Union[
-    RagCorpusCorpusTypeConfigMemoryCorpus, RagCorpusCorpusTypeConfigMemoryCorpusDict
-]
-
-
-class RagCorpusCorpusTypeConfig(_common.BaseModel):
-    """The config for the corpus type of the RagCorpus."""
-
-    document_corpus: Optional[RagCorpusCorpusTypeConfigDocumentCorpus] = Field(
-        default=None, description="""Optional. Config for the document corpus."""
-    )
-    memory_corpus: Optional[RagCorpusCorpusTypeConfigMemoryCorpus] = Field(
-        default=None, description="""Optional. Config for the memory corpus."""
-    )
-
-
-class RagCorpusCorpusTypeConfigDict(TypedDict, total=False):
-    """The config for the corpus type of the RagCorpus."""
-
-    document_corpus: Optional[RagCorpusCorpusTypeConfigDocumentCorpusDict]
-    """Optional. Config for the document corpus."""
-
-    memory_corpus: Optional[RagCorpusCorpusTypeConfigMemoryCorpusDict]
-    """Optional. Config for the memory corpus."""
-
-
-RagCorpusCorpusTypeConfigOrDict = Union[
-    RagCorpusCorpusTypeConfig, RagCorpusCorpusTypeConfigDict
-]
-
-
-class EncryptionSpec(_common.BaseModel):
-    """Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource."""
-
-    kms_key_name: Optional[str] = Field(
-        default=None,
-        description="""Required. Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.""",
-    )
-
-
-class EncryptionSpecDict(TypedDict, total=False):
-    """Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource."""
-
-    kms_key_name: Optional[str]
-    """Required. Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`."""
-
-
-EncryptionSpecOrDict = Union[EncryptionSpec, EncryptionSpecDict]
 
 
 class VertexAiSearchConfig(_common.BaseModel):
@@ -13043,9 +13043,6 @@ class RagCorpus(_common.BaseModel):
         default=None,
         description="""Optional. Immutable. The config for the Vertex AI Search.""",
     )
-    backend_config: Optional[RagVectorDbConfig] = Field(
-        default=None, description=""""""
-    )
 
 
 class RagCorpusDict(TypedDict, total=False):
@@ -13095,9 +13092,6 @@ class RagCorpusDict(TypedDict, total=False):
 
     vertex_ai_search_config: Optional[VertexAiSearchConfigDict]
     """Optional. Immutable. The config for the Vertex AI Search."""
-
-    backend_config: Optional[RagVectorDbConfigDict]
-    """"""
 
 
 RagCorpusOrDict = Union[RagCorpus, RagCorpusDict]
@@ -13185,6 +13179,98 @@ CreateRagCorpusOperationOrDict = Union[
 ]
 
 
+class GetCorpusOperationConfig(_common.BaseModel):
+    """Config for getting a corpus operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetCorpusOperationConfigDict(TypedDict, total=False):
+    """Config for getting a corpus operation."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetCorpusOperationConfigOrDict = Union[
+    GetCorpusOperationConfig, GetCorpusOperationConfigDict
+]
+
+
+class _GetCorpusOperationParameters(_common.BaseModel):
+    """Parameters for getting a corpus operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetCorpusOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetCorpusOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a corpus operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetCorpusOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetCorpusOperationParametersOrDict = Union[
+    _GetCorpusOperationParameters, _GetCorpusOperationParametersDict
+]
+
+
+class CorpusOperation(_common.BaseModel):
+    """Operation that has a corpus as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[RagCorpus] = Field(
+        default=None, description="""The created Corpus."""
+    )
+
+
+class CorpusOperationDict(TypedDict, total=False):
+    """Operation that has a corpus as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[RagCorpusDict]
+    """The created Corpus."""
+
+
+CorpusOperationOrDict = Union[CorpusOperation, CorpusOperationDict]
+
+
 class GetRagCorpusConfig(_common.BaseModel):
     """Config for getting a RAG corpus."""
 
@@ -13206,17 +13292,17 @@ GetRagCorpusConfigOrDict = Union[GetRagCorpusConfig, GetRagCorpusConfigDict]
 class _GetRagCorpusRequestParameters(_common.BaseModel):
     """Parameters for getting a RAG corpus."""
 
-    name: Optional[str] = Field(default=None, description="""""")
     config: Optional[GetRagCorpusConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
 
 
 class _GetRagCorpusRequestParametersDict(TypedDict, total=False):
     """Parameters for getting a RAG corpus."""
 
-    name: Optional[str]
+    config: Optional[GetRagCorpusConfigDict]
     """"""
 
-    config: Optional[GetRagCorpusConfigDict]
+    name: Optional[str]
     """"""
 
 
@@ -13318,21 +13404,17 @@ GetRagFileConfigOrDict = Union[GetRagFileConfig, GetRagFileConfigDict]
 class _GetRagFileRequestParameters(_common.BaseModel):
     """Parameters for getting a RAG corpus."""
 
-    corpus_id: Optional[str] = Field(default=None, description="""""")
-    file_id: Optional[str] = Field(default=None, description="""""")
     config: Optional[GetRagFileConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
 
 
 class _GetRagFileRequestParametersDict(TypedDict, total=False):
     """Parameters for getting a RAG corpus."""
 
-    corpus_id: Optional[str]
-    """"""
-
-    file_id: Optional[str]
-    """"""
-
     config: Optional[GetRagFileConfigDict]
+    """"""
+
+    name: Optional[str]
     """"""
 
 
@@ -13819,7 +13901,7 @@ class _ListRagFilesRequestParameters(_common.BaseModel):
     """Parameters for listing RagFile instances within a RagCorpus."""
 
     config: Optional[ListRagFilesConfig] = Field(default=None, description="""""")
-    corpus_id: Optional[str] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
 
 
 class _ListRagFilesRequestParametersDict(TypedDict, total=False):
@@ -13828,7 +13910,7 @@ class _ListRagFilesRequestParametersDict(TypedDict, total=False):
     config: Optional[ListRagFilesConfigDict]
     """"""
 
-    corpus_id: Optional[str]
+    name: Optional[str]
     """"""
 
 
@@ -14020,7 +14102,7 @@ RagManagedDbConfigSpannerOrDict = Union[
 
 
 class RagManagedDbConfig(_common.BaseModel):
-    """The backend config of the RagEngineConfig."""
+    """Configuration message for RagManagedDb used by RagEngine."""
 
     basic: Optional[RagManagedDbConfigBasic] = Field(
         default=None,
@@ -14048,7 +14130,7 @@ class RagManagedDbConfig(_common.BaseModel):
 
 
 class RagManagedDbConfigDict(TypedDict, total=False):
-    """The backend config of the RagEngineConfig."""
+    """Configuration message for RagManagedDb used by RagEngine."""
 
     basic: Optional[RagManagedDbConfigBasicDict]
     """Deprecated: Use `mode` instead to set the tier under Spanner. Sets the RagManagedDb to the Basic tier."""
@@ -14119,25 +14201,21 @@ UpdateRagCorpusConfigOrDict = Union[UpdateRagCorpusConfig, UpdateRagCorpusConfig
 class _UpdateRagCorpusRequestParameters(_common.BaseModel):
     """Parameters for updating a RAG corpus."""
 
-    name: Optional[str] = Field(default=None, description="""""")
-    corpus_id: Optional[str] = Field(default=None, description="""""")
-    rag_corpus: Optional[RagCorpus] = Field(default=None, description="""""")
     config: Optional[UpdateRagCorpusConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
+    rag_corpus: Optional[RagCorpus] = Field(default=None, description="""""")
 
 
 class _UpdateRagCorpusRequestParametersDict(TypedDict, total=False):
     """Parameters for updating a RAG corpus."""
 
+    config: Optional[UpdateRagCorpusConfigDict]
+    """"""
+
     name: Optional[str]
     """"""
 
-    corpus_id: Optional[str]
-    """"""
-
     rag_corpus: Optional[RagCorpusDict]
-    """"""
-
-    config: Optional[UpdateRagCorpusConfigDict]
     """"""
 
 
@@ -14209,17 +14287,17 @@ DeleteRagCorpusConfigOrDict = Union[DeleteRagCorpusConfig, DeleteRagCorpusConfig
 class _DeleteRagCorpusRequestParameters(_common.BaseModel):
     """Parameters for deleting a RAG corpus."""
 
-    corpus_id: Optional[str] = Field(default=None, description="""""")
     config: Optional[DeleteRagCorpusConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
 
 
 class _DeleteRagCorpusRequestParametersDict(TypedDict, total=False):
     """Parameters for deleting a RAG corpus."""
 
-    corpus_id: Optional[str]
+    config: Optional[DeleteRagCorpusConfigDict]
     """"""
 
-    config: Optional[DeleteRagCorpusConfigDict]
+    name: Optional[str]
     """"""
 
 
@@ -14291,21 +14369,17 @@ DeleteRagFileConfigOrDict = Union[DeleteRagFileConfig, DeleteRagFileConfigDict]
 class _DeleteRagFileRequestParameters(_common.BaseModel):
     """Parameters for deleting a RAG File."""
 
-    corpus_id: Optional[str] = Field(default=None, description="""""")
-    file_id: Optional[str] = Field(default=None, description="""""")
     config: Optional[DeleteRagFileConfig] = Field(default=None, description="""""")
+    name: Optional[str] = Field(default=None, description="""""")
 
 
 class _DeleteRagFileRequestParametersDict(TypedDict, total=False):
     """Parameters for deleting a RAG File."""
 
-    corpus_id: Optional[str]
-    """"""
-
-    file_id: Optional[str]
-    """"""
-
     config: Optional[DeleteRagFileConfigDict]
+    """"""
+
+    name: Optional[str]
     """"""
 
 
@@ -18629,6 +18703,28 @@ class MultimodalDataset(_common.BaseModel):
         if self.bigquery_uri is None:
             raise ValueError("Multimodal dataset bigquery source uri is not set.")
         return bigframes.pandas.read_gbq_table(self.bigquery_uri.removeprefix("bq://"))
+
+    def to_batch_job_source(self) -> "genai_types.BatchJobSource":
+        """Converts the dataset to a BatchJobSource."""
+        return genai_types.BatchJobSource(
+            vertex_dataset_name=self.name,
+        )
+
+    def get_batch_job_destination(self) -> "genai_types.BatchJobDestination":
+        """Converts the dataset to a BatchJobDestination."""
+        from .. import _datasets_utils
+
+        unique_name = _datasets_utils.get_batch_job_unique_name()
+        bigquery_uri = self.bigquery_uri
+        if bigquery_uri is None:
+            raise ValueError("Multimodal dataset bigquery source uri is not set.")
+        curr_display_name = self.display_name or "genai_batch_job"
+        return genai_types.BatchJobDestination(
+            vertex_dataset=genai_types.VertexMultimodalDatasetDestination(
+                display_name=f"{curr_display_name}_batch_output_{unique_name}",
+                bigquery_destination=f"{bigquery_uri}_batch_output_{unique_name}",
+            )
+        )
 
 
 class MultimodalDatasetDict(TypedDict, total=False):
