@@ -295,6 +295,47 @@ def test_create_dataset_from_bigframes_preserves_other_metadata(client, is_repla
     )
 
 
+@pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
+def test_create_from_gemini_request_jsonl(client, is_replay_mode):
+    gcs_uri = (
+        "gs://cloud-samples-data/ai-platform/generative_ai/gemini-2_0/text/sft_train_data.jsonl"
+    )
+
+    dataset = client.datasets.create_from_gemini_request_jsonl(
+        gcs_uri=gcs_uri,
+        target_table_id=BIGQUERY_TABLE_NAME,
+        multimodal_dataset={
+            "display_name": "test-from-gemini-jsonl",
+        },
+    )
+    assert dataset.display_name == "test-from-gemini-jsonl"
+    assert (
+        dataset.metadata.gemini_request_read_config.assembled_request_column_name
+        == "requests"
+    )
+    if not is_replay_mode:
+        bigquery_client = bigquery.Client(
+            project=client._api_client.project,
+            location=client._api_client.location,
+            credentials=client._api_client._credentials,
+        )
+        rows = bigquery_client.list_rows(
+            dataset.metadata.input_config.bigquery_source.uri[5:]
+        )
+        df = rows.to_dataframe()
+        assert len(df) > 0
+        assert "requests" in df.columns
+        assert "contents" in str(df["requests"].iloc[0])
+
+
+def test_create_from_gemini_request_jsonl_raises_invalid_gcs_uri(client):
+    with pytest.raises(
+        ValueError,
+        match="Invalid GCS URI format. Expected: gs://bucket-name/object-path",
+    ):
+        client.datasets.create_from_gemini_request_jsonl(gcs_uri="invalid_uri")
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
@@ -549,3 +590,48 @@ async def test_create_dataset_from_bigframes_preserves_other_metadata_async(
     assert dataset.metadata.input_config.bigquery_source.uri == (
         f"bq://{BIGQUERY_TABLE_NAME}"
     )
+
+
+@pytest.mark.asyncio
+@pytest.mark.usefixtures("mock_bigquery_client", "mock_import_bigframes")
+async def test_create_from_gemini_request_jsonl_async(client, is_replay_mode):
+    gcs_uri = (
+        "gs://cloud-samples-data/ai-platform/generative_ai/gemini-2_0/text/sft_train_data.jsonl"
+    )
+
+    dataset = await client.aio.datasets.create_from_gemini_request_jsonl(
+        gcs_uri=gcs_uri,
+        target_table_id=BIGQUERY_TABLE_NAME,
+        multimodal_dataset={
+            "display_name": "test-from-gemini-jsonl-async",
+        },
+    )
+    assert dataset.display_name == "test-from-gemini-jsonl-async"
+    assert (
+        dataset.metadata.gemini_request_read_config.assembled_request_column_name
+        == "requests"
+    )
+    if not is_replay_mode:
+        bigquery_client = bigquery.Client(
+            project=client._api_client.project,
+            location=client._api_client.location,
+            credentials=client._api_client._credentials,
+        )
+        rows = bigquery_client.list_rows(
+            dataset.metadata.input_config.bigquery_source.uri[5:]
+        )
+        df = rows.to_dataframe()
+        assert len(df) > 0
+        assert "requests" in df.columns
+        assert "contents" in str(df["requests"].iloc[0])
+
+
+@pytest.mark.asyncio
+async def test_create_from_gemini_request_jsonl_raises_invalid_gcs_uri_async(client):
+    with pytest.raises(
+        ValueError,
+        match="Invalid GCS URI format. Expected: gs://bucket-name/object-path",
+    ):
+        await client.aio.datasets.create_from_gemini_request_jsonl(
+            gcs_uri="invalid_uri"
+        )
