@@ -993,6 +993,8 @@ class TestAdkApp:
             version=0,
         )
         assert app7._tmpl_attrs.get("artifact_service") is not None
+
+    @pytest.mark.asyncio
     async def test_async_add_session_to_memory_dict(
         self,
         get_project_id_mock: mock.Mock,

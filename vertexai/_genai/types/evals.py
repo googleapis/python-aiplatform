@@ -83,7 +83,7 @@ class AgentConfig(_common.BaseModel):
           The tool declarations of the agent.
         """
         tool_declarations: genai_types.ToolListUnion = []
-        for tool in agent.tools:
+        for tool in getattr(agent, "tools", None) or []:
             # ADK tools (e.g. AgentTool, VertexAiSearchTool) own their declaration
             # via _get_declaration(). A None result means the tool has no function
             # declaration (e.g. built-in retrieval tools). In both cases, skip the
