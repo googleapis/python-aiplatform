@@ -5979,6 +5979,39 @@ class TestAgentInfo:
 
         assert agent_info.agents["mock_agent"].tools == []
 
+    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
+    def test_load_from_agent_workflow_root_without_tools(self, mock_from_callable):
+        def my_search_tool(query: str) -> str:
+            """Searches for information."""
+            return f"search result for {query}"
+
+        mock_function_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_from_callable.return_value = mock_function_declaration
+
+        leaf_agent = mock.Mock()
+        leaf_agent.name = "leaf"
+        leaf_agent.instruction = "do a step"
+        leaf_agent.description = "leaf description"
+        leaf_agent.tools = [my_search_tool]
+        leaf_agent.sub_agents = []
+
+        root_agent = mock.Mock(spec=["name", "sub_agents"])
+        root_agent.name = "pipeline"
+        root_agent.sub_agents = [leaf_agent]
+        assert not hasattr(root_agent, "tools")
+
+        agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
+            agent=root_agent,
+        )
+
+        assert agent_info.name == "pipeline"
+        assert agent_info.root_agent_id == "pipeline"
+        assert agent_info.agents["pipeline"].tools == []
+        assert len(agent_info.agents["leaf"].tools) == 1
+        assert agent_info.agents["leaf"].tools[0].function_declarations == [
+            mock_function_declaration
+        ]
+
 
 class TestValidateDatasetAgentData:
     """Unit tests for the _validate_dataset_agent_data function."""
