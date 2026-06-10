@@ -14654,6 +14654,94 @@ RetrieveContextsResponseOrDict = Union[
 ]
 
 
+class GetRagConfigOperationConfig(_common.BaseModel):
+    """Config for getting a RAG config operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetRagConfigOperationConfigDict(TypedDict, total=False):
+    """Config for getting a RAG config operation."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetRagConfigOperationConfigOrDict = Union[
+    GetRagConfigOperationConfig, GetRagConfigOperationConfigDict
+]
+
+
+class _GetRagConfigOperationParameters(_common.BaseModel):
+    """Parameters for getting a RAG config operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetRagConfigOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetRagConfigOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting a RAG config operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetRagConfigOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetRagConfigOperationParametersOrDict = Union[
+    _GetRagConfigOperationParameters, _GetRagConfigOperationParametersDict
+]
+
+
+class RagEngineConfigOperation(_common.BaseModel):
+    """Operation for getting a RAG config."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class RagEngineConfigOperationDict(TypedDict, total=False):
+    """Operation for getting a RAG config."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+RagEngineConfigOperationOrDict = Union[
+    RagEngineConfigOperation, RagEngineConfigOperationDict
+]
+
+
 class GetAgentEngineRuntimeRevisionConfig(_common.BaseModel):
     """Config for getting an Agent Engine Runtime Revision."""
 
