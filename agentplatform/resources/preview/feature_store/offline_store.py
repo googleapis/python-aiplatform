@@ -116,7 +116,7 @@ def _feature_to_data_source(
     bq_uri = feature_group._gca_resource.big_query.big_query_source.input_uri
     assert bq_uri
 
-    fully_qualified_table = bq_uri.lstrip("bq://")
+    fully_qualified_table = bq_uri.removeprefix("bq://")
     assert fully_qualified_table
 
     query = (
