@@ -41,7 +41,13 @@ def get_project_id(
 
     """
 
-    credentials = credentials or initializer.global_config.credentials
+    if credentials is None:
+        credentials = initializer.global_config._credentials
+        if credentials is None:
+            import google.auth
+            from google.cloud.aiplatform.constants import base as constants
+
+            credentials, _ = google.auth.default(scopes=constants.DEFAULT_AUTHED_SCOPES)
 
     projects_client = resourcemanager.ProjectsClient(credentials=credentials)
 
@@ -67,7 +73,13 @@ def get_project_number(
 
     """
 
-    credentials = credentials or initializer.global_config.credentials
+    if credentials is None:
+        credentials = initializer.global_config._credentials
+        if credentials is None:
+            import google.auth
+            from google.cloud.aiplatform.constants import base as constants
+
+            credentials, _ = google.auth.default(scopes=constants.DEFAULT_AUTHED_SCOPES)
 
     projects_client = resourcemanager.ProjectsClient(credentials=credentials)
 

@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import json
 import re
 import sys
 import threading
@@ -851,24 +852,39 @@ class TestEvaluation:
         )
         test_metrics = ["exact_match"]
         test_eval_task = EvalTask(dataset=eval_dataset, metrics=test_metrics)
-        mock_metric_results = _MOCK_EXACT_MATCH_RESULT
+
+        def _exact_match_side_effect(**kwargs):
+            request = kwargs.get("request")
+            prediction = request.exact_match_input.instances[0].prediction
+            reference = request.exact_match_input.instances[0].reference
+            score = 1.0 if prediction == reference else 0.0
+            return gapic_evaluation_service_types.EvaluateInstancesResponse(
+                exact_match_results=gapic_evaluation_service_types.ExactMatchResults(
+                    exact_match_metric_values=[
+                        gapic_evaluation_service_types.ExactMatchMetricValue(
+                            score=score
+                        ),
+                    ]
+                )
+            )
+
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
-            side_effect=mock_metric_results,
+            side_effect=_exact_match_side_effect,
         ):
             test_result = test_eval_task.evaluate()
 
         assert test_result.summary_metrics["row_count"] == 2
         assert test_result.summary_metrics["exact_match/mean"] == 0.5
         assert test_result.summary_metrics["exact_match/std"] == pytest.approx(0.7, 0.1)
-        assert list(test_result.metrics_table.columns.values) == [
+        assert list(test_result.metrics_table.columns.to_list()) == [
             "response",
             "reference",
             "exact_match/score",
         ]
         assert test_result.metrics_table[["response", "reference"]].equals(eval_dataset)
-        assert list(test_result.metrics_table["exact_match/score"].values) == [
+        assert test_result.metrics_table["exact_match/score"].to_list() == [
             1.0,
             0.0,
         ]
@@ -897,7 +913,7 @@ class TestEvaluation:
         assert test_result.summary_metrics[
             "test_pointwise_metric/std"
         ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -915,10 +931,12 @@ class TestEvaluation:
         assert test_result.metrics_table["prompt"].equals(
             _TEST_EVAL_DATASET_ALL_INCLUDED["prompt"]
         )
-        scores = list(test_result.metrics_table["test_pointwise_metric/score"].values)
+        scores = list(
+            test_result.metrics_table["test_pointwise_metric/score"].to_list()
+        )
         assert scores == [5, 4] or scores == [4, 5]
         assert list(
-            test_result.metrics_table["test_pointwise_metric/explanation"].values
+            test_result.metrics_table["test_pointwise_metric/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -930,11 +948,26 @@ class TestEvaluation:
             metrics=[_TEST_POINTWISE_METRIC_FREE_STRING],
             metric_column_mapping={"abc": "prompt"},
         )
-        mock_metric_results = _MOCK_POINTWISE_RESULT
+
+        def _pointwise_side_effect(**kwargs):
+            request = kwargs.get("request")
+            instance_data = json.loads(
+                request.pointwise_metric_input.instance.json_instance
+            )
+            # Row with prompt "test_prompt" gets score 5, "text_prompt" gets 4.
+            score = 5 if instance_data.get("abc") == "test_prompt" else 4
+            return gapic_evaluation_service_types.EvaluateInstancesResponse(
+                pointwise_metric_result=(
+                    gapic_evaluation_service_types.PointwiseMetricResult(
+                        score=score, explanation="explanation"
+                    )
+                )
+            )
+
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
-            side_effect=mock_metric_results,
+            side_effect=_pointwise_side_effect,
         ):
             test_result = test_eval_task.evaluate()
 
@@ -943,7 +976,7 @@ class TestEvaluation:
         assert test_result.summary_metrics[
             "test_pointwise_metric_str/std"
         ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -962,10 +995,10 @@ class TestEvaluation:
             _TEST_EVAL_DATASET_ALL_INCLUDED["prompt"]
         )
         assert list(
-            test_result.metrics_table["test_pointwise_metric_str/score"].values
+            test_result.metrics_table["test_pointwise_metric_str/score"].to_list()
         ) == [5, 4]
         assert list(
-            test_result.metrics_table["test_pointwise_metric_str/explanation"].values
+            test_result.metrics_table["test_pointwise_metric_str/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1005,7 +1038,7 @@ class TestEvaluation:
         assert test_result.summary_metrics[
             "summarization_quality/std"
         ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "context",
                 "instruction",
@@ -1017,10 +1050,10 @@ class TestEvaluation:
             ]
         )
         assert list(
-            test_result.metrics_table["summarization_quality/score"].values
+            test_result.metrics_table["summarization_quality/score"].to_list()
         ) == [5, 4]
         assert list(
-            test_result.metrics_table["summarization_quality/explanation"].values
+            test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1061,7 +1094,7 @@ class TestEvaluation:
         assert test_result.summary_metrics[
             "summarization_quality/std"
         ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "context",
                 "instruction",
@@ -1072,11 +1105,11 @@ class TestEvaluation:
                 "summarization_quality/explanation",
             ]
         )
+        assert sorted(
+            list(test_result.metrics_table["summarization_quality/score"].to_list())
+        ) == [4, 5]
         assert list(
-            test_result.metrics_table["summarization_quality/score"].values
-        ) == [5, 4]
-        assert list(
-            test_result.metrics_table["summarization_quality/explanation"].values
+            test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1093,11 +1126,26 @@ class TestEvaluation:
         test_eval_task = EvalTask(
             dataset=_TEST_EVAL_DATASET_ALL_INCLUDED, metrics=test_metrics
         )
-        mock_metric_results = _MOCK_SUMMARIZATION_QUALITY_RESULT
+
+        def _summarization_side_effect(**kwargs):
+            request = kwargs.get("request")
+            instance_data = json.loads(
+                request.pointwise_metric_input.instance.json_instance
+            )
+            # Row with response "test" gets score 5, "text" gets score 4.
+            score = 5 if instance_data.get("response") == "test" else 4
+            return gapic_evaluation_service_types.EvaluateInstancesResponse(
+                pointwise_metric_result=(
+                    gapic_evaluation_service_types.PointwiseMetricResult(
+                        score=score, explanation="explanation"
+                    )
+                )
+            )
+
         with mock.patch.object(
             target=gapic_evaluation_services.EvaluationServiceClient,
             attribute="evaluate_instances",
-            side_effect=mock_metric_results,
+            side_effect=_summarization_side_effect,
         ):
             test_result = test_eval_task.evaluate()
 
@@ -1106,7 +1154,7 @@ class TestEvaluation:
         assert test_result.summary_metrics[
             "summarization_quality/std"
         ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "context",
                 "instruction",
@@ -1119,10 +1167,10 @@ class TestEvaluation:
             ]
         )
         assert list(
-            test_result.metrics_table["summarization_quality/score"].values
+            test_result.metrics_table["summarization_quality/score"].to_list()
         ) == [5, 4]
         assert list(
-            test_result.metrics_table["summarization_quality/explanation"].values
+            test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1158,7 +1206,7 @@ class TestEvaluation:
         assert test_result.summary_metrics["metricx/mean"] == 12.5
         assert test_result.summary_metrics["comet/std"] == pytest.approx(0.5, 0.6)
         assert test_result.summary_metrics["metricx/std"] == pytest.approx(10, 11)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "context",
                 "instruction",
@@ -1170,8 +1218,8 @@ class TestEvaluation:
                 "metricx/score",
             ]
         )
-        assert list(test_result.metrics_table["comet/score"].values) == [0.1, 0.9]
-        assert list(test_result.metrics_table["metricx/score"].values) == [5, 20]
+        assert list(test_result.metrics_table["comet/score"].to_list()) == [0.1, 0.9]
+        assert list(test_result.metrics_table["metricx/score"].to_list()) == [5, 20]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_automatic_metrics_with_custom_metric_spec(self, api_transport):
@@ -1207,7 +1255,7 @@ class TestEvaluation:
         assert test_result.summary_metrics["row_count"] == 2
         assert test_result.summary_metrics["rouge/mean"] == 0.75
         assert test_result.summary_metrics["rouge/std"] == pytest.approx(0.35, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "reference",
@@ -1217,7 +1265,7 @@ class TestEvaluation:
                 "rouge/score",
             ]
         )
-        assert list(test_result.metrics_table["rouge/score"].values) == [1, 0.5]
+        assert list(test_result.metrics_table["rouge/score"].to_list()) == [1, 0.5]
 
         api_requests = [
             call.kwargs["request"] for call in mock_evaluate_instances.call_args_list
@@ -1262,7 +1310,7 @@ class TestEvaluation:
             )
         _TEST_PAIRWISE_METRIC._baseline_model = None
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "context",
                 "instruction",
@@ -1274,11 +1322,15 @@ class TestEvaluation:
                 "test_pairwise_metric/explanation",
             ]
         )
+        choices = list(
+            test_result.metrics_table["test_pairwise_metric/pairwise_choice"].to_list()
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
-            test_result.metrics_table["test_pairwise_metric/pairwise_choice"].values
-        ) == ["BASELINE", "CANDIDATE"]
-        assert list(
-            test_result.metrics_table["test_pairwise_metric/explanation"].values
+            test_result.metrics_table["test_pairwise_metric/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1331,7 +1383,7 @@ class TestEvaluation:
             )
 
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "context",
                 "instruction",
@@ -1343,15 +1395,19 @@ class TestEvaluation:
                 "pairwise_summarization_quality/explanation",
             ]
         )
-        assert list(
+        choices = list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/pairwise_choice"
-            ].values
-        ) == ["BASELINE", "CANDIDATE"]
+            ].to_list()
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/explanation"
-            ].values
+            ].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1396,7 +1452,7 @@ class TestEvaluation:
             test_result = test_eval_task.evaluate()
 
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -1409,15 +1465,19 @@ class TestEvaluation:
                 "source",
             ]
         )
-        assert list(
+        choices = list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/pairwise_choice"
-            ].values
-        ) == ["BASELINE", "CANDIDATE"]
+            ].to_list()
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
             test_result.metrics_table[
                 "pairwise_summarization_quality/explanation"
-            ].values
+            ].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1493,7 +1553,7 @@ class TestEvaluation:
 
         _TEST_PAIRWISE_METRIC._baseline_model = None
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -1508,16 +1568,20 @@ class TestEvaluation:
                 "test_pairwise_metric/explanation",
             ]
         )
-        assert list(test_result.metrics_table["exact_match/score"].values) == [
+        assert list(test_result.metrics_table["exact_match/score"].to_list()) == [
             1.0,
             0.0,
         ]
 
+        choices = list(
+            test_result.metrics_table["test_pairwise_metric/pairwise_choice"].to_list()
+        )
+        assert choices == ["BASELINE", "CANDIDATE"] or choices == [
+            "CANDIDATE",
+            "BASELINE",
+        ]
         assert list(
-            test_result.metrics_table["test_pairwise_metric/pairwise_choice"].values
-        ) == ["BASELINE", "CANDIDATE"]
-        assert list(
-            test_result.metrics_table["test_pairwise_metric/explanation"].values
+            test_result.metrics_table["test_pairwise_metric/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1532,10 +1596,10 @@ class TestEvaluation:
         )
 
         assert list(
-            test_result.metrics_table["summarization_quality/score"].values
+            test_result.metrics_table["summarization_quality/score"].to_list()
         ) == [5, 4]
         assert list(
-            test_result.metrics_table["summarization_quality/explanation"].values
+            test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
             "explanation",
             "explanation",
@@ -1653,7 +1717,7 @@ class TestEvaluation:
         ):
             test_result = test_eval_task.evaluate()
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -1670,12 +1734,14 @@ class TestEvaluation:
         assert test_result.metrics_table["prompt"].equals(
             _TEST_EVAL_DATASET_ALL_INCLUDED["prompt"]
         )
-        assert list(
-            test_result.metrics_table["test_pointwise_metric/raw_output"].values
-        ) == [
-            ["raw_output_sample_1.1", "raw_output_sample_1.2"],
-            ["raw_output_sample_2.1", "raw_output_sample_2.2"],
-        ]
+        assert sorted(
+            test_result.metrics_table["test_pointwise_metric/raw_output"].to_list()
+        ) == sorted(
+            [
+                ["raw_output_sample_1.1", "raw_output_sample_1.2"],
+                ["raw_output_sample_2.1", "raw_output_sample_2.2"],
+            ]
+        )
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_pairwise_metrics_with_raw_output(self, api_transport):
@@ -1696,7 +1762,7 @@ class TestEvaluation:
         ):
             test_result = test_eval_task.evaluate()
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -1706,12 +1772,14 @@ class TestEvaluation:
                 "test_pairwise_metric/raw_output",
             ]
         )
-        assert list(
-            test_result.metrics_table["test_pairwise_metric/raw_output"].values
-        ) == [
-            ["raw_output_sample_1.1", "raw_output_sample_1.2"],
-            ["raw_output_sample_2.1", "raw_output_sample_2.2"],
-        ]
+        assert sorted(
+            test_result.metrics_table["test_pairwise_metric/raw_output"].to_list()
+        ) == sorted(
+            [
+                ["raw_output_sample_1.1", "raw_output_sample_1.2"],
+                ["raw_output_sample_2.1", "raw_output_sample_2.2"],
+            ]
+        )
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_compute_rubric_based_metric(self, api_transport):
@@ -1744,7 +1812,7 @@ class TestEvaluation:
         ):
             test_result = test_eval_task.evaluate()
         assert test_result.summary_metrics["row_count"] == 2
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -1755,12 +1823,14 @@ class TestEvaluation:
                 "rubrics",
             ]
         )
-        assert list(
-            test_result.metrics_table["summarization_quality/raw_output"].values
-        ) == [
-            ["raw_output_sample_1.1", "raw_output_sample_1.2"],
-            ["raw_output_sample_2.1", "raw_output_sample_2.2"],
-        ]
+        assert sorted(
+            test_result.metrics_table["summarization_quality/raw_output"].to_list()
+        ) == sorted(
+            [
+                ["raw_output_sample_1.1", "raw_output_sample_1.2"],
+                ["raw_output_sample_2.1", "raw_output_sample_2.2"],
+            ]
+        )
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1802,7 +1872,7 @@ class TestAgentEvaluation:
         assert test_result.summary_metrics["row_count"] == 2
         assert test_result.summary_metrics["coherence/mean"] == 4.5
         assert test_result.summary_metrics["coherence/std"] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "reference_trajectory",
@@ -1814,8 +1884,8 @@ class TestAgentEvaluation:
                 "coherence/explanation",
             ]
         )
-        assert list(test_result.metrics_table["coherence/score"].values) == [5, 4]
-        assert list(test_result.metrics_table["coherence/explanation"].values) == [
+        assert list(test_result.metrics_table["coherence/score"].to_list()) == [5, 4]
+        assert list(test_result.metrics_table["coherence/explanation"].to_list()) == [
             "explanation",
             "explanation",
         ]
@@ -1847,7 +1917,7 @@ class TestAgentEvaluation:
         assert test_result.summary_metrics[
             "trajectory_exact_match/std"
         ] == pytest.approx(0.7, 0.1)
-        assert set(test_result.metrics_table.columns.values) == set(
+        assert set(test_result.metrics_table.columns.to_list()) == set(
             [
                 "prompt",
                 "response",
@@ -1858,9 +1928,9 @@ class TestAgentEvaluation:
                 "trajectory_exact_match/score",
             ]
         )
-        assert list(
-            test_result.metrics_table["trajectory_exact_match/score"].values
-        ) == [1.0, 0.0]
+        assert sorted(
+            test_result.metrics_table["trajectory_exact_match/score"].to_list()
+        ) == [0.0, 1.0]
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
     def test_pointwise_autorater_request_config_enabled(self, api_transport):
@@ -2753,7 +2823,7 @@ class TestEvaluationUtils:
                 "gemini-2.5-pro", evaluation_run_config
             )
 
-        assert list(evaluation_run_config.dataset["response"].values) == [
+        assert list(evaluation_run_config.dataset["response"].to_list()) == [
             "test_response",
             "test_response",
         ]

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,12 +42,11 @@ from google.cloud.aiplatform_v1beta1 import (
 )
 from google.cloud.aiplatform_v1beta1.types import api_auth
 from google.cloud.aiplatform_v1beta1.types import EncryptionSpec
-from vertexai.preview.rag import (
+from agentplatform.preview.rag import (
     ANN,
     Basic,
     DocumentCorpus,
     EmbeddingModelConfig,
-    Enterprise,
     Filter,
     HybridSearch,
     JiraQuery,
@@ -282,7 +279,6 @@ TEST_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    embedding_model_config=TEST_EMBEDDING_MODEL_CONFIG,
 )
 TEST_CMEK_RAG_CORPUS = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -296,46 +292,48 @@ TEST_RAG_CORPUS_WEAVIATE = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_WEAVIATE_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_WEAVIATE_CONFIG),
 )
 TEST_RAG_CORPUS_VERTEX_FEATURE_STORE = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_VERTEX_FEATURE_STORE_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_VERTEX_FEATURE_STORE_CONFIG),
 )
 TEST_RAG_CORPUS_PINECONE = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_PINECONE_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_PINECONE_CONFIG),
 )
 TEST_RAG_CORPUS_RAG_MANAGED_DB = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
-    vector_db=TEST_RAG_MANAGED_DB_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_RAG_MANAGED_DB_CONFIG),
 )
 TEST_RAG_CORPUS_RAG_MANAGED_DB_KNN = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
-    vector_db=TEST_RAG_MANAGED_DB_KNN_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_RAG_MANAGED_DB_KNN_CONFIG),
 )
 TEST_RAG_CORPUS_RAG_MANAGED_DB_ANN = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
-    vector_db=TEST_RAG_MANAGED_DB_ANN_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_RAG_MANAGED_DB_ANN_CONFIG),
 )
 TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG,
+    backend_config=RagVectorDbConfig(vector_db=TEST_VERTEX_VECTOR_SEARCH_CONFIG),
 )
 TEST_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH = RagCorpus(
     name=TEST_RAG_CORPUS_RESOURCE_NAME,
     display_name=TEST_CORPUS_DISPLAY_NAME,
     description=TEST_CORPUS_DISCRIPTION,
-    vector_db=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG,
+    backend_config=RagVectorDbConfig(
+        vector_db=TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG
+    ),
 )
 
 TEST_PAGE_TOKEN = "test-page-token"
@@ -626,19 +624,15 @@ TEST_RAG_ENGINE_CONFIG_SPANNER_NO_TIER = RagEngineConfig(
 )
 TEST_RAG_ENGINE_CONFIG_BASIC = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
-    rag_managed_db_config=RagManagedDbConfig(tier=Basic()),
+    rag_managed_db_config=RagManagedDbConfig(mode=Spanner(tier=Basic())),
 )
 TEST_RAG_ENGINE_CONFIG_SCALED = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
-    rag_managed_db_config=RagManagedDbConfig(tier=Scaled()),
+    rag_managed_db_config=RagManagedDbConfig(mode=Spanner(tier=Scaled())),
 )
 TEST_RAG_ENGINE_CONFIG_UNPROVISIONED = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
-    rag_managed_db_config=RagManagedDbConfig(tier=Unprovisioned()),
-)
-TEST_RAG_ENGINE_CONFIG_ENTERPRISE = RagEngineConfig(
-    name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
-    rag_managed_db_config=RagManagedDbConfig(tier=Enterprise()),
+    rag_managed_db_config=RagManagedDbConfig(mode=Spanner(tier=Unprovisioned())),
 )
 TEST_DEFAULT_RAG_ENGINE_CONFIG = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
@@ -648,9 +642,9 @@ TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER = RagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=RagManagedDbConfig(
         mode=Spanner(tier=Basic()),
-        tier=Scaled(),
     ),
 )
+TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER.rag_managed_db_config.tier = Scaled()
 TEST_GAPIC_RAG_ENGINE_CONFIG_SERVERLESS = GapicRagEngineConfig(
     name=TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
     rag_managed_db_config=GapicRagManagedDbConfig(

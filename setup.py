@@ -36,7 +36,9 @@ version = version["__version__"]
 packages = [
     package
     for package in setuptools.PEP420PackageFinder.find()
-    if package.startswith("google") or package.startswith("vertexai")
+    if package.startswith("google")
+    or package.startswith("vertexai")
+    or package.startswith("agentplatform")
 ]
 
 # Add vertex_ray relative packages
@@ -142,7 +144,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    "google-adk >= 1.0.0, < 2.0.0",
+    "google-adk >= 1.5.0, < 3.0.0",
 ]
 
 reasoning_engine_extra_require = [
@@ -173,6 +175,12 @@ agent_engines_extra_require = [
     "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
+adk_testing_extra_require = list(
+    set(
+        adk_extra_require + reasoning_engine_extra_require + ["absl-py", "pytest-xdist"]
+    )
+)
+
 evaluation_extra_require = [
     "pandas >= 1.0.0",
     "tqdm>=4.23.0",
@@ -181,15 +189,17 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm>=1.75.5, <=1.82.6",
-    # For LiteLLM tests. Upper bound pinned: versions 1.82.7+ compromised in supply chain attack.
+    "litellm>=1.83.7, <1.86.0",
+    # For LiteLLM tests. Lower bound: CVE-2026-35030 plus 4 follow-on
+    # advisories patched in 1.83.7. Upper bound <1.86.0 for stable interface only.
 ]
 
 langchain_extra_require = [
-    "langchain >= 0.3, < 0.4",
-    "langchain-core >= 0.3, < 0.4",
-    "langchain-google-vertexai >= 2.0.22, < 3",
-    "langgraph >= 0.2.45, < 0.4",
+    "langchain >= 1.0.0, < 2.0.0",
+    "langchain-classic",
+    "langchain-core >= 1.0.0, < 2.0.0",
+    "langchain-google-genai >= 4.0.0, < 4.2.3",
+    "langgraph >= 1.0.0, < 2.0.0",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
 
@@ -275,7 +285,8 @@ testing_extra_require = (
         # Lazy import requires > 2.12.0
         "tensorflow == 2.14.1; python_version<='3.11'",
         "tensorflow == 2.19.0; python_version>'3.11' and python_version<'3.13'",
-        "protobuf <= 5.29.4",
+        "protobuf >= 5.29.4; python_version>='3.14'",
+        "protobuf <= 5.29.4; python_version<'3.14'",
         # TODO(jayceeli) torch 2.1.0 has conflict with pyfakefs, will check if
         # future versions fix this issue
         "torch >= 2.0.0, < 2.1.0; python_version<='3.11'",
@@ -313,15 +324,16 @@ setuptools.setup(
             " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
         "google-auth >= 2.47.0, <3.0.0",
+        "certifi >= 2023.7.22",
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
         "google-cloud-storage >= 1.32.0, < 4.0.0; python_version<'3.13'",
-        "google-cloud-storage >= 2.10.0, < 4.0.0; python_version>='3.13'",
+        "google-cloud-storage >= 3.10.0, < 4.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
-        "google-genai >= 1.37.0, <2.0.0; python_version<'3.10'",
-        "google-genai >= 1.66.0, <2.0.0; python_version>='3.10'",
+        "google-genai >= 1.37.0, <3.0.0; python_version<'3.10'",
+        "google-genai >= 1.66.0, <3.0.0; python_version>='3.10'",
     )
     + genai_requires,
     extras_require={
@@ -343,6 +355,7 @@ setuptools.setup(
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
         "adk": adk_extra_require,
+        "adk_testing": adk_testing_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
         "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,
@@ -354,14 +367,13 @@ setuptools.setup(
         "llama_index": llama_index_extra_require,
         "llama_index_testing": llama_index_testing_extra_require,
     },
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",

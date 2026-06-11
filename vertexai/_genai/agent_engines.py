@@ -38,10 +38,12 @@ if typing.TYPE_CHECKING:
     from . import sessions as sessions_module
     from . import memories as memories_module
     from . import a2a_tasks as a2a_tasks_module
+    from . import runtimes as runtimes_module
 
     _ = sessions_module
     __ = memories_module
     ___ = a2a_tasks_module
+    ____ = runtimes_module
 
 
 logger = logging.getLogger("vertexai_genai.agentengines")
@@ -733,6 +735,9 @@ def _UpdateAgentEngineConfig_to_vertex(
             parent_object, ["_query", "updateMask"], getv(from_object, ["update_mask"])
         )
 
+    if getv(from_object, ["traffic_config"]) is not None:
+        setv(parent_object, ["trafficConfig"], getv(from_object, ["traffic_config"]))
+
     return to_object
 
 
@@ -776,7 +781,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CancelQueryJobAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -848,7 +855,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -923,7 +932,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -994,7 +1005,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -1084,7 +1097,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _DeleteAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -1153,7 +1168,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1222,7 +1239,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ListAgentEngineRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1291,7 +1310,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineOperationParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1361,7 +1382,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _QueryAgentEngineRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -1428,7 +1451,9 @@ class AgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _UpdateAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -1490,6 +1515,22 @@ class AgentEngines(_api_module.BaseModule):
     _memories = None
     _sandboxes = None
     _sessions = None
+    _runtimes = None
+
+    @property
+    def runtimes(self) -> "runtimes_module.Runtimes":
+        if self._runtimes is None:
+            try:
+                # We need to lazy load the runtimes module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._runtimes = importlib.import_module(".runtimes", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.runtimes' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._runtimes.Runtimes(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def a2a_tasks(self) -> "a2a_tasks_module.A2aTasks":
@@ -2276,6 +2317,7 @@ class AgentEngines(_api_module.BaseModule):
         ] = None,
         container_spec: Optional[types.ReasoningEngineSpecContainerSpecDict] = None,
         keep_alive_probe: Optional[dict[str, Any]] = None,
+        traffic_config: Optional[types.ReasoningEngineTrafficConfigDict] = None,
     ) -> types.UpdateAgentEngineConfigDict:
         import sys
 
@@ -2303,6 +2345,9 @@ class AgentEngines(_api_module.BaseModule):
         if labels is not None:
             update_masks.append("labels")
             config["labels"] = labels
+        if traffic_config is not None:
+            update_masks.append("traffic_config")
+            config["traffic_config"] = traffic_config
 
         if agent_framework == "google-adk":
             env_vars = _agent_engines_utils._add_telemetry_enablement_env(env_vars)
@@ -2455,10 +2500,12 @@ class AgentEngines(_api_module.BaseModule):
                 agent_card = getattr(agent, "agent_card")
                 if agent_card:
                     try:
-                        agent_engine_spec["agent_card"] = agent_card.model_dump(
-                            exclude_none=True
+                        from google.protobuf import json_format
+
+                        agent_engine_spec["agent_card"] = json_format.MessageToDict(
+                            agent_card
                         )
-                    except TypeError as e:
+                    except Exception as e:
                         raise ValueError(
                             f"Failed to convert agent card to dict (serialization error): {e}"
                         ) from e
@@ -2696,6 +2743,9 @@ class AgentEngines(_api_module.BaseModule):
             keep_alive_probe = json.loads(
                 keep_alive_probe.model_dump_json(exclude_none=True)
             )
+        traffic_config = config.traffic_config
+        if traffic_config is not None:
+            traffic_config = json.loads(traffic_config.model_dump_json())
         if agent and agent_engine:
             raise ValueError("Please specify only one of `agent` or `agent_engine`.")
         elif agent_engine:
@@ -2744,6 +2794,7 @@ class AgentEngines(_api_module.BaseModule):
             agent_config_source=agent_config_source,
             container_spec=container_spec,
             keep_alive_probe=keep_alive_probe,
+            traffic_config=traffic_config,
         )
         operation = self._update(name=name, config=api_config)
         reasoning_engine_id = _agent_engines_utils._get_reasoning_engine_id(
@@ -3125,7 +3176,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CancelQueryJobAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -3199,7 +3252,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CheckQueryJobAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -3276,7 +3331,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _RunQueryJobAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -3349,7 +3406,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -3441,7 +3500,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _DeleteAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -3512,7 +3573,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3583,7 +3646,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ListAgentEngineRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3654,7 +3719,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineOperationParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3726,7 +3793,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _QueryAgentEngineRequestParameters_to_vertex(parameter_model)
             request_url_dict = request_dict.get("_url")
@@ -3795,7 +3864,9 @@ class AsyncAgentEngines(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _UpdateAgentEngineRequestParameters_to_vertex(
                 parameter_model
@@ -3858,6 +3929,7 @@ class AsyncAgentEngines(_api_module.BaseModule):
     _a2a_tasks = None
     _memories = None
     _sessions = None
+    _runtimes = None
 
     async def delete(
         self,
@@ -3886,6 +3958,21 @@ class AsyncAgentEngines(_api_module.BaseModule):
         operation = await self._delete(name=name, force=force, config=config)
         logger.info(f"Started AgentEngine delete operation: {operation.name}")
         return operation
+
+    @property
+    def runtimes(self) -> "runtimes_module.AsyncRuntimes":
+        if self._runtimes is None:
+            try:
+                # We need to lazy load the runtimes module to handle the
+                # possibility of ImportError when dependencies are not installed.
+                self._runtimes = importlib.import_module(".runtimes", __package__)
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.runtimes' module requires additional "
+                    "packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._runtimes.AsyncRuntimes(self._api_client)  # type: ignore[no-any-return]
 
     @property
     def a2a_tasks(self) -> "a2a_tasks_module.AsyncA2aTasks":

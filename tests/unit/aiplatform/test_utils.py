@@ -38,6 +38,7 @@ from google.cloud.aiplatform import compat, utils
 from google.cloud.aiplatform.compat.types import pipeline_failure_policy
 from google.cloud.aiplatform import datasets
 from google.cloud.aiplatform.utils import (
+    _ipython_utils,
     column_transformations_utils,
     gcs_utils,
     pipeline_utils,
@@ -1150,3 +1151,29 @@ class TestYamlUtils:
         )
         with pytest.raises(ValueError, match=message):
             yaml_utils.load_yaml(uri)
+
+
+class TestIpythonUtils:
+    """Tests for IPython utility functions."""
+
+    def test_display_link_raises_value_error_for_invalid_url(self):
+        with pytest.raises(ValueError, match="Only urls starting with"):
+            _ipython_utils.display_link("bad", "https://example.com")
+
+    def test_display_link_success_and_sanitizes(self):
+        mock_display_module = mock.MagicMock()
+        with mock.patch.dict("sys.modules", {"IPython.display": mock_display_module, "IPython": mock.MagicMock()}):
+            _ipython_utils.display_link(
+                text="<script>alert('xss')</script>",
+                url="https://console.cloud.google.com/test?param=1&another=2",
+                icon="<icon>",
+            )
+            mock_display_module.HTML.assert_called_once()
+            html_arg = mock_display_module.HTML.call_args[0][0]
+
+            assert "&lt;script&gt;alert(&#x27;xss&#x27;)&lt;/script&gt;" in html_arg
+            assert "href=\"https://console.cloud.google.com/test?param=1&amp;another=2\"" in html_arg
+            assert "window.google.colab.openUrl(\"https://console.cloud.google.com/test?param=1&another=2\")" in html_arg
+            assert "&lt;icon&gt;" in html_arg
+
+            mock_display_module.display.assert_called_once_with(mock_display_module.HTML.return_value)

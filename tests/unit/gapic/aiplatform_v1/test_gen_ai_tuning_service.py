@@ -76,9 +76,11 @@ from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import pagers
 from google.cloud.aiplatform_v1.services.gen_ai_tuning_service import transports
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import encryption_spec
+from google.cloud.aiplatform_v1.types import evaluation_service
 from google.cloud.aiplatform_v1.types import genai_tuning_service
 from google.cloud.aiplatform_v1.types import io
 from google.cloud.aiplatform_v1.types import job_state
+from google.cloud.aiplatform_v1.types import openapi
 from google.cloud.aiplatform_v1.types import tool
 from google.cloud.aiplatform_v1.types import tuning_job
 from google.cloud.aiplatform_v1.types import tuning_job as gca_tuning_job
@@ -4742,6 +4744,155 @@ def test_create_tuning_job_rest_call_success(request_type):
                 "adapter_size": 1,
             },
             "export_last_checkpoint_only": True,
+            "evaluation_config": {
+                "metrics": [
+                    {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                                "generation_config": {
+                                    "temperature": 0.1198,
+                                    "top_p": 0.546,
+                                    "top_k": 0.541,
+                                    "candidate_count": 1573,
+                                    "max_output_tokens": 1865,
+                                    "stop_sequences": [
+                                        "stop_sequences_value1",
+                                        "stop_sequences_value2",
+                                    ],
+                                    "response_logprobs": True,
+                                    "logprobs": 872,
+                                    "presence_penalty": 0.1713,
+                                    "frequency_penalty": 0.18380000000000002,
+                                    "seed": 417,
+                                    "response_mime_type": "response_mime_type_value",
+                                    "response_schema": {
+                                        "type_": 1,
+                                        "format_": "format__value",
+                                        "title": "title_value",
+                                        "description": "description_value",
+                                        "nullable": True,
+                                        "default": {
+                                            "null_value": 0,
+                                            "number_value": 0.1285,
+                                            "string_value": "string_value_value",
+                                            "bool_value": True,
+                                            "struct_value": {},
+                                            "list_value": {"values": {}},
+                                        },
+                                        "items": {},
+                                        "min_items": 965,
+                                        "max_items": 967,
+                                        "enum": ["enum_value1", "enum_value2"],
+                                        "properties": {},
+                                        "property_ordering": [
+                                            "property_ordering_value1",
+                                            "property_ordering_value2",
+                                        ],
+                                        "required": [
+                                            "required_value1",
+                                            "required_value2",
+                                        ],
+                                        "min_properties": 1520,
+                                        "max_properties": 1522,
+                                        "minimum": 0.764,
+                                        "maximum": 0.766,
+                                        "min_length": 1061,
+                                        "max_length": 1063,
+                                        "pattern": "pattern_value",
+                                        "example": {},
+                                        "any_of": {},
+                                        "additional_properties": {},
+                                        "ref": "ref_value",
+                                        "defs": {},
+                                    },
+                                    "response_json_schema": {},
+                                    "routing_config": {
+                                        "auto_mode": {"model_routing_preference": 1},
+                                        "manual_mode": {
+                                            "model_name": "model_name_value"
+                                        },
+                                    },
+                                    "audio_timestamp": True,
+                                    "response_modalities": [1],
+                                    "media_resolution": 1,
+                                    "speech_config": {
+                                        "voice_config": {
+                                            "prebuilt_voice_config": {
+                                                "voice_name": "voice_name_value"
+                                            },
+                                            "replicated_voice_config": {
+                                                "mime_type": "mime_type_value",
+                                                "voice_sample_audio": b"voice_sample_audio_blob",
+                                            },
+                                        },
+                                        "language_code": "language_code_value",
+                                        "multi_speaker_voice_config": {
+                                            "speaker_voice_configs": [
+                                                {
+                                                    "speaker": "speaker_value",
+                                                    "voice_config": {},
+                                                }
+                                            ]
+                                        },
+                                    },
+                                    "thinking_config": {
+                                        "include_thoughts": True,
+                                        "thinking_budget": 1590,
+                                        "thinking_level": 1,
+                                    },
+                                    "image_config": {
+                                        "image_output_options": {
+                                            "mime_type": "mime_type_value",
+                                            "compression_quality": 2074,
+                                        },
+                                        "aspect_ratio": "aspect_ratio_value",
+                                        "person_generation": 1,
+                                        "image_size": "image_size_value",
+                                    },
+                                },
+                            },
+                            "additional_config": {},
+                        },
+                        "pointwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {"return_raw_output": True},
+                        },
+                        "pairwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "candidate_response_field_name": "candidate_response_field_name_value",
+                            "baseline_response_field_name": "baseline_response_field_name_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {},
+                        },
+                        "exact_match_spec": {},
+                        "bleu_spec": {"use_effective_order": True},
+                        "rouge_spec": {
+                            "rouge_type": "rouge_type_value",
+                            "use_stemmer": True,
+                            "split_summaries": True,
+                        },
+                        "aggregation_metrics": [1],
+                    }
+                ],
+                "output_config": {
+                    "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
+                },
+                "autorater_config": {},
+                "inference_generation_config": {},
+            },
         },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
@@ -4811,7 +4962,7 @@ def test_create_tuning_job_rest_call_success(request_type):
                                 },
                                 "function_call": {
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
                                     "partial_args": [
                                         {
                                             "null_value": 0,
@@ -4872,6 +5023,50 @@ def test_create_tuning_job_rest_call_success(request_type):
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
+        "evaluate_dataset_runs": [
+            {
+                "operation_name": "operation_name_value",
+                "evaluation_run": "evaluation_run_value",
+                "checkpoint_id": "checkpoint_id_value",
+                "evaluate_dataset_response": {
+                    "aggregation_output": {
+                        "dataset": {
+                            "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                            "bigquery_source": {"input_uri": "input_uri_value"},
+                        },
+                        "aggregation_results": [
+                            {
+                                "pointwise_metric_result": {
+                                    "score": 0.54,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {
+                                        "raw_outputs": {
+                                            "raw_output": [
+                                                "raw_output_value1",
+                                                "raw_output_value2",
+                                            ]
+                                        }
+                                    },
+                                },
+                                "pairwise_metric_result": {
+                                    "pairwise_choice": 1,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {},
+                                },
+                                "exact_match_metric_value": {"score": 0.54},
+                                "bleu_metric_value": {"score": 0.54},
+                                "rouge_metric_value": {"score": 0.54},
+                                "aggregation_metric": 1,
+                            }
+                        ],
+                    },
+                    "output_info": {
+                        "gcs_output_directory": "gcs_output_directory_value"
+                    },
+                },
+                "error": {},
+            }
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
@@ -6375,6 +6570,155 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                 "adapter_size": 1,
             },
             "export_last_checkpoint_only": True,
+            "evaluation_config": {
+                "metrics": [
+                    {
+                        "predefined_metric_spec": {
+                            "metric_spec_name": "metric_spec_name_value",
+                            "metric_spec_parameters": {"fields": {}},
+                        },
+                        "computation_based_metric_spec": {"type_": 1, "parameters": {}},
+                        "llm_based_metric_spec": {
+                            "rubric_group_key": "rubric_group_key_value",
+                            "predefined_rubric_generation_spec": {},
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "judge_autorater_config": {
+                                "sampling_count": 1507,
+                                "flip_enabled": True,
+                                "autorater_model": "autorater_model_value",
+                                "generation_config": {
+                                    "temperature": 0.1198,
+                                    "top_p": 0.546,
+                                    "top_k": 0.541,
+                                    "candidate_count": 1573,
+                                    "max_output_tokens": 1865,
+                                    "stop_sequences": [
+                                        "stop_sequences_value1",
+                                        "stop_sequences_value2",
+                                    ],
+                                    "response_logprobs": True,
+                                    "logprobs": 872,
+                                    "presence_penalty": 0.1713,
+                                    "frequency_penalty": 0.18380000000000002,
+                                    "seed": 417,
+                                    "response_mime_type": "response_mime_type_value",
+                                    "response_schema": {
+                                        "type_": 1,
+                                        "format_": "format__value",
+                                        "title": "title_value",
+                                        "description": "description_value",
+                                        "nullable": True,
+                                        "default": {
+                                            "null_value": 0,
+                                            "number_value": 0.1285,
+                                            "string_value": "string_value_value",
+                                            "bool_value": True,
+                                            "struct_value": {},
+                                            "list_value": {"values": {}},
+                                        },
+                                        "items": {},
+                                        "min_items": 965,
+                                        "max_items": 967,
+                                        "enum": ["enum_value1", "enum_value2"],
+                                        "properties": {},
+                                        "property_ordering": [
+                                            "property_ordering_value1",
+                                            "property_ordering_value2",
+                                        ],
+                                        "required": [
+                                            "required_value1",
+                                            "required_value2",
+                                        ],
+                                        "min_properties": 1520,
+                                        "max_properties": 1522,
+                                        "minimum": 0.764,
+                                        "maximum": 0.766,
+                                        "min_length": 1061,
+                                        "max_length": 1063,
+                                        "pattern": "pattern_value",
+                                        "example": {},
+                                        "any_of": {},
+                                        "additional_properties": {},
+                                        "ref": "ref_value",
+                                        "defs": {},
+                                    },
+                                    "response_json_schema": {},
+                                    "routing_config": {
+                                        "auto_mode": {"model_routing_preference": 1},
+                                        "manual_mode": {
+                                            "model_name": "model_name_value"
+                                        },
+                                    },
+                                    "audio_timestamp": True,
+                                    "response_modalities": [1],
+                                    "media_resolution": 1,
+                                    "speech_config": {
+                                        "voice_config": {
+                                            "prebuilt_voice_config": {
+                                                "voice_name": "voice_name_value"
+                                            },
+                                            "replicated_voice_config": {
+                                                "mime_type": "mime_type_value",
+                                                "voice_sample_audio": b"voice_sample_audio_blob",
+                                            },
+                                        },
+                                        "language_code": "language_code_value",
+                                        "multi_speaker_voice_config": {
+                                            "speaker_voice_configs": [
+                                                {
+                                                    "speaker": "speaker_value",
+                                                    "voice_config": {},
+                                                }
+                                            ]
+                                        },
+                                    },
+                                    "thinking_config": {
+                                        "include_thoughts": True,
+                                        "thinking_budget": 1590,
+                                        "thinking_level": 1,
+                                    },
+                                    "image_config": {
+                                        "image_output_options": {
+                                            "mime_type": "mime_type_value",
+                                            "compression_quality": 2074,
+                                        },
+                                        "aspect_ratio": "aspect_ratio_value",
+                                        "person_generation": 1,
+                                        "image_size": "image_size_value",
+                                    },
+                                },
+                            },
+                            "additional_config": {},
+                        },
+                        "pointwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {"return_raw_output": True},
+                        },
+                        "pairwise_metric_spec": {
+                            "metric_prompt_template": "metric_prompt_template_value",
+                            "candidate_response_field_name": "candidate_response_field_name_value",
+                            "baseline_response_field_name": "baseline_response_field_name_value",
+                            "system_instruction": "system_instruction_value",
+                            "custom_output_format_config": {},
+                        },
+                        "exact_match_spec": {},
+                        "bleu_spec": {"use_effective_order": True},
+                        "rouge_spec": {
+                            "rouge_type": "rouge_type_value",
+                            "use_stemmer": True,
+                            "split_summaries": True,
+                        },
+                        "aggregation_metrics": [1],
+                    }
+                ],
+                "output_config": {
+                    "gcs_destination": {"output_uri_prefix": "output_uri_prefix_value"}
+                },
+                "autorater_config": {},
+                "inference_generation_config": {},
+            },
         },
         "name": "name_value",
         "tuned_model_display_name": "tuned_model_display_name_value",
@@ -6444,7 +6788,7 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
                                 },
                                 "function_call": {
                                     "name": "name_value",
-                                    "args": {"fields": {}},
+                                    "args": {},
                                     "partial_args": [
                                         {
                                             "null_value": 0,
@@ -6505,6 +6849,50 @@ async def test_create_tuning_job_rest_asyncio_call_success(request_type):
         },
         "encryption_spec": {"kms_key_name": "kms_key_name_value"},
         "service_account": "service_account_value",
+        "evaluate_dataset_runs": [
+            {
+                "operation_name": "operation_name_value",
+                "evaluation_run": "evaluation_run_value",
+                "checkpoint_id": "checkpoint_id_value",
+                "evaluate_dataset_response": {
+                    "aggregation_output": {
+                        "dataset": {
+                            "gcs_source": {"uris": ["uris_value1", "uris_value2"]},
+                            "bigquery_source": {"input_uri": "input_uri_value"},
+                        },
+                        "aggregation_results": [
+                            {
+                                "pointwise_metric_result": {
+                                    "score": 0.54,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {
+                                        "raw_outputs": {
+                                            "raw_output": [
+                                                "raw_output_value1",
+                                                "raw_output_value2",
+                                            ]
+                                        }
+                                    },
+                                },
+                                "pairwise_metric_result": {
+                                    "pairwise_choice": 1,
+                                    "explanation": "explanation_value",
+                                    "custom_output": {},
+                                },
+                                "exact_match_metric_value": {"score": 0.54},
+                                "bleu_metric_value": {"score": 0.54},
+                                "rouge_metric_value": {"score": 0.54},
+                                "aggregation_metric": 1,
+                            }
+                        ],
+                    },
+                    "output_info": {
+                        "gcs_output_directory": "gcs_output_directory_value"
+                    },
+                },
+                "error": {},
+            }
+        ],
     }
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency

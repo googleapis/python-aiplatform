@@ -38,3 +38,16 @@ if sys.version_info > (3, 11):
         "vertexai/test_serializers.py",
         "vertexai/test_vizier_hyperparameter_tuner.py",
     ]
+
+import asyncio
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def ensure_default_event_loop():
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop

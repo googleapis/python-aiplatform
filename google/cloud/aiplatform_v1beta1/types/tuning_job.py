@@ -47,6 +47,7 @@ __protobuf__ = proto.module(
         "TunedModelRef",
         "VeoHyperParameters",
         "VeoTuningSpec",
+        "VeoLoraTuningSpec",
         "EvaluationConfig",
         "EvaluateDatasetRun",
         "TunedModelCheckpoint",
@@ -90,6 +91,10 @@ class TuningJob(proto.Message):
             This field is a member of `oneof`_ ``tuning_spec``.
         veo_tuning_spec (google.cloud.aiplatform_v1beta1.types.VeoTuningSpec):
             Tuning Spec for Veo Tuning.
+
+            This field is a member of `oneof`_ ``tuning_spec``.
+        veo_lora_tuning_spec (google.cloud.aiplatform_v1beta1.types.VeoLoraTuningSpec):
+            Tuning Spec for Veo LoRA Tuning.
 
             This field is a member of `oneof`_ ``tuning_spec``.
         name (str):
@@ -221,6 +226,12 @@ class TuningJob(proto.Message):
         number=33,
         oneof="tuning_spec",
         message="VeoTuningSpec",
+    )
+    veo_lora_tuning_spec: "VeoLoraTuningSpec" = proto.Field(
+        proto.MESSAGE,
+        number=38,
+        oneof="tuning_spec",
+        message="VeoLoraTuningSpec",
     )
     name: str = proto.Field(
         proto.STRING,
@@ -1110,6 +1121,8 @@ class TunedModelRef(proto.Message):
 class VeoHyperParameters(proto.Message):
     r"""Hyperparameters for Veo.
 
+    .. _oneof: https://proto-plus-python.readthedocs.io/en/stable/fields.html#oneofs-mutually-exclusive-fields
+
     Attributes:
         epoch_count (int):
             Optional. Number of complete passes the model
@@ -1120,6 +1133,21 @@ class VeoHyperParameters(proto.Message):
             default learning rate.
         tuning_task (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters.TuningTask):
             Optional. The tuning task. Either I2V or T2V.
+        veo_data_mixture_ratio (float):
+            Optional. The ratio of Google internal dataset to use in the
+            training mixture, in range of ``[0, 1)``. If ``0.2``, it
+            means 20% of Google internal dataset and 80% of user dataset
+            will be used for training. If not set, the default value is
+            0.1.
+
+            This field is a member of `oneof`_ ``_veo_data_mixture_ratio``.
+        tuning_speed (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters.TuningSpeed):
+            The speed of the tuning job. Only supported
+            for Veo 3.0 models.
+
+            This field is a member of `oneof`_ ``_tuning_speed``.
+        adapter_size (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters.AdapterSize):
+            Optional. The adapter size for LoRA tuning.
     """
 
     class TuningTask(proto.Enum):
@@ -1132,11 +1160,53 @@ class VeoHyperParameters(proto.Message):
                 Tuning task for image to video.
             TUNING_TASK_T2V (2):
                 Tuning task for text to video.
+            TUNING_TASK_R2V (3):
+                Tuning task for reference to video.
         """
 
         TUNING_TASK_UNSPECIFIED = 0
         TUNING_TASK_I2V = 1
         TUNING_TASK_T2V = 2
+        TUNING_TASK_R2V = 3
+
+    class TuningSpeed(proto.Enum):
+        r"""The speed of the tuning job. Only supported for Veo 3.0
+        models.
+
+        Values:
+            TUNING_SPEED_UNSPECIFIED (0):
+                The default / unset value. For Veo 3.0
+                models, this defaults to FAST.
+            REGULAR (1):
+                Regular tuning speed.
+            FAST (2):
+                Fast tuning speed.
+        """
+
+        TUNING_SPEED_UNSPECIFIED = 0
+        REGULAR = 1
+        FAST = 2
+
+    class AdapterSize(proto.Enum):
+        r"""Adapter size for LoRA tuning.
+
+        Values:
+            ADAPTER_SIZE_UNSPECIFIED (0):
+                Adapter size is unspecified.
+            ADAPTER_SIZE_EIGHT (8):
+                Adapter size 8.
+                This is the default adapter size for Veo LoRA
+                tuning.
+            ADAPTER_SIZE_SIXTEEN (16):
+                Adapter size 16.
+            ADAPTER_SIZE_THIRTY_TWO (32):
+                Adapter size 32.
+        """
+
+        ADAPTER_SIZE_UNSPECIFIED = 0
+        ADAPTER_SIZE_EIGHT = 8
+        ADAPTER_SIZE_SIXTEEN = 16
+        ADAPTER_SIZE_THIRTY_TWO = 32
 
     epoch_count: int = proto.Field(
         proto.INT64,
@@ -1150,6 +1220,22 @@ class VeoHyperParameters(proto.Message):
         proto.ENUM,
         number=3,
         enum=TuningTask,
+    )
+    veo_data_mixture_ratio: float = proto.Field(
+        proto.DOUBLE,
+        number=4,
+        optional=True,
+    )
+    tuning_speed: TuningSpeed = proto.Field(
+        proto.ENUM,
+        number=5,
+        optional=True,
+        enum=TuningSpeed,
+    )
+    adapter_size: AdapterSize = proto.Field(
+        proto.ENUM,
+        number=6,
+        enum=AdapterSize,
     )
 
 
@@ -1169,6 +1255,39 @@ class VeoTuningSpec(proto.Message):
             name of a Vertex Multimodal Dataset.
         hyper_parameters (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters):
             Optional. Hyperparameters for Veo.
+    """
+
+    training_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    validation_dataset_uri: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    hyper_parameters: "VeoHyperParameters" = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message="VeoHyperParameters",
+    )
+
+
+class VeoLoraTuningSpec(proto.Message):
+    r"""Tuning Spec for Veo LoRA Model Tuning.
+
+    Attributes:
+        training_dataset_uri (str):
+            Required. Training dataset used for tuning.
+            The dataset can be specified as either a Cloud
+            Storage path to a JSONL file or as the resource
+            name of a Vertex Multimodal Dataset.
+        validation_dataset_uri (str):
+            Optional. Validation dataset used for tuning.
+            The dataset can be specified as either a Cloud
+            Storage path to a JSONL file or as the resource
+            name of a Vertex Multimodal Dataset.
+        hyper_parameters (google.cloud.aiplatform_v1beta1.types.VeoHyperParameters):
+            Optional. Hyperparameters for Veo LoRA.
     """
 
     training_dataset_uri: str = proto.Field(

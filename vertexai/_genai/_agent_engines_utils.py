@@ -110,23 +110,39 @@ else:
 
 
 try:
-    from a2a.types import (
-        AgentCard,
-        TransportProtocol,
-        Message,
-        TaskIdParams,
-        TaskQueryParams,
-    )
-    from a2a.client import ClientConfig, ClientFactory
+    from a2a.utils.constants import TransportProtocol as _A2aVersionTest  # noqa: F401
 
-    AgentCard = AgentCard
-    TransportProtocol = TransportProtocol
-    Message = Message
-    ClientConfig = ClientConfig
-    ClientFactory = ClientFactory
-    TaskIdParams = TaskIdParams
-    TaskQueryParams = TaskQueryParams
+    _A2A_SDK_VERSION: Optional[str] = "1.0"
+except ImportError:
+    try:
+        from a2a.types import TransportProtocol as _A2aVersionTest  # noqa: F401
+
+        _A2A_SDK_VERSION = "0.3"
+    except ImportError:
+        _A2A_SDK_VERSION = None
+
+try:
+    if _A2A_SDK_VERSION == "1.0":
+        from a2a.types import (
+            AgentCard,
+            Message,
+        )
+        from a2a.client import ClientConfig, ClientFactory
+        from a2a.utils.constants import TransportProtocol
+        from a2a.compat.v0_3.types import TaskIdParams, TaskQueryParams
+    elif _A2A_SDK_VERSION == "0.3":
+        from a2a.types import (
+            AgentCard,
+            TransportProtocol,
+            Message,
+            TaskIdParams,
+            TaskQueryParams,
+        )
+        from a2a.client import ClientConfig, ClientFactory
+    else:
+        raise ImportError
 except (ImportError, AttributeError):
+    _A2A_SDK_VERSION = None
     AgentCard = None
     TransportProtocol = None
     Message = None
@@ -134,6 +150,10 @@ except (ImportError, AttributeError):
     ClientFactory = None
     TaskIdParams = None
     TaskQueryParams = None
+    SendMessageRequest = None
+    GetTaskRequest = None
+    CancelTaskRequest = None
+    GetExtendedAgentCardRequest = None
 
 _ACTIONS_KEY = "actions"
 _ACTION_APPEND = "append"
@@ -633,9 +653,9 @@ def _generate_class_methods_spec_or_raise(
             class_method = _to_proto(schema_dict)
             class_method[_MODE_KEY_IN_SCHEMA] = mode
             if hasattr(agent, "agent_card"):
-                class_method[_A2A_AGENT_CARD] = getattr(
-                    agent, "agent_card"
-                ).model_dump_json()
+                class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(
+                    getattr(agent, "agent_card")
+                )
             class_methods_spec.append(class_method)
 
     return class_methods_spec
@@ -1021,7 +1041,7 @@ def _prepare(
 
 def _register_api_methods_or_raise(
     *,
-    agent_engine: genai_types.AgentEngine,
+    agent_engine: genai_types.AgentEngine | genai_types.AgentEngineRuntimeRevision,
     wrap_operation_fn: Optional[
         dict[str, Callable[[str, str], Callable[..., Any]]]
     ] = None,
@@ -1234,9 +1254,16 @@ def _upload_agent_engine(
             cloudpickle.dump(agent, f)
         except Exception as e:
             url = "https://cloud.google.com/vertex-ai/generative-ai/docs/agent-engine/develop/custom#deployment-considerations"
-            raise TypeError(
-                f"Failed to serialize agent engine. Visit {url} for details."
-            ) from e
+            error_msg = f"Failed to serialize agent engine. Visit {url} for details."
+            if "google._upb._message" in str(e) or "Descriptor" in str(e):
+                error_msg += (
+                    " This is often caused by protobuf objects (like Part, AgentCard) "
+                    "being imported at the global module level. Please move these "
+                    "imports inside the functions or methods where they are used. "
+                    "Alternatively, you can import the entire module: "
+                    "`from a2a import types`."
+                )
+            raise TypeError(error_msg) from e
     with blob.open("rb") as f:
         try:
             _ = cloudpickle.load(f)
@@ -1730,7 +1757,9 @@ def _wrap_async_stream_query_operation(
     return _method
 
 
-def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list[Any]]:
+def _wrap_a2a_operation_v03(
+    method_name: str, agent_card: str
+) -> Callable[..., list[Any]]:
     """Wraps an Agent Engine method, creating a callable for A2A API.
 
     Args:
@@ -1796,13 +1825,6 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
         if not hasattr(a2a_agent_card, "preferred_transport"):
             a2a_agent_card.preferred_transport = TransportProtocol.http_json
 
-        # AE cannot support streaming yet. Turn off streaming for now.
-        if a2a_agent_card.capabilities and a2a_agent_card.capabilities.streaming:
-            raise ValueError(
-                "Streaming is not supported in Agent Engine, please change "
-                "a2a_agent_card.capabilities.streaming to False."
-            )
-
         if not hasattr(a2a_agent_card.capabilities, "streaming"):
             a2a_agent_card.capabilities.streaming = False
 
@@ -1852,6 +1874,138 @@ def _wrap_a2a_operation(method_name: str, agent_card: str) -> Callable[..., list
         return response
 
     return _method  # type: ignore[return-value]
+
+
+def _wrap_a2a_operation_v10(
+    method_name: str, agent_card: str
+) -> Callable[..., list[Any]]:
+    """Wraps an Agent Engine method, creating a callable for A2A API (v1.0.0+).
+
+    Args:
+        method_name: The name of the Agent Engine method to call.
+        agent_card: The agent card JSON string to use for the A2A API call.
+            Example:
+                {
+                    'name': 'Sample Agent',
+                    'description': (
+                        'A helpful assistant agent that can answer questions.'
+                    ),
+                    'supportedInterfaces': [{
+                        'url': 'http://localhost:8080/a2a/rest/',
+                        'protocolBinding': 'HTTP+JSON',
+                        'protocolVersion': '1.0',
+                    }],
+                    'version': '1.0.0',
+                    'capabilities': {
+                        'streaming': True,
+                        'pushNotifications': False,
+                        'extendedAgentCard': True,
+                    },
+                    'defaultInputModes': ['text'],
+                    'defaultOutputModes': ['text'],
+                    'skills': [{
+                        'id': 'question_answer',
+                        'name': 'Q&A Agent',
+                        'description': (
+                            'A helpful assistant agent that can answer questions.'
+                        ),
+                        'tags': ['Question-Answer'],
+                        'examples': [
+                            'Who is leading 2025 F1 Standings?',
+                            'Where can i find an active volcano?',
+                        ],
+                        'inputModes': ['text'],
+                        'outputModes': ['text'],
+                    }],
+                }
+
+    Returns:
+        A callable object that executes the method on the Agent Engine via
+        the A2A API.
+    """
+
+    async def _method(self, **kwargs) -> Any:  # type: ignore[no-untyped-def]
+        if not self.api_client:
+            raise ValueError("api_client is not initialized.")
+        if not self.api_resource:
+            raise ValueError("api_resource is not initialized.")
+
+        a2a_agent_card = AgentCard()
+        json_format.ParseDict(
+            json.loads(agent_card), a2a_agent_card, ignore_unknown_fields=True
+        )
+
+        if a2a_agent_card.supported_interfaces:
+            interface = a2a_agent_card.supported_interfaces[0]
+            if interface.protocol_binding != TransportProtocol.HTTP_JSON:
+                raise ValueError(
+                    "Only HTTP+JSON is supported for preferred transport on agent card"
+                )
+        else:
+            raise ValueError("Agent card does not define any supported interfaces.")
+
+        base_url = self.api_client._api_client._http_options.base_url.rstrip("/")
+        api_version = self.api_client._api_client._http_options.api_version
+        a2a_agent_card.supported_interfaces[0].url = (
+            f"{base_url}/{api_version}/{self.api_resource.name}/a2a"
+        )
+
+        config = ClientConfig(
+            supported_protocol_bindings=[
+                TransportProtocol.HTTP_JSON,
+            ],
+            use_client_preference=True,
+            httpx_client=httpx.AsyncClient(
+                headers={
+                    "Authorization": (
+                        f"Bearer {self.api_client._api_client._credentials.token}"
+                    )
+                },
+                timeout=(
+                    self.api_client._api_client._http_options.timeout / 1000.0
+                    if self.api_client._api_client._http_options.timeout
+                    else None
+                ),
+            ),
+        )
+        factory = ClientFactory(config)
+        client = factory.create(a2a_agent_card)
+
+        context = kwargs.pop("context", None)
+        if context is not None:
+            from a2a.client.client import ClientCallContext
+
+            if not isinstance(context, ClientCallContext):
+                actual_context = ClientCallContext()
+                if hasattr(context, "state"):
+                    actual_context.state = context.state
+                elif isinstance(context, dict):
+                    actual_context.state = context
+                context = actual_context
+
+        req = kwargs["request"]
+        if method_name == "on_message_send":
+            response = client.send_message(req, context=context)
+            chunks = []
+            async for chunk in response:
+                chunks.append(chunk)
+            return chunks
+        elif method_name == "on_get_task":
+            return await client.get_task(req, context=context)
+        elif method_name == "on_cancel_task":
+            return await client.cancel_task(req, context=context)
+        elif method_name == "on_get_extended_agent_card":
+            return await client.get_extended_agent_card(req, context=context)
+        else:
+            raise ValueError(f"Unknown method name: {method_name}")
+
+    return _method  # type: ignore[return-value]
+
+
+if _A2A_SDK_VERSION == "1.0":
+    _wrap_a2a_operation = _wrap_a2a_operation_v10
+else:
+    _wrap_a2a_operation = _wrap_a2a_operation_v03
 
 
 def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterator[Any]:

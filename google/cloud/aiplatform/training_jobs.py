@@ -974,7 +974,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
                     % (
                         self.__class__.__name__,
                         self._gca_resource.name,
-                        self._gca_resource.state,
+                        self._gca_resource.state.name,
                     )
                 )
                 log_wait = min(log_wait * _WAIT_TIME_MULTIPLIER, _MAX_WAIT_TIME)
@@ -1011,7 +1011,7 @@ class _TrainingJob(base.VertexAiStatefulResource):
         """Helper method to compose the dashboard uri where training can be
         viewed."""
         fields = self._parse_resource_name(self.resource_name)
-        url = f"https://console.cloud.google.com/ai/platform/locations/{fields['location']}/training/{fields['training_pipeline']}?project={fields['project']}"
+        url = f"https://console.cloud.google.com/agent-platform/locations/{fields['location']}/training/{fields['training_pipeline']}?project={fields['project']}"
         return url
 
     @property

@@ -4310,6 +4310,11 @@
         "grpc": {
           "libraryClient": "ReasoningEngineExecutionServiceClient",
           "rpcs": {
+            "AsyncQueryReasoningEngine": {
+              "methods": [
+                "async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
@@ -4325,6 +4330,11 @@
         "grpc-async": {
           "libraryClient": "ReasoningEngineExecutionServiceAsyncClient",
           "rpcs": {
+            "AsyncQueryReasoningEngine": {
+              "methods": [
+                "async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
@@ -4340,6 +4350,11 @@
         "rest": {
           "libraryClient": "ReasoningEngineExecutionServiceClient",
           "rpcs": {
+            "AsyncQueryReasoningEngine": {
+              "methods": [
+                "async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"

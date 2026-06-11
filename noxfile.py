@@ -30,7 +30,14 @@ nox.options.default_venv_backend = "uv"
 FLAKE8_VERSION = "flake8==6.1.0"
 BLACK_VERSION = "black==24.8.0"
 ISORT_VERSION = "isort==5.10.1"
-LINT_PATHS = ["docs", "google", "vertexai", "tests", "noxfile.py", "setup.py"]
+LINT_PATHS = [
+    "docs",
+    "google",
+    "vertexai",
+    "agentplatform",
+    "noxfile.py",
+    "setup.py",
+]
 
 DEFAULT_PYTHON_VERSION = "3.10"
 
@@ -53,12 +60,10 @@ DOCFX_DEPENDENCIES = (
     "recommonmark",
 )
 
-UNIT_TEST_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_AG2_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
-UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+UNIT_TEST_TEMPLATES_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 PYTHON_TO_RAY_VERSIONS = {
-    "3.10": ["2.9.3", "2.33.0", "2.42.0"],
+    "3.10": ["2.33.0", "2.42.0"],
     "3.11": ["2.42.0", "2.47.1"],
 }
 UNIT_TEST_STANDARD_DEPENDENCIES = [
@@ -101,6 +106,10 @@ nox.options.sessions = [
     "unit_langchain",
     "unit_ag2",
     "unit_llama_index",
+    "unit_agentplatform_adk",
+    "unit_agentplatform_langchain",
+    "unit_agentplatform_ag2",
+    "unit_agentplatform_llama_index",
     "system",
     "cover",
     "lint",
@@ -208,17 +217,15 @@ def default(session):
         "py.test",
         "--quiet",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
-        "--cov=google",
-        "--cov-append",
-        "--cov-config=.coveragerc",
-        "--cov-report=",
-        "--cov-fail-under=0",
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_adk",
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
         "--ignore=tests/unit/architecture",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
+        "--ignore=tests/unit/agentplatform/frameworks",
         os.path.join("tests", "unit"),
         *session.posargs,
     )
@@ -293,7 +300,136 @@ def unit_ray(session, ray):
     )
 
 
-@nox.session(python=UNIT_TEST_LANGCHAIN_PYTHON_VERSIONS)
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
+def unit_agentplatform_adk(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-adk.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install adk extras
+    session.install("-e", ".[adk_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_adk_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests", "unit", "agentplatform", "frameworks", "test_frameworks_adk.py"
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
+def unit_agentplatform_langchain(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-langchain.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install langchain extras
+    session.install("-e", ".[langchain_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_langchain_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests",
+            "unit",
+            "agentplatform",
+            "frameworks",
+            "test_frameworks_langchain.py",
+        ),
+        os.path.join(
+            "tests",
+            "unit",
+            "agentplatform",
+            "frameworks",
+            "test_frameworks_langgraph.py",
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
+def unit_agentplatform_ag2(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-ag2.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install ag2 extras
+    session.install("-e", ".[ag2_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_ag2_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests", "unit", "agentplatform", "frameworks", "test_frameworks_ag2.py"
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
+def unit_agentplatform_llama_index(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(
+        CURRENT_DIRECTORY / "testing" / "constraints-llama-index.txt"
+    )
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install llama_index extras
+    session.install("-e", ".[llama_index_testing]", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_llama_index_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests",
+            "unit",
+            "agentplatform",
+            "frameworks",
+            "test_frameworks_llama_index.py",
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
 def unit_langchain(session):
     # Install all test dependencies, then install this package in-place.
 
@@ -319,7 +455,7 @@ def unit_langchain(session):
     )
 
 
-@nox.session(python=UNIT_TEST_AG2_PYTHON_VERSIONS)
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
 def unit_ag2(session):
     # Install all test dependencies, then install this package in-place.
 
@@ -345,7 +481,7 @@ def unit_ag2(session):
     )
 
 
-@nox.session(python=UNIT_TEST_LLAMA_INDEX_PYTHON_VERSIONS)
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
 def unit_llama_index(session):
     # Install all test dependencies, then install this package in-place.
 
@@ -459,7 +595,7 @@ def cover(session):
     session.run("coverage", "erase")
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def docs(session):
     """Build the docs for this library."""
 
@@ -519,7 +655,7 @@ def docfx(session):
     )
 
 
-@nox.session(python="3.9", venv_backend="virtualenv")
+@nox.session(python="3.10", venv_backend="virtualenv")
 def gemini_docs(session):
     """Build the docs for library related to Gemini."""
 
@@ -638,7 +774,12 @@ def prerelease_deps(session):
     )
     session.run("python", "-c", "import grpc; print(grpc.__version__)")
 
-    session.run("py.test", "tests/unit")
+    session.run(
+        "py.test",
+        "--ignore=tests/unit/vertexai/genai/replays",
+        "--ignore=tests/unit/agentplatform/genai/replays",
+        "tests/unit",
+    )
 
     system_test_path = os.path.join("tests", "system.py")
     system_test_folder_path = os.path.join("tests", "system")

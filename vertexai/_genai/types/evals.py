@@ -83,16 +83,18 @@ class AgentConfig(_common.BaseModel):
           The tool declarations of the agent.
         """
         tool_declarations: genai_types.ToolListUnion = []
-        for tool in agent.tools:
-            # ADK tools (e.g. AgentTool) provide their own declaration via
-            # _get_declaration(). Use it when available to avoid calling
-            # typing.get_type_hints() on tool instances whose classes use
-            # `from __future__ import annotations`, which causes NameError.
+        for tool in getattr(agent, "tools", None) or []:
+            # ADK tools (e.g. AgentTool, VertexAiSearchTool) own their declaration
+            # via _get_declaration(). A None result means the tool has no function
+            # declaration (e.g. built-in retrieval tools). In both cases, skip the
+            # plain-callable path, which calls typing.get_type_hints() on the
+            # instance and raises NameError for classes using
+            # `from __future__ import annotations`.
             if hasattr(tool, "_get_declaration") and callable(tool._get_declaration):
                 declaration = tool._get_declaration()
                 if declaration is not None:
                     tool_declarations.append({"function_declarations": [declaration]})
-                    continue
+                continue
 
             tool_declarations.append(
                 {
@@ -502,6 +504,10 @@ class UserScenario(_common.BaseModel):
         default=None,
         description="""The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset.""",
     )
+    test_case_title: Optional[str] = Field(
+        default=None,
+        description="""Represents a short 3-5 word title for eval test case.""",
+    )
 
 
 class UserScenarioDict(TypedDict, total=False):
@@ -512,6 +518,9 @@ class UserScenarioDict(TypedDict, total=False):
 
     conversation_plan: Optional[str]
     """The plan for the conversation, used to drive the multi-turn agent run and generate the simulated agent evaluation dataset."""
+
+    test_case_title: Optional[str]
+    """Represents a short 3-5 word title for eval test case."""
 
 
 UserScenarioOrDict = Union[UserScenario, UserScenarioDict]
@@ -536,6 +545,17 @@ class UserScenarioGenerationConfig(_common.BaseModel):
         default=None,
         description="""Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools.""",
     )
+    environment_data: Optional[str] = Field(
+        default=None, description="""Optional. Environment data in string type."""
+    )
+    simulation_instruction: Optional[str] = Field(
+        default=None,
+        description="""Optional. Simulation instruction to guide the user scenario generation.""",
+    )
+    user_scenario_count: Optional[int] = Field(
+        default=None,
+        description="""Required. The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100.""",
+    )
 
 
 class UserScenarioGenerationConfigDict(TypedDict, total=False):
@@ -552,6 +572,15 @@ class UserScenarioGenerationConfigDict(TypedDict, total=False):
 
     environment_context: Optional[str]
     """Environment context to drive simulation. For example, for a QA agent, this could be the docs queried by the tools."""
+
+    environment_data: Optional[str]
+    """Optional. Environment data in string type."""
+
+    simulation_instruction: Optional[str]
+    """Optional. Simulation instruction to guide the user scenario generation."""
+
+    user_scenario_count: Optional[int]
+    """Required. The number of user scenarios to generate. The maximum number of scenarios that can be generated is 100."""
 
 
 UserScenarioGenerationConfigOrDict = Union[

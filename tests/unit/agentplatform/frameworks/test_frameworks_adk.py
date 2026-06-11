@@ -1,0 +1,1825 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+import base64
+import importlib
+import json
+import os
+import re
+import sys
+from typing import Optional
+from unittest import mock
+import uuid
+
+import cloudpickle
+from google import auth
+from google.api_core import operation as ga_operation
+from google.auth import credentials as auth_credentials
+from google.auth.transport import mtls
+from google.cloud import storage
+from google.cloud import aiplatform
+import agentplatform
+from google.cloud.aiplatform import base
+from google.cloud.aiplatform import initializer
+from google.cloud.aiplatform_v1 import types as aip_types
+from google.cloud.aiplatform_v1.services import reasoning_engine_service
+from agentplatform._genai import agent_engines
+from agentplatform._genai import _agent_engines_utils
+from agentplatform.agent_engines.templates import (
+    adk as adk_template,
+)
+from google.genai import types
+import pytest
+
+
+try:
+    from google.adk.agents import llm_agent
+
+    Agent = llm_agent.Agent
+except ImportError:
+
+    class Agent:
+        def __init__(self, name: str, model: str):
+            self.name = name
+            self.model = model
+
+
+_TEST_LOCATION = "us-central1"
+_TEST_PROJECT = "test-project"
+_TEST_PROJECT_ID = "test-project-id"
+_TEST_API_KEY = "test-api-key"
+_TEST_MODEL = "gemini-2.0-flash"
+_TEST_USER_ID = "test_user_id"
+_TEST_AGENT_NAME = "test_agent"
+_TEST_AGENT = Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+_TEST_SESSION = {
+    "id": "ca18c25a-644b-4e13-9b24-78c150ec3eb9",
+    "app_name": "default_app_name",
+    "user_id": _TEST_USER_ID,
+    "events": [
+        {
+            "author": "user",
+            "content": {
+                "parts": [{"text": "My cat's name is Garfield"}],
+                "role": "user",
+            },
+        },
+        {
+            "author": "my_personal_agent",
+            "content": {
+                "parts": [{"text": "Okay, good to know!"}],
+                "role": "model",
+            },
+        },
+    ],
+}
+_TEST_SEARCH_MEMORY_QUERY = "What is my cat's name"
+_TEST_RUN_CONFIG = {
+    "save_input_blobs_as_artifacts": False,
+    "support_cfc": False,
+    "streaming_mode": "sse",
+    "max_llm_calls": 500,
+}
+_TEST_SESSION_EVENTS = [
+    {
+        "author": "user",
+        "content": {
+            "parts": [
+                {
+                    "text": "What is the exchange rate from US dollars to "
+                    "Swedish krona on 2025-09-25?"
+                }
+            ],
+            "role": "user",
+        },
+        "id": "8967297909049524224",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.629513,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionCall": {
+                        "args": {
+                            "currency_date": "2025-09-25",
+                            "currency_from": "USD",
+                            "currency_to": "SEK",
+                        },
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                    }
+                }
+            ],
+            "role": "model",
+        },
+        "id": "3155402589927899136",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832134.723713,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "functionResponse": {
+                        "id": "adk-136738ad-9e57-4cfb-8e23-b0f3e50a37d7",
+                        "name": "get_exchange_rate",
+                        "response": {
+                            "amount": 1,
+                            "base": "USD",
+                            "date": "2025-09-25",
+                            "rates": {"SEK": 9.4118},
+                        },
+                    }
+                }
+            ],
+            "role": "user",
+        },
+        "id": "1678221912150376448",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.764961,
+    },
+    {
+        "author": "currency_exchange_agent",
+        "content": {
+            "parts": [
+                {
+                    "text": "The exchange rate from US dollars to Swedish "
+                    "krona on 2025-09-25 is 1 USD to 9.4118 SEK."
+                }
+            ],
+            "role": "model",
+        },
+        "id": "2470855446567583744",
+        "invocationId": "e-308f65d7-a99f-41e3-b80d-40feb5f1b065",
+        "timestamp": 1765832135.853299,
+    },
+]
+_TEST_STAGING_BUCKET = "gs://test-bucket"
+_TEST_CREDENTIALS = mock.Mock(spec=auth_credentials.AnonymousCredentials())
+_TEST_PARENT = f"projects/{_TEST_PROJECT}/locations/{_TEST_LOCATION}"
+_TEST_RESOURCE_ID = "1028944691210842416"
+_TEST_AGENT_ENGINE_RESOURCE_NAME = (
+    f"{_TEST_PARENT}/reasoningEngines/{_TEST_RESOURCE_ID}"
+)
+_TEST_AGENT_ENGINE_DISPLAY_NAME = "Agent Engine Display Name"
+_TEST_GCS_DIR_NAME = "agent_engine"
+_TEST_BLOB_FILENAME = "agent_engine.pkl"
+_TEST_REQUIREMENTS_FILE = "requirements.txt"
+_TEST_EXTRA_PACKAGES_FILE = "dependencies.tar.gz"
+_TEST_AGENT_ENGINE_GCS_URI = "{}/{}/{}".format(
+    _TEST_STAGING_BUCKET,
+    _TEST_GCS_DIR_NAME,
+    _TEST_BLOB_FILENAME,
+)
+_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI = "{}/{}/{}".format(
+    _TEST_STAGING_BUCKET,
+    _TEST_GCS_DIR_NAME,
+    _TEST_EXTRA_PACKAGES_FILE,
+)
+_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI = "{}/{}/{}".format(
+    _TEST_STAGING_BUCKET,
+    _TEST_GCS_DIR_NAME,
+    _TEST_REQUIREMENTS_FILE,
+)
+_TEST_AGENT_ENGINE_PACKAGE_SPEC = aip_types.ReasoningEngineSpec.PackageSpec(
+    python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+    pickle_object_gcs_uri=_TEST_AGENT_ENGINE_GCS_URI,
+    dependency_files_gcs_uri=_TEST_AGENT_ENGINE_DEPENDENCY_FILES_GCS_URI,
+    requirements_gcs_uri=_TEST_AGENT_ENGINE_REQUIREMENTS_GCS_URI,
+)
+_ADK_AGENT_FRAMEWORK = adk_template.AdkApp.agent_framework
+_TEST_AGENT_ENGINE_OBJ = aip_types.ReasoningEngine(
+    name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+    display_name=_TEST_AGENT_ENGINE_DISPLAY_NAME,
+    spec=aip_types.ReasoningEngineSpec(
+        package_spec=_TEST_AGENT_ENGINE_PACKAGE_SPEC,
+        agent_framework=_ADK_AGENT_FRAMEWORK,
+    ),
+)
+
+GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+    "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
+)
+
+
+@pytest.fixture(scope="module")
+def google_auth_mock():
+    with mock.patch.object(auth, "default") as google_auth_mock:
+        credentials_mock = mock.Mock()
+        credentials_mock.with_quota_project.return_value = None
+        google_auth_mock.return_value = (
+            credentials_mock,
+            _TEST_PROJECT,
+        )
+        yield google_auth_mock
+
+
+@pytest.fixture
+def agentplatform_init_mock():
+    with mock.patch.object(agentplatform, "init") as agentplatform_init_mock:
+        yield agentplatform_init_mock
+
+
+@pytest.fixture
+def otlp_span_exporter_mock():
+    with mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    ) as otlp_span_exporter_mock:
+        yield otlp_span_exporter_mock
+
+
+@pytest.fixture
+def tracer_provider_mock():
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.sdk.trace, "TracerProvider"
+    ) as tracer_provider_mock:
+        yield tracer_provider_mock
+
+
+@pytest.fixture
+def trace_provider_force_flush_mock():
+    import opentelemetry.trace
+    import opentelemetry.sdk.trace
+
+    with mock.patch.object(
+        opentelemetry.trace, "get_tracer_provider"
+    ) as get_tracer_provider_mock:
+        get_tracer_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk.trace.TracerProvider()
+        )
+        yield get_tracer_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
+def logger_provider_force_flush_mock():
+    import opentelemetry._logs
+    import opentelemetry.sdk._logs
+
+    with mock.patch.object(
+        opentelemetry._logs, "get_logger_provider"
+    ) as get_logger_provider_mock:
+        get_logger_provider_mock.return_value = mock.Mock(
+            spec=opentelemetry.sdk._logs.LoggerProvider()
+        )
+        yield get_logger_provider_mock.return_value.force_flush
+
+
+@pytest.fixture
+def default_instrumentor_builder_mock():
+    with mock.patch.object(
+        adk_template, "_default_instrumentor_builder"
+    ) as default_instrumentor_builder_mock:
+        yield default_instrumentor_builder_mock
+
+
+@pytest.fixture
+def simple_span_processor_mock():
+    with mock.patch(
+        "opentelemetry.sdk.trace.export.SimpleSpanProcessor"
+    ) as simple_span_processor_mock:
+        yield simple_span_processor_mock
+
+
+@pytest.fixture
+def adk_version_mock():
+    with mock.patch.object(adk_template, "get_adk_version") as adk_version_mock:
+        yield adk_version_mock
+
+
+@pytest.fixture
+def is_version_sufficient_mock():
+    with mock.patch.object(
+        adk_template, "is_version_sufficient"
+    ) as is_version_sufficient_mock:
+        is_version_sufficient_mock.return_value = True
+        yield is_version_sufficient_mock
+
+
+@pytest.fixture
+def get_project_id_mock():
+    from google.cloud.aiplatform.utils import resource_manager_utils
+
+    with mock.patch.object(
+        resource_manager_utils, "get_project_id"
+    ) as get_project_id_mock:
+        get_project_id_mock.return_value = _TEST_PROJECT_ID
+        yield get_project_id_mock
+
+
+@pytest.fixture
+def warn_if_telemetry_api_disabled_mock():
+    with mock.patch.object(
+        adk_template, "_warn_if_telemetry_api_disabled"
+    ) as warn_if_telemetry_api_disabled_mock:
+        yield warn_if_telemetry_api_disabled_mock
+
+
+class _MockRunner:
+    def run(self, *args, **kwargs):
+        from google.adk.events import event
+
+        yield event.Event(
+            **{
+                "author": "currency_exchange_agent",
+                "content": {
+                    "parts": [
+                        {
+                            "thought_signature": b"test_signature",
+                            "function_call": {
+                                "args": {
+                                    "currency_date": "2025-04-03",
+                                    "currency_from": "USD",
+                                    "currency_to": "SEK",
+                                },
+                                "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
+                                "name": "get_exchange_rate",
+                            },
+                        }
+                    ],
+                    "role": "model",
+                },
+                "id": "9aaItGK9",
+                "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+            }
+        )
+
+    async def run_async(self, *args, **kwargs):
+        from google.adk.events import event
+
+        yield event.Event(
+            **{
+                "author": "currency_exchange_agent",
+                "content": {
+                    "parts": [
+                        {
+                            "thought_signature": b"test_signature",
+                            "function_call": {
+                                "args": {
+                                    "currency_date": "2025-04-03",
+                                    "currency_from": "USD",
+                                    "currency_to": "SEK",
+                                },
+                                "id": "af-c5a57692-9177-4091-a3df-098f834ee849",
+                                "name": "get_exchange_rate",
+                            },
+                        }
+                    ],
+                    "role": "model",
+                },
+                "id": "9aaItGK9",
+                "invocation_id": "e-6543c213-6417-484b-9551-b67915d1d5f7",
+            }
+        )
+
+
+@pytest.mark.usefixtures("google_auth_mock")
+class TestAdkApp:
+    def test_adk_version(self):
+        with mock.patch.object(
+            adk_template,
+            "get_adk_version",
+            return_value="0.5.0",
+        ):
+            with pytest.raises(
+                ValueError,
+                match=(
+                    "Unsupported google-adk version: 0.5.0, please use"
+                    " google-adk>=1.5.0 for AdkApp deployment on Agent Engine."
+                ),
+            ):
+                adk_template.AdkApp(agent=_TEST_AGENT)
+
+    def setup_method(self):
+        for key in [
+            "GOOGLE_CLOUD_PROJECT",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+            "GOOGLE_GENAI_USE_VERTEXAI",
+        ]:
+            os.environ.pop(key, None)
+        importlib.reload(initializer)
+        importlib.reload(agentplatform)
+        agentplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+        for key in [
+            "GOOGLE_CLOUD_PROJECT",
+            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",
+            "GOOGLE_CLOUD_LOCATION",
+            "GOOGLE_GENAI_USE_VERTEXAI",
+        ]:
+            os.environ.pop(key, None)
+
+    def test_initialization(self):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("project") == _TEST_PROJECT
+        assert app._tmpl_attrs.get("location") == _TEST_LOCATION
+        assert app._tmpl_attrs.get("runner") is None
+
+    def test_set_up(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        assert app._tmpl_attrs.get("session_service") is None
+        assert app._tmpl_attrs.get("artifact_service") is None
+        assert app._tmpl_attrs.get("memory_service") is None
+        assert app._tmpl_attrs.get("credential_service") is None
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert app._tmpl_attrs.get("session_service") is not None
+        assert app._tmpl_attrs.get("artifact_service") is not None
+        assert app._tmpl_attrs.get("memory_service") is not None
+        assert app._tmpl_attrs.get("credential_service") is not None
+
+    def test_clone(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert app._tmpl_attrs.get("runner") is not None
+        app_clone = app.clone()
+        assert app._tmpl_attrs.get("runner") is not None
+        assert app_clone._tmpl_attrs.get("runner") is None
+        app_clone.set_up()
+        assert app_clone._tmpl_attrs.get("runner") is not None
+
+    def test_register_operations(self):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        for operations in app.register_operations().values():
+            for operation in operations:
+                assert operation in dir(app)
+
+    def test_stream_query(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = list(
+            app.stream_query(
+                user_id=_TEST_USER_ID,
+                message="test message",
+            )
+        )
+        assert len(events) == 1
+
+    def test_stream_query_with_content(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = list(
+            app.stream_query(
+                user_id=_TEST_USER_ID,
+                message=types.Content(
+                    role="user",
+                    parts=[
+                        types.Part(
+                            text="test message with content",
+                        )
+                    ],
+                ).model_dump(),
+            )
+        )
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_empty_session_events(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=[],
+            message="test message",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_session_events(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(
+            agent=Agent(name=_TEST_AGENT_NAME, model=_TEST_MODEL)
+        )
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            session_events=_TEST_SESSION_EVENTS,
+            message="on the day after that?",
+        ):
+            events.append(event)
+        assert app._tmpl_attrs.get("session_service") is not None
+        sessions = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(sessions.sessions) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+    )
+    async def test_async_stream_query_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        async for _ in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message="test message",
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_with_content(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("runner") is None
+        app.set_up()
+        app._tmpl_attrs["runner"] = _MockRunner()
+        events = []
+        async for event in app.async_stream_query(
+            user_id=_TEST_USER_ID,
+            message=types.Content(
+                role="user",
+                parts=[
+                    types.Part(
+                        text="test message with content",
+                    )
+                ],
+            ).model_dump(),
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    async def test_streaming_agent_run_with_events(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+        request_json = json.dumps(
+            {
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                    "test_user_id2": {"accessToken": "test-access-token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        events = []
+        async for event in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            events.append(event)
+        assert len(events) == 1
+
+    @pytest.mark.asyncio
+    @mock.patch.dict(
+        os.environ,
+        {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+    )
+    async def test_streaming_agent_run_with_events_force_flush_otel(
+        self,
+        trace_provider_force_flush_mock: mock.Mock,
+        logger_provider_force_flush_mock: mock.Mock,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        app._tmpl_attrs["in_memory_runner"] = _MockRunner()
+        request_json = json.dumps(
+            {
+                "authorizations": {
+                    "test_user_id1": {"access_token": "test_access_token"},
+                    "test_user_id2": {"accessToken": "test-access-token"},
+                },
+                "user_id": _TEST_USER_ID,
+                "message": {
+                    "parts": [{"text": "What is the exchange rate from USD to SEK?"}],
+                    "role": "user",
+                },
+            }
+        )
+        async for _ in app.streaming_agent_run_with_events(
+            request_json=request_json,
+        ):
+            pass
+
+        trace_provider_force_flush_mock.assert_called_once()
+        logger_provider_force_flush_mock.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_async_create_session(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        session1 = await app.async_create_session(user_id=_TEST_USER_ID)
+        assert session1["user_id"] == _TEST_USER_ID
+        session2 = await app.async_create_session(
+            user_id=_TEST_USER_ID, session_id="test_session_id"
+        )
+        assert session2["user_id"] == _TEST_USER_ID
+        assert session2["id"] == "test_session_id"
+
+    @pytest.mark.asyncio
+    async def test_async_get_session(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        session1 = await app.async_create_session(user_id=_TEST_USER_ID)
+        session2 = await app.async_get_session(
+            user_id=_TEST_USER_ID,
+            session_id=session1["id"],
+        )
+        assert session2.user_id == _TEST_USER_ID
+        assert session1["id"] == session2.id
+
+    @pytest.mark.asyncio
+    async def test_async_list_sessions(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
+        assert not response0.sessions
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+        response1 = await app.async_list_sessions(user_id=_TEST_USER_ID)
+        assert len(response1.sessions) == 1
+        assert response1.sessions[0].id == session["id"]
+        session2 = await app.async_create_session(user_id=_TEST_USER_ID)
+        response2 = await app.async_list_sessions(user_id=_TEST_USER_ID)
+        assert len(response2.sessions) == 2
+        assert response2.sessions[0].id == session["id"]
+        assert response2.sessions[1].id == session2["id"]
+
+    @pytest.mark.asyncio
+    async def test_async_delete_session(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        response = await app.async_delete_session(
+            user_id=_TEST_USER_ID,
+            session_id="",
+        )
+        assert not response
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+        response1 = await app.async_list_sessions(user_id=_TEST_USER_ID)
+        assert len(response1.sessions) == 1
+        await app.async_delete_session(
+            user_id=_TEST_USER_ID,
+            session_id=session["id"],
+        )
+        response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
+        assert not response0.sessions
+
+    def test_create_session(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        session1 = app.create_session(user_id=_TEST_USER_ID)
+        assert session1["user_id"] == _TEST_USER_ID
+        session2 = app.create_session(
+            user_id=_TEST_USER_ID, session_id="test_session_id"
+        )
+        assert session2["user_id"] == _TEST_USER_ID
+        assert session2["id"] == "test_session_id"
+
+    def test_get_session(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        session1 = app.create_session(user_id=_TEST_USER_ID)
+        session2 = app.get_session(
+            user_id=_TEST_USER_ID,
+            session_id=session1["id"],
+        )
+        assert session2.user_id == _TEST_USER_ID
+        assert session1["id"] == session2.id
+
+    def test_list_sessions(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        response0 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert not response0.sessions
+        session = app.create_session(user_id=_TEST_USER_ID)
+        response1 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(response1.sessions) == 1
+        assert response1.sessions[0].id == session["id"]
+        session2 = app.create_session(user_id=_TEST_USER_ID)
+        response2 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(response2.sessions) == 2
+        assert response2.sessions[0].id == session["id"]
+        assert response2.sessions[1].id == session2["id"]
+
+    def test_delete_session(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        response = app.delete_session(user_id=_TEST_USER_ID, session_id="")
+        assert not response
+        session = app.create_session(user_id=_TEST_USER_ID)
+        response1 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert len(response1.sessions) == 1
+        app.delete_session(user_id=_TEST_USER_ID, session_id=session["id"])
+        response0 = app.list_sessions(user_id=_TEST_USER_ID)
+        assert not response0.sessions
+
+    @pytest.mark.asyncio
+    async def test_async_add_session_to_memory(
+        self,
+        default_instrumentor_builder_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("memory_service") is None
+        session = app.create_session(user_id=_TEST_USER_ID)
+        app._tmpl_attrs["runner"] = _MockRunner()
+
+        from google.adk.events.event import Event
+
+        session_obj = await app._tmpl_attrs["session_service"].get_session(
+            app_name=app._app_name(),
+            user_id=_TEST_USER_ID,
+            session_id=session["id"],
+        )
+        await app._tmpl_attrs["session_service"].append_event(
+            session=session_obj,
+            event=Event(
+                author="user",
+                content={
+                    "parts": [{"text": "My cat's name is Garfield"}],
+                    "role": "user",
+                },
+            ),
+        )
+
+        list(
+            app.stream_query(
+                user_id=_TEST_USER_ID,
+                session_id=session["id"],
+                message="My cat's name is Garfield",
+            )
+        )
+        await app.async_add_session_to_memory(
+            session=app.get_session(
+                user_id=_TEST_USER_ID,
+                session_id=session["id"],
+            )
+        )
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert len(response.memories) >= 1
+
+    @pytest.mark.asyncio
+    async def test_async_artifact_management(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        session = await app.async_create_session(user_id=_TEST_USER_ID)
+        session_id = session["id"]
+
+        part = types.Part(text="test artifact content")
+        version = await app.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            artifact=part,
+            session_id=session_id,
+        )
+        assert version == 0
+
+        # Test string conversion
+        version_str = await app.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test2.txt",
+            artifact="raw string content",
+            session_id=session_id,
+        )
+        assert version_str == 0
+
+        loaded_str = await app.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test2.txt",
+            session_id=session_id,
+        )
+        assert loaded_str.text == "raw string content"
+
+        loaded = await app.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert loaded.text == "test artifact content"
+
+        keys = await app.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id=session_id,
+        )
+        assert set(keys) == {"test.txt", "test2.txt"}
+
+        versions = await app.async_list_versions(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert versions == [0]
+
+        art_versions = await app.async_list_artifact_versions(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        assert len(art_versions) == 1
+        assert art_versions[0].version == 0
+
+        art_ver = await app.async_get_artifact_version(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+            version=0,
+        )
+        assert art_ver.version == 0
+
+        await app.async_delete_artifact(
+            user_id=_TEST_USER_ID,
+            filename="test.txt",
+            session_id=session_id,
+        )
+        keys_after = await app.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id=session_id,
+        )
+        assert set(keys_after) == {"test2.txt"}
+
+    @pytest.mark.asyncio
+    async def test_async_artifact_management_lazy_init(
+        self, get_project_id_mock: mock.Mock
+    ):
+        part = types.Part(text="test lazy content")
+
+        # 1. Save Artifact lazy init
+        app1 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app1._tmpl_attrs.get("artifact_service") is None
+        version = await app1.async_save_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            artifact=part,
+            session_id="lazy_session",
+        )
+        assert version == 0
+        assert app1._tmpl_attrs.get("artifact_service") is not None
+
+        # 2. Load Artifact lazy init
+        app2 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app2._tmpl_attrs.get("artifact_service") is None
+        await app2.async_load_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app2._tmpl_attrs.get("artifact_service") is not None
+
+        # 3. List keys lazy init
+        app3 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app3._tmpl_attrs.get("artifact_service") is None
+        await app3.async_list_artifact_keys(
+            user_id=_TEST_USER_ID,
+            session_id="lazy_session",
+        )
+        assert app3._tmpl_attrs.get("artifact_service") is not None
+
+        # 4. Delete lazy init
+        app4 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app4._tmpl_attrs.get("artifact_service") is None
+        await app4.async_delete_artifact(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app4._tmpl_attrs.get("artifact_service") is not None
+
+        # 5. List versions lazy init
+        app5 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app5._tmpl_attrs.get("artifact_service") is None
+        await app5.async_list_versions(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app5._tmpl_attrs.get("artifact_service") is not None
+
+        # 6. List artifact versions lazy init
+        app6 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app6._tmpl_attrs.get("artifact_service") is None
+        await app6.async_list_artifact_versions(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+        )
+        assert app6._tmpl_attrs.get("artifact_service") is not None
+
+        # 7. Get version lazy init
+        app7 = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app7._tmpl_attrs.get("artifact_service") is None
+        await app7.async_get_artifact_version(
+            user_id=_TEST_USER_ID,
+            filename="lazy.txt",
+            session_id="lazy_session",
+            version=0,
+        )
+        assert app7._tmpl_attrs.get("artifact_service") is not None
+
+    @pytest.mark.asyncio
+    async def test_async_add_session_to_memory_dict(
+        self,
+        get_project_id_mock: mock.Mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert not response.memories
+        await app.async_add_session_to_memory(session=_TEST_SESSION)
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert len(response.memories) >= 1
+
+    @pytest.mark.asyncio
+    async def test_async_search_memory(self, get_project_id_mock: mock.Mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert not response.memories
+        await app.async_add_session_to_memory(session=_TEST_SESSION)
+        response = await app.async_search_memory(
+            user_id=_TEST_USER_ID,
+            query=_TEST_SEARCH_MEMORY_QUERY,
+        )
+        assert len(response.memories) >= 1
+
+    @pytest.mark.parametrize(
+        "adk_version,enable_tracing,enable_telemetry,want_tracing_setup,want_logging_setup",
+        [
+            ("1.16.0", False, False, False, False),
+            ("1.16.0", False, True, False, True),
+            ("1.16.0", False, None, False, False),
+            ("1.16.0", True, False, False, False),
+            ("1.16.0", True, True, True, True),
+            ("1.16.0", True, None, True, False),
+            ("1.16.0", None, False, False, False),
+            ("1.16.0", None, True, False, True),
+            ("1.16.0", None, None, False, False),
+            ("1.16.0", None, "unspecified", False, False),
+            ("1.16.0", False, "unspecified", False, False),
+            ("1.16.0", True, "unspecified", True, False),
+            ("1.17.0", False, False, False, False),
+            ("1.17.0", False, True, False, True),
+            ("1.17.0", False, None, False, False),
+            ("1.17.0", True, False, False, False),
+            ("1.17.0", True, True, True, True),
+            ("1.17.0", True, None, True, False),
+            ("1.17.0", None, False, False, False),
+            ("1.17.0", None, True, True, True),
+            ("1.17.0", None, None, False, False),
+            ("1.17.0", None, "unspecified", False, False),
+            ("1.17.0", False, "unspecified", False, False),
+            ("1.17.0", True, "unspecified", True, False),
+        ],
+    )
+    @mock.patch.dict(os.environ)
+    def test_default_instrumentor_enablement(
+        self,
+        adk_version: str,
+        enable_tracing: Optional[bool],
+        enable_telemetry: Optional[bool],
+        want_tracing_setup: bool,
+        want_logging_setup: bool,
+        default_instrumentor_builder_mock: mock.Mock,
+        warn_if_telemetry_api_disabled_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+        adk_version_mock: mock.Mock,
+    ):
+        # Arrange
+        adk_version_mock.return_value = adk_version
+        if enable_telemetry is not None:
+            os.environ["GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"] = str(
+                enable_telemetry
+            )
+
+        app = adk_template.AdkApp(agent=_TEST_AGENT, enable_tracing=enable_tracing)
+
+        # Act
+        app.set_up()
+
+        # Assert
+        default_instrumentor_builder_mock.assert_called_once_with(
+            _TEST_PROJECT_ID,
+            enable_tracing=want_tracing_setup,
+            enable_logging=want_logging_setup,
+        )
+
+    @pytest.mark.parametrize(
+        "adk_version,enable_tracing,enable_telemetry,want_custom_instrumentor_called",
+        [
+            ("1.16.0", False, False, False),
+            ("1.16.0", False, True, False),
+            ("1.16.0", False, None, False),
+            ("1.16.0", True, False, False),
+            ("1.16.0", True, True, True),
+            ("1.16.0", True, None, True),
+            ("1.16.0", None, False, False),
+            ("1.16.0", None, True, False),
+            ("1.16.0", None, None, False),
+            ("1.16.0", None, "unspecified", False),
+            ("1.16.0", False, "unspecified", False),
+            ("1.16.0", True, "unspecified", True),
+            ("1.17.0", False, False, False),
+            ("1.17.0", False, True, False),
+            ("1.17.0", False, None, False),
+            ("1.17.0", True, False, False),
+            ("1.17.0", True, True, True),
+            ("1.17.0", True, None, True),
+            ("1.17.0", None, False, False),
+            ("1.17.0", None, True, True),
+            ("1.17.0", None, None, False),
+            ("1.17.0", None, "unspecified", False),
+            ("1.17.0", False, "unspecified", False),
+            ("1.17.0", True, "unspecified", True),
+        ],
+    )
+    @mock.patch.dict(os.environ)
+    def test_custom_instrumentor_enablement(
+        self,
+        adk_version: str,
+        enable_tracing: Optional[bool],
+        enable_telemetry: Optional[bool],
+        want_custom_instrumentor_called: bool,
+        get_project_id_mock: mock.Mock,
+        warn_if_telemetry_api_disabled_mock: mock.Mock,
+        adk_version_mock: mock.Mock,
+    ):
+        # Arrange
+        adk_version_mock.return_value = adk_version
+        if enable_telemetry is not None:
+            os.environ["GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"] = str(
+                enable_telemetry
+            )
+        custom_instrumentor = mock.Mock()
+        app = adk_template.AdkApp(
+            agent=_TEST_AGENT,
+            enable_tracing=enable_tracing,
+            instrumentor_builder=custom_instrumentor,
+        )
+
+        # Act
+        app.set_up()
+
+        # Assert
+        if want_custom_instrumentor_called:
+            custom_instrumentor.assert_called_once_with(_TEST_PROJECT_ID)
+        else:
+            custom_instrumentor.assert_not_called()
+
+    @mock.patch.dict(
+        os.environ,
+        {
+            "GOOGLE_CLOUD_AGENT_ENGINE_ID": "test_agent_id",
+            "OTEL_RESOURCE_ATTRIBUTES": "some-attribute=some-value",
+        },
+    )
+    def test_tracing_setup(
+        self,
+        monkeypatch,
+        tracer_provider_mock: mock.Mock,
+        otlp_span_exporter_mock: mock.Mock,
+        get_project_id_mock: mock.Mock,
+        warn_if_telemetry_api_disabled_mock: mock.Mock,
+    ):
+        monkeypatch.setattr(
+            "uuid.uuid4", lambda: uuid.UUID("12345678123456781234567812345678")
+        )
+        monkeypatch.setattr("os.getpid", lambda: 123123123)
+        with mock.patch.object(initializer.global_config, "_project", _TEST_PROJECT):
+            app = adk_template.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app.set_up()
+
+        otlp_span_exporter_mock.assert_called_once_with(
+            session=mock.ANY,
+            endpoint="https://telemetry.googleapis.com/v1/traces",
+            headers=mock.ANY,
+        )
+
+        get_project_id_mock.assert_called_with(_TEST_PROJECT)
+
+        user_agent = otlp_span_exporter_mock.call_args.kwargs["headers"]["User-Agent"]
+        assert (
+            re.fullmatch(
+                r"Vertex-Agent-Engine\/[\d\.]+ OTel-OTLP-Exporter-Python\/[\d\.]+",
+                user_agent,
+            )
+            is not None
+        )
+
+    @pytest.mark.usefixtures("caplog")
+    def test_enable_tracing(
+        self,
+        caplog,
+        tracer_provider_mock,
+        simple_span_processor_mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("instrumentor") is None
+        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+        # agent.set_up()
+        # assert agent._tmpl_attrs.get("instrumentor") is not None
+        # assert (
+        #     "enable_tracing=True but proceeding with tracing disabled"
+        #     not in caplog.text
+        # )
+
+    @pytest.mark.usefixtures("caplog")
+    def test_enable_tracing_warning(self, caplog):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        assert app._tmpl_attrs.get("instrumentor") is None
+        # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+        # app.set_up()
+        # assert "enable_tracing=True but proceeding with tracing disabled" in caplog.text
+
+    # TODO(b/384730642): Re-enable this test once the parent issue is fixed.
+    # @pytest.mark.parametrize(
+    #     "enable_tracing,want_warning",
+    #     [
+    #         (True, False),
+    #         (False, True),
+    #         (None, False),
+    #     ],
+    # )
+    # @pytest.mark.usefixtures("caplog")
+    # def test_tracing_disabled_warning(self, enable_tracing, want_warning, caplog):
+    #     _ = adk_template.AdkApp(agent=_TEST_AGENT, enable_tracing=enable_tracing)
+    #     assert (
+    #         "[WARNING] Your 'enable_tracing=False' setting" in caplog.text
+    #     ) == want_warning
+
+    @mock.patch.dict(os.environ)
+    def test_span_content_capture_disabled_by_default(self, get_project_id_mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "false"
+
+    @mock.patch.dict(
+        os.environ, {"OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT": "true"}
+    )
+    def test_span_content_capture_disabled_with_env_var(self, get_project_id_mock):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "false"
+
+    @mock.patch.dict(os.environ)
+    def test_span_content_capture_enabled_with_tracing(
+        self,
+        get_project_id_mock,
+        warn_if_telemetry_api_disabled_mock,
+    ):
+        app = adk_template.AdkApp(agent=_TEST_AGENT, enable_tracing=True)
+        app.set_up()
+        assert os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] == "true"
+
+
+def test_dump_event_for_json():
+    from google.adk.events import event
+
+    raw_signature = b"test_signature"
+    # Create an event with both a ThoughtPart and a FunctionCallPart
+    test_event = event.Event(
+        **{
+            "author": _TEST_AGENT_NAME,
+            "content": {
+                "parts": [
+                    {
+                        "thought_signature": raw_signature,
+                        "text": "This is a test",
+                    },
+                ],
+                "role": "model",
+            },
+            "id": "test_id",
+            "invocation_id": "test_invocation_id",
+        }
+    )
+    dumped_event = _agent_engines_utils.dump_event_for_json(test_event)
+
+    part = dumped_event["content"]["parts"][0]
+    assert "text" in part
+    assert part["text"] == "This is a test"
+    assert "thought_signature" in part
+    assert isinstance(part["thought_signature"], str)
+    assert base64.b64decode(part["thought_signature"]) == raw_signature
+
+
+# def test_adk_app_initialization_with_api_key():
+#     importlib.reload(initializer)
+#     importlib.reload(agentplatform)
+#     try:
+#         agentplatform.init(api_key=_TEST_API_KEY)
+#         app = adk_template.AdkApp(agent=_TEST_AGENT)
+#         assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+#         assert app._tmpl_attrs.get("runner") is None
+#         app.set_up()
+#         assert app._tmpl_attrs.get("runner") is not None
+#         assert os.environ.get("GOOGLE_API_KEY") == _TEST_API_KEY
+#         assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+#         assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+#     finally:
+#         initializer.global_pool.shutdown(wait=True)
+
+
+# def test_adk_app_initialization_with_env_api_key():
+#     try:
+#         os.environ["GOOGLE_API_KEY"] == _TEST_API_KEY
+#         app = adk_template.AdkApp(agent=_TEST_AGENT)
+#         assert app._tmpl_attrs.get("express_mode_api_key") == _TEST_API_KEY
+#         assert app._tmpl_attrs.get("runner") is None
+#         app.set_up()
+#         assert app._tmpl_attrs.get("runner") is not None
+#         assert "GOOGLE_CLOUD_LOCATION" not in os.environ
+#         assert "GOOGLE_CLOUD_PROJECT" not in os.environ
+#     finally:
+#         initializer.global_pool.shutdown(wait=True)
+
+
+@pytest.mark.usefixtures("is_version_sufficient_mock")
+class TestAdkAppErrors:
+    @pytest.mark.asyncio
+    async def test_raise_get_session_not_found_error(self, get_project_id_mock):
+        with pytest.raises(
+            RuntimeError,
+            match=r"Session not found. Please create it using .create_session()",
+        ):
+            app = adk_template.AdkApp(agent=_TEST_AGENT)
+            await app.async_get_session(
+                user_id="non_existent_user",
+                session_id="test_session_id",
+            )
+
+    def test_stream_query_invalid_message_type(self):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        with pytest.raises(
+            TypeError,
+            match="message must be a string or a dictionary representing a Content object.",
+        ):
+            list(app.stream_query(user_id=_TEST_USER_ID, message=123))
+
+    @pytest.mark.asyncio
+    async def test_async_stream_query_invalid_message_type(self):
+        app = adk_template.AdkApp(agent=_TEST_AGENT)
+        with pytest.raises(
+            TypeError,
+            match="message must be a string or a dictionary representing a Content object.",
+        ):
+            async for _ in app.async_stream_query(user_id=_TEST_USER_ID, message=123):
+                pass
+
+
+@pytest.fixture(scope="module")
+def create_agent_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "create_reasoning_engine",
+    ) as create_agent_engine_mock:
+        create_agent_engine_lro_mock = mock.Mock(ga_operation.Operation)
+        create_agent_engine_lro_mock.result.return_value = _TEST_AGENT_ENGINE_OBJ
+        create_agent_engine_mock.return_value = create_agent_engine_lro_mock
+        yield create_agent_engine_mock
+
+
+@pytest.fixture(scope="module")
+def get_agent_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "get_reasoning_engine",
+    ) as get_agent_engine_mock:
+        api_client_mock = mock.Mock()
+        api_client_mock.get_reasoning_engine.return_value = _TEST_AGENT_ENGINE_OBJ
+        get_agent_engine_mock.return_value = api_client_mock
+        yield get_agent_engine_mock
+
+
+@pytest.fixture(scope="module")
+def cloud_storage_create_bucket_mock():
+    with mock.patch.object(storage, "Client") as cloud_storage_mock:
+        bucket_mock = mock.Mock(spec=storage.Bucket)
+        bucket_mock.blob.return_value.open.return_value = "blob_file"
+        bucket_mock.blob.return_value.upload_from_filename.return_value = None
+        bucket_mock.blob.return_value.upload_from_string.return_value = None
+
+        cloud_storage_mock.get_bucket = mock.Mock(
+            side_effect=ValueError("bucket not found")
+        )
+        cloud_storage_mock.bucket.return_value = bucket_mock
+        cloud_storage_mock.create_bucket.return_value = bucket_mock
+
+        yield cloud_storage_mock
+
+
+@pytest.fixture(scope="module")
+def cloudpickle_dump_mock():
+    with mock.patch.object(cloudpickle, "dump") as cloudpickle_dump_mock:
+        yield cloudpickle_dump_mock
+
+
+@pytest.fixture(scope="module")
+def cloudpickle_load_mock():
+    with mock.patch.object(cloudpickle, "load") as cloudpickle_load_mock:
+        yield cloudpickle_load_mock
+
+
+@pytest.fixture(scope="function")
+def get_gca_resource_mock():
+    with mock.patch.object(
+        base.VertexAiResourceNoun,
+        "_get_gca_resource",
+    ) as get_gca_resource_mock:
+        get_gca_resource_mock.return_value = _TEST_AGENT_ENGINE_OBJ
+        yield get_gca_resource_mock
+
+
+# Function scope is required for the pytest parameterized tests.
+@pytest.fixture(scope="function")
+def update_agent_engine_mock():
+    with mock.patch.object(
+        reasoning_engine_service.ReasoningEngineServiceClient,
+        "update_reasoning_engine",
+    ) as update_agent_engine_mock:
+        yield update_agent_engine_mock
+
+
+@pytest.mark.usefixtures(
+    "google_auth_mock",
+    "cloud_storage_create_bucket_mock",
+    "cloudpickle_dump_mock",
+    "cloudpickle_load_mock",
+    "get_gca_resource_mock",
+    "get_agent_engine_mock",
+)
+class TestAgentEngines:
+
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(aiplatform)
+        aiplatform.init(
+            project=_TEST_PROJECT,
+            location=_TEST_LOCATION,
+            credentials=_TEST_CREDENTIALS,
+            staging_bucket=_TEST_STAGING_BUCKET,
+        )
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    @mock.patch.object(agent_engines.AgentEngines, "_create")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_create_default_telemetry_enablement(
+        self,
+        mock_await_operation,
+        mock_create,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        from agentplatform._genai import types as _genai_types
+
+        mock_operation = mock.Mock()
+        mock_operation.name = (
+            "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
+        )
+        mock_create.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            )
+        )
+        client = agentplatform.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client.agent_engines.create(
+            agent=adk_template.AdkApp(agent=_TEST_AGENT),
+            config={"env_vars": env_vars, "staging_bucket": _TEST_STAGING_BUCKET},
+        )
+        deployment_spec = mock_create.call_args.kwargs["config"]["spec"][
+            "deployment_spec"
+        ]
+        assert deployment_spec["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
+
+    @pytest.mark.parametrize(
+        "env_vars,expected_env_vars",
+        [
+            ({}, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (None, {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified"}),
+            (
+                {"some_env": "some_val"},
+                {
+                    "some_env": "some_val",
+                    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "unspecified",
+                },
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "true"},
+            ),
+            (
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+                {GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY: "false"},
+            ),
+        ],
+    )
+    @mock.patch.object(agent_engines.AgentEngines, "_update")
+    @mock.patch.object(_agent_engines_utils, "_await_operation")
+    def test_update_default_telemetry_enablement(
+        self,
+        mock_await_operation,
+        mock_update,
+        env_vars: dict[str, str],
+        expected_env_vars: dict[str, str],
+    ):
+        from agentplatform._genai import types as _genai_types
+
+        mock_operation = mock.Mock()
+        mock_operation.name = (
+            "projects/test-project/locations/us-central1/reasoningEngines/123456/operations/789"
+        )
+        mock_update.return_value = mock_operation
+        mock_await_operation.return_value = _genai_types.AgentEngineOperation(
+            response=_genai_types.ReasoningEngine(
+                name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            )
+        )
+        client = agentplatform.Client(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        client.agent_engines.update(
+            name=_TEST_AGENT_ENGINE_RESOURCE_NAME,
+            agent=adk_template.AdkApp(agent=_TEST_AGENT),
+            config={
+                "description": "foobar",
+                "env_vars": env_vars,
+                "staging_bucket": _TEST_STAGING_BUCKET,
+            },
+        )
+        deployment_spec = mock_update.call_args.kwargs["config"]["spec"][
+            "deployment_spec"
+        ]
+        assert deployment_spec["env"] == [
+            {"name": key, "value": value} for key, value in expected_env_vars.items()
+        ]
+
+
+class TestAdkAppMtls:
+    """Test cases for mTLS functionality in AdkApp."""
+
+    def setup_method(self):
+        import opentelemetry.trace
+
+        opentelemetry.trace._TRACER_PROVIDER = None
+
+    def test_use_client_cert_effective_with_should_use_client_cert(self):
+        """Verifies that it respects the google-auth mTLS enablement check."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            return_value=True,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is True
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"})
+    def test_use_client_cert_effective_with_env_var_true(self):
+        """Verifies that it falls back to the environment variable if google-auth check fails."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is True
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"})
+    def test_use_client_cert_effective_with_env_var_false(self):
+        """Verifies that it respects the environment variable being set to false."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is False
+
+    def test_get_api_endpoint_default(self):
+        """Verifies the default telemetry endpoint is returned when no mTLS is configured."""
+        assert (
+            adk_template._get_api_endpoint() == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"})
+    def test_get_api_endpoint_always_with_cert(self):
+        """Verifies the mTLS endpoint is used when forced and a certificate is available."""
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
+    def test_get_api_endpoint_auto_no_cert(self):
+        """Verifies it falls back to regular endpoint even if forced if no certificate is provided."""
+        assert (
+            adk_template._get_api_endpoint() == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"})
+    def test_get_api_endpoint_never(self):
+        """Verifies the regular endpoint is used when mTLS is explicitly disabled."""
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    @mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+    def test_default_instrumentor_builder_with_mtls(
+        self,
+        mock_exporter,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the instrumentor builder with mTLS enabled."""
+        # Mocking to enable mTLS
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=True
+        ):
+            with mock.patch.object(
+                mtls, "has_default_client_cert_source", return_value=True
+            ):
+                with mock.patch.object(
+                    mtls,
+                    "default_client_cert_source",
+                    return_value=lambda: b"cert",
+                ):
+                    adk_template._default_instrumentor_builder(
+                        _TEST_PROJECT_ID, enable_tracing=True
+                    )
+
+        # Verify the session was configured for mTLS
+        mock_session_cls.return_value.configure_mtls_channel.assert_called_once()
+        # Verify the exporter was initialized with the mTLS endpoint
+        mock_exporter.assert_called_once()
+        assert (
+            mock_exporter.call_args.kwargs["endpoint"]
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    def test_warn_if_telemetry_api_disabled_with_mtls(
+        self,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the telemetry API check with mTLS enabled."""
+        mock_session = mock_session_cls.return_value
+        mock_session.post.return_value = mock.Mock(text="")
+
+        # Mocking to enable mTLS
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=True
+        ):
+            with mock.patch.object(
+                mtls, "has_default_client_cert_source", return_value=True
+            ):
+                with mock.patch.object(
+                    mtls,
+                    "default_client_cert_source",
+                    return_value=lambda: b"cert",
+                ):
+                    adk_template._warn_if_telemetry_api_disabled()
+
+        # Verify mTLS channel was configured for the check request
+        mock_session.configure_mtls_channel.assert_called_once()
+        # Verify the check was performed against the mTLS endpoint
+        mock_session.post.assert_called_once_with(
+            adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT, data=None
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "invalid_value"})
+    def test_get_api_endpoint_invalid_env(self):
+        """Verifies it defaults to AUTO and warns on invalid env var."""
+        with mock.patch.object(adk_template, "_warn") as mock_warn:
+            assert (
+                adk_template._get_api_endpoint()
+                == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+            )
+            mock_warn.assert_called_once()
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "not_a_bool"})
+    def test_use_client_cert_effective_invalid_env(self):
+        """Verifies it warns on invalid boolean env var."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            with mock.patch.object(adk_template, "_warn") as mock_warn:
+                assert adk_template._use_client_cert_effective() is False
+                mock_warn.assert_called_once()
+
+    def test_use_client_cert_effective_with_should_use_client_cert_false(self):
+        """Verifies that it respects google-auth returning False for mTLS."""
+        with mock.patch.object(
+            mtls,
+            "should_use_client_cert",
+            return_value=False,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is False
+
+    def test_get_api_endpoint_auto_with_cert(self):
+        """Verifies the mTLS endpoint is used in AUTO mode when a cert is available."""
+        # AUTO is the default, so we just pass a cert
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    @mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+    def test_default_instrumentor_builder_no_mtls(
+        self,
+        mock_exporter,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the instrumentor builder with mTLS disabled."""
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=False
+        ):
+            adk_template._default_instrumentor_builder(
+                _TEST_PROJECT_ID, enable_tracing=True
+            )
+
+        # Verify mTLS channel was NOT configured
+        mock_session_cls.return_value.configure_mtls_channel.assert_not_called()
+        # Verify the exporter was initialized with the regular endpoint
+        mock_exporter.assert_called_once()
+        assert (
+            mock_exporter.call_args.kwargs["endpoint"]
+            == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    def test_warn_if_telemetry_api_disabled_no_mtls(
+        self,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Integration test for the telemetry API check with mTLS disabled."""
+        mock_session = mock_session_cls.return_value
+        mock_session.post.return_value = mock.Mock(text="")
+
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=False
+        ):
+            adk_template._warn_if_telemetry_api_disabled()
+
+        # Verify mTLS channel was NOT configured
+        mock_session.configure_mtls_channel.assert_not_called()
+        # Verify the check was performed against the regular endpoint
+        mock_session.post.assert_called_once_with(
+            adk_template._DEFAULT_TELEMETRY_ENDPOINT, data=None
+        )
+
+    @mock.patch("google.auth.default", return_value=(mock.Mock(), _TEST_PROJECT))
+    @mock.patch.object(adk_template.requests_auth, "AuthorizedSession")
+    @mock.patch(
+        "opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter"
+    )
+    def test_default_instrumentor_builder_mtls_no_cert_source(
+        self,
+        mock_exporter,
+        mock_session_cls,
+        mock_auth_default,
+    ):
+        """Tests that it falls back to regular endpoint if mTLS is on but no cert is found."""
+        with mock.patch.object(
+            adk_template, "_use_client_cert_effective", return_value=True
+        ):
+            with mock.patch.object(
+                mtls,
+                "has_default_client_cert_source",
+                return_value=False,
+            ):
+                adk_template._default_instrumentor_builder(
+                    _TEST_PROJECT_ID, enable_tracing=True
+                )
+
+        # Channel is configured, but endpoint remains default due to missing cert source
+        mock_session_cls.return_value.configure_mtls_channel.assert_called_once()
+        assert (
+            mock_exporter.call_args.kwargs["endpoint"]
+            == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )

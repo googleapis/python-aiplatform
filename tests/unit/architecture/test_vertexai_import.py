@@ -33,6 +33,7 @@ def test_vertexai_import():
     import google.api_core.operations_v1 as _  # noqa: F811
     import google.api_core.rest_streaming as _  # noqa: F811
     import google.cloud.storage as _  # noqa: F811
+    import html as _  # noqa: F811
 
     try:
         # Needed for Python 3.8

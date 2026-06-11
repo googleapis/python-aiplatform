@@ -151,49 +151,63 @@ def _check_weaviate(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("weaviate")
     except AttributeError:
-        return gapic_vector_db.weaviate.ByteSize() > 0
+        if "weaviate" in gapic_vector_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_vector_db._pb.HasField("weaviate")
+        return False
 
 
 def _check_rag_managed_db(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("rag_managed_db")
     except AttributeError:
-        return gapic_vector_db.rag_managed_db.ByteSize() > 0
+        if "rag_managed_db" in gapic_vector_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_vector_db._pb.HasField("rag_managed_db")
+        return False
 
 
 def _check_knn(gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb) -> bool:
     try:
         return gapic_rag_managed_db.__contains__("knn")
     except AttributeError:
-        return gapic_rag_managed_db.knn.ByteSize() > 0
+        if "knn" in gapic_rag_managed_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_rag_managed_db._pb.HasField("knn")
+        return False
 
 
 def _check_ann(gapic_rag_managed_db: GapicRagVectorDbConfig.RagManagedDb) -> bool:
     try:
         return gapic_rag_managed_db.__contains__("ann")
     except AttributeError:
-        return gapic_rag_managed_db.ann.ByteSize() > 0
+        if "ann" in gapic_rag_managed_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_rag_managed_db._pb.HasField("ann")
+        return False
 
 
 def _check_vertex_feature_store(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("vertex_feature_store")
     except AttributeError:
-        return gapic_vector_db.vertex_feature_store.ByteSize() > 0
+        if "vertex_feature_store" in gapic_vector_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_vector_db._pb.HasField("vertex_feature_store")
+        return False
 
 
 def _check_pinecone(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("pinecone")
     except AttributeError:
-        return gapic_vector_db.pinecone.ByteSize() > 0
+        if "pinecone" in gapic_vector_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_vector_db._pb.HasField("pinecone")
+        return False
 
 
 def _check_vertex_vector_search(gapic_vector_db: GapicRagVectorDbConfig) -> bool:
     try:
         return gapic_vector_db.__contains__("vertex_vector_search")
     except AttributeError:
-        return gapic_vector_db.vertex_vector_search.ByteSize() > 0
+        if "vertex_vector_search" in gapic_vector_db._pb.DESCRIPTOR.fields_by_name:
+            return gapic_vector_db._pb.HasField("vertex_vector_search")
+        return False
 
 
 def _check_rag_managed_vertex_vector_search(
@@ -202,7 +216,7 @@ def _check_rag_managed_vertex_vector_search(
     try:
         return gapic_vector_db.__contains__("rag_managed_vertex_vector_search")
     except AttributeError:
-        return gapic_vector_db.rag_managed_vertex_vector_search.ByteSize() > 0
+        return gapic_vector_db.rag_managed_vertex_vector_search._pb.ByteSize() > 0
 
 
 def _check_rag_embedding_model_config(
@@ -211,7 +225,25 @@ def _check_rag_embedding_model_config(
     try:
         return gapic_vector_db.__contains__("rag_embedding_model_config")
     except AttributeError:
-        return gapic_vector_db.rag_embedding_model_config.ByteSize() > 0
+        return gapic_vector_db.rag_embedding_model_config._pb.ByteSize() > 0
+
+
+def _check_document_corpus(
+    gapic_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
+) -> bool:
+    try:
+        return gapic_corpus_type_config.__contains__("document_corpus")
+    except AttributeError:
+        return gapic_corpus_type_config.document_corpus._pb.ByteSize() > 0
+
+
+def _check_memory_corpus(
+    gapic_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
+) -> bool:
+    try:
+        return gapic_corpus_type_config.__contains__("memory_corpus")
+    except AttributeError:
+        return gapic_corpus_type_config.memory_corpus._pb.ByteSize() > 0
 
 
 def _convert_gapic_to_rag_managed_db(
@@ -285,8 +317,8 @@ def convert_gapic_to_vector_db(
 
 
 def convert_gapic_to_vertex_ai_search_config(
-    gapic_vertex_ai_search_config: VertexAiSearchConfig,
-) -> VertexAiSearchConfig:
+    gapic_vertex_ai_search_config: GapicVertexAiSearchConfig,
+) -> Optional[VertexAiSearchConfig]:
     """Convert Gapic VertexAiSearchConfig to VertexAiSearchConfig."""
     if gapic_vertex_ai_search_config.serving_config:
         return VertexAiSearchConfig(
@@ -326,6 +358,7 @@ def convert_gapic_to_backend_config(
     gapic_vector_db: GapicRagVectorDbConfig,
 ) -> RagVectorDbConfig:
     """Convert Gapic RagVectorDbConfig to VertexVectorSearch, Pinecone, or RagManagedDb."""
+
     vector_config = RagVectorDbConfig()
     if _check_pinecone(gapic_vector_db):
         vector_config.vector_db = Pinecone(
@@ -351,6 +384,11 @@ def convert_gapic_to_backend_config(
                 gapic_vector_db.rag_embedding_model_config
             )
         )
+    if (
+        vector_config.vector_db is None
+        and vector_config.rag_embedding_model_config is None
+    ):
+        return None
     return vector_config
 
 
@@ -358,9 +396,9 @@ def convert_gapic_to_rag_corpus_type_config(
     gapic_rag_corpus_type_config: GapicRagCorpus.CorpusTypeConfig,
 ) -> RagCorpusTypeConfig:
     """Convert GapicRagCorpus.CorpusTypeConfig to RagCorpusTypeConfig."""
-    if gapic_rag_corpus_type_config.document_corpus:
+    if _check_document_corpus(gapic_rag_corpus_type_config):
         return RagCorpusTypeConfig(corpus_type_config=DocumentCorpus())
-    elif gapic_rag_corpus_type_config.memory_corpus:
+    elif _check_memory_corpus(gapic_rag_corpus_type_config):
         return RagCorpusTypeConfig(
             corpus_type_config=MemoryCorpus(
                 llm_parser=LlmParserConfig(
@@ -402,16 +440,40 @@ def convert_gapic_to_rag_corpus_no_embedding_model_config(
     gapic_rag_corpus: GapicRagCorpus,
 ) -> RagCorpus:
     """Convert GapicRagCorpus without embedding model config (for UpdateRagCorpus) to RagCorpus."""
-    rag_vector_db_config_no_embedding_model_config = gapic_rag_corpus.vector_db_config
-    rag_vector_db_config_no_embedding_model_config.rag_embedding_model_config = None
+    vertex_ai_search_config = convert_gapic_to_vertex_ai_search_config(
+        gapic_rag_corpus.vertex_ai_search_config
+    )
+    old_config = gapic_rag_corpus.vector_db_config
+    rag_vector_db_config_no_embedding_model_config = old_config.__class__()
+    if _check_rag_managed_db(old_config):
+        rag_vector_db_config_no_embedding_model_config.rag_managed_db = (
+            old_config.rag_managed_db
+        )
+    elif _check_pinecone(old_config):
+        rag_vector_db_config_no_embedding_model_config.pinecone = old_config.pinecone
+    elif _check_vertex_vector_search(old_config):
+        rag_vector_db_config_no_embedding_model_config.vertex_vector_search = (
+            old_config.vertex_vector_search
+        )
+    elif _check_weaviate(old_config):
+        rag_vector_db_config_no_embedding_model_config.weaviate = old_config.weaviate
+    elif _check_vertex_feature_store(old_config):
+        rag_vector_db_config_no_embedding_model_config.vertex_feature_store = (
+            old_config.vertex_feature_store
+        )
+    try:
+        if old_config.__contains__("api_auth"):
+            rag_vector_db_config_no_embedding_model_config.api_auth = (
+                old_config.api_auth
+            )
+    except AttributeError:
+        pass
     rag_corpus = RagCorpus(
         name=gapic_rag_corpus.name,
         display_name=gapic_rag_corpus.display_name,
         description=gapic_rag_corpus.description,
         vector_db=convert_gapic_to_vector_db(gapic_rag_corpus.rag_vector_db_config),
-        vertex_ai_search_config=convert_gapic_to_vertex_ai_search_config(
-            gapic_rag_corpus.vertex_ai_search_config
-        ),
+        vertex_ai_search_config=vertex_ai_search_config,
         backend_config=convert_gapic_to_backend_config(
             rag_vector_db_config_no_embedding_model_config
         ),

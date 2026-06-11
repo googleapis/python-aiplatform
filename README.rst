@@ -228,7 +228,7 @@ We can also call the `launch_optimization_job` method asynchronously.
 Prompt Management
 ^^^^^^^^^^^^^^^^^
 
-First define your prompt as a dictionary or types.Prompt object. Then call create_prompt.
+First define your prompt as a dictionary or types.Prompt object. Then call create_version.
 
 .. code-block:: Python
 
@@ -243,7 +243,7 @@ First define your prompt as a dictionary or types.Prompt object. Then call creat
         },
     }
 
-    prompt_resource = client.prompts.create(
+    prompt_resource = client.prompts.create_version(
         prompt=prompt,
     )
 
@@ -291,6 +291,79 @@ The following uses a utility function available on Prompt objects to transform a
         contents=retrieved_prompt.assemble_contents(),
     )
 
+Skill Registry
+^^^^^^^^^^^^^^
+
+Create and manage skills in Skill Registry. You can optionally specify a custom string identifier using the `skill_id` configuration parameter.
+
+.. code-block:: Python
+
+    # Create a skill
+    skill = client.skills.create(
+        display_name="weather_skill",
+        description="Retrieves the weather for a given location",
+        config={
+            "local_path": "./weather_skill_dir",
+            "skill_id": "my-custom-weather-skill",
+        },
+    )
+
+Get an existing skill by its resource name.
+
+.. code-block:: Python
+
+    fetched_skill = client.skills.get(name=skill.name)
+
+Update an existing skill's metadata or underlying implementation.
+
+.. code-block:: Python
+
+    # Update skill metadata
+    updated_skill = client.skills.update(
+        name=skill.name,
+        config={
+            "display_name": "Updated Weather Skill",
+            "description": "Provides localized current weather conditions and multi-day forecasts.",
+        },
+    )
+
+List all registered skills.
+
+.. code-block:: Python
+
+    # List skills with custom page size
+    pager = client.skills.list(config={"page_size": 10})
+    for item in pager:
+        print(item.name, item.display_name)
+
+Search for skills semantically matched to a query.
+
+.. code-block:: Python
+
+    # Retrieve skills matched to a semantic query
+    matched_skills = client.skills.retrieve(query="weather forecast")
+
+List and view revisions for a skill using the `ListSkillRevisions` and `GetSkillRevision` API methods.
+
+.. code-block:: Python
+
+    # List skill revisions
+    revisions_response = client.skills.revisions.list(name=skill.name)
+    for rev in revisions_response.skill_revisions:
+        print(rev.name, rev.create_time)
+
+    # Get a specific skill revision by its resource name
+    if revisions_response.skill_revisions:
+        target_revision_name = revisions_response.skill_revisions[0].name
+        revision = client.skills.revisions.get(name=target_revision_name)
+
+Delete a skill when it is no longer required.
+
+.. code-block:: Python
+
+    # Delete a skill
+    client.skills.delete(name=skill.name)
+
 -----------------------------------------
 
 .. note::
@@ -319,11 +392,11 @@ In order to use this library, you first need to go through the following steps:
 
 Supported Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-Python >= 3.9
+Python >= 3.10
 
 Deprecated Python Versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Python <= 3.8.
+Python <= 3.9.
 
 The last version of this library compatible with Python 3.8 is google-cloud-aiplatform==1.90.0.
 

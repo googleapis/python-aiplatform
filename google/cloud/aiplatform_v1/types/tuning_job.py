@@ -21,6 +21,7 @@ import proto  # type: ignore
 
 from google.cloud.aiplatform_v1.types import content
 from google.cloud.aiplatform_v1.types import encryption_spec as gca_encryption_spec
+from google.cloud.aiplatform_v1.types import evaluation_service
 from google.cloud.aiplatform_v1.types import job_state
 import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
 import google.rpc.status_pb2 as status_pb2  # type: ignore
@@ -37,6 +38,8 @@ __protobuf__ = proto.module(
         "SupervisedHyperParameters",
         "SupervisedTuningSpec",
         "TunedModelRef",
+        "EvaluationConfig",
+        "EvaluateDatasetRun",
         "TunedModelCheckpoint",
         "PreTunedModel",
     },
@@ -141,6 +144,9 @@ class TuningJob(proto.Message):
             Users starting the pipeline must have the
             ``iam.serviceAccounts.actAs`` permission on this service
             account.
+        evaluate_dataset_runs (MutableSequence[google.cloud.aiplatform_v1.types.EvaluateDatasetRun]):
+            Output only. Evaluation runs for the Tuning
+            Job.
     """
 
     base_model: str = proto.Field(
@@ -229,6 +235,11 @@ class TuningJob(proto.Message):
     service_account: str = proto.Field(
         proto.STRING,
         number=22,
+    )
+    evaluate_dataset_runs: MutableSequence["EvaluateDatasetRun"] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=32,
+        message="EvaluateDatasetRun",
     )
 
 
@@ -576,6 +587,8 @@ class SupervisedTuningSpec(proto.Message):
             last checkpoint will be exported. Otherwise,
             enable intermediate checkpoints for SFT. Default
             is false.
+        evaluation_config (google.cloud.aiplatform_v1.types.EvaluationConfig):
+            Optional. Evaluation Config for Tuning Job.
     """
 
     training_dataset_uri: str = proto.Field(
@@ -594,6 +607,11 @@ class SupervisedTuningSpec(proto.Message):
     export_last_checkpoint_only: bool = proto.Field(
         proto.BOOL,
         number=6,
+    )
+    evaluation_config: "EvaluationConfig" = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message="EvaluationConfig",
     )
 
 
@@ -638,6 +656,90 @@ class TunedModelRef(proto.Message):
         proto.STRING,
         number=3,
         oneof="tuned_model_ref",
+    )
+
+
+class EvaluationConfig(proto.Message):
+    r"""Evaluation Config for Tuning Job.
+
+    Attributes:
+        metrics (MutableSequence[google.cloud.aiplatform_v1.types.Metric]):
+            Required. The metrics used for evaluation.
+        output_config (google.cloud.aiplatform_v1.types.OutputConfig):
+            Required. Config for evaluation output.
+        autorater_config (google.cloud.aiplatform_v1.types.AutoraterConfig):
+            Optional. Autorater config for evaluation.
+        inference_generation_config (google.cloud.aiplatform_v1.types.GenerationConfig):
+            Optional. Configuration options for inference
+            generation and outputs. If not set, default
+            generation parameters are used.
+    """
+
+    metrics: MutableSequence[evaluation_service.Metric] = proto.RepeatedField(
+        proto.MESSAGE,
+        number=1,
+        message=evaluation_service.Metric,
+    )
+    output_config: evaluation_service.OutputConfig = proto.Field(
+        proto.MESSAGE,
+        number=2,
+        message=evaluation_service.OutputConfig,
+    )
+    autorater_config: evaluation_service.AutoraterConfig = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=evaluation_service.AutoraterConfig,
+    )
+    inference_generation_config: content.GenerationConfig = proto.Field(
+        proto.MESSAGE,
+        number=5,
+        message=content.GenerationConfig,
+    )
+
+
+class EvaluateDatasetRun(proto.Message):
+    r"""Evaluate Dataset Run Result for Tuning Job.
+
+    Attributes:
+        operation_name (str):
+            Output only. Deprecated: The updated architecture uses
+            evaluation_run instead.
+        evaluation_run (str):
+            Output only. The resource name of the evaluation run.
+            Format:
+            ``projects/{project}/locations/{location}/evaluationRuns/{evaluation_run_id}``.
+        checkpoint_id (str):
+            Output only. The checkpoint id used in the
+            evaluation run. Only populated when evaluating
+            checkpoints.
+        evaluate_dataset_response (google.cloud.aiplatform_v1.types.EvaluateDatasetResponse):
+            Output only. Results for EvaluationService.
+        error (google.rpc.status_pb2.Status):
+            Output only. The error of the evaluation run
+            if any.
+    """
+
+    operation_name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    evaluation_run: str = proto.Field(
+        proto.STRING,
+        number=5,
+    )
+    checkpoint_id: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    evaluate_dataset_response: evaluation_service.EvaluateDatasetResponse = proto.Field(
+        proto.MESSAGE,
+        number=3,
+        message=evaluation_service.EvaluateDatasetResponse,
+    )
+    error: status_pb2.Status = proto.Field(
+        proto.MESSAGE,
+        number=4,
+        message=status_pb2.Status,
     )
 
 

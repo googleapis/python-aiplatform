@@ -65,10 +65,15 @@ class TestInit:
         assert initializer.global_config.project == _TEST_PROJECT
 
     def test_not_init_project_gets_default_project(self, monkeypatch):
-        def mock_auth_default(scopes=None):
+        def mock_auth_default(scopes=None, **kwargs):
             return None, _TEST_PROJECT
 
         monkeypatch.setattr(google.auth, "default", mock_auth_default)
+        monkeypatch.setattr(
+            resource_manager_utils,
+            "get_project_id",
+            lambda **kwargs: _TEST_PROJECT,
+        )
         assert initializer.global_config.project == _TEST_PROJECT
 
     def test_infer_project_id(self):

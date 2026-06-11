@@ -34,11 +34,16 @@ if TYPE_CHECKING:
         BaseLanguageModel = Any
 
     try:
-        from langchain_google_vertexai.functions_utils import _ToolsType
+        from langchain_google_genai.functions_utils import _ToolsType
 
         _ToolLike = _ToolsType
     except ImportError:
-        _ToolLike = Any
+        try:
+            from langchain_google_vertexai.functions_utils import _ToolsType
+
+            _ToolLike = _ToolsType
+        except ImportError:
+            _ToolLike = Any
 
     try:
         from opentelemetry.sdk import trace
@@ -87,17 +92,29 @@ def _default_model_builder(
     Returns:
         BaseLanguageModel: The language model.
     """
-    import vertexai
-    from google.cloud.aiplatform import initializer
-    from langchain_google_vertexai import ChatVertexAI
-
     model_kwargs = model_kwargs or {}
-    current_project = initializer.global_config.project
-    current_location = initializer.global_config.location
-    vertexai.init(project=project, location=location)
-    model = ChatVertexAI(model_name=model_name, **model_kwargs)
-    vertexai.init(project=current_project, location=current_location)
-    return model
+    try:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        model = ChatGoogleGenerativeAI(
+            model=model_name,
+            project=project,
+            location=location,
+            vertexai=True,
+            **model_kwargs,
+        )
+        return model
+    except ImportError:
+        import vertexai
+        from google.cloud.aiplatform import initializer
+        from langchain_google_vertexai import ChatVertexAI
+
+        current_project = initializer.global_config.project
+        current_location = initializer.global_config.location
+        vertexai.init(project=project, location=location)
+        model = ChatVertexAI(model_name=model_name, **model_kwargs)
+        vertexai.init(project=current_project, location=current_location)
+        return model
 
 
 def _default_runnable_builder(
@@ -554,13 +571,16 @@ class LanggraphAgent:
         Returns:
             The output of querying the Agent with the given input and config.
         """
-        from langchain.load import dump as langchain_load_dump
+        try:
+            from langchain_core.load import dumpd
+        except ImportError:
+            from langchain.load.dump import dumpd
 
         if isinstance(input, str):
-            input = {"input": input}
+            input = {"input": input, "messages": [("user", input)]}
         if not self._tmpl_attrs.get("runnable"):
             self.set_up()
-        return langchain_load_dump.dumpd(
+        return dumpd(
             self._tmpl_attrs.get("runnable").invoke(
                 input=input, config=config, **kwargs
             )
@@ -587,10 +607,13 @@ class LanggraphAgent:
         Yields:
             The output of querying the Agent with the given input and config.
         """
-        from langchain.load import dump as langchain_load_dump
+        try:
+            from langchain_core.load import dumpd
+        except ImportError:
+            from langchain.load.dump import dumpd
 
         if isinstance(input, str):
-            input = {"input": input}
+            input = {"input": input, "messages": [("user", input)]}
         if not self._tmpl_attrs.get("runnable"):
             self.set_up()
         for chunk in self._tmpl_attrs.get("runnable").stream(
@@ -598,7 +621,7 @@ class LanggraphAgent:
             config=config,
             **kwargs,
         ):
-            yield langchain_load_dump.dumpd(chunk)
+            yield dumpd(chunk)
 
     def get_state_history(
         self,

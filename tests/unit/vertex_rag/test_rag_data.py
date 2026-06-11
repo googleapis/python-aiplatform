@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +14,12 @@
 #
 import importlib
 from google.api_core import operation as ga_operation
-from vertexai import rag
-from vertexai.rag.utils._gapic_utils import (
+from agentplatform import rag
+from agentplatform.rag.utils._gapic_utils import (
     prepare_import_files_request,
     set_embedding_model_config,
 )
-from vertexai.rag.utils.resources import (
+from agentplatform.rag.utils.resources import (
     ChunkingConfig,
     TransformationConfig,
 )
@@ -419,9 +417,10 @@ def create_transformation_config(
 def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
-    assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
-    assert returned_corpus.vertex_ai_search_config.__eq__(
-        expected_corpus.vertex_ai_search_config
+    assert returned_corpus.backend_config == expected_corpus.backend_config
+    assert (
+        returned_corpus.vertex_ai_search_config
+        == expected_corpus.vertex_ai_search_config
     )
 
 
@@ -464,8 +463,8 @@ def import_files_request_eq(returned_request, expected_request):
 
 def rag_engine_config_eq(returned_config, expected_config):
     assert returned_config.name == expected_config.name
-    assert returned_config.rag_managed_db_config.__eq__(
-        expected_config.rag_managed_db_config
+    assert (
+        returned_config.rag_managed_db_config == expected_config.rag_managed_db_config
     )
 
 

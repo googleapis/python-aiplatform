@@ -1,4 +1,4 @@
 langchain
 langchain-core
-langchain-google-vertexai
-langgraph-checkpoint==2.0.1 # Pinned to unbreak unit tests.
+langchain-google-genai
+langgraph-checkpoint

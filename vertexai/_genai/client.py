@@ -15,6 +15,7 @@
 
 import asyncio
 import importlib
+import sys
 from typing import Optional, Union, TYPE_CHECKING
 from types import TracebackType, ModuleType
 
@@ -23,6 +24,8 @@ from google.cloud.aiplatform import version as aip_version
 from google.genai import _common
 from google.genai import client as genai_client
 from google.genai import types
+from google.genai import version as genai_version
+from google.genai import _api_client as genai_api_client
 from . import live
 
 if TYPE_CHECKING:
@@ -35,10 +38,37 @@ if TYPE_CHECKING:
         prompt_optimizer as prompt_optimizer_module,
     )
     from vertexai._genai import prompts as prompts_module
+    from vertexai._genai import skills as skills_module
     from vertexai._genai import live as live_module
 
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
+
+
+def _custom_append_library_version_headers(headers: dict[str, str]) -> None:
+    """Overridde GenAI SDK header injection to use custom vertex-genai-modules header."""
+    genai_sdk_version = genai_version.__version__
+    module_version = aip_version.__version__
+    python_version = sys.version.split()[0]
+
+    combined_label = f"google-genai-sdk/{genai_sdk_version}+{_GENAI_MODULES_TELEMETRY_HEADER}/{module_version}"
+    full_header = f"{combined_label} gl-python/{python_version}"
+
+    if "user-agent" not in headers or combined_label not in headers["user-agent"]:
+        headers["user-agent"] = f"{full_header} " + headers.get("user-agent", "")
+        headers["user-agent"] = headers["user-agent"].strip()
+
+    if (
+        "x-goog-api-client" not in headers
+        or combined_label not in headers["x-goog-api-client"]
+    ):
+        headers["x-goog-api-client"] = f"{full_header} " + headers.get(
+            "x-goog-api-client", ""
+        )
+        headers["x-goog-api-client"] = headers["x-goog-api-client"].strip()
+
+
+genai_api_client.append_library_version_headers = _custom_append_library_version_headers
 
 
 class AsyncClient:
@@ -52,6 +82,7 @@ class AsyncClient:
         self._prompt_optimizer: Optional[ModuleType] = None
         self._prompts: Optional[ModuleType] = None
         self._datasets: Optional[ModuleType] = None
+        self._skills: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -123,6 +154,15 @@ class AsyncClient:
                 __package__,
             )
         return self._datasets.AsyncDatasets(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def skills(self) -> "skills_module.AsyncSkills":
+        if self._skills is None:
+            self._skills = importlib.import_module(
+                ".skills",
+                __package__,
+            )
+        return self._skills.AsyncSkills(self._api_client)  # type: ignore[no-any-return]
 
     async def aclose(self) -> None:
         """Closes the async client explicitly.
@@ -208,21 +248,9 @@ class Client:
         if http_options.headers is None:
             http_options.headers = {}
 
-        tracking_label = f"{_GENAI_MODULES_TELEMETRY_HEADER}/{aip_version.__version__}"
-
-        if "user-agent" in http_options.headers:
-            http_options.headers["user-agent"] = (
-                f"{http_options.headers['user-agent']} {tracking_label}"
-            )
-        else:
-            http_options.headers["user-agent"] = tracking_label
-
-        if "x-goog-api-client" in http_options.headers:
-            http_options.headers["x-goog-api-client"] = (
-                f"{http_options.headers['x-goog-api-client']} {tracking_label}"
-            )
-        else:
-            http_options.headers["x-goog-api-client"] = tracking_label
+        # Set the base URL for MREP locations.
+        if location in ["us", "eu"] and not http_options.base_url:
+            http_options.base_url = f"https://aiplatform.{location}.rep.googleapis.com/"
 
         self._api_client = genai_client.Client._get_api_client(
             vertexai=True,
@@ -239,6 +267,7 @@ class Client:
         self._agent_engines: Optional[ModuleType] = None
         self._prompts: Optional[ModuleType] = None
         self._datasets: Optional[ModuleType] = None
+        self._skills: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -335,3 +364,12 @@ class Client:
                 __package__,
             )
         return self._datasets.Datasets(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def skills(self) -> "skills_module.Skills":
+        if self._skills is None:
+            self._skills = importlib.import_module(
+                ".skills",
+                __package__,
+            )
+        return self._skills.Skills(self._api_client)  # type: ignore[no-any-return]

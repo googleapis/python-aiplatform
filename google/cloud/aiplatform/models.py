@@ -2715,6 +2715,11 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
             my_predictions = response.predictions
             ```
 
+        For dedicated endpoints (``dedicated_endpoint_enabled=True``), the call
+        is routed via async HTTPS POST to the endpoint's dedicated DNS,
+        mirroring the synchronous ``predict()`` dedicated-endpoint path.
+        Otherwise the GAPIC async prediction client is used.
+
         Args:
             instances (List):
                 Required. The instances that are the input to the
@@ -2740,29 +2745,106 @@ class Endpoint(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         Returns:
             prediction (aiplatform.Prediction):
                 Prediction with returned predictions and Model ID.
+
+        Raises:
+            ValueError: If the dedicated endpoint DNS is empty for dedicated
+                endpoints, or if the prediction request to a dedicated endpoint
+                returns a non-200 status.
         """
         self.wait()
 
-        prediction_response = await self._prediction_async_client.predict(
-            endpoint=self._gca_resource.name,
-            instances=instances,
-            parameters=parameters,
-            timeout=timeout,
-        )
-        if prediction_response._pb.metadata:
-            metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+        if not self.dedicated_endpoint_enabled:
+            prediction_response = await self._prediction_async_client.predict(
+                endpoint=self._gca_resource.name,
+                instances=instances,
+                parameters=parameters,
+                timeout=timeout,
+            )
+            if prediction_response._pb.metadata:
+                metadata = json_format.MessageToDict(prediction_response._pb.metadata)
+            else:
+                metadata = None
+
+            return Prediction(
+                predictions=[
+                    json_format.MessageToDict(item)
+                    for item in prediction_response.predictions.pb
+                ],
+                metadata=metadata,
+                deployed_model_id=prediction_response.deployed_model_id,
+                model_version_id=prediction_response.model_version_id,
+                model_resource_name=prediction_response.model,
+            )
+
+        # Dedicated endpoint: REST POST to the dedicated DNS via aiohttp.
+        # aiohttp is imported lazily so it is not a hard dependency for callers
+        # that only use the synchronous predict() path.
+        try:
+            import aiohttp
+        except ImportError as exc:
+            raise ImportError(
+                "Cannot import the aiohttp library required for async prediction"
+                " on dedicated endpoints. Please install aiohttp."
+            ) from exc
+
+        if not self.dedicated_endpoint_dns:
+            raise ValueError(
+                "Dedicated endpoint DNS is empty. Please make sure endpoint"
+                "and model are ready before making a prediction."
+            )
+
+        if parameters is not None:
+            data = json.dumps({"instances": instances, "parameters": parameters})
         else:
-            metadata = None
+            data = json.dumps({"instances": instances})
+
+        # Refresh the bearer token per call. ``AuthorizedSession`` (sync)
+        # handles refresh internally; in the async path we do it explicitly.
+        self.credentials._scopes = constants.base.DEFAULT_AUTHED_SCOPES
+        self.credentials.refresh(google_auth_requests.Request())
+        headers = {
+            "Authorization": f"Bearer {self.credentials.token}",
+            "Content-Type": "application/json",
+        }
+        url = f"https://{self.dedicated_endpoint_dns}/v1/{self.resource_name}:predict"
+        aiohttp_timeout = (
+            aiohttp.ClientTimeout(total=timeout) if timeout is not None else None
+        )
+
+        # Verify TLS against certifi, like the sync path (requests). aiohttp
+        # otherwise uses the system CA store, which is often missing in
+        # containers and fails with CERTIFICATE_VERIFY_FAILED.
+        import ssl
+
+        import certifi
+
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+
+        # Use a per-call session so the underlying connector is always closed,
+        # avoiding leaked ClientSessions (Python has no async destructor to do
+        # this for a cached session).
+        async with aiohttp.ClientSession(connector=connector) as session:
+            async with session.post(
+                url=url,
+                data=data,
+                headers=headers,
+                timeout=aiohttp_timeout,
+            ) as response:
+                if response.status != 200:
+                    text = await response.text()
+                    raise ValueError(
+                        f"Failed to make prediction request. Status code:"
+                        f"{response.status}, response: {text}."
+                    )
+                prediction_response = await response.json()
 
         return Prediction(
-            predictions=[
-                json_format.MessageToDict(item)
-                for item in prediction_response.predictions.pb
-            ],
-            metadata=metadata,
-            deployed_model_id=prediction_response.deployed_model_id,
-            model_version_id=prediction_response.model_version_id,
-            model_resource_name=prediction_response.model,
+            predictions=prediction_response.get("predictions"),
+            metadata=prediction_response.get("metadata"),
+            deployed_model_id=prediction_response.get("deployedModelId"),
+            model_resource_name=prediction_response.get("model"),
+            model_version_id=prediction_response.get("modelVersionId"),
         )
 
     def raw_predict(
@@ -4240,7 +4322,7 @@ class PrivateEndpoint(Endpoint):
             url = f"https://{endpoint_override}/v1/projects/{self.project}/locations/{self.location}/endpoints/{self.name}:rawPredict"
             return self._authorized_session.post(
                 url=url,
-                body=body,
+                data=body,
                 headers=headers,
             )
 
@@ -5155,6 +5237,14 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         self._assert_gca_resource_is_available()
         return ModelRegistry._parse_versioned_name(self._gca_resource.name)[0]
 
+    def _sync_gca_resource(self) -> None:
+        """Sync GAPIC service representation of client class resource.
+        Uses versioned resource name so the non-default version is not lost.
+        """
+        self._gca_resource = self._get_gca_resource(
+            resource_name=self.versioned_resource_name
+        )
+
     @property
     def name(self) -> str:
         """Name of this resource."""
@@ -5240,8 +5330,8 @@ class Model(base.VertexAiResourceNounWithFutureManager, base.PreviewMixin):
         # Create ModelRegistry with the unversioned resource name
         self._registry = ModelRegistry(
             self.resource_name,
-            location=location,
-            project=project,
+            location=location or self.location,
+            project=project or self.project,
             credentials=credentials,
         )
 

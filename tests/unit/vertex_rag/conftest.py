@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ def authorized_session_mock():
 
 @pytest.fixture
 def rag_data_client_mock():
-    from vertexai.rag.utils import _gapic_utils
+    from agentplatform.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_client"
@@ -83,7 +83,7 @@ def rag_data_client_mock():
 
 @pytest.fixture
 def rag_data_client_preview_mock():
-    from vertexai.preview.rag.utils import _gapic_utils
+    from agentplatform.preview.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_client"
@@ -109,7 +109,7 @@ def rag_data_client_preview_mock():
 
 @pytest.fixture
 def rag_data_client_mock_exception():
-    from vertexai.rag.utils import _gapic_utils
+    from agentplatform.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_client"
@@ -141,7 +141,7 @@ def rag_data_client_mock_exception():
 
 @pytest.fixture
 def rag_data_client_preview_mock_exception():
-    from vertexai.preview.rag.utils import _gapic_utils
+    from agentplatform.preview.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_client"
@@ -177,7 +177,7 @@ def rag_data_client_preview_mock_exception():
 
 @pytest.fixture
 def rag_data_async_client_mock_exception():
-    from vertexai.rag.utils import _gapic_utils
+    from agentplatform.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_async_client"
@@ -191,7 +191,7 @@ def rag_data_async_client_mock_exception():
 
 @pytest.fixture
 def rag_data_async_client_preview_mock_exception():
-    from vertexai.preview.rag.utils import _gapic_utils
+    from agentplatform.preview.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_async_client"

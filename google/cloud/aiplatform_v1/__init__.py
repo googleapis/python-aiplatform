@@ -261,6 +261,9 @@ from .types.env_var import SecretRef
 from .types.evaluated_annotation import ErrorAnalysisAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotation
 from .types.evaluated_annotation import EvaluatedAnnotationExplanation
+from .types.evaluation_service import AggregationOutput
+from .types.evaluation_service import AggregationResult
+from .types.evaluation_service import AutoraterConfig
 from .types.evaluation_service import BleuInput
 from .types.evaluation_service import BleuInstance
 from .types.evaluation_service import BleuMetricValue
@@ -274,8 +277,14 @@ from .types.evaluation_service import CometInput
 from .types.evaluation_service import CometInstance
 from .types.evaluation_service import CometResult
 from .types.evaluation_service import CometSpec
+from .types.evaluation_service import ComputationBasedMetricSpec
+from .types.evaluation_service import ContentMap
+from .types.evaluation_service import CustomOutput
+from .types.evaluation_service import CustomOutputFormatConfig
+from .types.evaluation_service import EvaluateDatasetResponse
 from .types.evaluation_service import EvaluateInstancesRequest
 from .types.evaluation_service import EvaluateInstancesResponse
+from .types.evaluation_service import EvaluationDataset
 from .types.evaluation_service import ExactMatchInput
 from .types.evaluation_service import ExactMatchInstance
 from .types.evaluation_service import ExactMatchMetricValue
@@ -293,10 +302,15 @@ from .types.evaluation_service import GroundednessInput
 from .types.evaluation_service import GroundednessInstance
 from .types.evaluation_service import GroundednessResult
 from .types.evaluation_service import GroundednessSpec
+from .types.evaluation_service import LLMBasedMetricSpec
+from .types.evaluation_service import Metric
+from .types.evaluation_service import MetricResult
 from .types.evaluation_service import MetricxInput
 from .types.evaluation_service import MetricxInstance
 from .types.evaluation_service import MetricxResult
 from .types.evaluation_service import MetricxSpec
+from .types.evaluation_service import OutputConfig
+from .types.evaluation_service import OutputInfo
 from .types.evaluation_service import PairwiseMetricInput
 from .types.evaluation_service import PairwiseMetricInstance
 from .types.evaluation_service import PairwiseMetricResult
@@ -313,6 +327,7 @@ from .types.evaluation_service import PointwiseMetricInput
 from .types.evaluation_service import PointwiseMetricInstance
 from .types.evaluation_service import PointwiseMetricResult
 from .types.evaluation_service import PointwiseMetricSpec
+from .types.evaluation_service import PredefinedMetricSpec
 from .types.evaluation_service import QuestionAnsweringCorrectnessInput
 from .types.evaluation_service import QuestionAnsweringCorrectnessInstance
 from .types.evaluation_service import QuestionAnsweringCorrectnessResult
@@ -329,6 +344,7 @@ from .types.evaluation_service import QuestionAnsweringRelevanceInput
 from .types.evaluation_service import QuestionAnsweringRelevanceInstance
 from .types.evaluation_service import QuestionAnsweringRelevanceResult
 from .types.evaluation_service import QuestionAnsweringRelevanceSpec
+from .types.evaluation_service import RawOutput
 from .types.evaluation_service import RougeInput
 from .types.evaluation_service import RougeInstance
 from .types.evaluation_service import RougeMetricValue
@@ -879,6 +895,11 @@ from .types.prediction_service import StreamRawPredictRequest
 from .types.publisher_model import PublisherModel
 from .types.reasoning_engine import ReasoningEngine
 from .types.reasoning_engine import ReasoningEngineSpec
+from .types.reasoning_engine_execution_service import (
+    AsyncQueryReasoningEngineOperationMetadata,
+)
+from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineRequest
+from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
@@ -1023,6 +1044,8 @@ from .types.training_pipeline import PredefinedSplit
 from .types.training_pipeline import StratifiedSplit
 from .types.training_pipeline import TimestampSplit
 from .types.training_pipeline import TrainingPipeline
+from .types.tuning_job import EvaluateDatasetRun
+from .types.tuning_job import EvaluationConfig
 from .types.tuning_job import PreTunedModel
 from .types.tuning_job import SupervisedHyperParameters
 from .types.tuning_job import SupervisedTuningDatasetDistribution
@@ -1253,6 +1276,8 @@ __all__ = (
     "AddExecutionEventsRequest",
     "AddExecutionEventsResponse",
     "AddTrialMeasurementRequest",
+    "AggregationOutput",
+    "AggregationResult",
     "Annotation",
     "AnnotationSpec",
     "ApiAuth",
@@ -1263,6 +1288,9 @@ __all__ = (
     "AskContextsResponse",
     "AssignNotebookRuntimeOperationMetadata",
     "AssignNotebookRuntimeRequest",
+    "AsyncQueryReasoningEngineOperationMetadata",
+    "AsyncQueryReasoningEngineRequest",
+    "AsyncQueryReasoningEngineResponse",
     "AsyncRetrieveContextsOperationMetadata",
     "AsyncRetrieveContextsRequest",
     "AsyncRetrieveContextsResponse",
@@ -1270,6 +1298,7 @@ __all__ = (
     "AugmentPromptRequest",
     "AugmentPromptResponse",
     "AutomaticResources",
+    "AutoraterConfig",
     "AutoscalingMetricSpec",
     "AvroSource",
     "BatchCancelPipelineJobsOperationMetadata",
@@ -1338,11 +1367,13 @@ __all__ = (
     "CometSpec",
     "CompleteTrialRequest",
     "CompletionStats",
+    "ComputationBasedMetricSpec",
     "ComputeTokensRequest",
     "ComputeTokensResponse",
     "ContainerRegistryDestination",
     "ContainerSpec",
     "Content",
+    "ContentMap",
     "Context",
     "CopyModelOperationMetadata",
     "CopyModelRequest",
@@ -1419,6 +1450,8 @@ __all__ = (
     "CsvSource",
     "CustomJob",
     "CustomJobSpec",
+    "CustomOutput",
+    "CustomOutputFormatConfig",
     "DataFoundryServiceClient",
     "DataItem",
     "DataItemView",
@@ -1513,10 +1546,14 @@ __all__ = (
     "EntityType",
     "EnvVar",
     "ErrorAnalysisAnnotation",
+    "EvaluateDatasetResponse",
+    "EvaluateDatasetRun",
     "EvaluateInstancesRequest",
     "EvaluateInstancesResponse",
     "EvaluatedAnnotation",
     "EvaluatedAnnotationExplanation",
+    "EvaluationConfig",
+    "EvaluationDataset",
     "EvaluationServiceClient",
     "Event",
     "EventActions",
@@ -1704,6 +1741,7 @@ __all__ = (
     "JiraSource",
     "JobServiceClient",
     "JobState",
+    "LLMBasedMetricSpec",
     "LargeModelReference",
     "LineageSubgraph",
     "ListAnnotationsRequest",
@@ -1828,6 +1866,8 @@ __all__ = (
     "MetadataSchema",
     "MetadataServiceClient",
     "MetadataStore",
+    "Metric",
+    "MetricResult",
     "MetricxInput",
     "MetricxInstance",
     "MetricxResult",
@@ -1885,7 +1925,9 @@ __all__ = (
     "NotebookRuntimeType",
     "NotebookServiceClient",
     "NotebookSoftwareConfig",
+    "OutputConfig",
     "OutputFieldSpec",
+    "OutputInfo",
     "PSCAutomationConfig",
     "PSCAutomationState",
     "PairwiseChoice",
@@ -1924,6 +1966,7 @@ __all__ = (
     "PostStartupScriptConfig",
     "PreTunedModel",
     "PrebuiltVoiceConfig",
+    "PredefinedMetricSpec",
     "PredefinedSplit",
     "PredictRequest",
     "PredictRequestResponseLoggingConfig",
@@ -1984,6 +2027,7 @@ __all__ = (
     "RagQuery",
     "RagRetrievalConfig",
     "RagVectorDbConfig",
+    "RawOutput",
     "RawPredictRequest",
     "RayLogsSpec",
     "RayMetricSpec",

@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-from distutils import core
 import copy
 import os
 import functools
@@ -657,7 +656,27 @@ class TestTrainingScriptPythonPackager:
 
     def test_packager_creates_and_copies_python_package(self):
         tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
-        tsp.package_and_copy(copy_method=local_copy_method)
+
+        def create_valid_tarball(*args, **kwargs):
+            cwd = kwargs.get("cwd")
+            if cwd:
+                dist_dir = pathlib.Path(cwd) / "dist"
+                dist_dir.mkdir(exist_ok=True)
+                filename = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
+                tarball_path = dist_dir / filename
+                setup_py_path = pathlib.Path(cwd) / "setup.py"
+                arcname = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
+                import tarfile
+
+                with tarfile.open(tarball_path, "w:gz") as tar:
+                    tar.add(setup_py_path, arcname=arcname)
+            mock_subprocess = mock.Mock()
+            mock_subprocess.communicate.return_value = (b"", b"")
+            mock_subprocess.returncode = 0
+            return mock_subprocess
+
+        with mock.patch("subprocess.Popen", side_effect=create_valid_tarball):
+            tsp.package_and_copy(copy_method=local_copy_method)
         assert pathlib.Path(
             f"{tsp._ROOT_MODULE}-{tsp._SETUP_PY_VERSION}.tar.gz"
         ).is_file()
@@ -666,15 +685,43 @@ class TestTrainingScriptPythonPackager:
         tsp = source_utils._TrainingScriptPythonPackager(
             _TEST_LOCAL_SCRIPT_FILE_PATH, requirements=_TEST_REQUIREMENTS
         )
-        source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
+
+        def create_valid_tarball(*args, **kwargs):
+            cwd = kwargs.get("cwd")
+            if cwd:
+                dist_dir = pathlib.Path(cwd) / "dist"
+                dist_dir.mkdir(exist_ok=True)
+                filename = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
+                tarball_path = dist_dir / filename
+                setup_py_path = pathlib.Path(cwd) / "setup.py"
+                arcname = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
+                import tarfile
+
+                with tarfile.open(tarball_path, "w:gz") as tar:
+                    tar.add(setup_py_path, arcname=arcname)
+            mock_subprocess = mock.Mock()
+            mock_subprocess.communicate.return_value = (b"", b"")
+            mock_subprocess.returncode = 0
+            return mock_subprocess
+
+        with mock.patch("subprocess.Popen", side_effect=create_valid_tarball):
+            source_dist_path = tsp.package_and_copy(copy_method=local_copy_method)
         with tarfile.open(source_dist_path) as tf:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 setup_py_path = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
                 tf.extract(setup_py_path, path=tmpdirname)
-                setup_py = core.run_setup(
-                    pathlib.Path(tmpdirname, setup_py_path), stop_after="init"
+                with open(pathlib.Path(tmpdirname, setup_py_path), "r") as f:
+                    setup_py_content = f.read()
+
+                import re
+
+                match = re.search(r"install_requires=\((.*?)\)", setup_py_content)
+                assert match is not None
+                requirements_str = match.group(1)
+                expected_requirements_str = ",".join(
+                    f'"{r}"' for r in _TEST_REQUIREMENTS
                 )
-                assert _TEST_REQUIREMENTS == setup_py.install_requires
+                assert requirements_str == expected_requirements_str
 
     def test_packaging_fails_whith_RuntimeError(self):
         with patch("subprocess.Popen") as mock_popen:
@@ -693,9 +740,28 @@ class TestTrainingScriptPythonPackager:
 
         tsp = source_utils._TrainingScriptPythonPackager(_TEST_LOCAL_SCRIPT_FILE_PATH)
 
-        gcs_path = tsp.package_and_copy_to_gcs(
-            gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
-        )
+        def create_valid_tarball(*args, **kwargs):
+            cwd = kwargs.get("cwd")
+            if cwd:
+                dist_dir = pathlib.Path(cwd) / "dist"
+                dist_dir.mkdir(exist_ok=True)
+                filename = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}.tar.gz"
+                tarball_path = dist_dir / filename
+                setup_py_path = pathlib.Path(cwd) / "setup.py"
+                arcname = f"{source_utils._TrainingScriptPythonPackager._ROOT_MODULE}-{source_utils._TrainingScriptPythonPackager._SETUP_PY_VERSION}/setup.py"
+                import tarfile
+
+                with tarfile.open(tarball_path, "w:gz") as tar:
+                    tar.add(setup_py_path, arcname=arcname)
+            mock_subprocess = mock.Mock()
+            mock_subprocess.communicate.return_value = (b"", b"")
+            mock_subprocess.returncode = 0
+            return mock_subprocess
+
+        with mock.patch("subprocess.Popen", side_effect=create_valid_tarball):
+            gcs_path = tsp.package_and_copy_to_gcs(
+                gcs_staging_dir=_TEST_BUCKET_NAME, project=_TEST_PROJECT
+            )
 
         mock_client_bucket.assert_called_once_with(_TEST_BUCKET_NAME)
         mock_client_bucket.return_value.blob.assert_called_once()
@@ -1287,6 +1353,59 @@ class TestCustomTrainingJob:
     def teardown_method(self):
         pathlib.Path(self._local_script_file_name).unlink()
         initializer.global_pool.shutdown(wait=True)
+
+    def test_block_until_complete_logs_symbolic_state_name(
+        self, mock_model_service_get
+    ):
+        """State log must use symbolic enum name, not a bare integer (regression for Python 3.11+)."""
+        aiplatform.init(project=_TEST_PROJECT, staging_bucket=_TEST_BUCKET_NAME)
+
+        logged_messages = []
+
+        with mock.patch.object(
+            pipeline_service_client.PipelineServiceClient, "create_training_pipeline"
+        ) as mock_create, mock.patch.object(
+            source_utils._TrainingScriptPythonPackager, "package_and_copy_to_gcs"
+        ) as mock_pkg, mock.patch.object(
+            pipeline_service_client.PipelineServiceClient, "get_training_pipeline"
+        ) as mock_get, mock.patch.object(
+            training_jobs, "_LOG_WAIT_TIME", 0
+        ), mock.patch.object(
+            training_jobs, "_JOB_WAIT_TIME", 0
+        ), mock.patch.object(
+            training_jobs._LOGGER,
+            "info",
+            side_effect=lambda msg, *a, **kw: logged_messages.append(msg),
+        ):
+            mock_pkg.return_value = _TEST_OUTPUT_PYTHON_PACKAGE_PATH
+            mock_create.return_value = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
+            _running = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_RUNNING,
+                training_task_inputs={},
+            )
+            _succeeded = gca_training_pipeline.TrainingPipeline(
+                name=_TEST_PIPELINE_RESOURCE_NAME,
+                state=gca_pipeline_state.PipelineState.PIPELINE_STATE_SUCCEEDED,
+                training_task_inputs={},
+                model_to_upload=gca_model.Model(name=_TEST_MODEL_NAME),
+            )
+            mock_get.side_effect = [_running, _running] + [_succeeded] * 8
+            job = training_jobs.CustomTrainingJob(
+                display_name=_TEST_DISPLAY_NAME,
+                script_path=self._local_script_file_name,
+                container_uri=_TEST_TRAINING_CONTAINER_IMAGE,
+            )
+            job.run(base_output_dir=_TEST_BASE_OUTPUT_DIR, sync=True)
+
+        state_log = next((m for m in logged_messages if "current state" in m), None)
+        assert state_log is not None, "No 'current state' log message found"
+        assert "PIPELINE_STATE_RUNNING" in state_log
+        assert "current state:\n3" not in state_log
 
     @mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 1)
     @mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 1)

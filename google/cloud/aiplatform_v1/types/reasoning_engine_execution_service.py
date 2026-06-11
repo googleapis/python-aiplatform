@@ -19,6 +19,7 @@ from typing import MutableMapping, MutableSequence
 
 import proto  # type: ignore
 
+from google.cloud.aiplatform_v1.types import operation
 import google.protobuf.struct_pb2 as struct_pb2  # type: ignore
 
 
@@ -28,6 +29,9 @@ __protobuf__ = proto.module(
         "QueryReasoningEngineRequest",
         "QueryReasoningEngineResponse",
         "StreamQueryReasoningEngineRequest",
+        "AsyncQueryReasoningEngineRequest",
+        "AsyncQueryReasoningEngineOperationMetadata",
+        "AsyncQueryReasoningEngineResponse",
     },
 )
 
@@ -110,6 +114,68 @@ class StreamQueryReasoningEngineRequest(proto.Message):
     class_method: str = proto.Field(
         proto.STRING,
         number=3,
+    )
+
+
+class AsyncQueryReasoningEngineRequest(proto.Message):
+    r"""Request message for
+    [ReasoningEngineExecutionService.AsyncQueryReasoningEngine][google.cloud.aiplatform.v1.ReasoningEngineExecutionService.AsyncQueryReasoningEngine].
+
+    Attributes:
+        name (str):
+            Required. The name of the ReasoningEngine resource to use.
+            Format:
+            ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
+        input_gcs_uri (str):
+            Optional. Input Cloud Storage URI for the
+            Async query.
+        output_gcs_uri (str):
+            Optional. Output Cloud Storage URI for the
+            Async query.
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    input_gcs_uri: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+    output_gcs_uri: str = proto.Field(
+        proto.STRING,
+        number=3,
+    )
+
+
+class AsyncQueryReasoningEngineOperationMetadata(proto.Message):
+    r"""Operation metadata message for
+    [ReasoningEngineExecutionService.AsyncQueryReasoningEngine][google.cloud.aiplatform.v1.ReasoningEngineExecutionService.AsyncQueryReasoningEngine].
+
+    Attributes:
+        generic_metadata (google.cloud.aiplatform_v1.types.GenericOperationMetadata):
+            The common part of the operation metadata.
+    """
+
+    generic_metadata: operation.GenericOperationMetadata = proto.Field(
+        proto.MESSAGE,
+        number=1,
+        message=operation.GenericOperationMetadata,
+    )
+
+
+class AsyncQueryReasoningEngineResponse(proto.Message):
+    r"""Response message for
+    [ReasoningEngineExecutionService.AsyncQueryReasoningEngine][google.cloud.aiplatform.v1.ReasoningEngineExecutionService.AsyncQueryReasoningEngine].
+
+    Attributes:
+        output_gcs_uri (str):
+            Output Cloud Storage URI for the Async query.
+    """
+
+    output_gcs_uri: str = proto.Field(
+        proto.STRING,
+        number=1,
     )
 
 

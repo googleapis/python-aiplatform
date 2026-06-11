@@ -24,8 +24,8 @@ from vertexai.agent_engines import _utils
 import pytest
 
 from langchain_core import runnables
-from langchain.load import dump as langchain_load_dump
-from langchain.tools.base import StructuredTool
+from langchain_core.load import dump as langchain_load_dump
+from langchain_core.tools import StructuredTool
 
 
 _DEFAULT_PLACE_TOOL_ACTIVITY = "museums"
@@ -208,7 +208,12 @@ class TestLanggraphAgent:
         mocks.attach_mock(mock=agent._tmpl_attrs.get("runnable"), attribute="invoke")
         agent.query(input="test query")
         mocks.assert_has_calls(
-            [mock.call.invoke.invoke(input={"input": "test query"}, config=None)]
+            [
+                mock.call.invoke.invoke(
+                    input={"input": "test query", "messages": [("user", "test query")]},
+                    config=None,
+                )
+            ]
         )
 
     def test_stream_query(self, langchain_dump_mock):
@@ -217,7 +222,10 @@ class TestLanggraphAgent:
         agent._tmpl_attrs["runnable"].stream.return_value = []
         list(agent.stream_query(input="test stream query"))
         agent._tmpl_attrs["runnable"].stream.assert_called_once_with(
-            input={"input": "test stream query"},
+            input={
+                "input": "test stream query",
+                "messages": [("user", "test stream query")],
+            },
             config=None,
         )
 

@@ -56,6 +56,23 @@ def _CreateAgentEngineSandboxConfig_to_vertex(
     if getv(from_object, ["ttl"]) is not None:
         setv(parent_object, ["ttl"], getv(from_object, ["ttl"]))
 
+    if getv(from_object, ["sandbox_environment_template"]) is not None:
+        setv(
+            parent_object,
+            ["sandboxEnvironmentTemplate"],
+            getv(from_object, ["sandbox_environment_template"]),
+        )
+
+    if getv(from_object, ["sandbox_environment_snapshot"]) is not None:
+        setv(
+            parent_object,
+            ["sandboxEnvironmentSnapshot"],
+            getv(from_object, ["sandbox_environment_snapshot"]),
+        )
+
+    if getv(from_object, ["owner"]) is not None:
+        setv(parent_object, ["owner"], getv(from_object, ["owner"]))
+
     return to_object
 
 
@@ -182,7 +199,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -260,7 +279,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -334,7 +355,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -412,7 +435,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -494,7 +519,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
                 parameter_model
@@ -562,7 +589,9 @@ class Sandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
                 parameter_model
@@ -616,6 +645,39 @@ class Sandboxes(_api_module.BaseModule):
 
         self._api_client._verify_response(return_value)
         return return_value
+
+    _templates = None
+    _snapshots = None
+
+    @property
+    def templates(self) -> Any:
+        if self._templates is None:
+            try:
+                self._templates = __import__("importlib").import_module(
+                    ".sandbox_templates", __package__
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.sandboxes.templates' module requires "
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[agent_engines]"
+                ) from e
+        return self._templates.SandboxTemplates(self._api_client)
+
+    @property
+    def snapshots(self) -> Any:
+        if self._snapshots is None:
+            try:
+                self._snapshots = __import__("importlib").import_module(
+                    ".sandbox_snapshots", __package__
+                )
+            except ImportError as e:
+                raise ImportError(
+                    "The 'agent_engines.sandboxes.snapshots' module requires "
+                    "additional packages. Please install them using pip install "
+                    "google-cloud-aiplatform[sandbox_snapshots]"
+                ) from e
+        return self._snapshots.SandboxSnapshots(self._api_client)
 
     def create(
         self,
@@ -808,8 +870,6 @@ class Sandboxes(_api_module.BaseModule):
     def generate_access_token(
         self,
         service_account_email: str,
-        sandbox_id: str,
-        port: str = "8080",
         timeout: int = 3600,
     ) -> str:
         """Signs a JWT with a Google Cloud service account.
@@ -817,10 +877,6 @@ class Sandboxes(_api_module.BaseModule):
         Args:
             service_account_email (str):
                 Required. The email of the service account to use for signing.
-            sandbox_id (str):
-                Required. The resource name of the sandbox to generate a token for.
-            port (str):
-                Optional. The port to use for the token. Defaults to "8080".
             timeout (int):
                 Optional. The timeout in seconds for the token. Defaults to 3600.
 
@@ -829,14 +885,13 @@ class Sandboxes(_api_module.BaseModule):
         """
         client = iam_credentials_v1.IAMCredentialsClient()
         name = f"projects/-/serviceAccounts/{service_account_email}"
-        custom_claims = {"port": port, "sandbox_id": sandbox_id}
         payload = {
             "iat": int(time.time()),
             "exp": int(time.time()) + timeout,
             "iss": service_account_email,
+            "sub": service_account_email,
             "nonce": secrets.randbelow(1000000000) + 1,
-            "aud": "vmaas-proxy-api",  # default audience for sandbox proxy
-            **custom_claims,
+            "aud": "https://aiplatform.googleapis.com/",  # default audience for sandbox proxy
         }
         request = iam_credentials_v1.SignJwtRequest(
             name=name,
@@ -851,6 +906,7 @@ class Sandboxes(_api_module.BaseModule):
         http_method: str,
         access_token: str,
         sandbox_environment: types.SandboxEnvironment,
+        port: str = "8080",
         path: Optional[str] = None,
         query_params: Optional[dict[str, object]] = None,
         headers: Optional[dict[str, str]] = None,
@@ -865,6 +921,8 @@ class Sandboxes(_api_module.BaseModule):
                 Required. The access token to use for authorization.
             sandbox_environment (types.SandboxEnvironment):
                 Required. The sandbox environment to send the command to.
+            port (str):
+                Optional. The port to use for the token. Defaults to "8080". This should be one of the ports specified during template creation.
             path (str):
                 Optional. The path to send the command to.
             query_params (dict[str, object]):
@@ -889,10 +947,16 @@ class Sandboxes(_api_module.BaseModule):
         else:
             raise ValueError("Load balancer hostname or ip is not available.")
 
+        routing_token = connection_info.routing_token
+        if not routing_token:
+            raise ValueError("Routing token is not available.")
+
         path = path or ""
         if query_params:
             path = f"{path}?{urlencode(query_params)}"
         headers["Authorization"] = f"Bearer {access_token}"
+        headers["X-Sandbox-Routing-Token"] = routing_token
+        headers["X-Sandbox-Port"] = port
         endpoint = endpoint + path if path.startswith("/") else endpoint + "/" + path
         http_options = genai_types.HttpOptions(headers=headers, base_url=endpoint)
         http_client = genai.Client(vertexai=True, http_options=http_options)
@@ -908,6 +972,7 @@ class Sandboxes(_api_module.BaseModule):
         self,
         sandbox_environment: types.SandboxEnvironment,
         service_account_email: str,
+        port: str = "8080",
         timeout: int = 3600,
     ) -> tuple[str, dict[str, str]]:
         """Generates the websocket upgrade headers for the browser.
@@ -917,47 +982,49 @@ class Sandboxes(_api_module.BaseModule):
                 Required. The sandbox environment to generate websocket headers for.
             service_account_email (str):
                 Required. The email of the service account to use for signing.
+            port (str):
+                Optional. The port to use for the CDP websocket endpoint url fetching.
+                Defaults to "8080". This should be one of the ports specified during template creation.
             timeout (int):
                 Optional. The timeout in seconds for the token. Defaults to 3600.
-
         Returns:
             tuple[str, dict[str, str]]: A tuple containing the websocket URL and
             the headers for websocket upgrade.
         """
-        sandbox_id = sandbox_environment.name
-        # port 8080 is the default port for http endpoint.
-        http_access_token = self.generate_access_token(
-            service_account_email, sandbox_id, "8080", timeout
-        )
+        if not sandbox_environment.connection_info:
+            raise ValueError("Connection info is not available.")
+
+        connection_info = sandbox_environment.connection_info
+        if connection_info.load_balancer_hostname:
+            ws_base_url = "wss://" + connection_info.load_balancer_hostname
+        elif connection_info.load_balancer_ip:
+            ws_base_url = "ws://" + connection_info.load_balancer_ip
+        else:
+            raise ValueError("Load balancer hostname or ip is not available.")
+
+        http_access_token = self.generate_access_token(service_account_email, timeout)
         response = self.send_command(
             http_method="GET",
             access_token=http_access_token,
             sandbox_environment=sandbox_environment,
+            port=port,
             path="/cdp_ws_endpoint",
         )
         if not response:
             raise ValueError("Failed to get the websocket endpoint.")
         body_dict = json.loads(response.body)
         ws_path = body_dict["endpoint"]
-
-        ws_url = "wss://test-us-central1.autopush-sandbox.vertexai.goog"
-        if sandbox_environment and sandbox_environment.connection_info:
-            connection_info = sandbox_environment.connection_info
-            if connection_info.load_balancer_hostname:
-                ws_url = "wss://" + connection_info.load_balancer_hostname
-            elif connection_info.load_balancer_ip:
-                ws_url = "ws://" + connection_info.load_balancer_ip
-            else:
-                raise ValueError("Load balancer hostname or ip is not available.")
-        ws_url = ws_url + "/" + ws_path
+        ws_url = ws_base_url + "/" + ws_path
 
         # port 9222 is the default port for the browser websocket endpoint.
-        ws_access_token = self.generate_access_token(
-            service_account_email, sandbox_id, "9222", timeout
-        )
+        ws_access_token = self.generate_access_token(service_account_email, timeout)
+
+        routing_token = connection_info.routing_token
 
         headers = {}
-        headers["Sec-WebSocket-Protocol"] = f"binary, {ws_access_token}"
+        headers["Sec-WebSocket-Protocol"] = (
+            f"v1.stream, {ws_access_token}, {routing_token}, 9222"
+        )
         return ws_url, headers
 
 
@@ -982,7 +1049,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _CreateAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1062,7 +1131,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _DeleteAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1138,7 +1209,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ExecuteCodeAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1218,7 +1291,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineSandboxRequestParameters_to_vertex(
                 parameter_model
@@ -1302,7 +1377,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _ListAgentEngineSandboxesRequestParameters_to_vertex(
                 parameter_model
@@ -1372,7 +1449,9 @@ class AsyncSandboxes(_api_module.BaseModule):
 
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
-            raise ValueError("This method is only supported in the Vertex AI client.")
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
         else:
             request_dict = _GetAgentEngineSandboxOperationParameters_to_vertex(
                 parameter_model

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,12 +14,12 @@
 #
 import importlib
 from google.api_core import operation as ga_operation
-from vertexai.preview import rag
-from vertexai.preview.rag.utils._gapic_utils import (
+from agentplatform.preview import rag
+from agentplatform.preview.rag.utils._gapic_utils import (
     prepare_import_files_request,
     set_embedding_model_config,
 )
-from vertexai.rag.utils.resources import (
+from agentplatform.rag.utils.resources import (
     ChunkingConfig,
     TransformationConfig,
 )
@@ -923,7 +921,7 @@ def update_rag_metadata_mock():
 
 @pytest.fixture
 def rag_data_client_preview_mock_exception():
-    from vertexai.preview.rag.utils import _gapic_utils
+    from agentplatform.preview.rag.utils import _gapic_utils
 
     with mock.patch.object(
         _gapic_utils, "create_rag_data_service_client"
@@ -993,12 +991,12 @@ def rag_metadata_eq(returned_metadata, expected_metadata):
 def rag_corpus_eq(returned_corpus, expected_corpus):
     assert returned_corpus.name == expected_corpus.name
     assert returned_corpus.display_name == expected_corpus.display_name
-    assert returned_corpus.vector_db.__eq__(expected_corpus.vector_db)
-    assert returned_corpus.backend_config.__eq__(expected_corpus.backend_config)
-    assert returned_corpus.vertex_ai_search_config.__eq__(
-        expected_corpus.vertex_ai_search_config
+    assert returned_corpus.backend_config == expected_corpus.backend_config
+    assert (
+        returned_corpus.vertex_ai_search_config
+        == expected_corpus.vertex_ai_search_config
     )
-    assert returned_corpus.corpus_type_config.__eq__(expected_corpus.corpus_type_config)
+    assert returned_corpus.corpus_type_config == expected_corpus.corpus_type_config
 
 
 def rag_file_eq(returned_file, expected_file):
@@ -1048,9 +1046,19 @@ def import_files_request_eq(returned_request, expected_request):
 
 def rag_engine_config_eq(returned_config, expected_config):
     assert returned_config.name == expected_config.name
-    assert returned_config.rag_managed_db_config.__eq__(
-        expected_config.rag_managed_db_config
+    ret_mode = (
+        returned_config.rag_managed_db_config.mode
+        if returned_config.rag_managed_db_config
+        and returned_config.rag_managed_db_config.mode
+        else rag.Spanner(tier=rag.Basic())
     )
+    exp_mode = (
+        expected_config.rag_managed_db_config.mode
+        if expected_config.rag_managed_db_config
+        and expected_config.rag_managed_db_config.mode
+        else rag.Spanner(tier=rag.Basic())
+    )
+    assert ret_mode == exp_mode
 
 
 @pytest.mark.usefixtures("google_auth_mock")
@@ -1070,7 +1078,7 @@ class TestRagDataManagement:
     def test_create_corpus_success(self):
         rag_corpus = rag.create_corpus(
             display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            embedding_model_config=test_rag_constants_preview.TEST_EMBEDDING_MODEL_CONFIG,
+            backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
         )
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS)
@@ -1093,49 +1101,6 @@ class TestRagDataManagement:
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_CMEK_RAG_CORPUS)
 
-    @pytest.mark.usefixtures("create_rag_corpus_mock_weaviate")
-    def test_create_corpus_weaviate_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_feature_store")
-    def test_create_corpus_vertex_feature_store_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_VERTEX_FEATURE_STORE_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_FEATURE_STORE
-        )
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search")
-    def test_create_corpus_vertex_vector_search_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
-        )
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_vertex_vector_search")
-    def test_create_corpus_rag_managed_vertex_vector_search_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_VERTEX_VECTOR_SEARCH_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus,
-            test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_VERTEX_VECTOR_SEARCH,
-        )
-
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_vector_search_backend")
     def test_create_corpus_vertex_vector_search_backend_success(self):
         rag_corpus = rag.create_corpus(
@@ -1146,48 +1111,6 @@ class TestRagDataManagement:
         rag_corpus_eq(
             rag_corpus,
             test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH_BACKEND,
-        )
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone")
-    def test_create_corpus_pinecone_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_PINECONE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db")
-    def test_create_corpus_rag_managed_db_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_DB_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB
-        )
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_knn")
-    def test_create_corpus_rag_managed_db_knn_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_DB_KNN_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_KNN
-        )
-
-    @pytest.mark.usefixtures("create_rag_corpus_mock_rag_managed_db_ann")
-    def test_create_corpus_rag_managed_db_ann_success(self):
-        rag_corpus = rag.create_corpus(
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_RAG_MANAGED_DB_ANN_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_ANN
         )
 
     @pytest.mark.usefixtures("create_rag_corpus_mock_pinecone_backend")
@@ -1237,32 +1160,6 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_CORPUS_RAG_MANAGED_DB_ANN_BACKEND,
         )
 
-    def test_create_corpus_backend_config_with_embedding_model_config_failure(
-        self,
-    ):
-        with pytest.raises(ValueError) as e:
-            rag.create_corpus(
-                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-                backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
-                embedding_model_config=test_rag_constants_preview.TEST_EMBEDDING_MODEL_CONFIG,
-            )
-        e.match(
-            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
-        )
-
-    def test_create_corpus_backend_config_with_vector_db_failure(
-        self,
-    ):
-        with pytest.raises(ValueError) as e:
-            rag.create_corpus(
-                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-                backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
-                vector_db=test_rag_constants_preview.TEST_PINECONE_CONFIG,
-            )
-        e.match(
-            "Only one of backend_config or embedding_model_config and vector_db can be set. embedding_model_config and vector_db are deprecated, use backend_config instead."
-        )
-
     @pytest.mark.usefixtures("create_rag_corpus_mock_vertex_ai_engine_search_config")
     def test_create_corpus_vais_engine_search_config_success(self):
         rag_corpus = rag.create_corpus(
@@ -1287,15 +1184,6 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_AI_DATASTORE_SEARCH_CONFIG,
         )
 
-    def test_create_corpus_vais_datastore_search_config_with_vector_db_failure(self):
-        with pytest.raises(ValueError) as e:
-            rag.create_corpus(
-                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
-                vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
-            )
-        e.match("Only one of vertex_ai_search_config or vector_db can be set.")
-
     def test_create_corpus_vais_datastore_search_config_with_backend_config_failure(
         self,
     ):
@@ -1306,19 +1194,6 @@ class TestRagDataManagement:
                 backend_config=test_rag_constants_preview.TEST_BACKEND_CONFIG_EMBEDDING_MODEL_CONFIG,
             )
         e.match("Only one of vertex_ai_search_config or backend_config can be set.")
-
-    def test_create_corpus_vais_datastore_search_config_with_embedding_model_config_failure(
-        self,
-    ):
-        with pytest.raises(ValueError) as e:
-            rag.create_corpus(
-                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
-                embedding_model_config=test_rag_constants_preview.TEST_EMBEDDING_MODEL_CONFIG,
-            )
-        e.match(
-            "Only one of vertex_ai_search_config or embedding_model_config can be set."
-        )
 
     def test_set_vertex_ai_search_config_with_invalid_serving_config_failure(self):
         with pytest.raises(ValueError) as e:
@@ -1367,110 +1242,6 @@ class TestRagDataManagement:
         )
 
         rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_DOCUMENT_CORPUS)
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_no_display_name_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            vector_db=test_rag_constants_preview.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_with_description_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            description=test_rag_constants_preview.TEST_CORPUS_DISCRIPTION,
-            vector_db=test_rag_constants_preview.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_weaviate")
-    def test_update_corpus_weaviate_with_description_and_display_name_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            description=test_rag_constants_preview.TEST_CORPUS_DISCRIPTION,
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_WEAVIATE_CONFIG,
-        )
-
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_WEAVIATE)
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_feature_store")
-    def test_update_corpus_vertex_feature_store_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_VERTEX_FEATURE_STORE_CONFIG,
-        )
-
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_FEATURE_STORE
-        )
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_vector_search")
-    def test_update_corpus_vertex_vector_search_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
-        )
-        rag_corpus_eq(
-            rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_VECTOR_SEARCH
-        )
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_pinecone")
-    def test_update_corpus_pinecone_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vector_db=test_rag_constants_preview.TEST_PINECONE_CONFIG,
-        )
-        rag_corpus_eq(rag_corpus, test_rag_constants_preview.TEST_RAG_CORPUS_PINECONE)
-
-    @pytest.mark.usefixtures("rag_data_client_preview_mock_exception")
-    def test_update_corpus_failure(self):
-        with pytest.raises(RuntimeError) as e:
-            rag.update_corpus(
-                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            )
-        e.match("Failed in RagCorpus update due to")
-
-    @pytest.mark.usefixtures("update_rag_corpus_mock_vertex_ai_engine_search_config")
-    def test_update_corpus_vais_engine_search_config_success(self):
-        rag_corpus = rag.update_corpus(
-            corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-            display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-            vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_ENGINE,
-        )
-
-        rag_corpus_eq(
-            rag_corpus,
-            test_rag_constants_preview.TEST_RAG_CORPUS_VERTEX_AI_ENGINE_SEARCH_CONFIG,
-        )
-
-    def test_update_corpus_vais_datastore_search_config_with_vector_db_failure(self):
-        with pytest.raises(ValueError) as e:
-            rag.update_corpus(
-                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-                display_name=test_rag_constants_preview.TEST_CORPUS_DISPLAY_NAME,
-                vertex_ai_search_config=test_rag_constants_preview.TEST_VERTEX_AI_SEARCH_CONFIG_DATASTORE,
-                vector_db=test_rag_constants_preview.TEST_VERTEX_VECTOR_SEARCH_CONFIG,
-            )
-        e.match("Only one of vertex_ai_search_config or vector_db can be set.")
 
     @pytest.mark.usefixtures("rag_data_client_preview_mock")
     def test_get_corpus_success(self):
@@ -1887,35 +1658,6 @@ class TestRagDataManagement:
             )
         e.match("processor_name must be of the format")
 
-    def test_advanced_pdf_parsing_and_layout_parser_both_set_error(self):
-        with pytest.raises(ValueError) as e:
-            rag.import_files(
-                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
-                transformation_config=create_transformation_config(),
-                use_advanced_pdf_parsing=True,
-                layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
-            )
-        e.match(
-            "Only one of use_advanced_pdf_parsing or layout_parser may be "
-            "passed in at a time"
-        )
-
-    @pytest.mark.asyncio
-    async def test_advanced_pdf_parsing_and_layout_parser_both_set_error_async(self):
-        with pytest.raises(ValueError) as e:
-            await rag.import_files_async(
-                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
-                transformation_config=create_transformation_config(),
-                use_advanced_pdf_parsing=True,
-                layout_parser=test_rag_constants_preview.TEST_LAYOUT_PARSER_WITH_PROCESSOR_PATH_CONFIG,
-            )
-        e.match(
-            "Only one of use_advanced_pdf_parsing or layout_parser may be "
-            "passed in at a time"
-        )
-
     def test_prepare_import_files_request_llm_parser(self):
         request = prepare_import_files_request(
             corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
@@ -1928,20 +1670,6 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_IMPORT_REQUEST_LLM_PARSER,
         )
 
-    def test_advanced_pdf_parsing_and_llm_parser_both_set_error(self):
-        with pytest.raises(ValueError) as e:
-            rag.import_files(
-                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
-                transformation_config=create_transformation_config(),
-                use_advanced_pdf_parsing=True,
-                llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
-            )
-        e.match(
-            "Only one of use_advanced_pdf_parsing or llm_parser may be "
-            "passed in at a time"
-        )
-
     def test_layout_parser_and_llm_parser_both_set_error(self):
         with pytest.raises(ValueError) as e:
             rag.import_files(
@@ -1952,21 +1680,6 @@ class TestRagDataManagement:
                 llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
             )
         e.match("Only one of layout_parser or llm_parser may be passed in at a time")
-
-    @pytest.mark.asyncio
-    async def test_advanced_pdf_parsing_and_llm_parser_both_set_error_async(self):
-        with pytest.raises(ValueError) as e:
-            await rag.import_files_async(
-                corpus_name=test_rag_constants_preview.TEST_RAG_CORPUS_RESOURCE_NAME,
-                paths=[test_rag_constants_preview.TEST_DRIVE_FOLDER],
-                transformation_config=create_transformation_config(),
-                use_advanced_pdf_parsing=True,
-                llm_parser=test_rag_constants_preview.TEST_LLM_PARSER_CONFIG,
-            )
-        e.match(
-            "Only one of use_advanced_pdf_parsing or llm_parser may be "
-            "passed in at a time"
-        )
 
     @pytest.mark.asyncio
     async def test_layout_parser_and_llm_parser_both_set_error_async(self):
@@ -2154,18 +1867,6 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC,
         )
 
-    def test_update_rag_engine_config_enterprise_success(
-        self, update_rag_engine_config_enterprise_mock
-    ):
-        rag_config = rag.update_rag_engine_config(
-            rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
-        )
-        assert update_rag_engine_config_enterprise_mock.call_count == 1
-        rag_engine_config_eq(
-            rag_config,
-            test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
-        )
-
     def test_update_rag_engine_config_scaled_success(
         self, update_rag_engine_config_scaled_mock
     ):
@@ -2250,21 +1951,6 @@ class TestRagDataManagement:
             test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_SERVERLESS,
         )
 
-    def test_update_rag_engine_config_with_mode_and_tier_failure(self):
-        with pytest.raises(ValueError) as e:
-            rag.update_rag_engine_config(
-                rag_engine_config=test_rag_constants_preview.TEST_BAD_RAG_ENGINE_CONFIG_WITH_MODE_AND_TIER,
-            )
-        e.match("mode and tier both cannot be set at the same time")
-
-    @pytest.mark.usefixtures("update_rag_engine_config_mock_exception")
-    def test_update_rag_engine_config_failure(self):
-        with pytest.raises(RuntimeError) as e:
-            rag.update_rag_engine_config(
-                rag_engine_config=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE,
-            )
-        e.match("Failed in RagEngineConfig update due to")
-
     @pytest.mark.usefixtures("update_rag_engine_config_basic_mock")
     def test_update_rag_engine_config_bad_input(
         self, update_rag_engine_config_basic_mock
@@ -2325,15 +2011,6 @@ class TestRagDataManagement:
         )
         rag_engine_config_eq(
             rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_BASIC
-        )
-
-    @pytest.mark.usefixtures("get_rag_engine_enterprise_config_mock")
-    def test_get_rag_engine_config_enterprise_success(self):
-        rag_config = rag.get_rag_engine_config(
-            name=test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_RESOURCE_NAME,
-        )
-        rag_engine_config_eq(
-            rag_config, test_rag_constants_preview.TEST_RAG_ENGINE_CONFIG_ENTERPRISE
         )
 
     @pytest.mark.usefixtures("get_rag_engine_scaled_config_mock")
