@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1221,9 +1221,21 @@ from .reasoning_engine_execution_service import (
     AsyncQueryReasoningEngineOperationMetadata,
     AsyncQueryReasoningEngineRequest,
     AsyncQueryReasoningEngineResponse,
+    CancelAsyncQueryReasoningEngineRequest,
+    CancelAsyncQueryReasoningEngineResponse,
     QueryReasoningEngineRequest,
     QueryReasoningEngineResponse,
     StreamQueryReasoningEngineRequest,
+)
+from .reasoning_engine_runtime_revision import (
+    ReasoningEngineRuntimeRevision,
+)
+from .reasoning_engine_runtime_revision_service import (
+    DeleteReasoningEngineRuntimeRevisionOperationMetadata,
+    DeleteReasoningEngineRuntimeRevisionRequest,
+    GetReasoningEngineRuntimeRevisionRequest,
+    ListReasoningEngineRuntimeRevisionsRequest,
+    ListReasoningEngineRuntimeRevisionsResponse,
 )
 from .reasoning_engine_service import (
     CreateReasoningEngineOperationMetadata,
@@ -2540,9 +2552,17 @@ __all__ = (
     "AsyncQueryReasoningEngineOperationMetadata",
     "AsyncQueryReasoningEngineRequest",
     "AsyncQueryReasoningEngineResponse",
+    "CancelAsyncQueryReasoningEngineRequest",
+    "CancelAsyncQueryReasoningEngineResponse",
     "QueryReasoningEngineRequest",
     "QueryReasoningEngineResponse",
     "StreamQueryReasoningEngineRequest",
+    "ReasoningEngineRuntimeRevision",
+    "DeleteReasoningEngineRuntimeRevisionOperationMetadata",
+    "DeleteReasoningEngineRuntimeRevisionRequest",
+    "GetReasoningEngineRuntimeRevisionRequest",
+    "ListReasoningEngineRuntimeRevisionsRequest",
+    "ListReasoningEngineRuntimeRevisionsResponse",
     "CreateReasoningEngineOperationMetadata",
     "CreateReasoningEngineRequest",
     "DeleteReasoningEngineRequest",
