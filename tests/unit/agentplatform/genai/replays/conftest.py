@@ -219,6 +219,17 @@ def _mock_read_file_contents_side_effect(uri: str):
     )
 
 
+def _mock_verify_bucket_ownership_side_effect(
+    self, bucket_name: str, expected_project: str
+) -> bool:
+    """
+    Side effect to mock GcsUtils._verify_bucket_ownership for replay tests.
+    """
+    if bucket_name == "sdk-rag-system-test":
+        return False
+    return True
+
+
 @pytest.fixture
 def client(use_vertex, replays_prefix, http_options, request):
 
@@ -303,6 +314,13 @@ def client(use_vertex, replays_prefix, http_options, request):
                         mock_read_file_contents.side_effect = (
                             _mock_read_file_contents_side_effect
                         )
+
+                        with mock.patch.object(
+                            _gcs_utils.GcsUtils, "_verify_bucket_ownership"
+                        ) as mock_verify_bucket_ownership:
+                            mock_verify_bucket_ownership.side_effect = (
+                                _mock_verify_bucket_ownership_side_effect
+                            )
 
                         with mock.patch.object(
                             prompt_optimizer.time, "sleep"
