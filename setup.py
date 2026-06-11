@@ -144,7 +144,7 @@ ray_testing_extra_require = ray_extra_require + [
 ]
 
 adk_extra_require = [
-    "google-adk >= 1.0.0, < 2.0.0",
+    "google-adk >= 1.5.0, < 3.0.0",
 ]
 
 reasoning_engine_extra_require = [
@@ -175,6 +175,12 @@ agent_engines_extra_require = [
     "aiohttp",  # for ADK users to use aiohttp rather than httpx client
 ]
 
+adk_testing_extra_require = list(
+    set(
+        adk_extra_require + reasoning_engine_extra_require + ["absl-py", "pytest-xdist"]
+    )
+)
+
 evaluation_extra_require = [
     "pandas >= 1.0.0",
     "tqdm>=4.23.0",
@@ -183,17 +189,16 @@ evaluation_extra_require = [
     "jsonschema",
     "ruamel.yaml",
     "pyyaml",
-    "litellm>=1.83.7, <1.83.15",
+    "litellm>=1.83.7, <1.86.0",
     # For LiteLLM tests. Lower bound: CVE-2026-35030 plus 4 follow-on
-    # advisories patched in 1.83.7. Upper bound <1.83.15 admits current
-    # latest (1.83.14).
+    # advisories patched in 1.83.7. Upper bound <1.86.0 for stable interface only.
 ]
 
 langchain_extra_require = [
     "langchain >= 1.0.0, < 2.0.0",
     "langchain-classic",
     "langchain-core >= 1.0.0, < 2.0.0",
-    "langchain-google-genai >= 4.0.0, < 5.0.0",
+    "langchain-google-genai >= 4.0.0, < 4.2.3",
     "langgraph >= 1.0.0, < 2.0.0",
     "openinference-instrumentation-langchain >= 0.1.19, < 0.2",
 ]
@@ -319,6 +324,7 @@ setuptools.setup(
             " <3.0.0,!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*"
         ),
         "google-auth >= 2.47.0, <3.0.0",
+        "certifi >= 2023.7.22",
         "proto-plus >= 1.22.3, <2.0.0",
         "protobuf>=3.20.2,<7.0.0,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5",
         "packaging >= 14.3",
@@ -326,7 +332,8 @@ setuptools.setup(
         "google-cloud-storage >= 3.10.0, < 4.0.0; python_version>='3.13'",
         "google-cloud-bigquery >= 1.15.0, < 4.0.0, !=3.20.0",
         "google-cloud-resource-manager >= 1.3.3, < 3.0.0",
-        "google-genai >= 1.75.0, < 2.0.0",
+        "google-genai >= 1.37.0, <3.0.0; python_version<'3.10'",
+        "google-genai >= 1.66.0, <3.0.0; python_version>='3.10'",
     )
     + genai_requires,
     extras_require={
@@ -348,6 +355,7 @@ setuptools.setup(
         "ray": ray_extra_require,
         "ray_testing": ray_testing_extra_require,
         "adk": adk_extra_require,
+        "adk_testing": adk_testing_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
         "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,

@@ -167,7 +167,7 @@ class A2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteAgentEngineTaskRequestParameters_to_vertex(
@@ -225,7 +225,7 @@ class A2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineTaskRequestParameters_to_vertex(
@@ -309,7 +309,7 @@ class A2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListAgentEngineTasksRequestParameters_to_vertex(
@@ -397,7 +397,7 @@ class A2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateAgentEngineTaskRequestParameters_to_vertex(
@@ -526,7 +526,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteAgentEngineTaskRequestParameters_to_vertex(
@@ -584,7 +584,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetAgentEngineTaskRequestParameters_to_vertex(
@@ -670,7 +670,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListAgentEngineTasksRequestParameters_to_vertex(
@@ -760,7 +760,7 @@ class AsyncA2aTasks(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateAgentEngineTaskRequestParameters_to_vertex(

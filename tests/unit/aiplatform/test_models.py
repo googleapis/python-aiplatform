@@ -4701,6 +4701,67 @@ class TestModel:
         # The Model yielded from upload SHOULD have a version in the versioned resource name
         assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
 
+    def test_versioning_registry_uses_location_from_resource_name(
+        self, create_client_mock
+    ):
+        # Regression test for https://github.com/googleapis/python-aiplatform/issues/2608:
+        # When a Model is initialized with a fully-qualified resource name that encodes a
+        # non-default location, the versioning registry client must use that location, not
+        # the global default from aiplatform.init().
+        models.Model(_TEST_MODEL_RESOURCE_NAME_CUSTOM_LOCATION)
+        create_client_mock.assert_any_call(
+            client_class=utils.ModelClientWithOverride,
+            credentials=initializer.global_config.credentials,
+            location_override=_TEST_LOCATION_2,
+            appended_user_agent=None,
+        )
+
+    def test_versioning_registry_uses_project_from_resource_name(
+        self, get_model_with_custom_project_mock
+    ):
+        # Regression test for https://github.com/googleapis/python-aiplatform/issues/2608:
+        # When a Model is initialized with a fully-qualified resource name that encodes a
+        # non-default project, the versioning registry must use that project, not the
+        # global default from aiplatform.init().
+        model = models.Model(_TEST_MODEL_RESOURCE_NAME_CUSTOM_PROJECT)
+        assert model._registry.model_resource_name.startswith(
+            f"projects/{_TEST_PROJECT_2}/"
+        )
+
+    def test_sync_gca_resource_uses_versioned_name(self, get_model_with_version):
+        # Regression test for https://github.com/googleapis/python-aiplatform/issues/2619
+        # _sync_gca_resource must use versioned_resource_name so the non-default
+        # version is not silently replaced by the default version.
+        model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
+        get_model_with_version.reset_mock()
+
+        model._sync_gca_resource()
+
+        versioned_name = models.ModelRegistry._get_versioned_name(
+            _TEST_MODEL_PARENT, _TEST_VERSION_ID
+        )
+        get_model_with_version.assert_called_once_with(
+            name=versioned_name, retry=base._DEFAULT_RETRY
+        )
+
+    def test_update_preserves_version(self, update_model_mock, get_model_with_version):
+        # Regression test for https://github.com/googleapis/python-aiplatform/issues/2619
+        # Model.update() calls _sync_gca_resource(); verify it fetches the versioned name.
+        model = models.Model(model_name=_TEST_MODEL_NAME, version=_TEST_VERSION_ID)
+        get_model_with_version.reset_mock()
+
+        model.update(display_name=_TEST_MODEL_NAME)
+
+        versioned_name = models.ModelRegistry._get_versioned_name(
+            _TEST_MODEL_PARENT, _TEST_VERSION_ID
+        )
+        get_model_with_version.assert_called_once_with(
+            name=versioned_name, retry=base._DEFAULT_RETRY
+        )
+        # Version must still be intact after update
+        assert model.version_id == _TEST_VERSION_ID
+        assert model.versioned_resource_name.endswith(f"@{_TEST_VERSION_ID}")
+
     @pytest.mark.parametrize(
         "parent,location,project",
         [

@@ -238,7 +238,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetSkillRequestParameters_to_vertex(parameter_model)
@@ -307,7 +307,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RetrieveSkillsRequestParameters_to_vertex(parameter_model)
@@ -381,7 +381,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateSkillRequestParameters_to_vertex(parameter_model)
@@ -450,7 +450,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _UpdateSkillRequestParameters_to_vertex(parameter_model)
@@ -518,7 +518,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListSkillsRequestParameters_to_vertex(parameter_model)
@@ -587,7 +587,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteSkillRequestParameters_to_vertex(parameter_model)
@@ -655,7 +655,7 @@ class Skills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetSkillOperationParameters_to_vertex(parameter_model)
@@ -977,7 +977,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetSkillRequestParameters_to_vertex(parameter_model)
@@ -1048,7 +1048,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _RetrieveSkillsRequestParameters_to_vertex(parameter_model)
@@ -1124,7 +1124,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateSkillRequestParameters_to_vertex(parameter_model)
@@ -1195,7 +1195,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _UpdateSkillRequestParameters_to_vertex(parameter_model)
@@ -1265,7 +1265,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListSkillsRequestParameters_to_vertex(parameter_model)
@@ -1336,7 +1336,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteSkillRequestParameters_to_vertex(parameter_model)
@@ -1406,7 +1406,7 @@ class AsyncSkills(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetSkillOperationParameters_to_vertex(parameter_model)

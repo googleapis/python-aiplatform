@@ -926,6 +926,7 @@ class AdkApp:
         from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
+        os.environ["GOOGLE_GENAI_USE_ENTERPRISE"] = "1"
         project = self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
@@ -1332,6 +1333,7 @@ class AdkApp:
             self.set_up()
 
         # Try to get the session, if it doesn't exist, create a new one.
+        state_delta = None
         if request.session_id:
             session_service = self._tmpl_attrs.get("session_service")
             artifact_service = self._tmpl_attrs.get("artifact_service")
@@ -1349,6 +1351,11 @@ class AdkApp:
                         artifact_service=artifact_service,
                         request=request,
                     )
+                    if request.authorizations:
+                        state_delta = {}
+                        for auth_id, auth in request.authorizations.items():
+                            auth = _Authorization(**auth)
+                            state_delta[auth_id] = auth.access_token
             except ClientError:
                 pass
             if not session:
@@ -1380,6 +1387,7 @@ class AdkApp:
                 user_id=request.user_id,
                 session_id=session.id,
                 new_message=message_for_agent,
+                state_delta=state_delta,
             ):
                 converted_event = await self._convert_response_events(
                     user_id=request.user_id,

@@ -36,7 +36,6 @@ from . import _evals_utils
 from . import evals
 from . import types
 
-
 logger = logging.getLogger(__name__)
 _MAX_RETRIES = 5
 # HTTP status codes that are safe to retry with backoff.
@@ -972,6 +971,17 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             raise ValueError(
                 f"Metric '{self.metric.name}' is not a supported predefined metric."
             )
+        if (
+            self.metric.judge_model
+            or self.metric.judge_model_generation_config
+            or self.metric.judge_model_sampling_count
+        ):
+            logger.warning(
+                "Autorater config settings (judge_model, "
+                "judge_model_generation_config, judge_model_sampling_count) "
+                "are ignored for predefined metric '%s'.",
+                self.metric.name,
+            )
 
     def _build_request_payload(
         self, eval_case: types.EvalCase, response_index: int
@@ -1026,11 +1036,9 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             "instance": instance_payload,
         }
 
-        autorater_config = _get_autorater_config(self.metric)
-        if autorater_config:
-            request_payload["autorater_config"] = genai_types.AutoraterConfig(
-                **autorater_config
-            )
+        # Note: autorater_config is intentionally not passed for predefined
+        # metrics. The server uses its own model configuration for predefined
+        # metrics and ignores the autorater_config field.
         return request_payload
 
     @override
@@ -1045,7 +1053,6 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
                 lambda: self.module._evaluate_instances(
                     metrics=[self.metric],
                     instance=payload.get("instance"),
-                    autorater_config=payload.get("autorater_config"),
                 ),
                 metric_name,
             )

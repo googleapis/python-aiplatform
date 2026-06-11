@@ -383,6 +383,17 @@ class Framework(_common.CaseInSensitiveEnum):
     """Angular framework."""
 
 
+class SkillSource(_common.CaseInSensitiveEnum):
+    """Output only. The source of the Skill."""
+
+    SKILL_SOURCE_UNSPECIFIED = "SKILL_SOURCE_UNSPECIFIED"
+    """The skill source is unspecified."""
+    USER = "USER"
+    """The skill is created by a user."""
+    SYSTEM = "SYSTEM"
+    """The skill is a system skill."""
+
+
 class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The type of the EvaluationItem."""
 
@@ -2409,7 +2420,8 @@ class EvaluationRunConfig(_common.BaseModel):
         default=None, description="""The output config for the evaluation run."""
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description="""The autorater config for the evaluation run."""
+        default=None,
+        description="""The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2439,7 +2451,7 @@ class EvaluationRunConfigDict(TypedDict, total=False):
     """The output config for the evaluation run."""
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """The autorater config for the evaluation run."""
+    """The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -2537,7 +2549,7 @@ class EvaluationRunInferenceConfig(_common.BaseModel):
     )
     model: Optional[str] = Field(
         default=None,
-        description="""The fully qualified name of the publisher model or endpoint to use for inference.""",
+        description="""The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`).""",
     )
     prompt_template: Optional[EvaluationRunPromptTemplate] = Field(
         default=None, description="""The prompt template used for inference."""
@@ -2562,7 +2574,7 @@ class EvaluationRunInferenceConfigDict(TypedDict, total=False):
     """The agent config."""
 
     model: Optional[str]
-    """The fully qualified name of the publisher model or endpoint to use for inference."""
+    """The model to use for inference. Accepts a short Gemini model name (e.g. `gemini-2.5-flash`), which is automatically expanded to a fully-qualified resource name using the client's project and location, or an already fully-qualified publisher-model or endpoint resource name (e.g. `projects/{project}/locations/{location}/publishers/google/models/gemini-2.5-flash`)."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
     """The prompt template used for inference."""
@@ -4746,7 +4758,8 @@ class _EvaluateInstancesRequestParameters(_common.BaseModel):
         default=None, description=""""""
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
     )
     metrics: Optional[list[Metric]] = Field(
         default=None,
@@ -4797,7 +4810,7 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     """"""
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """"""
+    """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     metrics: Optional[list[MetricDict]]
     """The metrics used for evaluation.
@@ -7217,15 +7230,15 @@ class MemoryGenerationTriggerConfigGenerationTriggerRule(_common.BaseModel):
 
     event_count: Optional[int] = Field(
         default=None,
-        description="""Specifies to trigger generation when the event count reaches this limit.""",
+        description="""Optional. Specifies to trigger generation when the event count reaches this limit.""",
     )
     fixed_interval: Optional[str] = Field(
         default=None,
-        description="""Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity.""",
+        description="""Optional. Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity.""",
     )
     idle_duration: Optional[str] = Field(
         default=None,
-        description="""Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity.""",
+        description="""Optional. Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity.""",
     )
 
 
@@ -7233,13 +7246,13 @@ class MemoryGenerationTriggerConfigGenerationTriggerRuleDict(TypedDict, total=Fa
     """Represents the active rule that determines when to flush the buffer."""
 
     event_count: Optional[int]
-    """Specifies to trigger generation when the event count reaches this limit."""
+    """Optional. Specifies to trigger generation when the event count reaches this limit."""
 
     fixed_interval: Optional[str]
-    """Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity."""
+    """Optional. Specifies to trigger generation at a fixed interval. The duration must have a minute-level granularity."""
 
     idle_duration: Optional[str]
-    """Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity."""
+    """Optional. Specifies to trigger generation if the stream is inactive for the specified duration after the most recent event. The duration must have a minute-level granularity."""
 
 
 MemoryGenerationTriggerConfigGenerationTriggerRuleOrDict = Union[
@@ -7701,7 +7714,7 @@ class KeepAliveProbeHttpGet(_common.BaseModel):
 
     path: Optional[str] = Field(
         default=None,
-        description="""Required. Specifies the path of the HTTP GET request (e.g., "/is_busy").""",
+        description="""Required. Specifies the path of the HTTP GET request (e.g., `"/is_busy"`).""",
     )
     port: Optional[int] = Field(
         default=None,
@@ -7713,7 +7726,7 @@ class KeepAliveProbeHttpGetDict(TypedDict, total=False):
     """Specifies the HTTP GET configuration for the probe."""
 
     path: Optional[str]
-    """Required. Specifies the path of the HTTP GET request (e.g., "/is_busy")."""
+    """Required. Specifies the path of the HTTP GET request (e.g., `"/is_busy"`)."""
 
     port: Optional[int]
     """Optional. Specifies the port number on the container to which the request is sent."""
@@ -7847,7 +7860,7 @@ class ReasoningEngineSpecPackageSpec(_common.BaseModel):
     )
     python_version: Optional[str] = Field(
         default=None,
-        description="""Optional. The Python version. Supported values are 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10.""",
+        description="""Optional. The Python version. Supported values are 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10.""",
     )
     requirements_gcs_uri: Optional[str] = Field(
         default=None,
@@ -7865,7 +7878,7 @@ class ReasoningEngineSpecPackageSpecDict(TypedDict, total=False):
     """Optional. The Cloud Storage URI of the pickled python object."""
 
     python_version: Optional[str]
-    """Optional. The Python version. Supported values are 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10."""
+    """Optional. The Python version. Supported values are 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, the default value is 3.10."""
 
     requirements_gcs_uri: Optional[str]
     """Optional. The Cloud Storage URI of the `requirements.txt` file"""
@@ -8059,7 +8072,7 @@ class ReasoningEngineSpecSourceCodeSpecPythonSpec(_common.BaseModel):
     )
     version: Optional[str] = Field(
         default=None,
-        description="""Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10.""",
+        description="""Optional. The version of Python to use. Supported versions include 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10.""",
     )
 
 
@@ -8076,7 +8089,7 @@ class ReasoningEngineSpecSourceCodeSpecPythonSpecDict(TypedDict, total=False):
     """Optional. The path to the requirements file, relative to the source root. If not specified, defaults to "requirements.txt"."""
 
     version: Optional[str]
-    """Optional. The version of Python to use. Support version includes 3.9, 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10."""
+    """Optional. The version of Python to use. Supported versions include 3.10, 3.11, 3.12, 3.13, 3.14. If not specified, default value is 3.10."""
 
 
 ReasoningEngineSpecSourceCodeSpecPythonSpecOrDict = Union[
@@ -12474,10 +12487,6 @@ class SandboxEnvironmentConnectionInfo(_common.BaseModel):
         default=None,
         description="""Output only. The internal IP address of the SandboxEnvironment.""",
     )
-    sandbox_hostname: Optional[str] = Field(
-        default=None,
-        description="""Output only. The hostname of the SandboxEnvironment.""",
-    )
     routing_token: Optional[str] = Field(
         default=None,
         description="""Output only. The routing token for the SandboxEnvironment.""",
@@ -12495,9 +12504,6 @@ class SandboxEnvironmentConnectionInfoDict(TypedDict, total=False):
 
     sandbox_internal_ip: Optional[str]
     """Output only. The internal IP address of the SandboxEnvironment."""
-
-    sandbox_hostname: Optional[str]
-    """Output only. The hostname of the SandboxEnvironment."""
 
     routing_token: Optional[str]
     """Output only. The routing token for the SandboxEnvironment."""
@@ -13291,28 +13297,6 @@ _CreateSandboxEnvironmentTemplateRequestParametersOrDict = Union[
 ]
 
 
-class SandboxEnvironmentTemplateWarmPoolConfig(_common.BaseModel):
-    """Configuration for a warm pool of sandbox instances."""
-
-    target_instance_count: Optional[int] = Field(
-        default=None,
-        description="""Optional. The target number of pre-warmed instances to maintain.""",
-    )
-
-
-class SandboxEnvironmentTemplateWarmPoolConfigDict(TypedDict, total=False):
-    """Configuration for a warm pool of sandbox instances."""
-
-    target_instance_count: Optional[int]
-    """Optional. The target number of pre-warmed instances to maintain."""
-
-
-SandboxEnvironmentTemplateWarmPoolConfigOrDict = Union[
-    SandboxEnvironmentTemplateWarmPoolConfig,
-    SandboxEnvironmentTemplateWarmPoolConfigDict,
-]
-
-
 class SandboxEnvironmentTemplate(_common.BaseModel):
     """A sandbox environment template."""
 
@@ -13363,10 +13347,6 @@ class SandboxEnvironmentTemplate(_common.BaseModel):
         default=None,
         description="""Output only. The timestamp when this SandboxEnvironmentTemplate was most recently updated.""",
     )
-    warm_pool_config: Optional[SandboxEnvironmentTemplateWarmPoolConfig] = Field(
-        default=None,
-        description="""Optional. The configuration for the warm pool of this template.""",
-    )
 
 
 class SandboxEnvironmentTemplateDict(TypedDict, total=False):
@@ -13408,9 +13388,6 @@ class SandboxEnvironmentTemplateDict(TypedDict, total=False):
 
     update_time: Optional[datetime.datetime]
     """Output only. The timestamp when this SandboxEnvironmentTemplate was most recently updated."""
-
-    warm_pool_config: Optional[SandboxEnvironmentTemplateWarmPoolConfigDict]
-    """Optional. The configuration for the warm pool of this template."""
 
 
 SandboxEnvironmentTemplateOrDict = Union[
@@ -16453,6 +16430,27 @@ SchemaPromptSpecPartListOrDict = Union[
 ]
 
 
+class SchemaPromptSpecInteractionData(_common.BaseModel):
+    """Defines data for an interaction prompt."""
+
+    interaction_ids: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Lists interaction IDs associated with the prompt. This maps 1:1 to PromptMessage.contents. If InteractionData is present, every prompt message has an interaction ID.""",
+    )
+
+
+class SchemaPromptSpecInteractionDataDict(TypedDict, total=False):
+    """Defines data for an interaction prompt."""
+
+    interaction_ids: Optional[list[str]]
+    """Optional. Lists interaction IDs associated with the prompt. This maps 1:1 to PromptMessage.contents. If InteractionData is present, every prompt message has an interaction ID."""
+
+
+SchemaPromptSpecInteractionDataOrDict = Union[
+    SchemaPromptSpecInteractionData, SchemaPromptSpecInteractionDataDict
+]
+
+
 class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
     """Represents a structured prompt."""
 
@@ -16489,6 +16487,9 @@ class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
     prompt_message: Optional[SchemaPromptSpecPromptMessage] = Field(
         default=None, description="""The prompt message."""
     )
+    interaction_data: Optional[SchemaPromptSpecInteractionData] = Field(
+        default=None, description="""Data for interaction use case."""
+    )
 
 
 class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
@@ -16520,6 +16521,9 @@ class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
 
     prompt_message: Optional[SchemaPromptSpecPromptMessageDict]
     """The prompt message."""
+
+    interaction_data: Optional[SchemaPromptSpecInteractionDataDict]
+    """Data for interaction use case."""
 
 
 SchemaPromptSpecStructuredPromptOrDict = Union[
@@ -18107,6 +18111,17 @@ class Skill(_common.BaseModel):
     state: Optional[SkillState] = Field(
         default=None, description="""Output only. The state of the Skill."""
     )
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""The labels with user-defined metadata to organize Skills.""",
+    )
+    sha256: Optional[str] = Field(
+        default=None,
+        description="""Output only. The SHA256 checksum of the zipped filesystem.""",
+    )
+    skill_source: Optional[SkillSource] = Field(
+        default=None, description="""Output only. The source of the Skill."""
+    )
 
 
 class SkillDict(TypedDict, total=False):
@@ -18141,6 +18156,15 @@ class SkillDict(TypedDict, total=False):
 
     state: Optional[SkillState]
     """Output only. The state of the Skill."""
+
+    labels: Optional[dict[str, str]]
+    """The labels with user-defined metadata to organize Skills."""
+
+    sha256: Optional[str]
+    """Output only. The SHA256 checksum of the zipped filesystem."""
+
+    skill_source: Optional[SkillSource]
+    """Output only. The source of the Skill."""
 
 
 SkillOrDict = Union[Skill, SkillDict]
@@ -19028,7 +19052,8 @@ class EvaluateDatasetRequestParameters(_common.BaseModel):
         default=None, description=""""""
     )
     autorater_config: Optional[genai_types.AutoraterConfig] = Field(
-        default=None, description=""""""
+        default=None,
+        description="""Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored.""",
     )
     config: Optional[EvaluateDatasetConfig] = Field(default=None, description="""""")
 
@@ -19046,7 +19071,7 @@ class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
     """"""
 
     autorater_config: Optional[genai_types.AutoraterConfigDict]
-    """"""
+    """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     config: Optional[EvaluateDatasetConfigDict]
     """"""

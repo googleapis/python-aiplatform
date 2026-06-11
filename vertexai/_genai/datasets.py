@@ -269,7 +269,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
@@ -361,7 +361,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
@@ -443,7 +443,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateMultimodalDatasetParameters_to_vertex(parameter_model)
@@ -512,7 +512,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteMultimodalDatasetRequestParameters_to_vertex(
@@ -586,7 +586,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
@@ -660,7 +660,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetMultimodalDatasetOperationParameters_to_vertex(
@@ -732,7 +732,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListMultimodalDatasetsRequestParameters_to_vertex(
@@ -814,7 +814,7 @@ class Datasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)
@@ -1539,7 +1539,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _AssembleDatasetParameters_to_vertex(parameter_model)
@@ -1633,7 +1633,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _AssessDatasetParameters_to_vertex(parameter_model)
@@ -1717,7 +1717,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateMultimodalDatasetParameters_to_vertex(parameter_model)
@@ -1788,7 +1788,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteMultimodalDatasetRequestParameters_to_vertex(
@@ -1864,7 +1864,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetMultimodalDatasetParameters_to_vertex(parameter_model)
@@ -1940,7 +1940,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetMultimodalDatasetOperationParameters_to_vertex(
@@ -2014,7 +2014,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListMultimodalDatasetsRequestParameters_to_vertex(
@@ -2098,7 +2098,7 @@ class AsyncDatasets(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _UpdateMultimodalDatasetParameters_to_vertex(parameter_model)

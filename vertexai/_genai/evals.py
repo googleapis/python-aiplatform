@@ -1028,7 +1028,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
@@ -1104,7 +1104,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
@@ -1193,7 +1193,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
@@ -1270,7 +1270,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
@@ -1342,7 +1342,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
@@ -1444,7 +1444,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
@@ -1528,7 +1528,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
@@ -1606,7 +1606,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
@@ -1686,7 +1686,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
@@ -1758,7 +1758,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
@@ -1830,7 +1830,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
@@ -1902,7 +1902,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
@@ -1971,7 +1971,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
@@ -2039,7 +2039,7 @@ class Evals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
@@ -2659,6 +2659,11 @@ class Evals(_api_module.BaseModule):
               The key is the candidate name, and the value is the inference config.
               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
+              The `model` field of an inference config accepts a short Gemini model
+              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+              fully-qualified resource name using the client's project and location,
+              or an already fully-qualified publisher-model or endpoint resource
+              name.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           labels: The labels to apply to the evaluation run.
@@ -3171,7 +3176,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationItemParameters_to_vertex(parameter_model)
@@ -3249,7 +3254,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationMetricParameters_to_vertex(parameter_model)
@@ -3340,7 +3345,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationRunParameters_to_vertex(parameter_model)
@@ -3419,7 +3424,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _CreateEvaluationSetParameters_to_vertex(parameter_model)
@@ -3493,7 +3498,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _DeleteEvaluationMetricParameters_to_vertex(parameter_model)
@@ -3597,7 +3602,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _EvaluateInstancesRequestParameters_to_vertex(
@@ -3683,7 +3688,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateUserScenariosParameters_to_vertex(parameter_model)
@@ -3763,7 +3768,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateLossClustersParameters_to_vertex(parameter_model)
@@ -3845,7 +3850,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GenerateInstanceRubricsRequest_to_vertex(parameter_model)
@@ -3919,7 +3924,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationMetricParameters_to_vertex(parameter_model)
@@ -3993,7 +3998,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationRunParameters_to_vertex(parameter_model)
@@ -4067,7 +4072,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationSetParameters_to_vertex(parameter_model)
@@ -4138,7 +4143,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _GetEvaluationItemParameters_to_vertex(parameter_model)
@@ -4208,7 +4213,7 @@ class AsyncEvals(_api_module.BaseModule):
         request_url_dict: Optional[dict[str, str]]
         if not self._api_client.vertexai:
             raise ValueError(
-                "This method is only supported in the Gemini Enterprise Agent Platform (previously known as Vertex AI) client."
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
             )
         else:
             request_dict = _ListEvaluationMetricsParameters_to_vertex(parameter_model)
@@ -4448,6 +4453,11 @@ class AsyncEvals(_api_module.BaseModule):
               The key is the candidate name, and the value is the inference config.
               If provided, `agent_info` must be None. If omitted and `agent_info` is provided,
               this will be automatically constructed using `agent_info` and `user_simulator_config`.
+              The `model` field of an inference config accepts a short Gemini model
+              name (e.g. `gemini-2.5-flash`), which is automatically expanded to a
+              fully-qualified resource name using the client's project and location,
+              or an already fully-qualified publisher-model or endpoint resource
+              name.
               Example:
               {"candidate-1": types.EvaluationRunInferenceConfig(model="gemini-2.5-flash")}
           red_teaming_config: This field is experimental and may change in future

@@ -1,5 +1,112 @@
 # Changelog
 
+## [1.157.0](https://github.com/googleapis/python-aiplatform/compare/v1.156.0...v1.157.0) (2026-06-09)
+
+
+### Features
+
+* GenAI client - Add delete_file and delete_corpus methods to RAG module ([4a594dd](https://github.com/googleapis/python-aiplatform/commit/4a594dd71cf87507be8d7e6cbe30885c9a7387d5))
+* GenAI SDK client(multimodal) - Add `to_batch_job_source` and `get_batch_job_destination` to `MultimodalDataset` ([116b71c](https://github.com/googleapis/python-aiplatform/commit/116b71c2aa6589d04a7a787186285188d7d3fbe7))
+* GenAI SDK client(multimodal) - Implement `create_from_gemini_request_jsonl` in `Datasets` and `AsyncDatasets` classes. ([6e51cdf](https://github.com/googleapis/python-aiplatform/commit/6e51cdfc4e8fbea46d5bd4a2a2323b2e9693c7c2))
+
+
+### Bug Fixes
+
+* Mark async test properly ([a35f155](https://github.com/googleapis/python-aiplatform/commit/a35f155e3e9d9df0f015beae4ae3b5052bcbe79d))
+* Remove authorization handling from ADK preview template ([cb12436](https://github.com/googleapis/python-aiplatform/commit/cb12436e2fe41fb46640d62730795c34b0f0da4f))
+* Verify dedicated endpoint predict_async TLS against the certifi CA bundle ([3b3471a](https://github.com/googleapis/python-aiplatform/commit/3b3471a2dd5d9b8aeb9f9c2dce707633367ec7a6))
+
+## [1.156.0](https://github.com/googleapis/python-aiplatform/compare/v1.155.0...v1.156.0) (2026-06-03)
+
+
+### Features
+
+* GenAI SDK client - add rag.create_corpus() method ([a76a4b6](https://github.com/googleapis/python-aiplatform/commit/a76a4b6da5b76aaebec8b94162566b74eec770d2))
+
+
+### Bug Fixes
+
+* Update agent engine utils in vertex_ai and agentplatform to support python-a2a sdk 1.0 ([2faf725](https://github.com/googleapis/python-aiplatform/commit/2faf725c2220d42b141c97e8541143cc1c33579a))
+
+## [1.155.0](https://github.com/googleapis/python-aiplatform/compare/v1.154.0...v1.155.0) (2026-06-02)
+
+
+### Features
+
+* Add Skill Registry GetSkillRevision and ListSkillRevisions to SDK ([94cd20c](https://github.com/googleapis/python-aiplatform/commit/94cd20c3f6c82bda5d6dfe5249cfd3e6992eb5bc))
+* Add Skill Registry ListSkills and DeleteSkill to SDK ([57097a3](https://github.com/googleapis/python-aiplatform/commit/57097a31e1054b729bb45ec7bf1d625a7dcaeb84))
+* Forward per-call `http_options` from `AgentEngine.query` family of methods. ([e6818d3](https://github.com/googleapis/python-aiplatform/commit/e6818d3fef7f570bd520f50c31dd2dc71f2f8282))
+* GenAI client - Add retrieve_contexts and ask_contexts methods to RAG module ([b90e084](https://github.com/googleapis/python-aiplatform/commit/b90e0841e198deb86a5375414b1f67d2a7b1ff2b))
+* GenAI SDK client - Add RAG module with list_corpora, get_corpus, get_file, list_files, and get_config methods ([3bc2f58](https://github.com/googleapis/python-aiplatform/commit/3bc2f589ae85ff76a7ebcd9763f92b2c197a4966))
+
+
+### Bug Fixes
+
+* Job state name print ([be945df](https://github.com/googleapis/python-aiplatform/commit/be945df6d8e04e259ca10619145f631462e18be5))
+* Route Endpoint.predict_async via dedicated DNS when the endpoint is dedicated ([b6a9652](https://github.com/googleapis/python-aiplatform/commit/b6a965249a40d6cd3bb38c029059fccbe8cb6322))
+* Update authorization for streaming_agent_run_with_events ([ae54eb5](https://github.com/googleapis/python-aiplatform/commit/ae54eb524bbcd61fb8954e12b4719be6237f6aca))
+* Using location and project parsed from resource name if not provided ([caa416a](https://github.com/googleapis/python-aiplatform/commit/caa416ae70f42031f3cd564cf23256455c92b287))
+
+
+### Documentation
+
+* Add a warning that the autorater config is not applicable for predefined metrics in SDK ([ad4284b](https://github.com/googleapis/python-aiplatform/commit/ad4284baceccb9139e32bd68893b9699e7b35f27))
+* Corrected resource name format in docstrings for list sandbox methods. ([1f32406](https://github.com/googleapis/python-aiplatform/commit/1f324065e9e0b4395680d2bdf35a828f2a947ac0))
+
+## [1.154.0](https://github.com/googleapis/python-aiplatform/compare/v1.153.1...v1.154.0) (2026-05-27)
+
+
+### Features
+
+* Add new fields ([027acc8](https://github.com/googleapis/python-aiplatform/commit/027acc8dc6569bda74de16e753e224f9fd5dc7de))
+* Add Skill Registry module to Vertex AI client - Get Skill method ([df50ac0](https://github.com/googleapis/python-aiplatform/commit/df50ac050e82d7a04bd1f8e26ee3fac8406b1600))
+* Make skill_id a required parameter in `skills.create` ([bc4be37](https://github.com/googleapis/python-aiplatform/commit/bc4be37f5f867392f8d030435caf8c2679880150))
+
+
+### Bug Fixes
+
+* Fix flaky evaluation test failures caused by thread execution order ([9f97738](https://github.com/googleapis/python-aiplatform/commit/9f97738a49d868c3378ad8313558a70afacb970e))
+* Fix SkillRevision state enum in Python SDK ([1585602](https://github.com/googleapis/python-aiplatform/commit/15856029aab3e7658ef801b41cdecbe5ae3dd894))
+* GenAI Client(evals) - Map legacy RubricMetric.GROUNDEDNESS to grounding_v1 ([9770c31](https://github.com/googleapis/python-aiplatform/commit/9770c31bbd37c679624ffa62865f2b15817eace1))
+
+
+### Documentation
+
+* Add Skill Registry SDK docs to Google Cloud Gen AI Modules ([9702599](https://github.com/googleapis/python-aiplatform/commit/9702599a587fd6ec0909d6d73e96628230c28a8b))
+* Rename to agentplatform ([8915d23](https://github.com/googleapis/python-aiplatform/commit/8915d239e4219c7a597fc945c82c914e84aec2d2))
+
+## [1.153.1](https://github.com/googleapis/python-aiplatform/compare/v1.153.0...v1.153.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* Remove google-genai version contraints ([cf4f183](https://github.com/googleapis/python-aiplatform/commit/cf4f183c085421e255267787214018de209430d1))
+* Remove SDK workaround for async_retrieve_contexts. ([5aabd30](https://github.com/googleapis/python-aiplatform/commit/5aabd30b88de06f1c4d73cfd3e6d02bf4f73c943))
+* Relax google-genai dep to &gt;= 2.0 ([6a17fdc](https://github.com/googleapis/python-aiplatform/commit/6a17fdc1ed5b95839836ba0f9a29782b5af6b279))
+
+
+### Miscellaneous Chores
+
+* Release 1.153.1 ([addbff6](https://github.com/googleapis/python-aiplatform/commit/addbff629c38c172267aa5caa3f4a79c8c444837))
+
+## [1.153.0](https://github.com/googleapis/python-aiplatform/compare/v1.152.0...v1.153.0) (2026-05-14)
+
+
+### Features
+
+* GenAI Client(evals) - Add red_teaming_config support for create_evaluation_run ([657f379](https://github.com/googleapis/python-aiplatform/commit/657f379dc516a1db75eca1686731b7a4944a3b41))
+* Migrate Agent Engines, Evaluation, Prompt Management, and Skill features to agentplatform ([74ec5e1](https://github.com/googleapis/python-aiplatform/commit/74ec5e1e8234713d16024c9bea06778366c4dd64))
+
+
+### Bug Fixes
+
+* Inject agents map from agent_info into agent_data for create_evaluation_run ([a4ffb67](https://github.com/googleapis/python-aiplatform/commit/a4ffb673911fb4e0e25174c1b92054eb4a443d34))
+
+
+### Documentation
+
+* Add Skill Registry Python SDK section in README ([9f8e24c](https://github.com/googleapis/python-aiplatform/commit/9f8e24c04f577bba7bb17a730a2264a94502cf4c))
+
 ## [1.152.0](https://github.com/googleapis/python-aiplatform/compare/v1.151.0...v1.152.0) (2026-05-11)
 
 

@@ -55,7 +55,6 @@ from agentplatform.preview.rag.utils import (
     _gapic_utils,
 )
 from agentplatform.preview.rag.utils.resources import (
-    EmbeddingModelConfig,
     JiraSource,
     LayoutParserConfig,
     LlmParserConfig,
@@ -66,7 +65,6 @@ from agentplatform.preview.rag.utils.resources import (
     RagEngineConfig,
     RagFile,
     RagManagedDb,
-    RagManagedVertexVectorSearch,
     RagMetadata,
     RagVectorDbConfig,
     SharePointSources,
