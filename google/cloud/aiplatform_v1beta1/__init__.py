@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +20,7 @@ import sys
 
 __version__ = package_version.__version__
 
-if sys.version_info >= (3, 8):  # pragma: NO COVER
-    from importlib import metadata
-else:  # pragma: NO COVER
-    # TODO(https://github.com/googleapis/python-api-core/issues/835): Remove
-    # this code path once we drop support for Python 3.7
-    import importlib_metadata as metadata
+from importlib import metadata
 
 
 from .services.dataset_service import DatasetServiceClient
@@ -105,6 +100,12 @@ from .services.reasoning_engine_execution_service import (
 )
 from .services.reasoning_engine_execution_service import (
     ReasoningEngineExecutionServiceAsyncClient,
+)
+from .services.reasoning_engine_runtime_revision_service import (
+    ReasoningEngineRuntimeRevisionServiceClient,
+)
+from .services.reasoning_engine_runtime_revision_service import (
+    ReasoningEngineRuntimeRevisionServiceAsyncClient,
 )
 from .services.reasoning_engine_service import ReasoningEngineServiceClient
 from .services.reasoning_engine_service import ReasoningEngineServiceAsyncClient
@@ -1122,9 +1123,31 @@ from .types.reasoning_engine_execution_service import (
 )
 from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import AsyncQueryReasoningEngineResponse
+from .types.reasoning_engine_execution_service import (
+    CancelAsyncQueryReasoningEngineRequest,
+)
+from .types.reasoning_engine_execution_service import (
+    CancelAsyncQueryReasoningEngineResponse,
+)
 from .types.reasoning_engine_execution_service import QueryReasoningEngineRequest
 from .types.reasoning_engine_execution_service import QueryReasoningEngineResponse
 from .types.reasoning_engine_execution_service import StreamQueryReasoningEngineRequest
+from .types.reasoning_engine_runtime_revision import ReasoningEngineRuntimeRevision
+from .types.reasoning_engine_runtime_revision_service import (
+    DeleteReasoningEngineRuntimeRevisionOperationMetadata,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    DeleteReasoningEngineRuntimeRevisionRequest,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    GetReasoningEngineRuntimeRevisionRequest,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    ListReasoningEngineRuntimeRevisionsRequest,
+)
+from .types.reasoning_engine_runtime_revision_service import (
+    ListReasoningEngineRuntimeRevisionsResponse,
+)
 from .types.reasoning_engine_service import CreateReasoningEngineOperationMetadata
 from .types.reasoning_engine_service import CreateReasoningEngineRequest
 from .types.reasoning_engine_service import DeleteReasoningEngineRequest
@@ -1408,27 +1431,16 @@ else:  # pragma: NO COVER
     # functions above. We do equivalent checks manually.
     try:
         import warnings
-        import sys
 
         _py_version_str = sys.version.split()[0]
         _package_label = "google.cloud.aiplatform_v1beta1"
-        if sys.version_info < (3, 9):
+        if sys.version_info < (3, 10):
             warnings.warn(
                 "You are using a non-supported Python version "
                 + f"({_py_version_str}).  Google will not post any further "
                 + f"updates to {_package_label} supporting this Python version. "
                 + "Please upgrade to the latest Python version, or at "
-                + f"least to Python 3.9, and then update {_package_label}.",
-                FutureWarning,
-            )
-        if sys.version_info[:2] == (3, 9):
-            warnings.warn(
-                f"You are using a Python version ({_py_version_str}) "
-                + f"which Google will stop supporting in {_package_label} in "
-                + "January 2026. Please "
-                + "upgrade to the latest Python version, or at "
-                + "least to Python 3.10, before then, and "
-                + f"then update {_package_label}.",
+                + f"least to Python 3.10, and then update {_package_label}.",
                 FutureWarning,
             )
 
@@ -1524,6 +1536,7 @@ __all__ = (
     "PipelineServiceAsyncClient",
     "PredictionServiceAsyncClient",
     "ReasoningEngineExecutionServiceAsyncClient",
+    "ReasoningEngineRuntimeRevisionServiceAsyncClient",
     "ReasoningEngineServiceAsyncClient",
     "ScheduleServiceAsyncClient",
     "SessionServiceAsyncClient",
@@ -1626,6 +1639,8 @@ __all__ = (
     "BlurBaselineConfig",
     "BoolArray",
     "CachedContent",
+    "CancelAsyncQueryReasoningEngineRequest",
+    "CancelAsyncQueryReasoningEngineResponse",
     "CancelBatchPredictionJobRequest",
     "CancelCustomJobRequest",
     "CancelDataLabelingJobRequest",
@@ -1819,6 +1834,8 @@ __all__ = (
     "DeleteRagFileRequest",
     "DeleteRagMetadataRequest",
     "DeleteReasoningEngineRequest",
+    "DeleteReasoningEngineRuntimeRevisionOperationMetadata",
+    "DeleteReasoningEngineRuntimeRevisionRequest",
     "DeleteSavedQueryRequest",
     "DeleteScheduleRequest",
     "DeleteSessionRequest",
@@ -2064,6 +2081,7 @@ __all__ = (
     "GetRagFileRequest",
     "GetRagMetadataRequest",
     "GetReasoningEngineRequest",
+    "GetReasoningEngineRuntimeRevisionRequest",
     "GetScheduleRequest",
     "GetSessionRequest",
     "GetSpecialistPoolRequest",
@@ -2228,6 +2246,8 @@ __all__ = (
     "ListRagFilesResponse",
     "ListRagMetadataRequest",
     "ListRagMetadataResponse",
+    "ListReasoningEngineRuntimeRevisionsRequest",
+    "ListReasoningEngineRuntimeRevisionsResponse",
     "ListReasoningEnginesRequest",
     "ListReasoningEnginesResponse",
     "ListSavedQueriesRequest",
@@ -2483,6 +2503,8 @@ __all__ = (
     "ReasoningEngine",
     "ReasoningEngineContextSpec",
     "ReasoningEngineExecutionServiceClient",
+    "ReasoningEngineRuntimeRevision",
+    "ReasoningEngineRuntimeRevisionServiceClient",
     "ReasoningEngineServiceClient",
     "ReasoningEngineSpec",
     "RebaseTunedModelOperationMetadata",

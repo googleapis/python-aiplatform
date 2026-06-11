@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -2185,6 +2185,8 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
             url_scheme (str): the protocol scheme for the API endpoint.  Normally
                 "https", but for testing or local servers,
                 "http" can be specified.
+            interceptor (Optional[AsyncTensorboardServiceRestInterceptor]): Interceptor used
+                to manipulate requests, request metadata, and responses.
         """
         # Run the base constructor
         super().__init__(
@@ -7786,6 +7788,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                     },
                     {
                         "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:cancel",
+                    },
+                    {
+                        "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                     },
                     {
@@ -8185,6 +8191,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                     {
                         "method": "delete",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                    },
+                    {
+                        "method": "delete",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
                     },
                     {
                         "method": "delete",
@@ -8638,6 +8648,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                     },
                     {
@@ -9084,6 +9098,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                     },
                     {
                         "method": "get",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*}/operations",
+                    },
+                    {
+                        "method": "get",
                         "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                     },
                     {
@@ -9527,6 +9545,10 @@ class AsyncTensorboardServiceRestTransport(_BaseTensorboardServiceRestTransport)
                     {
                         "method": "post",
                         "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                    },
+                    {
+                        "method": "post",
+                        "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:wait",
                     },
                     {
                         "method": "post",
