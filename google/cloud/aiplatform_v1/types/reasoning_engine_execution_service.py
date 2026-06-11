@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ __protobuf__ = proto.module(
         "AsyncQueryReasoningEngineRequest",
         "AsyncQueryReasoningEngineOperationMetadata",
         "AsyncQueryReasoningEngineResponse",
+        "CancelAsyncQueryReasoningEngineRequest",
+        "CancelAsyncQueryReasoningEngineResponse",
     },
 )
 
@@ -177,6 +179,38 @@ class AsyncQueryReasoningEngineResponse(proto.Message):
         proto.STRING,
         number=1,
     )
+
+
+class CancelAsyncQueryReasoningEngineRequest(proto.Message):
+    r"""Request message for
+    [ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine][google.cloud.aiplatform.v1.ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine].
+
+    Attributes:
+        name (str):
+            Required. The name of the ReasoningEngine resource to use.
+            Format:
+            ``projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}``
+        operation_name (str):
+            Required. The name of the longrunning operation returned
+            from AsyncQueryReasoningEngine. Format:
+            ``projects/{project}/locations/{location}/operations/{operation}``
+    """
+
+    name: str = proto.Field(
+        proto.STRING,
+        number=1,
+    )
+    operation_name: str = proto.Field(
+        proto.STRING,
+        number=2,
+    )
+
+
+class CancelAsyncQueryReasoningEngineResponse(proto.Message):
+    r"""Response message for
+    [ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine][google.cloud.aiplatform.v1.ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine].
+
+    """
 
 
 __all__ = tuple(sorted(__protobuf__.manifest))

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -1206,6 +1206,10 @@ class _BaseOnlineEvaluatorServiceRestTransport(OnlineEvaluatorServiceTransport):
                 },
                 {
                     "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:cancel",
+                },
+                {
+                    "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/schedules/*/operations/*}:cancel",
                 },
                 {
@@ -1624,6 +1628,10 @@ class _BaseOnlineEvaluatorServiceRestTransport(OnlineEvaluatorServiceTransport):
                 {
                     "method": "delete",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}",
+                },
+                {
+                    "method": "delete",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
                 },
                 {
                     "method": "delete",
@@ -2096,6 +2104,10 @@ class _BaseOnlineEvaluatorServiceRestTransport(OnlineEvaluatorServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*/operations/*}",
                 },
                 {
@@ -2561,6 +2573,10 @@ class _BaseOnlineEvaluatorServiceRestTransport(OnlineEvaluatorServiceTransport):
                 },
                 {
                     "method": "get",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*}/operations",
+                },
+                {
+                    "method": "get",
                     "uri": "/v1beta1/{name=projects/*/locations/*/solvers/*}/operations",
                 },
                 {
@@ -3023,6 +3039,10 @@ class _BaseOnlineEvaluatorServiceRestTransport(OnlineEvaluatorServiceTransport):
                 {
                     "method": "post",
                     "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/sessions/*/operations/*}:wait",
+                },
+                {
+                    "method": "post",
+                    "uri": "/v1beta1/{name=projects/*/locations/*/reasoningEngines/*/runtimeRevisions/*/operations/*}:wait",
                 },
                 {
                     "method": "post",
