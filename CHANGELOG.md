@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.158.0](https://github.com/googleapis/python-aiplatform/compare/v1.157.0...v1.158.0) (2026-06-11)
+
+
+### Features
+
+* Add ReasoningEngineRuntimeRevisionService and update related fields in ReasoningEngine ([b51f0f6](https://github.com/googleapis/python-aiplatform/commit/b51f0f667f6fc8e2eefb708cd331760a242650e5))
+* Release ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine v1 API ([b51f0f6](https://github.com/googleapis/python-aiplatform/commit/b51f0f667f6fc8e2eefb708cd331760a242650e5))
+* Release ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine v1beta1 API ([b51f0f6](https://github.com/googleapis/python-aiplatform/commit/b51f0f667f6fc8e2eefb708cd331760a242650e5))
+
+
+### Bug Fixes
+
+* Keeping the non-default version of the model resource ([14a2265](https://github.com/googleapis/python-aiplatform/commit/14a2265de786bcf20352944494c90f15ada9d849))
+
 ## [1.157.0](https://github.com/googleapis/python-aiplatform/compare/v1.156.0...v1.157.0) (2026-06-09)
 
 
