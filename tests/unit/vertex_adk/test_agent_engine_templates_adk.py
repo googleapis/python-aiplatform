@@ -1032,6 +1032,56 @@ def test_dump_event_for_json():
 #     finally:
 #         initializer.global_pool.shutdown(wait=True)
 
+@pytest.mark.usefixtures("google_auth_mock", "is_version_sufficient_mock")
+class TestAdkLocationResolution:
+    def setup_method(self):
+        importlib.reload(initializer)
+        importlib.reload(vertexai)
+        vertexai.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+
+    def teardown_method(self):
+        initializer.global_pool.shutdown(wait=True)
+
+    @pytest.mark.parametrize(
+        "env_engine_loc, env_cloud_loc, expected_resolved_loc",
+        [
+            (None, None, "us-central1"),
+            ("us-east4", None, "us-east4"),
+            (None, "us-east4", "us-east4"),
+            ("us-west1", "us-east4", "us-west1"),
+        ],
+    )
+    def test_location_resolution(
+        self,
+        env_engine_loc,
+        env_cloud_loc,
+        expected_resolved_loc,
+        default_instrumentor_builder_mock,
+        get_project_id_mock,
+    ):
+        env_patches = {}
+        if env_engine_loc is not None:
+            env_patches["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = env_engine_loc
+        if env_cloud_loc is not None:
+            env_patches["GOOGLE_CLOUD_LOCATION"] = env_cloud_loc
+
+        with mock.patch.dict(os.environ, env_patches, clear=False):
+            if env_engine_loc is None:
+                os.environ.pop("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION", None)
+            if env_cloud_loc is None:
+                os.environ.pop("GOOGLE_CLOUD_LOCATION", None)
+
+            # Initialize AdkApp (which reads 'location' as 'us-central1' from global config)
+            app = agent_engines.AdkApp(agent=_TEST_AGENT)
+            assert app._tmpl_attrs.get("location") == "us-central1"
+
+            # Call set_up() to trigger location resolution
+            app.set_up()
+
+            # Assert that environment variables are correctly populated
+            assert os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") == expected_resolved_loc
+            assert os.environ.get("GOOGLE_CLOUD_LOCATION") == expected_resolved_loc
+
 
 @pytest.mark.usefixtures("is_version_sufficient_mock")
 class TestAdkAppErrors:

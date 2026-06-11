@@ -739,12 +739,14 @@ class AdkApp:
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
         project = self._tmpl_attrs.get("project")
         os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
+        location = (
+            os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION")
+            or os.getenv("GOOGLE_CLOUD_LOCATION")
+            or self._tmpl_attrs.get("location")
+        )
         if location:
-            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
-                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
-            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
-                os.environ["GOOGLE_CLOUD_LOCATION"] = location
+            os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            os.environ["GOOGLE_CLOUD_LOCATION"] = location
 
         # Disable content capture in custom ADK spans unless user enabled
         # tracing explicitly with the old flag
