@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import html
+import json
 import sys
 import typing
 import urllib
@@ -119,28 +121,31 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
 
     button_id = f"view-vertex-resource-{str(uuid4())}"
 
+    # Safe encodings
+    safe_href = html.escape(url, quote=True)
+    safe_text = html.escape(text)
+    safe_icon = html.escape(icon) if icon else ""
+    safe_url_js = json.dumps(url)
+
     # Add the markup for the CSS and link component
-    html = f"""
+    html_out = f"""
         {_get_styles()}
-        <a class="view-vertex-resource" id="{button_id}" href="#view-{button_id}">
-          <span class="material-icons view-vertex-icon">{icon}</span>
-          <span>{text}</span>
+        <a class="view-vertex-resource" id="{button_id}" href="{safe_href}" target="_blank">
+          <span class="material-icons view-vertex-icon">{safe_icon}</span>
+          <span>{safe_text}</span>
         </a>
         """
 
     # Add the click handler for the link
-    html += f"""
+    html_out += f"""
         <script>
           (function () {{
             const link = document.getElementById('{button_id}');
             link.addEventListener('click', (e) => {{
               if (window.google?.colab?.openUrl) {{
-                window.google.colab.openUrl('{url}');
-              }} else {{
-                window.open('{url}', '_blank');
+                window.google.colab.openUrl({safe_url_js});
+                e.preventDefault();
               }}
-              e.stopPropagation();
-              e.preventDefault();
             }});
           }})();
         </script>
@@ -149,7 +154,7 @@ def display_link(text: str, url: str, icon: Optional[str] = "open_in_new") -> No
     from IPython.display import display
     from IPython.display import HTML
 
-    display(HTML(html))
+    display(HTML(html_out))
 
 
 def display_experiment_button(experiment: "experiment_resources.Experiment") -> None:
