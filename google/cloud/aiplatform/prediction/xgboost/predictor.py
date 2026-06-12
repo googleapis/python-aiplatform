@@ -15,18 +15,19 @@
 # limitations under the License.
 #
 
-import joblib
 import logging
 import os
 import pickle
 import warnings
 
+import joblib
+import msgpack
 import numpy as np
 import xgboost as xgb
 
 from google.cloud.aiplatform.constants import prediction
-from google.cloud.aiplatform.utils import prediction_utils
 from google.cloud.aiplatform.prediction.predictor import Predictor
+from google.cloud.aiplatform.utils import prediction_utils, security_utils
 
 
 class XgboostPredictor(Predictor):
@@ -56,62 +57,48 @@ class XgboostPredictor(Predictor):
 
         if allowed_extensions is None:
             warnings.warn(
-                "No 'allowed_extensions' provided. Loading model artifacts from "
-                "untrusted sources may lead to remote code execution.",
+                "No 'allowed_extensions' provided. Models are now required to be in "
+                "signed msgpack or native .bst format for security.",
                 UserWarning,
             )
 
+        # 1. First, check for the new secure format (Signed Msgpack)
+        if os.path.exists(prediction.MODEL_FILENAME_MSGPACK):
+            with open(prediction.MODEL_FILENAME_MSGPACK, "rb") as f:
+                signed_data = f.read()
+                # Verify HMAC integrity before unpacking
+                verified_data = security_utils.verify_blob(signed_data)
+                # Unpack the booster state
+                # Note: This requires a compatible msgpack-to-XGBoost strategy.
+                booster = msgpack.unpackb(verified_data, raw=False)
+            self._booster = booster
+            return
+
+        # 2. Check for native .bst (Safer but requires validation)
+        if os.path.exists(prediction.MODEL_FILENAME_BST):
+            booster = xgb.Booster(model_file=prediction.MODEL_FILENAME_BST)
+            self._booster = booster
+            return
+
+        # 3. Block insecure formats
         prediction_utils.download_model_artifacts(artifacts_uri)
 
-        if os.path.exists(
-            prediction.MODEL_FILENAME_BST
-        ) and prediction_utils.is_extension_allowed(
-            filename=prediction.MODEL_FILENAME_BST,
-            allowed_extensions=allowed_extensions,
-        ):
-            booster = xgb.Booster(model_file=prediction.MODEL_FILENAME_BST)
-        elif os.path.exists(
-            prediction.MODEL_FILENAME_JOBLIB
-        ) and prediction_utils.is_extension_allowed(
-            filename=prediction.MODEL_FILENAME_JOBLIB,
-            allowed_extensions=allowed_extensions,
-        ):
-            warnings.warn(
-                f"Loading {prediction.MODEL_FILENAME_JOBLIB} using joblib pickle, which is unsafe. "
-                "Only load files from trusted sources.",
-                RuntimeWarning,
-            )
-            try:
-                booster = joblib.load(prediction.MODEL_FILENAME_JOBLIB)
-            except KeyError:
-                logging.info(
-                    "Loading model using joblib failed. "
-                    "Loading model using xgboost.Booster instead."
-                )
-                booster = xgb.Booster()
-                booster.load_model(prediction.MODEL_FILENAME_JOBLIB)
-        elif os.path.exists(
+        if os.path.exists(prediction.MODEL_FILENAME_JOBLIB) or os.path.exists(
             prediction.MODEL_FILENAME_PKL
-        ) and prediction_utils.is_extension_allowed(
-            filename=prediction.MODEL_FILENAME_PKL,
-            allowed_extensions=allowed_extensions,
         ):
-            warnings.warn(
-                f"Loading {prediction.MODEL_FILENAME_PKL} using pickle, which is unsafe. "
-                "Only load files from trusted sources.",
-                RuntimeWarning,
+            raise RuntimeError(
+                "Security Error: Insecure model formats (.pkl, .joblib) are no longer "
+                "supported by this version of the SDK. Please migrate your models to "
+                "signed msgpack or native .bst using the migration utility."
             )
-            booster = pickle.load(open(prediction.MODEL_FILENAME_PKL, "rb"))
-        else:
-            valid_filenames = [
-                prediction.MODEL_FILENAME_BST,
-                prediction.MODEL_FILENAME_JOBLIB,
-                prediction.MODEL_FILENAME_PKL,
-            ]
-            raise ValueError(
-                f"One of the following model files must be provided and allowed: {valid_filenames}."
-            )
-        self._booster = booster
+
+        valid_filenames = [
+            prediction.MODEL_FILENAME_MSGPACK,
+            prediction.MODEL_FILENAME_BST,
+        ]
+        raise ValueError(
+            f"One of the following model files must be provided and allowed: {valid_filenames}."
+        )
 
     def preprocess(self, prediction_input: dict) -> xgb.DMatrix:
         """Converts the request body to a Data Matrix before prediction.

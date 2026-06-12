@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import re
-
 from collections import defaultdict
 
 # [region]-docker.pkg.dev/vertex-ai/prediction/[framework]-[accelerator].[version]:latest
@@ -305,3 +304,4 @@ DEFAULT_ACCEPT_VALUE = "application/json"
 MODEL_FILENAME_BST = "model.bst"
 MODEL_FILENAME_JOBLIB = "model.joblib"
 MODEL_FILENAME_PKL = "model.pkl"
+MODEL_FILENAME_MSGPACK = "model.msgpack"

@@ -205,7 +205,7 @@ def logger_provider_force_flush_mock():
 @pytest.fixture
 def default_instrumentor_builder_mock():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk._default_instrumentor_builder"
+        "vertexai.agent_engines.templates.adk._default_instrumentor_builder"
     ) as default_instrumentor_builder_mock:
         yield default_instrumentor_builder_mock
 
@@ -218,18 +218,19 @@ def simple_span_processor_mock():
         yield simple_span_processor_mock
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def adk_version_mock():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk.get_adk_version"
+        "vertexai.agent_engines.templates.adk.get_adk_version"
     ) as adk_version_mock:
+        adk_version_mock.return_value = "1.5.0"
         yield adk_version_mock
 
 
 @pytest.fixture
 def is_version_sufficient_mock():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk.is_version_sufficient"
+        "vertexai.agent_engines.templates.adk.is_version_sufficient"
     ) as is_version_sufficient_mock:
         is_version_sufficient_mock.return_value = True
 
@@ -237,7 +238,7 @@ def is_version_sufficient_mock():
 @pytest.fixture
 def get_project_id_mock():
     with mock.patch(
-        "google.cloud.aiplatform.aiplatform.utils.resource_manager_utils.get_project_id"
+        "google.cloud.aiplatform.utils.resource_manager_utils.get_project_id"
     ) as get_project_id_mock:
         get_project_id_mock.return_value = _TEST_PROJECT_ID
         yield get_project_id_mock
@@ -246,7 +247,7 @@ def get_project_id_mock():
 @pytest.fixture
 def warn_if_telemetry_api_disabled_mock():
     with mock.patch(
-        "google.cloud.aiplatform.vertexai.agent_engines.templates.adk._warn_if_telemetry_api_disabled"
+        "vertexai.agent_engines.templates.adk._warn_if_telemetry_api_disabled"
     ) as warn_if_telemetry_api_disabled_mock:
         yield warn_if_telemetry_api_disabled_mock
 
@@ -313,7 +314,7 @@ class _MockRunner:
 class TestAdkApp:
     def test_adk_version(self):
         with mock.patch(
-            "google.cloud.aiplatform.vertexai.agent_engines.templates.adk.get_adk_version",
+            "vertexai.agent_engines.templates.adk.get_adk_version",
             return_value="0.5.0",
         ):
             with pytest.raises(
