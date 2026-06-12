@@ -652,10 +652,9 @@ def _generate_class_methods_spec_or_raise(
 
             class_method = _to_proto(schema_dict)
             class_method[_MODE_KEY_IN_SCHEMA] = mode
-            if hasattr(agent, "agent_card"):
-                class_method[_A2A_AGENT_CARD] = json_format.MessageToJson(
-                    getattr(agent, "agent_card")
-                )
+            card = getattr(agent, "agent_card", None)
+            if card is not None:
+                class_method[_A2A_AGENT_CARD] = _serialize_agent_card_to_json(card)
             class_methods_spec.append(class_method)
 
     return class_methods_spec
@@ -2148,3 +2147,59 @@ def _add_telemetry_enablement_env(
         return env_vars
 
     return env_vars | env_to_add
+
+
+def _serialize_agent_card_to_dict(card: Any) -> Optional[Dict[str, Any]]:
+    """Validates and serializes an AgentCard to a dictionary representation.
+
+    Args:
+        card: The AgentCard instance (Pydantic model or Protobuf Message).
+
+    Returns:
+        The serialized card as a dictionary.
+
+    Raises:
+        TypeError: If the card type is not supported.
+    """
+    if card is None:
+        return None
+
+    if hasattr(card, "model_dump"):
+        return typing.cast(dict[str, Any], card.model_dump(exclude_none=True))
+    elif hasattr(card, "DESCRIPTOR"):
+        from google.protobuf import json_format
+
+        return typing.cast(dict[str, Any], json_format.MessageToDict(card))
+    else:
+        raise TypeError(
+            f"Unsupported AgentCard type: {type(card)}. "
+            "Only Pydantic models and Protobuf Messages are supported."
+        )
+
+
+def _serialize_agent_card_to_json(card: Any) -> Optional[str]:
+    """Validates and serializes an AgentCard to a JSON string representation.
+
+    Args:
+        card: The AgentCard instance (Pydantic model or Protobuf Message).
+
+    Returns:
+        The serialized card as a JSON string.
+
+    Raises:
+        TypeError: If the card type is not supported.
+    """
+    if card is None:
+        return None
+
+    if hasattr(card, "model_dump_json"):
+        return typing.cast(str, card.model_dump_json())
+    elif hasattr(card, "DESCRIPTOR"):
+        from google.protobuf import json_format
+
+        return typing.cast(str, json_format.MessageToJson(card))
+    else:
+        raise TypeError(
+            f"Unsupported AgentCard type: {type(card)}. "
+            "Only Pydantic models and Protobuf Messages are supported."
+        )
