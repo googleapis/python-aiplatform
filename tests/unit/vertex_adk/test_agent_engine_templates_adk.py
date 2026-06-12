@@ -40,6 +40,7 @@ from vertexai.agent_engines import _utils
 from vertexai.agent_engines.templates import adk as adk_template
 from google.genai import types
 import pytest
+from google.adk.sessions.base_session_service import BaseSessionService
 
 
 try:
@@ -619,6 +620,51 @@ class TestAdkApp:
         )
         assert session2["user_id"] == _TEST_USER_ID
         assert session2["id"] == "test_session_id"
+
+    @pytest.mark.asyncio
+    async def test_async_create_session_with_ttl_kwargs(
+        self, get_project_id_mock: mock.Mock
+    ):
+        mock_session_service = mock.Mock(spec=BaseSessionService)
+        mock_session_service.create_session = mock.AsyncMock()
+        app = agent_engines.AdkApp(
+            agent=_TEST_AGENT,
+            session_service_builder=lambda: mock_session_service,
+        )
+        await app.async_create_session(
+            user_id=_TEST_USER_ID,
+            ttl="7200s",
+        )
+        mock_session_service.create_session.assert_called_once_with(
+            app_name=app._app_name(),
+            user_id=_TEST_USER_ID,
+            session_id=None,
+            state=None,
+            ttl="7200s",
+        )
+
+    @pytest.mark.asyncio
+    async def test_async_create_session_with_expire_time_kwargs(
+        self, get_project_id_mock: mock.Mock
+    ):
+        mock_session_service = mock.Mock(spec=BaseSessionService)
+        mock_session_service.create_session = mock.AsyncMock()
+        app = agent_engines.AdkApp(
+            agent=_TEST_AGENT,
+            session_service_builder=lambda: mock_session_service,
+        )
+        await app.async_create_session(
+            user_id=_TEST_USER_ID,
+            expire_time="2026-03-01T00:00:00Z",
+        )
+        mock_session_service.create_session.assert_called_once_with(
+            app_name=app._app_name(),
+            user_id=_TEST_USER_ID,
+            session_id=None,
+            state=None,
+            expire_time="2026-03-01T00:00:00Z",
+        )
+
 
     @pytest.mark.asyncio
     async def test_async_get_session(self, get_project_id_mock: mock.Mock):
