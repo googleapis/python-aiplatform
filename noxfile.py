@@ -110,6 +110,7 @@ nox.options.sessions = [
     "unit_agentplatform_langchain",
     "unit_agentplatform_ag2",
     "unit_agentplatform_llama_index",
+    "unit_agentplatform_a2a",
     "system",
     "cover",
     "lint",
@@ -222,6 +223,7 @@ def default(session):
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
+        "--ignore=tests/unit/vertex_a2a",
         "--ignore=tests/unit/architecture",
         "--ignore=tests/unit/vertexai/genai/replays",
         "--ignore=tests/unit/agentplatform/genai/replays",
@@ -425,6 +427,29 @@ def unit_agentplatform_llama_index(session):
             "frameworks",
             "test_frameworks_llama_index.py",
         ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=["3.14"])
+def unit_agentplatform_a2a(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-a2a.txt")
+    install_unittest_dependencies(session, "-c", constraints_path)
+    session.install("a2a-sdk", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_a2a_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "vertex_a2a"),
         *session.posargs,
     )
 
