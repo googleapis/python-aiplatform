@@ -94,6 +94,7 @@ from .common import _GetEvaluationRunParameters
 from .common import _GetEvaluationSetParameters
 from .common import _GetMultimodalDatasetOperationParameters
 from .common import _GetMultimodalDatasetParameters
+from .common import _GetRagConfigOperationParameters
 from .common import _GetRagConfigRequestParameters
 from .common import _GetRagCorpusRequestParameters
 from .common import _GetRagFileRequestParameters
@@ -692,6 +693,9 @@ from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
 from .common import GetRagConfig
 from .common import GetRagConfigDict
+from .common import GetRagConfigOperationConfig
+from .common import GetRagConfigOperationConfigDict
+from .common import GetRagConfigOperationConfigOrDict
 from .common import GetRagConfigOrDict
 from .common import GetRagCorpusConfig
 from .common import GetRagCorpusConfigDict
@@ -1108,6 +1112,9 @@ from .common import RagEmbeddingModelConfigVertexPredictionEndpointDict
 from .common import RagEmbeddingModelConfigVertexPredictionEndpointOrDict
 from .common import RagEngineConfig
 from .common import RagEngineConfigDict
+from .common import RagEngineConfigOperation
+from .common import RagEngineConfigOperationDict
+from .common import RagEngineConfigOperationOrDict
 from .common import RagEngineConfigOrDict
 from .common import RagFile
 from .common import RagFileDict
@@ -2731,6 +2738,12 @@ __all__ = [
     "RetrieveContextsResponse",
     "RetrieveContextsResponseDict",
     "RetrieveContextsResponseOrDict",
+    "GetRagConfigOperationConfig",
+    "GetRagConfigOperationConfigDict",
+    "GetRagConfigOperationConfigOrDict",
+    "RagEngineConfigOperation",
+    "RagEngineConfigOperationDict",
+    "RagEngineConfigOperationOrDict",
     "GetAgentEngineRuntimeRevisionConfig",
     "GetAgentEngineRuntimeRevisionConfigDict",
     "GetAgentEngineRuntimeRevisionConfigOrDict",
@@ -3334,6 +3347,7 @@ __all__ = [
     "_DeleteRagFileRequestParameters",
     "_UpdateRagConfigRequestParameters",
     "_RetrieveRagContextsRequestParameters",
+    "_GetRagConfigOperationParameters",
     "_GetAgentEngineRuntimeRevisionRequestParameters",
     "_ListAgentEngineRuntimeRevisionsRequestParameters",
     "_DeleteAgentEngineRuntimeRevisionRequestParameters",
