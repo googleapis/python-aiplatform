@@ -2227,7 +2227,7 @@ class Rag(_api_module.BaseModule):
     def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: Optional[types.VertexRagStoreOrDict] = None,
+        vertex_rag_store: types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
@@ -3258,7 +3258,7 @@ class AsyncRag(_api_module.BaseModule):
     async def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: Optional[types.VertexRagStoreOrDict] = None,
+        vertex_rag_store: types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
