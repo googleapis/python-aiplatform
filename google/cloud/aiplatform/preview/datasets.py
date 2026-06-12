@@ -1122,7 +1122,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             A BigFrames dataframe.
         """
         bigframes = _try_import_bigframes()
-        return bigframes.pandas.read_gbq_table(self.bigquery_table.lstrip("bq://"))
+        return bigframes.pandas.read_gbq_table(self.bigquery_table.removeprefix("bq://"))
 
     @classmethod
     @base.optional_sync()
@@ -1409,7 +1409,7 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
         )
         result = assemble_lro.result(timeout=None)
         _LOGGER.log_action_completed_against_resource("data", "assembled", self)
-        table_id = result.bigquery_destination.lstrip("bq://")
+        table_id = result.bigquery_destination.removeprefix("bq://")
         if load_dataframe:
             session_options = bigframes.BigQueryOptions(
                 credentials=initializer.global_config.credentials,
