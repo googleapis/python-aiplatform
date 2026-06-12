@@ -930,16 +930,17 @@ class AdkApp:
         project = self._tmpl_attrs.get("project")
         if project:
             os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
+        location = (
+            os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION")
+            or os.getenv("GOOGLE_CLOUD_LOCATION")
+            or self._tmpl_attrs.get("location")
+        )
         if location:
             if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
             if "GOOGLE_CLOUD_LOCATION" not in os.environ:
                 os.environ["GOOGLE_CLOUD_LOCATION"] = location
-        agent_engine_location = os.environ.get(
-            "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION",  # the runtime env var (if set)
-            location,  # the location set in the AdkApp template
-        )
+        agent_engine_location = location
         express_mode_api_key = self._tmpl_attrs.get("express_mode_api_key")
         if express_mode_api_key and not project:
             os.environ["GOOGLE_API_KEY"] = express_mode_api_key
