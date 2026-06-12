@@ -326,8 +326,10 @@ class A2aAgent:
             or self._tmpl_attrs.get("location")
         )
         if location:
-            os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
-            os.environ["GOOGLE_CLOUD_LOCATION"] = location
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
         agent_engine_id = os.getenv("GOOGLE_CLOUD_AGENT_ENGINE_ID", "test-agent-engine")
         version = "v1beta1"
 

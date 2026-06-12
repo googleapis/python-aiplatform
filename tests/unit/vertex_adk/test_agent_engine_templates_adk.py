@@ -1043,19 +1043,20 @@ class TestAdkLocationResolution:
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(
-        "env_engine_loc, env_cloud_loc, expected_resolved_loc",
+        "env_engine_loc, env_cloud_loc, expected_engine_loc, expected_cloud_loc",
         [
-            (None, None, "us-central1"),
-            ("us-east4", None, "us-east4"),
-            (None, "us-east4", "us-east4"),
-            ("us-west1", "us-east4", "us-west1"),
+            (None, None, "us-central1", "us-central1"),
+            ("us-east4", None, "us-east4", "us-east4"),
+            (None, "us-east4", "us-east4", "us-east4"),
+            ("us-west1", "us-east4", "us-west1", "us-east4"),
         ],
     )
     def test_location_resolution(
         self,
         env_engine_loc,
         env_cloud_loc,
-        expected_resolved_loc,
+        expected_engine_loc,
+        expected_cloud_loc,
         default_instrumentor_builder_mock,
         get_project_id_mock,
     ):
@@ -1079,8 +1080,8 @@ class TestAdkLocationResolution:
             app.set_up()
 
             # Assert that environment variables are correctly populated
-            assert os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") == expected_resolved_loc
-            assert os.environ.get("GOOGLE_CLOUD_LOCATION") == expected_resolved_loc
+            assert os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_LOCATION") == expected_engine_loc
+            assert os.environ.get("GOOGLE_CLOUD_LOCATION") == expected_cloud_loc
 
 
 @pytest.mark.usefixtures("is_version_sufficient_mock")

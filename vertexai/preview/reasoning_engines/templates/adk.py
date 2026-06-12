@@ -745,8 +745,10 @@ class AdkApp:
             or self._tmpl_attrs.get("location")
         )
         if location:
-            os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
-            os.environ["GOOGLE_CLOUD_LOCATION"] = location
+            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+                os.environ["GOOGLE_CLOUD_LOCATION"] = location
 
         # Disable content capture in custom ADK spans unless user enabled
         # tracing explicitly with the old flag
