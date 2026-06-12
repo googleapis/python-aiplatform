@@ -794,6 +794,109 @@ class TestReasoningEngine:
             retry=_TEST_RETRY,
         )
 
+    def test_create_reasoning_engine_with_env_vars(
+        self,
+        create_reasoning_engine_mock,
+        cloud_storage_create_bucket_mock,
+        tarfile_open_mock,
+        cloudpickle_dump_mock,
+        get_gca_resource_mock,
+    ):
+        reasoning_engines.ReasoningEngine.create(
+            self.test_app,
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            requirements=_TEST_REASONING_ENGINE_REQUIREMENTS,
+            extra_packages=[_TEST_REASONING_ENGINE_EXTRA_PACKAGE_PATH],
+            env_vars={
+                "TEST_ENV_VAR": "TEST_ENV_VAR_VALUE",
+                "TEST_SECRET_ENV_VAR": types.SecretRef(
+                    secret="TEST_SECRET_NAME",
+                    version="TEST_SECRET_VERSION",
+                ),
+            },
+        )
+        want_reasoning_engine = types.ReasoningEngine(
+            display_name=_TEST_REASONING_ENGINE_DISPLAY_NAME,
+            spec=types.ReasoningEngineSpec(
+                package_spec=types.ReasoningEngineSpec.PackageSpec(
+                    python_version=f"{sys.version_info.major}.{sys.version_info.minor}",
+                    pickle_object_gcs_uri=_TEST_REASONING_ENGINE_GCS_URI,
+                    dependency_files_gcs_uri=_TEST_REASONING_ENGINE_DEPENDENCY_FILES_GCS_URI,
+                    requirements_gcs_uri=_TEST_REASONING_ENGINE_REQUIREMENTS_GCS_URI,
+                ),
+                deployment_spec=types.ReasoningEngineSpec.DeploymentSpec(
+                    env=[
+                        types.EnvVar(
+                            name="TEST_ENV_VAR",
+                            value="TEST_ENV_VAR_VALUE",
+                        )
+                    ],
+                    secret_env=[
+                        types.SecretEnvVar(
+                            name="TEST_SECRET_ENV_VAR",
+                            secret_ref=types.SecretRef(
+                                secret="TEST_SECRET_NAME",
+                                version="TEST_SECRET_VERSION",
+                            ),
+                        )
+                    ],
+                ),
+            ),
+        )
+        want_reasoning_engine.spec.class_methods.append(
+            _TEST_REASONING_ENGINE_QUERY_SCHEMA
+        )
+        create_reasoning_engine_mock.assert_called_with(
+            parent=_TEST_PARENT,
+            reasoning_engine=want_reasoning_engine,
+        )
+
+    @mock.patch.dict(os.environ, {"TEST_ENV_VAR_FROM_OS": "os-value"})
+    def test_generate_deployment_spec_from_env_var_names(self):
+        deployment_spec, update_masks = _utils._generate_deployment_spec_or_raise(
+            env_vars=["TEST_ENV_VAR_FROM_OS"],
+        )
+
+        assert _utils.to_dict(deployment_spec) == {
+            "env": [{"name": "TEST_ENV_VAR_FROM_OS", "value": "os-value"}]
+        }
+        assert update_masks == ["spec.deployment_spec.env"]
+
+    def test_generate_deployment_spec_from_secret_ref_dict(self):
+        deployment_spec, update_masks = _utils._generate_deployment_spec_or_raise(
+            env_vars={
+                "TEST_SECRET_ENV_VAR": {
+                    "secret": "TEST_SECRET_NAME",
+                    "version": "TEST_SECRET_VERSION",
+                },
+            },
+        )
+
+        assert _utils.to_dict(deployment_spec) == {
+            "secretEnv": [
+                {
+                    "name": "TEST_SECRET_ENV_VAR",
+                    "secretRef": {
+                        "secret": "TEST_SECRET_NAME",
+                        "version": "TEST_SECRET_VERSION",
+                    },
+                }
+            ]
+        }
+        assert update_masks == ["spec.deployment_spec.secret_env"]
+
+    def test_generate_deployment_spec_rejects_invalid_env_var_value_type(self):
+        with pytest.raises(TypeError, match="Unknown value type in env_vars"):
+            _utils._generate_deployment_spec_or_raise(env_vars={"TEST_ENV_VAR": 1})
+
+    def test_generate_deployment_spec_rejects_missing_env_var_name(self):
+        with pytest.raises(ValueError, match="Env var not found in os.environ"):
+            _utils._generate_deployment_spec_or_raise(env_vars=["MISSING_ENV_VAR"])
+
+    def test_generate_deployment_spec_rejects_string_env_vars(self):
+        with pytest.raises(TypeError, match="env_vars must be a list, tuple or a dict"):
+            _utils._generate_deployment_spec_or_raise(env_vars="TEST_ENV_VAR")
+
     @pytest.mark.usefixtures("caplog")
     def test_create_reasoning_engine_warn_resource_name(
         self,
