@@ -110,6 +110,7 @@ nox.options.sessions = [
     "unit_agentplatform_langchain",
     "unit_agentplatform_ag2",
     "unit_agentplatform_llama_index",
+    "unit_agentplatform_a2a",
     "system",
     "cover",
     "lint",
@@ -323,6 +324,37 @@ def unit_agentplatform_adk(session):
         "--cov-fail-under=0",
         os.path.join(
             "tests", "unit", "agentplatform", "frameworks", "test_frameworks_adk.py"
+        ),
+        *session.posargs,
+    )
+
+
+@nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
+def unit_agentplatform_a2a(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-adk.txt")
+    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
+    session.install(*standard_deps, "-c", constraints_path)
+
+    # Install adk extras (A2A uses the ADK runtime base)
+    session.install("-e", ".[adk_testing]", "-c", constraints_path)
+
+    # Install A2A-specific testing dependencies
+    session.install("a2a-sdk")
+
+    # Run py.test against the A2A unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_agentplatform_a2a_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join(
+            "tests", "unit", "agentplatform", "frameworks", "test_frameworks_a2a.py"
         ),
         *session.posargs,
     )

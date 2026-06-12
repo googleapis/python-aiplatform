@@ -181,6 +181,10 @@ adk_testing_extra_require = list(
     )
 )
 
+a2a_testing_extra_require = [
+    "a2a-sdk >= 1.0.0, < 2.0.0",
+]
+
 evaluation_extra_require = [
     "pandas >= 1.0.0",
     "tqdm>=4.23.0",
@@ -356,6 +360,7 @@ setuptools.setup(
         "ray_testing": ray_testing_extra_require,
         "adk": adk_extra_require,
         "adk_testing": adk_testing_extra_require,
+        "a2a_testing": a2a_testing_extra_require,
         "reasoningengine": reasoning_engine_extra_require,
         "agent_engines": agent_engines_extra_require,
         "evaluation": evaluation_extra_require,
