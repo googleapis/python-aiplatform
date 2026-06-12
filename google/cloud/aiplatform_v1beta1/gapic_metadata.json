@@ -5355,6 +5355,11 @@
                 "async_query_reasoning_engine"
               ]
             },
+            "CancelAsyncQueryReasoningEngine": {
+              "methods": [
+                "cancel_async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
@@ -5373,6 +5378,11 @@
             "AsyncQueryReasoningEngine": {
               "methods": [
                 "async_query_reasoning_engine"
+              ]
+            },
+            "CancelAsyncQueryReasoningEngine": {
+              "methods": [
+                "cancel_async_query_reasoning_engine"
               ]
             },
             "QueryReasoningEngine": {
@@ -5395,6 +5405,11 @@
                 "async_query_reasoning_engine"
               ]
             },
+            "CancelAsyncQueryReasoningEngine": {
+              "methods": [
+                "cancel_async_query_reasoning_engine"
+              ]
+            },
             "QueryReasoningEngine": {
               "methods": [
                 "query_reasoning_engine"
@@ -5403,6 +5418,70 @@
             "StreamQueryReasoningEngine": {
               "methods": [
                 "stream_query_reasoning_engine"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ReasoningEngineRuntimeRevisionService": {
+      "clients": {
+        "grpc": {
+          "libraryClient": "ReasoningEngineRuntimeRevisionServiceClient",
+          "rpcs": {
+            "DeleteReasoningEngineRuntimeRevision": {
+              "methods": [
+                "delete_reasoning_engine_runtime_revision"
+              ]
+            },
+            "GetReasoningEngineRuntimeRevision": {
+              "methods": [
+                "get_reasoning_engine_runtime_revision"
+              ]
+            },
+            "ListReasoningEngineRuntimeRevisions": {
+              "methods": [
+                "list_reasoning_engine_runtime_revisions"
+              ]
+            }
+          }
+        },
+        "grpc-async": {
+          "libraryClient": "ReasoningEngineRuntimeRevisionServiceAsyncClient",
+          "rpcs": {
+            "DeleteReasoningEngineRuntimeRevision": {
+              "methods": [
+                "delete_reasoning_engine_runtime_revision"
+              ]
+            },
+            "GetReasoningEngineRuntimeRevision": {
+              "methods": [
+                "get_reasoning_engine_runtime_revision"
+              ]
+            },
+            "ListReasoningEngineRuntimeRevisions": {
+              "methods": [
+                "list_reasoning_engine_runtime_revisions"
+              ]
+            }
+          }
+        },
+        "rest": {
+          "libraryClient": "ReasoningEngineRuntimeRevisionServiceClient",
+          "rpcs": {
+            "DeleteReasoningEngineRuntimeRevision": {
+              "methods": [
+                "delete_reasoning_engine_runtime_revision"
+              ]
+            },
+            "GetReasoningEngineRuntimeRevision": {
+              "methods": [
+                "get_reasoning_engine_runtime_revision"
+              ]
+            },
+            "ListReasoningEngineRuntimeRevisions": {
+              "methods": [
+                "list_reasoning_engine_runtime_revisions"
               ]
             }
           }

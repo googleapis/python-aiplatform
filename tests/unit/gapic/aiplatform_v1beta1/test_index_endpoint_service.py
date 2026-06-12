@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2025 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
 # limitations under the License.
 #
 import os
-
-# try/except added for compatibility with python < 3.8
-try:
-    from unittest import mock
-    from unittest.mock import AsyncMock  # pragma: NO COVER
-except ImportError:  # pragma: NO COVER
-    import mock
+import asyncio
+from unittest import mock
+from unittest.mock import AsyncMock
 
 import grpc
 from grpc.experimental import aio
@@ -33,14 +29,12 @@ from collections.abc import Sequence, Mapping
 from google.api_core import api_core_version
 from proto.marshal.rules.dates import DurationRule, TimestampRule
 from proto.marshal.rules import wrappers
-
 try:
     import aiohttp  # type: ignore
     from google.auth.aio.transport.sessions import AsyncAuthorizedSession
     from google.api_core.operations_v1 import AsyncOperationsRestClient
-
     HAS_ASYNC_REST_EXTRA = True
-except ImportError:  # pragma: NO COVER
+except ImportError: # pragma: NO COVER
     HAS_ASYNC_REST_EXTRA = False
 from requests import Response
 from requests import Request, PreparedRequest
@@ -49,9 +43,8 @@ from google.protobuf import json_format
 
 try:
     from google.auth.aio import credentials as ga_credentials_async
-
     HAS_GOOGLE_AUTH_AIO = True
-except ImportError:  # pragma: NO COVER
+except ImportError: # pragma: NO COVER
     HAS_GOOGLE_AUTH_AIO = False
 
 from google.api_core import client_options
@@ -66,12 +59,8 @@ from google.api_core import path_template
 from google.api_core import retry as retries
 from google.auth import credentials as ga_credentials
 from google.auth.exceptions import MutualTLSChannelError
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
-    IndexEndpointServiceAsyncClient,
-)
-from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import (
-    IndexEndpointServiceClient,
-)
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import IndexEndpointServiceAsyncClient
+from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import IndexEndpointServiceClient
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import pagers
 from google.cloud.aiplatform_v1beta1.services.index_endpoint_service import transports
 from google.cloud.aiplatform_v1beta1.types import accelerator_type
@@ -87,7 +76,7 @@ from google.cloud.location import locations_pb2
 from google.iam.v1 import iam_policy_pb2  # type: ignore
 from google.iam.v1 import options_pb2  # type: ignore
 from google.iam.v1 import policy_pb2  # type: ignore
-from google.longrunning import operations_pb2  # type: ignore
+from google.longrunning import operations_pb2 # type: ignore
 from google.oauth2 import service_account
 import google.api_core.operation_async as operation_async  # type: ignore
 import google.auth
@@ -95,6 +84,7 @@ import google.protobuf.duration_pb2 as duration_pb2  # type: ignore
 import google.protobuf.empty_pb2 as empty_pb2  # type: ignore
 import google.protobuf.field_mask_pb2 as field_mask_pb2  # type: ignore
 import google.protobuf.timestamp_pb2 as timestamp_pb2  # type: ignore
+
 
 
 CRED_INFO_JSON = {
@@ -110,10 +100,8 @@ async def mock_async_gen(data, chunk_size=1):
         chunk = data[i : i + chunk_size]
         yield chunk.encode("utf-8")
 
-
 def client_cert_source_callback():
     return b"cert bytes", b"key bytes"
-
 
 # TODO: use async auth anon credentials by default once the minimum version of google-auth is upgraded.
 # See related issue: https://github.com/googleapis/gapic-generator-python/issues/2107.
@@ -122,27 +110,32 @@ def async_anonymous_credentials():
         return ga_credentials_async.AnonymousCredentials()
     return ga_credentials.AnonymousCredentials()
 
-
 # If default endpoint is localhost, then default mtls endpoint will be the same.
 # This method modifies the default endpoint so the client can produce a different
 # mtls endpoint for endpoint testing purposes.
 def modify_default_endpoint(client):
-    return (
-        "foo.googleapis.com"
-        if ("localhost" in client.DEFAULT_ENDPOINT)
-        else client.DEFAULT_ENDPOINT
-    )
-
+    return "foo.googleapis.com" if ("localhost" in client.DEFAULT_ENDPOINT) else client.DEFAULT_ENDPOINT
 
 # If default endpoint template is localhost, then default mtls endpoint will be the same.
 # This method modifies the default endpoint template so the client can produce a different
 # mtls endpoint for endpoint testing purposes.
 def modify_default_endpoint_template(client):
-    return (
-        "test.{UNIVERSE_DOMAIN}"
-        if ("localhost" in client._DEFAULT_ENDPOINT_TEMPLATE)
-        else client._DEFAULT_ENDPOINT_TEMPLATE
-    )
+    return "test.{UNIVERSE_DOMAIN}" if ("localhost" in client._DEFAULT_ENDPOINT_TEMPLATE) else client._DEFAULT_ENDPOINT_TEMPLATE
+
+
+@pytest.fixture(autouse=True)
+def set_event_loop():
+    try:
+        asyncio.get_running_loop()
+        yield
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            yield
+        finally:
+            loop.close()
+            asyncio.set_event_loop(None)
 
 
 def test__get_default_mtls_endpoint():
@@ -151,50 +144,24 @@ def test__get_default_mtls_endpoint():
     sandbox_endpoint = "example.sandbox.googleapis.com"
     sandbox_mtls_endpoint = "example.mtls.sandbox.googleapis.com"
     non_googleapi = "api.example.com"
+    custom_endpoint = ".custom"
 
     assert IndexEndpointServiceClient._get_default_mtls_endpoint(None) is None
-    assert (
-        IndexEndpointServiceClient._get_default_mtls_endpoint(api_endpoint)
-        == api_mtls_endpoint
-    )
-    assert (
-        IndexEndpointServiceClient._get_default_mtls_endpoint(api_mtls_endpoint)
-        == api_mtls_endpoint
-    )
-    assert (
-        IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_endpoint)
-        == sandbox_mtls_endpoint
-    )
-    assert (
-        IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint)
-        == sandbox_mtls_endpoint
-    )
-    assert (
-        IndexEndpointServiceClient._get_default_mtls_endpoint(non_googleapi)
-        == non_googleapi
-    )
-
+    assert IndexEndpointServiceClient._get_default_mtls_endpoint(api_endpoint) == api_mtls_endpoint
+    assert IndexEndpointServiceClient._get_default_mtls_endpoint(api_mtls_endpoint) == api_mtls_endpoint
+    assert IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_endpoint) == sandbox_mtls_endpoint
+    assert IndexEndpointServiceClient._get_default_mtls_endpoint(sandbox_mtls_endpoint) == sandbox_mtls_endpoint
+    assert IndexEndpointServiceClient._get_default_mtls_endpoint(non_googleapi) == non_googleapi
+    assert IndexEndpointServiceClient._get_default_mtls_endpoint(custom_endpoint) == custom_endpoint
 
 def test__read_environment_variables():
-    assert IndexEndpointServiceClient._read_environment_variables() == (
-        False,
-        "auto",
-        None,
-    )
+    assert IndexEndpointServiceClient._read_environment_variables() == (False, "auto", None)
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-        assert IndexEndpointServiceClient._read_environment_variables() == (
-            True,
-            "auto",
-            None,
-        )
+        assert IndexEndpointServiceClient._read_environment_variables() == (True, "auto", None)
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
-        assert IndexEndpointServiceClient._read_environment_variables() == (
-            False,
-            "auto",
-            None,
-        )
+        assert IndexEndpointServiceClient._read_environment_variables() == (False, "auto", None)
 
     with mock.patch.dict(
         os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
@@ -208,46 +175,27 @@ def test__read_environment_variables():
             )
         else:
             assert IndexEndpointServiceClient._read_environment_variables() == (
-                False,
-                "auto",
-                None,
-            )
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
-        assert IndexEndpointServiceClient._read_environment_variables() == (
-            False,
-            "never",
-            None,
-        )
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
-        assert IndexEndpointServiceClient._read_environment_variables() == (
-            False,
-            "always",
-            None,
-        )
-
-    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
-        assert IndexEndpointServiceClient._read_environment_variables() == (
             False,
             "auto",
             None,
         )
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
+        assert IndexEndpointServiceClient._read_environment_variables() == (False, "never", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
+        assert IndexEndpointServiceClient._read_environment_variables() == (False, "always", None)
+
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"}):
+        assert IndexEndpointServiceClient._read_environment_variables() == (False, "auto", None)
 
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError) as excinfo:
             IndexEndpointServiceClient._read_environment_variables()
-    assert (
-        str(excinfo.value)
-        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-    )
+    assert str(excinfo.value) == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
 
     with mock.patch.dict(os.environ, {"GOOGLE_CLOUD_UNIVERSE_DOMAIN": "foo.com"}):
-        assert IndexEndpointServiceClient._read_environment_variables() == (
-            False,
-            "auto",
-            "foo.com",
-        )
+        assert IndexEndpointServiceClient._read_environment_variables() == (False, "auto", "foo.com")
 
 
 def test_use_client_cert_effective():
@@ -256,9 +204,7 @@ def test_use_client_cert_effective():
     # the google-auth library supports automatic mTLS and determines that a
     # client certificate should be used.
     if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch(
-            "google.auth.transport.mtls.should_use_client_cert", return_value=True
-        ):
+        with mock.patch("google.auth.transport.mtls.should_use_client_cert", return_value=True):
             assert IndexEndpointServiceClient._use_client_cert_effective() is True
 
     # Test case 2: Test when `should_use_client_cert` returns False.
@@ -266,9 +212,7 @@ def test_use_client_cert_effective():
     # the google-auth library supports automatic mTLS and determines that a
     # client certificate should NOT be used.
     if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch(
-            "google.auth.transport.mtls.should_use_client_cert", return_value=False
-        ):
+        with mock.patch("google.auth.transport.mtls.should_use_client_cert", return_value=False):
             assert IndexEndpointServiceClient._use_client_cert_effective() is False
 
     # Test case 3: Test when `should_use_client_cert` is unavailable and the
@@ -280,9 +224,7 @@ def test_use_client_cert_effective():
     # Test case 4: Test when `should_use_client_cert` is unavailable and the
     # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "false".
     if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(
-            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}
-        ):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
             assert IndexEndpointServiceClient._use_client_cert_effective() is False
 
     # Test case 5: Test when `should_use_client_cert` is unavailable and the
@@ -294,9 +236,7 @@ def test_use_client_cert_effective():
     # Test case 6: Test when `should_use_client_cert` is unavailable and the
     # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "False".
     if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(
-            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "False"}
-        ):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "False"}):
             assert IndexEndpointServiceClient._use_client_cert_effective() is False
 
     # Test case 7: Test when `should_use_client_cert` is unavailable and the
@@ -308,9 +248,7 @@ def test_use_client_cert_effective():
     # Test case 8: Test when `should_use_client_cert` is unavailable and the
     # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to "FALSE".
     if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(
-            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "FALSE"}
-        ):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "FALSE"}):
             assert IndexEndpointServiceClient._use_client_cert_effective() is False
 
     # Test case 9: Test when `should_use_client_cert` is unavailable and the
@@ -325,177 +263,83 @@ def test_use_client_cert_effective():
     # The method should raise a ValueError as the environment variable must be either
     # "true" or "false".
     if not hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(
-            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}
-        ):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}):
             with pytest.raises(ValueError):
                 IndexEndpointServiceClient._use_client_cert_effective()
 
     # Test case 11: Test when `should_use_client_cert` is available and the
     # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is set to an invalid value.
     # The method should return False as the environment variable is set to an invalid value.
-    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
-        with mock.patch.dict(
-            os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}
-        ):
+    if  hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+        with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "unsupported"}):
             assert IndexEndpointServiceClient._use_client_cert_effective() is False
 
     # Test case 12: Test when `should_use_client_cert` is available and the
     # `GOOGLE_API_USE_CLIENT_CERTIFICATE` environment variable is unset. Also,
     # the GOOGLE_API_CONFIG environment variable is unset.
-    if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
+    if  hasattr(google.auth.transport.mtls, "should_use_client_cert"):
         with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": ""}):
             with mock.patch.dict(os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": ""}):
                 assert IndexEndpointServiceClient._use_client_cert_effective() is False
-
 
 def test__get_client_cert_source():
     mock_provided_cert_source = mock.Mock()
     mock_default_cert_source = mock.Mock()
 
     assert IndexEndpointServiceClient._get_client_cert_source(None, False) is None
-    assert (
-        IndexEndpointServiceClient._get_client_cert_source(
-            mock_provided_cert_source, False
-        )
-        is None
-    )
-    assert (
-        IndexEndpointServiceClient._get_client_cert_source(
-            mock_provided_cert_source, True
-        )
-        == mock_provided_cert_source
-    )
+    assert IndexEndpointServiceClient._get_client_cert_source(mock_provided_cert_source, False) is None
+    assert IndexEndpointServiceClient._get_client_cert_source(mock_provided_cert_source, True) == mock_provided_cert_source
 
-    with mock.patch(
-        "google.auth.transport.mtls.has_default_client_cert_source", return_value=True
-    ):
-        with mock.patch(
-            "google.auth.transport.mtls.default_client_cert_source",
-            return_value=mock_default_cert_source,
-        ):
-            assert (
-                IndexEndpointServiceClient._get_client_cert_source(None, True)
-                is mock_default_cert_source
-            )
-            assert (
-                IndexEndpointServiceClient._get_client_cert_source(
-                    mock_provided_cert_source, "true"
-                )
-                is mock_provided_cert_source
-            )
+    with mock.patch('google.auth.transport.mtls.has_default_client_cert_source', return_value=True):
+        with mock.patch('google.auth.transport.mtls.default_client_cert_source', return_value=mock_default_cert_source):
+            assert IndexEndpointServiceClient._get_client_cert_source(None, True) is mock_default_cert_source
+            assert IndexEndpointServiceClient._get_client_cert_source(mock_provided_cert_source, "true") is mock_provided_cert_source
 
-
-@mock.patch.object(
-    IndexEndpointServiceClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceClient),
-)
-@mock.patch.object(
-    IndexEndpointServiceAsyncClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceAsyncClient),
-)
+@mock.patch.object(IndexEndpointServiceClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceClient))
+@mock.patch.object(IndexEndpointServiceAsyncClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceAsyncClient))
 def test__get_api_endpoint():
     api_override = "foo.com"
     mock_client_cert_source = mock.Mock()
     default_universe = IndexEndpointServiceClient._DEFAULT_UNIVERSE
-    default_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-        UNIVERSE_DOMAIN=default_universe
-    )
+    default_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=default_universe)
     mock_universe = "bar.com"
-    mock_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-        UNIVERSE_DOMAIN=mock_universe
-    )
+    mock_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=mock_universe)
 
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(
-            api_override, mock_client_cert_source, default_universe, "always"
-        )
-        == api_override
-    )
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(
-            None, mock_client_cert_source, default_universe, "auto"
-        )
-        == IndexEndpointServiceClient.DEFAULT_MTLS_ENDPOINT
-    )
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(
-            None, None, default_universe, "auto"
-        )
-        == default_endpoint
-    )
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(
-            None, None, default_universe, "always"
-        )
-        == IndexEndpointServiceClient.DEFAULT_MTLS_ENDPOINT
-    )
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(
-            None, mock_client_cert_source, default_universe, "always"
-        )
-        == IndexEndpointServiceClient.DEFAULT_MTLS_ENDPOINT
-    )
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(None, None, mock_universe, "never")
-        == mock_endpoint
-    )
-    assert (
-        IndexEndpointServiceClient._get_api_endpoint(
-            None, None, default_universe, "never"
-        )
-        == default_endpoint
-    )
+    assert IndexEndpointServiceClient._get_api_endpoint(api_override, mock_client_cert_source, default_universe, "always") == api_override
+    assert IndexEndpointServiceClient._get_api_endpoint(None, mock_client_cert_source, default_universe, "auto") == IndexEndpointServiceClient.DEFAULT_MTLS_ENDPOINT
+    assert IndexEndpointServiceClient._get_api_endpoint(None, None, default_universe, "auto") == default_endpoint
+    assert IndexEndpointServiceClient._get_api_endpoint(None, None, default_universe, "always") == IndexEndpointServiceClient.DEFAULT_MTLS_ENDPOINT
+    assert IndexEndpointServiceClient._get_api_endpoint(None, mock_client_cert_source, default_universe, "always") == IndexEndpointServiceClient.DEFAULT_MTLS_ENDPOINT
+    assert IndexEndpointServiceClient._get_api_endpoint(None, None, mock_universe, "never") == mock_endpoint
+    assert IndexEndpointServiceClient._get_api_endpoint(None, None, default_universe, "never") == default_endpoint
 
     with pytest.raises(MutualTLSChannelError) as excinfo:
-        IndexEndpointServiceClient._get_api_endpoint(
-            None, mock_client_cert_source, mock_universe, "auto"
-        )
-    assert (
-        str(excinfo.value)
-        == "mTLS is not supported in any universe other than googleapis.com."
-    )
+        IndexEndpointServiceClient._get_api_endpoint(None, mock_client_cert_source, mock_universe, "auto")
+    assert str(excinfo.value) == "mTLS is not supported in any universe other than googleapis.com."
 
 
 def test__get_universe_domain():
     client_universe_domain = "foo.com"
     universe_domain_env = "bar.com"
 
-    assert (
-        IndexEndpointServiceClient._get_universe_domain(
-            client_universe_domain, universe_domain_env
-        )
-        == client_universe_domain
-    )
-    assert (
-        IndexEndpointServiceClient._get_universe_domain(None, universe_domain_env)
-        == universe_domain_env
-    )
-    assert (
-        IndexEndpointServiceClient._get_universe_domain(None, None)
-        == IndexEndpointServiceClient._DEFAULT_UNIVERSE
-    )
+    assert IndexEndpointServiceClient._get_universe_domain(client_universe_domain, universe_domain_env) == client_universe_domain
+    assert IndexEndpointServiceClient._get_universe_domain(None, universe_domain_env) == universe_domain_env
+    assert IndexEndpointServiceClient._get_universe_domain(None, None) == IndexEndpointServiceClient._DEFAULT_UNIVERSE
 
     with pytest.raises(ValueError) as excinfo:
         IndexEndpointServiceClient._get_universe_domain("", None)
     assert str(excinfo.value) == "Universe Domain cannot be an empty string."
 
-
-@pytest.mark.parametrize(
-    "error_code,cred_info_json,show_cred_info",
-    [
-        (401, CRED_INFO_JSON, True),
-        (403, CRED_INFO_JSON, True),
-        (404, CRED_INFO_JSON, True),
-        (500, CRED_INFO_JSON, False),
-        (401, None, False),
-        (403, None, False),
-        (404, None, False),
-        (500, None, False),
-    ],
-)
+@pytest.mark.parametrize("error_code,cred_info_json,show_cred_info", [
+    (401, CRED_INFO_JSON, True),
+    (403, CRED_INFO_JSON, True),
+    (404, CRED_INFO_JSON, True),
+    (500, CRED_INFO_JSON, False),
+    (401, None, False),
+    (403, None, False),
+    (404, None, False),
+    (500, None, False)
+])
 def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_info):
     cred = mock.Mock(["get_cred_info"])
     cred.get_cred_info = mock.Mock(return_value=cred_info_json)
@@ -511,8 +355,7 @@ def test__add_cred_info_for_auth_errors(error_code, cred_info_json, show_cred_in
     else:
         assert error.details == ["foo"]
 
-
-@pytest.mark.parametrize("error_code", [401, 403, 404, 500])
+@pytest.mark.parametrize("error_code", [401,403,404,500])
 def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
     cred = mock.Mock([])
     assert not hasattr(cred, "get_cred_info")
@@ -525,22 +368,14 @@ def test__add_cred_info_for_auth_errors_no_get_cred_info(error_code):
     client._add_cred_info_for_auth_errors(error)
     assert error.details == []
 
-
-@pytest.mark.parametrize(
-    "client_class,transport_name",
-    [
-        (IndexEndpointServiceClient, "grpc"),
-        (IndexEndpointServiceAsyncClient, "grpc_asyncio"),
-        (IndexEndpointServiceClient, "rest"),
-    ],
-)
-def test_index_endpoint_service_client_from_service_account_info(
-    client_class, transport_name
-):
+@pytest.mark.parametrize("client_class,transport_name", [
+    (IndexEndpointServiceClient, "grpc"),
+    (IndexEndpointServiceAsyncClient, "grpc_asyncio"),
+    (IndexEndpointServiceClient, "rest"),
+])
+def test_index_endpoint_service_client_from_service_account_info(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
-    with mock.patch.object(
-        service_account.Credentials, "from_service_account_info"
-    ) as factory:
+    with mock.patch.object(service_account.Credentials, 'from_service_account_info') as factory:
         factory.return_value = creds
         info = {"valid": True}
         client = client_class.from_service_account_info(info, transport=transport_name)
@@ -548,70 +383,52 @@ def test_index_endpoint_service_client_from_service_account_info(
         assert isinstance(client, client_class)
 
         assert client.transport._host == (
-            "aiplatform.googleapis.com:443"
-            if transport_name in ["grpc", "grpc_asyncio"]
-            else "https://aiplatform.googleapis.com"
+            'aiplatform.googleapis.com:443'
+            if transport_name in ['grpc', 'grpc_asyncio']
+            else
+            'https://aiplatform.googleapis.com'
         )
 
 
-@pytest.mark.parametrize(
-    "transport_class,transport_name",
-    [
-        (transports.IndexEndpointServiceGrpcTransport, "grpc"),
-        (transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
-        (transports.IndexEndpointServiceRestTransport, "rest"),
-    ],
-)
-def test_index_endpoint_service_client_service_account_always_use_jwt(
-    transport_class, transport_name
-):
-    with mock.patch.object(
-        service_account.Credentials, "with_always_use_jwt_access", create=True
-    ) as use_jwt:
+@pytest.mark.parametrize("transport_class,transport_name", [
+    (transports.IndexEndpointServiceGrpcTransport, "grpc"),
+    (transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+    (transports.IndexEndpointServiceRestTransport, "rest"),
+])
+def test_index_endpoint_service_client_service_account_always_use_jwt(transport_class, transport_name):
+    with mock.patch.object(service_account.Credentials, 'with_always_use_jwt_access', create=True) as use_jwt:
         creds = service_account.Credentials(None, None, None)
         transport = transport_class(credentials=creds, always_use_jwt_access=True)
         use_jwt.assert_called_once_with(True)
 
-    with mock.patch.object(
-        service_account.Credentials, "with_always_use_jwt_access", create=True
-    ) as use_jwt:
+    with mock.patch.object(service_account.Credentials, 'with_always_use_jwt_access', create=True) as use_jwt:
         creds = service_account.Credentials(None, None, None)
         transport = transport_class(credentials=creds, always_use_jwt_access=False)
         use_jwt.assert_not_called()
 
 
-@pytest.mark.parametrize(
-    "client_class,transport_name",
-    [
-        (IndexEndpointServiceClient, "grpc"),
-        (IndexEndpointServiceAsyncClient, "grpc_asyncio"),
-        (IndexEndpointServiceClient, "rest"),
-    ],
-)
-def test_index_endpoint_service_client_from_service_account_file(
-    client_class, transport_name
-):
+@pytest.mark.parametrize("client_class,transport_name", [
+    (IndexEndpointServiceClient, "grpc"),
+    (IndexEndpointServiceAsyncClient, "grpc_asyncio"),
+    (IndexEndpointServiceClient, "rest"),
+])
+def test_index_endpoint_service_client_from_service_account_file(client_class, transport_name):
     creds = ga_credentials.AnonymousCredentials()
-    with mock.patch.object(
-        service_account.Credentials, "from_service_account_file"
-    ) as factory:
+    with mock.patch.object(service_account.Credentials, 'from_service_account_file') as factory:
         factory.return_value = creds
-        client = client_class.from_service_account_file(
-            "dummy/file/path.json", transport=transport_name
-        )
+        client = client_class.from_service_account_file("dummy/file/path.json", transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
-        client = client_class.from_service_account_json(
-            "dummy/file/path.json", transport=transport_name
-        )
+        client = client_class.from_service_account_json("dummy/file/path.json", transport=transport_name)
         assert client.transport._credentials == creds
         assert isinstance(client, client_class)
 
         assert client.transport._host == (
-            "aiplatform.googleapis.com:443"
-            if transport_name in ["grpc", "grpc_asyncio"]
-            else "https://aiplatform.googleapis.com"
+            'aiplatform.googleapis.com:443'
+            if transport_name in ['grpc', 'grpc_asyncio']
+            else
+            'https://aiplatform.googleapis.com'
         )
 
 
@@ -627,53 +444,30 @@ def test_index_endpoint_service_client_get_transport_class():
     assert transport == transports.IndexEndpointServiceGrpcTransport
 
 
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
-    [
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-            "grpc_asyncio",
-        ),
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceRestTransport,
-            "rest",
-        ),
-    ],
-)
-@mock.patch.object(
-    IndexEndpointServiceClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceClient),
-)
-@mock.patch.object(
-    IndexEndpointServiceAsyncClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceAsyncClient),
-)
-def test_index_endpoint_service_client_client_options(
-    client_class, transport_class, transport_name
-):
+@pytest.mark.parametrize("client_class,transport_class,transport_name", [
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc"),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceRestTransport, "rest"),
+])
+@mock.patch.object(IndexEndpointServiceClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceClient))
+@mock.patch.object(IndexEndpointServiceAsyncClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceAsyncClient))
+def test_index_endpoint_service_client_client_options(client_class, transport_class, transport_name):
     # Check that if channel is provided we won't create a new one.
-    with mock.patch.object(IndexEndpointServiceClient, "get_transport_class") as gtc:
-        transport = transport_class(credentials=ga_credentials.AnonymousCredentials())
+    with mock.patch.object(IndexEndpointServiceClient, 'get_transport_class') as gtc:
+        transport = transport_class(
+            credentials=ga_credentials.AnonymousCredentials()
+        )
         client = client_class(transport=transport)
         gtc.assert_not_called()
 
     # Check that if channel is provided via str we will create a new one.
-    with mock.patch.object(IndexEndpointServiceClient, "get_transport_class") as gtc:
+    with mock.patch.object(IndexEndpointServiceClient, 'get_transport_class') as gtc:
         client = client_class(transport=transport_name)
         gtc.assert_called()
 
     # Check the case api_endpoint is provided.
     options = client_options.ClientOptions(api_endpoint="squid.clam.whelk")
-    with mock.patch.object(transport_class, "__init__") as patched:
+    with mock.patch.object(transport_class, '__init__') as patched:
         patched.return_value = None
         client = client_class(transport=transport_name, client_options=options)
         patched.assert_called_once_with(
@@ -691,15 +485,13 @@ def test_index_endpoint_service_client_client_options(
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
     # "never".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
-        with mock.patch.object(transport_class, "__init__") as patched:
+        with mock.patch.object(transport_class, '__init__') as patched:
             patched.return_value = None
             client = client_class(transport=transport_name)
             patched.assert_called_once_with(
                 credentials=None,
                 credentials_file=None,
-                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-                ),
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,
@@ -711,7 +503,7 @@ def test_index_endpoint_service_client_client_options(
     # Check the case api_endpoint is not provided and GOOGLE_API_USE_MTLS_ENDPOINT is
     # "always".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"}):
-        with mock.patch.object(transport_class, "__init__") as patched:
+        with mock.patch.object(transport_class, '__init__') as patched:
             patched.return_value = None
             client = client_class(transport=transport_name)
             patched.assert_called_once_with(
@@ -731,22 +523,17 @@ def test_index_endpoint_service_client_client_options(
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "Unsupported"}):
         with pytest.raises(MutualTLSChannelError) as excinfo:
             client = client_class(transport=transport_name)
-    assert (
-        str(excinfo.value)
-        == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-    )
+    assert str(excinfo.value) == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
 
     # Check the case quota_project_id is provided
     options = client_options.ClientOptions(quota_project_id="octopus")
-    with mock.patch.object(transport_class, "__init__") as patched:
+    with mock.patch.object(transport_class, '__init__') as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-            ),
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id="octopus",
@@ -755,102 +542,48 @@ def test_index_endpoint_service_client_client_options(
             api_audience=None,
         )
     # Check the case api_endpoint is provided
-    options = client_options.ClientOptions(
-        api_audience="https://language.googleapis.com"
-    )
-    with mock.patch.object(transport_class, "__init__") as patched:
+    options = client_options.ClientOptions(api_audience="https://language.googleapis.com")
+    with mock.patch.object(transport_class, '__init__') as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-            ),
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
             client_info=transports.base.DEFAULT_CLIENT_INFO,
             always_use_jwt_access=True,
-            api_audience="https://language.googleapis.com",
+            api_audience="https://language.googleapis.com"
         )
 
-
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name,use_client_cert_env",
-    [
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceGrpcTransport,
-            "grpc",
-            "true",
-        ),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-            "grpc_asyncio",
-            "true",
-        ),
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceGrpcTransport,
-            "grpc",
-            "false",
-        ),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-            "grpc_asyncio",
-            "false",
-        ),
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceRestTransport,
-            "rest",
-            "true",
-        ),
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceRestTransport,
-            "rest",
-            "false",
-        ),
-    ],
-)
-@mock.patch.object(
-    IndexEndpointServiceClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceClient),
-)
-@mock.patch.object(
-    IndexEndpointServiceAsyncClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceAsyncClient),
-)
+@pytest.mark.parametrize("client_class,transport_class,transport_name,use_client_cert_env", [
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc", "true"),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", "true"),
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc", "false"),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", "false"),
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceRestTransport, "rest", "true"),
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceRestTransport, "rest", "false"),
+])
+@mock.patch.object(IndexEndpointServiceClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceClient))
+@mock.patch.object(IndexEndpointServiceAsyncClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceAsyncClient))
 @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
-def test_index_endpoint_service_client_mtls_env_auto(
-    client_class, transport_class, transport_name, use_client_cert_env
-):
+def test_index_endpoint_service_client_mtls_env_auto(client_class, transport_class, transport_name, use_client_cert_env):
     # This tests the endpoint autoswitch behavior. Endpoint is autoswitched to the default
     # mtls endpoint, if GOOGLE_API_USE_CLIENT_CERTIFICATE is "true" and client cert exists.
 
     # Check the case client_cert_source is provided. Whether client cert is used depends on
     # GOOGLE_API_USE_CLIENT_CERTIFICATE value.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}
-    ):
-        options = client_options.ClientOptions(
-            client_cert_source=client_cert_source_callback
-        )
-        with mock.patch.object(transport_class, "__init__") as patched:
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}):
+        options = client_options.ClientOptions(client_cert_source=client_cert_source_callback)
+        with mock.patch.object(transport_class, '__init__') as patched:
             patched.return_value = None
             client = client_class(client_options=options, transport=transport_name)
 
             if use_client_cert_env == "false":
                 expected_client_cert_source = None
-                expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-                )
+                expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE)
             else:
                 expected_client_cert_source = client_cert_source_callback
                 expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -869,22 +602,12 @@ def test_index_endpoint_service_client_mtls_env_auto(
 
     # Check the case ADC client cert is provided. Whether client cert is used depends on
     # GOOGLE_API_USE_CLIENT_CERTIFICATE value.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}
-    ):
-        with mock.patch.object(transport_class, "__init__") as patched:
-            with mock.patch(
-                "google.auth.transport.mtls.has_default_client_cert_source",
-                return_value=True,
-            ):
-                with mock.patch(
-                    "google.auth.transport.mtls.default_client_cert_source",
-                    return_value=client_cert_source_callback,
-                ):
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}):
+        with mock.patch.object(transport_class, '__init__') as patched:
+            with mock.patch('google.auth.transport.mtls.has_default_client_cert_source', return_value=True):
+                with mock.patch('google.auth.transport.mtls.default_client_cert_source', return_value=client_cert_source_callback):
                     if use_client_cert_env == "false":
-                        expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                            UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-                        )
+                        expected_host = client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE)
                         expected_client_cert_source = None
                     else:
                         expected_host = client.DEFAULT_MTLS_ENDPOINT
@@ -905,22 +628,15 @@ def test_index_endpoint_service_client_mtls_env_auto(
                     )
 
     # Check the case client_cert_source and ADC client cert are not provided.
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}
-    ):
-        with mock.patch.object(transport_class, "__init__") as patched:
-            with mock.patch(
-                "google.auth.transport.mtls.has_default_client_cert_source",
-                return_value=False,
-            ):
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": use_client_cert_env}):
+        with mock.patch.object(transport_class, '__init__') as patched:
+            with mock.patch("google.auth.transport.mtls.has_default_client_cert_source", return_value=False):
                 patched.return_value = None
                 client = client_class(transport=transport_name)
                 patched.assert_called_once_with(
                     credentials=None,
                     credentials_file=None,
-                    host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                        UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-                    ),
+                    host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
                     scopes=None,
                     client_cert_source_for_mtls=None,
                     quota_project_id=None,
@@ -930,31 +646,19 @@ def test_index_endpoint_service_client_mtls_env_auto(
                 )
 
 
-@pytest.mark.parametrize(
-    "client_class", [IndexEndpointServiceClient, IndexEndpointServiceAsyncClient]
-)
-@mock.patch.object(
-    IndexEndpointServiceClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(IndexEndpointServiceClient),
-)
-@mock.patch.object(
-    IndexEndpointServiceAsyncClient,
-    "DEFAULT_ENDPOINT",
-    modify_default_endpoint(IndexEndpointServiceAsyncClient),
-)
+@pytest.mark.parametrize("client_class", [
+    IndexEndpointServiceClient, IndexEndpointServiceAsyncClient
+])
+@mock.patch.object(IndexEndpointServiceClient, "DEFAULT_ENDPOINT", modify_default_endpoint(IndexEndpointServiceClient))
+@mock.patch.object(IndexEndpointServiceAsyncClient, "DEFAULT_ENDPOINT", modify_default_endpoint(IndexEndpointServiceAsyncClient))
 def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_class):
     mock_client_cert_source = mock.Mock()
 
     # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "true".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
         mock_api_endpoint = "foo"
-        options = client_options.ClientOptions(
-            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
-        )
-        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
-            options
-        )
+        options = client_options.ClientOptions(client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint)
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(options)
         assert api_endpoint == mock_api_endpoint
         assert cert_source == mock_client_cert_source
 
@@ -962,25 +666,18 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"}):
         mock_client_cert_source = mock.Mock()
         mock_api_endpoint = "foo"
-        options = client_options.ClientOptions(
-            client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
-        )
-        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
-            options
-        )
+        options = client_options.ClientOptions(client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint)
+        api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(options)
         assert api_endpoint == mock_api_endpoint
         assert cert_source is None
 
     # Test the case GOOGLE_API_USE_CLIENT_CERTIFICATE is "Unsupported".
-    with mock.patch.dict(
-        os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}
-    ):
+    with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "Unsupported"}):
         if hasattr(google.auth.transport.mtls, "should_use_client_cert"):
             mock_client_cert_source = mock.Mock()
             mock_api_endpoint = "foo"
             options = client_options.ClientOptions(
-                client_cert_source=mock_client_cert_source,
-                api_endpoint=mock_api_endpoint,
+                client_cert_source=mock_client_cert_source, api_endpoint=mock_api_endpoint
             )
             api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source(
                 options
@@ -1017,23 +714,23 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
             env = os.environ.copy()
             env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", None)
             with mock.patch.dict(os.environ, env, clear=True):
-                config_filename = "mock_certificate_config.json"
-                config_file_content = json.dumps(config_data)
-                m = mock.mock_open(read_data=config_file_content)
-                with mock.patch("builtins.open", m):
-                    with mock.patch.dict(
-                        os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
-                    ):
-                        mock_api_endpoint = "foo"
-                        options = client_options.ClientOptions(
-                            client_cert_source=mock_client_cert_source,
-                            api_endpoint=mock_api_endpoint,
-                        )
-                        api_endpoint, cert_source = (
-                            client_class.get_mtls_endpoint_and_cert_source(options)
-                        )
-                        assert api_endpoint == mock_api_endpoint
-                        assert cert_source is expected_cert_source
+                    config_filename = "mock_certificate_config.json"
+                    config_file_content = json.dumps(config_data)
+                    m = mock.mock_open(read_data=config_file_content)
+                    with mock.patch("builtins.open", m):
+                        with mock.patch.dict(
+                            os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
+                        ):
+                            mock_api_endpoint = "foo"
+                            options = client_options.ClientOptions(
+                                client_cert_source=mock_client_cert_source,
+                                api_endpoint=mock_api_endpoint,
+                            )
+                            api_endpoint, cert_source = (
+                                client_class.get_mtls_endpoint_and_cert_source(options)
+                            )
+                            assert api_endpoint == mock_api_endpoint
+                            assert cert_source is expected_cert_source
 
     # Test cases for mTLS enablement when GOOGLE_API_USE_CLIENT_CERTIFICATE is unset(empty).
     test_cases = [
@@ -1064,23 +761,23 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
             env = os.environ.copy()
             env.pop("GOOGLE_API_USE_CLIENT_CERTIFICATE", "")
             with mock.patch.dict(os.environ, env, clear=True):
-                config_filename = "mock_certificate_config.json"
-                config_file_content = json.dumps(config_data)
-                m = mock.mock_open(read_data=config_file_content)
-                with mock.patch("builtins.open", m):
-                    with mock.patch.dict(
-                        os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
-                    ):
-                        mock_api_endpoint = "foo"
-                        options = client_options.ClientOptions(
-                            client_cert_source=mock_client_cert_source,
-                            api_endpoint=mock_api_endpoint,
-                        )
-                        api_endpoint, cert_source = (
-                            client_class.get_mtls_endpoint_and_cert_source(options)
-                        )
-                        assert api_endpoint == mock_api_endpoint
-                        assert cert_source is expected_cert_source
+                    config_filename = "mock_certificate_config.json"
+                    config_file_content = json.dumps(config_data)
+                    m = mock.mock_open(read_data=config_file_content)
+                    with mock.patch("builtins.open", m):
+                        with mock.patch.dict(
+                            os.environ, {"GOOGLE_API_CERTIFICATE_CONFIG": config_filename}
+                        ):
+                            mock_api_endpoint = "foo"
+                            options = client_options.ClientOptions(
+                                client_cert_source=mock_client_cert_source,
+                                api_endpoint=mock_api_endpoint,
+                            )
+                            api_endpoint, cert_source = (
+                                client_class.get_mtls_endpoint_and_cert_source(options)
+                            )
+                            assert api_endpoint == mock_api_endpoint
+                            assert cert_source is expected_cert_source
 
     # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "never".
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
@@ -1096,27 +793,16 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
 
     # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert doesn't exist.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-        with mock.patch(
-            "google.auth.transport.mtls.has_default_client_cert_source",
-            return_value=False,
-        ):
+        with mock.patch('google.auth.transport.mtls.has_default_client_cert_source', return_value=False):
             api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
             assert api_endpoint == client_class.DEFAULT_ENDPOINT
             assert cert_source is None
 
     # Test the case GOOGLE_API_USE_MTLS_ENDPOINT is "auto" and default cert exists.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-        with mock.patch(
-            "google.auth.transport.mtls.has_default_client_cert_source",
-            return_value=True,
-        ):
-            with mock.patch(
-                "google.auth.transport.mtls.default_client_cert_source",
-                return_value=mock_client_cert_source,
-            ):
-                api_endpoint, cert_source = (
-                    client_class.get_mtls_endpoint_and_cert_source()
-                )
+        with mock.patch('google.auth.transport.mtls.has_default_client_cert_source', return_value=True):
+            with mock.patch('google.auth.transport.mtls.default_client_cert_source', return_value=mock_client_cert_source):
+                api_endpoint, cert_source = client_class.get_mtls_endpoint_and_cert_source()
                 assert api_endpoint == client_class.DEFAULT_MTLS_ENDPOINT
                 assert cert_source == mock_client_cert_source
 
@@ -1126,50 +812,27 @@ def test_index_endpoint_service_client_get_mtls_endpoint_and_cert_source(client_
         with pytest.raises(MutualTLSChannelError) as excinfo:
             client_class.get_mtls_endpoint_and_cert_source()
 
-        assert (
-            str(excinfo.value)
-            == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
-        )
+        assert str(excinfo.value) == "Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be `never`, `auto` or `always`"
 
-
-@pytest.mark.parametrize(
-    "client_class", [IndexEndpointServiceClient, IndexEndpointServiceAsyncClient]
-)
-@mock.patch.object(
-    IndexEndpointServiceClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceClient),
-)
-@mock.patch.object(
-    IndexEndpointServiceAsyncClient,
-    "_DEFAULT_ENDPOINT_TEMPLATE",
-    modify_default_endpoint_template(IndexEndpointServiceAsyncClient),
-)
+@pytest.mark.parametrize("client_class", [
+    IndexEndpointServiceClient, IndexEndpointServiceAsyncClient
+])
+@mock.patch.object(IndexEndpointServiceClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceClient))
+@mock.patch.object(IndexEndpointServiceAsyncClient, "_DEFAULT_ENDPOINT_TEMPLATE", modify_default_endpoint_template(IndexEndpointServiceAsyncClient))
 def test_index_endpoint_service_client_client_api_endpoint(client_class):
     mock_client_cert_source = client_cert_source_callback
     api_override = "foo.com"
     default_universe = IndexEndpointServiceClient._DEFAULT_UNIVERSE
-    default_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-        UNIVERSE_DOMAIN=default_universe
-    )
+    default_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=default_universe)
     mock_universe = "bar.com"
-    mock_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(
-        UNIVERSE_DOMAIN=mock_universe
-    )
+    mock_endpoint = IndexEndpointServiceClient._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=mock_universe)
 
     # If ClientOptions.api_endpoint is set and GOOGLE_API_USE_CLIENT_CERTIFICATE="true",
     # use ClientOptions.api_endpoint as the api endpoint regardless.
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"}):
-        with mock.patch(
-            "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
-        ):
-            options = client_options.ClientOptions(
-                client_cert_source=mock_client_cert_source, api_endpoint=api_override
-            )
-            client = client_class(
-                client_options=options,
-                credentials=ga_credentials.AnonymousCredentials(),
-            )
+        with mock.patch("google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"):
+            options = client_options.ClientOptions(client_cert_source=mock_client_cert_source, api_endpoint=api_override)
+            client = client_class(client_options=options, credentials=ga_credentials.AnonymousCredentials())
             assert client.api_endpoint == api_override
 
     # If ClientOptions.api_endpoint is not set and GOOGLE_API_USE_MTLS_ENDPOINT="never",
@@ -1192,19 +855,11 @@ def test_index_endpoint_service_client_client_api_endpoint(client_class):
     universe_exists = hasattr(options, "universe_domain")
     if universe_exists:
         options = client_options.ClientOptions(universe_domain=mock_universe)
-        client = client_class(
-            client_options=options, credentials=ga_credentials.AnonymousCredentials()
-        )
+        client = client_class(client_options=options, credentials=ga_credentials.AnonymousCredentials())
     else:
-        client = client_class(
-            client_options=options, credentials=ga_credentials.AnonymousCredentials()
-        )
-    assert client.api_endpoint == (
-        mock_endpoint if universe_exists else default_endpoint
-    )
-    assert client.universe_domain == (
-        mock_universe if universe_exists else default_universe
-    )
+        client = client_class(client_options=options, credentials=ga_credentials.AnonymousCredentials())
+    assert client.api_endpoint == (mock_endpoint if universe_exists else default_endpoint)
+    assert client.universe_domain == (mock_universe if universe_exists else default_universe)
 
     # If ClientOptions does not have a universe domain attribute and GOOGLE_API_USE_MTLS_ENDPOINT="never",
     # use the _DEFAULT_ENDPOINT_TEMPLATE populated with GDU as the api endpoint.
@@ -1212,48 +867,27 @@ def test_index_endpoint_service_client_client_api_endpoint(client_class):
     if hasattr(options, "universe_domain"):
         delattr(options, "universe_domain")
     with mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "never"}):
-        client = client_class(
-            client_options=options, credentials=ga_credentials.AnonymousCredentials()
-        )
+        client = client_class(client_options=options, credentials=ga_credentials.AnonymousCredentials())
         assert client.api_endpoint == default_endpoint
 
 
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name",
-    [
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceGrpcTransport,
-            "grpc",
-        ),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-            "grpc_asyncio",
-        ),
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceRestTransport,
-            "rest",
-        ),
-    ],
-)
-def test_index_endpoint_service_client_client_options_scopes(
-    client_class, transport_class, transport_name
-):
+@pytest.mark.parametrize("client_class,transport_class,transport_name", [
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc"),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio"),
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceRestTransport, "rest"),
+])
+def test_index_endpoint_service_client_client_options_scopes(client_class, transport_class, transport_name):
     # Check the case scopes are provided.
     options = client_options.ClientOptions(
         scopes=["1", "2"],
     )
-    with mock.patch.object(transport_class, "__init__") as patched:
+    with mock.patch.object(transport_class, '__init__') as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file=None,
-            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-            ),
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
             scopes=["1", "2"],
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -1262,45 +896,24 @@ def test_index_endpoint_service_client_client_options_scopes(
             api_audience=None,
         )
 
-
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name,grpc_helpers",
-    [
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceGrpcTransport,
-            "grpc",
-            grpc_helpers,
-        ),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-            "grpc_asyncio",
-            grpc_helpers_async,
-        ),
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceRestTransport,
-            "rest",
-            None,
-        ),
-    ],
-)
-def test_index_endpoint_service_client_client_options_credentials_file(
-    client_class, transport_class, transport_name, grpc_helpers
-):
+@pytest.mark.parametrize("client_class,transport_class,transport_name,grpc_helpers", [
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc", grpc_helpers),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", grpc_helpers_async),
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceRestTransport, "rest", None),
+])
+def test_index_endpoint_service_client_client_options_credentials_file(client_class, transport_class, transport_name, grpc_helpers):
     # Check the case credentials file is provided.
-    options = client_options.ClientOptions(credentials_file="credentials.json")
+    options = client_options.ClientOptions(
+        credentials_file="credentials.json"
+    )
 
-    with mock.patch.object(transport_class, "__init__") as patched:
+    with mock.patch.object(transport_class, '__init__') as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-            ),
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -1309,14 +922,11 @@ def test_index_endpoint_service_client_client_options_credentials_file(
             api_audience=None,
         )
 
-
 def test_index_endpoint_service_client_client_options_from_dict():
-    with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceGrpcTransport.__init__"
-    ) as grpc_transport:
+    with mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceGrpcTransport.__init__') as grpc_transport:
         grpc_transport.return_value = None
         client = IndexEndpointServiceClient(
-            client_options={"api_endpoint": "squid.clam.whelk"}
+            client_options={'api_endpoint': 'squid.clam.whelk'}
         )
         grpc_transport.assert_called_once_with(
             credentials=None,
@@ -1331,38 +941,23 @@ def test_index_endpoint_service_client_client_options_from_dict():
         )
 
 
-@pytest.mark.parametrize(
-    "client_class,transport_class,transport_name,grpc_helpers",
-    [
-        (
-            IndexEndpointServiceClient,
-            transports.IndexEndpointServiceGrpcTransport,
-            "grpc",
-            grpc_helpers,
-        ),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-            "grpc_asyncio",
-            grpc_helpers_async,
-        ),
-    ],
-)
-def test_index_endpoint_service_client_create_channel_credentials_file(
-    client_class, transport_class, transport_name, grpc_helpers
-):
+@pytest.mark.parametrize("client_class,transport_class,transport_name,grpc_helpers", [
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport, "grpc", grpc_helpers),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport, "grpc_asyncio", grpc_helpers_async),
+])
+def test_index_endpoint_service_client_create_channel_credentials_file(client_class, transport_class, transport_name, grpc_helpers):
     # Check the case credentials file is provided.
-    options = client_options.ClientOptions(credentials_file="credentials.json")
+    options = client_options.ClientOptions(
+        credentials_file="credentials.json"
+    )
 
-    with mock.patch.object(transport_class, "__init__") as patched:
+    with mock.patch.object(transport_class, '__init__') as patched:
         patched.return_value = None
         client = client_class(client_options=options, transport=transport_name)
         patched.assert_called_once_with(
             credentials=None,
             credentials_file="credentials.json",
-            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-            ),
+            host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
             scopes=None,
             client_cert_source_for_mtls=None,
             quota_project_id=None,
@@ -1389,7 +984,9 @@ def test_index_endpoint_service_client_create_channel_credentials_file(
             credentials=file_creds,
             credentials_file=None,
             quota_project_id=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                'https://www.googleapis.com/auth/cloud-platform',
+),
             scopes=None,
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,
@@ -1400,14 +997,11 @@ def test_index_endpoint_service_client_create_channel_credentials_file(
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.CreateIndexEndpointRequest,
-        dict,
-    ],
-)
-def test_create_index_endpoint(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.CreateIndexEndpointRequest(),
+  {},
+])
+def test_create_index_endpoint(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -1415,14 +1009,14 @@ def test_create_index_endpoint(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
+        call.return_value = operations_pb2.Operation(name='operations/spam')
         response = client.create_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1440,30 +1034,28 @@ def test_create_index_endpoint_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.CreateIndexEndpointRequest(
-        parent="parent_value",
+        parent='parent_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.create_index_endpoint(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.CreateIndexEndpointRequest(
-            parent="parent_value",
+        request_msg = index_endpoint_service.CreateIndexEndpointRequest(
+            parent='parent_value',
         )
-
+        assert args[0] == request_msg
 
 def test_create_index_endpoint_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -1479,19 +1071,12 @@ def test_create_index_endpoint_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.create_index_endpoint
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.create_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.create_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.create_index_endpoint] = mock_rpc
         request = {}
         client.create_index_endpoint(request)
 
@@ -1509,11 +1094,8 @@ def test_create_index_endpoint_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_create_index_endpoint_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_create_index_endpoint_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -1527,17 +1109,12 @@ async def test_create_index_endpoint_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.create_index_endpoint
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.create_index_endpoint in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.create_index_endpoint
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.create_index_endpoint] = mock_rpc
 
         request = {}
         await client.create_index_endpoint(request)
@@ -1556,12 +1133,12 @@ async def test_create_index_endpoint_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_create_index_endpoint_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.CreateIndexEndpointRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.CreateIndexEndpointRequest(),
+  {},
+])
+async def test_create_index_endpoint_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -1569,15 +1146,15 @@ async def test_create_index_endpoint_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         response = await client.create_index_endpoint(request)
 
@@ -1590,12 +1167,6 @@ async def test_create_index_endpoint_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
-
-@pytest.mark.asyncio
-async def test_create_index_endpoint_async_from_dict():
-    await test_create_index_endpoint_async(request_type=dict)
-
-
 def test_create_index_endpoint_field_headers():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -1605,13 +1176,13 @@ def test_create_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.CreateIndexEndpointRequest()
 
-    request.parent = "parent_value"
+    request.parent = 'parent_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.create_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1622,9 +1193,9 @@ def test_create_index_endpoint_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "parent=parent_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'parent=parent_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -1637,15 +1208,13 @@ async def test_create_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.CreateIndexEndpointRequest()
 
-    request.parent = "parent_value"
+    request.parent = 'parent_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
         await client.create_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1656,9 +1225,9 @@ async def test_create_index_endpoint_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "parent=parent_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'parent=parent_value',
+    ) in kw['metadata']
 
 
 def test_create_index_endpoint_flattened():
@@ -1668,15 +1237,15 @@ def test_create_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.create_index_endpoint(
-            parent="parent_value",
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            parent='parent_value',
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
         )
 
         # Establish that the underlying call was made with the expected
@@ -1684,10 +1253,10 @@ def test_create_index_endpoint_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].parent
-        mock_val = "parent_value"
+        mock_val = 'parent_value'
         assert arg == mock_val
         arg = args[0].index_endpoint
-        mock_val = gca_index_endpoint.IndexEndpoint(name="name_value")
+        mock_val = gca_index_endpoint.IndexEndpoint(name='name_value')
         assert arg == mock_val
 
 
@@ -1701,10 +1270,9 @@ def test_create_index_endpoint_flattened_error():
     with pytest.raises(ValueError):
         client.create_index_endpoint(
             index_endpoint_service.CreateIndexEndpointRequest(),
-            parent="parent_value",
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            parent='parent_value',
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
         )
-
 
 @pytest.mark.asyncio
 async def test_create_index_endpoint_flattened_async():
@@ -1714,19 +1282,19 @@ async def test_create_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.create_index_endpoint(
-            parent="parent_value",
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            parent='parent_value',
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
         )
 
         # Establish that the underlying call was made with the expected
@@ -1734,12 +1302,11 @@ async def test_create_index_endpoint_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].parent
-        mock_val = "parent_value"
+        mock_val = 'parent_value'
         assert arg == mock_val
         arg = args[0].index_endpoint
-        mock_val = gca_index_endpoint.IndexEndpoint(name="name_value")
+        mock_val = gca_index_endpoint.IndexEndpoint(name='name_value')
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_create_index_endpoint_flattened_error_async():
@@ -1752,19 +1319,16 @@ async def test_create_index_endpoint_flattened_error_async():
     with pytest.raises(ValueError):
         await client.create_index_endpoint(
             index_endpoint_service.CreateIndexEndpointRequest(),
-            parent="parent_value",
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            parent='parent_value',
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.GetIndexEndpointRequest,
-        dict,
-    ],
-)
-def test_get_index_endpoint(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.GetIndexEndpointRequest(),
+  {},
+])
+def test_get_index_endpoint(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -1772,22 +1336,22 @@ def test_get_index_endpoint(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint.IndexEndpoint(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            network="network_value",
+            name='name_value',
+            display_name='display_name_value',
+            description='description_value',
+            etag='etag_value',
+            network='network_value',
             enable_private_service_connect=True,
             public_endpoint_enabled=True,
-            public_endpoint_domain_name="public_endpoint_domain_name_value",
+            public_endpoint_domain_name='public_endpoint_domain_name_value',
             satisfies_pzs=True,
             satisfies_pzi=True,
         )
@@ -1801,14 +1365,14 @@ def test_get_index_endpoint(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -1818,30 +1382,28 @@ def test_get_index_endpoint_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.GetIndexEndpointRequest(
-        name="name_value",
+        name='name_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.get_index_endpoint(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.GetIndexEndpointRequest(
-            name="name_value",
+        request_msg = index_endpoint_service.GetIndexEndpointRequest(
+            name='name_value',
         )
-
+        assert args[0] == request_msg
 
 def test_get_index_endpoint_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -1857,18 +1419,12 @@ def test_get_index_endpoint_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.get_index_endpoint in client._transport._wrapped_methods
-        )
+        assert client._transport.get_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.get_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.get_index_endpoint] = mock_rpc
         request = {}
         client.get_index_endpoint(request)
 
@@ -1881,11 +1437,8 @@ def test_get_index_endpoint_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_get_index_endpoint_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_get_index_endpoint_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -1899,17 +1452,12 @@ async def test_get_index_endpoint_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.get_index_endpoint
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.get_index_endpoint in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.get_index_endpoint
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.get_index_endpoint] = mock_rpc
 
         request = {}
         await client.get_index_endpoint(request)
@@ -1923,12 +1471,12 @@ async def test_get_index_endpoint_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_get_index_endpoint_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.GetIndexEndpointRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.GetIndexEndpointRequest(),
+  {},
+])
+async def test_get_index_endpoint_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -1936,27 +1484,25 @@ async def test_get_index_endpoint_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint.IndexEndpoint(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                network="network_value",
-                enable_private_service_connect=True,
-                public_endpoint_enabled=True,
-                public_endpoint_domain_name="public_endpoint_domain_name_value",
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
+        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint(
+            name='name_value',
+            display_name='display_name_value',
+            description='description_value',
+            etag='etag_value',
+            network='network_value',
+            enable_private_service_connect=True,
+            public_endpoint_enabled=True,
+            public_endpoint_domain_name='public_endpoint_domain_name_value',
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        ))
         response = await client.get_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -1967,22 +1513,16 @@ async def test_get_index_endpoint_async(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
-
-
-@pytest.mark.asyncio
-async def test_get_index_endpoint_async_from_dict():
-    await test_get_index_endpoint_async(request_type=dict)
-
 
 def test_get_index_endpoint_field_headers():
     client = IndexEndpointServiceClient(
@@ -1993,12 +1533,12 @@ def test_get_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.GetIndexEndpointRequest()
 
-    request.name = "name_value"
+    request.name = 'name_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         call.return_value = index_endpoint.IndexEndpoint()
         client.get_index_endpoint(request)
 
@@ -2010,9 +1550,9 @@ def test_get_index_endpoint_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'name=name_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -2025,15 +1565,13 @@ async def test_get_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.GetIndexEndpointRequest()
 
-    request.name = "name_value"
+    request.name = 'name_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint.IndexEndpoint()
-        )
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint())
         await client.get_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2044,9 +1582,9 @@ async def test_get_index_endpoint_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'name=name_value',
+    ) in kw['metadata']
 
 
 def test_get_index_endpoint_flattened():
@@ -2056,14 +1594,14 @@ def test_get_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint.IndexEndpoint()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.get_index_endpoint(
-            name="name_value",
+            name='name_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -2071,7 +1609,7 @@ def test_get_index_endpoint_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].name
-        mock_val = "name_value"
+        mock_val = 'name_value'
         assert arg == mock_val
 
 
@@ -2085,9 +1623,8 @@ def test_get_index_endpoint_flattened_error():
     with pytest.raises(ValueError):
         client.get_index_endpoint(
             index_endpoint_service.GetIndexEndpointRequest(),
-            name="name_value",
+            name='name_value',
         )
-
 
 @pytest.mark.asyncio
 async def test_get_index_endpoint_flattened_async():
@@ -2097,18 +1634,16 @@ async def test_get_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint.IndexEndpoint()
 
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint.IndexEndpoint()
-        )
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.get_index_endpoint(
-            name="name_value",
+            name='name_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -2116,9 +1651,8 @@ async def test_get_index_endpoint_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].name
-        mock_val = "name_value"
+        mock_val = 'name_value'
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_get_index_endpoint_flattened_error_async():
@@ -2131,18 +1665,15 @@ async def test_get_index_endpoint_flattened_error_async():
     with pytest.raises(ValueError):
         await client.get_index_endpoint(
             index_endpoint_service.GetIndexEndpointRequest(),
-            name="name_value",
+            name='name_value',
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.ListIndexEndpointsRequest,
-        dict,
-    ],
-)
-def test_list_index_endpoints(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.ListIndexEndpointsRequest(),
+  {},
+])
+def test_list_index_endpoints(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2150,15 +1681,15 @@ def test_list_index_endpoints(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse(
-            next_page_token="next_page_token_value",
+            next_page_token='next_page_token_value',
         )
         response = client.list_index_endpoints(request)
 
@@ -2170,7 +1701,7 @@ def test_list_index_endpoints(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexEndpointsPager)
-    assert response.next_page_token == "next_page_token_value"
+    assert response.next_page_token == 'next_page_token_value'
 
 
 def test_list_index_endpoints_non_empty_request_with_auto_populated_field():
@@ -2178,34 +1709,32 @@ def test_list_index_endpoints_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.ListIndexEndpointsRequest(
-        parent="parent_value",
-        filter="filter_value",
-        page_token="page_token_value",
+        parent='parent_value',
+        filter='filter_value',
+        page_token='page_token_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.list_index_endpoints(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.ListIndexEndpointsRequest(
-            parent="parent_value",
-            filter="filter_value",
-            page_token="page_token_value",
+        request_msg = index_endpoint_service.ListIndexEndpointsRequest(
+            parent='parent_value',
+            filter='filter_value',
+            page_token='page_token_value',
         )
-
+        assert args[0] == request_msg
 
 def test_list_index_endpoints_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -2221,18 +1750,12 @@ def test_list_index_endpoints_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.list_index_endpoints in client._transport._wrapped_methods
-        )
+        assert client._transport.list_index_endpoints in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.list_index_endpoints] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.list_index_endpoints] = mock_rpc
         request = {}
         client.list_index_endpoints(request)
 
@@ -2245,11 +1768,8 @@ def test_list_index_endpoints_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_list_index_endpoints_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_list_index_endpoints_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -2263,17 +1783,12 @@ async def test_list_index_endpoints_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.list_index_endpoints
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.list_index_endpoints in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.list_index_endpoints
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.list_index_endpoints] = mock_rpc
 
         request = {}
         await client.list_index_endpoints(request)
@@ -2287,12 +1802,12 @@ async def test_list_index_endpoints_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_list_index_endpoints_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.ListIndexEndpointsRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.ListIndexEndpointsRequest(),
+  {},
+])
+async def test_list_index_endpoints_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -2300,18 +1815,16 @@ async def test_list_index_endpoints_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint_service.ListIndexEndpointsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
+        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse(
+            next_page_token='next_page_token_value',
+        ))
         response = await client.list_index_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2322,13 +1835,7 @@ async def test_list_index_endpoints_async(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexEndpointsAsyncPager)
-    assert response.next_page_token == "next_page_token_value"
-
-
-@pytest.mark.asyncio
-async def test_list_index_endpoints_async_from_dict():
-    await test_list_index_endpoints_async(request_type=dict)
-
+    assert response.next_page_token == 'next_page_token_value'
 
 def test_list_index_endpoints_field_headers():
     client = IndexEndpointServiceClient(
@@ -2339,12 +1846,12 @@ def test_list_index_endpoints_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.ListIndexEndpointsRequest()
 
-    request.parent = "parent_value"
+    request.parent = 'parent_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
         client.list_index_endpoints(request)
 
@@ -2356,9 +1863,9 @@ def test_list_index_endpoints_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "parent=parent_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'parent=parent_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -2371,15 +1878,13 @@ async def test_list_index_endpoints_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.ListIndexEndpointsRequest()
 
-    request.parent = "parent_value"
+    request.parent = 'parent_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint_service.ListIndexEndpointsResponse()
-        )
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse())
         await client.list_index_endpoints(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2390,9 +1895,9 @@ async def test_list_index_endpoints_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "parent=parent_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'parent=parent_value',
+    ) in kw['metadata']
 
 
 def test_list_index_endpoints_flattened():
@@ -2402,14 +1907,14 @@ def test_list_index_endpoints_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.list_index_endpoints(
-            parent="parent_value",
+            parent='parent_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -2417,7 +1922,7 @@ def test_list_index_endpoints_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].parent
-        mock_val = "parent_value"
+        mock_val = 'parent_value'
         assert arg == mock_val
 
 
@@ -2431,9 +1936,8 @@ def test_list_index_endpoints_flattened_error():
     with pytest.raises(ValueError):
         client.list_index_endpoints(
             index_endpoint_service.ListIndexEndpointsRequest(),
-            parent="parent_value",
+            parent='parent_value',
         )
-
 
 @pytest.mark.asyncio
 async def test_list_index_endpoints_flattened_async():
@@ -2443,18 +1947,16 @@ async def test_list_index_endpoints_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
 
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint_service.ListIndexEndpointsResponse()
-        )
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.list_index_endpoints(
-            parent="parent_value",
+            parent='parent_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -2462,9 +1964,8 @@ async def test_list_index_endpoints_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].parent
-        mock_val = "parent_value"
+        mock_val = 'parent_value'
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_list_index_endpoints_flattened_error_async():
@@ -2477,7 +1978,7 @@ async def test_list_index_endpoints_flattened_error_async():
     with pytest.raises(ValueError):
         await client.list_index_endpoints(
             index_endpoint_service.ListIndexEndpointsRequest(),
-            parent="parent_value",
+            parent='parent_value',
         )
 
 
@@ -2489,8 +1990,8 @@ def test_list_index_endpoints_pager(transport_name: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -2499,17 +2000,17 @@ def test_list_index_endpoints_pager(transport_name: str = "grpc"):
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="abc",
+                next_page_token='abc',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[],
-                next_page_token="def",
+                next_page_token='def',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="ghi",
+                next_page_token='ghi',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -2524,7 +2025,9 @@ def test_list_index_endpoints_pager(transport_name: str = "grpc"):
         retry = retries.Retry()
         timeout = 5
         expected_metadata = tuple(expected_metadata) + (
-            gapic_v1.routing_header.to_grpc_metadata((("parent", ""),)),
+            gapic_v1.routing_header.to_grpc_metadata((
+                ('parent', ''),
+            )),
         )
         pager = client.list_index_endpoints(request={}, retry=retry, timeout=timeout)
 
@@ -2534,9 +2037,8 @@ def test_list_index_endpoints_pager(transport_name: str = "grpc"):
 
         results = list(pager)
         assert len(results) == 6
-        assert all(isinstance(i, index_endpoint.IndexEndpoint) for i in results)
-
-
+        assert all(isinstance(i, index_endpoint.IndexEndpoint)
+                   for i in results)
 def test_list_index_endpoints_pages(transport_name: str = "grpc"):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -2545,8 +2047,8 @@ def test_list_index_endpoints_pages(transport_name: str = "grpc"):
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -2555,17 +2057,17 @@ def test_list_index_endpoints_pages(transport_name: str = "grpc"):
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="abc",
+                next_page_token='abc',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[],
-                next_page_token="def",
+                next_page_token='def',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="ghi",
+                next_page_token='ghi',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -2576,9 +2078,8 @@ def test_list_index_endpoints_pages(transport_name: str = "grpc"):
             RuntimeError,
         )
         pages = list(client.list_index_endpoints(request={}).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+        for page_, token in zip(pages, ['abc','def','ghi', '']):
             assert page_.raw_page.next_page_token == token
-
 
 @pytest.mark.asyncio
 async def test_list_index_endpoints_async_pager():
@@ -2588,10 +2089,8 @@ async def test_list_index_endpoints_async_pager():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints),
-        "__call__",
-        new_callable=mock.AsyncMock,
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__', new_callable=mock.AsyncMock) as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -2600,17 +2099,17 @@ async def test_list_index_endpoints_async_pager():
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="abc",
+                next_page_token='abc',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[],
-                next_page_token="def",
+                next_page_token='def',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="ghi",
+                next_page_token='ghi',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -2620,16 +2119,15 @@ async def test_list_index_endpoints_async_pager():
             ),
             RuntimeError,
         )
-        async_pager = await client.list_index_endpoints(
-            request={},
-        )
-        assert async_pager.next_page_token == "abc"
+        async_pager = await client.list_index_endpoints(request={},)
+        assert async_pager.next_page_token == 'abc'
         responses = []
-        async for response in async_pager:  # pragma: no branch
+        async for response in async_pager: # pragma: no branch
             responses.append(response)
 
         assert len(responses) == 6
-        assert all(isinstance(i, index_endpoint.IndexEndpoint) for i in responses)
+        assert all(isinstance(i, index_endpoint.IndexEndpoint)
+                for i in responses)
 
 
 @pytest.mark.asyncio
@@ -2640,10 +2138,8 @@ async def test_list_index_endpoints_async_pages():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints),
-        "__call__",
-        new_callable=mock.AsyncMock,
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__', new_callable=mock.AsyncMock) as call:
         # Set the response to a series of pages.
         call.side_effect = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -2652,17 +2148,17 @@ async def test_list_index_endpoints_async_pages():
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="abc",
+                next_page_token='abc',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[],
-                next_page_token="def",
+                next_page_token='def',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="ghi",
+                next_page_token='ghi',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -2673,24 +2169,18 @@ async def test_list_index_endpoints_async_pages():
             RuntimeError,
         )
         pages = []
-        # Workaround issue in python 3.9 related to code coverage by adding `# pragma: no branch`
-        # See https://github.com/googleapis/gapic-generator-python/pull/1174#issuecomment-1025132372
-        async for page_ in (  # pragma: no branch
+        async for page_ in (
             await client.list_index_endpoints(request={})
         ).pages:
             pages.append(page_)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+        for page_, token in zip(pages, ['abc','def','ghi', '']):
             assert page_.raw_page.next_page_token == token
 
-
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.UpdateIndexEndpointRequest,
-        dict,
-    ],
-)
-def test_update_index_endpoint(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UpdateIndexEndpointRequest(),
+  {},
+])
+def test_update_index_endpoint(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -2698,22 +2188,22 @@ def test_update_index_endpoint(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_index_endpoint.IndexEndpoint(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            network="network_value",
+            name='name_value',
+            display_name='display_name_value',
+            description='description_value',
+            etag='etag_value',
+            network='network_value',
             enable_private_service_connect=True,
             public_endpoint_enabled=True,
-            public_endpoint_domain_name="public_endpoint_domain_name_value",
+            public_endpoint_domain_name='public_endpoint_domain_name_value',
             satisfies_pzs=True,
             satisfies_pzi=True,
         )
@@ -2727,14 +2217,14 @@ def test_update_index_endpoint(request_type, transport: str = "grpc"):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -2744,26 +2234,26 @@ def test_update_index_endpoint_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
-    request = index_endpoint_service.UpdateIndexEndpointRequest()
+    request = index_endpoint_service.UpdateIndexEndpointRequest(
+    )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.update_index_endpoint(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.UpdateIndexEndpointRequest()
-
+        request_msg = index_endpoint_service.UpdateIndexEndpointRequest(
+        )
+        assert args[0] == request_msg
 
 def test_update_index_endpoint_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -2779,19 +2269,12 @@ def test_update_index_endpoint_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.update_index_endpoint
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.update_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.update_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.update_index_endpoint] = mock_rpc
         request = {}
         client.update_index_endpoint(request)
 
@@ -2804,11 +2287,8 @@ def test_update_index_endpoint_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_update_index_endpoint_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_update_index_endpoint_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -2822,17 +2302,12 @@ async def test_update_index_endpoint_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.update_index_endpoint
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.update_index_endpoint in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.update_index_endpoint
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.update_index_endpoint] = mock_rpc
 
         request = {}
         await client.update_index_endpoint(request)
@@ -2846,12 +2321,12 @@ async def test_update_index_endpoint_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_update_index_endpoint_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.UpdateIndexEndpointRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UpdateIndexEndpointRequest(),
+  {},
+])
+async def test_update_index_endpoint_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -2859,27 +2334,25 @@ async def test_update_index_endpoint_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_index_endpoint.IndexEndpoint(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                network="network_value",
-                enable_private_service_connect=True,
-                public_endpoint_enabled=True,
-                public_endpoint_domain_name="public_endpoint_domain_name_value",
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
+        call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint(
+            name='name_value',
+            display_name='display_name_value',
+            description='description_value',
+            etag='etag_value',
+            network='network_value',
+            enable_private_service_connect=True,
+            public_endpoint_enabled=True,
+            public_endpoint_domain_name='public_endpoint_domain_name_value',
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        ))
         response = await client.update_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2890,22 +2363,16 @@ async def test_update_index_endpoint_async(
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
-
-
-@pytest.mark.asyncio
-async def test_update_index_endpoint_async_from_dict():
-    await test_update_index_endpoint_async(request_type=dict)
-
 
 def test_update_index_endpoint_field_headers():
     client = IndexEndpointServiceClient(
@@ -2916,12 +2383,12 @@ def test_update_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UpdateIndexEndpointRequest()
 
-    request.index_endpoint.name = "name_value"
+    request.index_endpoint.name = 'name_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         call.return_value = gca_index_endpoint.IndexEndpoint()
         client.update_index_endpoint(request)
 
@@ -2933,9 +2400,9 @@ def test_update_index_endpoint_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint.name=name_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint.name=name_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -2948,15 +2415,13 @@ async def test_update_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UpdateIndexEndpointRequest()
 
-    request.index_endpoint.name = "name_value"
+    request.index_endpoint.name = 'name_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_index_endpoint.IndexEndpoint()
-        )
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint())
         await client.update_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -2967,9 +2432,9 @@ async def test_update_index_endpoint_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint.name=name_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint.name=name_value',
+    ) in kw['metadata']
 
 
 def test_update_index_endpoint_flattened():
@@ -2979,15 +2444,15 @@ def test_update_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_index_endpoint.IndexEndpoint()
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.update_index_endpoint(
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
         )
 
         # Establish that the underlying call was made with the expected
@@ -2995,10 +2460,10 @@ def test_update_index_endpoint_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = gca_index_endpoint.IndexEndpoint(name="name_value")
+        mock_val = gca_index_endpoint.IndexEndpoint(name='name_value')
         assert arg == mock_val
         arg = args[0].update_mask
-        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        mock_val = field_mask_pb2.FieldMask(paths=['paths_value'])
         assert arg == mock_val
 
 
@@ -3012,10 +2477,9 @@ def test_update_index_endpoint_flattened_error():
     with pytest.raises(ValueError):
         client.update_index_endpoint(
             index_endpoint_service.UpdateIndexEndpointRequest(),
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
         )
-
 
 @pytest.mark.asyncio
 async def test_update_index_endpoint_flattened_async():
@@ -3025,19 +2489,17 @@ async def test_update_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = gca_index_endpoint.IndexEndpoint()
 
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_index_endpoint.IndexEndpoint()
-        )
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint())
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.update_index_endpoint(
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
         )
 
         # Establish that the underlying call was made with the expected
@@ -3045,12 +2507,11 @@ async def test_update_index_endpoint_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = gca_index_endpoint.IndexEndpoint(name="name_value")
+        mock_val = gca_index_endpoint.IndexEndpoint(name='name_value')
         assert arg == mock_val
         arg = args[0].update_mask
-        mock_val = field_mask_pb2.FieldMask(paths=["paths_value"])
+        mock_val = field_mask_pb2.FieldMask(paths=['paths_value'])
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_update_index_endpoint_flattened_error_async():
@@ -3063,19 +2524,16 @@ async def test_update_index_endpoint_flattened_error_async():
     with pytest.raises(ValueError):
         await client.update_index_endpoint(
             index_endpoint_service.UpdateIndexEndpointRequest(),
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.DeleteIndexEndpointRequest,
-        dict,
-    ],
-)
-def test_delete_index_endpoint(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeleteIndexEndpointRequest(),
+  {},
+])
+def test_delete_index_endpoint(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3083,14 +2541,14 @@ def test_delete_index_endpoint(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
+        call.return_value = operations_pb2.Operation(name='operations/spam')
         response = client.delete_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3108,30 +2566,28 @@ def test_delete_index_endpoint_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.DeleteIndexEndpointRequest(
-        name="name_value",
+        name='name_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.delete_index_endpoint(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.DeleteIndexEndpointRequest(
-            name="name_value",
+        request_msg = index_endpoint_service.DeleteIndexEndpointRequest(
+            name='name_value',
         )
-
+        assert args[0] == request_msg
 
 def test_delete_index_endpoint_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -3147,19 +2603,12 @@ def test_delete_index_endpoint_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.delete_index_endpoint
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.delete_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.delete_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.delete_index_endpoint] = mock_rpc
         request = {}
         client.delete_index_endpoint(request)
 
@@ -3177,11 +2626,8 @@ def test_delete_index_endpoint_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_delete_index_endpoint_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_delete_index_endpoint_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -3195,17 +2641,12 @@ async def test_delete_index_endpoint_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.delete_index_endpoint
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.delete_index_endpoint in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.delete_index_endpoint
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.delete_index_endpoint] = mock_rpc
 
         request = {}
         await client.delete_index_endpoint(request)
@@ -3224,12 +2665,12 @@ async def test_delete_index_endpoint_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_delete_index_endpoint_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.DeleteIndexEndpointRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeleteIndexEndpointRequest(),
+  {},
+])
+async def test_delete_index_endpoint_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -3237,15 +2678,15 @@ async def test_delete_index_endpoint_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         response = await client.delete_index_endpoint(request)
 
@@ -3258,12 +2699,6 @@ async def test_delete_index_endpoint_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
-
-@pytest.mark.asyncio
-async def test_delete_index_endpoint_async_from_dict():
-    await test_delete_index_endpoint_async(request_type=dict)
-
-
 def test_delete_index_endpoint_field_headers():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -3273,13 +2708,13 @@ def test_delete_index_endpoint_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeleteIndexEndpointRequest()
 
-    request.name = "name_value"
+    request.name = 'name_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.delete_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3290,9 +2725,9 @@ def test_delete_index_endpoint_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'name=name_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -3305,15 +2740,13 @@ async def test_delete_index_endpoint_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeleteIndexEndpointRequest()
 
-    request.name = "name_value"
+    request.name = 'name_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
         await client.delete_index_endpoint(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3324,9 +2757,9 @@ async def test_delete_index_endpoint_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "name=name_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'name=name_value',
+    ) in kw['metadata']
 
 
 def test_delete_index_endpoint_flattened():
@@ -3336,14 +2769,14 @@ def test_delete_index_endpoint_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.delete_index_endpoint(
-            name="name_value",
+            name='name_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -3351,7 +2784,7 @@ def test_delete_index_endpoint_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].name
-        mock_val = "name_value"
+        mock_val = 'name_value'
         assert arg == mock_val
 
 
@@ -3365,9 +2798,8 @@ def test_delete_index_endpoint_flattened_error():
     with pytest.raises(ValueError):
         client.delete_index_endpoint(
             index_endpoint_service.DeleteIndexEndpointRequest(),
-            name="name_value",
+            name='name_value',
         )
-
 
 @pytest.mark.asyncio
 async def test_delete_index_endpoint_flattened_async():
@@ -3377,18 +2809,18 @@ async def test_delete_index_endpoint_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.delete_index_endpoint(
-            name="name_value",
+            name='name_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -3396,9 +2828,8 @@ async def test_delete_index_endpoint_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].name
-        mock_val = "name_value"
+        mock_val = 'name_value'
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_delete_index_endpoint_flattened_error_async():
@@ -3411,18 +2842,15 @@ async def test_delete_index_endpoint_flattened_error_async():
     with pytest.raises(ValueError):
         await client.delete_index_endpoint(
             index_endpoint_service.DeleteIndexEndpointRequest(),
-            name="name_value",
+            name='name_value',
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.DeployIndexRequest,
-        dict,
-    ],
-)
-def test_deploy_index(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeployIndexRequest(),
+  {},
+])
+def test_deploy_index(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3430,12 +2858,14 @@ def test_deploy_index(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
+        call.return_value = operations_pb2.Operation(name='operations/spam')
         response = client.deploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3453,28 +2883,28 @@ def test_deploy_index_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.DeployIndexRequest(
-        index_endpoint="index_endpoint_value",
+        index_endpoint='index_endpoint_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.deploy_index(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.DeployIndexRequest(
-            index_endpoint="index_endpoint_value",
+        request_msg = index_endpoint_service.DeployIndexRequest(
+            index_endpoint='index_endpoint_value',
         )
-
+        assert args[0] == request_msg
 
 def test_deploy_index_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -3494,9 +2924,7 @@ def test_deploy_index_use_cached_wrapped_rpc():
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client._transport._wrapped_methods[client._transport.deploy_index] = mock_rpc
         request = {}
         client.deploy_index(request)
@@ -3515,11 +2943,8 @@ def test_deploy_index_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_deploy_index_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_deploy_index_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -3533,17 +2958,12 @@ async def test_deploy_index_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.deploy_index
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.deploy_index in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.deploy_index
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.deploy_index] = mock_rpc
 
         request = {}
         await client.deploy_index(request)
@@ -3562,12 +2982,12 @@ async def test_deploy_index_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_deploy_index_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.DeployIndexRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeployIndexRequest(),
+  {},
+])
+async def test_deploy_index_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -3575,13 +2995,15 @@ async def test_deploy_index_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         response = await client.deploy_index(request)
 
@@ -3594,12 +3016,6 @@ async def test_deploy_index_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
-
-@pytest.mark.asyncio
-async def test_deploy_index_async_from_dict():
-    await test_deploy_index_async(request_type=dict)
-
-
 def test_deploy_index_field_headers():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -3609,11 +3025,13 @@ def test_deploy_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint_value"
+    request.index_endpoint = 'index_endpoint_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.deploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3624,9 +3042,9 @@ def test_deploy_index_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint=index_endpoint_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint=index_endpoint_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -3639,13 +3057,13 @@ async def test_deploy_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.DeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint_value"
+    request.index_endpoint = 'index_endpoint_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
         await client.deploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3656,9 +3074,9 @@ async def test_deploy_index_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint=index_endpoint_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint=index_endpoint_value',
+    ) in kw['metadata']
 
 
 def test_deploy_index_flattened():
@@ -3667,14 +3085,16 @@ def test_deploy_index_flattened():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.deploy_index(
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
         # Establish that the underlying call was made with the expected
@@ -3682,10 +3102,10 @@ def test_deploy_index_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = "index_endpoint_value"
+        mock_val = 'index_endpoint_value'
         assert arg == mock_val
         arg = args[0].deployed_index
-        mock_val = gca_index_endpoint.DeployedIndex(id="id_value")
+        mock_val = gca_index_endpoint.DeployedIndex(id='id_value')
         assert arg == mock_val
 
 
@@ -3699,10 +3119,9 @@ def test_deploy_index_flattened_error():
     with pytest.raises(ValueError):
         client.deploy_index(
             index_endpoint_service.DeployIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
-
 
 @pytest.mark.asyncio
 async def test_deploy_index_flattened_async():
@@ -3711,18 +3130,20 @@ async def test_deploy_index_flattened_async():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.deploy_index(
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
         # Establish that the underlying call was made with the expected
@@ -3730,12 +3151,11 @@ async def test_deploy_index_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = "index_endpoint_value"
+        mock_val = 'index_endpoint_value'
         assert arg == mock_val
         arg = args[0].deployed_index
-        mock_val = gca_index_endpoint.DeployedIndex(id="id_value")
+        mock_val = gca_index_endpoint.DeployedIndex(id='id_value')
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_deploy_index_flattened_error_async():
@@ -3748,19 +3168,16 @@ async def test_deploy_index_flattened_error_async():
     with pytest.raises(ValueError):
         await client.deploy_index(
             index_endpoint_service.DeployIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.UndeployIndexRequest,
-        dict,
-    ],
-)
-def test_undeploy_index(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UndeployIndexRequest(),
+  {},
+])
+def test_undeploy_index(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -3768,12 +3185,14 @@ def test_undeploy_index(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
+        call.return_value = operations_pb2.Operation(name='operations/spam')
         response = client.undeploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3791,30 +3210,30 @@ def test_undeploy_index_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.UndeployIndexRequest(
-        index_endpoint="index_endpoint_value",
-        deployed_index_id="deployed_index_id_value",
+        index_endpoint='index_endpoint_value',
+        deployed_index_id='deployed_index_id_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.undeploy_index(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.UndeployIndexRequest(
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+        request_msg = index_endpoint_service.UndeployIndexRequest(
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
-
+        assert args[0] == request_msg
 
 def test_undeploy_index_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -3834,9 +3253,7 @@ def test_undeploy_index_use_cached_wrapped_rpc():
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client._transport._wrapped_methods[client._transport.undeploy_index] = mock_rpc
         request = {}
         client.undeploy_index(request)
@@ -3855,11 +3272,8 @@ def test_undeploy_index_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_undeploy_index_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_undeploy_index_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -3873,17 +3287,12 @@ async def test_undeploy_index_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.undeploy_index
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.undeploy_index in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.undeploy_index
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.undeploy_index] = mock_rpc
 
         request = {}
         await client.undeploy_index(request)
@@ -3902,12 +3311,12 @@ async def test_undeploy_index_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_undeploy_index_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.UndeployIndexRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UndeployIndexRequest(),
+  {},
+])
+async def test_undeploy_index_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -3915,13 +3324,15 @@ async def test_undeploy_index_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         response = await client.undeploy_index(request)
 
@@ -3934,12 +3345,6 @@ async def test_undeploy_index_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
-
-@pytest.mark.asyncio
-async def test_undeploy_index_async_from_dict():
-    await test_undeploy_index_async(request_type=dict)
-
-
 def test_undeploy_index_field_headers():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -3949,11 +3354,13 @@ def test_undeploy_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UndeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint_value"
+    request.index_endpoint = 'index_endpoint_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.undeploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3964,9 +3371,9 @@ def test_undeploy_index_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint=index_endpoint_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint=index_endpoint_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -3979,13 +3386,13 @@ async def test_undeploy_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.UndeployIndexRequest()
 
-    request.index_endpoint = "index_endpoint_value"
+    request.index_endpoint = 'index_endpoint_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
         await client.undeploy_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -3996,9 +3403,9 @@ async def test_undeploy_index_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint=index_endpoint_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint=index_endpoint_value',
+    ) in kw['metadata']
 
 
 def test_undeploy_index_flattened():
@@ -4007,14 +3414,16 @@ def test_undeploy_index_flattened():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.undeploy_index(
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -4022,10 +3431,10 @@ def test_undeploy_index_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = "index_endpoint_value"
+        mock_val = 'index_endpoint_value'
         assert arg == mock_val
         arg = args[0].deployed_index_id
-        mock_val = "deployed_index_id_value"
+        mock_val = 'deployed_index_id_value'
         assert arg == mock_val
 
 
@@ -4039,10 +3448,9 @@ def test_undeploy_index_flattened_error():
     with pytest.raises(ValueError):
         client.undeploy_index(
             index_endpoint_service.UndeployIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
-
 
 @pytest.mark.asyncio
 async def test_undeploy_index_flattened_async():
@@ -4051,18 +3459,20 @@ async def test_undeploy_index_flattened_async():
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.undeploy_index(
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
 
         # Establish that the underlying call was made with the expected
@@ -4070,12 +3480,11 @@ async def test_undeploy_index_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = "index_endpoint_value"
+        mock_val = 'index_endpoint_value'
         assert arg == mock_val
         arg = args[0].deployed_index_id
-        mock_val = "deployed_index_id_value"
+        mock_val = 'deployed_index_id_value'
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_undeploy_index_flattened_error_async():
@@ -4088,19 +3497,16 @@ async def test_undeploy_index_flattened_error_async():
     with pytest.raises(ValueError):
         await client.undeploy_index(
             index_endpoint_service.UndeployIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.MutateDeployedIndexRequest,
-        dict,
-    ],
-)
-def test_mutate_deployed_index(request_type, transport: str = "grpc"):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.MutateDeployedIndexRequest(),
+  {},
+])
+def test_mutate_deployed_index(request_type, transport: str = 'grpc'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4108,14 +3514,14 @@ def test_mutate_deployed_index(request_type, transport: str = "grpc"):
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/spam")
+        call.return_value = operations_pb2.Operation(name='operations/spam')
         response = client.mutate_deployed_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4133,30 +3539,28 @@ def test_mutate_deployed_index_non_empty_request_with_auto_populated_field():
     # automatically populated, according to AIP-4235, with non-empty requests.
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
 
     # Populate all string fields in the request which are not UUID4
     # since we want to check that UUID4 are populated automatically
     # if they meet the requirements of AIP 4235.
     request = index_endpoint_service.MutateDeployedIndexRequest(
-        index_endpoint="index_endpoint_value",
+        index_endpoint='index_endpoint_value',
     )
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
-        call.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
+        call.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client.mutate_deployed_index(request=request)
         call.assert_called()
         _, args, _ = call.mock_calls[0]
-        assert args[0] == index_endpoint_service.MutateDeployedIndexRequest(
-            index_endpoint="index_endpoint_value",
+        request_msg = index_endpoint_service.MutateDeployedIndexRequest(
+            index_endpoint='index_endpoint_value',
         )
-
+        assert args[0] == request_msg
 
 def test_mutate_deployed_index_use_cached_wrapped_rpc():
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
@@ -4172,19 +3576,12 @@ def test_mutate_deployed_index_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.mutate_deployed_index
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.mutate_deployed_index in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.mutate_deployed_index] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.mutate_deployed_index] = mock_rpc
         request = {}
         client.mutate_deployed_index(request)
 
@@ -4202,11 +3599,8 @@ def test_mutate_deployed_index_use_cached_wrapped_rpc():
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_mutate_deployed_index_async_use_cached_wrapped_rpc(
-    transport: str = "grpc_asyncio",
-):
+async def test_mutate_deployed_index_async_use_cached_wrapped_rpc(transport: str = "grpc_asyncio"):
     # Clients should use _prep_wrapped_messages to create cached wrapped rpcs,
     # instead of constructing them on each call
     with mock.patch("google.api_core.gapic_v1.method_async.wrap_method") as wrapper_fn:
@@ -4220,17 +3614,12 @@ async def test_mutate_deployed_index_async_use_cached_wrapped_rpc(
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._client._transport.mutate_deployed_index
-            in client._client._transport._wrapped_methods
-        )
+        assert client._client._transport.mutate_deployed_index in client._client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.AsyncMock()
         mock_rpc.return_value = mock.Mock()
-        client._client._transport._wrapped_methods[
-            client._client._transport.mutate_deployed_index
-        ] = mock_rpc
+        client._client._transport._wrapped_methods[client._client._transport.mutate_deployed_index] = mock_rpc
 
         request = {}
         await client.mutate_deployed_index(request)
@@ -4249,12 +3638,12 @@ async def test_mutate_deployed_index_async_use_cached_wrapped_rpc(
         assert wrapper_fn.call_count == 0
         assert mock_rpc.call_count == 2
 
-
 @pytest.mark.asyncio
-async def test_mutate_deployed_index_async(
-    transport: str = "grpc_asyncio",
-    request_type=index_endpoint_service.MutateDeployedIndexRequest,
-):
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.MutateDeployedIndexRequest(),
+  {},
+])
+async def test_mutate_deployed_index_async(request_type, transport: str = 'grpc_asyncio'):
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport=transport,
@@ -4262,15 +3651,15 @@ async def test_mutate_deployed_index_async(
 
     # Everything is optional in proto3 as far as the runtime is concerned,
     # and we are mocking out the actual API, so just send an empty request.
-    request = request_type()
+    request = request_type
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         response = await client.mutate_deployed_index(request)
 
@@ -4283,12 +3672,6 @@ async def test_mutate_deployed_index_async(
     # Establish that the response is the type that we expect.
     assert isinstance(response, future.Future)
 
-
-@pytest.mark.asyncio
-async def test_mutate_deployed_index_async_from_dict():
-    await test_mutate_deployed_index_async(request_type=dict)
-
-
 def test_mutate_deployed_index_field_headers():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
@@ -4298,13 +3681,13 @@ def test_mutate_deployed_index_field_headers():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.MutateDeployedIndexRequest()
 
-    request.index_endpoint = "index_endpoint_value"
+    request.index_endpoint = 'index_endpoint_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.mutate_deployed_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4315,9 +3698,9 @@ def test_mutate_deployed_index_field_headers():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint=index_endpoint_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint=index_endpoint_value',
+    ) in kw['metadata']
 
 
 @pytest.mark.asyncio
@@ -4330,15 +3713,13 @@ async def test_mutate_deployed_index_field_headers_async():
     # a field header. Set these to a non-empty value.
     request = index_endpoint_service.MutateDeployedIndexRequest()
 
-    request.index_endpoint = "index_endpoint_value"
+    request.index_endpoint = 'index_endpoint_value'
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/op")
-        )
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(operations_pb2.Operation(name='operations/op'))
         await client.mutate_deployed_index(request)
 
         # Establish that the underlying gRPC stub method was called.
@@ -4349,9 +3730,9 @@ async def test_mutate_deployed_index_field_headers_async():
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
     assert (
-        "x-goog-request-params",
-        "index_endpoint=index_endpoint_value",
-    ) in kw["metadata"]
+        'x-goog-request-params',
+        'index_endpoint=index_endpoint_value',
+    ) in kw['metadata']
 
 
 def test_mutate_deployed_index_flattened():
@@ -4361,15 +3742,15 @@ def test_mutate_deployed_index_flattened():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         client.mutate_deployed_index(
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
         # Establish that the underlying call was made with the expected
@@ -4377,10 +3758,10 @@ def test_mutate_deployed_index_flattened():
         assert len(call.mock_calls) == 1
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = "index_endpoint_value"
+        mock_val = 'index_endpoint_value'
         assert arg == mock_val
         arg = args[0].deployed_index
-        mock_val = gca_index_endpoint.DeployedIndex(id="id_value")
+        mock_val = gca_index_endpoint.DeployedIndex(id='id_value')
         assert arg == mock_val
 
 
@@ -4394,10 +3775,9 @@ def test_mutate_deployed_index_flattened_error():
     with pytest.raises(ValueError):
         client.mutate_deployed_index(
             index_endpoint_service.MutateDeployedIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
-
 
 @pytest.mark.asyncio
 async def test_mutate_deployed_index_flattened_async():
@@ -4407,19 +3787,19 @@ async def test_mutate_deployed_index_flattened_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = operations_pb2.Operation(name="operations/op")
+        call.return_value = operations_pb2.Operation(name='operations/op')
 
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         # Call the method with a truthy value for each flattened field,
         # using the keyword arguments to the method.
         response = await client.mutate_deployed_index(
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
         # Establish that the underlying call was made with the expected
@@ -4427,12 +3807,11 @@ async def test_mutate_deployed_index_flattened_async():
         assert len(call.mock_calls)
         _, args, _ = call.mock_calls[0]
         arg = args[0].index_endpoint
-        mock_val = "index_endpoint_value"
+        mock_val = 'index_endpoint_value'
         assert arg == mock_val
         arg = args[0].deployed_index
-        mock_val = gca_index_endpoint.DeployedIndex(id="id_value")
+        mock_val = gca_index_endpoint.DeployedIndex(id='id_value')
         assert arg == mock_val
-
 
 @pytest.mark.asyncio
 async def test_mutate_deployed_index_flattened_error_async():
@@ -4445,8 +3824,8 @@ async def test_mutate_deployed_index_flattened_error_async():
     with pytest.raises(ValueError):
         await client.mutate_deployed_index(
             index_endpoint_service.MutateDeployedIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
 
@@ -4464,19 +3843,12 @@ def test_create_index_endpoint_rest_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.create_index_endpoint
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.create_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.create_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.create_index_endpoint] = mock_rpc
 
         request = {}
         client.create_index_endpoint(request)
@@ -4495,94 +3867,81 @@ def test_create_index_endpoint_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_create_index_endpoint_rest_required_fields(
-    request_type=index_endpoint_service.CreateIndexEndpointRequest,
-):
+def test_create_index_endpoint_rest_required_fields(request_type=index_endpoint_service.CreateIndexEndpointRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request_init["parent"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["parent"] = "parent_value"
+    jsonified_request["parent"] = 'parent_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).create_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).create_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
+    assert jsonified_request["parent"] == 'parent_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
+    return_value = operations_pb2.Operation(name='operations/spam')
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "post",
+                'query_params': pb_request,
             }
-            transcode_result["body"] = pb_request
+            transcode_result['body'] = pb_request
             transcode.return_value = transcode_result
 
             response_value = Response()
             response_value.status_code = 200
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.create_index_endpoint(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_create_index_endpoint_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.create_index_endpoint._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "parent",
-                "indexEndpoint",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("parent", "indexEndpoint", )))
 
 
 def test_create_index_endpoint_rest_flattened():
@@ -4592,17 +3951,17 @@ def test_create_index_endpoint_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
+        sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            parent="parent_value",
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            parent='parent_value',
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
         )
         mock_args.update(sample_request)
 
@@ -4610,7 +3969,7 @@ def test_create_index_endpoint_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -4620,14 +3979,10 @@ def test_create_index_endpoint_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/indexEndpoints"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{parent=projects/*/locations/*}/indexEndpoints" % client.transport._host, args[1])
 
 
-def test_create_index_endpoint_rest_flattened_error(transport: str = "rest"):
+def test_create_index_endpoint_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4638,8 +3993,8 @@ def test_create_index_endpoint_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.create_index_endpoint(
             index_endpoint_service.CreateIndexEndpointRequest(),
-            parent="parent_value",
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
+            parent='parent_value',
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
         )
 
 
@@ -4657,18 +4012,12 @@ def test_get_index_endpoint_rest_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.get_index_endpoint in client._transport._wrapped_methods
-        )
+        assert client._transport.get_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.get_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.get_index_endpoint] = mock_rpc
 
         request = {}
         client.get_index_endpoint(request)
@@ -4683,60 +4032,55 @@ def test_get_index_endpoint_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_get_index_endpoint_rest_required_fields(
-    request_type=index_endpoint_service.GetIndexEndpointRequest,
-):
+def test_get_index_endpoint_rest_required_fields(request_type=index_endpoint_service.GetIndexEndpointRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request_init["name"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["name"] = "name_value"
+    jsonified_request["name"] = 'name_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).get_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).get_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
+    assert jsonified_request["name"] == 'name_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
     return_value = index_endpoint.IndexEndpoint()
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "get",
+                'query_params': pb_request,
             }
             transcode.return_value = transcode_result
 
@@ -4747,24 +4091,24 @@ def test_get_index_endpoint_rest_required_fields(
             return_value = index_endpoint.IndexEndpoint.pb(return_value)
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.get_index_endpoint(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_get_index_endpoint_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.get_index_endpoint._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
+    assert set(unset_fields) == (set(()) & set(("name", )))
 
 
 def test_get_index_endpoint_rest_flattened():
@@ -4774,18 +4118,16 @@ def test_get_index_endpoint_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = index_endpoint.IndexEndpoint()
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
+        sample_request = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            name="name_value",
+            name='name_value',
         )
         mock_args.update(sample_request)
 
@@ -4795,7 +4137,7 @@ def test_get_index_endpoint_rest_flattened():
         # Convert return value to protobuf type
         return_value = index_endpoint.IndexEndpoint.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -4805,14 +4147,10 @@ def test_get_index_endpoint_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/indexEndpoints/*}"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{name=projects/*/locations/*/indexEndpoints/*}" % client.transport._host, args[1])
 
 
-def test_get_index_endpoint_rest_flattened_error(transport: str = "rest"):
+def test_get_index_endpoint_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -4823,7 +4161,7 @@ def test_get_index_endpoint_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.get_index_endpoint(
             index_endpoint_service.GetIndexEndpointRequest(),
-            name="name_value",
+            name='name_value',
         )
 
 
@@ -4841,18 +4179,12 @@ def test_list_index_endpoints_rest_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.list_index_endpoints in client._transport._wrapped_methods
-        )
+        assert client._transport.list_index_endpoints in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.list_index_endpoints] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.list_index_endpoints] = mock_rpc
 
         request = {}
         client.list_index_endpoints(request)
@@ -4867,69 +4199,57 @@ def test_list_index_endpoints_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_list_index_endpoints_rest_required_fields(
-    request_type=index_endpoint_service.ListIndexEndpointsRequest,
-):
+def test_list_index_endpoints_rest_required_fields(request_type=index_endpoint_service.ListIndexEndpointsRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request_init["parent"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_index_endpoints._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_index_endpoints._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["parent"] = "parent_value"
+    jsonified_request["parent"] = 'parent_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).list_index_endpoints._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).list_index_endpoints._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(
-        (
-            "filter",
-            "page_size",
-            "page_token",
-            "read_mask",
-        )
-    )
+    assert not set(unset_fields) - set(("filter", "page_size", "page_token", "read_mask", ))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "parent" in jsonified_request
-    assert jsonified_request["parent"] == "parent_value"
+    assert jsonified_request["parent"] == 'parent_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
     return_value = index_endpoint_service.ListIndexEndpointsResponse()
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "get",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "get",
+                'query_params': pb_request,
             }
             transcode.return_value = transcode_result
 
@@ -4937,39 +4257,27 @@ def test_list_index_endpoints_rest_required_fields(
             response_value.status_code = 200
 
             # Convert return value to protobuf type
-            return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(
-                return_value
-            )
+            return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(return_value)
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.list_index_endpoints(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_list_index_endpoints_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.list_index_endpoints._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(
-            (
-                "filter",
-                "pageSize",
-                "pageToken",
-                "readMask",
-            )
-        )
-        & set(("parent",))
-    )
+    assert set(unset_fields) == (set(("filter", "pageSize", "pageToken", "readMask", )) & set(("parent", )))
 
 
 def test_list_index_endpoints_rest_flattened():
@@ -4979,16 +4287,16 @@ def test_list_index_endpoints_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = index_endpoint_service.ListIndexEndpointsResponse()
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
+        sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            parent="parent_value",
+            parent='parent_value',
         )
         mock_args.update(sample_request)
 
@@ -4996,11 +4304,9 @@ def test_list_index_endpoints_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         # Convert return value to protobuf type
-        return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(
-            return_value
-        )
+        return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -5010,14 +4316,10 @@ def test_list_index_endpoints_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{parent=projects/*/locations/*}/indexEndpoints"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{parent=projects/*/locations/*}/indexEndpoints" % client.transport._host, args[1])
 
 
-def test_list_index_endpoints_rest_flattened_error(transport: str = "rest"):
+def test_list_index_endpoints_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5028,20 +4330,20 @@ def test_list_index_endpoints_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.list_index_endpoints(
             index_endpoint_service.ListIndexEndpointsRequest(),
-            parent="parent_value",
+            parent='parent_value',
         )
 
 
-def test_list_index_endpoints_rest_pager(transport: str = "rest"):
+def test_list_index_endpoints_rest_pager(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # TODO(kbandes): remove this mock unless there's a good reason for it.
-        # with mock.patch.object(path_template, 'transcode') as transcode:
+        #with mock.patch.object(path_template, 'transcode') as transcode:
         # Set the response as a series of pages
         response = (
             index_endpoint_service.ListIndexEndpointsResponse(
@@ -5050,17 +4352,17 @@ def test_list_index_endpoints_rest_pager(transport: str = "rest"):
                     index_endpoint.IndexEndpoint(),
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="abc",
+                next_page_token='abc',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[],
-                next_page_token="def",
+                next_page_token='def',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
                     index_endpoint.IndexEndpoint(),
                 ],
-                next_page_token="ghi",
+                next_page_token='ghi',
             ),
             index_endpoint_service.ListIndexEndpointsResponse(
                 index_endpoints=[
@@ -5073,26 +4375,24 @@ def test_list_index_endpoints_rest_pager(transport: str = "rest"):
         response = response + response
 
         # Wrap the values into proper Response objs
-        response = tuple(
-            index_endpoint_service.ListIndexEndpointsResponse.to_json(x)
-            for x in response
-        )
+        response = tuple(index_endpoint_service.ListIndexEndpointsResponse.to_json(x) for x in response)
         return_values = tuple(Response() for i in response)
         for return_val, response_val in zip(return_values, response):
-            return_val._content = response_val.encode("UTF-8")
+            return_val._content = response_val.encode('UTF-8')
             return_val.status_code = 200
         req.side_effect = return_values
 
-        sample_request = {"parent": "projects/sample1/locations/sample2"}
+        sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_index_endpoints(request=sample_request)
 
         results = list(pager)
         assert len(results) == 6
-        assert all(isinstance(i, index_endpoint.IndexEndpoint) for i in results)
+        assert all(isinstance(i, index_endpoint.IndexEndpoint)
+                for i in results)
 
         pages = list(client.list_index_endpoints(request=sample_request).pages)
-        for page_, token in zip(pages, ["abc", "def", "ghi", ""]):
+        for page_, token in zip(pages, ['abc','def','ghi', '']):
             assert page_.raw_page.next_page_token == token
 
 
@@ -5110,19 +4410,12 @@ def test_update_index_endpoint_rest_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.update_index_endpoint
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.update_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.update_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.update_index_endpoint] = mock_rpc
 
         request = {}
         client.update_index_endpoint(request)
@@ -5137,59 +4430,54 @@ def test_update_index_endpoint_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_update_index_endpoint_rest_required_fields(
-    request_type=index_endpoint_service.UpdateIndexEndpointRequest,
-):
+def test_update_index_endpoint_rest_required_fields(request_type=index_endpoint_service.UpdateIndexEndpointRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).update_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).update_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).update_index_endpoint._get_unset_required_fields(jsonified_request)
     # Check that path parameters and body parameters are not mixing in.
-    assert not set(unset_fields) - set(("update_mask",))
+    assert not set(unset_fields) - set(("update_mask", ))
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
     return_value = gca_index_endpoint.IndexEndpoint()
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "patch",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "patch",
+                'query_params': pb_request,
             }
-            transcode_result["body"] = pb_request
+            transcode_result['body'] = pb_request
             transcode.return_value = transcode_result
 
             response_value = Response()
@@ -5199,32 +4487,24 @@ def test_update_index_endpoint_rest_required_fields(
             return_value = gca_index_endpoint.IndexEndpoint.pb(return_value)
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.update_index_endpoint(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_update_index_endpoint_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.update_index_endpoint._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(("updateMask",))
-        & set(
-            (
-                "indexEndpoint",
-                "updateMask",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(("updateMask", )) & set(("indexEndpoint", "updateMask", )))
 
 
 def test_update_index_endpoint_rest_flattened():
@@ -5234,21 +4514,17 @@ def test_update_index_endpoint_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = gca_index_endpoint.IndexEndpoint()
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "index_endpoint": {
-                "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-            }
-        }
+        sample_request = {'index_endpoint': {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
         )
         mock_args.update(sample_request)
 
@@ -5258,7 +4534,7 @@ def test_update_index_endpoint_rest_flattened():
         # Convert return value to protobuf type
         return_value = gca_index_endpoint.IndexEndpoint.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -5268,14 +4544,10 @@ def test_update_index_endpoint_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{index_endpoint.name=projects/*/locations/*/indexEndpoints/*}"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{index_endpoint.name=projects/*/locations/*/indexEndpoints/*}" % client.transport._host, args[1])
 
 
-def test_update_index_endpoint_rest_flattened_error(transport: str = "rest"):
+def test_update_index_endpoint_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5286,8 +4558,8 @@ def test_update_index_endpoint_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.update_index_endpoint(
             index_endpoint_service.UpdateIndexEndpointRequest(),
-            index_endpoint=gca_index_endpoint.IndexEndpoint(name="name_value"),
-            update_mask=field_mask_pb2.FieldMask(paths=["paths_value"]),
+            index_endpoint=gca_index_endpoint.IndexEndpoint(name='name_value'),
+            update_mask=field_mask_pb2.FieldMask(paths=['paths_value']),
         )
 
 
@@ -5305,19 +4577,12 @@ def test_delete_index_endpoint_rest_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.delete_index_endpoint
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.delete_index_endpoint in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.delete_index_endpoint] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.delete_index_endpoint] = mock_rpc
 
         request = {}
         client.delete_index_endpoint(request)
@@ -5336,60 +4601,55 @@ def test_delete_index_endpoint_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_delete_index_endpoint_rest_required_fields(
-    request_type=index_endpoint_service.DeleteIndexEndpointRequest,
-):
+def test_delete_index_endpoint_rest_required_fields(request_type=index_endpoint_service.DeleteIndexEndpointRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request_init["name"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["name"] = "name_value"
+    jsonified_request["name"] = 'name_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).delete_index_endpoint._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).delete_index_endpoint._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "name" in jsonified_request
-    assert jsonified_request["name"] == "name_value"
+    assert jsonified_request["name"] == 'name_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
+    return_value = operations_pb2.Operation(name='operations/spam')
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "delete",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "delete",
+                'query_params': pb_request,
             }
             transcode.return_value = transcode_result
 
@@ -5397,24 +4657,24 @@ def test_delete_index_endpoint_rest_required_fields(
             response_value.status_code = 200
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.delete_index_endpoint(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_delete_index_endpoint_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.delete_index_endpoint._get_unset_required_fields({})
-    assert set(unset_fields) == (set(()) & set(("name",)))
+    assert set(unset_fields) == (set(()) & set(("name", )))
 
 
 def test_delete_index_endpoint_rest_flattened():
@@ -5424,18 +4684,16 @@ def test_delete_index_endpoint_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
+        sample_request = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            name="name_value",
+            name='name_value',
         )
         mock_args.update(sample_request)
 
@@ -5443,7 +4701,7 @@ def test_delete_index_endpoint_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -5453,14 +4711,10 @@ def test_delete_index_endpoint_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{name=projects/*/locations/*/indexEndpoints/*}"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{name=projects/*/locations/*/indexEndpoints/*}" % client.transport._host, args[1])
 
 
-def test_delete_index_endpoint_rest_flattened_error(transport: str = "rest"):
+def test_delete_index_endpoint_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5471,7 +4725,7 @@ def test_delete_index_endpoint_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.delete_index_endpoint(
             index_endpoint_service.DeleteIndexEndpointRequest(),
-            name="name_value",
+            name='name_value',
         )
 
 
@@ -5493,9 +4747,7 @@ def test_deploy_index_rest_use_cached_wrapped_rpc():
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client._transport._wrapped_methods[client._transport.deploy_index] = mock_rpc
 
         request = {}
@@ -5515,94 +4767,81 @@ def test_deploy_index_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_deploy_index_rest_required_fields(
-    request_type=index_endpoint_service.DeployIndexRequest,
-):
+def test_deploy_index_rest_required_fields(request_type=index_endpoint_service.DeployIndexRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request_init["index_endpoint"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).deploy_index._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).deploy_index._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["indexEndpoint"] = "index_endpoint_value"
+    jsonified_request["indexEndpoint"] = 'index_endpoint_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).deploy_index._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).deploy_index._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "indexEndpoint" in jsonified_request
-    assert jsonified_request["indexEndpoint"] == "index_endpoint_value"
+    assert jsonified_request["indexEndpoint"] == 'index_endpoint_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
+    return_value = operations_pb2.Operation(name='operations/spam')
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "post",
+                'query_params': pb_request,
             }
-            transcode_result["body"] = pb_request
+            transcode_result['body'] = pb_request
             transcode.return_value = transcode_result
 
             response_value = Response()
             response_value.status_code = 200
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.deploy_index(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_deploy_index_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.deploy_index._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "indexEndpoint",
-                "deployedIndex",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("indexEndpoint", "deployedIndex", )))
 
 
 def test_deploy_index_rest_flattened():
@@ -5612,19 +4851,17 @@ def test_deploy_index_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
+        sample_request = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
         mock_args.update(sample_request)
 
@@ -5632,7 +4869,7 @@ def test_deploy_index_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -5642,14 +4879,10 @@ def test_deploy_index_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{index_endpoint=projects/*/locations/*/indexEndpoints/*}:deployIndex"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{index_endpoint=projects/*/locations/*/indexEndpoints/*}:deployIndex" % client.transport._host, args[1])
 
 
-def test_deploy_index_rest_flattened_error(transport: str = "rest"):
+def test_deploy_index_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5660,8 +4893,8 @@ def test_deploy_index_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.deploy_index(
             index_endpoint_service.DeployIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
 
@@ -5683,9 +4916,7 @@ def test_undeploy_index_rest_use_cached_wrapped_rpc():
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
         client._transport._wrapped_methods[client._transport.undeploy_index] = mock_rpc
 
         request = {}
@@ -5705,9 +4936,7 @@ def test_undeploy_index_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_undeploy_index_rest_required_fields(
-    request_type=index_endpoint_service.UndeployIndexRequest,
-):
+def test_undeploy_index_rest_required_fields(request_type=index_endpoint_service.UndeployIndexRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
@@ -5715,88 +4944,77 @@ def test_undeploy_index_rest_required_fields(
     request_init["deployed_index_id"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).undeploy_index._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).undeploy_index._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["indexEndpoint"] = "index_endpoint_value"
-    jsonified_request["deployedIndexId"] = "deployed_index_id_value"
+    jsonified_request["indexEndpoint"] = 'index_endpoint_value'
+    jsonified_request["deployedIndexId"] = 'deployed_index_id_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).undeploy_index._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).undeploy_index._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "indexEndpoint" in jsonified_request
-    assert jsonified_request["indexEndpoint"] == "index_endpoint_value"
+    assert jsonified_request["indexEndpoint"] == 'index_endpoint_value'
     assert "deployedIndexId" in jsonified_request
-    assert jsonified_request["deployedIndexId"] == "deployed_index_id_value"
+    assert jsonified_request["deployedIndexId"] == 'deployed_index_id_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
+    return_value = operations_pb2.Operation(name='operations/spam')
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "post",
+                'query_params': pb_request,
             }
-            transcode_result["body"] = pb_request
+            transcode_result['body'] = pb_request
             transcode.return_value = transcode_result
 
             response_value = Response()
             response_value.status_code = 200
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.undeploy_index(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_undeploy_index_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.undeploy_index._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "indexEndpoint",
-                "deployedIndexId",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("indexEndpoint", "deployedIndexId", )))
 
 
 def test_undeploy_index_rest_flattened():
@@ -5806,19 +5024,17 @@ def test_undeploy_index_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
+        sample_request = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
         mock_args.update(sample_request)
 
@@ -5826,7 +5042,7 @@ def test_undeploy_index_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -5836,14 +5052,10 @@ def test_undeploy_index_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{index_endpoint=projects/*/locations/*/indexEndpoints/*}:undeployIndex"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{index_endpoint=projects/*/locations/*/indexEndpoints/*}:undeployIndex" % client.transport._host, args[1])
 
 
-def test_undeploy_index_rest_flattened_error(transport: str = "rest"):
+def test_undeploy_index_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -5854,8 +5066,8 @@ def test_undeploy_index_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.undeploy_index(
             index_endpoint_service.UndeployIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index_id="deployed_index_id_value",
+            index_endpoint='index_endpoint_value',
+            deployed_index_id='deployed_index_id_value',
         )
 
 
@@ -5873,19 +5085,12 @@ def test_mutate_deployed_index_rest_use_cached_wrapped_rpc():
         wrapper_fn.reset_mock()
 
         # Ensure method has been cached
-        assert (
-            client._transport.mutate_deployed_index
-            in client._transport._wrapped_methods
-        )
+        assert client._transport.mutate_deployed_index in client._transport._wrapped_methods
 
         # Replace cached wrapped function with mock
         mock_rpc = mock.Mock()
-        mock_rpc.return_value.name = (
-            "foo"  # operation_request.operation in compute client(s) expect a string.
-        )
-        client._transport._wrapped_methods[client._transport.mutate_deployed_index] = (
-            mock_rpc
-        )
+        mock_rpc.return_value.name = "foo" # operation_request.operation in compute client(s) expect a string.
+        client._transport._wrapped_methods[client._transport.mutate_deployed_index] = mock_rpc
 
         request = {}
         client.mutate_deployed_index(request)
@@ -5904,94 +5109,81 @@ def test_mutate_deployed_index_rest_use_cached_wrapped_rpc():
         assert mock_rpc.call_count == 2
 
 
-def test_mutate_deployed_index_rest_required_fields(
-    request_type=index_endpoint_service.MutateDeployedIndexRequest,
-):
+def test_mutate_deployed_index_rest_required_fields(request_type=index_endpoint_service.MutateDeployedIndexRequest):
     transport_class = transports.IndexEndpointServiceRestTransport
 
     request_init = {}
     request_init["index_endpoint"] = ""
     request = request_type(**request_init)
     pb_request = request_type.pb(request)
-    jsonified_request = json.loads(
-        json_format.MessageToJson(pb_request, use_integers_for_enums=False)
-    )
+    jsonified_request = json.loads(json_format.MessageToJson(
+        pb_request,
+        use_integers_for_enums=False
+    ))
 
     # verify fields with default values are dropped
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).mutate_deployed_index._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).mutate_deployed_index._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with default values are now present
 
-    jsonified_request["indexEndpoint"] = "index_endpoint_value"
+    jsonified_request["indexEndpoint"] = 'index_endpoint_value'
 
-    unset_fields = transport_class(
-        credentials=ga_credentials.AnonymousCredentials()
-    ).mutate_deployed_index._get_unset_required_fields(jsonified_request)
+    unset_fields = transport_class(credentials=ga_credentials.AnonymousCredentials()).mutate_deployed_index._get_unset_required_fields(jsonified_request)
     jsonified_request.update(unset_fields)
 
     # verify required fields with non-default values are left alone
     assert "indexEndpoint" in jsonified_request
-    assert jsonified_request["indexEndpoint"] == "index_endpoint_value"
+    assert jsonified_request["indexEndpoint"] == 'index_endpoint_value'
 
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="rest",
+        transport='rest',
     )
     request = request_type(**request_init)
 
     # Designate an appropriate value for the returned response.
-    return_value = operations_pb2.Operation(name="operations/spam")
+    return_value = operations_pb2.Operation(name='operations/spam')
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # We need to mock transcode() because providing default values
         # for required fields will fail the real version if the http_options
         # expect actual values for those fields.
-        with mock.patch.object(path_template, "transcode") as transcode:
+        with mock.patch.object(path_template, 'transcode') as transcode:
             # A uri without fields and an empty body will force all the
             # request fields to show up in the query_params.
             pb_request = request_type.pb(request)
             transcode_result = {
-                "uri": "v1/sample_method",
-                "method": "post",
-                "query_params": pb_request,
+                'uri': 'v1/sample_method',
+                'method': "post",
+                'query_params': pb_request,
             }
-            transcode_result["body"] = pb_request
+            transcode_result['body'] = pb_request
             transcode.return_value = transcode_result
 
             response_value = Response()
             response_value.status_code = 200
             json_return_value = json_format.MessageToJson(return_value)
 
-            response_value._content = json_return_value.encode("UTF-8")
+            response_value._content = json_return_value.encode('UTF-8')
             req.return_value = response_value
             req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
             response = client.mutate_deployed_index(request)
 
-            expected_params = [("$alt", "json;enum-encoding=int")]
-            actual_params = req.call_args.kwargs["params"]
-            assert expected_params == actual_params
+            expected_params = [
+                ('$alt', 'json;enum-encoding=int')
+            ]
+            actual_params = req.call_args.kwargs['params']
+            assert sorted(expected_params) == sorted(actual_params)
 
 
 def test_mutate_deployed_index_rest_unset_required_fields():
-    transport = transports.IndexEndpointServiceRestTransport(
-        credentials=ga_credentials.AnonymousCredentials
-    )
+    transport = transports.IndexEndpointServiceRestTransport(credentials=ga_credentials.AnonymousCredentials)
 
     unset_fields = transport.mutate_deployed_index._get_unset_required_fields({})
-    assert set(unset_fields) == (
-        set(())
-        & set(
-            (
-                "indexEndpoint",
-                "deployedIndex",
-            )
-        )
-    )
+    assert set(unset_fields) == (set(()) & set(("indexEndpoint", "deployedIndex", )))
 
 
 def test_mutate_deployed_index_rest_flattened():
@@ -6001,19 +5193,17 @@ def test_mutate_deployed_index_rest_flattened():
     )
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # get arguments that satisfy an http rule for this method
-        sample_request = {
-            "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
+        sample_request = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
 
         # get truthy value for each flattened field
         mock_args = dict(
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
         mock_args.update(sample_request)
 
@@ -6021,7 +5211,7 @@ def test_mutate_deployed_index_rest_flattened():
         response_value = Response()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value._content = json_return_value.encode("UTF-8")
+        response_value._content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
 
@@ -6031,14 +5221,10 @@ def test_mutate_deployed_index_rest_flattened():
         # request object values.
         assert len(req.mock_calls) == 1
         _, args, _ = req.mock_calls[0]
-        assert path_template.validate(
-            "%s/v1beta1/{index_endpoint=projects/*/locations/*/indexEndpoints/*}:mutateDeployedIndex"
-            % client.transport._host,
-            args[1],
-        )
+        assert path_template.validate("%s/v1beta1/{index_endpoint=projects/*/locations/*/indexEndpoints/*}:mutateDeployedIndex" % client.transport._host, args[1])
 
 
-def test_mutate_deployed_index_rest_flattened_error(transport: str = "rest"):
+def test_mutate_deployed_index_rest_flattened_error(transport: str = 'rest'):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport=transport,
@@ -6049,8 +5235,8 @@ def test_mutate_deployed_index_rest_flattened_error(transport: str = "rest"):
     with pytest.raises(ValueError):
         client.mutate_deployed_index(
             index_endpoint_service.MutateDeployedIndexRequest(),
-            index_endpoint="index_endpoint_value",
-            deployed_index=gca_index_endpoint.DeployedIndex(id="id_value"),
+            index_endpoint='index_endpoint_value',
+            deployed_index=gca_index_endpoint.DeployedIndex(id='id_value'),
         )
 
 
@@ -6092,7 +5278,8 @@ def test_credentials_transport_error():
     options.api_key = "api_key"
     with pytest.raises(ValueError):
         client = IndexEndpointServiceClient(
-            client_options=options, credentials=ga_credentials.AnonymousCredentials()
+            client_options=options,
+            credentials=ga_credentials.AnonymousCredentials()
         )
 
     # It is an error to provide scopes and a transport instance.
@@ -6114,7 +5301,6 @@ def test_transport_instance():
     client = IndexEndpointServiceClient(transport=transport)
     assert client.transport is transport
 
-
 def test_transport_get_channel():
     # A client may be instantiated with a custom transport instance.
     transport = transports.IndexEndpointServiceGrpcTransport(
@@ -6129,22 +5315,17 @@ def test_transport_get_channel():
     channel = transport.grpc_channel
     assert channel
 
-
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.IndexEndpointServiceGrpcTransport,
-        transports.IndexEndpointServiceGrpcAsyncIOTransport,
-        transports.IndexEndpointServiceRestTransport,
-    ],
-)
+@pytest.mark.parametrize("transport_class", [
+    transports.IndexEndpointServiceGrpcTransport,
+    transports.IndexEndpointServiceGrpcAsyncIOTransport,
+    transports.IndexEndpointServiceRestTransport,
+])
 def test_transport_adc(transport_class):
     # Test default credentials are used if not provided.
-    with mock.patch.object(google.auth, "default") as adc:
+    with mock.patch.object(google.auth, 'default') as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class()
         adc.assert_called_once()
-
 
 def test_transport_kind_grpc():
     transport = IndexEndpointServiceClient.get_transport_class("grpc")(
@@ -6155,7 +5336,8 @@ def test_transport_kind_grpc():
 
 def test_initialize_client_w_grpc():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc"
     )
     assert client is not None
 
@@ -6170,16 +5352,15 @@ def test_create_index_endpoint_empty_call_grpc():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.create_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.CreateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6193,8 +5374,8 @@ def test_get_index_endpoint_empty_call_grpc():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         call.return_value = index_endpoint.IndexEndpoint()
         client.get_index_endpoint(request=None)
 
@@ -6202,7 +5383,6 @@ def test_get_index_endpoint_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.GetIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6216,8 +5396,8 @@ def test_list_index_endpoints_empty_call_grpc():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         call.return_value = index_endpoint_service.ListIndexEndpointsResponse()
         client.list_index_endpoints(request=None)
 
@@ -6225,7 +5405,6 @@ def test_list_index_endpoints_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.ListIndexEndpointsRequest()
-
         assert args[0] == request_msg
 
 
@@ -6239,8 +5418,8 @@ def test_update_index_endpoint_empty_call_grpc():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         call.return_value = gca_index_endpoint.IndexEndpoint()
         client.update_index_endpoint(request=None)
 
@@ -6248,7 +5427,6 @@ def test_update_index_endpoint_empty_call_grpc():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UpdateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6262,16 +5440,15 @@ def test_delete_index_endpoint_empty_call_grpc():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.delete_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeleteIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6284,15 +5461,16 @@ def test_deploy_index_empty_call_grpc():
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.deploy_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -6305,15 +5483,16 @@ def test_undeploy_index_empty_call_grpc():
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.undeploy_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UndeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -6327,16 +5506,15 @@ def test_mutate_deployed_index_empty_call_grpc():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
-        call.return_value = operations_pb2.Operation(name="operations/op")
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
+        call.return_value = operations_pb2.Operation(name='operations/op')
         client.mutate_deployed_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.MutateDeployedIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -6349,7 +5527,8 @@ def test_transport_kind_grpc_asyncio():
 
 def test_initialize_client_w_grpc_asyncio():
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio"
     )
     assert client is not None
 
@@ -6365,11 +5544,11 @@ async def test_create_index_endpoint_empty_call_grpc_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         await client.create_index_endpoint(request=None)
 
@@ -6377,7 +5556,6 @@ async def test_create_index_endpoint_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.CreateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6392,30 +5570,27 @@ async def test_get_index_endpoint_empty_call_grpc_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint.IndexEndpoint(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                network="network_value",
-                enable_private_service_connect=True,
-                public_endpoint_enabled=True,
-                public_endpoint_domain_name="public_endpoint_domain_name_value",
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint.IndexEndpoint(
+            name='name_value',
+            display_name='display_name_value',
+            description='description_value',
+            etag='etag_value',
+            network='network_value',
+            enable_private_service_connect=True,
+            public_endpoint_enabled=True,
+            public_endpoint_domain_name='public_endpoint_domain_name_value',
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        ))
         await client.get_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.GetIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6430,21 +5605,18 @@ async def test_list_index_endpoints_empty_call_grpc_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            index_endpoint_service.ListIndexEndpointsResponse(
-                next_page_token="next_page_token_value",
-            )
-        )
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(index_endpoint_service.ListIndexEndpointsResponse(
+            next_page_token='next_page_token_value',
+        ))
         await client.list_index_endpoints(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.ListIndexEndpointsRequest()
-
         assert args[0] == request_msg
 
 
@@ -6459,30 +5631,27 @@ async def test_update_index_endpoint_empty_call_grpc_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            gca_index_endpoint.IndexEndpoint(
-                name="name_value",
-                display_name="display_name_value",
-                description="description_value",
-                etag="etag_value",
-                network="network_value",
-                enable_private_service_connect=True,
-                public_endpoint_enabled=True,
-                public_endpoint_domain_name="public_endpoint_domain_name_value",
-                satisfies_pzs=True,
-                satisfies_pzi=True,
-            )
-        )
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(gca_index_endpoint.IndexEndpoint(
+            name='name_value',
+            display_name='display_name_value',
+            description='description_value',
+            etag='etag_value',
+            network='network_value',
+            enable_private_service_connect=True,
+            public_endpoint_enabled=True,
+            public_endpoint_domain_name='public_endpoint_domain_name_value',
+            satisfies_pzs=True,
+            satisfies_pzi=True,
+        ))
         await client.update_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UpdateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6497,11 +5666,11 @@ async def test_delete_index_endpoint_empty_call_grpc_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         await client.delete_index_endpoint(request=None)
 
@@ -6509,7 +5678,6 @@ async def test_delete_index_endpoint_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeleteIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -6523,10 +5691,12 @@ async def test_deploy_index_empty_call_grpc_asyncio():
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         await client.deploy_index(request=None)
 
@@ -6534,7 +5704,6 @@ async def test_deploy_index_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -6548,10 +5717,12 @@ async def test_undeploy_index_empty_call_grpc_asyncio():
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         await client.undeploy_index(request=None)
 
@@ -6559,7 +5730,6 @@ async def test_undeploy_index_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UndeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -6574,11 +5744,11 @@ async def test_mutate_deployed_index_empty_call_grpc_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            operations_pb2.Operation(name="operations/spam")
+            operations_pb2.Operation(name='operations/spam')
         )
         await client.mutate_deployed_index(request=None)
 
@@ -6586,7 +5756,6 @@ async def test_mutate_deployed_index_empty_call_grpc_asyncio():
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.MutateDeployedIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -6597,23 +5766,20 @@ def test_transport_kind_rest():
     assert transport.kind == "rest"
 
 
-def test_create_index_endpoint_rest_bad_request(
-    request_type=index_endpoint_service.CreateIndexEndpointRequest,
-):
+def test_create_index_endpoint_rest_bad_request(request_type=index_endpoint_service.CreateIndexEndpointRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -6622,139 +5788,25 @@ def test_create_index_endpoint_rest_bad_request(
         client.create_index_endpoint(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.CreateIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.CreateIndexEndpointRequest,
+  dict,
+])
 def test_create_index_endpoint_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["index_endpoint"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "deployed_indexes": [
-            {
-                "id": "id_value",
-                "index": "index_value",
-                "display_name": "display_name_value",
-                "create_time": {"seconds": 751, "nanos": 543},
-                "private_endpoints": {
-                    "match_grpc_address": "match_grpc_address_value",
-                    "service_attachment": "service_attachment_value",
-                    "psc_automated_endpoints": [
-                        {
-                            "project_id": "project_id_value",
-                            "network": "network_value",
-                            "match_address": "match_address_value",
-                        }
-                    ],
-                },
-                "index_sync_time": {},
-                "automatic_resources": {
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                },
-                "dedicated_resources": {
-                    "machine_spec": {
-                        "machine_type": "machine_type_value",
-                        "accelerator_type": 1,
-                        "accelerator_count": 1805,
-                        "gpu_partition_size": "gpu_partition_size_value",
-                        "tpu_topology": "tpu_topology_value",
-                        "multihost_gpu_node_count": 2593,
-                        "reservation_affinity": {
-                            "reservation_affinity_type": 1,
-                            "key": "key_value",
-                            "values": ["values_value1", "values_value2"],
-                        },
-                        "min_gpu_driver_version": "min_gpu_driver_version_value",
-                    },
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                    "required_replica_count": 2344,
-                    "initial_replica_count": 2225,
-                    "autoscaling_metric_specs": [
-                        {
-                            "metric_name": "metric_name_value",
-                            "target": 647,
-                            "monitored_resource_labels": {},
-                        }
-                    ],
-                    "spot": True,
-                    "flex_start": {
-                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
-                    },
-                    "scale_to_zero_spec": {
-                        "min_scaleup_period": {},
-                        "idle_scaledown_period": {},
-                    },
-                },
-                "enable_access_logging": True,
-                "enable_datapoint_upsert_logging": True,
-                "deployed_index_auth_config": {
-                    "auth_provider": {
-                        "audiences": ["audiences_value1", "audiences_value2"],
-                        "allowed_issuers": [
-                            "allowed_issuers_value1",
-                            "allowed_issuers_value2",
-                        ],
-                    }
-                },
-                "reserved_ip_ranges": [
-                    "reserved_ip_ranges_value1",
-                    "reserved_ip_ranges_value2",
-                ],
-                "deployment_group": "deployment_group_value",
-                "psc_automation_configs": [
-                    {
-                        "project_id": "project_id_value",
-                        "network": "network_value",
-                        "ip_address": "ip_address_value",
-                        "forwarding_rule": "forwarding_rule_value",
-                        "state": 1,
-                        "error_message": "error_message_value",
-                    }
-                ],
-            }
-        ],
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {},
-        "update_time": {},
-        "network": "network_value",
-        "enable_private_service_connect": True,
-        "private_service_connect_config": {
-            "enable_private_service_connect": True,
-            "project_allowlist": [
-                "project_allowlist_value1",
-                "project_allowlist_value2",
-            ],
-            "psc_automation_configs": {},
-            "enable_secure_private_service_connect": True,
-            "service_attachment": "service_attachment_value",
-        },
-        "public_endpoint_enabled": True,
-        "public_endpoint_domain_name": "public_endpoint_domain_name_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "satisfies_pzs": True,
-        "satisfies_pzi": True,
-    }
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
+    request_init["index_endpoint"] = {'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'gpu_partition_size': 'gpu_partition_size_value', 'tpu_topology': 'tpu_topology_value', 'multihost_gpu_node_count': 2593, 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}, 'min_gpu_driver_version': 'min_gpu_driver_version_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'required_replica_count': 2344, 'initial_replica_count': 2225, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647, 'monitored_resource_labels': {}}], 'spot': True, 'flex_start': {'max_runtime_duration': {'seconds': 751, 'nanos': 543}}, 'scale_to_zero_spec': {'min_scaleup_period': {}, 'idle_scaledown_period': {}}}, 'enable_access_logging': True, 'enable_datapoint_upsert_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value', 'psc_automation_configs': [{'project_id': 'project_id_value', 'network': 'network_value', 'ip_address': 'ip_address_value', 'forwarding_rule': 'forwarding_rule_value', 'state': 1, 'error_message': 'error_message_value'}]}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2'], 'psc_automation_configs': {}, 'enable_secure_private_service_connect': True, 'service_attachment': 'service_attachment_value'}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'satisfies_pzs': True, 'satisfies_pzi': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = index_endpoint_service.CreateIndexEndpointRequest.meta.fields[
-        "index_endpoint"
-    ]
+    test_field = index_endpoint_service.CreateIndexEndpointRequest.meta.fields["index_endpoint"]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -6768,7 +5820,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
             if is_field_type_proto_plus_type:
                 message_fields = field.message.meta.fields.values()
             # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
+            else: # pragma: NO COVER
                 message_fields = field.message.DESCRIPTOR.fields
         return message_fields
 
@@ -6782,7 +5834,7 @@ def test_create_index_endpoint_rest_call_success(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["index_endpoint"].items():  # pragma: NO COVER
+    for field, value in request_init["index_endpoint"].items(): # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -6797,16 +5849,12 @@ def test_create_index_endpoint_rest_call_success(request_type):
             for subfield in result.keys():
                 if (field, subfield) not in runtime_nested_fields:
                     subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
+                        {"field": field, "subfield": subfield, "is_repeated": is_repeated}
                     )
 
     # Remove fields from the sample request which are not present in the runtime version of the dependency
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+    for subfield_to_delete in subfields_not_in_runtime: # pragma: NO COVER
         field = subfield_to_delete.get("field")
         field_repeated = subfield_to_delete.get("is_repeated")
         subfield = subfield_to_delete.get("subfield")
@@ -6819,15 +5867,15 @@ def test_create_index_endpoint_rest_call_success(request_type):
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.create_index_endpoint(request)
@@ -6840,34 +5888,20 @@ def test_create_index_endpoint_rest_call_success(request_type):
 def test_create_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_create_index_endpoint"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_create_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_create_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_create_index_endpoint") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_create_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_create_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.CreateIndexEndpointRequest.pb(
-            index_endpoint_service.CreateIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.CreateIndexEndpointRequest.pb(index_endpoint_service.CreateIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -6882,7 +5916,7 @@ def test_create_index_endpoint_rest_interceptors(null_interceptor):
         req.return_value.content = return_value
 
         request = index_endpoint_service.CreateIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -6890,36 +5924,27 @@ def test_create_index_endpoint_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        client.create_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.create_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_get_index_endpoint_rest_bad_request(
-    request_type=index_endpoint_service.GetIndexEndpointRequest,
-):
+def test_get_index_endpoint_rest_bad_request(request_type=index_endpoint_service.GetIndexEndpointRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -6928,36 +5953,34 @@ def test_get_index_endpoint_rest_bad_request(
         client.get_index_endpoint(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.GetIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.GetIndexEndpointRequest,
+  dict,
+])
 def test_get_index_endpoint_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = index_endpoint.IndexEndpoint(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            network="network_value",
-            enable_private_service_connect=True,
-            public_endpoint_enabled=True,
-            public_endpoint_domain_name="public_endpoint_domain_name_value",
-            satisfies_pzs=True,
-            satisfies_pzi=True,
+              name='name_value',
+              display_name='display_name_value',
+              description='description_value',
+              etag='etag_value',
+              network='network_value',
+              enable_private_service_connect=True,
+              public_endpoint_enabled=True,
+              public_endpoint_domain_name='public_endpoint_domain_name_value',
+              satisfies_pzs=True,
+              satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -6967,21 +5990,21 @@ def test_get_index_endpoint_rest_call_success(request_type):
         # Convert return value to protobuf type
         return_value = index_endpoint.IndexEndpoint.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.get_index_endpoint(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -6990,32 +6013,19 @@ def test_get_index_endpoint_rest_call_success(request_type):
 def test_get_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_get_index_endpoint"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_get_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_get_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_get_index_endpoint") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_get_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_get_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.GetIndexEndpointRequest.pb(
-            index_endpoint_service.GetIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.GetIndexEndpointRequest.pb(index_endpoint_service.GetIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -7026,13 +6036,11 @@ def test_get_index_endpoint_rest_interceptors(null_interceptor):
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = index_endpoint.IndexEndpoint.to_json(
-            index_endpoint.IndexEndpoint()
-        )
+        return_value = index_endpoint.IndexEndpoint.to_json(index_endpoint.IndexEndpoint())
         req.return_value.content = return_value
 
         request = index_endpoint_service.GetIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -7040,36 +6048,27 @@ def test_get_index_endpoint_rest_interceptors(null_interceptor):
         post.return_value = index_endpoint.IndexEndpoint()
         post_with_metadata.return_value = index_endpoint.IndexEndpoint(), metadata
 
-        client.get_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.get_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_list_index_endpoints_rest_bad_request(
-    request_type=index_endpoint_service.ListIndexEndpointsRequest,
-):
+def test_list_index_endpoints_rest_bad_request(request_type=index_endpoint_service.ListIndexEndpointsRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -7078,27 +6077,25 @@ def test_list_index_endpoints_rest_bad_request(
         client.list_index_endpoints(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.ListIndexEndpointsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.ListIndexEndpointsRequest,
+  dict,
+])
 def test_list_index_endpoints_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = index_endpoint_service.ListIndexEndpointsResponse(
-            next_page_token="next_page_token_value",
+              next_page_token='next_page_token_value',
         )
 
         # Wrap the value into a proper Response obj
@@ -7106,50 +6103,35 @@ def test_list_index_endpoints_rest_call_success(request_type):
         response_value.status_code = 200
 
         # Convert return value to protobuf type
-        return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(
-            return_value
-        )
+        return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.list_index_endpoints(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexEndpointsPager)
-    assert response.next_page_token == "next_page_token_value"
+    assert response.next_page_token == 'next_page_token_value'
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
 def test_list_index_endpoints_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_list_index_endpoints"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_list_index_endpoints_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_list_index_endpoints"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_list_index_endpoints") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_list_index_endpoints_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_list_index_endpoints") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.ListIndexEndpointsRequest.pb(
-            index_endpoint_service.ListIndexEndpointsRequest()
-        )
+        pb_message = index_endpoint_service.ListIndexEndpointsRequest.pb(index_endpoint_service.ListIndexEndpointsRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -7160,57 +6142,39 @@ def test_list_index_endpoints_rest_interceptors(null_interceptor):
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = index_endpoint_service.ListIndexEndpointsResponse.to_json(
-            index_endpoint_service.ListIndexEndpointsResponse()
-        )
+        return_value = index_endpoint_service.ListIndexEndpointsResponse.to_json(index_endpoint_service.ListIndexEndpointsResponse())
         req.return_value.content = return_value
 
         request = index_endpoint_service.ListIndexEndpointsRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
         pre.return_value = request, metadata
         post.return_value = index_endpoint_service.ListIndexEndpointsResponse()
-        post_with_metadata.return_value = (
-            index_endpoint_service.ListIndexEndpointsResponse(),
-            metadata,
-        )
+        post_with_metadata.return_value = index_endpoint_service.ListIndexEndpointsResponse(), metadata
 
-        client.list_index_endpoints(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.list_index_endpoints(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_update_index_endpoint_rest_bad_request(
-    request_type=index_endpoint_service.UpdateIndexEndpointRequest,
-):
+def test_update_index_endpoint_rest_bad_request(request_type=index_endpoint_service.UpdateIndexEndpointRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": {
-            "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
-    }
+    request_init = {'index_endpoint': {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -7219,143 +6183,25 @@ def test_update_index_endpoint_rest_bad_request(
         client.update_index_endpoint(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.UpdateIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UpdateIndexEndpointRequest,
+  dict,
+])
 def test_update_index_endpoint_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": {
-            "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
-    }
-    request_init["index_endpoint"] = {
-        "name": "projects/sample1/locations/sample2/indexEndpoints/sample3",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "deployed_indexes": [
-            {
-                "id": "id_value",
-                "index": "index_value",
-                "display_name": "display_name_value",
-                "create_time": {"seconds": 751, "nanos": 543},
-                "private_endpoints": {
-                    "match_grpc_address": "match_grpc_address_value",
-                    "service_attachment": "service_attachment_value",
-                    "psc_automated_endpoints": [
-                        {
-                            "project_id": "project_id_value",
-                            "network": "network_value",
-                            "match_address": "match_address_value",
-                        }
-                    ],
-                },
-                "index_sync_time": {},
-                "automatic_resources": {
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                },
-                "dedicated_resources": {
-                    "machine_spec": {
-                        "machine_type": "machine_type_value",
-                        "accelerator_type": 1,
-                        "accelerator_count": 1805,
-                        "gpu_partition_size": "gpu_partition_size_value",
-                        "tpu_topology": "tpu_topology_value",
-                        "multihost_gpu_node_count": 2593,
-                        "reservation_affinity": {
-                            "reservation_affinity_type": 1,
-                            "key": "key_value",
-                            "values": ["values_value1", "values_value2"],
-                        },
-                        "min_gpu_driver_version": "min_gpu_driver_version_value",
-                    },
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                    "required_replica_count": 2344,
-                    "initial_replica_count": 2225,
-                    "autoscaling_metric_specs": [
-                        {
-                            "metric_name": "metric_name_value",
-                            "target": 647,
-                            "monitored_resource_labels": {},
-                        }
-                    ],
-                    "spot": True,
-                    "flex_start": {
-                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
-                    },
-                    "scale_to_zero_spec": {
-                        "min_scaleup_period": {},
-                        "idle_scaledown_period": {},
-                    },
-                },
-                "enable_access_logging": True,
-                "enable_datapoint_upsert_logging": True,
-                "deployed_index_auth_config": {
-                    "auth_provider": {
-                        "audiences": ["audiences_value1", "audiences_value2"],
-                        "allowed_issuers": [
-                            "allowed_issuers_value1",
-                            "allowed_issuers_value2",
-                        ],
-                    }
-                },
-                "reserved_ip_ranges": [
-                    "reserved_ip_ranges_value1",
-                    "reserved_ip_ranges_value2",
-                ],
-                "deployment_group": "deployment_group_value",
-                "psc_automation_configs": [
-                    {
-                        "project_id": "project_id_value",
-                        "network": "network_value",
-                        "ip_address": "ip_address_value",
-                        "forwarding_rule": "forwarding_rule_value",
-                        "state": 1,
-                        "error_message": "error_message_value",
-                    }
-                ],
-            }
-        ],
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {},
-        "update_time": {},
-        "network": "network_value",
-        "enable_private_service_connect": True,
-        "private_service_connect_config": {
-            "enable_private_service_connect": True,
-            "project_allowlist": [
-                "project_allowlist_value1",
-                "project_allowlist_value2",
-            ],
-            "psc_automation_configs": {},
-            "enable_secure_private_service_connect": True,
-            "service_attachment": "service_attachment_value",
-        },
-        "public_endpoint_enabled": True,
-        "public_endpoint_domain_name": "public_endpoint_domain_name_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "satisfies_pzs": True,
-        "satisfies_pzi": True,
-    }
+    request_init = {'index_endpoint': {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}}
+    request_init["index_endpoint"] = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'gpu_partition_size': 'gpu_partition_size_value', 'tpu_topology': 'tpu_topology_value', 'multihost_gpu_node_count': 2593, 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}, 'min_gpu_driver_version': 'min_gpu_driver_version_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'required_replica_count': 2344, 'initial_replica_count': 2225, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647, 'monitored_resource_labels': {}}], 'spot': True, 'flex_start': {'max_runtime_duration': {'seconds': 751, 'nanos': 543}}, 'scale_to_zero_spec': {'min_scaleup_period': {}, 'idle_scaledown_period': {}}}, 'enable_access_logging': True, 'enable_datapoint_upsert_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value', 'psc_automation_configs': [{'project_id': 'project_id_value', 'network': 'network_value', 'ip_address': 'ip_address_value', 'forwarding_rule': 'forwarding_rule_value', 'state': 1, 'error_message': 'error_message_value'}]}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2'], 'psc_automation_configs': {}, 'enable_secure_private_service_connect': True, 'service_attachment': 'service_attachment_value'}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'satisfies_pzs': True, 'satisfies_pzi': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = index_endpoint_service.UpdateIndexEndpointRequest.meta.fields[
-        "index_endpoint"
-    ]
+    test_field = index_endpoint_service.UpdateIndexEndpointRequest.meta.fields["index_endpoint"]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -7369,7 +6215,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
             if is_field_type_proto_plus_type:
                 message_fields = field.message.meta.fields.values()
             # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
+            else: # pragma: NO COVER
                 message_fields = field.message.DESCRIPTOR.fields
         return message_fields
 
@@ -7383,7 +6229,7 @@ def test_update_index_endpoint_rest_call_success(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["index_endpoint"].items():  # pragma: NO COVER
+    for field, value in request_init["index_endpoint"].items(): # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -7398,16 +6244,12 @@ def test_update_index_endpoint_rest_call_success(request_type):
             for subfield in result.keys():
                 if (field, subfield) not in runtime_nested_fields:
                     subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
+                        {"field": field, "subfield": subfield, "is_repeated": is_repeated}
                     )
 
     # Remove fields from the sample request which are not present in the runtime version of the dependency
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+    for subfield_to_delete in subfields_not_in_runtime: # pragma: NO COVER
         field = subfield_to_delete.get("field")
         field_repeated = subfield_to_delete.get("is_repeated")
         subfield = subfield_to_delete.get("subfield")
@@ -7420,19 +6262,19 @@ def test_update_index_endpoint_rest_call_success(request_type):
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = gca_index_endpoint.IndexEndpoint(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            network="network_value",
-            enable_private_service_connect=True,
-            public_endpoint_enabled=True,
-            public_endpoint_domain_name="public_endpoint_domain_name_value",
-            satisfies_pzs=True,
-            satisfies_pzi=True,
+              name='name_value',
+              display_name='display_name_value',
+              description='description_value',
+              etag='etag_value',
+              network='network_value',
+              enable_private_service_connect=True,
+              public_endpoint_enabled=True,
+              public_endpoint_domain_name='public_endpoint_domain_name_value',
+              satisfies_pzs=True,
+              satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -7442,21 +6284,21 @@ def test_update_index_endpoint_rest_call_success(request_type):
         # Convert return value to protobuf type
         return_value = gca_index_endpoint.IndexEndpoint.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.update_index_endpoint(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -7465,32 +6307,19 @@ def test_update_index_endpoint_rest_call_success(request_type):
 def test_update_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_update_index_endpoint"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_update_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_update_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_update_index_endpoint") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_update_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_update_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.UpdateIndexEndpointRequest.pb(
-            index_endpoint_service.UpdateIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.UpdateIndexEndpointRequest.pb(index_endpoint_service.UpdateIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -7501,13 +6330,11 @@ def test_update_index_endpoint_rest_interceptors(null_interceptor):
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = gca_index_endpoint.IndexEndpoint.to_json(
-            gca_index_endpoint.IndexEndpoint()
-        )
+        return_value = gca_index_endpoint.IndexEndpoint.to_json(gca_index_endpoint.IndexEndpoint())
         req.return_value.content = return_value
 
         request = index_endpoint_service.UpdateIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -7515,36 +6342,27 @@ def test_update_index_endpoint_rest_interceptors(null_interceptor):
         post.return_value = gca_index_endpoint.IndexEndpoint()
         post_with_metadata.return_value = gca_index_endpoint.IndexEndpoint(), metadata
 
-        client.update_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.update_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_delete_index_endpoint_rest_bad_request(
-    request_type=index_endpoint_service.DeleteIndexEndpointRequest,
-):
+def test_delete_index_endpoint_rest_bad_request(request_type=index_endpoint_service.DeleteIndexEndpointRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -7553,32 +6371,30 @@ def test_delete_index_endpoint_rest_bad_request(
         client.delete_index_endpoint(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.DeleteIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeleteIndexEndpointRequest,
+  dict,
+])
 def test_delete_index_endpoint_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.delete_index_endpoint(request)
@@ -7591,34 +6407,20 @@ def test_delete_index_endpoint_rest_call_success(request_type):
 def test_delete_index_endpoint_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_delete_index_endpoint"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_delete_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_delete_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_delete_index_endpoint") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_delete_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_delete_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.DeleteIndexEndpointRequest.pb(
-            index_endpoint_service.DeleteIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.DeleteIndexEndpointRequest.pb(index_endpoint_service.DeleteIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -7633,7 +6435,7 @@ def test_delete_index_endpoint_rest_interceptors(null_interceptor):
         req.return_value.content = return_value
 
         request = index_endpoint_service.DeleteIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -7641,38 +6443,27 @@ def test_delete_index_endpoint_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        client.delete_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.delete_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_deploy_index_rest_bad_request(
-    request_type=index_endpoint_service.DeployIndexRequest,
-):
+def test_deploy_index_rest_bad_request(request_type=index_endpoint_service.DeployIndexRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -7681,34 +6472,30 @@ def test_deploy_index_rest_bad_request(
         client.deploy_index(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.DeployIndexRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeployIndexRequest,
+  dict,
+])
 def test_deploy_index_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.deploy_index(request)
@@ -7721,34 +6508,20 @@ def test_deploy_index_rest_call_success(request_type):
 def test_deploy_index_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_deploy_index"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_deploy_index_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_deploy_index"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_deploy_index") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_deploy_index_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_deploy_index") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.DeployIndexRequest.pb(
-            index_endpoint_service.DeployIndexRequest()
-        )
+        pb_message = index_endpoint_service.DeployIndexRequest.pb(index_endpoint_service.DeployIndexRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -7763,7 +6536,7 @@ def test_deploy_index_rest_interceptors(null_interceptor):
         req.return_value.content = return_value
 
         request = index_endpoint_service.DeployIndexRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -7771,38 +6544,27 @@ def test_deploy_index_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        client.deploy_index(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.deploy_index(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_undeploy_index_rest_bad_request(
-    request_type=index_endpoint_service.UndeployIndexRequest,
-):
+def test_undeploy_index_rest_bad_request(request_type=index_endpoint_service.UndeployIndexRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -7811,34 +6573,30 @@ def test_undeploy_index_rest_bad_request(
         client.undeploy_index(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.UndeployIndexRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UndeployIndexRequest,
+  dict,
+])
 def test_undeploy_index_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.undeploy_index(request)
@@ -7851,34 +6609,20 @@ def test_undeploy_index_rest_call_success(request_type):
 def test_undeploy_index_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_undeploy_index"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_undeploy_index_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_undeploy_index"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_undeploy_index") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_undeploy_index_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_undeploy_index") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.UndeployIndexRequest.pb(
-            index_endpoint_service.UndeployIndexRequest()
-        )
+        pb_message = index_endpoint_service.UndeployIndexRequest.pb(index_endpoint_service.UndeployIndexRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -7893,7 +6637,7 @@ def test_undeploy_index_rest_interceptors(null_interceptor):
         req.return_value.content = return_value
 
         request = index_endpoint_service.UndeployIndexRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -7901,38 +6645,27 @@ def test_undeploy_index_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        client.undeploy_index(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.undeploy_index(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
 
-def test_mutate_deployed_index_rest_bad_request(
-    request_type=index_endpoint_service.MutateDeployedIndexRequest,
-):
+def test_mutate_deployed_index_rest_bad_request(request_type=index_endpoint_service.MutateDeployedIndexRequest):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = mock.Mock()
@@ -7941,105 +6674,25 @@ def test_mutate_deployed_index_rest_bad_request(
         client.mutate_deployed_index(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.MutateDeployedIndexRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.MutateDeployedIndexRequest,
+  dict,
+])
 def test_mutate_deployed_index_rest_call_success(request_type):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
-    request_init["deployed_index"] = {
-        "id": "id_value",
-        "index": "index_value",
-        "display_name": "display_name_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "private_endpoints": {
-            "match_grpc_address": "match_grpc_address_value",
-            "service_attachment": "service_attachment_value",
-            "psc_automated_endpoints": [
-                {
-                    "project_id": "project_id_value",
-                    "network": "network_value",
-                    "match_address": "match_address_value",
-                }
-            ],
-        },
-        "index_sync_time": {},
-        "automatic_resources": {"min_replica_count": 1803, "max_replica_count": 1805},
-        "dedicated_resources": {
-            "machine_spec": {
-                "machine_type": "machine_type_value",
-                "accelerator_type": 1,
-                "accelerator_count": 1805,
-                "gpu_partition_size": "gpu_partition_size_value",
-                "tpu_topology": "tpu_topology_value",
-                "multihost_gpu_node_count": 2593,
-                "reservation_affinity": {
-                    "reservation_affinity_type": 1,
-                    "key": "key_value",
-                    "values": ["values_value1", "values_value2"],
-                },
-                "min_gpu_driver_version": "min_gpu_driver_version_value",
-            },
-            "min_replica_count": 1803,
-            "max_replica_count": 1805,
-            "required_replica_count": 2344,
-            "initial_replica_count": 2225,
-            "autoscaling_metric_specs": [
-                {
-                    "metric_name": "metric_name_value",
-                    "target": 647,
-                    "monitored_resource_labels": {},
-                }
-            ],
-            "spot": True,
-            "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
-            "scale_to_zero_spec": {
-                "min_scaleup_period": {},
-                "idle_scaledown_period": {},
-            },
-        },
-        "enable_access_logging": True,
-        "enable_datapoint_upsert_logging": True,
-        "deployed_index_auth_config": {
-            "auth_provider": {
-                "audiences": ["audiences_value1", "audiences_value2"],
-                "allowed_issuers": ["allowed_issuers_value1", "allowed_issuers_value2"],
-            }
-        },
-        "reserved_ip_ranges": [
-            "reserved_ip_ranges_value1",
-            "reserved_ip_ranges_value2",
-        ],
-        "deployment_group": "deployment_group_value",
-        "psc_automation_configs": [
-            {
-                "project_id": "project_id_value",
-                "network": "network_value",
-                "ip_address": "ip_address_value",
-                "forwarding_rule": "forwarding_rule_value",
-                "state": 1,
-                "error_message": "error_message_value",
-            }
-        ],
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
+    request_init["deployed_index"] = {'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'gpu_partition_size': 'gpu_partition_size_value', 'tpu_topology': 'tpu_topology_value', 'multihost_gpu_node_count': 2593, 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}, 'min_gpu_driver_version': 'min_gpu_driver_version_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'required_replica_count': 2344, 'initial_replica_count': 2225, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647, 'monitored_resource_labels': {}}], 'spot': True, 'flex_start': {'max_runtime_duration': {'seconds': 751, 'nanos': 543}}, 'scale_to_zero_spec': {'min_scaleup_period': {}, 'idle_scaledown_period': {}}}, 'enable_access_logging': True, 'enable_datapoint_upsert_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value', 'psc_automation_configs': [{'project_id': 'project_id_value', 'network': 'network_value', 'ip_address': 'ip_address_value', 'forwarding_rule': 'forwarding_rule_value', 'state': 1, 'error_message': 'error_message_value'}]}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = index_endpoint_service.MutateDeployedIndexRequest.meta.fields[
-        "deployed_index"
-    ]
+    test_field = index_endpoint_service.MutateDeployedIndexRequest.meta.fields["deployed_index"]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -8053,7 +6706,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             if is_field_type_proto_plus_type:
                 message_fields = field.message.meta.fields.values()
             # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
+            else: # pragma: NO COVER
                 message_fields = field.message.DESCRIPTOR.fields
         return message_fields
 
@@ -8067,7 +6720,7 @@ def test_mutate_deployed_index_rest_call_success(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["deployed_index"].items():  # pragma: NO COVER
+    for field, value in request_init["deployed_index"].items(): # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -8082,16 +6735,12 @@ def test_mutate_deployed_index_rest_call_success(request_type):
             for subfield in result.keys():
                 if (field, subfield) not in runtime_nested_fields:
                     subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
+                        {"field": field, "subfield": subfield, "is_repeated": is_repeated}
                     )
 
     # Remove fields from the sample request which are not present in the runtime version of the dependency
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+    for subfield_to_delete in subfields_not_in_runtime: # pragma: NO COVER
         field = subfield_to_delete.get("field")
         field_repeated = subfield_to_delete.get("is_repeated")
         subfield = subfield_to_delete.get("subfield")
@@ -8104,15 +6753,15 @@ def test_mutate_deployed_index_rest_call_success(request_type):
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = client.mutate_deployed_index(request)
@@ -8125,34 +6774,20 @@ def test_mutate_deployed_index_rest_call_success(request_type):
 def test_mutate_deployed_index_rest_interceptors(null_interceptor):
     transport = transports.IndexEndpointServiceRestTransport(
         credentials=ga_credentials.AnonymousCredentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.IndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.IndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "post_mutate_deployed_index"
-    ) as post, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor,
-        "post_mutate_deployed_index_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.IndexEndpointServiceRestInterceptor, "pre_mutate_deployed_index"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_mutate_deployed_index") as post, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "post_mutate_deployed_index_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.IndexEndpointServiceRestInterceptor, "pre_mutate_deployed_index") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.MutateDeployedIndexRequest.pb(
-            index_endpoint_service.MutateDeployedIndexRequest()
-        )
+        pb_message = index_endpoint_service.MutateDeployedIndexRequest.pb(index_endpoint_service.MutateDeployedIndexRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -8167,7 +6802,7 @@ def test_mutate_deployed_index_rest_interceptors(null_interceptor):
         req.return_value.content = return_value
 
         request = index_endpoint_service.MutateDeployedIndexRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -8175,13 +6810,7 @@ def test_mutate_deployed_index_rest_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        client.mutate_deployed_index(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        client.mutate_deployed_index(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
@@ -8194,17 +6823,13 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8213,23 +6838,20 @@ def test_get_location_rest_bad_request(request_type=locations_pb2.GetLocationReq
         client.get_location(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    locations_pb2.GetLocationRequest,
+    dict,
+])
 def test_get_location_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2"}
+    request_init = {'name': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = locations_pb2.Location()
 
@@ -8237,7 +6859,7 @@ def test_get_location_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8248,23 +6870,19 @@ def test_get_location_rest(request_type):
     assert isinstance(response, locations_pb2.Location)
 
 
-def test_list_locations_rest_bad_request(
-    request_type=locations_pb2.ListLocationsRequest,
-):
+def test_list_locations_rest_bad_request(request_type=locations_pb2.ListLocationsRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+    request = json_format.ParseDict({'name': 'projects/sample1'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8273,23 +6891,20 @@ def test_list_locations_rest_bad_request(
         client.list_locations(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    locations_pb2.ListLocationsRequest,
+    dict,
+])
 def test_list_locations_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1"}
+    request_init = {'name': 'projects/sample1'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = locations_pb2.ListLocationsResponse()
 
@@ -8297,7 +6912,7 @@ def test_list_locations_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8308,26 +6923,19 @@ def test_list_locations_rest(request_type):
     assert isinstance(response, locations_pb2.ListLocationsResponse)
 
 
-def test_get_iam_policy_rest_bad_request(
-    request_type=iam_policy_pb2.GetIamPolicyRequest,
-):
+def test_get_iam_policy_rest_bad_request(request_type=iam_policy_pb2.GetIamPolicyRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
+    request = json_format.ParseDict({'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8336,25 +6944,20 @@ def test_get_iam_policy_rest_bad_request(
         client.get_iam_policy(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    iam_policy_pb2.GetIamPolicyRequest,
+    dict,
+])
 def test_get_iam_policy_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
+    request_init = {'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = policy_pb2.Policy()
 
@@ -8362,7 +6965,7 @@ def test_get_iam_policy_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8373,26 +6976,19 @@ def test_get_iam_policy_rest(request_type):
     assert isinstance(response, policy_pb2.Policy)
 
 
-def test_set_iam_policy_rest_bad_request(
-    request_type=iam_policy_pb2.SetIamPolicyRequest,
-):
+def test_set_iam_policy_rest_bad_request(request_type=iam_policy_pb2.SetIamPolicyRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
+    request = json_format.ParseDict({'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8401,25 +6997,20 @@ def test_set_iam_policy_rest_bad_request(
         client.set_iam_policy(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    iam_policy_pb2.SetIamPolicyRequest,
+    dict,
+])
 def test_set_iam_policy_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
+    request_init = {'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = policy_pb2.Policy()
 
@@ -8427,7 +7018,7 @@ def test_set_iam_policy_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8438,26 +7029,19 @@ def test_set_iam_policy_rest(request_type):
     assert isinstance(response, policy_pb2.Policy)
 
 
-def test_test_iam_permissions_rest_bad_request(
-    request_type=iam_policy_pb2.TestIamPermissionsRequest,
-):
+def test_test_iam_permissions_rest_bad_request(request_type=iam_policy_pb2.TestIamPermissionsRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
+    request = json_format.ParseDict({'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8466,25 +7050,20 @@ def test_test_iam_permissions_rest_bad_request(
         client.test_iam_permissions(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    iam_policy_pb2.TestIamPermissionsRequest,
+    dict,
+])
 def test_test_iam_permissions_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
+    request_init = {'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = iam_policy_pb2.TestIamPermissionsResponse()
 
@@ -8492,7 +7071,7 @@ def test_test_iam_permissions_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8503,25 +7082,19 @@ def test_test_iam_permissions_rest(request_type):
     assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
 
 
-def test_cancel_operation_rest_bad_request(
-    request_type=operations_pb2.CancelOperationRequest,
-):
+def test_cancel_operation_rest_bad_request(request_type=operations_pb2.CancelOperationRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8530,31 +7103,28 @@ def test_cancel_operation_rest_bad_request(
         client.cancel_operation(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.CancelOperationRequest,
+    dict,
+])
 def test_cancel_operation_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = None
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
-        json_return_value = "{}"
-        response_value.content = json_return_value.encode("UTF-8")
+        json_return_value = '{}'
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8565,25 +7135,19 @@ def test_cancel_operation_rest(request_type):
     assert response is None
 
 
-def test_delete_operation_rest_bad_request(
-    request_type=operations_pb2.DeleteOperationRequest,
-):
+def test_delete_operation_rest_bad_request(request_type=operations_pb2.DeleteOperationRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8592,31 +7156,28 @@ def test_delete_operation_rest_bad_request(
         client.delete_operation(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.DeleteOperationRequest,
+    dict,
+])
 def test_delete_operation_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = None
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
-        json_return_value = "{}"
-        response_value.content = json_return_value.encode("UTF-8")
+        json_return_value = '{}'
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8627,25 +7188,19 @@ def test_delete_operation_rest(request_type):
     assert response is None
 
 
-def test_get_operation_rest_bad_request(
-    request_type=operations_pb2.GetOperationRequest,
-):
+def test_get_operation_rest_bad_request(request_type=operations_pb2.GetOperationRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8654,23 +7209,20 @@ def test_get_operation_rest_bad_request(
         client.get_operation(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.GetOperationRequest,
+    dict,
+])
 def test_get_operation_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = operations_pb2.Operation()
 
@@ -8678,7 +7230,7 @@ def test_get_operation_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8689,25 +7241,19 @@ def test_get_operation_rest(request_type):
     assert isinstance(response, operations_pb2.Operation)
 
 
-def test_list_operations_rest_bad_request(
-    request_type=operations_pb2.ListOperationsRequest,
-):
+def test_list_operations_rest_bad_request(request_type=operations_pb2.ListOperationsRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8716,23 +7262,20 @@ def test_list_operations_rest_bad_request(
         client.list_operations(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.ListOperationsRequest,
+    dict,
+])
 def test_list_operations_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2"}
+    request_init = {'name': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = operations_pb2.ListOperationsResponse()
 
@@ -8740,7 +7283,7 @@ def test_list_operations_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8751,25 +7294,19 @@ def test_list_operations_rest(request_type):
     assert isinstance(response, operations_pb2.ListOperationsResponse)
 
 
-def test_wait_operation_rest_bad_request(
-    request_type=operations_pb2.WaitOperationRequest,
-):
+def test_wait_operation_rest_bad_request(request_type=operations_pb2.WaitOperationRequest):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(Session, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(Session, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = Response()
-        json_return_value = ""
+        json_return_value = ''
         response_value.json = mock.Mock(return_value={})
         response_value.status_code = 400
         response_value.request = Request()
@@ -8778,23 +7315,20 @@ def test_wait_operation_rest_bad_request(
         client.wait_operation(request)
 
 
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.WaitOperationRequest,
+    dict,
+])
 def test_wait_operation_rest(request_type):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
         transport="rest",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(Session, "request") as req:
+    with mock.patch.object(Session, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = operations_pb2.Operation()
 
@@ -8802,7 +7336,7 @@ def test_wait_operation_rest(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.content = json_return_value.encode("UTF-8")
+        response_value.content = json_return_value.encode('UTF-8')
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -8812,10 +7346,10 @@ def test_wait_operation_rest(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.Operation)
 
-
 def test_initialize_client_w_rest():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
     assert client is not None
 
@@ -8830,15 +7364,14 @@ def test_create_index_endpoint_empty_call_rest():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         client.create_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.CreateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -8852,15 +7385,14 @@ def test_get_index_endpoint_empty_call_rest():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         client.get_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.GetIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -8874,15 +7406,14 @@ def test_list_index_endpoints_empty_call_rest():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         client.list_index_endpoints(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.ListIndexEndpointsRequest()
-
         assert args[0] == request_msg
 
 
@@ -8896,15 +7427,14 @@ def test_update_index_endpoint_empty_call_rest():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         client.update_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UpdateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -8918,15 +7448,14 @@ def test_delete_index_endpoint_empty_call_rest():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         client.delete_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeleteIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -8939,14 +7468,15 @@ def test_deploy_index_empty_call_rest():
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         client.deploy_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -8959,14 +7489,15 @@ def test_undeploy_index_empty_call_rest():
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         client.undeploy_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UndeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -8980,15 +7511,14 @@ def test_mutate_deployed_index_empty_call_rest():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         client.mutate_deployed_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.MutateDeployedIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -9002,18 +7532,15 @@ def test_index_endpoint_service_rest_lro_client():
     # Ensure that we have an api-core operations client.
     assert isinstance(
         transport.operations_client,
-        operations_v1.AbstractOperationsClient,
+operations_v1.AbstractOperationsClient,
     )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
 
-
 def test_transport_kind_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = IndexEndpointServiceAsyncClient.get_transport_class("rest_asyncio")(
         credentials=async_anonymous_credentials()
     )
@@ -9021,27 +7548,22 @@ def test_transport_kind_rest_asyncio():
 
 
 @pytest.mark.asyncio
-async def test_create_index_endpoint_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.CreateIndexEndpointRequest,
-):
+async def test_create_index_endpoint_rest_asyncio_bad_request(request_type=index_endpoint_service.CreateIndexEndpointRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -9050,143 +7572,27 @@ async def test_create_index_endpoint_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.CreateIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.CreateIndexEndpointRequest,
+  dict,
+])
 async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
-    request_init["index_endpoint"] = {
-        "name": "name_value",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "deployed_indexes": [
-            {
-                "id": "id_value",
-                "index": "index_value",
-                "display_name": "display_name_value",
-                "create_time": {"seconds": 751, "nanos": 543},
-                "private_endpoints": {
-                    "match_grpc_address": "match_grpc_address_value",
-                    "service_attachment": "service_attachment_value",
-                    "psc_automated_endpoints": [
-                        {
-                            "project_id": "project_id_value",
-                            "network": "network_value",
-                            "match_address": "match_address_value",
-                        }
-                    ],
-                },
-                "index_sync_time": {},
-                "automatic_resources": {
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                },
-                "dedicated_resources": {
-                    "machine_spec": {
-                        "machine_type": "machine_type_value",
-                        "accelerator_type": 1,
-                        "accelerator_count": 1805,
-                        "gpu_partition_size": "gpu_partition_size_value",
-                        "tpu_topology": "tpu_topology_value",
-                        "multihost_gpu_node_count": 2593,
-                        "reservation_affinity": {
-                            "reservation_affinity_type": 1,
-                            "key": "key_value",
-                            "values": ["values_value1", "values_value2"],
-                        },
-                        "min_gpu_driver_version": "min_gpu_driver_version_value",
-                    },
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                    "required_replica_count": 2344,
-                    "initial_replica_count": 2225,
-                    "autoscaling_metric_specs": [
-                        {
-                            "metric_name": "metric_name_value",
-                            "target": 647,
-                            "monitored_resource_labels": {},
-                        }
-                    ],
-                    "spot": True,
-                    "flex_start": {
-                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
-                    },
-                    "scale_to_zero_spec": {
-                        "min_scaleup_period": {},
-                        "idle_scaledown_period": {},
-                    },
-                },
-                "enable_access_logging": True,
-                "enable_datapoint_upsert_logging": True,
-                "deployed_index_auth_config": {
-                    "auth_provider": {
-                        "audiences": ["audiences_value1", "audiences_value2"],
-                        "allowed_issuers": [
-                            "allowed_issuers_value1",
-                            "allowed_issuers_value2",
-                        ],
-                    }
-                },
-                "reserved_ip_ranges": [
-                    "reserved_ip_ranges_value1",
-                    "reserved_ip_ranges_value2",
-                ],
-                "deployment_group": "deployment_group_value",
-                "psc_automation_configs": [
-                    {
-                        "project_id": "project_id_value",
-                        "network": "network_value",
-                        "ip_address": "ip_address_value",
-                        "forwarding_rule": "forwarding_rule_value",
-                        "state": 1,
-                        "error_message": "error_message_value",
-                    }
-                ],
-            }
-        ],
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {},
-        "update_time": {},
-        "network": "network_value",
-        "enable_private_service_connect": True,
-        "private_service_connect_config": {
-            "enable_private_service_connect": True,
-            "project_allowlist": [
-                "project_allowlist_value1",
-                "project_allowlist_value2",
-            ],
-            "psc_automation_configs": {},
-            "enable_secure_private_service_connect": True,
-            "service_attachment": "service_attachment_value",
-        },
-        "public_endpoint_enabled": True,
-        "public_endpoint_domain_name": "public_endpoint_domain_name_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "satisfies_pzs": True,
-        "satisfies_pzi": True,
-    }
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
+    request_init["index_endpoint"] = {'name': 'name_value', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'gpu_partition_size': 'gpu_partition_size_value', 'tpu_topology': 'tpu_topology_value', 'multihost_gpu_node_count': 2593, 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}, 'min_gpu_driver_version': 'min_gpu_driver_version_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'required_replica_count': 2344, 'initial_replica_count': 2225, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647, 'monitored_resource_labels': {}}], 'spot': True, 'flex_start': {'max_runtime_duration': {'seconds': 751, 'nanos': 543}}, 'scale_to_zero_spec': {'min_scaleup_period': {}, 'idle_scaledown_period': {}}}, 'enable_access_logging': True, 'enable_datapoint_upsert_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value', 'psc_automation_configs': [{'project_id': 'project_id_value', 'network': 'network_value', 'ip_address': 'ip_address_value', 'forwarding_rule': 'forwarding_rule_value', 'state': 1, 'error_message': 'error_message_value'}]}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2'], 'psc_automation_configs': {}, 'enable_secure_private_service_connect': True, 'service_attachment': 'service_attachment_value'}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'satisfies_pzs': True, 'satisfies_pzi': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = index_endpoint_service.CreateIndexEndpointRequest.meta.fields[
-        "index_endpoint"
-    ]
+    test_field = index_endpoint_service.CreateIndexEndpointRequest.meta.fields["index_endpoint"]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -9200,7 +7606,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
             if is_field_type_proto_plus_type:
                 message_fields = field.message.meta.fields.values()
             # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
+            else: # pragma: NO COVER
                 message_fields = field.message.DESCRIPTOR.fields
         return message_fields
 
@@ -9214,7 +7620,7 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["index_endpoint"].items():  # pragma: NO COVER
+    for field, value in request_init["index_endpoint"].items(): # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -9229,16 +7635,12 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
             for subfield in result.keys():
                 if (field, subfield) not in runtime_nested_fields:
                     subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
+                        {"field": field, "subfield": subfield, "is_repeated": is_repeated}
                     )
 
     # Remove fields from the sample request which are not present in the runtime version of the dependency
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+    for subfield_to_delete in subfields_not_in_runtime: # pragma: NO COVER
         field = subfield_to_delete.get("field")
         field_repeated = subfield_to_delete.get("is_repeated")
         subfield = subfield_to_delete.get("subfield")
@@ -9251,17 +7653,15 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.create_index_endpoint(request)
@@ -9274,40 +7674,23 @@ async def test_create_index_endpoint_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_create_index_endpoint",
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_create_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_create_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_create_index_endpoint") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_create_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_create_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.CreateIndexEndpointRequest.pb(
-            index_endpoint_service.CreateIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.CreateIndexEndpointRequest.pb(index_endpoint_service.CreateIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -9322,7 +7705,7 @@ async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.CreateIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -9330,41 +7713,29 @@ async def test_create_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        await client.create_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.create_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_get_index_endpoint_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.GetIndexEndpointRequest,
-):
+async def test_get_index_endpoint_rest_asyncio_bad_request(request_type=index_endpoint_service.GetIndexEndpointRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -9373,40 +7744,36 @@ async def test_get_index_endpoint_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.GetIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.GetIndexEndpointRequest,
+  dict,
+])
 async def test_get_index_endpoint_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = index_endpoint.IndexEndpoint(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            network="network_value",
-            enable_private_service_connect=True,
-            public_endpoint_enabled=True,
-            public_endpoint_domain_name="public_endpoint_domain_name_value",
-            satisfies_pzs=True,
-            satisfies_pzi=True,
+              name='name_value',
+              display_name='display_name_value',
+              description='description_value',
+              etag='etag_value',
+              network='network_value',
+              enable_private_service_connect=True,
+              public_endpoint_enabled=True,
+              public_endpoint_domain_name='public_endpoint_domain_name_value',
+              satisfies_pzs=True,
+              satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -9416,23 +7783,21 @@ async def test_get_index_endpoint_rest_asyncio_call_success(request_type):
         # Convert return value to protobuf type
         return_value = index_endpoint.IndexEndpoint.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.get_index_endpoint(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -9441,37 +7806,22 @@ async def test_get_index_endpoint_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "post_get_index_endpoint"
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_get_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_get_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_get_index_endpoint") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_get_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_get_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.GetIndexEndpointRequest.pb(
-            index_endpoint_service.GetIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.GetIndexEndpointRequest.pb(index_endpoint_service.GetIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -9482,13 +7832,11 @@ async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = index_endpoint.IndexEndpoint.to_json(
-            index_endpoint.IndexEndpoint()
-        )
+        return_value = index_endpoint.IndexEndpoint.to_json(index_endpoint.IndexEndpoint())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.GetIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -9496,41 +7844,29 @@ async def test_get_index_endpoint_rest_asyncio_interceptors(null_interceptor):
         post.return_value = index_endpoint.IndexEndpoint()
         post_with_metadata.return_value = index_endpoint.IndexEndpoint(), metadata
 
-        await client.get_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.get_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_list_index_endpoints_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.ListIndexEndpointsRequest,
-):
+async def test_list_index_endpoints_rest_asyncio_bad_request(request_type=index_endpoint_service.ListIndexEndpointsRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -9539,31 +7875,27 @@ async def test_list_index_endpoints_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.ListIndexEndpointsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.ListIndexEndpointsRequest,
+  dict,
+])
 async def test_list_index_endpoints_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"parent": "projects/sample1/locations/sample2"}
+    request_init = {'parent': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = index_endpoint_service.ListIndexEndpointsResponse(
-            next_page_token="next_page_token_value",
+              next_page_token='next_page_token_value',
         )
 
         # Wrap the value into a proper Response obj
@@ -9571,57 +7903,38 @@ async def test_list_index_endpoints_rest_asyncio_call_success(request_type):
         response_value.status_code = 200
 
         # Convert return value to protobuf type
-        return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(
-            return_value
-        )
+        return_value = index_endpoint_service.ListIndexEndpointsResponse.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.list_index_endpoints(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, pagers.ListIndexEndpointsAsyncPager)
-    assert response.next_page_token == "next_page_token_value"
+    assert response.next_page_token == 'next_page_token_value'
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_list_index_endpoints_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "post_list_index_endpoints"
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_list_index_endpoints_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_list_index_endpoints"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_list_index_endpoints") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_list_index_endpoints_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_list_index_endpoints") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.ListIndexEndpointsRequest.pb(
-            index_endpoint_service.ListIndexEndpointsRequest()
-        )
+        pb_message = index_endpoint_service.ListIndexEndpointsRequest.pb(index_endpoint_service.ListIndexEndpointsRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -9632,62 +7945,41 @@ async def test_list_index_endpoints_rest_asyncio_interceptors(null_interceptor):
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = index_endpoint_service.ListIndexEndpointsResponse.to_json(
-            index_endpoint_service.ListIndexEndpointsResponse()
-        )
+        return_value = index_endpoint_service.ListIndexEndpointsResponse.to_json(index_endpoint_service.ListIndexEndpointsResponse())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.ListIndexEndpointsRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
         pre.return_value = request, metadata
         post.return_value = index_endpoint_service.ListIndexEndpointsResponse()
-        post_with_metadata.return_value = (
-            index_endpoint_service.ListIndexEndpointsResponse(),
-            metadata,
-        )
+        post_with_metadata.return_value = index_endpoint_service.ListIndexEndpointsResponse(), metadata
 
-        await client.list_index_endpoints(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.list_index_endpoints(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_update_index_endpoint_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.UpdateIndexEndpointRequest,
-):
+async def test_update_index_endpoint_rest_asyncio_bad_request(request_type=index_endpoint_service.UpdateIndexEndpointRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": {
-            "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
-    }
+    request_init = {'index_endpoint': {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -9696,147 +7988,27 @@ async def test_update_index_endpoint_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.UpdateIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UpdateIndexEndpointRequest,
+  dict,
+])
 async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": {
-            "name": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-        }
-    }
-    request_init["index_endpoint"] = {
-        "name": "projects/sample1/locations/sample2/indexEndpoints/sample3",
-        "display_name": "display_name_value",
-        "description": "description_value",
-        "deployed_indexes": [
-            {
-                "id": "id_value",
-                "index": "index_value",
-                "display_name": "display_name_value",
-                "create_time": {"seconds": 751, "nanos": 543},
-                "private_endpoints": {
-                    "match_grpc_address": "match_grpc_address_value",
-                    "service_attachment": "service_attachment_value",
-                    "psc_automated_endpoints": [
-                        {
-                            "project_id": "project_id_value",
-                            "network": "network_value",
-                            "match_address": "match_address_value",
-                        }
-                    ],
-                },
-                "index_sync_time": {},
-                "automatic_resources": {
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                },
-                "dedicated_resources": {
-                    "machine_spec": {
-                        "machine_type": "machine_type_value",
-                        "accelerator_type": 1,
-                        "accelerator_count": 1805,
-                        "gpu_partition_size": "gpu_partition_size_value",
-                        "tpu_topology": "tpu_topology_value",
-                        "multihost_gpu_node_count": 2593,
-                        "reservation_affinity": {
-                            "reservation_affinity_type": 1,
-                            "key": "key_value",
-                            "values": ["values_value1", "values_value2"],
-                        },
-                        "min_gpu_driver_version": "min_gpu_driver_version_value",
-                    },
-                    "min_replica_count": 1803,
-                    "max_replica_count": 1805,
-                    "required_replica_count": 2344,
-                    "initial_replica_count": 2225,
-                    "autoscaling_metric_specs": [
-                        {
-                            "metric_name": "metric_name_value",
-                            "target": 647,
-                            "monitored_resource_labels": {},
-                        }
-                    ],
-                    "spot": True,
-                    "flex_start": {
-                        "max_runtime_duration": {"seconds": 751, "nanos": 543}
-                    },
-                    "scale_to_zero_spec": {
-                        "min_scaleup_period": {},
-                        "idle_scaledown_period": {},
-                    },
-                },
-                "enable_access_logging": True,
-                "enable_datapoint_upsert_logging": True,
-                "deployed_index_auth_config": {
-                    "auth_provider": {
-                        "audiences": ["audiences_value1", "audiences_value2"],
-                        "allowed_issuers": [
-                            "allowed_issuers_value1",
-                            "allowed_issuers_value2",
-                        ],
-                    }
-                },
-                "reserved_ip_ranges": [
-                    "reserved_ip_ranges_value1",
-                    "reserved_ip_ranges_value2",
-                ],
-                "deployment_group": "deployment_group_value",
-                "psc_automation_configs": [
-                    {
-                        "project_id": "project_id_value",
-                        "network": "network_value",
-                        "ip_address": "ip_address_value",
-                        "forwarding_rule": "forwarding_rule_value",
-                        "state": 1,
-                        "error_message": "error_message_value",
-                    }
-                ],
-            }
-        ],
-        "etag": "etag_value",
-        "labels": {},
-        "create_time": {},
-        "update_time": {},
-        "network": "network_value",
-        "enable_private_service_connect": True,
-        "private_service_connect_config": {
-            "enable_private_service_connect": True,
-            "project_allowlist": [
-                "project_allowlist_value1",
-                "project_allowlist_value2",
-            ],
-            "psc_automation_configs": {},
-            "enable_secure_private_service_connect": True,
-            "service_attachment": "service_attachment_value",
-        },
-        "public_endpoint_enabled": True,
-        "public_endpoint_domain_name": "public_endpoint_domain_name_value",
-        "encryption_spec": {"kms_key_name": "kms_key_name_value"},
-        "satisfies_pzs": True,
-        "satisfies_pzi": True,
-    }
+    request_init = {'index_endpoint': {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}}
+    request_init["index_endpoint"] = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3', 'display_name': 'display_name_value', 'description': 'description_value', 'deployed_indexes': [{'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'gpu_partition_size': 'gpu_partition_size_value', 'tpu_topology': 'tpu_topology_value', 'multihost_gpu_node_count': 2593, 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}, 'min_gpu_driver_version': 'min_gpu_driver_version_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'required_replica_count': 2344, 'initial_replica_count': 2225, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647, 'monitored_resource_labels': {}}], 'spot': True, 'flex_start': {'max_runtime_duration': {'seconds': 751, 'nanos': 543}}, 'scale_to_zero_spec': {'min_scaleup_period': {}, 'idle_scaledown_period': {}}}, 'enable_access_logging': True, 'enable_datapoint_upsert_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value', 'psc_automation_configs': [{'project_id': 'project_id_value', 'network': 'network_value', 'ip_address': 'ip_address_value', 'forwarding_rule': 'forwarding_rule_value', 'state': 1, 'error_message': 'error_message_value'}]}], 'etag': 'etag_value', 'labels': {}, 'create_time': {}, 'update_time': {}, 'network': 'network_value', 'enable_private_service_connect': True, 'private_service_connect_config': {'enable_private_service_connect': True, 'project_allowlist': ['project_allowlist_value1', 'project_allowlist_value2'], 'psc_automation_configs': {}, 'enable_secure_private_service_connect': True, 'service_attachment': 'service_attachment_value'}, 'public_endpoint_enabled': True, 'public_endpoint_domain_name': 'public_endpoint_domain_name_value', 'encryption_spec': {'kms_key_name': 'kms_key_name_value'}, 'satisfies_pzs': True, 'satisfies_pzi': True}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = index_endpoint_service.UpdateIndexEndpointRequest.meta.fields[
-        "index_endpoint"
-    ]
+    test_field = index_endpoint_service.UpdateIndexEndpointRequest.meta.fields["index_endpoint"]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -9850,7 +8022,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
             if is_field_type_proto_plus_type:
                 message_fields = field.message.meta.fields.values()
             # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
+            else: # pragma: NO COVER
                 message_fields = field.message.DESCRIPTOR.fields
         return message_fields
 
@@ -9864,7 +8036,7 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["index_endpoint"].items():  # pragma: NO COVER
+    for field, value in request_init["index_endpoint"].items(): # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -9879,16 +8051,12 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
             for subfield in result.keys():
                 if (field, subfield) not in runtime_nested_fields:
                     subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
+                        {"field": field, "subfield": subfield, "is_repeated": is_repeated}
                     )
 
     # Remove fields from the sample request which are not present in the runtime version of the dependency
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+    for subfield_to_delete in subfields_not_in_runtime: # pragma: NO COVER
         field = subfield_to_delete.get("field")
         field_repeated = subfield_to_delete.get("is_repeated")
         subfield = subfield_to_delete.get("subfield")
@@ -9901,19 +8069,19 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = gca_index_endpoint.IndexEndpoint(
-            name="name_value",
-            display_name="display_name_value",
-            description="description_value",
-            etag="etag_value",
-            network="network_value",
-            enable_private_service_connect=True,
-            public_endpoint_enabled=True,
-            public_endpoint_domain_name="public_endpoint_domain_name_value",
-            satisfies_pzs=True,
-            satisfies_pzi=True,
+              name='name_value',
+              display_name='display_name_value',
+              description='description_value',
+              etag='etag_value',
+              network='network_value',
+              enable_private_service_connect=True,
+              public_endpoint_enabled=True,
+              public_endpoint_domain_name='public_endpoint_domain_name_value',
+              satisfies_pzs=True,
+              satisfies_pzi=True,
         )
 
         # Wrap the value into a proper Response obj
@@ -9923,23 +8091,21 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
         # Convert return value to protobuf type
         return_value = gca_index_endpoint.IndexEndpoint.pb(return_value)
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.update_index_endpoint(request)
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, gca_index_endpoint.IndexEndpoint)
-    assert response.name == "name_value"
-    assert response.display_name == "display_name_value"
-    assert response.description == "description_value"
-    assert response.etag == "etag_value"
-    assert response.network == "network_value"
+    assert response.name == 'name_value'
+    assert response.display_name == 'display_name_value'
+    assert response.description == 'description_value'
+    assert response.etag == 'etag_value'
+    assert response.network == 'network_value'
     assert response.enable_private_service_connect is True
     assert response.public_endpoint_enabled is True
-    assert response.public_endpoint_domain_name == "public_endpoint_domain_name_value"
+    assert response.public_endpoint_domain_name == 'public_endpoint_domain_name_value'
     assert response.satisfies_pzs is True
     assert response.satisfies_pzi is True
 
@@ -9948,38 +8114,22 @@ async def test_update_index_endpoint_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_update_index_endpoint",
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_update_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_update_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_update_index_endpoint") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_update_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_update_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.UpdateIndexEndpointRequest.pb(
-            index_endpoint_service.UpdateIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.UpdateIndexEndpointRequest.pb(index_endpoint_service.UpdateIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -9990,13 +8140,11 @@ async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         req.return_value = mock.Mock()
         req.return_value.status_code = 200
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
-        return_value = gca_index_endpoint.IndexEndpoint.to_json(
-            gca_index_endpoint.IndexEndpoint()
-        )
+        return_value = gca_index_endpoint.IndexEndpoint.to_json(gca_index_endpoint.IndexEndpoint())
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.UpdateIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -10004,41 +8152,29 @@ async def test_update_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         post.return_value = gca_index_endpoint.IndexEndpoint()
         post_with_metadata.return_value = gca_index_endpoint.IndexEndpoint(), metadata
 
-        await client.update_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.update_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_delete_index_endpoint_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.DeleteIndexEndpointRequest,
-):
+async def test_delete_index_endpoint_rest_asyncio_bad_request(request_type=index_endpoint_service.DeleteIndexEndpointRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -10047,38 +8183,32 @@ async def test_delete_index_endpoint_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.DeleteIndexEndpointRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeleteIndexEndpointRequest,
+  dict,
+])
 async def test_delete_index_endpoint_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {"name": "projects/sample1/locations/sample2/indexEndpoints/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.delete_index_endpoint(request)
@@ -10091,40 +8221,23 @@ async def test_delete_index_endpoint_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_delete_index_endpoint",
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_delete_index_endpoint_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_delete_index_endpoint"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_delete_index_endpoint") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_delete_index_endpoint_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_delete_index_endpoint") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.DeleteIndexEndpointRequest.pb(
-            index_endpoint_service.DeleteIndexEndpointRequest()
-        )
+        pb_message = index_endpoint_service.DeleteIndexEndpointRequest.pb(index_endpoint_service.DeleteIndexEndpointRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -10139,7 +8252,7 @@ async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.DeleteIndexEndpointRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -10147,43 +8260,29 @@ async def test_delete_index_endpoint_rest_asyncio_interceptors(null_interceptor)
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        await client.delete_index_endpoint(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.delete_index_endpoint(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_deploy_index_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.DeployIndexRequest,
-):
+async def test_deploy_index_rest_asyncio_bad_request(request_type=index_endpoint_service.DeployIndexRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -10192,40 +8291,32 @@ async def test_deploy_index_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.DeployIndexRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.DeployIndexRequest,
+  dict,
+])
 async def test_deploy_index_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.deploy_index(request)
@@ -10238,39 +8329,23 @@ async def test_deploy_index_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "post_deploy_index"
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_deploy_index_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_deploy_index"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_deploy_index") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_deploy_index_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_deploy_index") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.DeployIndexRequest.pb(
-            index_endpoint_service.DeployIndexRequest()
-        )
+        pb_message = index_endpoint_service.DeployIndexRequest.pb(index_endpoint_service.DeployIndexRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -10285,7 +8360,7 @@ async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.DeployIndexRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -10293,43 +8368,29 @@ async def test_deploy_index_rest_asyncio_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        await client.deploy_index(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.deploy_index(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_undeploy_index_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.UndeployIndexRequest,
-):
+async def test_undeploy_index_rest_asyncio_bad_request(request_type=index_endpoint_service.UndeployIndexRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -10338,40 +8399,32 @@ async def test_undeploy_index_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.UndeployIndexRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.UndeployIndexRequest,
+  dict,
+])
 async def test_undeploy_index_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.undeploy_index(request)
@@ -10384,39 +8437,23 @@ async def test_undeploy_index_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "post_undeploy_index"
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_undeploy_index_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_undeploy_index"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_undeploy_index") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_undeploy_index_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_undeploy_index") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.UndeployIndexRequest.pb(
-            index_endpoint_service.UndeployIndexRequest()
-        )
+        pb_message = index_endpoint_service.UndeployIndexRequest.pb(index_endpoint_service.UndeployIndexRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -10431,7 +8468,7 @@ async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.UndeployIndexRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -10439,43 +8476,29 @@ async def test_undeploy_index_rest_asyncio_interceptors(null_interceptor):
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        await client.undeploy_index(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.undeploy_index(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_mutate_deployed_index_rest_asyncio_bad_request(
-    request_type=index_endpoint_service.MutateDeployedIndexRequest,
-):
+async def test_mutate_deployed_index_rest_asyncio_bad_request(request_type=index_endpoint_service.MutateDeployedIndexRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
@@ -10484,109 +8507,27 @@ async def test_mutate_deployed_index_rest_asyncio_bad_request(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        index_endpoint_service.MutateDeployedIndexRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+  index_endpoint_service.MutateDeployedIndexRequest,
+  dict,
+])
 async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
 
     # send a request that will satisfy transcoding
-    request_init = {
-        "index_endpoint": "projects/sample1/locations/sample2/indexEndpoints/sample3"
-    }
-    request_init["deployed_index"] = {
-        "id": "id_value",
-        "index": "index_value",
-        "display_name": "display_name_value",
-        "create_time": {"seconds": 751, "nanos": 543},
-        "private_endpoints": {
-            "match_grpc_address": "match_grpc_address_value",
-            "service_attachment": "service_attachment_value",
-            "psc_automated_endpoints": [
-                {
-                    "project_id": "project_id_value",
-                    "network": "network_value",
-                    "match_address": "match_address_value",
-                }
-            ],
-        },
-        "index_sync_time": {},
-        "automatic_resources": {"min_replica_count": 1803, "max_replica_count": 1805},
-        "dedicated_resources": {
-            "machine_spec": {
-                "machine_type": "machine_type_value",
-                "accelerator_type": 1,
-                "accelerator_count": 1805,
-                "gpu_partition_size": "gpu_partition_size_value",
-                "tpu_topology": "tpu_topology_value",
-                "multihost_gpu_node_count": 2593,
-                "reservation_affinity": {
-                    "reservation_affinity_type": 1,
-                    "key": "key_value",
-                    "values": ["values_value1", "values_value2"],
-                },
-                "min_gpu_driver_version": "min_gpu_driver_version_value",
-            },
-            "min_replica_count": 1803,
-            "max_replica_count": 1805,
-            "required_replica_count": 2344,
-            "initial_replica_count": 2225,
-            "autoscaling_metric_specs": [
-                {
-                    "metric_name": "metric_name_value",
-                    "target": 647,
-                    "monitored_resource_labels": {},
-                }
-            ],
-            "spot": True,
-            "flex_start": {"max_runtime_duration": {"seconds": 751, "nanos": 543}},
-            "scale_to_zero_spec": {
-                "min_scaleup_period": {},
-                "idle_scaledown_period": {},
-            },
-        },
-        "enable_access_logging": True,
-        "enable_datapoint_upsert_logging": True,
-        "deployed_index_auth_config": {
-            "auth_provider": {
-                "audiences": ["audiences_value1", "audiences_value2"],
-                "allowed_issuers": ["allowed_issuers_value1", "allowed_issuers_value2"],
-            }
-        },
-        "reserved_ip_ranges": [
-            "reserved_ip_ranges_value1",
-            "reserved_ip_ranges_value2",
-        ],
-        "deployment_group": "deployment_group_value",
-        "psc_automation_configs": [
-            {
-                "project_id": "project_id_value",
-                "network": "network_value",
-                "ip_address": "ip_address_value",
-                "forwarding_rule": "forwarding_rule_value",
-                "state": 1,
-                "error_message": "error_message_value",
-            }
-        ],
-    }
+    request_init = {'index_endpoint': 'projects/sample1/locations/sample2/indexEndpoints/sample3'}
+    request_init["deployed_index"] = {'id': 'id_value', 'index': 'index_value', 'display_name': 'display_name_value', 'create_time': {'seconds': 751, 'nanos': 543}, 'private_endpoints': {'match_grpc_address': 'match_grpc_address_value', 'service_attachment': 'service_attachment_value', 'psc_automated_endpoints': [{'project_id': 'project_id_value', 'network': 'network_value', 'match_address': 'match_address_value'}]}, 'index_sync_time': {}, 'automatic_resources': {'min_replica_count': 1803, 'max_replica_count': 1805}, 'dedicated_resources': {'machine_spec': {'machine_type': 'machine_type_value', 'accelerator_type': 1, 'accelerator_count': 1805, 'gpu_partition_size': 'gpu_partition_size_value', 'tpu_topology': 'tpu_topology_value', 'multihost_gpu_node_count': 2593, 'reservation_affinity': {'reservation_affinity_type': 1, 'key': 'key_value', 'values': ['values_value1', 'values_value2']}, 'min_gpu_driver_version': 'min_gpu_driver_version_value'}, 'min_replica_count': 1803, 'max_replica_count': 1805, 'required_replica_count': 2344, 'initial_replica_count': 2225, 'autoscaling_metric_specs': [{'metric_name': 'metric_name_value', 'target': 647, 'monitored_resource_labels': {}}], 'spot': True, 'flex_start': {'max_runtime_duration': {'seconds': 751, 'nanos': 543}}, 'scale_to_zero_spec': {'min_scaleup_period': {}, 'idle_scaledown_period': {}}}, 'enable_access_logging': True, 'enable_datapoint_upsert_logging': True, 'deployed_index_auth_config': {'auth_provider': {'audiences': ['audiences_value1', 'audiences_value2'], 'allowed_issuers': ['allowed_issuers_value1', 'allowed_issuers_value2']}}, 'reserved_ip_ranges': ['reserved_ip_ranges_value1', 'reserved_ip_ranges_value2'], 'deployment_group': 'deployment_group_value', 'psc_automation_configs': [{'project_id': 'project_id_value', 'network': 'network_value', 'ip_address': 'ip_address_value', 'forwarding_rule': 'forwarding_rule_value', 'state': 1, 'error_message': 'error_message_value'}]}
     # The version of a generated dependency at test runtime may differ from the version used during generation.
     # Delete any fields which are not present in the current runtime dependency
     # See https://github.com/googleapis/gapic-generator-python/issues/1748
 
     # Determine if the message type is proto-plus or protobuf
-    test_field = index_endpoint_service.MutateDeployedIndexRequest.meta.fields[
-        "deployed_index"
-    ]
+    test_field = index_endpoint_service.MutateDeployedIndexRequest.meta.fields["deployed_index"]
 
     def get_message_fields(field):
         # Given a field which is a message (composite type), return a list with
@@ -10600,7 +8541,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             if is_field_type_proto_plus_type:
                 message_fields = field.message.meta.fields.values()
             # Add `# pragma: NO COVER` because there may not be any `*_pb2` field types
-            else:  # pragma: NO COVER
+            else: # pragma: NO COVER
                 message_fields = field.message.DESCRIPTOR.fields
         return message_fields
 
@@ -10614,7 +8555,7 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
 
     # For each item in the sample request, create a list of sub fields which are not present at runtime
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for field, value in request_init["deployed_index"].items():  # pragma: NO COVER
+    for field, value in request_init["deployed_index"].items(): # pragma: NO COVER
         result = None
         is_repeated = False
         # For repeated fields
@@ -10629,16 +8570,12 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
             for subfield in result.keys():
                 if (field, subfield) not in runtime_nested_fields:
                     subfields_not_in_runtime.append(
-                        {
-                            "field": field,
-                            "subfield": subfield,
-                            "is_repeated": is_repeated,
-                        }
+                        {"field": field, "subfield": subfield, "is_repeated": is_repeated}
                     )
 
     # Remove fields from the sample request which are not present in the runtime version of the dependency
     # Add `# pragma: NO COVER` because this test code will not run if all subfields are present at runtime
-    for subfield_to_delete in subfields_not_in_runtime:  # pragma: NO COVER
+    for subfield_to_delete in subfields_not_in_runtime: # pragma: NO COVER
         field = subfield_to_delete.get("field")
         field_repeated = subfield_to_delete.get("is_repeated")
         subfield = subfield_to_delete.get("subfield")
@@ -10651,17 +8588,15 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
     request = request_type(**request_init)
 
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(type(client.transport._session), "request") as req:
+    with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
-        return_value = operations_pb2.Operation(name="operations/spam")
+        return_value = operations_pb2.Operation(name='operations/spam')
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         response = await client.mutate_deployed_index(request)
@@ -10674,40 +8609,23 @@ async def test_mutate_deployed_index_rest_asyncio_call_success(request_type):
 @pytest.mark.parametrize("null_interceptor", [True, False])
 async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     transport = transports.AsyncIndexEndpointServiceRestTransport(
         credentials=async_anonymous_credentials(),
-        interceptor=(
-            None
-            if null_interceptor
-            else transports.AsyncIndexEndpointServiceRestInterceptor()
-        ),
-    )
+        interceptor=None if null_interceptor else transports.AsyncIndexEndpointServiceRestInterceptor(),
+        )
     client = IndexEndpointServiceAsyncClient(transport=transport)
 
-    with mock.patch.object(
-        type(client.transport._session), "request"
-    ) as req, mock.patch.object(
-        path_template, "transcode"
-    ) as transcode, mock.patch.object(
-        operation.Operation, "_set_result_from_operation"
-    ), mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_mutate_deployed_index",
-    ) as post, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor,
-        "post_mutate_deployed_index_with_metadata",
-    ) as post_with_metadata, mock.patch.object(
-        transports.AsyncIndexEndpointServiceRestInterceptor, "pre_mutate_deployed_index"
-    ) as pre:
+    with mock.patch.object(type(client.transport._session), "request") as req, \
+        mock.patch.object(path_template, "transcode")  as transcode, \
+        mock.patch.object(operation.Operation, "_set_result_from_operation"), \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_mutate_deployed_index") as post, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "post_mutate_deployed_index_with_metadata") as post_with_metadata, \
+        mock.patch.object(transports.AsyncIndexEndpointServiceRestInterceptor, "pre_mutate_deployed_index") as pre:
         pre.assert_not_called()
         post.assert_not_called()
         post_with_metadata.assert_not_called()
-        pb_message = index_endpoint_service.MutateDeployedIndexRequest.pb(
-            index_endpoint_service.MutateDeployedIndexRequest()
-        )
+        pb_message = index_endpoint_service.MutateDeployedIndexRequest.pb(index_endpoint_service.MutateDeployedIndexRequest())
         transcode.return_value = {
             "method": "post",
             "uri": "my_uri",
@@ -10722,7 +8640,7 @@ async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor)
         req.return_value.read = mock.AsyncMock(return_value=return_value)
 
         request = index_endpoint_service.MutateDeployedIndexRequest()
-        metadata = [
+        metadata =[
             ("key", "val"),
             ("cephalopod", "squid"),
         ]
@@ -10730,72 +8648,51 @@ async def test_mutate_deployed_index_rest_asyncio_interceptors(null_interceptor)
         post.return_value = operations_pb2.Operation()
         post_with_metadata.return_value = operations_pb2.Operation(), metadata
 
-        await client.mutate_deployed_index(
-            request,
-            metadata=[
-                ("key", "val"),
-                ("cephalopod", "squid"),
-            ],
-        )
+        await client.mutate_deployed_index(request, metadata=[("key", "val"), ("cephalopod", "squid"),])
 
         pre.assert_called_once()
         post.assert_called_once()
         post_with_metadata.assert_called_once()
 
-
 @pytest.mark.asyncio
-async def test_get_location_rest_asyncio_bad_request(
-    request_type=locations_pb2.GetLocationRequest,
-):
+async def test_get_location_rest_asyncio_bad_request(request_type=locations_pb2.GetLocationRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_location(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.GetLocationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    locations_pb2.GetLocationRequest,
+    dict,
+])
 async def test_get_location_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2"}
+    request_init = {'name': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = locations_pb2.Location()
 
@@ -10803,9 +8700,7 @@ async def test_get_location_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -10815,58 +8710,45 @@ async def test_get_location_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, locations_pb2.Location)
 
-
 @pytest.mark.asyncio
-async def test_list_locations_rest_asyncio_bad_request(
-    request_type=locations_pb2.ListLocationsRequest,
-):
+async def test_list_locations_rest_asyncio_bad_request(request_type=locations_pb2.ListLocationsRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict({"name": "projects/sample1"}, request)
+    request = json_format.ParseDict({'name': 'projects/sample1'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_locations(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        locations_pb2.ListLocationsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    locations_pb2.ListLocationsRequest,
+    dict,
+])
 async def test_list_locations_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1"}
+    request_init = {'name': 'projects/sample1'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = locations_pb2.ListLocationsResponse()
 
@@ -10874,9 +8756,7 @@ async def test_list_locations_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -10886,63 +8766,45 @@ async def test_list_locations_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, locations_pb2.ListLocationsResponse)
 
-
 @pytest.mark.asyncio
-async def test_get_iam_policy_rest_asyncio_bad_request(
-    request_type=iam_policy_pb2.GetIamPolicyRequest,
-):
+async def test_get_iam_policy_rest_asyncio_bad_request(request_type=iam_policy_pb2.GetIamPolicyRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
+    request = json_format.ParseDict({'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_iam_policy(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.GetIamPolicyRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    iam_policy_pb2.GetIamPolicyRequest,
+    dict,
+])
 async def test_get_iam_policy_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
+    request_init = {'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = policy_pb2.Policy()
 
@@ -10950,9 +8812,7 @@ async def test_get_iam_policy_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -10962,63 +8822,45 @@ async def test_get_iam_policy_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, policy_pb2.Policy)
 
-
 @pytest.mark.asyncio
-async def test_set_iam_policy_rest_asyncio_bad_request(
-    request_type=iam_policy_pb2.SetIamPolicyRequest,
-):
+async def test_set_iam_policy_rest_asyncio_bad_request(request_type=iam_policy_pb2.SetIamPolicyRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
+    request = json_format.ParseDict({'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.set_iam_policy(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.SetIamPolicyRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    iam_policy_pb2.SetIamPolicyRequest,
+    dict,
+])
 async def test_set_iam_policy_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
+    request_init = {'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = policy_pb2.Policy()
 
@@ -11026,9 +8868,7 @@ async def test_set_iam_policy_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11038,63 +8878,45 @@ async def test_set_iam_policy_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, policy_pb2.Policy)
 
-
 @pytest.mark.asyncio
-async def test_test_iam_permissions_rest_asyncio_bad_request(
-    request_type=iam_policy_pb2.TestIamPermissionsRequest,
-):
+async def test_test_iam_permissions_rest_asyncio_bad_request(request_type=iam_policy_pb2.TestIamPermissionsRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"resource": "projects/sample1/locations/sample2/featurestores/sample3"},
-        request,
-    )
+    request = json_format.ParseDict({'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.test_iam_permissions(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        iam_policy_pb2.TestIamPermissionsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    iam_policy_pb2.TestIamPermissionsRequest,
+    dict,
+])
 async def test_test_iam_permissions_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {
-        "resource": "projects/sample1/locations/sample2/featurestores/sample3"
-    }
+    request_init = {'resource': 'projects/sample1/locations/sample2/featurestores/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = iam_policy_pb2.TestIamPermissionsResponse()
 
@@ -11102,9 +8924,7 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11114,70 +8934,53 @@ async def test_test_iam_permissions_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, iam_policy_pb2.TestIamPermissionsResponse)
 
-
 @pytest.mark.asyncio
-async def test_cancel_operation_rest_asyncio_bad_request(
-    request_type=operations_pb2.CancelOperationRequest,
-):
+async def test_cancel_operation_rest_asyncio_bad_request(request_type=operations_pb2.CancelOperationRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.cancel_operation(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.CancelOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.CancelOperationRequest,
+    dict,
+])
 async def test_cancel_operation_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = None
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
-        json_return_value = "{}"
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        json_return_value = '{}'
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11187,70 +8990,53 @@ async def test_cancel_operation_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert response is None
 
-
 @pytest.mark.asyncio
-async def test_delete_operation_rest_asyncio_bad_request(
-    request_type=operations_pb2.DeleteOperationRequest,
-):
+async def test_delete_operation_rest_asyncio_bad_request(request_type=operations_pb2.DeleteOperationRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.delete_operation(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.DeleteOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.DeleteOperationRequest,
+    dict,
+])
 async def test_delete_operation_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = None
 
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
         response_value.status_code = 200
-        json_return_value = "{}"
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        json_return_value = '{}'
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11260,60 +9046,45 @@ async def test_delete_operation_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert response is None
 
-
 @pytest.mark.asyncio
-async def test_get_operation_rest_asyncio_bad_request(
-    request_type=operations_pb2.GetOperationRequest,
-):
+async def test_get_operation_rest_asyncio_bad_request(request_type=operations_pb2.GetOperationRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.get_operation(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.GetOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.GetOperationRequest,
+    dict,
+])
 async def test_get_operation_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = operations_pb2.Operation()
 
@@ -11321,9 +9092,7 @@ async def test_get_operation_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11333,60 +9102,45 @@ async def test_get_operation_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.Operation)
 
-
 @pytest.mark.asyncio
-async def test_list_operations_rest_asyncio_bad_request(
-    request_type=operations_pb2.ListOperationsRequest,
-):
+async def test_list_operations_rest_asyncio_bad_request(request_type=operations_pb2.ListOperationsRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.list_operations(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.ListOperationsRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.ListOperationsRequest,
+    dict,
+])
 async def test_list_operations_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2"}
+    request_init = {'name': 'projects/sample1/locations/sample2'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = operations_pb2.ListOperationsResponse()
 
@@ -11394,9 +9148,7 @@ async def test_list_operations_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11406,60 +9158,45 @@ async def test_list_operations_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.ListOperationsResponse)
 
-
 @pytest.mark.asyncio
-async def test_wait_operation_rest_asyncio_bad_request(
-    request_type=operations_pb2.WaitOperationRequest,
-):
+async def test_wait_operation_rest_asyncio_bad_request(request_type=operations_pb2.WaitOperationRequest):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
     request = request_type()
-    request = json_format.ParseDict(
-        {"name": "projects/sample1/locations/sample2/operations/sample3"}, request
-    )
+    request = json_format.ParseDict({'name': 'projects/sample1/locations/sample2/operations/sample3'}, request)
 
     # Mock the http request call within the method and fake a BadRequest error.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req, pytest.raises(
-        core_exceptions.BadRequest
-    ):
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req, pytest.raises(core_exceptions.BadRequest):
         # Wrap the value into a proper Response obj
         response_value = mock.Mock()
-        response_value.read = mock.AsyncMock(return_value=b"{}")
+        response_value.read = mock.AsyncMock(return_value=b'{}')
         response_value.status_code = 400
         response_value.request = mock.Mock()
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
         await client.wait_operation(request)
 
-
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "request_type",
-    [
-        operations_pb2.WaitOperationRequest,
-        dict,
-    ],
-)
+@pytest.mark.parametrize("request_type", [
+    operations_pb2.WaitOperationRequest,
+    dict,
+])
 async def test_wait_operation_rest_asyncio(request_type):
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
-    request_init = {"name": "projects/sample1/locations/sample2/operations/sample3"}
+    request_init = {'name': 'projects/sample1/locations/sample2/operations/sample3'}
     request = request_type(**request_init)
     # Mock the http request call within the method and fake a response.
-    with mock.patch.object(AsyncAuthorizedSession, "request") as req:
+    with mock.patch.object(AsyncAuthorizedSession, 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = operations_pb2.Operation()
 
@@ -11467,9 +9204,7 @@ async def test_wait_operation_rest_asyncio(request_type):
         response_value = mock.Mock()
         response_value.status_code = 200
         json_return_value = json_format.MessageToJson(return_value)
-        response_value.read = mock.AsyncMock(
-            return_value=json_return_value.encode("UTF-8")
-        )
+        response_value.read = mock.AsyncMock(return_value=json_return_value.encode('UTF-8'))
 
         req.return_value = response_value
         req.return_value.headers = {"header-1": "value-1", "header-2": "value-2"}
@@ -11479,14 +9214,12 @@ async def test_wait_operation_rest_asyncio(request_type):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.Operation)
 
-
 def test_initialize_client_w_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
     assert client is not None
 
@@ -11496,9 +9229,7 @@ def test_initialize_client_w_rest_asyncio():
 @pytest.mark.asyncio
 async def test_create_index_endpoint_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11506,15 +9237,14 @@ async def test_create_index_endpoint_empty_call_rest_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.create_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.create_index_endpoint),
+            '__call__') as call:
         await client.create_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.CreateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -11523,9 +9253,7 @@ async def test_create_index_endpoint_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_get_index_endpoint_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11533,15 +9261,14 @@ async def test_get_index_endpoint_empty_call_rest_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.get_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.get_index_endpoint),
+            '__call__') as call:
         await client.get_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.GetIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -11550,9 +9277,7 @@ async def test_get_index_endpoint_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_list_index_endpoints_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11560,15 +9285,14 @@ async def test_list_index_endpoints_empty_call_rest_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.list_index_endpoints), "__call__"
-    ) as call:
+            type(client.transport.list_index_endpoints),
+            '__call__') as call:
         await client.list_index_endpoints(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.ListIndexEndpointsRequest()
-
         assert args[0] == request_msg
 
 
@@ -11577,9 +9301,7 @@ async def test_list_index_endpoints_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_update_index_endpoint_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11587,15 +9309,14 @@ async def test_update_index_endpoint_empty_call_rest_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.update_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.update_index_endpoint),
+            '__call__') as call:
         await client.update_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UpdateIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -11604,9 +9325,7 @@ async def test_update_index_endpoint_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_delete_index_endpoint_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11614,15 +9333,14 @@ async def test_delete_index_endpoint_empty_call_rest_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.delete_index_endpoint), "__call__"
-    ) as call:
+            type(client.transport.delete_index_endpoint),
+            '__call__') as call:
         await client.delete_index_endpoint(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeleteIndexEndpointRequest()
-
         assert args[0] == request_msg
 
 
@@ -11631,23 +9349,22 @@ async def test_delete_index_endpoint_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_deploy_index_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.deploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.deploy_index),
+            '__call__') as call:
         await client.deploy_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.DeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -11656,23 +9373,22 @@ async def test_deploy_index_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_undeploy_index_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
     )
 
     # Mock the actual call, and fake the request.
-    with mock.patch.object(type(client.transport.undeploy_index), "__call__") as call:
+    with mock.patch.object(
+            type(client.transport.undeploy_index),
+            '__call__') as call:
         await client.undeploy_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.UndeployIndexRequest()
-
         assert args[0] == request_msg
 
 
@@ -11681,9 +9397,7 @@ async def test_undeploy_index_empty_call_rest_asyncio():
 @pytest.mark.asyncio
 async def test_mutate_deployed_index_empty_call_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11691,23 +9405,20 @@ async def test_mutate_deployed_index_empty_call_rest_asyncio():
 
     # Mock the actual call, and fake the request.
     with mock.patch.object(
-        type(client.transport.mutate_deployed_index), "__call__"
-    ) as call:
+            type(client.transport.mutate_deployed_index),
+            '__call__') as call:
         await client.mutate_deployed_index(request=None)
 
         # Establish that the underlying stub method was called.
         call.assert_called()
         _, args, _ = call.mock_calls[0]
         request_msg = index_endpoint_service.MutateDeployedIndexRequest()
-
         assert args[0] == request_msg
 
 
 def test_index_endpoint_service_rest_asyncio_lro_client():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
         credentials=async_anonymous_credentials(),
         transport="rest_asyncio",
@@ -11717,25 +9428,22 @@ def test_index_endpoint_service_rest_asyncio_lro_client():
     # Ensure that we have an api-core operations client.
     assert isinstance(
         transport.operations_client,
-        operations_v1.AsyncOperationsRestClient,
+operations_v1.AsyncOperationsRestClient,
     )
 
     # Ensure that subsequent calls to the property send the exact same object.
     assert transport.operations_client is transport.operations_client
 
-
 def test_unsupported_parameter_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     options = client_options.ClientOptions(quota_project_id="octopus")
     with pytest.raises(core_exceptions.AsyncRestUnsupportedParameterError, match="google.api_core.client_options.ClientOptions.quota_project_id") as exc:  # type: ignore
         client = IndexEndpointServiceAsyncClient(
             credentials=async_anonymous_credentials(),
             transport="rest_asyncio",
-            client_options=options,
-        )
+            client_options=options
+    )
 
 
 def test_transport_grpc_default():
@@ -11748,21 +9456,18 @@ def test_transport_grpc_default():
         transports.IndexEndpointServiceGrpcTransport,
     )
 
-
 def test_index_endpoint_service_base_transport_error():
     # Passing both a credentials object and credentials_file should raise an error
     with pytest.raises(core_exceptions.DuplicateCredentialArgs):
         transport = transports.IndexEndpointServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
-            credentials_file="credentials.json",
+            credentials_file="credentials.json"
         )
 
 
 def test_index_endpoint_service_base_transport():
     # Instantiate the base transport.
-    with mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport.__init__"
-    ) as Transport:
+    with mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport.__init__') as Transport:
         Transport.return_value = None
         transport = transports.IndexEndpointServiceTransport(
             credentials=ga_credentials.AnonymousCredentials(),
@@ -11771,24 +9476,24 @@ def test_index_endpoint_service_base_transport():
     # Every method on the transport should just blindly
     # raise NotImplementedError.
     methods = (
-        "create_index_endpoint",
-        "get_index_endpoint",
-        "list_index_endpoints",
-        "update_index_endpoint",
-        "delete_index_endpoint",
-        "deploy_index",
-        "undeploy_index",
-        "mutate_deployed_index",
-        "set_iam_policy",
-        "get_iam_policy",
-        "test_iam_permissions",
-        "get_location",
-        "list_locations",
-        "get_operation",
-        "wait_operation",
-        "cancel_operation",
-        "delete_operation",
-        "list_operations",
+        'create_index_endpoint',
+        'get_index_endpoint',
+        'list_index_endpoints',
+        'update_index_endpoint',
+        'delete_index_endpoint',
+        'deploy_index',
+        'undeploy_index',
+        'mutate_deployed_index',
+        'set_iam_policy',
+        'get_iam_policy',
+        'test_iam_permissions',
+        'get_location',
+        'list_locations',
+        'get_operation',
+        'wait_operation',
+        'cancel_operation',
+        'delete_operation',
+        'list_operations',
     )
     for method in methods:
         with pytest.raises(NotImplementedError):
@@ -11804,7 +9509,7 @@ def test_index_endpoint_service_base_transport():
 
     # Catch all for all remaining methods and properties
     remainder = [
-        "kind",
+        'kind',
     ]
     for r in remainder:
         with pytest.raises(NotImplementedError):
@@ -11813,30 +9518,25 @@ def test_index_endpoint_service_base_transport():
 
 def test_index_endpoint_service_base_transport_with_credentials_file():
     # Instantiate the base transport with a credentials file
-    with mock.patch.object(
-        google.auth, "load_credentials_from_file", autospec=True
-    ) as load_creds, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages"
-    ) as Transport:
+    with mock.patch.object(google.auth, 'load_credentials_from_file', autospec=True) as load_creds, mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages') as Transport:
         Transport.return_value = None
         load_creds.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport(
             credentials_file="credentials.json",
             quota_project_id="octopus",
         )
-        load_creds.assert_called_once_with(
-            "credentials.json",
+        load_creds.assert_called_once_with("credentials.json",
             scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+            'https://www.googleapis.com/auth/cloud-platform',
+),
             quota_project_id="octopus",
         )
 
 
 def test_index_endpoint_service_base_transport_with_adc():
     # Test the default credentials are used if credentials and credentials_file are None.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch(
-        "google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages"
-    ) as Transport:
+    with mock.patch.object(google.auth, 'default', autospec=True) as adc, mock.patch('google.cloud.aiplatform_v1beta1.services.index_endpoint_service.transports.IndexEndpointServiceTransport._prep_wrapped_messages') as Transport:
         Transport.return_value = None
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport = transports.IndexEndpointServiceTransport()
@@ -11845,12 +9545,14 @@ def test_index_endpoint_service_base_transport_with_adc():
 
 def test_index_endpoint_service_auth_adc():
     # If no credentials are provided, we should use ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+    with mock.patch.object(google.auth, 'default', autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         IndexEndpointServiceClient()
         adc.assert_called_once_with(
             scopes=None,
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+            'https://www.googleapis.com/auth/cloud-platform',
+),
             quota_project_id=None,
         )
 
@@ -11865,12 +9567,12 @@ def test_index_endpoint_service_auth_adc():
 def test_index_endpoint_service_transport_auth_adc(transport_class):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(google.auth, "default", autospec=True) as adc:
+    with mock.patch.object(google.auth, 'default', autospec=True) as adc:
         adc.return_value = (ga_credentials.AnonymousCredentials(), None)
         transport_class(quota_project_id="octopus", scopes=["1", "2"])
         adc.assert_called_once_with(
             scopes=["1", "2"],
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(                'https://www.googleapis.com/auth/cloud-platform',),
             quota_project_id="octopus",
         )
 
@@ -11884,45 +9586,48 @@ def test_index_endpoint_service_transport_auth_adc(transport_class):
     ],
 )
 def test_index_endpoint_service_transport_auth_gdch_credentials(transport_class):
-    host = "https://language.com"
-    api_audience_tests = [None, "https://language2.com"]
-    api_audience_expect = [host, "https://language2.com"]
+    host = 'https://language.com'
+    api_audience_tests = [None, 'https://language2.com']
+    api_audience_expect = [host, 'https://language2.com']
     for t, e in zip(api_audience_tests, api_audience_expect):
-        with mock.patch.object(google.auth, "default", autospec=True) as adc:
+        with mock.patch.object(google.auth, 'default', autospec=True) as adc:
             gdch_mock = mock.MagicMock()
-            type(gdch_mock).with_gdch_audience = mock.PropertyMock(
-                return_value=gdch_mock
-            )
+            type(gdch_mock).with_gdch_audience = mock.PropertyMock(return_value=gdch_mock)
             adc.return_value = (gdch_mock, None)
             transport_class(host=host, api_audience=t)
-            gdch_mock.with_gdch_audience.assert_called_once_with(e)
+            gdch_mock.with_gdch_audience.assert_called_once_with(
+                e
+            )
 
 
 @pytest.mark.parametrize(
     "transport_class,grpc_helpers",
     [
         (transports.IndexEndpointServiceGrpcTransport, grpc_helpers),
-        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async),
+        (transports.IndexEndpointServiceGrpcAsyncIOTransport, grpc_helpers_async)
     ],
 )
 def test_index_endpoint_service_transport_create_channel(transport_class, grpc_helpers):
     # If credentials and host are not provided, the transport class should use
     # ADC credentials.
-    with mock.patch.object(
-        google.auth, "default", autospec=True
-    ) as adc, mock.patch.object(
+    with mock.patch.object(google.auth, "default", autospec=True) as adc, mock.patch.object(
         grpc_helpers, "create_channel", autospec=True
     ) as create_channel:
         creds = ga_credentials.AnonymousCredentials()
         adc.return_value = (creds, None)
-        transport_class(quota_project_id="octopus", scopes=["1", "2"])
+        transport_class(
+            quota_project_id="octopus",
+            scopes=["1", "2"]
+        )
 
         create_channel.assert_called_with(
             "aiplatform.googleapis.com:443",
             credentials=creds,
             credentials_file=None,
             quota_project_id="octopus",
-            default_scopes=("https://www.googleapis.com/auth/cloud-platform",),
+            default_scopes=(
+                'https://www.googleapis.com/auth/cloud-platform',
+),
             scopes=["1", "2"],
             default_host="aiplatform.googleapis.com",
             ssl_credentials=None,
@@ -11933,15 +9638,9 @@ def test_index_endpoint_service_transport_create_channel(transport_class, grpc_h
         )
 
 
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.IndexEndpointServiceGrpcTransport,
-        transports.IndexEndpointServiceGrpcAsyncIOTransport,
-    ],
-)
+@pytest.mark.parametrize("transport_class", [transports.IndexEndpointServiceGrpcTransport, transports.IndexEndpointServiceGrpcAsyncIOTransport])
 def test_index_endpoint_service_grpc_transport_client_cert_source_for_mtls(
-    transport_class,
+    transport_class
 ):
     cred = ga_credentials.AnonymousCredentials()
 
@@ -11951,7 +9650,7 @@ def test_index_endpoint_service_grpc_transport_client_cert_source_for_mtls(
         transport_class(
             host="squid.clam.whelk",
             credentials=cred,
-            ssl_channel_credentials=mock_ssl_channel_creds,
+            ssl_channel_credentials=mock_ssl_channel_creds
         )
         mock_create_channel.assert_called_once_with(
             "squid.clam.whelk:443",
@@ -11972,77 +9671,61 @@ def test_index_endpoint_service_grpc_transport_client_cert_source_for_mtls(
         with mock.patch("grpc.ssl_channel_credentials") as mock_ssl_cred:
             transport_class(
                 credentials=cred,
-                client_cert_source_for_mtls=client_cert_source_callback,
+                client_cert_source_for_mtls=client_cert_source_callback
             )
             expected_cert, expected_key = client_cert_source_callback()
             mock_ssl_cred.assert_called_once_with(
-                certificate_chain=expected_cert, private_key=expected_key
+                certificate_chain=expected_cert,
+                private_key=expected_key
             )
-
 
 def test_index_endpoint_service_http_transport_client_cert_source_for_mtls():
     cred = ga_credentials.AnonymousCredentials()
-    with mock.patch(
-        "google.auth.transport.requests.AuthorizedSession.configure_mtls_channel"
-    ) as mock_configure_mtls_channel:
-        transports.IndexEndpointServiceRestTransport(
-            credentials=cred, client_cert_source_for_mtls=client_cert_source_callback
+    with mock.patch("google.auth.transport.requests.AuthorizedSession.configure_mtls_channel") as mock_configure_mtls_channel:
+        transports.IndexEndpointServiceRestTransport (
+            credentials=cred,
+            client_cert_source_for_mtls=client_cert_source_callback
         )
         mock_configure_mtls_channel.assert_called_once_with(client_cert_source_callback)
 
 
-@pytest.mark.parametrize(
-    "transport_name",
-    [
-        "grpc",
-        "grpc_asyncio",
-        "rest",
-    ],
-)
+@pytest.mark.parametrize("transport_name", [
+    "grpc",
+    "grpc_asyncio",
+    "rest",
+])
 def test_index_endpoint_service_host_no_port(transport_name):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        client_options=client_options.ClientOptions(
-            api_endpoint="aiplatform.googleapis.com"
-        ),
-        transport=transport_name,
+        client_options=client_options.ClientOptions(api_endpoint='aiplatform.googleapis.com'),
+         transport=transport_name,
     )
     assert client.transport._host == (
-        "aiplatform.googleapis.com:443"
-        if transport_name in ["grpc", "grpc_asyncio"]
-        else "https://aiplatform.googleapis.com"
+        'aiplatform.googleapis.com:443'
+        if transport_name in ['grpc', 'grpc_asyncio']
+        else 'https://aiplatform.googleapis.com'
     )
 
-
-@pytest.mark.parametrize(
-    "transport_name",
-    [
-        "grpc",
-        "grpc_asyncio",
-        "rest",
-    ],
-)
+@pytest.mark.parametrize("transport_name", [
+    "grpc",
+    "grpc_asyncio",
+    "rest",
+])
 def test_index_endpoint_service_host_with_port(transport_name):
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        client_options=client_options.ClientOptions(
-            api_endpoint="aiplatform.googleapis.com:8000"
-        ),
+        client_options=client_options.ClientOptions(api_endpoint='aiplatform.googleapis.com:8000'),
         transport=transport_name,
     )
     assert client.transport._host == (
-        "aiplatform.googleapis.com:8000"
-        if transport_name in ["grpc", "grpc_asyncio"]
-        else "https://aiplatform.googleapis.com:8000"
+        'aiplatform.googleapis.com:8000'
+        if transport_name in ['grpc', 'grpc_asyncio']
+        else 'https://aiplatform.googleapis.com:8000'
     )
 
-
-@pytest.mark.parametrize(
-    "transport_name",
-    [
-        "rest",
-    ],
-)
+@pytest.mark.parametrize("transport_name", [
+    "rest",
+])
 def test_index_endpoint_service_client_transport_session_collision(transport_name):
     creds1 = ga_credentials.AnonymousCredentials()
     creds2 = ga_credentials.AnonymousCredentials()
@@ -12078,10 +9761,8 @@ def test_index_endpoint_service_client_transport_session_collision(transport_nam
     session1 = client1.transport.mutate_deployed_index._session
     session2 = client2.transport.mutate_deployed_index._session
     assert session1 != session2
-
-
 def test_index_endpoint_service_grpc_transport_channel():
-    channel = grpc.secure_channel("http://localhost/", grpc.local_channel_credentials())
+    channel = grpc.secure_channel('http://localhost/', grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
     transport = transports.IndexEndpointServiceGrpcTransport(
@@ -12094,7 +9775,7 @@ def test_index_endpoint_service_grpc_transport_channel():
 
 
 def test_index_endpoint_service_grpc_asyncio_transport_channel():
-    channel = aio.secure_channel("http://localhost/", grpc.local_channel_credentials())
+    channel = aio.secure_channel('http://localhost/', grpc.local_channel_credentials())
 
     # Check that channel is used if provided.
     transport = transports.IndexEndpointServiceGrpcAsyncIOTransport(
@@ -12109,22 +9790,12 @@ def test_index_endpoint_service_grpc_asyncio_transport_channel():
 # Remove this test when deprecated arguments (api_mtls_endpoint, client_cert_source) are
 # removed from grpc/grpc_asyncio transport constructor.
 @pytest.mark.filterwarnings("ignore::FutureWarning")
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.IndexEndpointServiceGrpcTransport,
-        transports.IndexEndpointServiceGrpcAsyncIOTransport,
-    ],
-)
+@pytest.mark.parametrize("transport_class", [transports.IndexEndpointServiceGrpcTransport, transports.IndexEndpointServiceGrpcAsyncIOTransport])
 def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
-    transport_class,
+    transport_class
 ):
-    with mock.patch(
-        "grpc.ssl_channel_credentials", autospec=True
-    ) as grpc_ssl_channel_cred:
-        with mock.patch.object(
-            transport_class, "create_channel"
-        ) as grpc_create_channel:
+    with mock.patch("grpc.ssl_channel_credentials", autospec=True) as grpc_ssl_channel_cred:
+        with mock.patch.object(transport_class, "create_channel") as grpc_create_channel:
             mock_ssl_cred = mock.Mock()
             grpc_ssl_channel_cred.return_value = mock_ssl_cred
 
@@ -12133,7 +9804,7 @@ def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
 
             cred = ga_credentials.AnonymousCredentials()
             with pytest.warns(DeprecationWarning):
-                with mock.patch.object(google.auth, "default") as adc:
+                with mock.patch.object(google.auth, 'default') as adc:
                     adc.return_value = (cred, None)
                     transport = transport_class(
                         host="squid.clam.whelk",
@@ -12163,23 +9834,17 @@ def test_index_endpoint_service_transport_channel_mtls_with_client_cert_source(
 
 # Remove this test when deprecated arguments (api_mtls_endpoint, client_cert_source) are
 # removed from grpc/grpc_asyncio transport constructor.
-@pytest.mark.parametrize(
-    "transport_class",
-    [
-        transports.IndexEndpointServiceGrpcTransport,
-        transports.IndexEndpointServiceGrpcAsyncIOTransport,
-    ],
-)
-def test_index_endpoint_service_transport_channel_mtls_with_adc(transport_class):
+@pytest.mark.parametrize("transport_class", [transports.IndexEndpointServiceGrpcTransport, transports.IndexEndpointServiceGrpcAsyncIOTransport])
+def test_index_endpoint_service_transport_channel_mtls_with_adc(
+    transport_class
+):
     mock_ssl_cred = mock.Mock()
     with mock.patch.multiple(
         "google.auth.transport.grpc.SslCredentials",
         __init__=mock.Mock(return_value=None),
         ssl_credentials=mock.PropertyMock(return_value=mock_ssl_cred),
     ):
-        with mock.patch.object(
-            transport_class, "create_channel"
-        ) as grpc_create_channel:
+        with mock.patch.object(transport_class, "create_channel") as grpc_create_channel:
             mock_grpc_channel = mock.Mock()
             grpc_create_channel.return_value = mock_grpc_channel
             mock_cred = mock.Mock()
@@ -12210,7 +9875,7 @@ def test_index_endpoint_service_transport_channel_mtls_with_adc(transport_class)
 def test_index_endpoint_service_grpc_lro_client():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc",
+        transport='grpc',
     )
     transport = client.transport
 
@@ -12227,7 +9892,7 @@ def test_index_endpoint_service_grpc_lro_client():
 def test_index_endpoint_service_grpc_lro_async_client():
     client = IndexEndpointServiceAsyncClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport="grpc_asyncio",
+        transport='grpc_asyncio',
     )
     transport = client.transport
 
@@ -12245,11 +9910,7 @@ def test_index_path():
     project = "squid"
     location = "clam"
     index = "whelk"
-    expected = "projects/{project}/locations/{location}/indexes/{index}".format(
-        project=project,
-        location=location,
-        index=index,
-    )
+    expected = "projects/{project}/locations/{location}/indexes/{index}".format(project=project, location=location, index=index, )
     actual = IndexEndpointServiceClient.index_path(project, location, index)
     assert expected == actual
 
@@ -12266,19 +9927,12 @@ def test_parse_index_path():
     actual = IndexEndpointServiceClient.parse_index_path(path)
     assert expected == actual
 
-
 def test_index_endpoint_path():
     project = "cuttlefish"
     location = "mussel"
     index_endpoint = "winkle"
-    expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(
-        project=project,
-        location=location,
-        index_endpoint=index_endpoint,
-    )
-    actual = IndexEndpointServiceClient.index_endpoint_path(
-        project, location, index_endpoint
-    )
+    expected = "projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}".format(project=project, location=location, index_endpoint=index_endpoint, )
+    actual = IndexEndpointServiceClient.index_endpoint_path(project, location, index_endpoint)
     assert expected == actual
 
 
@@ -12294,19 +9948,12 @@ def test_parse_index_endpoint_path():
     actual = IndexEndpointServiceClient.parse_index_endpoint_path(path)
     assert expected == actual
 
-
 def test_reservation_path():
     project_id_or_number = "squid"
     zone = "clam"
     reservation_name = "whelk"
-    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(
-        project_id_or_number=project_id_or_number,
-        zone=zone,
-        reservation_name=reservation_name,
-    )
-    actual = IndexEndpointServiceClient.reservation_path(
-        project_id_or_number, zone, reservation_name
-    )
+    expected = "projects/{project_id_or_number}/zones/{zone}/reservations/{reservation_name}".format(project_id_or_number=project_id_or_number, zone=zone, reservation_name=reservation_name, )
+    actual = IndexEndpointServiceClient.reservation_path(project_id_or_number, zone, reservation_name)
     assert expected == actual
 
 
@@ -12322,12 +9969,9 @@ def test_parse_reservation_path():
     actual = IndexEndpointServiceClient.parse_reservation_path(path)
     assert expected == actual
 
-
 def test_common_billing_account_path():
     billing_account = "cuttlefish"
-    expected = "billingAccounts/{billing_account}".format(
-        billing_account=billing_account,
-    )
+    expected = "billingAccounts/{billing_account}".format(billing_account=billing_account, )
     actual = IndexEndpointServiceClient.common_billing_account_path(billing_account)
     assert expected == actual
 
@@ -12342,12 +9986,9 @@ def test_parse_common_billing_account_path():
     actual = IndexEndpointServiceClient.parse_common_billing_account_path(path)
     assert expected == actual
 
-
 def test_common_folder_path():
     folder = "winkle"
-    expected = "folders/{folder}".format(
-        folder=folder,
-    )
+    expected = "folders/{folder}".format(folder=folder, )
     actual = IndexEndpointServiceClient.common_folder_path(folder)
     assert expected == actual
 
@@ -12362,12 +10003,9 @@ def test_parse_common_folder_path():
     actual = IndexEndpointServiceClient.parse_common_folder_path(path)
     assert expected == actual
 
-
 def test_common_organization_path():
     organization = "scallop"
-    expected = "organizations/{organization}".format(
-        organization=organization,
-    )
+    expected = "organizations/{organization}".format(organization=organization, )
     actual = IndexEndpointServiceClient.common_organization_path(organization)
     assert expected == actual
 
@@ -12382,12 +10020,9 @@ def test_parse_common_organization_path():
     actual = IndexEndpointServiceClient.parse_common_organization_path(path)
     assert expected == actual
 
-
 def test_common_project_path():
     project = "squid"
-    expected = "projects/{project}".format(
-        project=project,
-    )
+    expected = "projects/{project}".format(project=project, )
     actual = IndexEndpointServiceClient.common_project_path(project)
     assert expected == actual
 
@@ -12402,14 +10037,10 @@ def test_parse_common_project_path():
     actual = IndexEndpointServiceClient.parse_common_project_path(path)
     assert expected == actual
 
-
 def test_common_location_path():
     project = "whelk"
     location = "octopus"
-    expected = "projects/{project}/locations/{location}".format(
-        project=project,
-        location=location,
-    )
+    expected = "projects/{project}/locations/{location}".format(project=project, location=location, )
     actual = IndexEndpointServiceClient.common_location_path(project, location)
     assert expected == actual
 
@@ -12429,18 +10060,14 @@ def test_parse_common_location_path():
 def test_client_with_default_client_info():
     client_info = gapic_v1.client_info.ClientInfo()
 
-    with mock.patch.object(
-        transports.IndexEndpointServiceTransport, "_prep_wrapped_messages"
-    ) as prep:
+    with mock.patch.object(transports.IndexEndpointServiceTransport, '_prep_wrapped_messages') as prep:
         client = IndexEndpointServiceClient(
             credentials=ga_credentials.AnonymousCredentials(),
             client_info=client_info,
         )
         prep.assert_called_once_with(client_info)
 
-    with mock.patch.object(
-        transports.IndexEndpointServiceTransport, "_prep_wrapped_messages"
-    ) as prep:
+    with mock.patch.object(transports.IndexEndpointServiceTransport, '_prep_wrapped_messages') as prep:
         transport_class = IndexEndpointServiceClient.get_transport_class()
         transport = transport_class(
             credentials=ga_credentials.AnonymousCredentials(),
@@ -12451,8 +10078,7 @@ def test_client_with_default_client_info():
 
 def test_delete_operation(transport: str = "grpc"):
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12472,12 +10098,10 @@ def test_delete_operation(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert response is None
 
-
 @pytest.mark.asyncio
 async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12487,7 +10111,9 @@ async def test_delete_operation_async(transport: str = "grpc_asyncio"):
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
         response = await client.delete_operation(request)
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -12510,7 +10136,7 @@ def test_delete_operation_field_headers():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
-        call.return_value = None
+        call.return_value =  None
 
         client.delete_operation(request)
         # Establish that the underlying gRPC stub method was called.
@@ -12520,11 +10146,7 @@ def test_delete_operation_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_delete_operation_field_headers_async():
@@ -12539,7 +10161,9 @@ async def test_delete_operation_field_headers_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
         await client.delete_operation(request)
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -12548,10 +10172,7 @@ async def test_delete_operation_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 
 def test_delete_operation_from_dict():
@@ -12570,7 +10191,6 @@ def test_delete_operation_from_dict():
         )
         call.assert_called()
 
-
 @pytest.mark.asyncio
 async def test_delete_operation_from_dict_async():
     client = IndexEndpointServiceAsyncClient(
@@ -12579,7 +10199,9 @@ async def test_delete_operation_from_dict_async():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
         response = await client.delete_operation(
             request={
                 "name": "locations",
@@ -12588,10 +10210,42 @@ async def test_delete_operation_from_dict_async():
         call.assert_called()
 
 
-def test_cancel_operation(transport: str = "grpc"):
+def test_delete_operation_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        client.delete_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.DeleteOperationRequest()
+
+@pytest.mark.asyncio
+async def test_delete_operation_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.delete_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
+        await client.delete_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.DeleteOperationRequest()
+
+
+def test_cancel_operation(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12611,12 +10265,10 @@ def test_cancel_operation(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert response is None
 
-
 @pytest.mark.asyncio
 async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12626,7 +10278,9 @@ async def test_cancel_operation_async(transport: str = "grpc_asyncio"):
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
         response = await client.cancel_operation(request)
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -12649,7 +10303,7 @@ def test_cancel_operation_field_headers():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
-        call.return_value = None
+        call.return_value =  None
 
         client.cancel_operation(request)
         # Establish that the underlying gRPC stub method was called.
@@ -12659,11 +10313,7 @@ def test_cancel_operation_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_cancel_operation_field_headers_async():
@@ -12678,7 +10328,9 @@ async def test_cancel_operation_field_headers_async():
 
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
         await client.cancel_operation(request)
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -12687,10 +10339,7 @@ async def test_cancel_operation_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 
 def test_cancel_operation_from_dict():
@@ -12709,7 +10358,6 @@ def test_cancel_operation_from_dict():
         )
         call.assert_called()
 
-
 @pytest.mark.asyncio
 async def test_cancel_operation_from_dict_async():
     client = IndexEndpointServiceAsyncClient(
@@ -12718,7 +10366,9 @@ async def test_cancel_operation_from_dict_async():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(None)
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
         response = await client.cancel_operation(
             request={
                 "name": "locations",
@@ -12727,10 +10377,42 @@ async def test_cancel_operation_from_dict_async():
         call.assert_called()
 
 
-def test_wait_operation(transport: str = "grpc"):
+def test_cancel_operation_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = None
+
+        client.cancel_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.CancelOperationRequest()
+
+@pytest.mark.asyncio
+async def test_cancel_operation_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.cancel_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            None
+        )
+        await client.cancel_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.CancelOperationRequest()
+
+
+def test_wait_operation(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12750,12 +10432,10 @@ def test_wait_operation(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.Operation)
 
-
 @pytest.mark.asyncio
 async def test_wait_operation(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12800,11 +10480,7 @@ def test_wait_operation_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_wait_operation_field_headers_async():
@@ -12830,10 +10506,7 @@ async def test_wait_operation_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 
 def test_wait_operation_from_dict():
@@ -12851,7 +10524,6 @@ def test_wait_operation_from_dict():
             }
         )
         call.assert_called()
-
 
 @pytest.mark.asyncio
 async def test_wait_operation_from_dict_async():
@@ -12872,10 +10544,42 @@ async def test_wait_operation_from_dict_async():
         call.assert_called()
 
 
-def test_get_operation(transport: str = "grpc"):
+def test_wait_operation_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+
+        client.wait_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.WaitOperationRequest()
+
+@pytest.mark.asyncio
+async def test_wait_operation_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.wait_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        await client.wait_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.WaitOperationRequest()
+
+
+def test_get_operation(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12895,12 +10599,10 @@ def test_get_operation(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.Operation)
 
-
 @pytest.mark.asyncio
 async def test_get_operation_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -12945,11 +10647,7 @@ def test_get_operation_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_get_operation_field_headers_async():
@@ -12975,10 +10673,7 @@ async def test_get_operation_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 
 def test_get_operation_from_dict():
@@ -12996,7 +10691,6 @@ def test_get_operation_from_dict():
             }
         )
         call.assert_called()
-
 
 @pytest.mark.asyncio
 async def test_get_operation_from_dict_async():
@@ -13017,10 +10711,42 @@ async def test_get_operation_from_dict_async():
         call.assert_called()
 
 
-def test_list_operations(transport: str = "grpc"):
+def test_get_operation_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.Operation()
+
+        client.get_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.GetOperationRequest()
+
+@pytest.mark.asyncio
+async def test_get_operation_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_operation), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.Operation()
+        )
+        await client.get_operation()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.GetOperationRequest()
+
+
+def test_list_operations(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13040,12 +10766,10 @@ def test_list_operations(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, operations_pb2.ListOperationsResponse)
 
-
 @pytest.mark.asyncio
 async def test_list_operations_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13090,11 +10814,7 @@ def test_list_operations_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_list_operations_field_headers_async():
@@ -13120,10 +10840,7 @@ async def test_list_operations_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 
 def test_list_operations_from_dict():
@@ -13141,7 +10858,6 @@ def test_list_operations_from_dict():
             }
         )
         call.assert_called()
-
 
 @pytest.mark.asyncio
 async def test_list_operations_from_dict_async():
@@ -13162,10 +10878,42 @@ async def test_list_operations_from_dict_async():
         call.assert_called()
 
 
-def test_list_locations(transport: str = "grpc"):
+def test_list_operations_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = operations_pb2.ListOperationsResponse()
+
+        client.list_operations()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.ListOperationsRequest()
+
+@pytest.mark.asyncio
+async def test_list_operations_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_operations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            operations_pb2.ListOperationsResponse()
+        )
+        await client.list_operations()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == operations_pb2.ListOperationsRequest()
+
+
+def test_list_locations(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13185,12 +10933,10 @@ def test_list_locations(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, locations_pb2.ListLocationsResponse)
 
-
 @pytest.mark.asyncio
 async def test_list_locations_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13235,11 +10981,7 @@ def test_list_locations_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_list_locations_field_headers_async():
@@ -13265,10 +11007,7 @@ async def test_list_locations_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations",) in kw["metadata"]
 
 
 def test_list_locations_from_dict():
@@ -13286,7 +11025,6 @@ def test_list_locations_from_dict():
             }
         )
         call.assert_called()
-
 
 @pytest.mark.asyncio
 async def test_list_locations_from_dict_async():
@@ -13307,10 +11045,42 @@ async def test_list_locations_from_dict_async():
         call.assert_called()
 
 
-def test_get_location(transport: str = "grpc"):
+def test_list_locations_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.ListLocationsResponse()
+
+        client.list_locations()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == locations_pb2.ListLocationsRequest()
+
+@pytest.mark.asyncio
+async def test_list_locations_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.list_locations), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.ListLocationsResponse()
+        )
+        await client.list_locations()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == locations_pb2.ListLocationsRequest()
+
+
+def test_get_location(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13330,12 +11100,10 @@ def test_get_location(transport: str = "grpc"):
     # Establish that the response is the type that we expect.
     assert isinstance(response, locations_pb2.Location)
 
-
 @pytest.mark.asyncio
 async def test_get_location_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13360,8 +11128,7 @@ async def test_get_location_async(transport: str = "grpc_asyncio"):
 
 def test_get_location_field_headers():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials()
-    )
+        credentials=ga_credentials.AnonymousCredentials())
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -13380,15 +11147,13 @@ def test_get_location_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations/abc",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "name=locations/abc",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_get_location_field_headers_async():
-    client = IndexEndpointServiceAsyncClient(credentials=async_anonymous_credentials())
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials()
+    )
 
     # Any value that is part of the HTTP/1.1 URI should be sent as
     # a field header. Set these to a non-empty value.
@@ -13408,10 +11173,7 @@ async def test_get_location_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "name=locations/abc",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "name=locations/abc",) in kw["metadata"]
 
 
 def test_get_location_from_dict():
@@ -13429,7 +11191,6 @@ def test_get_location_from_dict():
             }
         )
         call.assert_called()
-
 
 @pytest.mark.asyncio
 async def test_get_location_from_dict_async():
@@ -13450,10 +11211,42 @@ async def test_get_location_from_dict_async():
         call.assert_called()
 
 
-def test_set_iam_policy(transport: str = "grpc"):
+def test_get_location_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = locations_pb2.Location()
+
+        client.get_location()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == locations_pb2.GetLocationRequest()
+
+@pytest.mark.asyncio
+async def test_get_location_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_location), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            locations_pb2.Location()
+        )
+        await client.get_location()
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == locations_pb2.GetLocationRequest()
+
+
+def test_set_iam_policy(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13463,10 +11256,7 @@ def test_set_iam_policy(transport: str = "grpc"):
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = policy_pb2.Policy(
-            version=774,
-            etag=b"etag_blob",
-        )
+        call.return_value = policy_pb2.Policy(version=774, etag=b"etag_blob",)
         response = client.set_iam_policy(request)
         # Establish that the underlying gRPC stub method was called.
         assert len(call.mock_calls) == 1
@@ -13481,12 +11271,10 @@ def test_set_iam_policy(transport: str = "grpc"):
 
     assert response.etag == b"etag_blob"
 
-
 @pytest.mark.asyncio
 async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13498,10 +11286,7 @@ async def test_set_iam_policy_async(transport: str = "grpc_asyncio"):
         # Designate an appropriate return value for the call.
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            policy_pb2.Policy(
-                version=774,
-                etag=b"etag_blob",
-            )
+            policy_pb2.Policy(version=774, etag=b"etag_blob",)
         )
         response = await client.set_iam_policy(request)
         # Establish that the underlying gRPC stub method was called.
@@ -13541,11 +11326,7 @@ def test_set_iam_policy_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "resource=resource/value",
-    ) in kw["metadata"]
-
+    assert ("x-goog-request-params", "resource=resource/value",) in kw["metadata"]
 
 @pytest.mark.asyncio
 async def test_set_iam_policy_field_headers_async():
@@ -13571,10 +11352,7 @@ async def test_set_iam_policy_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "resource=resource/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "resource=resource/value",) in kw["metadata"]
 
 
 def test_set_iam_policy_from_dict():
@@ -13603,7 +11381,9 @@ async def test_set_iam_policy_from_dict_async():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy()
+        )
 
         response = await client.set_iam_policy(
             request={
@@ -13614,10 +11394,45 @@ async def test_set_iam_policy_from_dict_async():
         call.assert_called()
 
 
-def test_get_iam_policy(transport: str = "grpc"):
+def test_set_iam_policy_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy()
+
+        client.set_iam_policy()
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == iam_policy_pb2.SetIamPolicyRequest()
+
+
+@pytest.mark.asyncio
+async def test_set_iam_policy_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.set_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy()
+        )
+
+        await client.set_iam_policy()
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == iam_policy_pb2.SetIamPolicyRequest()
+
+def test_get_iam_policy(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13627,10 +11442,7 @@ def test_get_iam_policy(transport: str = "grpc"):
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = policy_pb2.Policy(
-            version=774,
-            etag=b"etag_blob",
-        )
+        call.return_value = policy_pb2.Policy(version=774, etag=b"etag_blob",)
 
         response = client.get_iam_policy(request)
 
@@ -13651,8 +11463,7 @@ def test_get_iam_policy(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13660,13 +11471,12 @@ async def test_get_iam_policy_async(transport: str = "grpc_asyncio"):
     request = iam_policy_pb2.GetIamPolicyRequest()
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+    with mock.patch.object(
+        type(client.transport.get_iam_policy), "__call__"
+    ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            policy_pb2.Policy(
-                version=774,
-                etag=b"etag_blob",
-            )
+            policy_pb2.Policy(version=774, etag=b"etag_blob",)
         )
 
         response = await client.get_iam_policy(request)
@@ -13708,10 +11518,7 @@ def test_get_iam_policy_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "resource=resource/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "resource=resource/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -13726,7 +11533,9 @@ async def test_get_iam_policy_field_headers_async():
     request.resource = "resource/value"
 
     # Mock the actual call within the gRPC stub, and fake the request.
-    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+    with mock.patch.object(
+        type(client.transport.get_iam_policy), "__call__"
+    ) as call:
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
 
         await client.get_iam_policy(request)
@@ -13738,10 +11547,7 @@ async def test_get_iam_policy_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "resource=resource/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "resource=resource/value",) in kw["metadata"]
 
 
 def test_get_iam_policy_from_dict():
@@ -13761,7 +11567,6 @@ def test_get_iam_policy_from_dict():
         )
         call.assert_called()
 
-
 @pytest.mark.asyncio
 async def test_get_iam_policy_from_dict_async():
     client = IndexEndpointServiceAsyncClient(
@@ -13770,7 +11575,9 @@ async def test_get_iam_policy_from_dict_async():
     # Mock the actual call within the gRPC stub, and fake the request.
     with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
         # Designate an appropriate return value for the call.
-        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(policy_pb2.Policy())
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy()
+        )
 
         response = await client.get_iam_policy(
             request={
@@ -13781,10 +11588,45 @@ async def test_get_iam_policy_from_dict_async():
         call.assert_called()
 
 
-def test_test_iam_permissions(transport: str = "grpc"):
+def test_get_iam_policy_flattened():
     client = IndexEndpointServiceClient(
         credentials=ga_credentials.AnonymousCredentials(),
-        transport=transport,
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = policy_pb2.Policy()
+
+        client.get_iam_policy()
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == iam_policy_pb2.GetIamPolicyRequest()
+
+
+@pytest.mark.asyncio
+async def test_get_iam_policy_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.get_iam_policy), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            policy_pb2.Policy()
+        )
+
+        await client.get_iam_policy()
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == iam_policy_pb2.GetIamPolicyRequest()
+
+def test_test_iam_permissions(transport: str = "grpc"):
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13817,8 +11659,7 @@ def test_test_iam_permissions(transport: str = "grpc"):
 @pytest.mark.asyncio
 async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(),
-        transport=transport,
+        credentials=async_anonymous_credentials(), transport=transport,
     )
 
     # Everything is optional in proto3 as far as the runtime is concerned,
@@ -13831,9 +11672,7 @@ async def test_test_iam_permissions_async(transport: str = "grpc_asyncio"):
     ) as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
-            iam_policy_pb2.TestIamPermissionsResponse(
-                permissions=["permissions_value"],
-            )
+            iam_policy_pb2.TestIamPermissionsResponse(permissions=["permissions_value"],)
         )
 
         response = await client.test_iam_permissions(request)
@@ -13875,10 +11714,7 @@ def test_test_iam_permissions_field_headers():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "resource=resource/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "resource=resource/value",) in kw["metadata"]
 
 
 @pytest.mark.asyncio
@@ -13909,10 +11745,7 @@ async def test_test_iam_permissions_field_headers_async():
 
     # Establish that the field header was sent.
     _, _, kw = call.mock_calls[0]
-    assert (
-        "x-goog-request-params",
-        "resource=resource/value",
-    ) in kw["metadata"]
+    assert ("x-goog-request-params", "resource=resource/value",) in kw["metadata"]
 
 
 def test_test_iam_permissions_from_dict():
@@ -13933,7 +11766,6 @@ def test_test_iam_permissions_from_dict():
             }
         )
         call.assert_called()
-
 
 @pytest.mark.asyncio
 async def test_test_iam_permissions_from_dict_async():
@@ -13958,13 +11790,49 @@ async def test_test_iam_permissions_from_dict_async():
         call.assert_called()
 
 
+def test_test_iam_permissions_flattened():
+    client = IndexEndpointServiceClient(
+        credentials=ga_credentials.AnonymousCredentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.test_iam_permissions), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = iam_policy_pb2.TestIamPermissionsResponse()
+
+        client.test_iam_permissions()
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == iam_policy_pb2.TestIamPermissionsRequest()
+
+
+@pytest.mark.asyncio
+async def test_test_iam_permissions_flattened_async():
+    client = IndexEndpointServiceAsyncClient(
+        credentials=async_anonymous_credentials(),
+    )
+    # Mock the actual call within the gRPC stub, and fake the request.
+    with mock.patch.object(type(client.transport.test_iam_permissions), "__call__") as call:
+        # Designate an appropriate return value for the call.
+        call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(
+            iam_policy_pb2.TestIamPermissionsResponse()
+        )
+
+        await client.test_iam_permissions()
+
+        # Establish that the underlying gRPC stub method was called.
+        assert len(call.mock_calls) == 1
+        _, args, _ = call.mock_calls[0]
+        assert args[0] == iam_policy_pb2.TestIamPermissionsRequest()
+
+
 def test_transport_close_grpc():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="grpc"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="grpc"
     )
-    with mock.patch.object(
-        type(getattr(client.transport, "_grpc_channel")), "close"
-    ) as close:
+    with mock.patch.object(type(getattr(client.transport, "_grpc_channel")), "close") as close:
         with client:
             close.assert_not_called()
         close.assert_called_once()
@@ -13973,11 +11841,10 @@ def test_transport_close_grpc():
 @pytest.mark.asyncio
 async def test_transport_close_grpc_asyncio():
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="grpc_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="grpc_asyncio"
     )
-    with mock.patch.object(
-        type(getattr(client.transport, "_grpc_channel")), "close"
-    ) as close:
+    with mock.patch.object(type(getattr(client.transport, "_grpc_channel")), "close") as close:
         async with client:
             close.assert_not_called()
         close.assert_called_once()
@@ -13985,11 +11852,10 @@ async def test_transport_close_grpc_asyncio():
 
 def test_transport_close_rest():
     client = IndexEndpointServiceClient(
-        credentials=ga_credentials.AnonymousCredentials(), transport="rest"
+        credentials=ga_credentials.AnonymousCredentials(),
+        transport="rest"
     )
-    with mock.patch.object(
-        type(getattr(client.transport, "_session")), "close"
-    ) as close:
+    with mock.patch.object(type(getattr(client.transport, "_session")), "close") as close:
         with client:
             close.assert_not_called()
         close.assert_called_once()
@@ -13998,15 +11864,12 @@ def test_transport_close_rest():
 @pytest.mark.asyncio
 async def test_transport_close_rest_asyncio():
     if not HAS_ASYNC_REST_EXTRA:
-        pytest.skip(
-            "the library must be installed with the `async_rest` extra to test this feature."
-        )
+        pytest.skip("the library must be installed with the `async_rest` extra to test this feature.")
     client = IndexEndpointServiceAsyncClient(
-        credentials=async_anonymous_credentials(), transport="rest_asyncio"
+        credentials=async_anonymous_credentials(),
+        transport="rest_asyncio"
     )
-    with mock.patch.object(
-        type(getattr(client.transport, "_session")), "close"
-    ) as close:
+    with mock.patch.object(type(getattr(client.transport, "_session")), "close") as close:
         async with client:
             close.assert_not_called()
         close.assert_called_once()
@@ -14014,12 +11877,13 @@ async def test_transport_close_rest_asyncio():
 
 def test_client_ctx():
     transports = [
-        "rest",
-        "grpc",
+        'rest',
+        'grpc',
     ]
     for transport in transports:
         client = IndexEndpointServiceClient(
-            credentials=ga_credentials.AnonymousCredentials(), transport=transport
+            credentials=ga_credentials.AnonymousCredentials(),
+            transport=transport
         )
         # Test client calls underlying transport.
         with mock.patch.object(type(client.transport), "close") as close:
@@ -14028,17 +11892,10 @@ def test_client_ctx():
                 pass
             close.assert_called()
 
-
-@pytest.mark.parametrize(
-    "client_class,transport_class",
-    [
-        (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport),
-        (
-            IndexEndpointServiceAsyncClient,
-            transports.IndexEndpointServiceGrpcAsyncIOTransport,
-        ),
-    ],
-)
+@pytest.mark.parametrize("client_class,transport_class", [
+    (IndexEndpointServiceClient, transports.IndexEndpointServiceGrpcTransport),
+    (IndexEndpointServiceAsyncClient, transports.IndexEndpointServiceGrpcAsyncIOTransport),
+])
 def test_api_key_credentials(client_class, transport_class):
     with mock.patch.object(
         google.auth._default, "get_api_key_credentials", create=True
@@ -14053,9 +11910,7 @@ def test_api_key_credentials(client_class, transport_class):
             patched.assert_called_once_with(
                 credentials=mock_cred,
                 credentials_file=None,
-                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(
-                    UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE
-                ),
+                host=client._DEFAULT_ENDPOINT_TEMPLATE.format(UNIVERSE_DOMAIN=client._DEFAULT_UNIVERSE),
                 scopes=None,
                 client_cert_source_for_mtls=None,
                 quota_project_id=None,
