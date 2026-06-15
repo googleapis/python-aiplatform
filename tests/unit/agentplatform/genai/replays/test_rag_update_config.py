@@ -39,6 +39,20 @@ def test_update_rag_config_private(client):
     assert isinstance(config_op, types.UpdateRagConfigOperation)
 
 
+def test_config_update(client):
+    updated_config = client.rag.update_config(
+        updated_config=types.RagEngineConfig(
+            name="projects/vertex-sdk-dev/locations/us-central1/ragEngineConfig",
+        )
+    )
+
+    assert isinstance(updated_config, types.RagEngineConfig)
+    assert (
+        updated_config.name
+        == "projects/vertex-sdk-dev/locations/us-central1/ragEngineConfig"
+    )
+
+
 pytest_plugins = ("pytest_asyncio",)
 
 
@@ -54,3 +68,18 @@ async def test_update_rag_config_private_async(client):
     )
 
     assert isinstance(config_op, types.UpdateRagConfigOperation)
+
+
+@pytest.mark.asyncio
+async def test_config_update_async(client):
+    updated_config = await client.aio.rag.update_config(
+        updated_config=types.RagEngineConfig(
+            name="projects/vertex-sdk-dev/locations/us-central1/ragEngineConfig",
+        )
+    )
+
+    assert isinstance(updated_config, types.RagEngineConfig)
+    assert (
+        updated_config.name
+        == "projects/vertex-sdk-dev/locations/us-central1/ragEngineConfig"
+    )
