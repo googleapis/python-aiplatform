@@ -17033,7 +17033,7 @@ class CreateAgentEngineSessionConfig(_common.BaseModel):
     )
     ttl: Optional[str] = Field(
         default=None,
-        description="""Optional. Input only. The TTL for this resource.
+        description="""Optional. Input only. The TTL for this resource. It must be positive.
 
       The expiration time is computed: now + TTL.""",
     )
@@ -17067,7 +17067,7 @@ class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
     """Waits for the operation to complete before returning."""
 
     ttl: Optional[str]
-    """Optional. Input only. The TTL for this resource.
+    """Optional. Input only. The TTL for this resource. It must be positive.
 
       The expiration time is computed: now + TTL."""
 
