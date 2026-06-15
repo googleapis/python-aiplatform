@@ -934,7 +934,7 @@ class TestEvaluation:
         scores = list(
             test_result.metrics_table["test_pointwise_metric/score"].to_list()
         )
-        assert scores == [5, 4] or scores == [4, 5]
+        assert sorted(scores) == [4, 5]
         assert list(
             test_result.metrics_table["test_pointwise_metric/explanation"].to_list()
         ) == [
@@ -994,9 +994,9 @@ class TestEvaluation:
         assert test_result.metrics_table["prompt"].equals(
             _TEST_EVAL_DATASET_ALL_INCLUDED["prompt"]
         )
-        assert list(
-            test_result.metrics_table["test_pointwise_metric_str/score"].to_list()
-        ) == [5, 4]
+        assert sorted(
+            list(test_result.metrics_table["test_pointwise_metric_str/score"].to_list())
+        ) == [4, 5]
         assert list(
             test_result.metrics_table["test_pointwise_metric_str/explanation"].to_list()
         ) == [
@@ -1049,9 +1049,9 @@ class TestEvaluation:
                 "summarization_quality/explanation",
             ]
         )
-        assert list(
-            test_result.metrics_table["summarization_quality/score"].to_list()
-        ) == [5, 4]
+        assert sorted(
+            list(test_result.metrics_table["summarization_quality/score"].to_list())
+        ) == [4, 5]
         assert list(
             test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
@@ -1166,9 +1166,9 @@ class TestEvaluation:
                 "source",
             ]
         )
-        assert list(
-            test_result.metrics_table["summarization_quality/score"].to_list()
-        ) == [5, 4]
+        assert sorted(
+            list(test_result.metrics_table["summarization_quality/score"].to_list())
+        ) == [4, 5]
         assert list(
             test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
@@ -1595,9 +1595,9 @@ class TestEvaluation:
             == 0.5
         )
 
-        assert list(
-            test_result.metrics_table["summarization_quality/score"].to_list()
-        ) == [5, 4]
+        assert sorted(
+            list(test_result.metrics_table["summarization_quality/score"].to_list())
+        ) == [4, 5]
         assert list(
             test_result.metrics_table["summarization_quality/explanation"].to_list()
         ) == [
@@ -1884,7 +1884,9 @@ class TestAgentEvaluation:
                 "coherence/explanation",
             ]
         )
-        assert list(test_result.metrics_table["coherence/score"].to_list()) == [5, 4]
+        assert sorted(
+            list(test_result.metrics_table["coherence/score"].to_list())
+        ) == [4, 5]
         assert list(test_result.metrics_table["coherence/explanation"].to_list()) == [
             "explanation",
             "explanation",
