@@ -14742,6 +14742,598 @@ RagEngineConfigOperationOrDict = Union[
 ]
 
 
+class ImportRagFilesRequestConfig(_common.BaseModel):
+    """Config for importing RAG files."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class ImportRagFilesRequestConfigDict(TypedDict, total=False):
+    """Config for importing RAG files."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+ImportRagFilesRequestConfigOrDict = Union[
+    ImportRagFilesRequestConfig, ImportRagFilesRequestConfigDict
+]
+
+
+class BigQueryDestination(_common.BaseModel):
+    """The BigQuery location for the output content."""
+
+    output_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. BigQuery URI to a project or table, up to 2000 characters long. When only the project is specified, the Dataset and Table is created. When the full table reference is specified, the Dataset must exist and table must not exist. Accepted forms: * BigQuery path. For example: `bq://projectId` or `bq://projectId.bqDatasetId` or `bq://projectId.bqDatasetId.bqTableId`.""",
+    )
+
+
+class BigQueryDestinationDict(TypedDict, total=False):
+    """The BigQuery location for the output content."""
+
+    output_uri: Optional[str]
+    """Required. BigQuery URI to a project or table, up to 2000 characters long. When only the project is specified, the Dataset and Table is created. When the full table reference is specified, the Dataset must exist and table must not exist. Accepted forms: * BigQuery path. For example: `bq://projectId` or `bq://projectId.bqDatasetId` or `bq://projectId.bqDatasetId.bqTableId`."""
+
+
+BigQueryDestinationOrDict = Union[BigQueryDestination, BigQueryDestinationDict]
+
+
+class GcsDestination(_common.BaseModel):
+    """The Google Cloud Storage location where the output is to be written to."""
+
+    output_uri_prefix: Optional[str] = Field(
+        default=None,
+        description="""Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist.""",
+    )
+
+
+class GcsDestinationDict(TypedDict, total=False):
+    """The Google Cloud Storage location where the output is to be written to."""
+
+    output_uri_prefix: Optional[str]
+    """Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist."""
+
+
+GcsDestinationOrDict = Union[GcsDestination, GcsDestinationDict]
+
+
+class RagFileChunkingConfigFixedLengthChunking(_common.BaseModel):
+    """Specifies the fixed length chunking config."""
+
+    chunk_overlap: Optional[int] = Field(
+        default=None, description="""The overlap between chunks."""
+    )
+    chunk_size: Optional[int] = Field(
+        default=None, description="""The size of the chunks."""
+    )
+
+
+class RagFileChunkingConfigFixedLengthChunkingDict(TypedDict, total=False):
+    """Specifies the fixed length chunking config."""
+
+    chunk_overlap: Optional[int]
+    """The overlap between chunks."""
+
+    chunk_size: Optional[int]
+    """The size of the chunks."""
+
+
+RagFileChunkingConfigFixedLengthChunkingOrDict = Union[
+    RagFileChunkingConfigFixedLengthChunking,
+    RagFileChunkingConfigFixedLengthChunkingDict,
+]
+
+
+class RagFileChunkingConfig(_common.BaseModel):
+    """Specifies the size and overlap of chunks for RagFiles."""
+
+    chunk_overlap: Optional[int] = Field(
+        default=None, description="""The overlap between chunks."""
+    )
+    chunk_size: Optional[int] = Field(
+        default=None, description="""The size of the chunks."""
+    )
+    fixed_length_chunking: Optional[RagFileChunkingConfigFixedLengthChunking] = Field(
+        default=None, description="""Specifies the fixed length chunking config."""
+    )
+
+
+class RagFileChunkingConfigDict(TypedDict, total=False):
+    """Specifies the size and overlap of chunks for RagFiles."""
+
+    chunk_overlap: Optional[int]
+    """The overlap between chunks."""
+
+    chunk_size: Optional[int]
+    """The size of the chunks."""
+
+    fixed_length_chunking: Optional[RagFileChunkingConfigFixedLengthChunkingDict]
+    """Specifies the fixed length chunking config."""
+
+
+RagFileChunkingConfigOrDict = Union[RagFileChunkingConfig, RagFileChunkingConfigDict]
+
+
+class RagFileMetadataConfig(_common.BaseModel):
+    """Metadata config for RagFile."""
+
+    gcs_metadata_schema_source: Optional[GcsSource] = Field(
+        default=None,
+        description="""Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata_schema.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata schema will be read from the files that ends with "metadata_schema.json" in the directory.""",
+    )
+    gcs_metadata_source: Optional[GcsSource] = Field(
+        default=None,
+        description="""Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata will be read from the files that ends with "metadata.json" in the directory.""",
+    )
+    google_drive_metadata_schema_source: Optional[GoogleDriveSource] = Field(
+        default=None,
+        description="""Google Drive location. Supports importing individual files as well as Google Drive folders. If the user provides a folder, the metadata schema will be read from the files that ends with "metadata_schema.json" in the directory.""",
+    )
+    google_drive_metadata_source: Optional[GoogleDriveSource] = Field(
+        default=None,
+        description="""Google Drive location. Supports importing individual files as well as Google Drive folders. If the user provides a directory, the metadata will be read from the files that ends with "metadata.json" in the directory.""",
+    )
+    inline_metadata_schema_source: Optional[str] = Field(
+        default=None,
+        description="""Inline metadata schema source. Must be a JSON string.""",
+    )
+    inline_metadata_source: Optional[str] = Field(
+        default=None, description="""Inline metadata source. Must be a JSON string."""
+    )
+
+
+class RagFileMetadataConfigDict(TypedDict, total=False):
+    """Metadata config for RagFile."""
+
+    gcs_metadata_schema_source: Optional[GcsSourceDict]
+    """Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata_schema.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata schema will be read from the files that ends with "metadata_schema.json" in the directory."""
+
+    gcs_metadata_source: Optional[GcsSourceDict]
+    """Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata will be read from the files that ends with "metadata.json" in the directory."""
+
+    google_drive_metadata_schema_source: Optional[GoogleDriveSourceDict]
+    """Google Drive location. Supports importing individual files as well as Google Drive folders. If the user provides a folder, the metadata schema will be read from the files that ends with "metadata_schema.json" in the directory."""
+
+    google_drive_metadata_source: Optional[GoogleDriveSourceDict]
+    """Google Drive location. Supports importing individual files as well as Google Drive folders. If the user provides a directory, the metadata will be read from the files that ends with "metadata.json" in the directory."""
+
+    inline_metadata_schema_source: Optional[str]
+    """Inline metadata schema source. Must be a JSON string."""
+
+    inline_metadata_source: Optional[str]
+    """Inline metadata source. Must be a JSON string."""
+
+
+RagFileMetadataConfigOrDict = Union[RagFileMetadataConfig, RagFileMetadataConfigDict]
+
+
+class RagFileParsingConfigAdvancedParser(_common.BaseModel):
+    """Specifies the advanced parsing for RagFiles."""
+
+    use_advanced_pdf_parsing: Optional[bool] = Field(
+        default=None, description="""Whether to use advanced PDF parsing."""
+    )
+
+
+class RagFileParsingConfigAdvancedParserDict(TypedDict, total=False):
+    """Specifies the advanced parsing for RagFiles."""
+
+    use_advanced_pdf_parsing: Optional[bool]
+    """Whether to use advanced PDF parsing."""
+
+
+RagFileParsingConfigAdvancedParserOrDict = Union[
+    RagFileParsingConfigAdvancedParser, RagFileParsingConfigAdvancedParserDict
+]
+
+
+class RagFileParsingConfigLayoutParser(_common.BaseModel):
+    """Document AI Layout Parser config."""
+
+    global_max_parsing_requests_per_min: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of requests the job is allowed to make to the Document AI processor per minute in this project. Consult https://cloud.google.com/document-ai/quotas and the Quota page for your project to set an appropriate value here. If this value is not specified, max_parsing_requests_per_min will be used by indexing pipeline as the global limit.""",
+    )
+    max_parsing_requests_per_min: Optional[int] = Field(
+        default=None,
+        description="""The maximum number of requests the job is allowed to make to the Document AI processor per minute. Consult https://cloud.google.com/document-ai/quotas and the Quota page for your project to set an appropriate value here. If unspecified, a default value of 120 QPM would be used.""",
+    )
+    processor_name: Optional[str] = Field(
+        default=None,
+        description="""The full resource name of a Document AI processor or processor version. The processor must have type `LAYOUT_PARSER_PROCESSOR`. If specified, the `additional_config.parse_as_scanned_pdf` field must be false. Format: * `projects/{project_id}/locations/{location}/processors/{processor_id}` * `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`""",
+    )
+
+
+class RagFileParsingConfigLayoutParserDict(TypedDict, total=False):
+    """Document AI Layout Parser config."""
+
+    global_max_parsing_requests_per_min: Optional[int]
+    """The maximum number of requests the job is allowed to make to the Document AI processor per minute in this project. Consult https://cloud.google.com/document-ai/quotas and the Quota page for your project to set an appropriate value here. If this value is not specified, max_parsing_requests_per_min will be used by indexing pipeline as the global limit."""
+
+    max_parsing_requests_per_min: Optional[int]
+    """The maximum number of requests the job is allowed to make to the Document AI processor per minute. Consult https://cloud.google.com/document-ai/quotas and the Quota page for your project to set an appropriate value here. If unspecified, a default value of 120 QPM would be used."""
+
+    processor_name: Optional[str]
+    """The full resource name of a Document AI processor or processor version. The processor must have type `LAYOUT_PARSER_PROCESSOR`. If specified, the `additional_config.parse_as_scanned_pdf` field must be false. Format: * `projects/{project_id}/locations/{location}/processors/{processor_id}` * `projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{processor_version_id}`"""
+
+
+RagFileParsingConfigLayoutParserOrDict = Union[
+    RagFileParsingConfigLayoutParser, RagFileParsingConfigLayoutParserDict
+]
+
+
+class RagFileParsingConfig(_common.BaseModel):
+    """Specifies the parsing config for RagFiles."""
+
+    advanced_parser: Optional[RagFileParsingConfigAdvancedParser] = Field(
+        default=None, description="""The Advanced Parser to use for RagFiles."""
+    )
+    layout_parser: Optional[RagFileParsingConfigLayoutParser] = Field(
+        default=None, description="""The Layout Parser to use for RagFiles."""
+    )
+    llm_parser: Optional[RagFileParsingConfigLlmParser] = Field(
+        default=None, description="""The LLM Parser to use for RagFiles."""
+    )
+    use_advanced_pdf_parsing: Optional[bool] = Field(
+        default=None, description="""Whether to use advanced PDF parsing."""
+    )
+
+
+class RagFileParsingConfigDict(TypedDict, total=False):
+    """Specifies the parsing config for RagFiles."""
+
+    advanced_parser: Optional[RagFileParsingConfigAdvancedParserDict]
+    """The Advanced Parser to use for RagFiles."""
+
+    layout_parser: Optional[RagFileParsingConfigLayoutParserDict]
+    """The Layout Parser to use for RagFiles."""
+
+    llm_parser: Optional[RagFileParsingConfigLlmParserDict]
+    """The LLM Parser to use for RagFiles."""
+
+    use_advanced_pdf_parsing: Optional[bool]
+    """Whether to use advanced PDF parsing."""
+
+
+RagFileParsingConfigOrDict = Union[RagFileParsingConfig, RagFileParsingConfigDict]
+
+
+class RagFileTransformationConfig(_common.BaseModel):
+    """Specifies the transformation config for RagFiles."""
+
+    rag_file_chunking_config: Optional[RagFileChunkingConfig] = Field(
+        default=None, description="""Specifies the chunking config for RagFiles."""
+    )
+
+
+class RagFileTransformationConfigDict(TypedDict, total=False):
+    """Specifies the transformation config for RagFiles."""
+
+    rag_file_chunking_config: Optional[RagFileChunkingConfigDict]
+    """Specifies the chunking config for RagFiles."""
+
+
+RagFileTransformationConfigOrDict = Union[
+    RagFileTransformationConfig, RagFileTransformationConfigDict
+]
+
+
+class ImportRagFilesConfig(_common.BaseModel):
+    """Config for importing RagFiles."""
+
+    gcs_source: Optional[GcsSource] = Field(
+        default=None,
+        description="""Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/my_file.txt` - `gs://bucket_name/my_directory`""",
+    )
+    global_max_embedding_requests_per_min: Optional[int] = Field(
+        default=None,
+        description="""Optional. The max number of queries per minute that the indexing pipeline job is allowed to make to the embedding model specified in the project. Please follow the quota usage guideline of the embedding model you use to set the value properly.If this value is not specified, max_embedding_requests_per_min will be used by indexing pipeline job as the global limit.""",
+    )
+    google_drive_source: Optional[GoogleDriveSource] = Field(
+        default=None,
+        description="""Google Drive location. Supports importing individual files as well as Google Drive folders.""",
+    )
+    import_result_bigquery_sink: Optional[BigQueryDestination] = Field(
+        default=None,
+        description="""The BigQuery destination to write import result to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table.""",
+    )
+    import_result_gcs_sink: Optional[GcsDestination] = Field(
+        default=None,
+        description="""The Cloud Storage path to write import result to.""",
+    )
+    jira_source: Optional[JiraSource] = Field(
+        default=None,
+        description="""Jira queries with their corresponding authentication.""",
+    )
+    max_embedding_requests_per_min: Optional[int] = Field(
+        default=None,
+        description="""Optional. The max number of queries per minute that this job is allowed to make to the embedding model specified on the corpus. This value is specific to this job and not shared across other import jobs. Consult the Quotas page on the project to set an appropriate value here. If unspecified, a default value of 1,000 QPM would be used.""",
+    )
+    partial_failure_bigquery_sink: Optional[BigQueryDestination] = Field(
+        default=None,
+        description="""The BigQuery destination to write partial failures to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table. Deprecated. Prefer to use `import_result_bq_sink`.""",
+    )
+    partial_failure_gcs_sink: Optional[GcsDestination] = Field(
+        default=None,
+        description="""The Cloud Storage path to write partial failures to. Deprecated. Prefer to use `import_result_gcs_sink`.""",
+    )
+    rag_file_chunking_config: Optional[RagFileChunkingConfig] = Field(
+        default=None,
+        description="""Specifies the size and overlap of chunks after importing RagFiles.""",
+    )
+    rag_file_metadata_config: Optional[RagFileMetadataConfig] = Field(
+        default=None,
+        description="""Specifies the metadata config for RagFiles. Including paths for metadata schema and metadata. Deprecated: Not in use.""",
+    )
+    rag_file_parsing_config: Optional[RagFileParsingConfig] = Field(
+        default=None,
+        description="""Optional. Specifies the parsing config for RagFiles. RAG will use the default parser if this field is not set.""",
+    )
+    rag_file_transformation_config: Optional[RagFileTransformationConfig] = Field(
+        default=None,
+        description="""Specifies the transformation config for RagFiles.""",
+    )
+    rebuild_ann_index: Optional[bool] = Field(
+        default=None,
+        description="""Rebuilds the ANN index to optimize for recall on the imported data. Only applicable for RagCorpora running on RagManagedDb with `retrieval_strategy` set to `ANN`. The rebuild will be performed using the existing ANN config set on the RagCorpus. To change the ANN config, please use the UpdateRagCorpus API. Default is false, i.e., index is not rebuilt.""",
+    )
+    share_point_sources: Optional[SharePointSources] = Field(
+        default=None, description="""SharePoint sources."""
+    )
+    slack_source: Optional[SlackSource] = Field(
+        default=None,
+        description="""Slack channels with their corresponding access tokens.""",
+    )
+
+
+class ImportRagFilesConfigDict(TypedDict, total=False):
+    """Config for importing RagFiles."""
+
+    gcs_source: Optional[GcsSourceDict]
+    """Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/my_file.txt` - `gs://bucket_name/my_directory`"""
+
+    global_max_embedding_requests_per_min: Optional[int]
+    """Optional. The max number of queries per minute that the indexing pipeline job is allowed to make to the embedding model specified in the project. Please follow the quota usage guideline of the embedding model you use to set the value properly.If this value is not specified, max_embedding_requests_per_min will be used by indexing pipeline job as the global limit."""
+
+    google_drive_source: Optional[GoogleDriveSourceDict]
+    """Google Drive location. Supports importing individual files as well as Google Drive folders."""
+
+    import_result_bigquery_sink: Optional[BigQueryDestinationDict]
+    """The BigQuery destination to write import result to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table."""
+
+    import_result_gcs_sink: Optional[GcsDestinationDict]
+    """The Cloud Storage path to write import result to."""
+
+    jira_source: Optional[JiraSourceDict]
+    """Jira queries with their corresponding authentication."""
+
+    max_embedding_requests_per_min: Optional[int]
+    """Optional. The max number of queries per minute that this job is allowed to make to the embedding model specified on the corpus. This value is specific to this job and not shared across other import jobs. Consult the Quotas page on the project to set an appropriate value here. If unspecified, a default value of 1,000 QPM would be used."""
+
+    partial_failure_bigquery_sink: Optional[BigQueryDestinationDict]
+    """The BigQuery destination to write partial failures to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table. Deprecated. Prefer to use `import_result_bq_sink`."""
+
+    partial_failure_gcs_sink: Optional[GcsDestinationDict]
+    """The Cloud Storage path to write partial failures to. Deprecated. Prefer to use `import_result_gcs_sink`."""
+
+    rag_file_chunking_config: Optional[RagFileChunkingConfigDict]
+    """Specifies the size and overlap of chunks after importing RagFiles."""
+
+    rag_file_metadata_config: Optional[RagFileMetadataConfigDict]
+    """Specifies the metadata config for RagFiles. Including paths for metadata schema and metadata. Deprecated: Not in use."""
+
+    rag_file_parsing_config: Optional[RagFileParsingConfigDict]
+    """Optional. Specifies the parsing config for RagFiles. RAG will use the default parser if this field is not set."""
+
+    rag_file_transformation_config: Optional[RagFileTransformationConfigDict]
+    """Specifies the transformation config for RagFiles."""
+
+    rebuild_ann_index: Optional[bool]
+    """Rebuilds the ANN index to optimize for recall on the imported data. Only applicable for RagCorpora running on RagManagedDb with `retrieval_strategy` set to `ANN`. The rebuild will be performed using the existing ANN config set on the RagCorpus. To change the ANN config, please use the UpdateRagCorpus API. Default is false, i.e., index is not rebuilt."""
+
+    share_point_sources: Optional[SharePointSourcesDict]
+    """SharePoint sources."""
+
+    slack_source: Optional[SlackSourceDict]
+    """Slack channels with their corresponding access tokens."""
+
+
+ImportRagFilesConfigOrDict = Union[ImportRagFilesConfig, ImportRagFilesConfigDict]
+
+
+class ImportRagFilesRequest(_common.BaseModel):
+    """Request message for VertexRagDataService.ImportRagFiles."""
+
+    import_rag_files_config: Optional[ImportRagFilesConfig] = Field(
+        default=None,
+        description="""Required. The config for the RagFiles to be synced and imported into the RagCorpus. VertexRagDataService.ImportRagFiles.""",
+    )
+
+
+class ImportRagFilesRequestDict(TypedDict, total=False):
+    """Request message for VertexRagDataService.ImportRagFiles."""
+
+    import_rag_files_config: Optional[ImportRagFilesConfigDict]
+    """Required. The config for the RagFiles to be synced and imported into the RagCorpus. VertexRagDataService.ImportRagFiles."""
+
+
+ImportRagFilesRequestOrDict = Union[ImportRagFilesRequest, ImportRagFilesRequestDict]
+
+
+class _ImportRagFilesRequestParameters(_common.BaseModel):
+    """Parameters for importing RAG files."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    import_rag_files_request: Optional[ImportRagFilesRequest] = Field(
+        default=None, description=""""""
+    )
+    config: Optional[ImportRagFilesRequestConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ImportRagFilesRequestParametersDict(TypedDict, total=False):
+    """Parameters for importing RAG files."""
+
+    name: Optional[str]
+    """"""
+
+    import_rag_files_request: Optional[ImportRagFilesRequestDict]
+    """"""
+
+    config: Optional[ImportRagFilesRequestConfigDict]
+    """"""
+
+
+_ImportRagFilesRequestParametersOrDict = Union[
+    _ImportRagFilesRequestParameters, _ImportRagFilesRequestParametersDict
+]
+
+
+class ImportRagFilesResponse(_common.BaseModel):
+    """Response from importing RAG files."""
+
+    imported_rag_files_count: Optional[int] = Field(
+        default=None,
+        description="""The number of RagFiles imported into the RagCorpus.""",
+    )
+    failed_rag_files_count: Optional[int] = Field(
+        default=None,
+        description="""The number of RagFiles that failed to import into the RagCorpus.""",
+    )
+    skipped_rag_files_count: Optional[int] = Field(
+        default=None,
+        description="""The number of RagFiles skipped while importing into the RagCorpus.""",
+    )
+    partial_failures_gcs_path: Optional[str] = Field(
+        default=None,
+        description="""The Google Cloud Storage path with the partial failures.""",
+    )
+    partial_failures_bigquery_table: Optional[str] = Field(
+        default=None,
+        description="""The BigQuery table where the partial failures were written.""",
+    )
+
+
+class ImportRagFilesResponseDict(TypedDict, total=False):
+    """Response from importing RAG files."""
+
+    imported_rag_files_count: Optional[int]
+    """The number of RagFiles imported into the RagCorpus."""
+
+    failed_rag_files_count: Optional[int]
+    """The number of RagFiles that failed to import into the RagCorpus."""
+
+    skipped_rag_files_count: Optional[int]
+    """The number of RagFiles skipped while importing into the RagCorpus."""
+
+    partial_failures_gcs_path: Optional[str]
+    """The Google Cloud Storage path with the partial failures."""
+
+    partial_failures_bigquery_table: Optional[str]
+    """The BigQuery table where the partial failures were written."""
+
+
+ImportRagFilesResponseOrDict = Union[ImportRagFilesResponse, ImportRagFilesResponseDict]
+
+
+class ImportRagFilesOperation(_common.BaseModel):
+    """Operation for importing RAG files."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[ImportRagFilesResponse] = Field(
+        default=None, description="""The response from the import operation."""
+    )
+
+
+class ImportRagFilesOperationDict(TypedDict, total=False):
+    """Operation for importing RAG files."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[ImportRagFilesResponseDict]
+    """The response from the import operation."""
+
+
+ImportRagFilesOperationOrDict = Union[
+    ImportRagFilesOperation, ImportRagFilesOperationDict
+]
+
+
+class GetImportFilesOperationConfig(_common.BaseModel):
+    """Config for getting an import files operation."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetImportFilesOperationConfigDict(TypedDict, total=False):
+    """Config for getting an import files operation."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+GetImportFilesOperationConfigOrDict = Union[
+    GetImportFilesOperationConfig, GetImportFilesOperationConfigDict
+]
+
+
+class _GetImportFilesOperationParameters(_common.BaseModel):
+    """Parameters for getting an import files operation."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetImportFilesOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetImportFilesOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an import files operation."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetImportFilesOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetImportFilesOperationParametersOrDict = Union[
+    _GetImportFilesOperationParameters, _GetImportFilesOperationParametersDict
+]
+
+
 class GetAgentEngineRuntimeRevisionConfig(_common.BaseModel):
     """Config for getting an Agent Engine Runtime Revision."""
 
