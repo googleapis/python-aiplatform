@@ -96,16 +96,47 @@ class AgentConfig(_common.BaseModel):
                     tool_declarations.append({"function_declarations": [declaration]})
                 continue
 
-            tool_declarations.append(
-                {
-                    "function_declarations": [
-                        genai_types.FunctionDeclaration.from_callable_with_api_option(
-                            callable=tool
-                        )
-                    ]
-                }
-            )
+            declaration = AgentConfig._get_declaration_from_callable(tool)
+            if declaration is not None:
+                tool_declarations.append({"function_declarations": [declaration]})
         return tool_declarations
+
+    @staticmethod
+    def _get_declaration_from_callable(
+        tool: Any,
+    ) -> Optional[genai_types.FunctionDeclaration]:
+        """Builds a function declaration for a plain callable tool.
+
+        ADK agents store plain Python functions in `agent.tools` and only wrap
+        them in `FunctionTool` lazily at runtime. Such functions often take
+        ADK-injected parameters (e.g. `tool_context: ToolContext`) that the
+        generic `google-genai` schema generator rejects. When google-adk is
+        available, wrap the callable in ADK's `FunctionTool` so its declaration
+        logic strips those injected parameters. Otherwise, fall back to the
+        generic generator.
+
+        Args:
+          tool: A plain callable tool from an agent's `tools` list.
+
+        Returns:
+          The function declaration for the tool, or None if the tool has no
+          declaration.
+        """
+        # pylint: disable=g-import-not-at-top,protected-access
+        # The returned FunctionDeclaration may populate either `parameters` or
+        # `parameters_json_schema` depending on the installed google-adk version
+        # and the JSON_SCHEMA_FOR_FUNC_DECL feature flag (default-on in adk>=2.2).
+        # A future adk major version will drop `parameters`, so downstream
+        # consumers must handle both fields.
+        try:
+            from google.adk.tools.function_tool import FunctionTool
+
+            return FunctionTool(func=tool)._get_declaration()  # type: ignore[no-any-return]
+        except ImportError:
+            pass
+        return genai_types.FunctionDeclaration.from_callable_with_api_option(
+            callable=tool
+        )
 
     @classmethod
     def from_agent(cls, agent: Any) -> "AgentConfig":

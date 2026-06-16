@@ -14,6 +14,7 @@
 #
 # pylint: disable=protected-access,bad-continuation,
 import base64
+import builtins
 import importlib
 import json
 import os
@@ -6011,6 +6012,88 @@ class TestAgentInfo:
         assert agent_info.agents["leaf"].tools[0].function_declarations == [
             mock_function_declaration
         ]
+
+    def test_load_from_agent_plain_callable_wraps_in_adk_function_tool(self):
+        """Plain callables with ToolContext params are declared via ADK FunctionTool."""
+
+        def memorize(key: str, value: str, tool_context: "ToolContext"):  # noqa: F821
+            tool_context.state[key] = value
+            return {"status": "ok"}
+
+        mock_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+        mock_function_tool_cls = mock.MagicMock()
+        mock_function_tool_cls.return_value._get_declaration.return_value = (
+            mock_declaration
+        )
+        mock_modules = {
+            "google.adk": mock.MagicMock(),
+            "google.adk.tools": mock.MagicMock(),
+            "google.adk.tools.function_tool": mock.MagicMock(
+                FunctionTool=mock_function_tool_cls
+            ),
+        }
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [memorize]
+        mock_agent.sub_agents = []
+
+        with (
+            mock.patch.object(
+                genai_types.FunctionDeclaration, "from_callable_with_api_option"
+            ) as mock_from_callable,
+            mock.patch.dict(sys.modules, mock_modules),
+        ):
+            agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
+                agent=mock_agent,
+            )
+
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+            mock_declaration
+        ]
+        mock_function_tool_cls.assert_called_once_with(func=memorize)
+        mock_from_callable.assert_not_called()
+
+    def test_load_from_agent_plain_callable_falls_back_without_adk(self):
+        """When google-adk is unavailable, plain callables use from_callable."""
+
+        def my_plain_tool(query: str) -> str:
+            return query
+
+        mock_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
+
+        mock_agent = mock.Mock()
+        mock_agent.name = "mock_agent"
+        mock_agent.instruction = "mock instruction"
+        mock_agent.description = "mock description"
+        mock_agent.tools = [my_plain_tool]
+        mock_agent.sub_agents = []
+
+        real_import = builtins.__import__
+
+        def _no_adk_import(name, *args, **kwargs):
+            if name == "google.adk.tools.function_tool":
+                raise ImportError("google-adk not installed")
+            return real_import(name, *args, **kwargs)
+
+        with (
+            mock.patch.object(
+                genai_types.FunctionDeclaration,
+                "from_callable_with_api_option",
+                return_value=mock_declaration,
+            ) as mock_from_callable,
+            mock.patch.object(builtins, "__import__", side_effect=_no_adk_import),
+        ):
+            agent_info = agentplatform_genai_types.evals.AgentInfo.load_from_agent(
+                agent=mock_agent,
+            )
+
+        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
+            mock_declaration
+        ]
+        mock_from_callable.assert_called_once_with(callable=my_plain_tool)
 
 
 class TestValidateDatasetAgentData:
