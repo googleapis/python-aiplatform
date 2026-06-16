@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.158.0](https://github.com/googleapis/python-aiplatform/compare/v1.157.0...v1.158.0) (2026-06-16)
+
+
+### Features
+
+* Add ReasoningEngineRuntimeRevisionService and update related fields in ReasoningEngine ([b51f0f6](https://github.com/googleapis/python-aiplatform/commit/b51f0f667f6fc8e2eefb708cd331760a242650e5))
+* GenAI client - Add update_corpus and update_config methods to the RAG module ([237c562](https://github.com/googleapis/python-aiplatform/commit/237c562965a57c2e141d987fbfddd5f16ab66022))
+* GenAI SDK client - Add import_files method to RAG client ([a5c6095](https://github.com/googleapis/python-aiplatform/commit/a5c609570b78e6d4bb471097fd13e367e7a589de))
+* Release ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine v1 API ([b51f0f6](https://github.com/googleapis/python-aiplatform/commit/b51f0f667f6fc8e2eefb708cd331760a242650e5))
+* Release ReasoningEngineExecutionService.CancelAsyncQueryReasoningEngine v1beta1 API ([b51f0f6](https://github.com/googleapis/python-aiplatform/commit/b51f0f667f6fc8e2eefb708cd331760a242650e5))
+
+
+### Bug Fixes
+
+* GenAI client - Make vertex_rag_store a required arg for client.rag.retrieve_contexts and make the tools arg in ask_contexts part of config ([60b0f84](https://github.com/googleapis/python-aiplatform/commit/60b0f8401b7669d55faae2ebee29c1a88caa2a75))
+* GenAI Client(evals) - Strip ADK-injected params from plain callable tools ([551c5bd](https://github.com/googleapis/python-aiplatform/commit/551c5bd20380c87317b25247f2e65c930ead42a7))
+* Keeping the non-default version of the model resource ([14a2265](https://github.com/googleapis/python-aiplatform/commit/14a2265de786bcf20352944494c90f15ada9d849))
+
 ## [1.157.0](https://github.com/googleapis/python-aiplatform/compare/v1.156.0...v1.157.0) (2026-06-09)
 
 
