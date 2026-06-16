@@ -11942,6 +11942,7 @@ class AskContextsConfig(_common.BaseModel):
     http_options: Optional[genai_types.HttpOptions] = Field(
         default=None, description="""Used to override HTTP request options."""
     )
+    tools: Optional[list[genai_types.Tool]] = Field(default=None, description="""""")
 
 
 class AskContextsConfigDict(TypedDict, total=False):
@@ -11949,6 +11950,9 @@ class AskContextsConfigDict(TypedDict, total=False):
 
     http_options: Optional[genai_types.HttpOptionsDict]
     """Used to override HTTP request options."""
+
+    tools: Optional[list[genai_types.ToolDict]]
+    """"""
 
 
 AskContextsConfigOrDict = Union[AskContextsConfig, AskContextsConfigDict]
@@ -12175,7 +12179,6 @@ class _AskContextsRequestParameters(_common.BaseModel):
 
     query: Optional[RagQuery] = Field(default=None, description="""""")
     config: Optional[AskContextsConfig] = Field(default=None, description="""""")
-    tools: Optional[list[genai_types.Tool]] = Field(default=None, description="""""")
 
 
 class _AskContextsRequestParametersDict(TypedDict, total=False):
@@ -12185,9 +12188,6 @@ class _AskContextsRequestParametersDict(TypedDict, total=False):
     """"""
 
     config: Optional[AskContextsConfigDict]
-    """"""
-
-    tools: Optional[list[genai_types.ToolDict]]
     """"""
 
 

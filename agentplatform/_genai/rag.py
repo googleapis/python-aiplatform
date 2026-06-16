@@ -22,7 +22,6 @@ from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
@@ -30,6 +29,18 @@ from . import _operations_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.rag")
+
+
+def _AskContextsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["tools"]) is not None:
+        setv(parent_object, ["tools"], getv(from_object, ["tools"]))
+
+    return to_object
 
 
 def _AskContextsRequestParameters_to_vertex(
@@ -41,10 +52,11 @@ def _AskContextsRequestParameters_to_vertex(
         setv(to_object, ["query"], getv(from_object, ["query"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    if getv(from_object, ["tools"]) is not None:
-        setv(to_object, ["tools"], getv(from_object, ["tools"]))
+        setv(
+            to_object,
+            ["config"],
+            _AskContextsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
 
     return to_object
 
@@ -1386,7 +1398,6 @@ class Rag(_api_module.BaseModule):
         *,
         query: types.RagQueryOrDict,
         config: Optional[types.AskContextsConfigOrDict] = None,
-        tools: Optional[list[genai_types.ToolOrDict]] = None,
     ) -> types.AskContextsResponse:
         """
         Asks a RAG Contexts.
@@ -1395,7 +1406,6 @@ class Rag(_api_module.BaseModule):
         parameter_model = types._AskContextsRequestParameters(
             query=query,
             config=config,
-            tools=tools,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2240,7 +2250,7 @@ class Rag(_api_module.BaseModule):
     def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: Optional[types.VertexRagStoreOrDict] = None,
+        vertex_rag_store: types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
@@ -2522,7 +2532,6 @@ class AsyncRag(_api_module.BaseModule):
         *,
         query: types.RagQueryOrDict,
         config: Optional[types.AskContextsConfigOrDict] = None,
-        tools: Optional[list[genai_types.ToolOrDict]] = None,
     ) -> types.AskContextsResponse:
         """
         Asks a RAG Contexts.
@@ -2531,7 +2540,6 @@ class AsyncRag(_api_module.BaseModule):
         parameter_model = types._AskContextsRequestParameters(
             query=query,
             config=config,
-            tools=tools,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3400,7 +3408,7 @@ class AsyncRag(_api_module.BaseModule):
     async def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: Optional[types.VertexRagStoreOrDict] = None,
+        vertex_rag_store: types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
