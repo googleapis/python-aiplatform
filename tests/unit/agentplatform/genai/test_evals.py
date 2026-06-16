@@ -9849,3 +9849,95 @@ class TestAllowCrossRegionModel:
             request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
             is True
         )
+
+
+class TestGetEvaluationExperiment:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.experiment_name = (
+            "projects/123/locations/us-central1/evaluationExperiments/456"
+        )
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "name": self.experiment_name,
+                "displayName": "my_experiment",
+                "evaluationRuns": [
+                    "projects/123/locations/us-central1/evaluationRuns/789"
+                ],
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_get_evaluation_experiment_returns_experiment(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        experiment = evals_module.get_evaluation_experiment(name=self.experiment_name)
+
+        assert isinstance(experiment, agentplatform_genai_types.EvaluationExperiment)
+        assert experiment.name == self.experiment_name
+        assert experiment.display_name == "my_experiment"
+        assert experiment.evaluation_runs == [
+            "projects/123/locations/us-central1/evaluationRuns/789"
+        ]
+
+    def test_get_evaluation_experiment_uses_short_name_in_url(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.get_evaluation_experiment(name=self.experiment_name)
+
+        self.mock_api_client.request.assert_called_once()
+        path = self.mock_api_client.request.call_args[0][1]
+        assert path == "evaluationExperiments/456"
+
+    def test_get_evaluation_experiment_empty_name_raises(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        with pytest.raises(ValueError, match="name cannot be empty"):
+            evals_module.get_evaluation_experiment(name="")
+
+
+class TestListEvaluationExperiments:
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "evaluationExperiments": [
+                    {
+                        "name": "projects/123/locations/us-central1/evaluationExperiments/1",
+                        "displayName": "exp_1",
+                    },
+                    {
+                        "name": "projects/123/locations/us-central1/evaluationExperiments/2",
+                        "displayName": "exp_2",
+                    },
+                ]
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_list_evaluation_experiments_returns_experiments(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        response = evals_module.list_evaluation_experiments()
+
+        assert len(response.evaluation_experiments) == 2
+        assert response.evaluation_experiments[0].display_name == "exp_1"
+        assert response.evaluation_experiments[1].display_name == "exp_2"
+
+    def test_list_evaluation_experiments_passes_filter_and_order_by(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.list_evaluation_experiments(
+            filter='display_name="exp_1"', order_by="create_time desc"
+        )
+
+        self.mock_api_client.request.assert_called_once()
+        path = self.mock_api_client.request.call_args[0][1]
+        assert path.startswith("evaluationExperiments?")
+        assert "orderBy=create_time+desc" in path
