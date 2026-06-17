@@ -15334,6 +15334,165 @@ _GetImportFilesOperationParametersOrDict = Union[
 ]
 
 
+class UploadRagFileRequestConfig(_common.BaseModel):
+    """Config for the request to upload a Rag File."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class UploadRagFileRequestConfigDict(TypedDict, total=False):
+    """Config for the request to upload a Rag File."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+
+UploadRagFileRequestConfigOrDict = Union[
+    UploadRagFileRequestConfig, UploadRagFileRequestConfigDict
+]
+
+
+class UploadRagFileConfig(_common.BaseModel):
+    """Config for uploading RagFile."""
+
+    rag_file_chunking_config: Optional[RagFileChunkingConfig] = Field(
+        default=None,
+        description="""Specifies the size and overlap of chunks after uploading RagFile.""",
+    )
+    rag_file_metadata_config: Optional[RagFileMetadataConfig] = Field(
+        default=None,
+        description="""Optional. Specifies the metadata config for RagFiles. Including paths for metadata schema and metadata. Alteratively, inline metadata schema and metadata can be provided. Deprecated: Not in use.""",
+    )
+    rag_file_parsing_config: Optional[RagFileParsingConfig] = Field(
+        default=None,
+        description="""Optional. Specifies the parsing config for RagFiles. RAG will use the default parser if this field is not set.""",
+    )
+    rag_file_transformation_config: Optional[RagFileTransformationConfig] = Field(
+        default=None,
+        description="""Specifies the transformation config for RagFiles.""",
+    )
+
+
+class UploadRagFileConfigDict(TypedDict, total=False):
+    """Config for uploading RagFile."""
+
+    rag_file_chunking_config: Optional[RagFileChunkingConfigDict]
+    """Specifies the size and overlap of chunks after uploading RagFile."""
+
+    rag_file_metadata_config: Optional[RagFileMetadataConfigDict]
+    """Optional. Specifies the metadata config for RagFiles. Including paths for metadata schema and metadata. Alteratively, inline metadata schema and metadata can be provided. Deprecated: Not in use."""
+
+    rag_file_parsing_config: Optional[RagFileParsingConfigDict]
+    """Optional. Specifies the parsing config for RagFiles. RAG will use the default parser if this field is not set."""
+
+    rag_file_transformation_config: Optional[RagFileTransformationConfigDict]
+    """Specifies the transformation config for RagFiles."""
+
+
+UploadRagFileConfigOrDict = Union[UploadRagFileConfig, UploadRagFileConfigDict]
+
+
+class _UploadRagFileParameters(_common.BaseModel):
+    """Parameters for uploading a Rag File."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The name of the RagCorpus resource into which to upload the file.""",
+    )
+    rag_file: Optional[RagFile] = Field(
+        default=None, description="""The RagFile metadata to upload."""
+    )
+    upload_rag_file_config: Optional[UploadRagFileConfig] = Field(
+        default=None,
+        description="""The config for the RagFiles to be uploaded into the RagCorpus.""",
+    )
+    config: Optional[UploadRagFileRequestConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _UploadRagFileParametersDict(TypedDict, total=False):
+    """Parameters for uploading a Rag File."""
+
+    name: Optional[str]
+    """The name of the RagCorpus resource into which to upload the file."""
+
+    rag_file: Optional[RagFileDict]
+    """The RagFile metadata to upload."""
+
+    upload_rag_file_config: Optional[UploadRagFileConfigDict]
+    """The config for the RagFiles to be uploaded into the RagCorpus."""
+
+    config: Optional[UploadRagFileRequestConfigDict]
+    """Used to override the default configuration."""
+
+
+_UploadRagFileParametersOrDict = Union[
+    _UploadRagFileParameters, _UploadRagFileParametersDict
+]
+
+
+class GoogleRpcStatus(_common.BaseModel):
+    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."""
+
+    code: Optional[int] = Field(
+        default=None,
+        description="""The status code, which should be an enum value of google.rpc.Code.""",
+    )
+    details: Optional[list[dict[str, Any]]] = Field(
+        default=None,
+        description="""A list of messages that carry the error details. There is a common set of message types for APIs to use.""",
+    )
+    message: Optional[str] = Field(
+        default=None,
+        description="""A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client.""",
+    )
+
+
+class GoogleRpcStatusDict(TypedDict, total=False):
+    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."""
+
+    code: Optional[int]
+    """The status code, which should be an enum value of google.rpc.Code."""
+
+    details: Optional[list[dict[str, Any]]]
+    """A list of messages that carry the error details. There is a common set of message types for APIs to use."""
+
+    message: Optional[str]
+    """A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client."""
+
+
+GoogleRpcStatusOrDict = Union[GoogleRpcStatus, GoogleRpcStatusDict]
+
+
+class UploadRagFileResponse(_common.BaseModel):
+    """Response for uploading a Rag File."""
+
+    error: Optional[GoogleRpcStatus] = Field(
+        default=None,
+        description="""The error that occurred while processing the RagFile.""",
+    )
+    rag_file: Optional[RagFile] = Field(
+        default=None,
+        description="""The RagFile that had been uploaded into the RagCorpus.""",
+    )
+
+
+class UploadRagFileResponseDict(TypedDict, total=False):
+    """Response for uploading a Rag File."""
+
+    error: Optional[GoogleRpcStatusDict]
+    """The error that occurred while processing the RagFile."""
+
+    rag_file: Optional[RagFileDict]
+    """The RagFile that had been uploaded into the RagCorpus."""
+
+
+UploadRagFileResponseOrDict = Union[UploadRagFileResponse, UploadRagFileResponseDict]
+
+
 class GetAgentEngineRuntimeRevisionConfig(_common.BaseModel):
     """Config for getting an Agent Engine Runtime Revision."""
 

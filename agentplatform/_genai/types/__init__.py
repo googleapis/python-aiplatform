@@ -149,6 +149,7 @@ from .common import _UpdateMultimodalDatasetParameters
 from .common import _UpdateRagConfigRequestParameters
 from .common import _UpdateRagCorpusRequestParameters
 from .common import _UpdateSkillRequestParameters
+from .common import _UploadRagFileParameters
 from .common import A2aTask
 from .common import A2aTaskDict
 from .common import A2aTaskOrDict
@@ -735,6 +736,9 @@ from .common import GoogleDriveSourceOrDict
 from .common import GoogleDriveSourceResourceId
 from .common import GoogleDriveSourceResourceIdDict
 from .common import GoogleDriveSourceResourceIdOrDict
+from .common import GoogleRpcStatus
+from .common import GoogleRpcStatusDict
+from .common import GoogleRpcStatusOrDict
 from .common import IdentityType
 from .common import Importance
 from .common import ImportRagFilesConfig
@@ -1757,6 +1761,15 @@ from .common import UpdateRagCorpusOperationOrDict
 from .common import UpdateSkillConfig
 from .common import UpdateSkillConfigDict
 from .common import UpdateSkillConfigOrDict
+from .common import UploadRagFileConfig
+from .common import UploadRagFileConfigDict
+from .common import UploadRagFileConfigOrDict
+from .common import UploadRagFileRequestConfig
+from .common import UploadRagFileRequestConfigDict
+from .common import UploadRagFileRequestConfigOrDict
+from .common import UploadRagFileResponse
+from .common import UploadRagFileResponseDict
+from .common import UploadRagFileResponseOrDict
 from .common import VertexAiSearchConfig
 from .common import VertexAiSearchConfigDict
 from .common import VertexAiSearchConfigOrDict
@@ -2836,6 +2849,18 @@ __all__ = [
     "GetImportFilesOperationConfig",
     "GetImportFilesOperationConfigDict",
     "GetImportFilesOperationConfigOrDict",
+    "UploadRagFileRequestConfig",
+    "UploadRagFileRequestConfigDict",
+    "UploadRagFileRequestConfigOrDict",
+    "UploadRagFileConfig",
+    "UploadRagFileConfigDict",
+    "UploadRagFileConfigOrDict",
+    "GoogleRpcStatus",
+    "GoogleRpcStatusDict",
+    "GoogleRpcStatusOrDict",
+    "UploadRagFileResponse",
+    "UploadRagFileResponseDict",
+    "UploadRagFileResponseOrDict",
     "GetAgentEngineRuntimeRevisionConfig",
     "GetAgentEngineRuntimeRevisionConfigDict",
     "GetAgentEngineRuntimeRevisionConfigOrDict",
@@ -3442,6 +3467,7 @@ __all__ = [
     "_GetRagConfigOperationParameters",
     "_ImportRagFilesRequestParameters",
     "_GetImportFilesOperationParameters",
+    "_UploadRagFileParameters",
     "_GetAgentEngineRuntimeRevisionRequestParameters",
     "_ListAgentEngineRuntimeRevisionsRequestParameters",
     "_DeleteAgentEngineRuntimeRevisionRequestParameters",
