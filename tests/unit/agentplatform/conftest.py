@@ -169,7 +169,7 @@ def mock_gcs_upload():
         shutil.copyfile(local_filename, gcs_destination)
 
     with mock.patch(
-        "google.cloud.aiplatform.aiplatform.utils.gcs_utils.upload_to_gcs",
+        "google.cloud.aiplatform.utils.gcs_utils.upload_to_gcs",
         new=fake_upload_to_gcs,
     ) as gcs_upload:
         yield gcs_upload
