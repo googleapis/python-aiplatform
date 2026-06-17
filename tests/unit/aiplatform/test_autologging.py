@@ -144,7 +144,7 @@ _TEST_WRONG_SCHEMA_TITLE = "system.WrongSchema"
 _TEST_TF_EXPERIMENT_RUN_PARAMS = {
     "batch_size": "None",
     "class_weight": "None",
-    "epochs": "5",
+    "epochs": "1",
     "initial_epoch": "0",
     "max_queue_size": "10",
     "sample_weight": "None",
@@ -589,14 +589,6 @@ def build_and_train_test_tf_model():
             [1, 2],
             [2, 2],
             [2, 3],
-            [1, 1],
-            [1, 2],
-            [2, 2],
-            [2, 3],
-            [1, 1],
-            [1, 2],
-            [2, 2],
-            [2, 3],
         ]
     )
     y = np.dot(X, np.array([1, 2])) + 3
@@ -605,7 +597,6 @@ def build_and_train_test_tf_model():
         [
             tf.keras.layers.Flatten(input_shape=(2,)),
             tf.keras.layers.Dense(128, activation="relu"),
-            tf.keras.layers.Dropout(0.2),
             tf.keras.layers.Dense(1),
         ]
     )
@@ -616,7 +607,7 @@ def build_and_train_test_tf_model():
         metrics=["accuracy"],
     )
 
-    model.fit(X, y, epochs=5)
+    model.fit(X, y, epochs=1)
 
 
 @pytest.mark.usefixtures("google_auth_mock")

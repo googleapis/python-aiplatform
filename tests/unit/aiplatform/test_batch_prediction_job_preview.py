@@ -123,10 +123,23 @@ def create_batch_prediction_job_mock():
 class TestBatchPredictionJobPreview:
 
     def setup_method(self):
+        from google.cloud.aiplatform import jobs
         reload(initializer)
         reload(aiplatform)
+        self._preview_job_wait_patcher = mock.patch.object(preview_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._preview_log_wait_patcher = mock.patch.object(preview_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher = mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
+        self._preview_job_wait_patcher.start()
+        self._preview_log_wait_patcher.start()
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._preview_job_wait_patcher.stop()
+        self._preview_log_wait_patcher.stop()
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
     def test_init_batch_prediction_job(self, get_batch_prediction_job_mock):
@@ -160,8 +173,8 @@ class TestBatchPredictionJobPreview:
         assert bp.done() is False
         assert get_batch_prediction_job_mock.call_count == 2
 
-    @mock.patch.object(preview_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(preview_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(preview_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(preview_jobs, "_LOG_WAIT_TIME", 0.05)
     @pytest.mark.parametrize("sync", [True, False])
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_create_with_reservation(
@@ -228,8 +241,8 @@ class TestBatchPredictionJobPreview:
             timeout=None,
         )
 
-    @mock.patch.object(preview_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(preview_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(preview_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(preview_jobs, "_LOG_WAIT_TIME", 0.05)
     @pytest.mark.usefixtures("get_batch_prediction_job_mock")
     def test_batch_predict_job_submit(self, create_batch_prediction_job_mock):
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)

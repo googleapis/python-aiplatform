@@ -1793,14 +1793,21 @@ class TestLanguageModels:
     """Unit tests for the language models."""
 
     def setup_method(self):
+        from google.cloud.aiplatform import pipeline_jobs
         reload(initializer)
         reload(aiplatform)
         aiplatform.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        self._job_wait_patcher = mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
@@ -4865,6 +4872,17 @@ class TestLanguageModels:
 # TODO (b/285946649): add more test coverage before public preview release
 @pytest.mark.usefixtures("google_auth_mock")
 class TestLanguageModelEvaluation:
+    def setup_method(self):
+        from google.cloud.aiplatform import pipeline_jobs
+        self._job_wait_patcher = mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
+
+    def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
+
     @pytest.mark.usefixtures(
         "get_model_with_tuned_version_label_mock",
         "get_endpoint_with_models_mock",

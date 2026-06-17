@@ -1612,7 +1612,10 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
 
         uploader_thread = threading.Thread(target=uploader.start_uploading)
         uploader_thread.start()
-        time.sleep(5)
+        for _ in range(50):
+            if mock_client.write_tensorboard_experiment_data.call_count >= 1:
+                break
+            time.sleep(0.1)
 
         # Check create_time_series calls
         self.assertEqual(4, mock_client.create_tensorboard_time_series.call_count)
@@ -1670,7 +1673,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         with mock.patch.object(uploader, "_end_experiment_runs", return_value=None):
             uploader._end_uploading()
             uploader._end_experiment_runs.assert_called_once()
-        time.sleep(1)
+        uploader_thread.join(timeout=2)
         self.assertFalse(uploader_thread.is_alive())
         mock_client.write_tensorboard_experiment_data.reset_mock()
 
@@ -1680,7 +1683,7 @@ class _TensorBoardTrackerTest(tf.test.TestCase):
         with mock.patch.object(uploader, "_end_experiment_runs", return_value=None):
             uploader._end_uploading()
             uploader._end_experiment_runs.assert_called_once()
-        time.sleep(1)
+        uploader_thread.join(timeout=2)
         self.assertFalse(uploader_thread.is_alive())
         experiment_tracker_mock.set_experiment.assert_called_once()
 

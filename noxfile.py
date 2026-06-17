@@ -219,6 +219,13 @@ def default(session):
         "-n",
         "auto",  # Use all available CPU cores
         "--quiet",
+        "--durations=50",
+        # Suppress redundant deprecation warnings to reduce JUnit XML size.
+        "-W",
+        "ignore:You are using a Python version (3.10.19):FutureWarning",
+        # Disable capturing stdout/stderr for passed tests to reduce XML bloat.
+        "-o",
+        "junit_log_passing_tests=False",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_adk",

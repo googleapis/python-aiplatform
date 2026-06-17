@@ -816,12 +816,19 @@ def mock_storage_blob_from_string():
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEvaluation:
     def setup_method(self):
+        from google.cloud.aiplatform import pipeline_jobs
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        self._job_wait_patcher = mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
     def test_create_eval_task(self):
@@ -1836,12 +1843,19 @@ class TestEvaluation:
 @pytest.mark.usefixtures("google_auth_mock")
 class TestAgentEvaluation:
     def setup_method(self):
+        from google.cloud.aiplatform import pipeline_jobs
         vertexai.init(
             project=_TEST_PROJECT,
             location=_TEST_LOCATION,
         )
+        self._job_wait_patcher = mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("api_transport", ["grpc", "rest"])
@@ -2674,7 +2688,7 @@ class TestEvaluationUtils:
         assert (time.time() - start_time) >= 0.5
 
     def test_thread_safety(self):
-        rate_limiter = utils.RateLimiter(rate=2)
+        rate_limiter = utils.RateLimiter(rate=20)
         start_time = time.time()
 
         def target():
@@ -2686,10 +2700,10 @@ class TestEvaluationUtils:
         for thread in threads:
             thread.join()
 
-        # Verify that the total minimum time should be 4.5 seconds
-        # (9 intervals of 0.5 seconds each).
+        # Verify that the total minimum time should be 0.45 seconds
+        # (9 intervals of 0.05 seconds each).
         total_time = time.time() - start_time
-        assert total_time >= 4.5
+        assert total_time >= 0.45
 
     # TODO(b/361123127) Add test_to_metrics_spec back
 

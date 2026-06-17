@@ -46,12 +46,12 @@ class _TestClass(base.FutureManager):
     @classmethod
     @base.optional_sync()
     def create(cls, x: int, sync=True) -> "_TestClass":
-        time.sleep(1)
+        time.sleep(0.05)
         return cls(x)
 
     @base.optional_sync()
     def add(self, a: "_TestClass", sync=True) -> None:
-        time.sleep(1)
+        time.sleep(0.05)
         return self._add(a=a, sync=sync)
 
     def _add(self, a: "_TestClass", sync=True) -> None:
@@ -63,14 +63,14 @@ class _TestClassDownStream(_TestClass):
     def add_and_create_new(
         self, a: Optional["_TestClass"] = None, sync=True
     ) -> _TestClass:
-        time.sleep(1)
+        time.sleep(0.05)
         if a:
             return _TestClass(self.x + a.x)
         return None
 
     @base.optional_sync(return_input_arg="a", bind_future_to_self=False)
     def add_to_input_arg(self, a: "_TestClass", sync=True) -> _TestClass:
-        time.sleep(1)
+        time.sleep(0.05)
         a._add(self)
         return a
 
