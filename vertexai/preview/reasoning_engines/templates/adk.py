@@ -547,11 +547,11 @@ def _validate_run_config(run_config: Optional[Dict[str, Any]]):
 
 
 class AdkApp:
-    """An ADK Application."""
+  """An ADK Application."""
 
-    agent_framework = "google-adk"
+  agent_framework = "google-adk"
 
-    def __init__(
+  def __init__(
         self,
         *,
         agent: "BaseAgent",
@@ -565,18 +565,18 @@ class AdkApp:
         ] = None,
         env_vars: Optional[Dict[str, str]] = None,
     ):
-        """An ADK Application."""
-        from google.cloud.aiplatform import initializer
+    """An ADK Application."""
+    from google.cloud.aiplatform import initializer
 
-        adk_version = get_adk_version()
-        if not is_version_sufficient("1.0.0"):
-            msg = (
+    adk_version = get_adk_version()
+    if not is_version_sufficient("1.0.0"):
+      msg = (
                 f"Unsupported google-adk version: {adk_version}, "
                 "please use google-adk>=1.0.0 for AdkApp deployment."
             )
-            raise ValueError(msg)
+      raise ValueError(msg)
 
-        self._tmpl_attrs: Dict[str, Any] = {
+    self._tmpl_attrs: Dict[str, Any] = {
             "project": initializer.global_config.project,
             "location": initializer.global_config.location,
             "agent": agent,
@@ -590,109 +590,109 @@ class AdkApp:
             "env_vars": env_vars or {},
         }
 
-    def _serialize(self, obj: Any) -> Any:
-        """Serializes an object to be JSON compatible."""
-        if hasattr(obj, "model_dump"):
-            return obj.model_dump(mode="json")
-        elif hasattr(obj, "dict"):
-            return self._serialize(obj.dict())
-        elif isinstance(obj, dict):
-            return {k: self._serialize(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [self._serialize(v) for v in obj]
-        return obj
+  def _serialize(self, obj: Any) -> Any:
+    """Serializes an object to be JSON compatible."""
+    if hasattr(obj, "model_dump"):
+      return obj.model_dump(mode="json")
+    elif hasattr(obj, "dict"):
+      return self._serialize(obj.dict())
+    elif isinstance(obj, dict):
+      return {k: self._serialize(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+      return [self._serialize(v) for v in obj]
+    return obj
 
-    async def _init_session(
+  async def _init_session(
         self,
         session_service: "BaseSessionService",
         artifact_service: "BaseArtifactService",
         request: _StreamRunRequest,
     ):
-        """Initializes the session, and returns the session id."""
-        from google.adk.events.event import Event
+    """Initializes the session, and returns the session id."""
+    from google.adk.events.event import Event
 
-        session_state = None
-        if request.authorizations:
-            session_state = {}
-            for auth_id, auth in request.authorizations.items():
-                auth = _Authorization(**auth)
-                session_state[auth_id] = auth.access_token
+    session_state = None
+    if request.authorizations:
+      session_state = {}
+      for auth_id, auth in request.authorizations.items():
+        auth = _Authorization(**auth)
+        session_state[auth_id] = auth.access_token
 
-        session = await session_service.create_session(
+    session = await session_service.create_session(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=request.user_id,
             state=session_state,
         )
-        if not session:
-            raise RuntimeError("Create session failed.")
-        if request.events:
-            for event in request.events:
-                await session_service.append_event(session, Event(**event))
-        if request.artifacts:
-            await self._save_artifacts(
+    if not session:
+      raise RuntimeError("Create session failed.")
+    if request.events:
+      for event in request.events:
+        await session_service.append_event(session, Event(**event))
+    if request.artifacts:
+      await self._save_artifacts(
                 session_id=session.id,
                 artifact_service=artifact_service,
                 request=request,
             )
 
-        return session
+    return session
 
-    async def _save_artifacts(
+  async def _save_artifacts(
         self,
         session_id: str,
         artifact_service: "BaseArtifactService",
         request: _StreamRunRequest,
     ):
-        """Saves the artifacts."""
-        app = self._tmpl_attrs.get("app")
-        if request.artifacts:
-            for artifact in request.artifacts:
-                artifact = _Artifact(**artifact)
-                for version_data in sorted(
+    """Saves the artifacts."""
+    app = self._tmpl_attrs.get("app")
+    if request.artifacts:
+      for artifact in request.artifacts:
+        artifact = _Artifact(**artifact)
+        for version_data in sorted(
                     artifact.versions, key=lambda x: x["version"]
                 ):
-                    version_data = _ArtifactVersion(**version_data)
-                    saved_version = await artifact_service.save_artifact(
+          version_data = _ArtifactVersion(**version_data)
+          saved_version = await artifact_service.save_artifact(
                         app_name=app.name if app else self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
                         session_id=session_id,
                         filename=artifact.file_name,
                         artifact=version_data.data,
                     )
-                    if saved_version != version_data.version:
-                        from google.cloud.aiplatform import base
+          if saved_version != version_data.version:
+            from google.cloud.aiplatform import base
 
-                        _LOGGER = base.Logger(__name__)
-                        _LOGGER.debug(
+            _LOGGER = base.Logger(__name__)
+            _LOGGER.debug(
                             "Artifact '%s' saved at version %s instead of %s",
                             artifact.file_name,
                             saved_version,
                             version_data.version,
                         )
 
-    async def _convert_response_events(
+  async def _convert_response_events(
         self,
         user_id: str,
         session_id: str,
         events: List["Event"],
         artifact_service: Optional["BaseArtifactService"],
     ) -> _StreamingRunResponse:
-        """Converts the events to the streaming run response object."""
-        import collections
+    """Converts the events to the streaming run response object."""
+    import collections
 
-        result = _StreamingRunResponse(
+    result = _StreamingRunResponse(
             events=events, artifacts=[], session_id=session_id
         )
 
-        # Save the generated artifacts into the result object.
-        artifact_versions = collections.defaultdict(list)
-        for event in events:
-            if event.actions and event.actions.artifact_delta:
-                for key, version in event.actions.artifact_delta.items():
-                    artifact_versions[key].append(version)
+    # Save the generated artifacts into the result object.
+    artifact_versions = collections.defaultdict(list)
+    for event in events:
+      if event.actions and event.actions.artifact_delta:
+        for key, version in event.actions.artifact_delta.items():
+          artifact_versions[key].append(version)
 
-        for key, versions in artifact_versions.items():
-            result.artifacts.append(
+    for key, versions in artifact_versions.items():
+      result.artifacts.append(
                 _Artifact(
                     file_name=key,
                     versions=[
@@ -711,13 +711,13 @@ class AdkApp:
                 )
             )
 
-        return result.dump()
+    return result.dump()
 
-    def clone(self):
-        """Returns a clone of the ADK application."""
-        import copy
+  def clone(self):
+    """Returns a clone of the ADK application."""
+    import copy
 
-        return AdkApp(
+    return AdkApp(
             agent=copy.deepcopy(self._tmpl_attrs.get("agent")),
             enable_tracing=self._tmpl_attrs.get("enable_tracing"),
             session_service_builder=self._tmpl_attrs.get("session_service_builder"),
@@ -726,39 +726,39 @@ class AdkApp:
             env_vars=self._tmpl_attrs.get("env_vars"),
         )
 
-    def set_up(self):
-        """Sets up the ADK application."""
-        import os
-        from google.adk.runners import Runner
-        from google.adk.sessions.in_memory_session_service import InMemorySessionService
-        from google.adk.artifacts.in_memory_artifact_service import (
+  def set_up(self):
+    """Sets up the ADK application."""
+    import os
+    from google.adk.runners import Runner
+    from google.adk.sessions.in_memory_session_service import InMemorySessionService
+    from google.adk.artifacts.in_memory_artifact_service import (
             InMemoryArtifactService,
         )
-        from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
+    from google.adk.memory.in_memory_memory_service import InMemoryMemoryService
 
-        os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
-        project = self._tmpl_attrs.get("project")
-        os.environ["GOOGLE_CLOUD_PROJECT"] = project
-        location = self._tmpl_attrs.get("location")
-        if location:
-            if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
-                os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
-            if "GOOGLE_CLOUD_LOCATION" not in os.environ:
-                os.environ["GOOGLE_CLOUD_LOCATION"] = location
+    os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "1"
+    project = self._tmpl_attrs.get("project")
+    os.environ["GOOGLE_CLOUD_PROJECT"] = project
+    location = self._tmpl_attrs.get("location")
+    if location:
+      if "GOOGLE_CLOUD_AGENT_ENGINE_LOCATION" not in os.environ:
+        os.environ["GOOGLE_CLOUD_AGENT_ENGINE_LOCATION"] = location
+      if "GOOGLE_CLOUD_LOCATION" not in os.environ:
+        os.environ["GOOGLE_CLOUD_LOCATION"] = location
 
-        # Disable content capture in custom ADK spans unless user enabled
-        # tracing explicitly with the old flag
-        # (this is to preserve compatibility with old behavior).
-        if self._tmpl_attrs.get("enable_tracing"):
-            os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "true"
-        else:
-            os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "false"
+    # Disable content capture in custom ADK spans unless user enabled
+    # tracing explicitly with the old flag
+    # (this is to preserve compatibility with old behavior).
+    if self._tmpl_attrs.get("enable_tracing"):
+      os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "true"
+    else:
+      os.environ["ADK_CAPTURE_MESSAGE_CONTENT_IN_SPANS"] = "false"
 
-        if self._tmpl_attrs.get("enable_tracing"):
-            self._warn_if_telemetry_api_disabled()
+    if self._tmpl_attrs.get("enable_tracing"):
+      self._warn_if_telemetry_api_disabled()
 
-        if self._tmpl_attrs.get("enable_tracing") is False:
-            _warn(
+    if self._tmpl_attrs.get("enable_tracing") is False:
+      _warn(
                 (
                     "Your 'enable_tracing=False' setting is being deprecated "
                     "and will be removed in a future release.\n"
@@ -783,95 +783,95 @@ class AdkApp:
                 ),
             )
 
-        enable_logging = bool(self._telemetry_enabled())
+    enable_logging = bool(self._telemetry_enabled())
 
-        self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
+    self._tmpl_attrs["instrumentor"] = _default_instrumentor_builder(
             self.project_id(),
             enable_tracing=self._tracing_enabled(),
             enable_logging=enable_logging,
         )
 
-        for key, value in self._tmpl_attrs.get("env_vars").items():
-            os.environ[key] = value
-        if "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            self._tmpl_attrs["app_name"] = os.environ.get(
+    for key, value in self._tmpl_attrs.get("env_vars").items():
+      os.environ[key] = value
+    if "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
+      self._tmpl_attrs["app_name"] = os.environ.get(
                 "GOOGLE_CLOUD_AGENT_ENGINE_ID",
                 self._tmpl_attrs.get("app_name"),
             )
 
-        artifact_service_builder = self._tmpl_attrs.get("artifact_service_builder")
-        if artifact_service_builder:
-            self._tmpl_attrs["artifact_service"] = artifact_service_builder()
-        else:
-            self._tmpl_attrs["artifact_service"] = InMemoryArtifactService()
+    artifact_service_builder = self._tmpl_attrs.get("artifact_service_builder")
+    if artifact_service_builder:
+      self._tmpl_attrs["artifact_service"] = artifact_service_builder()
+    else:
+      self._tmpl_attrs["artifact_service"] = InMemoryArtifactService()
 
-        session_service_builder = self._tmpl_attrs.get("session_service_builder")
-        if session_service_builder:
-            self._tmpl_attrs["session_service"] = session_service_builder()
-        elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
-            try:
-                from google.adk.sessions.vertex_ai_session_service import (
+    session_service_builder = self._tmpl_attrs.get("session_service_builder")
+    if session_service_builder:
+      self._tmpl_attrs["session_service"] = session_service_builder()
+    elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ:
+      try:
+        from google.adk.sessions.vertex_ai_session_service import (
                     VertexAiSessionService,
                 )
 
-                if is_version_sufficient("1.5.0"):
-                    self._tmpl_attrs["session_service"] = VertexAiSessionService(
+        if is_version_sufficient("1.5.0"):
+          self._tmpl_attrs["session_service"] = VertexAiSessionService(
                         project=project,
                         location=location,
                         agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                     )
-                else:
-                    self._tmpl_attrs["session_service"] = VertexAiSessionService(
+        else:
+          self._tmpl_attrs["session_service"] = VertexAiSessionService(
                         project=project,
                         location=location,
                     )
-            except ImportError:
-                from google.adk.sessions.vertex_ai_session_service_g3 import (
+      except ImportError:
+        from google.adk.sessions.vertex_ai_session_service_g3 import (
                     VertexAiSessionService,
                 )
 
-                self._tmpl_attrs["session_service"] = VertexAiSessionService(
+        self._tmpl_attrs["session_service"] = VertexAiSessionService(
                     project=project,
                     location=location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
 
-        else:
-            self._tmpl_attrs["session_service"] = InMemorySessionService()
+    else:
+      self._tmpl_attrs["session_service"] = InMemorySessionService()
 
-        memory_service_builder = self._tmpl_attrs.get("memory_service_builder")
-        if memory_service_builder:
-            self._tmpl_attrs["memory_service"] = memory_service_builder()
-        elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ and is_version_sufficient(
+    memory_service_builder = self._tmpl_attrs.get("memory_service_builder")
+    if memory_service_builder:
+      self._tmpl_attrs["memory_service"] = memory_service_builder()
+    elif "GOOGLE_CLOUD_AGENT_ENGINE_ID" in os.environ and is_version_sufficient(
             "1.5.0"
         ):
-            try:
-                from google.adk.memory.vertex_ai_memory_bank_service import (
+      try:
+        from google.adk.memory.vertex_ai_memory_bank_service import (
                     VertexAiMemoryBankService,
                 )
 
-                self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
+        self._tmpl_attrs["memory_service"] = VertexAiMemoryBankService(
                     project=project,
                     location=location,
                     agent_engine_id=os.environ.get("GOOGLE_CLOUD_AGENT_ENGINE_ID"),
                 )
-            except ImportError:
-                # TODO(ysian): Handle this via _g3 import for google3.
-                pass
-        else:
-            self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
+      except ImportError:
+        # TODO(ysian): Handle this via _g3 import for google3.
+        pass
+    else:
+      self._tmpl_attrs["memory_service"] = InMemoryMemoryService()
 
-        credential_service_builder = self._tmpl_attrs.get("credential_service_builder")
-        if credential_service_builder:
-            self._tmpl_attrs["credential_service"] = credential_service_builder()
-        else:
-            from google.adk.auth.credential_service.in_memory_credential_service import (
+    credential_service_builder = self._tmpl_attrs.get("credential_service_builder")
+    if credential_service_builder:
+      self._tmpl_attrs["credential_service"] = credential_service_builder()
+    else:
+      from google.adk.auth.credential_service.in_memory_credential_service import (
                 InMemoryCredentialService,
             )
 
-            self._tmpl_attrs["credential_service"] = InMemoryCredentialService()
+      self._tmpl_attrs["credential_service"] = InMemoryCredentialService()
 
-        self._tmpl_attrs["runner"] = Runner(
+    self._tmpl_attrs["runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
             plugins=self._tmpl_attrs.get("plugins"),
             session_service=self._tmpl_attrs.get("session_service"),
@@ -879,10 +879,10 @@ class AdkApp:
             memory_service=self._tmpl_attrs.get("memory_service"),
             app_name=self._tmpl_attrs.get("app_name"),
         )
-        self._tmpl_attrs["in_memory_session_service"] = InMemorySessionService()
-        self._tmpl_attrs["in_memory_artifact_service"] = InMemoryArtifactService()
-        self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
-        self._tmpl_attrs["in_memory_runner"] = Runner(
+    self._tmpl_attrs["in_memory_session_service"] = InMemorySessionService()
+    self._tmpl_attrs["in_memory_artifact_service"] = InMemoryArtifactService()
+    self._tmpl_attrs["in_memory_memory_service"] = InMemoryMemoryService()
+    self._tmpl_attrs["in_memory_runner"] = Runner(
             agent=self._tmpl_attrs.get("agent"),
             plugins=self._tmpl_attrs.get("plugins"),
             session_service=self._tmpl_attrs.get("in_memory_session_service"),
@@ -892,7 +892,7 @@ class AdkApp:
             app_name=self._tmpl_attrs.get("app_name"),
         )
 
-    def stream_query(
+  def stream_query(
         self,
         *,
         message: Union[str, Dict[str, Any]],
@@ -901,7 +901,7 @@ class AdkApp:
         run_config: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
-        """Streams responses from the ADK application in response to a message.
+    """Streams responses from the ADK application in response to a message.
 
         Args:
             message (Union[str, Dict[str, Any]]):
@@ -922,44 +922,44 @@ class AdkApp:
         Yields:
             The output of querying the ADK application.
         """
-        from vertexai.agent_engines import _utils
-        from google.genai import types
+    from vertexai.agent_engines import _utils
+    from google.genai import types
 
-        if isinstance(message, Dict):
-            content = types.Content.model_validate(message)
-        elif isinstance(message, str):
-            content = types.Content(role="user", parts=[types.Part(text=message)])
-        else:
-            raise TypeError(
+    if isinstance(message, Dict):
+      content = types.Content.model_validate(message)
+    elif isinstance(message, str):
+      content = types.Content(role="user", parts=[types.Part(text=message)])
+    else:
+      raise TypeError(
                 "message must be a string or a dictionary representing"
                 " a Content object."
             )
 
-        if not self._tmpl_attrs.get("runner"):
-            self.set_up()
-        if not session_id:
-            session = self.create_session(user_id=user_id)
-            session_id = session["id"]
-        run_config = _validate_run_config(run_config)
-        if run_config:
-            for event in self._tmpl_attrs.get("runner").run(
+    if not self._tmpl_attrs.get("runner"):
+      self.set_up()
+    if not session_id:
+      session = self.create_session(user_id=user_id)
+      session_id = session["id"]
+    run_config = _validate_run_config(run_config)
+    if run_config:
+      for event in self._tmpl_attrs.get("runner").run(
                 user_id=user_id,
                 session_id=session_id,
                 new_message=content,
                 run_config=run_config,
                 **kwargs,
             ):
-                yield _utils.dump_event_for_json(event)
-        else:
-            for event in self._tmpl_attrs.get("runner").run(
+        yield _utils.dump_event_for_json(event)
+    else:
+      for event in self._tmpl_attrs.get("runner").run(
                 user_id=user_id,
                 session_id=session_id,
                 new_message=content,
                 **kwargs,
             ):
-                yield _utils.dump_event_for_json(event)
+        yield _utils.dump_event_for_json(event)
 
-    async def async_stream_query(
+  async def async_stream_query(
         self,
         *,
         message: Union[str, Dict[str, Any]],
@@ -968,7 +968,7 @@ class AdkApp:
         run_config: Optional[Dict[str, Any]] = None,
         **kwargs,
     ) -> AsyncIterable[Dict[str, Any]]:
-        """Streams responses asynchronously from the ADK application.
+    """Streams responses asynchronously from the ADK application.
 
         Args:
             message (str):
@@ -989,63 +989,63 @@ class AdkApp:
         Yields:
             Event dictionaries asynchronously.
         """
-        from vertexai.agent_engines import _utils
-        from google.genai import types
+    from vertexai.agent_engines import _utils
+    from google.genai import types
 
-        if isinstance(message, Dict):
-            content = types.Content.model_validate(message)
-        elif isinstance(message, str):
-            content = types.Content(role="user", parts=[types.Part(text=message)])
-        else:
-            raise TypeError(
+    if isinstance(message, Dict):
+      content = types.Content.model_validate(message)
+    elif isinstance(message, str):
+      content = types.Content(role="user", parts=[types.Part(text=message)])
+    else:
+      raise TypeError(
                 "message must be a string or a dictionary representing"
                 " a Content object."
             )
 
-        if not self._tmpl_attrs.get("runner"):
-            self.set_up()
-        if not session_id:
-            session = await self.async_create_session(user_id=user_id)
-            session_id = session["id"]
+    if not self._tmpl_attrs.get("runner"):
+      self.set_up()
+    if not session_id:
+      session = await self.async_create_session(user_id=user_id)
+      session_id = session["id"]
 
-        run_config = _validate_run_config(run_config)
-        if run_config:
-            events_async = self._tmpl_attrs.get("runner").run_async(
+    run_config = _validate_run_config(run_config)
+    if run_config:
+      events_async = self._tmpl_attrs.get("runner").run_async(
                 user_id=user_id,
                 session_id=session_id,
                 new_message=content,
                 run_config=run_config,
                 **kwargs,
             )
-        else:
-            events_async = self._tmpl_attrs.get("runner").run_async(
+    else:
+      events_async = self._tmpl_attrs.get("runner").run_async(
                 user_id=user_id,
                 session_id=session_id,
                 new_message=content,
                 **kwargs,
             )
 
-        try:
-            async for event in events_async:
-                # Yield the event data as a dictionary
-                yield _utils.dump_event_for_json(event)
-        finally:
-            # Avoid telemetry data loss having to do with CPU throttling on instance turndown
-            _ = await _force_flush_otel(
+    try:
+      async for event in events_async:
+        # Yield the event data as a dictionary
+        yield _utils.dump_event_for_json(event)
+    finally:
+      # Avoid telemetry data loss having to do with CPU throttling on instance turndown
+      _ = await _force_flush_otel(
                 tracing_enabled=self._tracing_enabled(),
                 logging_enabled=bool(self._telemetry_enabled()),
             )
 
-    def streaming_agent_run_with_events(self, request_json: str):
-        import json
-        from google.genai import types
-        from google.genai.errors import ClientError
+  def streaming_agent_run_with_events(self, request_json: str):
+    import json
+    from google.genai import types
+    from google.genai.errors import ClientError
 
-        event_queue = queue.Queue(maxsize=1)
+    event_queue = queue.Queue(maxsize=1)
 
-        async def _invoke_agent_async():
-            request = _StreamRunRequest(**json.loads(request_json))
-            if not any(
+    async def _invoke_agent_async():
+      request = _StreamRunRequest(**json.loads(request_json))
+      if not any(
                 self._tmpl_attrs.get(service)
                 for service in (
                     "in_memory_runner",
@@ -1058,104 +1058,104 @@ class AdkApp:
                     "memory_service",
                 )
             ):
-                self.set_up()
-            # Try to get the session, if it doesn't exist, create a new one.
-            if request.session_id:
-                session_service = self._tmpl_attrs.get("session_service")
-                artifact_service = self._tmpl_attrs.get("artifact_service")
-                runner = self._tmpl_attrs.get("runner")
-                session = None
-                try:
-                    session = await session_service.get_session(
+        self.set_up()
+      # Try to get the session, if it doesn't exist, create a new one.
+      if request.session_id:
+        session_service = self._tmpl_attrs.get("session_service")
+        artifact_service = self._tmpl_attrs.get("artifact_service")
+        runner = self._tmpl_attrs.get("runner")
+        session = None
+        try:
+          session = await session_service.get_session(
                         app_name=self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
                         session_id=request.session_id,
                     )
-                    if session:
-                        await self._save_artifacts(
+          if session:
+            await self._save_artifacts(
                             session_id=request.session_id,
                             artifact_service=artifact_service,
                             request=request,
                         )
-                except ClientError:
-                    pass
-                if not session:
-                    #  Fall back to create session if the session is not found.
-                    #  Specifying session_id on creation is not supported,
-                    #  so session id will be regenerated.
-                    session = await self._init_session(
+        except ClientError:
+          pass
+        if not session:
+          #  Fall back to create session if the session is not found.
+          #  Specifying session_id on creation is not supported,
+          #  so session id will be regenerated.
+          session = await self._init_session(
                         session_service=session_service,
                         artifact_service=artifact_service,
                         request=request,
                     )
-            else:
-                # Not providing a session ID will create a new in-memory session.
-                session_service = self._tmpl_attrs.get("in_memory_session_service")
-                artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
-                runner = self._tmpl_attrs.get("in_memory_runner")
-                session = await self._init_session(
+      else:
+        # Not providing a session ID will create a new in-memory session.
+        session_service = self._tmpl_attrs.get("in_memory_session_service")
+        artifact_service = self._tmpl_attrs.get("in_memory_artifact_service")
+        runner = self._tmpl_attrs.get("in_memory_runner")
+        session = await self._init_session(
                     session_service=session_service,
                     artifact_service=artifact_service,
                     request=request,
                 )
-            if not session:
-                raise RuntimeError("Session initialization failed.")
-            # Run the agent.
-            message_for_agent = types.Content(**request.message)
-            try:
-                for event in runner.run(
+      if not session:
+        raise RuntimeError("Session initialization failed.")
+      # Run the agent.
+      message_for_agent = types.Content(**request.message)
+      try:
+        for event in runner.run(
                     user_id=request.user_id,
                     session_id=session.id,
                     new_message=message_for_agent,
                 ):
-                    converted_event = await self._convert_response_events(
+          converted_event = await self._convert_response_events(
                         user_id=request.user_id,
                         session_id=session.id,
                         events=[event],
                         artifact_service=artifact_service,
                     )
-                    event_queue.put(converted_event)
-            finally:
-                if session and not request.session_id:
-                    await session_service.delete_session(
+          event_queue.put(converted_event)
+      finally:
+        if session and not request.session_id:
+          await session_service.delete_session(
                         app_name=self._tmpl_attrs.get("app_name"),
                         user_id=request.user_id,
                         session_id=session.id,
                     )
-                # Avoid telemetry data loss having to do with CPU throttling on instance turndown
-                _ = await _force_flush_otel(
+        # Avoid telemetry data loss having to do with CPU throttling on instance turndown
+        _ = await _force_flush_otel(
                     tracing_enabled=self._tracing_enabled(),
                     logging_enabled=bool(self._telemetry_enabled()),
                 )
 
-        def _asyncio_thread_main():
-            try:
-                asyncio.run(_invoke_agent_async())
-            except RuntimeError as e:
-                event_queue.put(e)
-            finally:
-                # Use None as a sentinel to stop the main thread.
-                event_queue.put(None)
+    def _asyncio_thread_main():
+      try:
+        asyncio.run(_invoke_agent_async())
+      except RuntimeError as e:
+        event_queue.put(e)
+      finally:
+        # Use None as a sentinel to stop the main thread.
+        event_queue.put(None)
 
-        thread = threading.Thread(target=_asyncio_thread_main)
-        thread.start()
+    thread = threading.Thread(target=_asyncio_thread_main)
+    thread.start()
 
-        try:
-            while True:
-                event = event_queue.get()
-                if event is None:
-                    break
-                if isinstance(event, RuntimeError):
-                    raise event
-                yield event
-        finally:
-            thread.join()
+    try:
+      while True:
+        event = event_queue.get()
+        if event is None:
+          break
+        if isinstance(event, RuntimeError):
+          raise event
+        yield event
+    finally:
+      thread.join()
 
-    async def bidi_stream_query(
+  async def bidi_stream_query(
         self,
         request_queue: Any,
     ) -> AsyncIterable[Any]:
-        """Bidi streaming query the ADK application.
+    """Bidi streaming query the ADK application.
 
         Args:
             request_queue:
@@ -1170,81 +1170,81 @@ class AdkApp:
         Yields:
             The stream responses of querying the ADK application.
         """
-        from google.adk.agents.live_request_queue import LiveRequest
-        from google.adk.agents.live_request_queue import LiveRequestQueue
-        from vertexai.agent_engines import _utils
+    from google.adk.agents.live_request_queue import LiveRequest
+    from google.adk.agents.live_request_queue import LiveRequestQueue
+    from vertexai.agent_engines import _utils
 
-        # Manual type check needed as Pydantic doesn't support asyncio.Queue.
-        if not isinstance(request_queue, asyncio.Queue):
-            raise TypeError("request_queue must be an asyncio.Queue instance.")
+    # Manual type check needed as Pydantic doesn't support asyncio.Queue.
+    if not isinstance(request_queue, asyncio.Queue):
+      raise TypeError("request_queue must be an asyncio.Queue instance.")
 
-        first_request = await request_queue.get()
-        user_id = first_request.get("user_id")
-        if not user_id:
-            raise ValueError("The first request must have a user_id.")
+    first_request = await request_queue.get()
+    user_id = first_request.get("user_id")
+    if not user_id:
+      raise ValueError("The first request must have a user_id.")
 
-        session_id = first_request.get("session_id")
-        run_config = first_request.get("run_config")
-        first_live_request = first_request.get("live_request")
+    session_id = first_request.get("session_id")
+    run_config = first_request.get("run_config")
+    first_live_request = first_request.get("live_request")
 
-        if not self._tmpl_attrs.get("runner"):
-            self.set_up()
-        if not session_id:
-            state = first_request.get("state")
-            session = await self.async_create_session(user_id=user_id, state=state)
-            session_id = session["id"] if isinstance(session, dict) else session.id
-        run_config = _validate_run_config(run_config)
+    if not self._tmpl_attrs.get("runner"):
+      self.set_up()
+    if not session_id:
+      state = first_request.get("state")
+      session = await self.async_create_session(user_id=user_id, state=state)
+      session_id = session["id"] if isinstance(session, dict) else session.id
+    run_config = _validate_run_config(run_config)
 
-        live_request_queue = LiveRequestQueue()
+    live_request_queue = LiveRequestQueue()
 
-        if first_live_request and isinstance(first_live_request, Dict):
-            live_request_queue.send(LiveRequest.model_validate(first_live_request))
+    if first_live_request and isinstance(first_live_request, Dict):
+      live_request_queue.send(LiveRequest.model_validate(first_live_request))
 
-        # Forwards live requests to the agent.
-        async def _forward_requests():
-            while True:
-                request = await request_queue.get()
-                live_request = LiveRequest.model_validate(request)
-                live_request_queue.send(live_request)
+    # Forwards live requests to the agent.
+    async def _forward_requests():
+      while True:
+        request = await request_queue.get()
+        live_request = LiveRequest.model_validate(request)
+        live_request_queue.send(live_request)
 
-        # Forwards events to the client.
-        async def _forward_events():
-            if run_config:
-                events_async = self._tmpl_attrs.get("runner").run_live(
+    # Forwards events to the client.
+    async def _forward_events():
+      if run_config:
+        events_async = self._tmpl_attrs.get("runner").run_live(
                     user_id=user_id,
                     session_id=session_id,
                     live_request_queue=live_request_queue,
                     run_config=run_config,
                 )
-            else:
-                events_async = self._tmpl_attrs.get("runner").run_live(
+      else:
+        events_async = self._tmpl_attrs.get("runner").run_live(
                     user_id=user_id,
                     session_id=session_id,
                     live_request_queue=live_request_queue,
                 )
-            async for event in events_async:
-                yield _utils.dump_event_for_json(event)
+      async for event in events_async:
+        yield _utils.dump_event_for_json(event)
 
-        requests_task = asyncio.create_task(_forward_requests())
+    requests_task = asyncio.create_task(_forward_requests())
 
-        try:
-            async for event in _forward_events():
-                yield event
-        finally:
-            requests_task.cancel()
-            try:
-                await requests_task
-            except asyncio.CancelledError:
-                pass
+    try:
+      async for event in _forward_events():
+        yield event
+    finally:
+      requests_task.cancel()
+      try:
+        await requests_task
+      except asyncio.CancelledError:
+        pass
 
-    async def async_get_session(
+  async def async_get_session(
         self,
         *,
         user_id: str,
         session_id: str,
         **kwargs,
     ):
-        """Get a session for the given user.
+    """Get a session for the given user.
 
         Args:
             user_id (str):
@@ -1262,59 +1262,63 @@ class AdkApp:
         Raises:
             RuntimeError: If the session is not found.
         """
-        if not self._tmpl_attrs.get("session_service"):
-            self.set_up()
-        session = await self._tmpl_attrs.get("session_service").get_session(
-            app_name=self._tmpl_attrs.get("app_name"),
-            user_id=user_id,
-            session_id=session_id,
-            **kwargs,
-        )
-        if not session:
-            raise RuntimeError(
+    if not self._tmpl_attrs.get("session_service"):
+      self.set_up()
+    if "config" in kwargs and isinstance(kwargs["config"], dict):
+      from google.adk.sessions.base_session_service import GetSessionConfig
+
+      kwargs["config"] = GetSessionConfig(**kwargs["config"])
+    session = await self._tmpl_attrs.get("session_service").get_session(
+        app_name=self._tmpl_attrs.get("app_name"),
+        user_id=user_id,
+        session_id=session_id,
+        **kwargs,
+    )
+    if not session:
+      raise RuntimeError(
                 "Session not found. Please create it using .create_session()"
             )
-        return session
+    return session
 
-    def get_session(
+  def get_session(
         self,
         *,
         user_id: str,
         session_id: str,
         **kwargs,
     ):
-        """Get a session for the given user."""
-        event_queue = queue.Queue(maxsize=1)
+    """Get a session for the given user."""
+    event_queue = queue.Queue(maxsize=1)
 
-        async def _invoke_async_get_session():
-            return await self.async_get_session(
+    async def _invoke_async_get_session():
+      return await self.async_get_session(
                 user_id=user_id, session_id=session_id, **kwargs
             )
 
-        def _asyncio_thread_main():
-            try:
-                result = asyncio.run(_invoke_async_get_session())
-                event_queue.put(result)
-            except RuntimeError as e:
-                event_queue.put(e)
+    def _asyncio_thread_main():
+      try:
+        result = asyncio.run(_invoke_async_get_session())
+        event_queue.put(result)
+      except RuntimeError as e:
+        event_queue.put(e)
 
-        thread = threading.Thread(target=_asyncio_thread_main)
-        thread.start()
+    thread = threading.Thread(target=_asyncio_thread_main)
+    thread.start()
 
-        # Wait for the thread to finish
-        thread.join()
-        try:
-            outcome = event_queue.get(timeout=10)
-        except queue.Empty:
-            raise RuntimeError(
+    # Wait for the thread to finish
+    thread.join()
+    try:
+      outcome = event_queue.get(timeout=10)
+    except queue.Empty:
+      raise RuntimeError(
                 "Session not found. Please create it using .create_session()"
             ) from None
-        if isinstance(outcome, RuntimeError):
-            raise outcome from None
-        return outcome
+    if isinstance(outcome, RuntimeError):
+      raise outcome from None
+    return outcome
 
-    async def async_list_sessions(self, *, user_id: str, **kwargs):
-        """List sessions for the given user.
+  async def async_list_sessions(self, *, user_id: str, **kwargs):
+    """List sessions for the given user.
 
         Args:
             user_id (str):
@@ -1326,41 +1330,41 @@ class AdkApp:
         Returns:
             ListSessionsResponse: The list of sessions.
         """
-        if not self._tmpl_attrs.get("session_service"):
-            self.set_up()
-        return await self._tmpl_attrs.get("session_service").list_sessions(
+    if not self._tmpl_attrs.get("session_service"):
+      self.set_up()
+    return await self._tmpl_attrs.get("session_service").list_sessions(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             **kwargs,
         )
 
-    def list_sessions(self, *, user_id: str, **kwargs):
-        """List sessions for the given user."""
-        event_queue = queue.Queue()
+  def list_sessions(self, *, user_id: str, **kwargs):
+    """List sessions for the given user."""
+    event_queue = queue.Queue()
 
-        async def _invoke_async_list_sessions():
-            try:
-                response = await self.async_list_sessions(user_id=user_id, **kwargs)
-                event_queue.put(response)
-            except RuntimeError as e:
-                event_queue.put(e)
+    async def _invoke_async_list_sessions():
+      try:
+        response = await self.async_list_sessions(user_id=user_id, **kwargs)
+        event_queue.put(response)
+      except RuntimeError as e:
+        event_queue.put(e)
 
-        def _asyncio_thread_main():
-            try:
-                asyncio.run(_invoke_async_list_sessions())
-            finally:
-                event_queue.put(None)
+    def _asyncio_thread_main():
+      try:
+        asyncio.run(_invoke_async_list_sessions())
+      finally:
+        event_queue.put(None)
 
-        thread = threading.Thread(target=_asyncio_thread_main)
-        thread.start()
-        # Wait for the thread to finish
-        thread.join()
-        try:
-            return event_queue.get(timeout=10)
-        except queue.Empty:
-            raise RuntimeError("Failed to list sessions.") from None
+    thread = threading.Thread(target=_asyncio_thread_main)
+    thread.start()
+    # Wait for the thread to finish
+    thread.join()
+    try:
+      return event_queue.get(timeout=10)
+    except queue.Empty:
+      raise RuntimeError("Failed to list sessions.") from None
 
-    async def async_create_session(
+  async def async_create_session(
         self,
         *,
         user_id: str,
@@ -1368,7 +1372,7 @@ class AdkApp:
         state: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
-        """Creates a new session.
+    """Creates a new session.
 
         Args:
             user_id (str):
@@ -1385,18 +1389,18 @@ class AdkApp:
         Returns:
             Session: The newly created session instance.
         """
-        if not self._tmpl_attrs.get("session_service"):
-            self.set_up()
-        session = await self._tmpl_attrs.get("session_service").create_session(
+    if not self._tmpl_attrs.get("session_service"):
+      self.set_up()
+    session = await self._tmpl_attrs.get("session_service").create_session(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             session_id=session_id,
             state=state,
             **kwargs,
         )
-        return self._serialize(session)
+    return self._serialize(session)
 
-    def create_session(
+  def create_session(
         self,
         *,
         user_id: str,
@@ -1404,45 +1408,45 @@ class AdkApp:
         state: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
-        """Creates a new session."""
-        event_queue = queue.Queue(maxsize=1)
+    """Creates a new session."""
+    event_queue = queue.Queue(maxsize=1)
 
-        async def _invoke_async_create_session():
-            return await self.async_create_session(
+    async def _invoke_async_create_session():
+      return await self.async_create_session(
                 user_id=user_id,
                 session_id=session_id,
                 state=state,
                 **kwargs,
             )
 
-        def _asyncio_thread_main():
-            try:
-                result = asyncio.run(_invoke_async_create_session())
-                event_queue.put(result)
-            except RuntimeError as e:
-                event_queue.put(e)
+    def _asyncio_thread_main():
+      try:
+        result = asyncio.run(_invoke_async_create_session())
+        event_queue.put(result)
+      except RuntimeError as e:
+        event_queue.put(e)
 
-        thread = threading.Thread(target=_asyncio_thread_main)
-        thread.start()
-        # Wait for the thread to finish
-        thread.join()
+    thread = threading.Thread(target=_asyncio_thread_main)
+    thread.start()
+    # Wait for the thread to finish
+    thread.join()
 
-        try:
-            outcome = event_queue.get(timeout=10)
-        except queue.Empty:
-            raise RuntimeError("Failed to create session.") from None
-        if isinstance(outcome, RuntimeError):
-            raise outcome from None
-        return outcome
+    try:
+      outcome = event_queue.get(timeout=10)
+    except queue.Empty:
+      raise RuntimeError("Failed to create session.") from None
+    if isinstance(outcome, RuntimeError):
+      raise outcome from None
+    return outcome
 
-    async def async_delete_session(
+  async def async_delete_session(
         self,
         *,
         user_id: str,
         session_id: str,
         **kwargs,
     ):
-        """Deletes a session for the given user.
+    """Deletes a session for the given user.
 
         Args:
             user_id (str):
@@ -1453,48 +1457,48 @@ class AdkApp:
                 Optional. Additional keyword arguments to pass to the
                 session service.
         """
-        if not self._tmpl_attrs.get("session_service"):
-            self.set_up()
-        await self._tmpl_attrs.get("session_service").delete_session(
+    if not self._tmpl_attrs.get("session_service"):
+      self.set_up()
+    await self._tmpl_attrs.get("session_service").delete_session(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             session_id=session_id,
             **kwargs,
         )
 
-    def delete_session(
+  def delete_session(
         self,
         *,
         user_id: str,
         session_id: str,
         **kwargs,
     ):
-        """Deletes a session for the given user."""
-        event_queue = queue.Queue(maxsize=1)
+    """Deletes a session for the given user."""
+    event_queue = queue.Queue(maxsize=1)
 
-        async def _invoke_async_delete_session():
-            await self.async_delete_session(
+    async def _invoke_async_delete_session():
+      await self.async_delete_session(
                 user_id=user_id, session_id=session_id, **kwargs
             )
 
-        def _asyncio_thread_main():
-            try:
-                asyncio.run(_invoke_async_delete_session())
-                event_queue.put(None)
-            except RuntimeError as e:
-                event_queue.put(e)
+    def _asyncio_thread_main():
+      try:
+        asyncio.run(_invoke_async_delete_session())
+        event_queue.put(None)
+      except RuntimeError as e:
+        event_queue.put(e)
 
-        thread = threading.Thread(target=_asyncio_thread_main)
-        thread.start()
-        # Wait for the thread to finish
-        thread.join()
+    thread = threading.Thread(target=_asyncio_thread_main)
+    thread.start()
+    # Wait for the thread to finish
+    thread.join()
 
-        outcome = event_queue.get(timeout=10)
-        if isinstance(outcome, RuntimeError):
-            raise outcome from None
+    outcome = event_queue.get(timeout=10)
+    if isinstance(outcome, RuntimeError):
+      raise outcome from None
 
-    async def async_add_session_to_memory(self, *, session: Dict[str, Any]):
-        """Generates memories.
+  async def async_add_session_to_memory(self, *, session: Dict[str, Any]):
+    """Generates memories.
 
         Args:
             session (Dict[str, Any]):
@@ -1502,26 +1506,26 @@ class AdkApp:
                 be a dictionary representing an ADK Session object, e.g.
                 session.model_dump(mode="json").
         """
-        from google.adk.sessions.session import Session
+    from google.adk.sessions.session import Session
 
-        if isinstance(session, Dict):
-            session = Session.model_validate(session)
-        elif not isinstance(session, Session):
-            raise TypeError("session must be a Session object.")
-        if not session.events:
-            # Get the latest version of the session in case it was updated.
-            session = await self.async_get_session(
+    if isinstance(session, Dict):
+      session = Session.model_validate(session)
+    elif not isinstance(session, Session):
+      raise TypeError("session must be a Session object.")
+    if not session.events:
+      # Get the latest version of the session in case it was updated.
+      session = await self.async_get_session(
                 user_id=session.user_id,
                 session_id=session.id,
             )
-        if not self._tmpl_attrs.get("memory_service"):
-            self.set_up()
-        return await self._tmpl_attrs.get("memory_service").add_session_to_memory(
+    if not self._tmpl_attrs.get("memory_service"):
+      self.set_up()
+    return await self._tmpl_attrs.get("memory_service").add_session_to_memory(
             session=session,
         )
 
-    async def async_search_memory(self, *, user_id: str, query: str):
-        """Searches memories for the given user.
+  async def async_search_memory(self, *, user_id: str, query: str):
+    """Searches memories for the given user.
 
         Args:
             user_id: The id of the user.
@@ -1530,17 +1534,17 @@ class AdkApp:
         Returns:
             A SearchMemoryResponse containing the matching memories.
         """
-        if not self._tmpl_attrs.get("memory_service"):
-            self.set_up()
-        return await self._tmpl_attrs.get("memory_service").search_memory(
+    if not self._tmpl_attrs.get("memory_service"):
+      self.set_up()
+    return await self._tmpl_attrs.get("memory_service").search_memory(
             app_name=self._tmpl_attrs.get("app_name"),
             user_id=user_id,
             query=query,
         )
 
-    def register_operations(self) -> Dict[str, List[str]]:
-        """Registers the operations of the ADK application."""
-        return {
+  def register_operations(self) -> Dict[str, List[str]]:
+    """Registers the operations of the ADK application."""
+    return {
             "": [
                 "get_session",
                 "list_sessions",
@@ -1560,8 +1564,8 @@ class AdkApp:
             "bidi_stream": ["bidi_stream_query"],
         }
 
-    def _telemetry_enabled(self) -> Optional[bool]:
-        """Return status of telemetry enablement depending on enablement env variable.
+  def _telemetry_enabled(self) -> Optional[bool]:
+    """Return status of telemetry enablement depending on enablement env variable.
 
         In detail:
         - Logging is always enabled when telemetry is enabled.
@@ -1571,25 +1575,25 @@ class AdkApp:
             True if telemetry is enabled, False if telemetry is disabled, or None
             if telemetry enablement is not set (i.e. old deployments which don't support this env variable).
         """
-        import os
+    import os
 
-        GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
+    GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY = (
             "GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY"
         )
 
-        env_value = os.getenv(
+    env_value = os.getenv(
             GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY, "unspecified"
         ).lower()
 
-        if env_value in ("true", "1"):
-            return True
-        if env_value in ("false", "0"):
-            return False
-        return None
+    if env_value in ("true", "1"):
+      return True
+    if env_value in ("false", "0"):
+      return False
+    return None
 
-    # Tracing enablement follows truth table:
-    def _tracing_enabled(self) -> bool:
-        """Tracing enablement follows true table:
+  # Tracing enablement follows truth table:
+  def _tracing_enabled(self) -> bool:
+    """Tracing enablement follows true table:
 
         | enable_tracing | enable_telemetry(env) | tracing_actually_enabled |
         |----------------|-----------------------|--------------------------|
@@ -1603,41 +1607,41 @@ class AdkApp:
         | None(default)  | true                  | adk_version >= 1.17      |
         | None(default)  | None                  | false                    |
         """
-        enable_tracing: Optional[bool] = self._tmpl_attrs.get("enable_tracing")
-        enable_telemetry: Optional[bool] = self._telemetry_enabled()
+    enable_tracing: Optional[bool] = self._tmpl_attrs.get("enable_tracing")
+    enable_telemetry: Optional[bool] = self._telemetry_enabled()
 
-        return (enable_tracing is True and enable_telemetry is not False) or (
+    return (enable_tracing is True and enable_telemetry is not False) or (
             enable_tracing is None
             and enable_telemetry is True
             and is_version_sufficient("1.17.0")
         )
 
-    def _warn_if_telemetry_api_disabled(self):
-        """Warn if telemetry API is disabled."""
-        try:
-            import google.auth.transport.requests
-            import google.auth
-        except (ImportError, AttributeError):
-            return
-        credentials, project = google.auth.default()
-        session = google.auth.transport.requests.AuthorizedSession(
+  def _warn_if_telemetry_api_disabled(self):
+    """Warn if telemetry API is disabled."""
+    try:
+      import google.auth.transport.requests
+      import google.auth
+    except (ImportError, AttributeError):
+      return
+    credentials, project = google.auth.default()
+    session = google.auth.transport.requests.AuthorizedSession(
             credentials=credentials
         )
-        r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
-        if "Telemetry API has not been used in project" in r.text:
-            _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
+    r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+    if "Telemetry API has not been used in project" in r.text:
+      _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
-    def project_id(self) -> Optional[str]:
-        if project := self._tmpl_attrs.get("project"):
-            try:
-                from google.cloud.aiplatform.utils import (
+  def project_id(self) -> Optional[str]:
+    if project := self._tmpl_attrs.get("project"):
+      try:
+        from google.cloud.aiplatform.utils import (
                     resource_manager_utils,
                 )
-                from google.api_core import exceptions
+        from google.api_core import exceptions
 
-                return resource_manager_utils.get_project_id(project)
-            # Fail open as temporary workaround for identity_type config parameter
-            except (exceptions.PermissionDenied, exceptions.Unauthenticated):
-                return project
+        return resource_manager_utils.get_project_id(project)
+      # Fail open as temporary workaround for identity_type config parameter
+      except (exceptions.PermissionDenied, exceptions.Unauthenticated):
+        return project
 
-        return None
+    return None

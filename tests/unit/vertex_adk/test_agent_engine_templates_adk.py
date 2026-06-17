@@ -632,6 +632,41 @@ class TestAdkApp:
         assert session1["id"] == session2.id
 
     @pytest.mark.asyncio
+    async def test_async_get_session_with_config(self, get_project_id_mock: mock.Mock):
+        from google.adk.events import event
+        from google.adk.sessions.session import Session
+
+        app = agent_engines.AdkApp(agent=_TEST_AGENT)
+        app.set_up()
+        session_service = app._tmpl_attrs.get("session_service")
+
+        session1 = await session_service.create_session(
+            app_name=app._app_name(),
+            user_id=_TEST_USER_ID,
+        )
+
+        e1 = event.Event(id="e1", timestamp=1.0)
+        e2 = event.Event(id="e2", timestamp=2.0)
+        await session_service.append_event(session=session1, event=e1)
+        await session_service.append_event(session=session1, event=e2)
+
+        # Get session without config
+        session_all = await app.async_get_session(
+            user_id=_TEST_USER_ID,
+            session_id=session1.id,
+        )
+        assert len(session_all.events) == 2
+
+        # Get session with config
+        session_filtered = await app.async_get_session(
+            user_id=_TEST_USER_ID,
+            session_id=session1.id,
+            config={"num_recent_events": 1},
+        )
+        assert len(session_filtered.events) == 1
+        assert session_filtered.events[0].id == "e2"
+
+    @pytest.mark.asyncio
     async def test_async_list_sessions(self, get_project_id_mock: mock.Mock):
         app = agent_engines.AdkApp(agent=_TEST_AGENT)
         response0 = await app.async_list_sessions(user_id=_TEST_USER_ID)
