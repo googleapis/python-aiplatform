@@ -663,6 +663,35 @@ class UserSimulatorConfigDict(TypedDict, total=False):
 UserSimulatorConfigOrDict = Union[UserSimulatorConfig, UserSimulatorConfigDict]
 
 
+class GeminiAgentConfig(_common.BaseModel):
+  """Configuration for scraping a Gemini Agent via the Interactions API.
+
+  The scraping service creates interactions against the agent and returns
+  the resulting interaction traces for evaluation.
+  """
+
+  gemini_agent: Optional[str] = Field(
+      default=None,
+      description="""The resource name of the Gemini Agent.
+      Format: `projects/{project}/locations/{location}/agents/{agent}`.""",
+  )
+
+
+class GeminiAgentConfigDict(TypedDict, total=False):
+  """Configuration for scraping a Gemini Agent via the Interactions API.
+
+  The scraping service creates interactions against the agent and returns
+  the resulting interaction traces for evaluation.
+  """
+
+  gemini_agent: Optional[str]
+  """The resource name of the Gemini Agent.
+      Format: `projects/{project}/locations/{location}/agents/{agent}`."""
+
+
+GeminiAgentConfigOrDict = Union[GeminiAgentConfig, GeminiAgentConfigDict]
+
+
 class Event(_common.BaseModel):
     """Represents an event in a conversation between agents and users.
 

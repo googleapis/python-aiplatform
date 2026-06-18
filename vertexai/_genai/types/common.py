@@ -1496,50 +1496,57 @@ EvaluationPromptOrDict = Union[EvaluationPrompt, EvaluationPromptDict]
 
 
 class CandidateResponse(_common.BaseModel):
-    """Responses from model or agent."""
+  """Responses from model or agent."""
 
-    candidate: Optional[str] = Field(
+  candidate: Optional[str] = Field(
         default=None,
         description="""The name of the candidate that produced the response.""",
     )
-    text: Optional[str] = Field(default=None, description="""The text response.""")
-    value: Optional[dict[str, Any]] = Field(
+  text: Optional[str] = Field(default=None, description="""The text response.""")
+  value: Optional[dict[str, Any]] = Field(
         default=None,
         description="""Fields and values that can be used to populate the response template.""",
     )
-    events: Optional[list[genai_types.Content]] = Field(
+  events: Optional[list[genai_types.Content]] = Field(
         default=None,
         description="""Intermediate events (such as tool calls and responses) that led to the final response.""",
     )
-    agent_data: Optional[evals_types.AgentData] = Field(
+  agent_data: Optional[evals_types.AgentData] = Field(
         default=None,
         description="""Represents the complete execution trace of an anget conversation,
       which can involve single or multiple agents. This field is used to
       provide the full output of an agent's run, including all turns and
       events, for direct evaluation.""",
     )
+  error: Optional[genai_types.GoogleRpcStatus] = Field(
+      default=None,
+      description="""Error status from scraping model or agent.""",
+  )
 
 
 class CandidateResponseDict(TypedDict, total=False):
-    """Responses from model or agent."""
+  """Responses from model or agent."""
 
-    candidate: Optional[str]
-    """The name of the candidate that produced the response."""
+  candidate: Optional[str]
+  """The name of the candidate that produced the response."""
 
-    text: Optional[str]
-    """The text response."""
+  text: Optional[str]
+  """The text response."""
 
-    value: Optional[dict[str, Any]]
-    """Fields and values that can be used to populate the response template."""
+  value: Optional[dict[str, Any]]
+  """Fields and values that can be used to populate the response template."""
 
-    events: Optional[list[genai_types.ContentDict]]
-    """Intermediate events (such as tool calls and responses) that led to the final response."""
+  events: Optional[list[genai_types.ContentDict]]
+  """Intermediate events (such as tool calls and responses) that led to the final response."""
 
-    agent_data: Optional[evals_types.AgentData]
-    """Represents the complete execution trace of an anget conversation,
+  agent_data: Optional[evals_types.AgentData]
+  """Represents the complete execution trace of an anget conversation,
       which can involve single or multiple agents. This field is used to
       provide the full output of an agent's run, including all turns and
       events, for direct evaluation."""
+
+  error: Optional[genai_types.GoogleRpcStatusDict]
+  """Error status from scraping model or agent."""
 
 
 CandidateResponseOrDict = Union[CandidateResponse, CandidateResponseDict]
@@ -2515,33 +2522,41 @@ EvaluationRunAgentConfigOrDict = Union[
 
 
 class AgentRunConfig(_common.BaseModel):
-    """Configuration for an Agent Run."""
+  """Configuration for an Agent Run."""
 
-    session_input: Optional[evals_types.SessionInput] = Field(
-        default=None, description="""The session input to get agent running results."""
-    )
-    agent_engine: Optional[str] = Field(
-        default=None, description="""The resource name of the Agent Engine."""
-    )
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
-        default=None,
-        description="""Used for multi-turn agent run.
+  session_input: Optional[evals_types.SessionInput] = Field(
+      default=None,
+      description="""The session input to get agent running results.""",
+  )
+  agent_engine: Optional[str] = Field(
+      default=None, description="""The resource name of the Agent Engine."""
+  )
+  gemini_agent_config: Optional[evals_types.GeminiAgentConfig] = Field(
+      default=None,
+      description="""Config for scraping a Gemini Agent via the Interactions API.""",
+  )
+  user_simulator_config: Optional[evals_types.UserSimulatorConfig] = Field(
+      default=None,
+      description="""Used for multi-turn agent run.
         Contains configuration for a user simulator that
         uses an LLM to generate messages on behalf of the user.""",
-    )
+  )
 
 
 class AgentRunConfigDict(TypedDict, total=False):
-    """Configuration for an Agent Run."""
+  """Configuration for an Agent Run."""
 
-    session_input: Optional[evals_types.SessionInput]
-    """The session input to get agent running results."""
+  session_input: Optional[evals_types.SessionInput]
+  """The session input to get agent running results."""
 
-    agent_engine: Optional[str]
-    """The resource name of the Agent Engine."""
+  agent_engine: Optional[str]
+  """The resource name of the Agent Engine."""
 
-    user_simulator_config: Optional[evals_types.UserSimulatorConfig]
-    """Used for multi-turn agent run.
+  gemini_agent_config: Optional[evals_types.GeminiAgentConfigDict]
+  """Config for scraping a Gemini Agent via the Interactions API."""
+
+  user_simulator_config: Optional[evals_types.UserSimulatorConfig]
+  """Used for multi-turn agent run.
         Contains configuration for a user simulator that
         uses an LLM to generate messages on behalf of the user."""
 
