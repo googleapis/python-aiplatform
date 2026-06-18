@@ -658,6 +658,20 @@ class TestGcsUtils:
             ):
                 gcs_utils.download_from_gcs(source_uri, destination_path)
 
+    def test_is_path_subdirectory(self):
+        assert gcs_utils._is_path_subdirectory(
+            destination_path="test_dir", blob_path="test_dir/test_file"
+        )
+        assert gcs_utils._is_path_subdirectory(
+            destination_path="test_dir", blob_path="test_file"
+        )
+        assert not gcs_utils._is_path_subdirectory(
+            destination_path="test_dir", blob_path="test_dir/../test_file"
+        )
+        assert not gcs_utils._is_path_subdirectory(
+            destination_path="test_dir", blob_path="test_dir/c:file"
+        )
+
     def test_validate_gcs_path(self):
         test_valid_path = "gs://test_valid_path"
         gcs_utils.validate_gcs_path(test_valid_path)
