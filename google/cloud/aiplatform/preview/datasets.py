@@ -39,7 +39,6 @@ from google.protobuf import field_mask_pb2
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
-
 _MULTIMODAL_METADATA_SCHEMA_URI = (
     "gs://google-cloud-aiplatform/schema/dataset/metadata/multimodal_1.0.0.yaml"
 )
@@ -1122,7 +1121,9 @@ class MultimodalDataset(base.VertexAiResourceNounWithFutureManager):
             A BigFrames dataframe.
         """
         bigframes = _try_import_bigframes()
-        return bigframes.pandas.read_gbq_table(self.bigquery_table.removeprefix("bq://"))
+        return bigframes.pandas.read_gbq_table(
+            self.bigquery_table.removeprefix("bq://")
+        )
 
     @classmethod
     @base.optional_sync()
