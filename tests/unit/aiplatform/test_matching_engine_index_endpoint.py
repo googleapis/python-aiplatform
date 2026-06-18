@@ -908,8 +908,12 @@ class TestMatchingEngineIndexEndpoint:
     def setup_method(self):
         reload(initializer)
         reload(aiplatform)
+        # Patch sleep to speed up polling in tests
+        self._sleep_patcher = mock.patch("time.sleep", side_effect=lambda seconds: None)
+        self._sleep_patcher.start()
 
     def teardown_method(self):
+        self._sleep_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize(

@@ -110,6 +110,7 @@ nox.options.sessions = [
     "unit_agentplatform_langchain",
     "unit_agentplatform_ag2",
     "unit_agentplatform_llama_index",
+    "unit_a2a",
     "system",
     "cover",
     "lint",
@@ -215,13 +216,23 @@ def default(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
+        "--durations=50",
+        # Suppress redundant deprecation warnings to reduce JUnit XML size.
+        "-W",
+        "ignore:You are using a Python version (3.10.19):FutureWarning",
+        # Disable capturing stdout/stderr for passed tests to reduce XML bloat.
+        "-o",
+        "junit_log_passing_tests=False",
         f"--junitxml=unit_{session.python}_sponge_log.xml",
         "--ignore=tests/unit/vertex_ray",
         "--ignore=tests/unit/vertex_adk",
         "--ignore=tests/unit/vertex_langchain",
         "--ignore=tests/unit/vertex_ag2",
         "--ignore=tests/unit/vertex_llama_index",
+        "--ignore=tests/unit/vertex_a2a",
         "--ignore=tests/unit/architecture",
         "--ignore=tests/unit/vertexai/genai/replays",
         "--ignore=tests/unit/agentplatform/genai/replays",
@@ -233,6 +244,8 @@ def default(session):
     # Run tests that require isolation.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         f"--junitxml=unit_{session.python}_test_vertexai_import_sponge_log.xml",
         os.path.join("tests", "unit", "architecture", "test_vertexai_import.py"),
@@ -243,30 +256,9 @@ def default(session):
 @nox.session(python=UNIT_TEST_PYTHON_VERSIONS)
 def unit(session):
     """Run the unit test suite."""
-    # First run the minimal GenAI tests
-    unit_genai_minimal_dependencies(session)
 
     # Then run the default full test suite
     default(session)
-
-
-def unit_genai_minimal_dependencies(session):
-    # Install minimal test dependencies, then install this package in-place.
-
-    standard_deps = UNIT_TEST_STANDARD_DEPENDENCIES + UNIT_TEST_DEPENDENCIES
-    session.install(*standard_deps)
-    session.install("-e", ".")
-
-    # Run py.test against the unit tests.
-    session.run(
-        "py.test",
-        "--quiet",
-        f"--junitxml=unit_{session.python}_sponge_log.xml",
-        # These tests require the PIL module
-        # "--ignore=TestGenerativeModels::test_image_mime_types",
-        os.path.join("tests", "unit", "vertexai", "test_generative_models.py"),
-        *session.posargs,
-    )
 
 
 @nox.session(python=["3.10", "3.11"])
@@ -288,6 +280,8 @@ def unit_ray(session, ray):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         f"--junitxml=unit_ray_{ray}_py_{session.python}_sponge_log.xml",
         "--cov=google",
@@ -314,6 +308,8 @@ def unit_agentplatform_adk(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_agentplatform_adk_sponge_log.xml",
         "--cov=google",
@@ -342,6 +338,8 @@ def unit_agentplatform_langchain(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_agentplatform_langchain_sponge_log.xml",
         "--cov=google",
@@ -381,6 +379,8 @@ def unit_agentplatform_ag2(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_agentplatform_ag2_sponge_log.xml",
         "--cov=google",
@@ -411,6 +411,8 @@ def unit_agentplatform_llama_index(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_agentplatform_llama_index_sponge_log.xml",
         "--cov=google",
@@ -429,6 +431,29 @@ def unit_agentplatform_llama_index(session):
     )
 
 
+@nox.session(python=["3.14"])
+def unit_a2a(session):
+    # Install all test dependencies, then install this package in-place.
+
+    constraints_path = str(CURRENT_DIRECTORY / "testing" / "constraints-a2a.txt")
+    install_unittest_dependencies(session, "-c", constraints_path)
+    session.install("a2a-sdk", "-c", constraints_path)
+
+    # Run py.test against the unit tests.
+    session.run(
+        "py.test",
+        "--quiet",
+        "--junitxml=unit_a2a_sponge_log.xml",
+        "--cov=google",
+        "--cov-append",
+        "--cov-config=.coveragerc",
+        "--cov-report=",
+        "--cov-fail-under=0",
+        os.path.join("tests", "unit", "vertex_a2a"),
+        *session.posargs,
+    )
+
+
 @nox.session(python=UNIT_TEST_TEMPLATES_PYTHON_VERSIONS)
 def unit_langchain(session):
     # Install all test dependencies, then install this package in-place.
@@ -443,6 +468,8 @@ def unit_langchain(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_langchain_sponge_log.xml",
         "--cov=google",
@@ -469,6 +496,8 @@ def unit_ag2(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_ag2_sponge_log.xml",
         "--cov=google",
@@ -497,6 +526,8 @@ def unit_llama_index(session):
     # Run py.test against the unit tests.
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--quiet",
         "--junitxml=unit_llama_index_sponge_log.xml",
         "--cov=google",
@@ -567,6 +598,8 @@ def system(session):
     if system_test_exists:
         session.run(
             "py.test",
+            "-n",
+            "auto",  # Use all available CPU cores
             "--quiet",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_path,
@@ -575,6 +608,8 @@ def system(session):
     if system_test_folder_exists:
         session.run(
             "py.test",
+            "-n",
+            "auto",  # Use all available CPU cores
             "-v",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_folder_path,
@@ -776,6 +811,8 @@ def prerelease_deps(session):
 
     session.run(
         "py.test",
+        "-n",
+        "auto",  # Use all available CPU cores
         "--ignore=tests/unit/vertexai/genai/replays",
         "--ignore=tests/unit/agentplatform/genai/replays",
         "tests/unit",
@@ -788,6 +825,8 @@ def prerelease_deps(session):
     if os.path.exists(system_test_path):
         session.run(
             "py.test",
+            "-n",
+            "auto",  # Use all available CPU cores
             "--verbose",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_path,
@@ -796,6 +835,8 @@ def prerelease_deps(session):
     if os.path.exists(system_test_folder_path):
         session.run(
             "py.test",
+            "-n",
+            "auto",  # Use all available CPU cores
             "--verbose",
             f"--junitxml=system_{session.python}_sponge_log.xml",
             system_test_folder_path,

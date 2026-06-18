@@ -190,3 +190,42 @@ class GcsUtils:
                 f"Unsupported file type: '{file_type}'. Please provide 'jsonl' or"
                 " 'csv'."
             )
+
+    def _verify_bucket_ownership(
+        self,
+        bucket_name: str,
+        expected_project: str,
+    ) -> bool:
+        """Verifies that a GCS bucket belongs to the expected project.
+
+        This check mitigates bucket squatting attacks.
+
+        Args:
+            bucket_name: The GCS bucket to verify.
+            expected_project: The project ID or number that should own the bucket.
+
+        Returns:
+            True if the bucket belongs to the expected project, False otherwise.
+        """
+        try:
+            bucket = self.storage_client.bucket(bucket_name=bucket_name)
+            bucket.reload(client=self.storage_client)
+            bucket_project_number = str(bucket.project_number)
+
+            if expected_project.isdigit():
+                expected_project_number = expected_project
+            else:
+                from google.cloud import resourcemanager_v3
+
+                projects_client = resourcemanager_v3.ProjectsClient(
+                    credentials=self.storage_client._credentials
+                )
+                project = projects_client.get_project(
+                    name=f"projects/{expected_project}"
+                )
+
+                expected_project_number = project.name.split("/")[-1]
+
+            return bucket_project_number == expected_project_number
+        except Exception:
+            return False

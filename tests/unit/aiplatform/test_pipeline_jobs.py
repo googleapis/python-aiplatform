@@ -704,11 +704,17 @@ class TestPipelineJob:
         reload(initializer)
         reload(aiplatform)
         aiplatform.init(project=_TEST_PROJECT, location=_TEST_LOCATION)
+        self._job_wait_patcher = mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
-    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0)
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
     @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0)
     def test_block_until_complete_logs_symbolic_state_name(
         self,
@@ -752,8 +758,8 @@ class TestPipelineJob:
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
     def test_run_call_pipeline_service_create(
         self,
         mock_pipeline_service_create,
@@ -1256,8 +1262,8 @@ class TestPipelineJob:
         ],
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
     def test_run_call_pipeline_service_create_with_failure_policy(
         self,
         mock_pipeline_service_create,
@@ -1912,8 +1918,8 @@ class TestPipelineJob:
         [_TEST_PIPELINE_SPEC_JSON, _TEST_PIPELINE_SPEC_YAML, _TEST_PIPELINE_JOB],
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
     def test_pipeline_failure_raises(self, mock_load_yaml_and_json, sync):
         aiplatform.init(
             project=_TEST_PROJECT,
@@ -2416,8 +2422,8 @@ class TestPipelineJob:
         "job_spec",
         [_TEST_PIPELINE_SPEC_JSON],
     )
-    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(pipeline_jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(pipeline_jobs, "_LOG_WAIT_TIME", 0.05)
     def test_run_call_pipeline_service_create_with_default_runtime(
         self,
         mock_load_yaml_and_json,

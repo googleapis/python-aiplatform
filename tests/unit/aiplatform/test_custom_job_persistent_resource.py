@@ -152,8 +152,14 @@ class TestCustomJobPersistentResource:
     def setup_method(self):
         reload(aiplatform.initializer)
         reload(aiplatform)
+        self._job_wait_patcher = mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])

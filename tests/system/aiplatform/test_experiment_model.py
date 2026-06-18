@@ -60,9 +60,8 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
 
         # Test get ExperimentModel with aritfact id
         model_artifact = aiplatform.get_experiment_model("sk-model")
-        assert model_artifact.uri.endswith("sklearn-model")
-
         shared_state["resources"] = [model_artifact]
+        assert model_artifact.uri.endswith("sklearn-model")
 
         # Test get model info from ExperimentModel
         model_info = model_artifact.get_model_info()
@@ -117,9 +116,8 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
 
         # Test get ExperimentModel with aritfact id
         model_artifact = aiplatform.get_experiment_model("xgb-booster")
-        assert model_artifact.uri == uri
-
         shared_state["resources"].append(model_artifact)
+        assert model_artifact.uri == uri
 
         # Test get model info from ExperimentModel
         model_info = model_artifact.get_model_info()
@@ -144,10 +142,9 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
             registered_model = model_artifact.register_model(
                 serving_container_image_uri=container_uri
             )
-        assert registered_model.display_name.startswith("xgboost model")
-
         self.registered_models_cpu.append(registered_model)
         shared_state["resources"].append(registered_model)
+        assert registered_model.display_name.startswith("xgboost model")
 
     def test_xgboost_xgbmodel_with_custom_names(self, shared_state):
         aiplatform.init(
@@ -170,10 +167,9 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
 
         # Test get ExperimentModel with aritfact id
         model_artifact = aiplatform.get_experiment_model("xgboost-xgbmodel")
+        shared_state["resources"].append(model_artifact)
         assert model_artifact.uri.endswith("xgboost-model")
         assert model_artifact.display_name == "custom-experiment-model-name"
-
-        shared_state["resources"].append(model_artifact)
 
         # Test get model info from ExperimentModel
         model_info = model_artifact.get_model_info()
@@ -201,10 +197,9 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
                 serving_container_image_uri=container_uri,
                 display_name="custom-registered-model-name",
             )
-        assert registered_model.display_name == "custom-registered-model-name"
-
         self.registered_models_cpu.append(registered_model)
         shared_state["resources"].append(registered_model)
+        assert registered_model.display_name == "custom-registered-model-name"
 
     def test_tensorflow_keras_model_with_input_example(self, shared_state):
         aiplatform.init(
@@ -230,9 +225,8 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
 
         # Test get ExperimentModel with aritfact id
         model_artifact = aiplatform.get_experiment_model("keras-model")
-        assert model_artifact.uri.endswith("tensorflow-model")
-
         shared_state["resources"].append(model_artifact)
+        assert model_artifact.uri.endswith("tensorflow-model")
 
         # Test get model info from ExperimentModel
         model_info = model_artifact.get_model_info()
@@ -261,10 +255,9 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
             registered_model = model_artifact.register_model(
                 serving_container_image_uri=container_uri
             )
-        assert registered_model.display_name.startswith("tensorflow model")
-
         self.registered_models_cpu.append(registered_model)
         shared_state["resources"].append(registered_model)
+        assert registered_model.display_name.startswith("tensorflow model")
 
     def test_tensorflow_module_with_gpu_container(self, shared_state):
         aiplatform.init(
@@ -294,9 +287,8 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
 
         # Test get ExperimentModel with aritfact id
         model_artifact = aiplatform.get_experiment_model("tf-module")
-        assert model_artifact.uri.endswith("tensorflow-model")
-
         shared_state["resources"].append(model_artifact)
+        assert model_artifact.uri.endswith("tensorflow-model")
 
         # Test get model info from ExperimentModel
         model_info = model_artifact.get_model_info()
@@ -322,10 +314,9 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
                 serving_container_image_uri=container_uri,
                 use_gpu=True,
             )
-        assert registered_model.display_name.startswith("tensorflow model")
-
         self.registered_models_gpu.append(registered_model)
         shared_state["resources"].append(registered_model)
+        assert registered_model.display_name.startswith("tensorflow model")
 
     def test_deploy_model_with_cpu_container(self, shared_state):
         aiplatform.init(
@@ -342,8 +333,8 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
         endpoint = registered_model.deploy()
 
         pred = endpoint.predict([[1, 2]])
-        assert isinstance(pred, models.Prediction)
         shared_state["resources"].append(endpoint)
+        assert isinstance(pred, models.Prediction)
 
     def test_deploy_model_with_gpu_container(self, shared_state):
         aiplatform.init(
@@ -359,9 +350,9 @@ class TestExperimentModel(e2e_base.TestEndToEnd):
         # Deploy the registered model
         # Since we are using gpu, we need to specify accelerator_type and count
         endpoint = registered_model.deploy(
-            accelerator_type="NVIDIA_TESLA_T4", accelerator_count=1, sync=False
+            accelerator_type="NVIDIA_TESLA_T4", accelerator_count=1
         )
+        shared_state["resources"].append(endpoint)
 
         pred = endpoint.predict([[1, 2]])
         assert isinstance(pred, models.Prediction)
-        shared_state["resources"].append(endpoint)

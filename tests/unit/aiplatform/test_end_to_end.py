@@ -108,10 +108,24 @@ def make_training_pipeline(state, add_training_task_metadata=True):
 @pytest.mark.usefixtures("google_auth_mock")
 class TestEndToEnd:
     def setup_method(self):
+        from unittest import mock
+        from google.cloud.aiplatform import training_jobs, jobs
         reload(initializer)
         reload(aiplatform)
+        self._tj_wait_patcher = mock.patch.object(training_jobs, "_JOB_WAIT_TIME", 0.05)
+        self._tj_log_patcher = mock.patch.object(training_jobs, "_LOG_WAIT_TIME", 0.05)
+        self._jb_wait_patcher = mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+        self._jb_log_patcher = mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
+        self._tj_wait_patcher.start()
+        self._tj_log_patcher.start()
+        self._jb_wait_patcher.start()
+        self._jb_log_patcher.start()
 
     def teardown_method(self):
+        self._tj_wait_patcher.stop()
+        self._tj_log_patcher.stop()
+        self._jb_wait_patcher.stop()
+        self._jb_log_patcher.stop()
         initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.usefixtures(

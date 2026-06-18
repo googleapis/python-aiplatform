@@ -42,6 +42,33 @@ def test_update_rag_corpus_private(client):
     assert isinstance(corpus_op, types.UpdateRagCorpusOperation)
 
 
+def test_update_rag_corpus(client):
+    search_config = types.VertexAiSearchConfig(
+        serving_config="projects/vertex-sdk-dev/locations/us-central1/collections/default_collection/engines/test-engine/servingConfigs/default_serving_config"
+    )
+
+    # Create a corpus to update
+    corpus = client.rag.create_corpus(
+        rag_corpus=types.RagCorpus(
+            display_name="My Test Corpus",
+            description="My Test Corpus Description",
+            vertex_ai_search_config=search_config,
+        ),
+    )
+
+    updated_corpus = client.rag.update_corpus(
+        name=corpus.name,
+        rag_corpus=types.RagCorpus(
+            display_name="My Updated Vertex AI Search Test Corpus",
+            description="My Updated Test Corpus Description",
+            vertex_ai_search_config=search_config,
+        ),
+    )
+
+    assert updated_corpus.display_name == "My Updated Vertex AI Search Test Corpus"
+    assert updated_corpus.description == "My Updated Test Corpus Description"
+
+
 pytest_plugins = ("pytest_asyncio",)
 
 
@@ -59,3 +86,31 @@ async def test_update_rag_corpus_private_async(client):
     )
 
     assert isinstance(corpus_op, types.UpdateRagCorpusOperation)
+
+
+@pytest.mark.asyncio
+async def test_update_rag_corpus_async(client):
+    search_config = types.VertexAiSearchConfig(
+        serving_config="projects/vertex-sdk-dev/locations/us-central1/collections/default_collection/engines/test-engine/servingConfigs/default_serving_config"
+    )
+
+    # Create a corpus to update
+    corpus = await client.aio.rag.create_corpus(
+        rag_corpus=types.RagCorpus(
+            display_name="My Test Corpus",
+            description="My Test Corpus Description",
+            vertex_ai_search_config=search_config,
+        ),
+    )
+
+    updated_corpus = await client.aio.rag.update_corpus(
+        name=corpus.name,
+        rag_corpus=types.RagCorpus(
+            display_name="My Updated Vertex AI Search Test Corpus",
+            description="My Updated Test Corpus Description",
+            vertex_ai_search_config=search_config,
+        ),
+    )
+
+    assert updated_corpus.display_name == "My Updated Vertex AI Search Test Corpus"
+    assert updated_corpus.description == "My Updated Test Corpus Description"

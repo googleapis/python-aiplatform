@@ -633,8 +633,14 @@ class TestCustomJob:
     def setup_method(self):
         reload(aiplatform.initializer)
         reload(aiplatform)
+        self._job_wait_patcher = mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+        self._log_wait_patcher = mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
+        self._job_wait_patcher.start()
+        self._log_wait_patcher.start()
 
     def teardown_method(self):
+        self._job_wait_patcher.stop()
+        self._log_wait_patcher.stop()
         aiplatform.initializer.global_pool.shutdown(wait=True)
 
     @pytest.mark.parametrize("sync", [True, False])
@@ -874,8 +880,8 @@ class TestCustomJob:
         )
 
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
     def test_create_custom_job_with_timeout(
         self, create_custom_job_mock, get_custom_job_mock, sync
     ):
@@ -1317,8 +1323,8 @@ class TestCustomJob:
         "update_context_mock",
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
     def test_create_from_local_script_prebuilt_container_with_all_args(
         self, get_custom_job_mock, create_custom_job_mock, sync
     ):
@@ -1381,8 +1387,8 @@ class TestCustomJob:
         "update_context_mock",
     )
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
     def test_create_from_local_script_custom_container_with_all_args(
         self, get_custom_job_mock, create_custom_job_mock, sync
     ):
@@ -1458,8 +1464,8 @@ class TestCustomJob:
             job.run()
 
     @pytest.mark.parametrize("sync", [True, False])
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
     def test_create_custom_job_with_enable_web_access(
         self,
         create_custom_job_mock_with_enable_web_access,
@@ -1525,8 +1531,8 @@ class TestCustomJob:
                 assert job.web_access_uris == _TEST_WEB_ACCESS_URIS
                 break
 
-    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 1)
-    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 1)
+    @mock.patch.object(jobs, "_JOB_WAIT_TIME", 0.05)
+    @mock.patch.object(jobs, "_LOG_WAIT_TIME", 0.05)
     def test_log_access_web_uris_after_get(
         self, get_custom_job_mock_with_enable_web_access
     ):

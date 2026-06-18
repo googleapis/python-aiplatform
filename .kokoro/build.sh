@@ -43,15 +43,17 @@ export DOCKER_API_VERSION=1.39
 python3 -m pip install --upgrade --quiet uv nox
 python3 -m nox --version
 
-# If this is a continuous build, send the test log to the FlakyBot.
+# Clean up the heavy .nox/ environment directory before artifact collection.
+# If this is a continuous build, also send the test log to the FlakyBot.
 # See https://github.com/googleapis/repo-automation-bots/tree/main/packages/flakybot.
-if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"continuous"* ]]; then
-  cleanup() {
+cleanup() {
+  rm -rf .nox
+  if [[ $KOKORO_BUILD_ARTIFACTS_SUBDIR = *"continuous"* ]]; then
     chmod +x $KOKORO_GFILE_DIR/linux_amd64/flakybot
     $KOKORO_GFILE_DIR/linux_amd64/flakybot
-  }
-  trap cleanup EXIT HUP
-fi
+  fi
+}
+trap cleanup EXIT HUP
 
 # If NOX_SESSION is set, it only runs the specified session,
 # otherwise run all the sessions.

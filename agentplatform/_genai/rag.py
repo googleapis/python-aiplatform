@@ -17,19 +17,34 @@
 
 import json
 import logging
+import mimetypes
+import os
 from typing import Any, Optional, Union
 from urllib.parse import urlencode
 
 from google.genai import _api_module
 from google.genai import _common
-from google.genai import types as genai_types
+from google.genai import _extra_utils
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
+from . import _gcs_utils
 from . import _operations_utils
 from . import types
 
 logger = logging.getLogger("agentplatform_genai.rag")
+
+
+def _AskContextsConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["tools"]) is not None:
+        setv(parent_object, ["tools"], getv(from_object, ["tools"]))
+
+    return to_object
 
 
 def _AskContextsRequestParameters_to_vertex(
@@ -41,10 +56,11 @@ def _AskContextsRequestParameters_to_vertex(
         setv(to_object, ["query"], getv(from_object, ["query"]))
 
     if getv(from_object, ["config"]) is not None:
-        setv(to_object, ["config"], getv(from_object, ["config"]))
-
-    if getv(from_object, ["tools"]) is not None:
-        setv(to_object, ["tools"], getv(from_object, ["tools"]))
+        setv(
+            to_object,
+            ["config"],
+            _AskContextsConfig_to_vertex(getv(from_object, ["config"]), to_object),
+        )
 
     return to_object
 
@@ -135,6 +151,32 @@ def _GetCorpusOperationParameters_to_vertex(
     return to_object
 
 
+def _GetImportFilesOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operation_name"], getv(from_object, ["operation_name"])
+        )
+
+    return to_object
+
+
+def _GetRagConfigOperationParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["operation_name"]) is not None:
+        setv(
+            to_object, ["_url", "operation_name"], getv(from_object, ["operation_name"])
+        )
+
+    return to_object
+
+
 def _GetRagConfigRequestParameters_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -170,6 +212,148 @@ def _GetRagFileRequestParameters_to_vertex(
 
     if getv(from_object, ["name"]) is not None:
         setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    return to_object
+
+
+def _ImportRagFilesConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["gcs_source"]) is not None:
+        setv(to_object, ["gcsSource"], getv(from_object, ["gcs_source"]))
+
+    if getv(from_object, ["global_max_embedding_requests_per_min"]) is not None:
+        setv(
+            to_object,
+            ["globalMaxEmbeddingRequestsPerMin"],
+            getv(from_object, ["global_max_embedding_requests_per_min"]),
+        )
+
+    if getv(from_object, ["google_drive_source"]) is not None:
+        setv(
+            to_object, ["googleDriveSource"], getv(from_object, ["google_drive_source"])
+        )
+
+    if getv(from_object, ["import_result_bigquery_sink"]) is not None:
+        setv(
+            to_object,
+            ["importResultBigquerySink"],
+            getv(from_object, ["import_result_bigquery_sink"]),
+        )
+
+    if getv(from_object, ["import_result_gcs_sink"]) is not None:
+        setv(
+            to_object,
+            ["importResultGcsSink"],
+            getv(from_object, ["import_result_gcs_sink"]),
+        )
+
+    if getv(from_object, ["jira_source"]) is not None:
+        setv(to_object, ["jiraSource"], getv(from_object, ["jira_source"]))
+
+    if getv(from_object, ["max_embedding_requests_per_min"]) is not None:
+        setv(
+            to_object,
+            ["maxEmbeddingRequestsPerMin"],
+            getv(from_object, ["max_embedding_requests_per_min"]),
+        )
+
+    if getv(from_object, ["partial_failure_bigquery_sink"]) is not None:
+        setv(
+            to_object,
+            ["partialFailureBigquerySink"],
+            getv(from_object, ["partial_failure_bigquery_sink"]),
+        )
+
+    if getv(from_object, ["partial_failure_gcs_sink"]) is not None:
+        setv(
+            to_object,
+            ["partialFailureGcsSink"],
+            getv(from_object, ["partial_failure_gcs_sink"]),
+        )
+
+    if getv(from_object, ["rag_file_chunking_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileChunkingConfig"],
+            getv(from_object, ["rag_file_chunking_config"]),
+        )
+
+    if getv(from_object, ["rag_file_metadata_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileMetadataConfig"],
+            getv(from_object, ["rag_file_metadata_config"]),
+        )
+
+    if getv(from_object, ["rag_file_parsing_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileParsingConfig"],
+            _RagFileParsingConfig_to_vertex(
+                getv(from_object, ["rag_file_parsing_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["rag_file_transformation_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileTransformationConfig"],
+            getv(from_object, ["rag_file_transformation_config"]),
+        )
+
+    if getv(from_object, ["rebuild_ann_index"]) is not None:
+        setv(to_object, ["rebuildAnnIndex"], getv(from_object, ["rebuild_ann_index"]))
+
+    if getv(from_object, ["share_point_sources"]) is not None:
+        setv(
+            to_object, ["sharePointSources"], getv(from_object, ["share_point_sources"])
+        )
+
+    if getv(from_object, ["slack_source"]) is not None:
+        setv(to_object, ["slackSource"], getv(from_object, ["slack_source"]))
+
+    return to_object
+
+
+def _ImportRagFilesRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["import_rag_files_request"]) is not None:
+        setv(
+            to_object,
+            ["_self"],
+            _ImportRagFilesRequest_to_vertex(
+                getv(from_object, ["import_rag_files_request"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["config"]) is not None:
+        setv(to_object, ["config"], getv(from_object, ["config"]))
+
+    return to_object
+
+
+def _ImportRagFilesRequest_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["import_rag_files_config"]) is not None:
+        setv(
+            to_object,
+            ["importRagFilesConfig"],
+            _ImportRagFilesConfig_to_vertex(
+                getv(from_object, ["import_rag_files_config"]), to_object
+            ),
+        )
 
     return to_object
 
@@ -812,6 +996,36 @@ def _RagFileParsingConfigLlmParser_to_vertex(
     return to_object
 
 
+def _RagFileParsingConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["advanced_parser"]) is not None:
+        setv(to_object, ["advancedParser"], getv(from_object, ["advanced_parser"]))
+
+    if getv(from_object, ["layout_parser"]) is not None:
+        setv(to_object, ["layoutParser"], getv(from_object, ["layout_parser"]))
+
+    if getv(from_object, ["llm_parser"]) is not None:
+        setv(
+            to_object,
+            ["llmParser"],
+            _RagFileParsingConfigLlmParser_to_vertex(
+                getv(from_object, ["llm_parser"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["use_advanced_pdf_parsing"]) is not None:
+        setv(
+            to_object,
+            ["useAdvancedPdfParsing"],
+            getv(from_object, ["use_advanced_pdf_parsing"]),
+        )
+
+    return to_object
+
+
 def _RagManagedDbConfigSpanner_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -1344,6 +1558,67 @@ def _UpdateRagCorpusRequestParameters_to_vertex(
     return to_object
 
 
+def _UploadRagFileConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["rag_file_chunking_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileChunkingConfig"],
+            getv(from_object, ["rag_file_chunking_config"]),
+        )
+
+    if getv(from_object, ["rag_file_metadata_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileMetadataConfig"],
+            getv(from_object, ["rag_file_metadata_config"]),
+        )
+
+    if getv(from_object, ["rag_file_parsing_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileParsingConfig"],
+            _RagFileParsingConfig_to_vertex(
+                getv(from_object, ["rag_file_parsing_config"]), to_object
+            ),
+        )
+
+    if getv(from_object, ["rag_file_transformation_config"]) is not None:
+        setv(
+            to_object,
+            ["ragFileTransformationConfig"],
+            getv(from_object, ["rag_file_transformation_config"]),
+        )
+
+    return to_object
+
+
+def _UploadRagFileParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["rag_file"]) is not None:
+        setv(to_object, ["ragFile"], getv(from_object, ["rag_file"]))
+
+    if getv(from_object, ["upload_rag_file_config"]) is not None:
+        setv(
+            to_object,
+            ["uploadRagFileConfig"],
+            _UploadRagFileConfig_to_vertex(
+                getv(from_object, ["upload_rag_file_config"]), to_object
+            ),
+        )
+
+    return to_object
+
+
 def _VertexAiSearchConfig_from_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -1373,7 +1648,6 @@ class Rag(_api_module.BaseModule):
         *,
         query: types.RagQueryOrDict,
         config: Optional[types.AskContextsConfigOrDict] = None,
-        tools: Optional[list[genai_types.ToolOrDict]] = None,
     ) -> types.AskContextsResponse:
         """
         Asks a RAG Contexts.
@@ -1382,7 +1656,6 @@ class Rag(_api_module.BaseModule):
         parameter_model = types._AskContextsRequestParameters(
             query=query,
             config=config,
-            tools=tools,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -2227,7 +2500,7 @@ class Rag(_api_module.BaseModule):
     def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: Optional[types.VertexRagStoreOrDict] = None,
+        vertex_rag_store: types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
@@ -2300,6 +2573,288 @@ class Rag(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _get_rag_config_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetRagConfigOperationConfigOrDict] = None,
+    ) -> types.RagEngineConfigOperation:
+        parameter_model = types._GetRagConfigOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetRagConfigOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operation_name}".format_map(request_url_dict)
+            else:
+                path = "{operation_name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RagEngineConfigOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _import_files(
+        self,
+        *,
+        name: str,
+        import_rag_files_request: types.ImportRagFilesRequestOrDict,
+        config: Optional[types.ImportRagFilesRequestConfigOrDict] = None,
+    ) -> types.ImportRagFilesOperation:
+        """
+        Imports files into a RAG Corpus.
+        """
+
+        parameter_model = types._ImportRagFilesRequestParameters(
+            name=name,
+            import_rag_files_request=import_rag_files_request,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ImportRagFilesRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/ragFiles:import".format_map(request_url_dict)
+            else:
+                path = "{name}/ragFiles:import"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportRagFilesOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _get_import_files_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetImportFilesOperationConfigOrDict] = None,
+    ) -> types.ImportRagFilesOperation:
+        parameter_model = types._GetImportFilesOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetImportFilesOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operation_name}".format_map(request_url_dict)
+            else:
+                path = "{operation_name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportRagFilesOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    def _upload_file(
+        self,
+        *,
+        name: str,
+        rag_file: types.RagFileOrDict,
+        upload_rag_file_config: Optional[types.UploadRagFileConfigOrDict] = None,
+        config: Optional[types.UploadRagFileRequestConfigOrDict] = None,
+    ) -> types.UploadRagFileResponse:
+        parameter_model = types._UploadRagFileParameters(
+            name=name,
+            rag_file=rag_file,
+            upload_rag_file_config=upload_rag_file_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UploadRagFileParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/ragFiles:upload".format_map(request_url_dict)
+            else:
+                path = "{name}/ragFiles:upload"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("post", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.UploadRagFileResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     def create_corpus(
         self,
         *,
@@ -2307,7 +2862,7 @@ class Rag(_api_module.BaseModule):
         config: Optional[types.CreateRagCorpusConfigOrDict] = None,
     ) -> types.RagCorpus:
         """
-        Creates a new Rag Corpus and waits for completion.
+        Creates a new RAG Corpus and waits for completion.
 
         Args:
           rag_corpus: The RagCorpus to create.
@@ -2335,7 +2890,7 @@ class Rag(_api_module.BaseModule):
         config: Optional[types.DeleteRagCorpusConfigOrDict] = None,
     ) -> None:
         """
-        Deletes a Rag Corpus and waits for the delete operation to complete.
+        Deletes a RAG Corpus and waits for the delete operation to complete.
         """
         operation = self._delete_corpus(name=name, config=config)
 
@@ -2356,7 +2911,7 @@ class Rag(_api_module.BaseModule):
         config: Optional[types.DeleteRagFileConfigOrDict] = None,
     ) -> None:
         """
-        Deletes a file from a Rag Corpus and waits for the delete operation to complete.
+        Deletes a file from a RAG Corpus and waits for the delete operation to complete.
         """
         operation = self._delete_file(name=name, config=config)
 
@@ -2372,6 +2927,219 @@ class Rag(_api_module.BaseModule):
 
         return None
 
+    def update_corpus(
+        self,
+        *,
+        name: str,
+        rag_corpus: types.RagCorpusOrDict,
+        config: Optional[types.UpdateRagCorpusConfigOrDict] = None,
+    ) -> types.RagCorpus:
+        """
+        Updates a RAG Corpus and waits for completion.
+
+        Args:
+          name: The name of the RagCorpus to update, formatted as
+            `projects/{project}/locations/{location}/ragCorpora/{corpus_id}`.
+          rag_corpus: The RagCorpus to update.
+          config: The configuration to use for the RagCorpus update request.
+
+        Returns:
+          The updated RagCorpus.
+        """
+        operation = self._update_corpus(name=name, rag_corpus=rag_corpus, config=config)
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_corpus_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(f"Failed to update RagCorpus: {operation.error}")
+
+        return self.get_corpus(name=operation.response.name)
+
+    def update_config(
+        self,
+        *,
+        updated_config: types.RagEngineConfigOrDict,
+        request_config: Optional[types.UpdateRagConfigOrDict] = None,
+    ) -> types.RagEngineConfig:
+        """
+        Updates a RagEngineConfig and waits for completion.
+
+        Args:
+          updated_config: The RagEngineConfig to update.
+          request_config: The configuration to use for the RagEngineConfig update request.
+
+        Returns:
+          The updated RagEngineConfig.
+        """
+        operation = self._update_config(
+            updated_config=updated_config, config=request_config
+        )
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_rag_config_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(f"Failed to update RagEngineConfig: {operation.error}")
+
+        return self.get_config()
+
+    def import_files(
+        self,
+        *,
+        name: str,
+        import_config: types.ImportRagFilesConfigOrDict,
+        config: Optional[types.ImportRagFilesRequestConfigOrDict] = None,
+    ) -> types.ImportRagFilesResponse:
+        """
+        Imports files into a Rag Corpus. To get a list of all files on the corpus after calling import_files, call list_files.
+
+        Example usage:
+
+        ```
+        client.rag.import_files(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            import_config=types.ImportRagFilesConfig(
+                gcs_source=types.GcsSource(uris=["gs://test-bucket/test-file.pdf"]),
+            ),
+        )
+        ```
+
+        Args:
+          name: The name of the Rag Corpus to import files into, format:
+            `projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}`
+          import_config: The configuration for importing files, including source files and processing options.
+          config: The configuration to use for the import request.
+
+        Returns:
+          The ImportRagFilesResponse from the import files operation.
+        """
+        if isinstance(import_config, dict):
+            import_config = types.ImportRagFilesConfig.model_validate(import_config)
+
+        if import_config.gcs_source is not None:
+            for uri in import_config.gcs_source.uris:
+                if not _gcs_utils.GcsUtils(self._api_client)._verify_bucket_ownership(
+                    bucket_name=uri.split("/")[2],
+                    expected_project=self._api_client.project,
+                ):
+                    raise ValueError(
+                        f"Bucket {uri} does not belong to"
+                        f" project {self._api_client.project}."
+                    )
+
+        operation = self._import_files(
+            name=name,
+            import_rag_files_request=types.ImportRagFilesRequest(
+                import_rag_files_config=import_config
+            ),
+            config=config,
+        )
+
+        operation = _operations_utils.await_operation(
+            operation_name=operation.name,
+            get_operation_fn=self._get_import_files_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(
+                f"Failed to import files into RagCorpus: {operation.error}"
+            )
+
+        return operation.response
+
+    def upload_file(
+        self,
+        *,
+        corpus_name: str,
+        path: str,
+        display_name: Optional[str] = None,
+        upload_rag_file_config: Optional[types.UploadRagFileConfigOrDict] = None,
+        request_config: Optional[types.UploadRagFileRequestConfigOrDict] = None,
+    ) -> types.RagFile:
+        """
+        Uploads a file to a RAG Corpus.
+
+        Args:
+          corpus_name: The name of the RAG Corpus to upload to.
+          path: The path to the file to upload.
+          display_name: Optional. The display name for the uploaded file. If not provided, a display name will be generated.
+          upload_rag_file_config: Optional. The configuration to use for the upload.
+          request_config: Optional. The configuration to use for the request.
+
+        Returns:
+          The uploaded RagFile.
+        """
+
+        if not display_name:
+            display_name = f"file_{_common.timestamped_unique_name()}"
+
+        rag_file = types.RagFile(display_name=display_name)
+
+        mime_type, _ = mimetypes.guess_type(path)
+
+        if mime_type is None:
+            mime_type = "application/octet-stream"
+
+        http_options, size_bytes, mime_type = _extra_utils.prepare_resumable_upload(
+            path,
+            user_http_options=request_config.http_options if request_config else None,
+            user_mime_type=mime_type,
+        )
+
+        current_api_version = self._api_client._http_options.api_version or "v1beta1"
+        upload_api_version = f"upload/{current_api_version}"
+
+        http_options.api_version = upload_api_version
+
+        parameter_model = types._UploadRagFileParameters(
+            name=corpus_name,
+            rag_file=rag_file,
+            upload_rag_file_config=upload_rag_file_config,
+        )
+        request_dict = _UploadRagFileParameters_to_vertex(parameter_model)
+
+        request_dict.pop("_url", None)
+        request_dict.pop("_query", None)
+
+        request_path = f"{corpus_name}/ragFiles:upload"
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request(
+            "post",
+            request_path,
+            request_dict,
+            http_options,
+        )
+
+        if response.headers is None or (
+            "x-goog-upload-url" not in response.headers
+            and "X-Goog-Upload-URL" not in response.headers
+        ):
+            raise KeyError(
+                "Failed to create file. Upload URL was not returned from the create file request."
+            )
+
+        upload_url = response.headers.get(
+            "x-goog-upload-url", response.headers.get("X-Goog-Upload-URL")
+        )
+
+        fs_path = os.fspath(path)
+        return_file = self._api_client.upload_file(
+            fs_path, upload_url, size_bytes, http_options=http_options
+        )
+
+        rag_file_payload = return_file.json.get("ragFile") or return_file.json.get(
+            "rag_file", {}
+        )
+        return types.RagFile(**rag_file_payload)
+
 
 class AsyncRag(_api_module.BaseModule):
 
@@ -2380,7 +3148,6 @@ class AsyncRag(_api_module.BaseModule):
         *,
         query: types.RagQueryOrDict,
         config: Optional[types.AskContextsConfigOrDict] = None,
-        tools: Optional[list[genai_types.ToolOrDict]] = None,
     ) -> types.AskContextsResponse:
         """
         Asks a RAG Contexts.
@@ -2389,7 +3156,6 @@ class AsyncRag(_api_module.BaseModule):
         parameter_model = types._AskContextsRequestParameters(
             query=query,
             config=config,
-            tools=tools,
         )
 
         request_url_dict: Optional[dict[str, str]]
@@ -3258,7 +4024,7 @@ class AsyncRag(_api_module.BaseModule):
     async def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: Optional[types.VertexRagStoreOrDict] = None,
+        vertex_rag_store: types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
@@ -3333,6 +4099,296 @@ class AsyncRag(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    async def _get_rag_config_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetRagConfigOperationConfigOrDict] = None,
+    ) -> types.RagEngineConfigOperation:
+        parameter_model = types._GetRagConfigOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetRagConfigOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operation_name}".format_map(request_url_dict)
+            else:
+                path = "{operation_name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.RagEngineConfigOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _import_files(
+        self,
+        *,
+        name: str,
+        import_rag_files_request: types.ImportRagFilesRequestOrDict,
+        config: Optional[types.ImportRagFilesRequestConfigOrDict] = None,
+    ) -> types.ImportRagFilesOperation:
+        """
+        Imports files into a RAG Corpus.
+        """
+
+        parameter_model = types._ImportRagFilesRequestParameters(
+            name=name,
+            import_rag_files_request=import_rag_files_request,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _ImportRagFilesRequestParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/ragFiles:import".format_map(request_url_dict)
+            else:
+                path = "{name}/ragFiles:import"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportRagFilesOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_import_files_operation(
+        self,
+        *,
+        operation_name: str,
+        config: Optional[types.GetImportFilesOperationConfigOrDict] = None,
+    ) -> types.ImportRagFilesOperation:
+        parameter_model = types._GetImportFilesOperationParameters(
+            operation_name=operation_name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetImportFilesOperationParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{operation_name}".format_map(request_url_dict)
+            else:
+                path = "{operation_name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.ImportRagFilesOperation._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _upload_file(
+        self,
+        *,
+        name: str,
+        rag_file: types.RagFileOrDict,
+        upload_rag_file_config: Optional[types.UploadRagFileConfigOrDict] = None,
+        config: Optional[types.UploadRagFileRequestConfigOrDict] = None,
+    ) -> types.UploadRagFileResponse:
+        parameter_model = types._UploadRagFileParameters(
+            name=name,
+            rag_file=rag_file,
+            upload_rag_file_config=upload_rag_file_config,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _UploadRagFileParameters_to_vertex(parameter_model)
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}/ragFiles:upload".format_map(request_url_dict)
+            else:
+                path = "{name}/ragFiles:upload"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.UploadRagFileResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     async def create_corpus(
         self,
         *,
@@ -3340,7 +4396,7 @@ class AsyncRag(_api_module.BaseModule):
         config: Optional[types.CreateRagCorpusConfigOrDict] = None,
     ) -> types.RagCorpus:
         """
-        Creates a new Rag Corpus and waits for completion asynchronously.
+        Creates a new RAG Corpus and waits for completion asynchronously.
 
         Args:
           rag_corpus: The RagCorpus to create.
@@ -3368,7 +4424,7 @@ class AsyncRag(_api_module.BaseModule):
         config: Optional[types.DeleteRagCorpusConfigOrDict] = None,
     ) -> None:
         """
-        Deletes a Rag Corpus and waits for the delete operation to complete asynchronously.
+        Deletes a RAG Corpus and waits for the delete operation to complete asynchronously.
         """
         operation = await self._delete_corpus(name=name, config=config)
 
@@ -3389,7 +4445,7 @@ class AsyncRag(_api_module.BaseModule):
         config: Optional[types.DeleteRagFileConfigOrDict] = None,
     ) -> None:
         """
-        Deletes a file from a Rag Corpus and waits for the delete operation to complete asynchronously.
+        Deletes a file from a RAG Corpus and waits for the delete operation to complete asynchronously.
         """
         operation = await self._delete_file(name=name, config=config)
 
@@ -3404,3 +4460,219 @@ class AsyncRag(_api_module.BaseModule):
             )
 
         return None
+
+    async def update_corpus(
+        self,
+        *,
+        name: str,
+        rag_corpus: types.RagCorpusOrDict,
+        config: Optional[types.UpdateRagCorpusConfigOrDict] = None,
+    ) -> types.RagCorpus:
+        """
+        Updates a RAG Corpus and waits for completion asynchronously.
+
+        Args:
+          name: The name of the RagCorpus to update, formatted as
+            `projects/{project}/locations/{location}/ragCorpora/{corpus_id}`.
+          rag_corpus: The RagCorpus to update.
+          config: The configuration to use for the RagCorpus update request.
+
+        Returns:
+          The updated RagCorpus.
+        """
+        operation = await self._update_corpus(
+            name=name, rag_corpus=rag_corpus, config=config
+        )
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self._get_corpus_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(f"Failed to update RagCorpus: {operation.error}")
+
+        return await self.get_corpus(name=operation.response.name)
+
+    async def update_config(
+        self,
+        *,
+        updated_config: types.RagEngineConfigOrDict,
+        request_config: Optional[types.UpdateRagConfigOrDict] = None,
+    ) -> types.RagEngineConfig:
+        """
+        Updates a RagEngineConfig and waits for completion asynchronously.
+
+        Args:
+          updated_config: The RagEngineConfig to update.
+          request_config: The configuration to use for the RagEngineConfig update request.
+
+        Returns:
+          The updated RagEngineConfig.
+        """
+        operation = await self._update_config(
+            updated_config=updated_config, config=request_config
+        )
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self._get_rag_config_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(f"Failed to update RagEngineConfig: {operation.error}")
+
+        return await self.get_config()
+
+    async def import_files(
+        self,
+        *,
+        name: str,
+        import_config: types.ImportRagFilesConfigOrDict,
+        config: Optional[types.ImportRagFilesRequestConfigOrDict] = None,
+    ) -> types.ImportRagFilesResponse:
+        """
+        Imports files into a Rag Corpus. To get a list of all files on the corpus after calling import_files, call list_files.
+
+        Example usage:
+
+        ```
+        client.rag.import_files(
+            name="projects/test-project/locations/us-central1/ragCorpora/123456789",
+            import_config=types.ImportRagFilesConfig(
+                gcs_source=types.GcsSource(uris=["gs://test-bucket/test-file.pdf"]),
+            ),
+        )
+        ```
+
+        Args:
+          name: The name of the Rag Corpus to import files into, format:
+            `projects/{project}/locations/{location}/ragCorpora/{rag_corpus_id}`
+          import_config: The configuration for importing files, including source files and processing options.
+          config: The configuration to use for the import request.
+
+        Returns:
+          The ImportRagFilesResponse from the import files operation.
+        """
+
+        if isinstance(import_config, dict):
+            import_config = types.ImportRagFilesConfig.model_validate(import_config)
+
+        if import_config.gcs_source is not None:
+            for uri in import_config.gcs_source.uris:
+                if not _gcs_utils.GcsUtils(self._api_client)._verify_bucket_ownership(
+                    bucket_name=uri.split("/")[2],
+                    expected_project=self._api_client.project,
+                ):
+                    raise ValueError(
+                        f"Bucket {uri} does not belong to"
+                        f" project {self._api_client.project}."
+                    )
+
+        operation = await self._import_files(
+            name=name,
+            import_rag_files_request=types.ImportRagFilesRequest(
+                import_rag_files_config=import_config
+            ),
+            config=config,
+        )
+
+        operation = await _operations_utils.await_operation_async(
+            operation_name=operation.name,
+            get_operation_fn=self._get_import_files_operation,
+        )
+
+        if operation.error:
+            raise RuntimeError(
+                f"Failed to import files into RagCorpus: {operation.error}"
+            )
+
+        return operation.response
+
+    async def upload_file(
+        self,
+        *,
+        corpus_name: str,
+        path: str,
+        display_name: Optional[str] = None,
+        upload_rag_file_config: Optional[types.UploadRagFileConfigOrDict] = None,
+        request_config: Optional[types.UploadRagFileRequestConfigOrDict] = None,
+    ) -> types.RagFile:
+        """
+        Uploads a file to a RAG Corpus.
+
+        Args:
+          corpus_name: The name of the RAG Corpus to upload to.
+          path: The path to the file to upload.
+          display_name: Optional. The display name for the uploaded file. If not provided, a display name will be generated.
+          upload_rag_file_config: Optional. The configuration to use for the upload.
+          request_config: Optional. The configuration to use for the request.
+
+        Returns:
+          The uploaded RagFile.
+        """
+
+        if not display_name:
+            display_name = f"file_{_common.timestamped_unique_name()}"
+
+        rag_file = types.RagFile(display_name=display_name)
+
+        mime_type, _ = mimetypes.guess_type(path)
+
+        if mime_type is None:
+            mime_type = "application/octet-stream"
+
+        http_options, size_bytes, mime_type = _extra_utils.prepare_resumable_upload(
+            path,
+            user_http_options=request_config.http_options if request_config else None,
+            user_mime_type=mime_type,
+        )
+
+        current_api_version = self._api_client._http_options.api_version or "v1beta1"
+        upload_api_version = f"upload/{current_api_version}"
+
+        http_options.api_version = upload_api_version
+
+        parameter_model = types._UploadRagFileParameters(
+            name=corpus_name,
+            rag_file=rag_file,
+            upload_rag_file_config=upload_rag_file_config,
+        )
+        request_dict = _UploadRagFileParameters_to_vertex(parameter_model)
+
+        request_dict.pop("_url", None)
+        request_dict.pop("_query", None)
+
+        request_path = f"{corpus_name}/ragFiles:upload"
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "post",
+            request_path,
+            request_dict,
+            http_options,
+        )
+
+        if response.headers is None or (
+            "x-goog-upload-url" not in response.headers
+            and "X-Goog-Upload-URL" not in response.headers
+        ):
+            raise KeyError(
+                "Failed to create file. Upload URL was not returned from the create file request."
+            )
+
+        upload_url = response.headers.get(
+            "x-goog-upload-url", response.headers.get("X-Goog-Upload-URL")
+        )
+
+        fs_path = os.fspath(path)
+        return_file = await self._api_client.async_upload_file(
+            fs_path, upload_url, size_bytes, http_options=http_options
+        )
+
+        rag_file_payload = return_file.json.get("ragFile") or return_file.json.get(
+            "rag_file", {}
+        )
+        return types.RagFile(**rag_file_payload)

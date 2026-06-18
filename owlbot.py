@@ -118,18 +118,16 @@ if has_generator_updates:
             ".kokoro/release.sh",
             ".kokoro/release/common.cfg",
             ".kokoro/requirements*",
+            # exclude sample configs so they are tested against main
+            # instead of pypi
+            ".kokoro/samples/lint/**",
             ".kokoro/samples/python3.7/**",
             ".kokoro/samples/python3.8/**",
-            # exclude sample configs so periodic samples are tested against main
-            # instead of pypi
-            ".kokoro/samples/python3.10/common.cfg",
-            ".kokoro/samples/python3.11/common.cfg",
-            ".kokoro/samples/python3.12/common.cfg",
-            ".kokoro/samples/python3.13/common.cfg",
-            ".kokoro/samples/python3.10/periodic.cfg",
-            ".kokoro/samples/python3.11/periodic.cfg",
-            ".kokoro/samples/python3.12/periodic.cfg",
-            ".kokoro/samples/python3.13/periodic.cfg",
+            ".kokoro/samples/python3.9/**",
+            ".kokoro/samples/python3.10/**",
+            ".kokoro/samples/python3.11/**",
+            ".kokoro/samples/python3.12/**",
+            ".kokoro/samples/python3.13/**",
             ".github/auto-label.yaml",
             ".github/blunderbuss.yml",
             ".github/CODEOWNERS",

@@ -34,19 +34,21 @@ def test_ask_contexts(client):
             text="earnings",
             similarity_top_k=5,
         ),
-        tools=[
-            genai_types.Tool(
-                retrieval=genai_types.Retrieval(
-                    vertex_rag_store=genai_types.VertexRagStore(
-                        rag_resources=[
-                            genai_types.VertexRagStoreRagResource(
-                                rag_corpus="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2305843009213693952"
-                            )
-                        ]
+        config=types.AskContextsConfig(
+            tools=[
+                genai_types.Tool(
+                    retrieval=genai_types.Retrieval(
+                        vertex_rag_store=genai_types.VertexRagStore(
+                            rag_resources=[
+                                genai_types.VertexRagStoreRagResource(
+                                    rag_corpus="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2305843009213693952"
+                                )
+                            ]
+                        )
                     )
                 )
-            )
-        ],
+            ],
+        ),
     )
 
     assert isinstance(rag_contexts, types.AskContextsResponse)
@@ -63,19 +65,21 @@ async def test_ask_contexts_async(client):
             text="Grounding query",
             similarity_top_k=5,
         ),
-        tools=[
-            genai_types.Tool(
-                retrieval=genai_types.Retrieval(
-                    vertex_rag_store=genai_types.VertexRagStore(
-                        rag_resources=[
-                            genai_types.VertexRagStoreRagResource(
-                                rag_corpus="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2305843009213693952"
-                            )
-                        ]
+        config=types.AskContextsConfig(
+            tools=[
+                genai_types.Tool(
+                    retrieval=genai_types.Retrieval(
+                        vertex_rag_store=genai_types.VertexRagStore(
+                            rag_resources=[
+                                genai_types.VertexRagStoreRagResource(
+                                    rag_corpus="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/2305843009213693952"
+                                )
+                            ]
+                        )
                     )
                 )
-            )
-        ],
+            ],
+        ),
     )
 
     assert isinstance(rag_contexts, types.AskContextsResponse)
