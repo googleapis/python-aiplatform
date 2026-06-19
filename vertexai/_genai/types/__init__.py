@@ -443,6 +443,10 @@ from .common import EvaluateMethodConfigOrDict
 from .common import EvaluationDataset
 from .common import EvaluationDatasetDict
 from .common import EvaluationDatasetOrDict
+from .common import EvaluationExperiment
+from .common import EvaluationExperimentDict
+from .common import EvaluationExperimentMergeStrategy
+from .common import EvaluationExperimentOrDict
 from .common import EvaluationInstance
 from .common import EvaluationInstanceDict
 from .common import EvaluationInstanceOrDict
@@ -2634,6 +2638,10 @@ __all__ = [
     "EvaluateMethodConfig",
     "EvaluateMethodConfigDict",
     "EvaluateMethodConfigOrDict",
+    "EvaluationExperiment",
+    "EvaluationExperimentDict",
+    "EvaluationExperimentOrDict",
+    "EvaluationExperimentMergeStrategy",
     "EvaluateDatasetConfig",
     "EvaluateDatasetConfigDict",
     "EvaluateDatasetConfigOrDict",

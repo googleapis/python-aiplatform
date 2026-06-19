@@ -505,6 +505,10 @@ from .common import EvaluateMethodConfigOrDict
 from .common import EvaluationDataset
 from .common import EvaluationDatasetDict
 from .common import EvaluationDatasetOrDict
+from .common import EvaluationExperiment
+from .common import EvaluationExperimentDict
+from .common import EvaluationExperimentMergeStrategy
+from .common import EvaluationExperimentOrDict
 from .common import EvaluationInstance
 from .common import EvaluationInstanceDict
 from .common import EvaluationInstanceOrDict
@@ -3284,6 +3288,9 @@ __all__ = [
     "ObservabilityEvalCase",
     "ObservabilityEvalCaseDict",
     "ObservabilityEvalCaseOrDict",
+    "EvaluationExperiment",
+    "EvaluationExperimentDict",
+    "EvaluationExperimentOrDict",
     "RubricGroup",
     "RubricGroupDict",
     "RubricGroupOrDict",
@@ -3380,6 +3387,7 @@ __all__ = [
     "GenerateMemoriesResponseGeneratedMemoryAction",
     "SkillRevisionState",
     "PromptOptimizerMethod",
+    "EvaluationExperimentMergeStrategy",
     "OptimizationMethod",
     "PromptData",
     "PromptDataDict",
