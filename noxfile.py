@@ -220,9 +220,9 @@ def default(session):
         "auto",  # Use all available CPU cores
         "--quiet",
         "--durations=50",
-        # Suppress redundant deprecation warnings to reduce JUnit XML size.
+        # Suppress all warnings to reduce JUnit XML size.
         "-W",
-        "ignore:You are using a Python version (3.10.19):FutureWarning",
+        "ignore",
         # Disable capturing stdout/stderr for passed tests to reduce XML bloat.
         "-o",
         "junit_log_passing_tests=False",
