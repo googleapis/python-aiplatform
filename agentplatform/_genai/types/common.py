@@ -1550,7 +1550,7 @@ class CandidateResponse(_common.BaseModel):
     )
     agent_data: Optional[evals_types.AgentData] = Field(
         default=None,
-        description="""Represents the complete execution trace of an anget conversation,
+        description="""Represents the complete execution trace of an agent conversation,
       which can involve single or multiple agents. This field is used to
       provide the full output of an agent's run, including all turns and
       events, for direct evaluation.""",
@@ -1573,7 +1573,7 @@ class CandidateResponseDict(TypedDict, total=False):
     """Intermediate events (such as tool calls and responses) that led to the final response."""
 
     agent_data: Optional[evals_types.AgentData]
-    """Represents the complete execution trace of an anget conversation,
+    """Represents the complete execution trace of an agent conversation,
       which can involve single or multiple agents. This field is used to
       provide the full output of an agent's run, including all turns and
       events, for direct evaluation."""
@@ -1637,7 +1637,7 @@ class EvaluationItemResult(_common.BaseModel):
         default=None, description="""The metric that was evaluated."""
     )
     candidate_results: Optional[list[evals_types.CandidateResult]] = Field(
-        default=None, description="""TThe results for the metric."""
+        default=None, description="""The results for the metric."""
     )
     metadata: Optional[dict[str, Any]] = Field(
         default=None, description="""Metadata about the evaluation result."""
@@ -1660,7 +1660,7 @@ class EvaluationItemResultDict(TypedDict, total=False):
     """The metric that was evaluated."""
 
     candidate_results: Optional[list[evals_types.CandidateResult]]
-    """TThe results for the metric."""
+    """The results for the metric."""
 
     metadata: Optional[dict[str, Any]]
     """Metadata about the evaluation result."""
@@ -9707,7 +9707,7 @@ class _CreateAgentEngineMemoryRequestParameters(_common.BaseModel):
 
       Memories are isolated within their scope. The scope is defined when
       creating or generating memories. Up to 5 key-value pairs are accepted,
-      andscope values cannot contain the wildcard character '*'.""",
+      and scope values cannot contain the wildcard character '*'.""",
     )
     config: Optional[AgentEngineMemoryConfig] = Field(default=None, description="""""")
 
@@ -9728,7 +9728,7 @@ class _CreateAgentEngineMemoryRequestParametersDict(TypedDict, total=False):
 
       Memories are isolated within their scope. The scope is defined when
       creating or generating memories. Up to 5 key-value pairs are accepted,
-      andscope values cannot contain the wildcard character '*'."""
+      and scope values cannot contain the wildcard character '*'."""
 
     config: Optional[AgentEngineMemoryConfigDict]
     """"""
