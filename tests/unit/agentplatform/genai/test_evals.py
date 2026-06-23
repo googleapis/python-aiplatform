@@ -5836,14 +5836,10 @@ class TestAgentInfo:
         assert agent_info.agents["agent1"].description == "description1"
         assert agent_info.agents["agent1"].tools == [tool]
 
-    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
-    def test_load_from_agent(self, mock_from_callable):
+    def test_load_from_agent(self):
         def my_search_tool(query: str) -> str:
             """Searches for information."""
             return f"search result for {query}"
-
-        mock_function_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
-        mock_from_callable.return_value = mock_function_declaration
 
         mock_agent = mock.Mock()
         mock_agent.name = "mock_agent"
@@ -5861,10 +5857,11 @@ class TestAgentInfo:
         assert agent_info.agents["mock_agent"].description == "mock description"
         assert len(agent_info.agents["mock_agent"].tools) == 1
         assert isinstance(agent_info.agents["mock_agent"].tools[0], genai_types.Tool)
-        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
-            mock_function_declaration
-        ]
-        mock_from_callable.assert_called_once_with(callable=my_search_tool)
+        declarations = agent_info.agents["mock_agent"].tools[0].function_declarations
+        assert len(declarations) == 1
+        assert isinstance(declarations[0], genai_types.FunctionDeclaration)
+        assert declarations[0].name == "my_search_tool"
+        assert declarations[0].description == "Searches for information."
 
     def test_load_from_agent_with_get_declaration_tool(self):
         """Tests that tools with _get_declaration() use it instead of from_callable."""
@@ -5887,13 +5884,12 @@ class TestAgentInfo:
         assert agent_info.name == "mock_agent"
         assert len(agent_info.agents["mock_agent"].tools) == 1
         assert isinstance(agent_info.agents["mock_agent"].tools[0], genai_types.Tool)
-        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
-            mock_declaration
-        ]
+        declarations = agent_info.agents["mock_agent"].tools[0].function_declarations
+        assert len(declarations) == 1
+        assert declarations[0] is mock_declaration
         mock_tool._get_declaration.assert_called_once()
 
-    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
-    def test_load_from_agent_with_mixed_tools(self, mock_from_callable):
+    def test_load_from_agent_with_mixed_tools(self):
         """Tests agents with both _get_declaration tools and plain callables."""
 
         def my_plain_tool(query: str) -> str:
@@ -5903,9 +5899,6 @@ class TestAgentInfo:
         mock_adk_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
         mock_adk_tool = mock.Mock()
         mock_adk_tool._get_declaration = mock.Mock(return_value=mock_adk_declaration)
-
-        mock_callable_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
-        mock_from_callable.return_value = mock_callable_declaration
 
         mock_agent = mock.Mock()
         mock_agent.name = "mock_agent"
@@ -5920,15 +5913,15 @@ class TestAgentInfo:
 
         assert len(agent_info.agents["mock_agent"].tools) == 2
         # First tool: ADK tool with _get_declaration
-        assert agent_info.agents["mock_agent"].tools[0].function_declarations == [
-            mock_adk_declaration
-        ]
+        adk_declarations = agent_info.agents["mock_agent"].tools[0].function_declarations
+        assert len(adk_declarations) == 1
+        assert adk_declarations[0] is mock_adk_declaration
         mock_adk_tool._get_declaration.assert_called_once()
-        # Second tool: plain callable via from_callable_with_api_option
-        assert agent_info.agents["mock_agent"].tools[1].function_declarations == [
-            mock_callable_declaration
-        ]
-        mock_from_callable.assert_called_once_with(callable=my_plain_tool)
+        # Second tool: plain callable converted to FunctionDeclaration
+        plain_declarations = agent_info.agents["mock_agent"].tools[1].function_declarations
+        assert len(plain_declarations) == 1
+        assert isinstance(plain_declarations[0], genai_types.FunctionDeclaration)
+        assert plain_declarations[0].name == "my_plain_tool"
 
     def test_load_from_agent_with_none_declaration_is_skipped(self):
         """Tools whose _get_declaration() returns None are skipped, not introspected."""
@@ -5980,14 +5973,10 @@ class TestAgentInfo:
 
         assert agent_info.agents["mock_agent"].tools == []
 
-    @mock.patch.object(genai_types.FunctionDeclaration, "from_callable_with_api_option")
-    def test_load_from_agent_workflow_root_without_tools(self, mock_from_callable):
+    def test_load_from_agent_workflow_root_without_tools(self):
         def my_search_tool(query: str) -> str:
             """Searches for information."""
             return f"search result for {query}"
-
-        mock_function_declaration = mock.Mock(spec=genai_types.FunctionDeclaration)
-        mock_from_callable.return_value = mock_function_declaration
 
         leaf_agent = mock.Mock()
         leaf_agent.name = "leaf"
@@ -6009,9 +5998,10 @@ class TestAgentInfo:
         assert agent_info.root_agent_id == "pipeline"
         assert agent_info.agents["pipeline"].tools == []
         assert len(agent_info.agents["leaf"].tools) == 1
-        assert agent_info.agents["leaf"].tools[0].function_declarations == [
-            mock_function_declaration
-        ]
+        declarations = agent_info.agents["leaf"].tools[0].function_declarations
+        assert len(declarations) == 1
+        assert isinstance(declarations[0], genai_types.FunctionDeclaration)
+        assert declarations[0].name == "my_search_tool"
 
     def test_load_from_agent_plain_callable_wraps_in_adk_function_tool(self):
         """Plain callables with ToolContext params are declared via ADK FunctionTool."""
