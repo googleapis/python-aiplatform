@@ -220,9 +220,9 @@ def default(session):
         "auto",  # Use all available CPU cores
         "--quiet",
         "--durations=50",
-        # Suppress all warnings to reduce JUnit XML size.
-        "-W",
-        "ignore",
+        # Disable the warnings plugin entirely to reduce JUnit XML size.
+        "-p",
+        "no:warnings",
         # Disable capturing stdout/stderr for passed tests to reduce XML bloat.
         "-o",
         "junit_log_passing_tests=False",
