@@ -668,12 +668,38 @@ class PublisherModelConfig(proto.Message):
         logging_config (google.cloud.aiplatform_v1beta1.types.PredictRequestResponseLoggingConfig):
             The prediction request/response logging
             config.
+        data_sharing_enabled_provider (google.cloud.aiplatform_v1beta1.types.PublisherModelConfig.ModelProvider):
+            Optional. The model provider (publisher) for
+            which the customer has enabled data sharing. For
+            publisher models that are configured to require
+            data sharing, a prediction request is only
+            allowed when the model's publisher matches this
+            provider. Otherwise, the request is rejected.
     """
+
+    class ModelProvider(proto.Enum):
+        r"""A model provider (publisher) that prediction data may be
+        shared with.
+
+        Values:
+            MODEL_PROVIDER_UNSPECIFIED (0):
+                Unspecified model provider.
+            ANTHROPIC (1):
+                Anthropic.
+        """
+
+        MODEL_PROVIDER_UNSPECIFIED = 0
+        ANTHROPIC = 1
 
     logging_config: "PredictRequestResponseLoggingConfig" = proto.Field(
         proto.MESSAGE,
         number=3,
         message="PredictRequestResponseLoggingConfig",
+    )
+    data_sharing_enabled_provider: ModelProvider = proto.Field(
+        proto.ENUM,
+        number=4,
+        enum=ModelProvider,
     )
 
 
