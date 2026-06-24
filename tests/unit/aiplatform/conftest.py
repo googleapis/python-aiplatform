@@ -62,8 +62,13 @@ from google.cloud.aiplatform.compat.services import (
 @pytest.fixture(scope="module")
 def google_auth_mock():
     with mock.patch.object(auth, "default") as google_auth_mock:
+        creds = auth_credentials.AnonymousCredentials()
+        try:
+            creds._universe_domain = "googleapis.com"
+        except AttributeError:
+            pass
         google_auth_mock.return_value = (
-            auth_credentials.AnonymousCredentials(),
+            creds,
             "test-project",
         )
         yield google_auth_mock
