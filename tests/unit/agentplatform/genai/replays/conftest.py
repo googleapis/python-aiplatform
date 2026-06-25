@@ -272,10 +272,15 @@ def client(use_vertex, replays_prefix, http_options, request):
     if http_options.headers is None:
         http_options.headers = {}
 
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    location = os.environ.get("GOOGLE_CLOUD_LOCATION")
+
     replay_client = _replay_api_client.ReplayApiClient(
         mode=mode,
         replay_id=replay_id,
         vertexai=use_vertex,
+        project=project,
+        location=location,
         http_options=http_options,
     )
 

@@ -431,6 +431,51 @@ class SkillSource(_common.CaseInSensitiveEnum):
     """The skill is a system skill."""
 
 
+class LaunchStage(_common.CaseInSensitiveEnum):
+    """Indicates the launch stage of the model."""
+
+    LAUNCH_STAGE_UNSPECIFIED = "LAUNCH_STAGE_UNSPECIFIED"
+    """The model launch stage is unspecified."""
+    EXPERIMENTAL = "EXPERIMENTAL"
+    """Used to indicate the PublisherModel is at Experimental launch stage, available to a small set of customers."""
+    PRIVATE_PREVIEW = "PRIVATE_PREVIEW"
+    """Used to indicate the PublisherModel is at Private Preview launch stage, only available to a small set of customers, although a larger set of customers than an Experimental launch. Previews are the first launch stage used to get feedback from customers."""
+    PUBLIC_PREVIEW = "PUBLIC_PREVIEW"
+    """Used to indicate the PublisherModel is at Public Preview launch stage, available to all customers, although not supported for production workloads."""
+    GA = "GA"
+    """Used to indicate the PublisherModel is at GA launch stage, available to all customers and ready for production workload."""
+
+
+class OpenSourceCategory(_common.CaseInSensitiveEnum):
+    """Indicates the open source category of the publisher model."""
+
+    OPEN_SOURCE_CATEGORY_UNSPECIFIED = "OPEN_SOURCE_CATEGORY_UNSPECIFIED"
+    """The open source category is unspecified, which should not be used."""
+    PROPRIETARY = "PROPRIETARY"
+    """Used to indicate the PublisherModel is not open sourced."""
+    GOOGLE_OWNED_OSS_WITH_GOOGLE_CHECKPOINT = "GOOGLE_OWNED_OSS_WITH_GOOGLE_CHECKPOINT"
+    """Used to indicate the PublisherModel is a Google-owned open source model w/ Google checkpoint."""
+    THIRD_PARTY_OWNED_OSS_WITH_GOOGLE_CHECKPOINT = (
+        "THIRD_PARTY_OWNED_OSS_WITH_GOOGLE_CHECKPOINT"
+    )
+    """Used to indicate the PublisherModel is a 3p-owned open source model w/ Google checkpoint."""
+    GOOGLE_OWNED_OSS = "GOOGLE_OWNED_OSS"
+    """Used to indicate the PublisherModel is a Google-owned pure open source model."""
+    THIRD_PARTY_OWNED_OSS = "THIRD_PARTY_OWNED_OSS"
+    """Used to indicate the PublisherModel is a 3p-owned pure open source model."""
+
+
+class VersionState(_common.CaseInSensitiveEnum):
+    """Indicates the state of the model version."""
+
+    VERSION_STATE_UNSPECIFIED = "VERSION_STATE_UNSPECIFIED"
+    """The version state is unspecified."""
+    VERSION_STATE_STABLE = "VERSION_STATE_STABLE"
+    """Used to indicate the version is stable."""
+    VERSION_STATE_UNSTABLE = "VERSION_STATE_UNSTABLE"
+    """Used to indicate the version is unstable."""
+
+
 class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The type of the EvaluationItem."""
 
@@ -22485,6 +22530,1273 @@ ListSkillRevisionsResponseOrDict = Union[
 ]
 
 
+class ListPublisherModelsConfig(_common.BaseModel):
+    """Config for listing publisher models."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None, description="""Filter string for publisher models."""
+    )
+    list_all_versions: Optional[bool] = Field(
+        default=None, description="""Whether to list all versions."""
+    )
+
+
+class ListPublisherModelsConfigDict(TypedDict, total=False):
+    """Config for listing publisher models."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """Filter string for publisher models."""
+
+    list_all_versions: Optional[bool]
+    """Whether to list all versions."""
+
+
+ListPublisherModelsConfigOrDict = Union[
+    ListPublisherModelsConfig, ListPublisherModelsConfigDict
+]
+
+
+class _ListPublisherModelsRequestParameters(_common.BaseModel):
+    """Parameters for listing publisher models."""
+
+    parent: Optional[str] = Field(default=None, description="""""")
+    config: Optional[ListPublisherModelsConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListPublisherModelsRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing publisher models."""
+
+    parent: Optional[str]
+    """"""
+
+    config: Optional[ListPublisherModelsConfigDict]
+    """"""
+
+
+_ListPublisherModelsRequestParametersOrDict = Union[
+    _ListPublisherModelsRequestParameters, _ListPublisherModelsRequestParametersDict
+]
+
+
+class PublisherModelResourceReference(_common.BaseModel):
+    """Reference to a resource."""
+
+    description: Optional[str] = Field(
+        default=None, description="""Description of the resource."""
+    )
+    resource_name: Optional[str] = Field(
+        default=None, description="""The resource name of the Google Cloud resource."""
+    )
+    uri: Optional[str] = Field(default=None, description="""The URI of the resource.""")
+    use_case: Optional[str] = Field(
+        default=None, description="""Use case (CUJ) of the resource."""
+    )
+
+
+class PublisherModelResourceReferenceDict(TypedDict, total=False):
+    """Reference to a resource."""
+
+    description: Optional[str]
+    """Description of the resource."""
+
+    resource_name: Optional[str]
+    """The resource name of the Google Cloud resource."""
+
+    uri: Optional[str]
+    """The URI of the resource."""
+
+    use_case: Optional[str]
+    """Use case (CUJ) of the resource."""
+
+
+PublisherModelResourceReferenceOrDict = Union[
+    PublisherModelResourceReference, PublisherModelResourceReferenceDict
+]
+
+
+class PublisherModelParent(_common.BaseModel):
+    """The information about the parent of a model."""
+
+    display_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The display name of the parent. E.g., LaMDA, T5, Vision API, Natural Language API.""",
+    )
+    reference: Optional[PublisherModelResourceReference] = Field(
+        default=None,
+        description="""Optional. The Google Cloud resource name or the URI reference.""",
+    )
+
+
+class PublisherModelParentDict(TypedDict, total=False):
+    """The information about the parent of a model."""
+
+    display_name: Optional[str]
+    """Required. The display name of the parent. E.g., LaMDA, T5, Vision API, Natural Language API."""
+
+    reference: Optional[PublisherModelResourceReferenceDict]
+    """Optional. The Google Cloud resource name or the URI reference."""
+
+
+PublisherModelParentOrDict = Union[PublisherModelParent, PublisherModelParentDict]
+
+
+class PredictSchemata(_common.BaseModel):
+    """Contains the schemata used in Model's predictions and explanations via PredictionService.Predict, PredictionService.Explain and BatchPredictionJob."""
+
+    instance_schema_uri: Optional[str] = Field(
+        default=None,
+        description="""Immutable. Points to a YAML file stored on Google Cloud Storage describing the format of a single instance, which are used in PredictRequest.instances, ExplainRequest.instances and BatchPredictionJob.input_config. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML Models always have this field populated by Vertex AI. Note: The URI given on output will be immutable and probably different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access.""",
+    )
+    parameters_schema_uri: Optional[str] = Field(
+        default=None,
+        description="""Immutable. Points to a YAML file stored on Google Cloud Storage describing the parameters of prediction and explanation via PredictRequest.parameters, ExplainRequest.parameters and BatchPredictionJob.model_parameters. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML Models always have this field populated by Vertex AI, if no parameters are supported, then it is set to an empty string. Note: The URI given on output will be immutable and probably different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access.""",
+    )
+    prediction_schema_uri: Optional[str] = Field(
+        default=None,
+        description="""Immutable. Points to a YAML file stored on Google Cloud Storage describing the format of a single prediction produced by this Model, which are returned via PredictResponse.predictions, ExplainResponse.explanations, and BatchPredictionJob.output_config. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML Models always have this field populated by Vertex AI. Note: The URI given on output will be immutable and probably different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access.""",
+    )
+
+
+class PredictSchemataDict(TypedDict, total=False):
+    """Contains the schemata used in Model's predictions and explanations via PredictionService.Predict, PredictionService.Explain and BatchPredictionJob."""
+
+    instance_schema_uri: Optional[str]
+    """Immutable. Points to a YAML file stored on Google Cloud Storage describing the format of a single instance, which are used in PredictRequest.instances, ExplainRequest.instances and BatchPredictionJob.input_config. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML Models always have this field populated by Vertex AI. Note: The URI given on output will be immutable and probably different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access."""
+
+    parameters_schema_uri: Optional[str]
+    """Immutable. Points to a YAML file stored on Google Cloud Storage describing the parameters of prediction and explanation via PredictRequest.parameters, ExplainRequest.parameters and BatchPredictionJob.model_parameters. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML Models always have this field populated by Vertex AI, if no parameters are supported, then it is set to an empty string. Note: The URI given on output will be immutable and probably different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access."""
+
+    prediction_schema_uri: Optional[str]
+    """Immutable. Points to a YAML file stored on Google Cloud Storage describing the format of a single prediction produced by this Model, which are returned via PredictResponse.predictions, ExplainResponse.explanations, and BatchPredictionJob.output_config. The schema is defined as an OpenAPI 3.0.2 [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.2.md#schemaObject). AutoML Models always have this field populated by Vertex AI. Note: The URI given on output will be immutable and probably different, including the URI scheme, than the one given on input. The output URI will point to a location where the user only has a read access."""
+
+
+PredictSchemataOrDict = Union[PredictSchemata, PredictSchemataDict]
+
+
+class PublisherModelCallToActionRegionalResourceReferences(_common.BaseModel):
+    """The regional resource name or the URI. Key is region, e.g., us-central1, europe-west2, global, etc.."""
+
+    colab_notebook_disabled: Optional[bool] = Field(
+        default=None,
+        description="""Optional. For notebook resource. When set to true, the Colab Enterprise link will be disabled in the "open notebook" dialog in UI.""",
+    )
+    references: Optional[dict[str, PublisherModelResourceReference]] = Field(
+        default=None, description="""Required."""
+    )
+    resource_description: Optional[str] = Field(
+        default=None, description="""Optional. Description of the resource."""
+    )
+    resource_title: Optional[str] = Field(
+        default=None, description="""Optional. Title of the resource."""
+    )
+    resource_use_case: Optional[str] = Field(
+        default=None, description="""Optional. Use case (CUJ) of the resource."""
+    )
+    supports_workbench: Optional[bool] = Field(
+        default=None,
+        description="""Optional. For notebook resource, whether the notebook supports Workbench.""",
+    )
+    title: Optional[str] = Field(default=None, description="""Required. """)
+
+
+class PublisherModelCallToActionRegionalResourceReferencesDict(TypedDict, total=False):
+    """The regional resource name or the URI. Key is region, e.g., us-central1, europe-west2, global, etc.."""
+
+    colab_notebook_disabled: Optional[bool]
+    """Optional. For notebook resource. When set to true, the Colab Enterprise link will be disabled in the "open notebook" dialog in UI."""
+
+    references: Optional[dict[str, PublisherModelResourceReferenceDict]]
+    """Required."""
+
+    resource_description: Optional[str]
+    """Optional. Description of the resource."""
+
+    resource_title: Optional[str]
+    """Optional. Title of the resource."""
+
+    resource_use_case: Optional[str]
+    """Optional. Use case (CUJ) of the resource."""
+
+    supports_workbench: Optional[bool]
+    """Optional. For notebook resource, whether the notebook supports Workbench."""
+
+    title: Optional[str]
+    """Required. """
+
+
+PublisherModelCallToActionRegionalResourceReferencesOrDict = Union[
+    PublisherModelCallToActionRegionalResourceReferences,
+    PublisherModelCallToActionRegionalResourceReferencesDict,
+]
+
+
+class AutomaticResources(_common.BaseModel):
+    """A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration. Each Model supporting these resources documents its specific guidelines."""
+
+    max_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number.""",
+    )
+    min_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Immutable. The minimum number of replicas that will be always deployed on. If traffic against it increases, it may dynamically be deployed onto more replicas up to max_replica_count, and as traffic decreases, some of these extra replicas may be freed. If the requested value is too large, the deployment will error.""",
+    )
+
+
+class AutomaticResourcesDict(TypedDict, total=False):
+    """A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration. Each Model supporting these resources documents its specific guidelines."""
+
+    max_replica_count: Optional[int]
+    """Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number."""
+
+    min_replica_count: Optional[int]
+    """Immutable. The minimum number of replicas that will be always deployed on. If traffic against it increases, it may dynamically be deployed onto more replicas up to max_replica_count, and as traffic decreases, some of these extra replicas may be freed. If the requested value is too large, the deployment will error."""
+
+
+AutomaticResourcesOrDict = Union[AutomaticResources, AutomaticResourcesDict]
+
+
+class Port(_common.BaseModel):
+    """Represents a network port in a container."""
+
+    container_port: Optional[int] = Field(
+        default=None,
+        description="""The number of the port to expose on the pod's IP address. Must be a valid port number, between 1 and 65535 inclusive.""",
+    )
+
+
+class PortDict(TypedDict, total=False):
+    """Represents a network port in a container."""
+
+    container_port: Optional[int]
+    """The number of the port to expose on the pod's IP address. Must be a valid port number, between 1 and 65535 inclusive."""
+
+
+PortOrDict = Union[Port, PortDict]
+
+
+class ProbeExecAction(_common.BaseModel):
+    """ExecAction specifies a command to execute."""
+
+    command: Optional[list[str]] = Field(
+        default=None,
+        description="""Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy.""",
+    )
+
+
+class ProbeExecActionDict(TypedDict, total=False):
+    """ExecAction specifies a command to execute."""
+
+    command: Optional[list[str]]
+    """Command is the command line to execute inside the container, the working directory for the command is root ('/') in the container's filesystem. The command is simply exec'd, it is not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use a shell, you need to explicitly call out to that shell. Exit status of 0 is treated as live/healthy and non-zero is unhealthy."""
+
+
+ProbeExecActionOrDict = Union[ProbeExecAction, ProbeExecActionDict]
+
+
+class ProbeGrpcAction(_common.BaseModel):
+    """GrpcAction checks the health of a container using a gRPC service."""
+
+    port: Optional[int] = Field(
+        default=None,
+        description="""Port number of the gRPC service. Number must be in the range 1 to 65535.""",
+    )
+    service: Optional[str] = Field(
+        default=None,
+        description="""Service is the name of the service to place in the gRPC HealthCheckRequest. See https://github.com/grpc/grpc/blob/master/doc/health-checking.md. If this is not specified, the default behavior is defined by gRPC.""",
+    )
+
+
+class ProbeGrpcActionDict(TypedDict, total=False):
+    """GrpcAction checks the health of a container using a gRPC service."""
+
+    port: Optional[int]
+    """Port number of the gRPC service. Number must be in the range 1 to 65535."""
+
+    service: Optional[str]
+    """Service is the name of the service to place in the gRPC HealthCheckRequest. See https://github.com/grpc/grpc/blob/master/doc/health-checking.md. If this is not specified, the default behavior is defined by gRPC."""
+
+
+ProbeGrpcActionOrDict = Union[ProbeGrpcAction, ProbeGrpcActionDict]
+
+
+class ProbeHttpHeader(_common.BaseModel):
+    """HttpHeader describes a custom header to be used in HTTP probes"""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header.""",
+    )
+    value: Optional[str] = Field(default=None, description="""The header field value""")
+
+
+class ProbeHttpHeaderDict(TypedDict, total=False):
+    """HttpHeader describes a custom header to be used in HTTP probes"""
+
+    name: Optional[str]
+    """The header field name. This will be canonicalized upon output, so case-variant names will be understood as the same header."""
+
+    value: Optional[str]
+    """The header field value"""
+
+
+ProbeHttpHeaderOrDict = Union[ProbeHttpHeader, ProbeHttpHeaderDict]
+
+
+class ProbeHttpGetAction(_common.BaseModel):
+    """HttpGetAction describes an action based on HTTP Get requests."""
+
+    host: Optional[str] = Field(
+        default=None,
+        description="""Host name to connect to, defaults to the model serving container's IP. You probably want to set "Host" in httpHeaders instead.""",
+    )
+    http_headers: Optional[list[ProbeHttpHeader]] = Field(
+        default=None,
+        description="""Custom headers to set in the request. HTTP allows repeated headers.""",
+    )
+    path: Optional[str] = Field(
+        default=None, description="""Path to access on the HTTP server."""
+    )
+    port: Optional[int] = Field(
+        default=None,
+        description="""Number of the port to access on the container. Number must be in the range 1 to 65535.""",
+    )
+    scheme: Optional[str] = Field(
+        default=None,
+        description="""Scheme to use for connecting to the host. Defaults to HTTP. Acceptable values are "HTTP" or "HTTPS".""",
+    )
+
+
+class ProbeHttpGetActionDict(TypedDict, total=False):
+    """HttpGetAction describes an action based on HTTP Get requests."""
+
+    host: Optional[str]
+    """Host name to connect to, defaults to the model serving container's IP. You probably want to set "Host" in httpHeaders instead."""
+
+    http_headers: Optional[list[ProbeHttpHeaderDict]]
+    """Custom headers to set in the request. HTTP allows repeated headers."""
+
+    path: Optional[str]
+    """Path to access on the HTTP server."""
+
+    port: Optional[int]
+    """Number of the port to access on the container. Number must be in the range 1 to 65535."""
+
+    scheme: Optional[str]
+    """Scheme to use for connecting to the host. Defaults to HTTP. Acceptable values are "HTTP" or "HTTPS"."""
+
+
+ProbeHttpGetActionOrDict = Union[ProbeHttpGetAction, ProbeHttpGetActionDict]
+
+
+class ProbeTcpSocketAction(_common.BaseModel):
+    """TcpSocketAction probes the health of a container by opening a TCP socket connection."""
+
+    host: Optional[str] = Field(
+        default=None,
+        description="""Optional: Host name to connect to, defaults to the model serving container's IP.""",
+    )
+    port: Optional[int] = Field(
+        default=None,
+        description="""Number of the port to access on the container. Number must be in the range 1 to 65535.""",
+    )
+
+
+class ProbeTcpSocketActionDict(TypedDict, total=False):
+    """TcpSocketAction probes the health of a container by opening a TCP socket connection."""
+
+    host: Optional[str]
+    """Optional: Host name to connect to, defaults to the model serving container's IP."""
+
+    port: Optional[int]
+    """Number of the port to access on the container. Number must be in the range 1 to 65535."""
+
+
+ProbeTcpSocketActionOrDict = Union[ProbeTcpSocketAction, ProbeTcpSocketActionDict]
+
+
+class Probe(_common.BaseModel):
+    """Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."""
+
+    exec: Optional[ProbeExecAction] = Field(
+        default=None,
+        description="""ExecAction probes the health of a container by executing a command.""",
+    )
+    failure_threshold: Optional[int] = Field(
+        default=None,
+        description="""Number of consecutive failures before the probe is considered failed. Defaults to 3. Minimum value is 1. Maps to Kubernetes probe argument 'failureThreshold'.""",
+    )
+    grpc: Optional[ProbeGrpcAction] = Field(
+        default=None,
+        description="""GrpcAction probes the health of a container by sending a gRPC request.""",
+    )
+    http_get: Optional[ProbeHttpGetAction] = Field(
+        default=None,
+        description="""HttpGetAction probes the health of a container by sending an HTTP GET request.""",
+    )
+    initial_delay_seconds: Optional[int] = Field(
+        default=None,
+        description="""Number of seconds to wait before starting the probe. Defaults to 0. Minimum value is 0. Maps to Kubernetes probe argument 'initialDelaySeconds'.""",
+    )
+    period_seconds: Optional[int] = Field(
+        default=None,
+        description="""How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Must be less than timeout_seconds. Maps to Kubernetes probe argument 'periodSeconds'.""",
+    )
+    success_threshold: Optional[int] = Field(
+        default=None,
+        description="""Number of consecutive successes before the probe is considered successful. Defaults to 1. Minimum value is 1. Maps to Kubernetes probe argument 'successThreshold'.""",
+    )
+    tcp_socket: Optional[ProbeTcpSocketAction] = Field(
+        default=None,
+        description="""TcpSocketAction probes the health of a container by opening a TCP socket connection.""",
+    )
+    timeout_seconds: Optional[int] = Field(
+        default=None,
+        description="""Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Must be greater or equal to period_seconds. Maps to Kubernetes probe argument 'timeoutSeconds'.""",
+    )
+
+
+class ProbeDict(TypedDict, total=False):
+    """Probe describes a health check to be performed against a container to determine whether it is alive or ready to receive traffic."""
+
+    exec: Optional[ProbeExecActionDict]
+    """ExecAction probes the health of a container by executing a command."""
+
+    failure_threshold: Optional[int]
+    """Number of consecutive failures before the probe is considered failed. Defaults to 3. Minimum value is 1. Maps to Kubernetes probe argument 'failureThreshold'."""
+
+    grpc: Optional[ProbeGrpcActionDict]
+    """GrpcAction probes the health of a container by sending a gRPC request."""
+
+    http_get: Optional[ProbeHttpGetActionDict]
+    """HttpGetAction probes the health of a container by sending an HTTP GET request."""
+
+    initial_delay_seconds: Optional[int]
+    """Number of seconds to wait before starting the probe. Defaults to 0. Minimum value is 0. Maps to Kubernetes probe argument 'initialDelaySeconds'."""
+
+    period_seconds: Optional[int]
+    """How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Must be less than timeout_seconds. Maps to Kubernetes probe argument 'periodSeconds'."""
+
+    success_threshold: Optional[int]
+    """Number of consecutive successes before the probe is considered successful. Defaults to 1. Minimum value is 1. Maps to Kubernetes probe argument 'successThreshold'."""
+
+    tcp_socket: Optional[ProbeTcpSocketActionDict]
+    """TcpSocketAction probes the health of a container by opening a TCP socket connection."""
+
+    timeout_seconds: Optional[int]
+    """Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Must be greater or equal to period_seconds. Maps to Kubernetes probe argument 'timeoutSeconds'."""
+
+
+ProbeOrDict = Union[Probe, ProbeDict]
+
+
+class ModelContainerSpec(_common.BaseModel):
+    """Specification of a container for serving predictions. Some fields in this message correspond to fields in the [Kubernetes Container v1 core specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+
+    args: Optional[list[str]] = Field(
+        default=None,
+        description="""Immutable. Specifies arguments for the command that runs when the container starts. This overrides the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd). Specify this field as an array of executable and arguments, similar to a Docker `CMD`'s "default parameters" form. If you don't specify this field but do specify the command field, then the command from the `command` field runs without any additional arguments. See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes). If you don't specify this field and don't specify the `command` field, then the container's [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#cmd) and `CMD` determine what runs based on their default behavior. See the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact). In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field. You cannot reference environment variables set in the Docker image. In order for environment variables to be expanded, reference them by using the following syntax: $( VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses. If a variable cannot be resolved, the reference in the input string is used unchanged. To avoid variable expansion, you can escape this syntax with `$$`; for example: $$(VARIABLE_NAME) This field corresponds to the `args` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).""",
+    )
+    command: Optional[list[str]] = Field(
+        default=None,
+        description="""Immutable. Specifies the command that runs when the container starts. This overrides the container's [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint). Specify this field as an array of executable and arguments, similar to a Docker `ENTRYPOINT`'s "exec" form, not its "shell" form. If you do not specify this field, then the container's `ENTRYPOINT` runs, in conjunction with the args field or the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd), if either exists. If this field is not specified and the container does not have an `ENTRYPOINT`, then refer to the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact). If you specify this field, then you can also specify the `args` field to provide additional arguments for this command. However, if you specify this field, then the container's `CMD` is ignored. See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes). In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field. You cannot reference environment variables set in the Docker image. In order for environment variables to be expanded, reference them by using the following syntax: $( VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses. If a variable cannot be resolved, the reference in the input string is used unchanged. To avoid variable expansion, you can escape this syntax with `$$`; for example: $$(VARIABLE_NAME) This field corresponds to the `command` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).""",
+    )
+    deployment_timeout: Optional[str] = Field(
+        default=None,
+        description="""Immutable. Deployment timeout. Limit for deployment timeout is 2 hours.""",
+    )
+    env: Optional[list[EnvVar]] = Field(
+        default=None,
+        description="""Immutable. List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).""",
+    )
+    grpc_ports: Optional[list[Port]] = Field(
+        default=None,
+        description="""Immutable. List of ports to expose from the container. Vertex AI sends gRPC prediction requests that it receives to the first port on this list. Vertex AI also sends liveness and health checks to this port. If you do not specify this field, gRPC requests to the container will be disabled. Vertex AI does not use ports other than the first one listed. This field corresponds to the `ports` field of the Kubernetes Containers v1 core API.""",
+    )
+    health_probe: Optional[Probe] = Field(
+        default=None,
+        description="""Immutable. Specification for Kubernetes readiness probe.""",
+    )
+    health_route: Optional[str] = Field(
+        default=None,
+        description="""Immutable. HTTP path on the container to send health checks to. Vertex AI intermittently sends GET requests to this path on the container's IP address and port to check that the container is healthy. Read more about [health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#health). For example, if you set this field to `/bar`, then Vertex AI intermittently sends a GET request to the `/bar` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field. If you don't specify this field, it defaults to the following value when you deploy this Model to an Endpoint: /v1/endpoints/ENDPOINT/deployedModels/ DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed. (Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).) * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`. (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)""",
+    )
+    image_uri: Optional[str] = Field(
+        default=None,
+        description="""Required. Immutable. URI of the Docker image to be used as the custom container for serving predictions. This URI must identify an image in Artifact Registry or Container Registry. Learn more about the [container publishing requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing), including permissions requirements for the Vertex AI Service Agent. The container image is ingested upon ModelService.UploadModel, stored internally, and this original path is afterwards not used. To learn about the requirements for the Docker image itself, see [Custom container requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#). You can use the URI to one of Vertex AI's [pre-built container images for prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) in this field.""",
+    )
+    invoke_route_prefix: Optional[str] = Field(
+        default=None,
+        description="""Immutable. Invoke route prefix for the custom container. "/*" is the only supported value right now. By setting this field, any non-root route on this model will be accessible with invoke http call eg: "/invoke/foo/bar", however the [PredictionService.Invoke] RPC is not supported yet. Only one of `predict_route` or `invoke_route_prefix` can be set, and we default to using `predict_route` if this field is not set. If this field is set, the Model can only be deployed to dedicated endpoint.""",
+    )
+    liveness_probe: Optional[Probe] = Field(
+        default=None,
+        description="""Immutable. Specification for Kubernetes liveness probe.""",
+    )
+    ports: Optional[list[Port]] = Field(
+        default=None,
+        description="""Immutable. List of ports to expose from the container. Vertex AI sends any prediction requests that it receives to the first port on this list. Vertex AI also sends [liveness and health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness) to this port. If you do not specify this field, it defaults to following value: ```json [ { "containerPort": 8080 } ] ``` Vertex AI does not use ports other than the first one listed. This field corresponds to the `ports` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core).""",
+    )
+    predict_route: Optional[str] = Field(
+        default=None,
+        description="""Immutable. HTTP path on the container to send prediction requests to. Vertex AI forwards requests sent using projects.locations.endpoints.predict to this path on the container's IP address and port. Vertex AI then returns the container's response in the API response. For example, if you set this field to `/foo`, then when Vertex AI receives a prediction request, it forwards the request body in a POST request to the `/foo` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field. If you don't specify this field, it defaults to the following value when you deploy this Model to an Endpoint: /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed. (Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).) * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`. (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)""",
+    )
+    shared_memory_size_mb: Optional[int] = Field(
+        default=None,
+        description="""Immutable. The amount of the VM memory to reserve as the shared memory for the model in megabytes.""",
+    )
+    startup_probe: Optional[Probe] = Field(
+        default=None,
+        description="""Immutable. Specification for Kubernetes startup probe.""",
+    )
+
+
+class ModelContainerSpecDict(TypedDict, total=False):
+    """Specification of a container for serving predictions. Some fields in this message correspond to fields in the [Kubernetes Container v1 core specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+
+    args: Optional[list[str]]
+    """Immutable. Specifies arguments for the command that runs when the container starts. This overrides the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd). Specify this field as an array of executable and arguments, similar to a Docker `CMD`'s "default parameters" form. If you don't specify this field but do specify the command field, then the command from the `command` field runs without any additional arguments. See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes). If you don't specify this field and don't specify the `command` field, then the container's [`ENTRYPOINT`](https://docs.docker.com/engine/reference/builder/#cmd) and `CMD` determine what runs based on their default behavior. See the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact). In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field. You cannot reference environment variables set in the Docker image. In order for environment variables to be expanded, reference them by using the following syntax: $( VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses. If a variable cannot be resolved, the reference in the input string is used unchanged. To avoid variable expansion, you can escape this syntax with `$$`; for example: $$(VARIABLE_NAME) This field corresponds to the `args` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+
+    command: Optional[list[str]]
+    """Immutable. Specifies the command that runs when the container starts. This overrides the container's [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint). Specify this field as an array of executable and arguments, similar to a Docker `ENTRYPOINT`'s "exec" form, not its "shell" form. If you do not specify this field, then the container's `ENTRYPOINT` runs, in conjunction with the args field or the container's [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd), if either exists. If this field is not specified and the container does not have an `ENTRYPOINT`, then refer to the Docker documentation about [how `CMD` and `ENTRYPOINT` interact](https://docs.docker.com/engine/reference/builder/#understand-how-cmd-and-entrypoint-interact). If you specify this field, then you can also specify the `args` field to provide additional arguments for this command. However, if you specify this field, then the container's `CMD` is ignored. See the [Kubernetes documentation about how the `command` and `args` fields interact with a container's `ENTRYPOINT` and `CMD`](https://kubernetes.io/docs/tasks/inject-data-application/define-command-argument-container/#notes). In this field, you can reference [environment variables set by Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables) and environment variables set in the env field. You cannot reference environment variables set in the Docker image. In order for environment variables to be expanded, reference them by using the following syntax: $( VARIABLE_NAME) Note that this differs from Bash variable expansion, which does not use parentheses. If a variable cannot be resolved, the reference in the input string is used unchanged. To avoid variable expansion, you can escape this syntax with `$$`; for example: $$(VARIABLE_NAME) This field corresponds to the `command` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+
+    deployment_timeout: Optional[str]
+    """Immutable. Deployment timeout. Limit for deployment timeout is 2 hours."""
+
+    env: Optional[list[EnvVarDict]]
+    """Immutable. List of environment variables to set in the container. After the container starts running, code running in the container can read these environment variables. Additionally, the command and args fields can reference these variables. Later entries in this list can also reference earlier entries. For example, the following example sets the variable `VAR_2` to have the value `foo bar`: ```json [ { "name": "VAR_1", "value": "foo" }, { "name": "VAR_2", "value": "$(VAR_1) bar" } ] ``` If you switch the order of the variables in the example, then the expansion does not occur. This field corresponds to the `env` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+
+    grpc_ports: Optional[list[PortDict]]
+    """Immutable. List of ports to expose from the container. Vertex AI sends gRPC prediction requests that it receives to the first port on this list. Vertex AI also sends liveness and health checks to this port. If you do not specify this field, gRPC requests to the container will be disabled. Vertex AI does not use ports other than the first one listed. This field corresponds to the `ports` field of the Kubernetes Containers v1 core API."""
+
+    health_probe: Optional[ProbeDict]
+    """Immutable. Specification for Kubernetes readiness probe."""
+
+    health_route: Optional[str]
+    """Immutable. HTTP path on the container to send health checks to. Vertex AI intermittently sends GET requests to this path on the container's IP address and port to check that the container is healthy. Read more about [health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#health). For example, if you set this field to `/bar`, then Vertex AI intermittently sends a GET request to the `/bar` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field. If you don't specify this field, it defaults to the following value when you deploy this Model to an Endpoint: /v1/endpoints/ENDPOINT/deployedModels/ DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed. (Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).) * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`. (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)"""
+
+    image_uri: Optional[str]
+    """Required. Immutable. URI of the Docker image to be used as the custom container for serving predictions. This URI must identify an image in Artifact Registry or Container Registry. Learn more about the [container publishing requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#publishing), including permissions requirements for the Vertex AI Service Agent. The container image is ingested upon ModelService.UploadModel, stored internally, and this original path is afterwards not used. To learn about the requirements for the Docker image itself, see [Custom container requirements](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#). You can use the URI to one of Vertex AI's [pre-built container images for prediction](https://cloud.google.com/vertex-ai/docs/predictions/pre-built-containers) in this field."""
+
+    invoke_route_prefix: Optional[str]
+    """Immutable. Invoke route prefix for the custom container. "/*" is the only supported value right now. By setting this field, any non-root route on this model will be accessible with invoke http call eg: "/invoke/foo/bar", however the [PredictionService.Invoke] RPC is not supported yet. Only one of `predict_route` or `invoke_route_prefix` can be set, and we default to using `predict_route` if this field is not set. If this field is set, the Model can only be deployed to dedicated endpoint."""
+
+    liveness_probe: Optional[ProbeDict]
+    """Immutable. Specification for Kubernetes liveness probe."""
+
+    ports: Optional[list[PortDict]]
+    """Immutable. List of ports to expose from the container. Vertex AI sends any prediction requests that it receives to the first port on this list. Vertex AI also sends [liveness and health checks](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#liveness) to this port. If you do not specify this field, it defaults to following value: ```json [ { "containerPort": 8080 } ] ``` Vertex AI does not use ports other than the first one listed. This field corresponds to the `ports` field of the Kubernetes Containers [v1 core API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#container-v1-core)."""
+
+    predict_route: Optional[str]
+    """Immutable. HTTP path on the container to send prediction requests to. Vertex AI forwards requests sent using projects.locations.endpoints.predict to this path on the container's IP address and port. Vertex AI then returns the container's response in the API response. For example, if you set this field to `/foo`, then when Vertex AI receives a prediction request, it forwards the request body in a POST request to the `/foo` path on the port of your container specified by the first value of this `ModelContainerSpec`'s ports field. If you don't specify this field, it defaults to the following value when you deploy this Model to an Endpoint: /v1/endpoints/ENDPOINT/deployedModels/DEPLOYED_MODEL:predict The placeholders in this value are replaced as follows: * ENDPOINT: The last segment (following `endpoints/`)of the Endpoint.name][] field of the Endpoint where this Model has been deployed. (Vertex AI makes this value available to your container code as the [`AIP_ENDPOINT_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).) * DEPLOYED_MODEL: DeployedModel.id of the `DeployedModel`. (Vertex AI makes this value available to your container code as the [`AIP_DEPLOYED_MODEL_ID` environment variable](https://cloud.google.com/vertex-ai/docs/predictions/custom-container-requirements#aip-variables).)"""
+
+    shared_memory_size_mb: Optional[int]
+    """Immutable. The amount of the VM memory to reserve as the shared memory for the model in megabytes."""
+
+    startup_probe: Optional[ProbeDict]
+    """Immutable. Specification for Kubernetes startup probe."""
+
+
+ModelContainerSpecOrDict = Union[ModelContainerSpec, ModelContainerSpecDict]
+
+
+class AutoscalingMetricSpec(_common.BaseModel):
+    """The metric specification that defines the target resource utilization (CPU utilization, accelerator's duty cycle, and so on) for calculating the desired replica count."""
+
+    metric_name: Optional[str] = Field(
+        default=None,
+        description="""Required. The resource metric name. Supported metrics: * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization` * `aiplatform.googleapis.com/prediction/online/request_count` * `pubsub.googleapis.com/subscription/num_undelivered_messages` * `prometheus.googleapis.com/vertex_dcgm_fi_dev_gpu_util` * `prometheus.googleapis.com/vertex_vllm_gpu_cache_usage_perc` * `prometheus.googleapis.com/vertex_vllm_num_requests_waiting`""",
+    )
+    monitored_resource_labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. The Cloud Monitoring monitored resource labels as key value pairs used for metrics filtering. See Cloud Monitoring Labels https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info""",
+    )
+    target: Optional[int] = Field(
+        default=None,
+        description="""The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change. The default value is 60 (representing 60%) if not provided.""",
+    )
+
+
+class AutoscalingMetricSpecDict(TypedDict, total=False):
+    """The metric specification that defines the target resource utilization (CPU utilization, accelerator's duty cycle, and so on) for calculating the desired replica count."""
+
+    metric_name: Optional[str]
+    """Required. The resource metric name. Supported metrics: * For Online Prediction: * `aiplatform.googleapis.com/prediction/online/accelerator/duty_cycle` * `aiplatform.googleapis.com/prediction/online/cpu/utilization` * `aiplatform.googleapis.com/prediction/online/request_count` * `pubsub.googleapis.com/subscription/num_undelivered_messages` * `prometheus.googleapis.com/vertex_dcgm_fi_dev_gpu_util` * `prometheus.googleapis.com/vertex_vllm_gpu_cache_usage_perc` * `prometheus.googleapis.com/vertex_vllm_num_requests_waiting`"""
+
+    monitored_resource_labels: Optional[dict[str, str]]
+    """Optional. The Cloud Monitoring monitored resource labels as key value pairs used for metrics filtering. See Cloud Monitoring Labels https://cloud.google.com/monitoring/api/v3/metric-model#generic-label-info"""
+
+    target: Optional[int]
+    """The target resource utilization in percentage (1% - 100%) for the given metric; once the real usage deviates from the target by a certain percentage, the machine replicas change. The default value is 60 (representing 60%) if not provided."""
+
+
+AutoscalingMetricSpecOrDict = Union[AutoscalingMetricSpec, AutoscalingMetricSpecDict]
+
+
+class FlexStart(_common.BaseModel):
+    """FlexStart is used to schedule the deployment workload on DWS resource. It contains the max duration of the deployment."""
+
+    max_runtime_duration: Optional[str] = Field(
+        default=None,
+        description="""The max duration of the deployment is max_runtime_duration. The deployment will be terminated after the duration. The max_runtime_duration can be set up to 7 days.""",
+    )
+
+
+class FlexStartDict(TypedDict, total=False):
+    """FlexStart is used to schedule the deployment workload on DWS resource. It contains the max duration of the deployment."""
+
+    max_runtime_duration: Optional[str]
+    """The max duration of the deployment is max_runtime_duration. The deployment will be terminated after the duration. The max_runtime_duration can be set up to 7 days."""
+
+
+FlexStartOrDict = Union[FlexStart, FlexStartDict]
+
+
+class DedicatedResourcesScaleToZeroSpec(_common.BaseModel):
+    """Specification for scale-to-zero feature."""
+
+    idle_scaledown_period: Optional[str] = Field(
+        default=None,
+        description="""Optional. Duration of no traffic before scaling to zero. [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)""",
+    )
+    min_scaleup_period: Optional[str] = Field(
+        default=None,
+        description="""Optional. Minimum duration that a deployment will be scaled up before traffic is evaluated for potential scale-down. [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)""",
+    )
+
+
+class DedicatedResourcesScaleToZeroSpecDict(TypedDict, total=False):
+    """Specification for scale-to-zero feature."""
+
+    idle_scaledown_period: Optional[str]
+    """Optional. Duration of no traffic before scaling to zero. [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)"""
+
+    min_scaleup_period: Optional[str]
+    """Optional. Minimum duration that a deployment will be scaled up before traffic is evaluated for potential scale-down. [MinValue=300] (5 minutes) [MaxValue=28800] (8 hours)"""
+
+
+DedicatedResourcesScaleToZeroSpecOrDict = Union[
+    DedicatedResourcesScaleToZeroSpec, DedicatedResourcesScaleToZeroSpecDict
+]
+
+
+class DedicatedResources(_common.BaseModel):
+    """A description of resources that are dedicated to a DeployedModel or DeployedIndex, and that need a higher degree of manual configuration."""
+
+    autoscaling_metric_specs: Optional[list[AutoscalingMetricSpec]] = Field(
+        default=None,
+        description="""Immutable. The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set). At most one entry is allowed per metric. If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value. The default target value is 60 for both metrics. If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set. For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`.""",
+    )
+    flex_start: Optional[FlexStart] = Field(
+        default=None,
+        description="""Optional. Immutable. If set, use DWS resource to schedule the deployment workload. reference: (https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler)""",
+    )
+    initial_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Immutable. Number of initial replicas being deployed on when scaling the workload up from zero or when creating the workload in case min_replica_count = 0. When min_replica_count > 0 (meaning that the scale-to-zero feature is not enabled), initial_replica_count should not be set. When min_replica_count = 0 (meaning that the scale-to-zero feature is enabled), initial_replica_count should be larger than zero, but no greater than max_replica_count.""",
+    )
+    machine_spec: Optional[MachineSpec] = Field(
+        default=None,
+        description="""Required. Immutable. The specification of a single machine being used.""",
+    )
+    max_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Vertex CPU and GPU quotas. Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).""",
+    )
+    min_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Required. Immutable. The minimum number of machine replicas that will be always deployed on. This value must be greater than or equal to 1. If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed.""",
+    )
+    required_replica_count: Optional[int] = Field(
+        default=None,
+        description="""Optional. Number of required available replicas for the deployment to succeed. This field is only needed when partial deployment/mutation is desired. If set, the deploy/mutate operation will succeed once available_replica_count reaches required_replica_count, and the rest of the replicas will be retried. If not set, the default required_replica_count will be min_replica_count.""",
+    )
+    scale_to_zero_spec: Optional[DedicatedResourcesScaleToZeroSpec] = Field(
+        default=None,
+        description="""Optional. Specification for scale-to-zero feature.""",
+    )
+    spot: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If true, schedule the deployment workload on [spot VMs](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms).""",
+    )
+
+
+class DedicatedResourcesDict(TypedDict, total=False):
+    """A description of resources that are dedicated to a DeployedModel or DeployedIndex, and that need a higher degree of manual configuration."""
+
+    autoscaling_metric_specs: Optional[list[AutoscalingMetricSpecDict]]
+    """Immutable. The metric specifications that overrides a resource utilization metric (CPU utilization, accelerator's duty cycle, and so on) target value (default to 60 if not set). At most one entry is allowed per metric. If machine_spec.accelerator_count is above 0, the autoscaling will be based on both CPU utilization and accelerator's duty cycle metrics and scale up when either metrics exceeds its target value while scale down if both metrics are under their target value. The default target value is 60 for both metrics. If machine_spec.accelerator_count is 0, the autoscaling will be based on CPU utilization metric only with default target value 60 if not explicitly set. For example, in the case of Online Prediction, if you want to override target CPU utilization to 80, you should set autoscaling_metric_specs.metric_name to `aiplatform.googleapis.com/prediction/online/cpu/utilization` and autoscaling_metric_specs.target to `80`."""
+
+    flex_start: Optional[FlexStartDict]
+    """Optional. Immutable. If set, use DWS resource to schedule the deployment workload. reference: (https://cloud.google.com/blog/products/compute/introducing-dynamic-workload-scheduler)"""
+
+    initial_replica_count: Optional[int]
+    """Immutable. Number of initial replicas being deployed on when scaling the workload up from zero or when creating the workload in case min_replica_count = 0. When min_replica_count > 0 (meaning that the scale-to-zero feature is not enabled), initial_replica_count should not be set. When min_replica_count = 0 (meaning that the scale-to-zero feature is enabled), initial_replica_count should be larger than zero, but no greater than max_replica_count."""
+
+    machine_spec: Optional[MachineSpecDict]
+    """Required. Immutable. The specification of a single machine being used."""
+
+    max_replica_count: Optional[int]
+    """Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Vertex CPU and GPU quotas. Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type)."""
+
+    min_replica_count: Optional[int]
+    """Required. Immutable. The minimum number of machine replicas that will be always deployed on. This value must be greater than or equal to 1. If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed."""
+
+    required_replica_count: Optional[int]
+    """Optional. Number of required available replicas for the deployment to succeed. This field is only needed when partial deployment/mutation is desired. If set, the deploy/mutate operation will succeed once available_replica_count reaches required_replica_count, and the rest of the replicas will be retried. If not set, the default required_replica_count will be min_replica_count."""
+
+    scale_to_zero_spec: Optional[DedicatedResourcesScaleToZeroSpecDict]
+    """Optional. Specification for scale-to-zero feature."""
+
+    spot: Optional[bool]
+    """Optional. If true, schedule the deployment workload on [spot VMs](https://cloud.google.com/kubernetes-engine/docs/concepts/spot-vms)."""
+
+
+DedicatedResourcesOrDict = Union[DedicatedResources, DedicatedResourcesDict]
+
+
+class PublisherModelCallToActionDeployDeployMetadata(_common.BaseModel):
+    """Metadata information about the deployment for managing deployment config."""
+
+    labels: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Labels for the deployment config. For managing deployment config like verifying, source of deployment config, etc.""",
+    )
+    sample_request: Optional[str] = Field(
+        default=None, description="""Optional. Sample request for deployed endpoint."""
+    )
+
+
+class PublisherModelCallToActionDeployDeployMetadataDict(TypedDict, total=False):
+    """Metadata information about the deployment for managing deployment config."""
+
+    labels: Optional[dict[str, str]]
+    """Optional. Labels for the deployment config. For managing deployment config like verifying, source of deployment config, etc."""
+
+    sample_request: Optional[str]
+    """Optional. Sample request for deployed endpoint."""
+
+
+PublisherModelCallToActionDeployDeployMetadataOrDict = Union[
+    PublisherModelCallToActionDeployDeployMetadata,
+    PublisherModelCallToActionDeployDeployMetadataDict,
+]
+
+
+class LargeModelReference(_common.BaseModel):
+    """Contains information about the Large Model."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Required. The unique name of the large Foundation or pre-built model. Like "chat-bison", "text-bison". Or model name with version ID, like "chat-bison@001", "text-bison@005", etc.""",
+    )
+
+
+class LargeModelReferenceDict(TypedDict, total=False):
+    """Contains information about the Large Model."""
+
+    name: Optional[str]
+    """Required. The unique name of the large Foundation or pre-built model. Like "chat-bison", "text-bison". Or model name with version ID, like "chat-bison@001", "text-bison@005", etc."""
+
+
+LargeModelReferenceOrDict = Union[LargeModelReference, LargeModelReferenceDict]
+
+
+class PublisherModelCallToActionDeploy(_common.BaseModel):
+    """Model metadata that is needed for UploadModel or DeployModel/CreateEndpoint requests."""
+
+    artifact_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The path to the directory containing the Model artifact and any of its supporting files.""",
+    )
+    automatic_resources: Optional[AutomaticResources] = Field(
+        default=None,
+        description="""A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration.""",
+    )
+    container_spec: Optional[ModelContainerSpec] = Field(
+        default=None,
+        description="""Optional. The specification of the container that is to be used when deploying this Model in Vertex AI. Not present for Large Models.""",
+    )
+    dedicated_resources: Optional[DedicatedResources] = Field(
+        default=None,
+        description="""A description of resources that are dedicated to the DeployedModel, and that need a higher degree of manual configuration.""",
+    )
+    deploy_metadata: Optional[PublisherModelCallToActionDeployDeployMetadata] = Field(
+        default=None,
+        description="""Optional. Metadata information about this deployment config.""",
+    )
+    deploy_task_name: Optional[str] = Field(
+        default=None,
+        description="""Optional. The name of the deploy task (e.g., "text to image generation").""",
+    )
+    large_model_reference: Optional[LargeModelReference] = Field(
+        default=None,
+        description="""Optional. Large model reference. When this is set, model_artifact_spec is not needed.""",
+    )
+    model_display_name: Optional[str] = Field(
+        default=None, description="""Optional. Default model display name."""
+    )
+    public_artifact_uri: Optional[str] = Field(
+        default=None,
+        description="""Optional. The signed URI for ephemeral Cloud Storage access to model artifact.""",
+    )
+    shared_resources: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the shared DeploymentResourcePool to deploy on. Format: `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`""",
+    )
+    title: Optional[str] = Field(
+        default=None,
+        description="""Required. The title of the regional resource reference.""",
+    )
+
+
+class PublisherModelCallToActionDeployDict(TypedDict, total=False):
+    """Model metadata that is needed for UploadModel or DeployModel/CreateEndpoint requests."""
+
+    artifact_uri: Optional[str]
+    """Optional. The path to the directory containing the Model artifact and any of its supporting files."""
+
+    automatic_resources: Optional[AutomaticResourcesDict]
+    """A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration."""
+
+    container_spec: Optional[ModelContainerSpecDict]
+    """Optional. The specification of the container that is to be used when deploying this Model in Vertex AI. Not present for Large Models."""
+
+    dedicated_resources: Optional[DedicatedResourcesDict]
+    """A description of resources that are dedicated to the DeployedModel, and that need a higher degree of manual configuration."""
+
+    deploy_metadata: Optional[PublisherModelCallToActionDeployDeployMetadataDict]
+    """Optional. Metadata information about this deployment config."""
+
+    deploy_task_name: Optional[str]
+    """Optional. The name of the deploy task (e.g., "text to image generation")."""
+
+    large_model_reference: Optional[LargeModelReferenceDict]
+    """Optional. Large model reference. When this is set, model_artifact_spec is not needed."""
+
+    model_display_name: Optional[str]
+    """Optional. Default model display name."""
+
+    public_artifact_uri: Optional[str]
+    """Optional. The signed URI for ephemeral Cloud Storage access to model artifact."""
+
+    shared_resources: Optional[str]
+    """The resource name of the shared DeploymentResourcePool to deploy on. Format: `projects/{project}/locations/{location}/deploymentResourcePools/{deployment_resource_pool}`"""
+
+    title: Optional[str]
+    """Required. The title of the regional resource reference."""
+
+
+PublisherModelCallToActionDeployOrDict = Union[
+    PublisherModelCallToActionDeploy, PublisherModelCallToActionDeployDict
+]
+
+
+class PublisherModelCallToActionDeployGke(_common.BaseModel):
+    """Configurations for PublisherModel GKE deployment"""
+
+    gke_yaml_configs: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. GKE deployment configuration in yaml format.""",
+    )
+
+
+class PublisherModelCallToActionDeployGkeDict(TypedDict, total=False):
+    """Configurations for PublisherModel GKE deployment"""
+
+    gke_yaml_configs: Optional[list[str]]
+    """Optional. GKE deployment configuration in yaml format."""
+
+
+PublisherModelCallToActionDeployGkeOrDict = Union[
+    PublisherModelCallToActionDeployGke, PublisherModelCallToActionDeployGkeDict
+]
+
+
+class PublisherModelCallToActionDeployVertex(_common.BaseModel):
+    """Multiple setups to deploy the PublisherModel."""
+
+    multi_deploy_vertex: Optional[list[PublisherModelCallToActionDeploy]] = Field(
+        default=None, description="""Optional. One click deployment configurations."""
+    )
+
+
+class PublisherModelCallToActionDeployVertexDict(TypedDict, total=False):
+    """Multiple setups to deploy the PublisherModel."""
+
+    multi_deploy_vertex: Optional[list[PublisherModelCallToActionDeployDict]]
+    """Optional. One click deployment configurations."""
+
+
+PublisherModelCallToActionDeployVertexOrDict = Union[
+    PublisherModelCallToActionDeployVertex, PublisherModelCallToActionDeployVertexDict
+]
+
+
+class PublisherModelCallToActionOpenFineTuningPipelines(_common.BaseModel):
+    """Open fine tuning pipelines."""
+
+    fine_tuning_pipelines: Optional[
+        list[PublisherModelCallToActionRegionalResourceReferences]
+    ] = Field(
+        default=None,
+        description="""Required. Regional resource references to fine tuning pipelines.""",
+    )
+
+
+class PublisherModelCallToActionOpenFineTuningPipelinesDict(TypedDict, total=False):
+    """Open fine tuning pipelines."""
+
+    fine_tuning_pipelines: Optional[
+        list[PublisherModelCallToActionRegionalResourceReferencesDict]
+    ]
+    """Required. Regional resource references to fine tuning pipelines."""
+
+
+PublisherModelCallToActionOpenFineTuningPipelinesOrDict = Union[
+    PublisherModelCallToActionOpenFineTuningPipelines,
+    PublisherModelCallToActionOpenFineTuningPipelinesDict,
+]
+
+
+class PublisherModelCallToActionOpenNotebooks(_common.BaseModel):
+    """Open notebooks."""
+
+    notebooks: Optional[list[PublisherModelCallToActionRegionalResourceReferences]] = (
+        Field(
+            default=None,
+            description="""Required. Regional resource references to notebooks.""",
+        )
+    )
+
+
+class PublisherModelCallToActionOpenNotebooksDict(TypedDict, total=False):
+    """Open notebooks."""
+
+    notebooks: Optional[list[PublisherModelCallToActionRegionalResourceReferencesDict]]
+    """Required. Regional resource references to notebooks."""
+
+
+PublisherModelCallToActionOpenNotebooksOrDict = Union[
+    PublisherModelCallToActionOpenNotebooks, PublisherModelCallToActionOpenNotebooksDict
+]
+
+
+class PublisherModelDocumentation(_common.BaseModel):
+    """A named piece of documentation."""
+
+    content: Optional[str] = Field(
+        default=None,
+        description="""Required. Content of this piece of document (in Markdown format).""",
+    )
+    title: Optional[str] = Field(
+        default=None,
+        description="""Required. E.g., OVERVIEW, USE CASES, DOCUMENTATION, SDK & SAMPLES, JAVA, NODE.JS, etc..""",
+    )
+
+
+class PublisherModelDocumentationDict(TypedDict, total=False):
+    """A named piece of documentation."""
+
+    content: Optional[str]
+    """Required. Content of this piece of document (in Markdown format)."""
+
+    title: Optional[str]
+    """Required. E.g., OVERVIEW, USE CASES, DOCUMENTATION, SDK & SAMPLES, JAVA, NODE.JS, etc.."""
+
+
+PublisherModelDocumentationOrDict = Union[
+    PublisherModelDocumentation, PublisherModelDocumentationDict
+]
+
+
+class PublisherModelCallToActionViewRestApi(_common.BaseModel):
+    """Rest API docs."""
+
+    documentations: Optional[list[PublisherModelDocumentation]] = Field(
+        default=None, description="""Required."""
+    )
+    title: Optional[str] = Field(
+        default=None, description="""Required. The title of the view rest API."""
+    )
+
+
+class PublisherModelCallToActionViewRestApiDict(TypedDict, total=False):
+    """Rest API docs."""
+
+    documentations: Optional[list[PublisherModelDocumentationDict]]
+    """Required."""
+
+    title: Optional[str]
+    """Required. The title of the view rest API."""
+
+
+PublisherModelCallToActionViewRestApiOrDict = Union[
+    PublisherModelCallToActionViewRestApi, PublisherModelCallToActionViewRestApiDict
+]
+
+
+class PublisherModelCallToAction(_common.BaseModel):
+    """Actions could take on this Publisher Model."""
+
+    create_application: Optional[
+        PublisherModelCallToActionRegionalResourceReferences
+    ] = Field(
+        default=None,
+        description="""Optional. Create application using the PublisherModel.""",
+    )
+    deploy: Optional[PublisherModelCallToActionDeploy] = Field(
+        default=None,
+        description="""Optional. Deploy the PublisherModel to Vertex Endpoint.""",
+    )
+    deploy_gke: Optional[PublisherModelCallToActionDeployGke] = Field(
+        default=None,
+        description="""Optional. Deploy PublisherModel to Google Kubernetes Engine.""",
+    )
+    multi_deploy_vertex: Optional[PublisherModelCallToActionDeployVertex] = Field(
+        default=None,
+        description="""Optional. Multiple setups to deploy the PublisherModel to Vertex Endpoint.""",
+    )
+    open_evaluation_pipeline: Optional[
+        PublisherModelCallToActionRegionalResourceReferences
+    ] = Field(
+        default=None,
+        description="""Optional. Open evaluation pipeline of the PublisherModel.""",
+    )
+    open_fine_tuning_pipeline: Optional[
+        PublisherModelCallToActionRegionalResourceReferences
+    ] = Field(
+        default=None,
+        description="""Optional. Open fine-tuning pipeline of the PublisherModel.""",
+    )
+    open_fine_tuning_pipelines: Optional[
+        PublisherModelCallToActionOpenFineTuningPipelines
+    ] = Field(
+        default=None,
+        description="""Optional. Open fine-tuning pipelines of the PublisherModel.""",
+    )
+    open_generation_ai_studio: Optional[
+        PublisherModelCallToActionRegionalResourceReferences
+    ] = Field(default=None, description="""Optional. Open in Generation AI Studio.""")
+    open_genie: Optional[PublisherModelCallToActionRegionalResourceReferences] = Field(
+        default=None, description="""Optional. Open Genie / Playground."""
+    )
+    open_notebook: Optional[PublisherModelCallToActionRegionalResourceReferences] = (
+        Field(
+            default=None,
+            description="""Optional. Open notebook of the PublisherModel.""",
+        )
+    )
+    open_notebooks: Optional[PublisherModelCallToActionOpenNotebooks] = Field(
+        default=None, description="""Optional. Open notebooks of the PublisherModel."""
+    )
+    open_prompt_tuning_pipeline: Optional[
+        PublisherModelCallToActionRegionalResourceReferences
+    ] = Field(
+        default=None,
+        description="""Optional. Open prompt-tuning pipeline of the PublisherModel.""",
+    )
+    request_access: Optional[PublisherModelCallToActionRegionalResourceReferences] = (
+        Field(default=None, description="""Optional. Request for access.""")
+    )
+    view_rest_api: Optional[PublisherModelCallToActionViewRestApi] = Field(
+        default=None, description="""Optional. To view Rest API docs."""
+    )
+
+
+class PublisherModelCallToActionDict(TypedDict, total=False):
+    """Actions could take on this Publisher Model."""
+
+    create_application: Optional[
+        PublisherModelCallToActionRegionalResourceReferencesDict
+    ]
+    """Optional. Create application using the PublisherModel."""
+
+    deploy: Optional[PublisherModelCallToActionDeployDict]
+    """Optional. Deploy the PublisherModel to Vertex Endpoint."""
+
+    deploy_gke: Optional[PublisherModelCallToActionDeployGkeDict]
+    """Optional. Deploy PublisherModel to Google Kubernetes Engine."""
+
+    multi_deploy_vertex: Optional[PublisherModelCallToActionDeployVertexDict]
+    """Optional. Multiple setups to deploy the PublisherModel to Vertex Endpoint."""
+
+    open_evaluation_pipeline: Optional[
+        PublisherModelCallToActionRegionalResourceReferencesDict
+    ]
+    """Optional. Open evaluation pipeline of the PublisherModel."""
+
+    open_fine_tuning_pipeline: Optional[
+        PublisherModelCallToActionRegionalResourceReferencesDict
+    ]
+    """Optional. Open fine-tuning pipeline of the PublisherModel."""
+
+    open_fine_tuning_pipelines: Optional[
+        PublisherModelCallToActionOpenFineTuningPipelinesDict
+    ]
+    """Optional. Open fine-tuning pipelines of the PublisherModel."""
+
+    open_generation_ai_studio: Optional[
+        PublisherModelCallToActionRegionalResourceReferencesDict
+    ]
+    """Optional. Open in Generation AI Studio."""
+
+    open_genie: Optional[PublisherModelCallToActionRegionalResourceReferencesDict]
+    """Optional. Open Genie / Playground."""
+
+    open_notebook: Optional[PublisherModelCallToActionRegionalResourceReferencesDict]
+    """Optional. Open notebook of the PublisherModel."""
+
+    open_notebooks: Optional[PublisherModelCallToActionOpenNotebooksDict]
+    """Optional. Open notebooks of the PublisherModel."""
+
+    open_prompt_tuning_pipeline: Optional[
+        PublisherModelCallToActionRegionalResourceReferencesDict
+    ]
+    """Optional. Open prompt-tuning pipeline of the PublisherModel."""
+
+    request_access: Optional[PublisherModelCallToActionRegionalResourceReferencesDict]
+    """Optional. Request for access."""
+
+    view_rest_api: Optional[PublisherModelCallToActionViewRestApiDict]
+    """Optional. To view Rest API docs."""
+
+
+PublisherModelCallToActionOrDict = Union[
+    PublisherModelCallToAction, PublisherModelCallToActionDict
+]
+
+
+class PublisherModel(_common.BaseModel):
+    """Publisher model from Model Garden."""
+
+    frameworks: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Additional information about the model's Frameworks.""",
+    )
+    launch_stage: Optional[LaunchStage] = Field(
+        default=None,
+        description="""Optional. Indicates the launch stage of the model.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Output only. Identifier. The resource name of the PublisherModel.""",
+    )
+    open_source_category: Optional[OpenSourceCategory] = Field(
+        default=None,
+        description="""Required. Indicates the open source category of the publisher model.""",
+    )
+    parent: Optional[PublisherModelParent] = Field(
+        default=None,
+        description="""Optional. The parent that this model was customized from. E.g., Vision API, Natural Language API, LaMDA, T5, etc. Foundation models don't have parents.""",
+    )
+    predict_schemata: Optional[PredictSchemata] = Field(
+        default=None,
+        description="""Optional. The schemata that describes formats of the PublisherModel's predictions and explanations as given and returned via PredictionService.Predict.""",
+    )
+    publisher_model_template: Optional[str] = Field(
+        default=None,
+        description="""Optional. Output only. Immutable. Used to indicate this model has a publisher model and provide the template of the publisher model resource name.""",
+    )
+    supported_actions: Optional[PublisherModelCallToAction] = Field(
+        default=None, description="""Optional. Supported call-to-action options."""
+    )
+    version_id: Optional[str] = Field(
+        default=None,
+        description="""Output only. Immutable. The version ID of the PublisherModel. A new version is committed when a new model version is uploaded under an existing model id. It is an auto-incrementing decimal number in string representation.""",
+    )
+    version_state: Optional[VersionState] = Field(
+        default=None,
+        description="""Optional. Indicates the state of the model version.""",
+    )
+
+
+class PublisherModelDict(TypedDict, total=False):
+    """Publisher model from Model Garden."""
+
+    frameworks: Optional[list[str]]
+    """Optional. Additional information about the model's Frameworks."""
+
+    launch_stage: Optional[LaunchStage]
+    """Optional. Indicates the launch stage of the model."""
+
+    name: Optional[str]
+    """Output only. Identifier. The resource name of the PublisherModel."""
+
+    open_source_category: Optional[OpenSourceCategory]
+    """Required. Indicates the open source category of the publisher model."""
+
+    parent: Optional[PublisherModelParentDict]
+    """Optional. The parent that this model was customized from. E.g., Vision API, Natural Language API, LaMDA, T5, etc. Foundation models don't have parents."""
+
+    predict_schemata: Optional[PredictSchemataDict]
+    """Optional. The schemata that describes formats of the PublisherModel's predictions and explanations as given and returned via PredictionService.Predict."""
+
+    publisher_model_template: Optional[str]
+    """Optional. Output only. Immutable. Used to indicate this model has a publisher model and provide the template of the publisher model resource name."""
+
+    supported_actions: Optional[PublisherModelCallToActionDict]
+    """Optional. Supported call-to-action options."""
+
+    version_id: Optional[str]
+    """Output only. Immutable. The version ID of the PublisherModel. A new version is committed when a new model version is uploaded under an existing model id. It is an auto-incrementing decimal number in string representation."""
+
+    version_state: Optional[VersionState]
+    """Optional. Indicates the state of the model version."""
+
+
+PublisherModelOrDict = Union[PublisherModel, PublisherModelDict]
+
+
+class ListPublisherModelsResponse(_common.BaseModel):
+    """Response for listing publisher models."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(
+        default=None,
+        description="""A token to retrieve next page of results. Pass to ListPublisherModels.page_token to obtain that page.""",
+    )
+    publisher_models: Optional[list[PublisherModel]] = Field(
+        default=None, description="""List of PublisherModels in the requested page."""
+    )
+
+
+class ListPublisherModelsResponseDict(TypedDict, total=False):
+    """Response for listing publisher models."""
+
+    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """A token to retrieve next page of results. Pass to ListPublisherModels.page_token to obtain that page."""
+
+    publisher_models: Optional[list[PublisherModelDict]]
+    """List of PublisherModels in the requested page."""
+
+
+ListPublisherModelsResponseOrDict = Union[
+    ListPublisherModelsResponse, ListPublisherModelsResponseDict
+]
+
+
 class PromptOptimizerConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
@@ -24478,4 +25790,56 @@ class AgentEngineRuntimeRevisionDict(TypedDict, total=False):
 
 AgentEngineRuntimeRevisionOrDict = Union[
     AgentEngineRuntimeRevision, AgentEngineRuntimeRevisionDict
+]
+
+
+class ListDeployableModelsConfig(_common.BaseModel):
+    """Config for listing deployable models."""
+
+    include_hugging_face_models: Optional[bool] = Field(
+        default=None, description="""Whether to list Hugging Face models."""
+    )
+    model_filter: Optional[str] = Field(
+        default=None, description="""Optional. A string to filter the models by."""
+    )
+
+
+class ListDeployableModelsConfigDict(TypedDict, total=False):
+    """Config for listing deployable models."""
+
+    include_hugging_face_models: Optional[bool]
+    """Whether to list Hugging Face models."""
+
+    model_filter: Optional[str]
+    """Optional. A string to filter the models by."""
+
+
+ListDeployableModelsConfigOrDict = Union[
+    ListDeployableModelsConfig, ListDeployableModelsConfigDict
+]
+
+
+class ListModelGardenModelsConfig(_common.BaseModel):
+    """Config for listing Model Garden models."""
+
+    include_hugging_face_models: Optional[bool] = Field(
+        default=None, description="""Whether to list Hugging Face models."""
+    )
+    model_filter: Optional[str] = Field(
+        default=None, description="""Optional. A string to filter the models by."""
+    )
+
+
+class ListModelGardenModelsConfigDict(TypedDict, total=False):
+    """Config for listing Model Garden models."""
+
+    include_hugging_face_models: Optional[bool]
+    """Whether to list Hugging Face models."""
+
+    model_filter: Optional[str]
+    """Optional. A string to filter the models by."""
+
+
+ListModelGardenModelsConfigOrDict = Union[
+    ListModelGardenModelsConfig, ListModelGardenModelsConfigDict
 ]
