@@ -1324,8 +1324,9 @@ class Datasets(_api_module.BaseModule):
         gemini_request_read_config: Optional[
             types.GeminiRequestReadConfigOrDict
         ] = None,
+        load_dataframe: bool = False,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
-    ) -> str:
+    ) -> tuple[str, Optional["bigframes.pandas.DataFrame"]]:  # type: ignore # noqa: F821
         """Assemble the dataset into a BigQuery table.
 
         Waits for the assemble operation to complete before returning.
@@ -1338,12 +1339,20 @@ class Datasets(_api_module.BaseModule):
             Optional. The read config to use to assemble the dataset. If
             not provided, the read config attached to the dataset will be
             used.
+          load_dataframe:
+            Optional. Whether to load the assembled BigQuery table into a
+            BigFrames DataFrame and return it. If False, the returned
+            DataFrame is None, no BigQuery read is performed, and `bigframes`
+            is not required. Defaults to False.
           config:
             Optional. A configuration for assembling the dataset. If not
             provided, the default configuration will be used.
 
         Returns:
-            The URI of the bigquery table of the assembled dataset.
+            A tuple `(table_id, dataframe)`, where `table_id` is the BigQuery
+            table id of the assembled dataset (without the `bq://` prefix) and
+            `dataframe` is the assembled table loaded as a BigFrames DataFrame.
+            `dataframe` is None if `load_dataframe` is False.
         """
         if isinstance(config, dict):
             config = types.AssembleDatasetConfig(**config)
@@ -1363,7 +1372,17 @@ class Datasets(_api_module.BaseModule):
             operation=operation,
             timeout_seconds=config.timeout,
         )
-        return response["bigqueryDestination"]  # type: ignore[no-any-return]
+        bigquery_uri = response["bigqueryDestination"]
+        table_id = bigquery_uri.removeprefix("bq://")
+        dataframe = None
+        if load_dataframe:
+            dataframe = _datasets_utils.load_dataframe_from_bigquery(
+                bigquery_uri=bigquery_uri,
+                project=self._api_client.project,
+                location=self._api_client.location,
+                credentials=self._api_client._credentials,
+            )
+        return (table_id, dataframe)
 
     def assess_tuning_resources(
         self,
@@ -2713,8 +2732,9 @@ class AsyncDatasets(_api_module.BaseModule):
         gemini_request_read_config: Optional[
             types.GeminiRequestReadConfigOrDict
         ] = None,
+        load_dataframe: bool = False,
         config: Optional[types.AssembleDatasetConfigOrDict] = None,
-    ) -> str:
+    ) -> tuple[str, Optional["bigframes.pandas.DataFrame"]]:  # type: ignore # noqa: F821
         """Assemble the dataset into a BigQuery table.
 
         Waits for the assemble operation to complete before returning.
@@ -2727,12 +2747,20 @@ class AsyncDatasets(_api_module.BaseModule):
             Optional. The read config to use to assemble the dataset. If
             not provided, the read config attached to the dataset will be
             used.
+          load_dataframe:
+            Optional. Whether to load the assembled BigQuery table into a
+            BigFrames DataFrame and return it. If False, the returned
+            DataFrame is None, no BigQuery read is performed, and `bigframes`
+            is not required. Defaults to False.
           config:
             Optional. A configuration for assembling the dataset. If not
             provided, the default configuration will be used.
 
         Returns:
-            The URI of the bigquery table of the assembled dataset.
+            A tuple `(table_id, dataframe)`, where `table_id` is the BigQuery
+            table id of the assembled dataset (without the `bq://` prefix) and
+            `dataframe` is the assembled table loaded as a BigFrames DataFrame.
+            `dataframe` is None if `load_dataframe` is False.
         """
         if isinstance(config, dict):
             config = types.AssembleDatasetConfig(**config)
@@ -2752,7 +2780,17 @@ class AsyncDatasets(_api_module.BaseModule):
             operation=operation,
             timeout_seconds=config.timeout,
         )
-        return response["bigqueryDestination"]  # type: ignore[no-any-return]
+        bigquery_uri = response["bigqueryDestination"]
+        table_id = bigquery_uri.removeprefix("bq://")
+        dataframe = None
+        if load_dataframe:
+            dataframe = await _datasets_utils.load_dataframe_from_bigquery_async(
+                bigquery_uri=bigquery_uri,
+                project=self._api_client.project,
+                location=self._api_client.location,
+                credentials=self._api_client._credentials,
+            )
+        return (table_id, dataframe)
 
     async def assess_tuning_resources(
         self,
