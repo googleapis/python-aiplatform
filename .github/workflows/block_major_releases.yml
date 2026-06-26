@@ -5,7 +5,7 @@ on:
   pull_request_review:
     types: [submitted, dismissed]
   pull_request:
-    types: [opened, synchronized, reopened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   check-major-approval:
