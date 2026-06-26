@@ -13,9 +13,10 @@ jobs:
     if: github.event.pull_request.user.login == 'release-please[bot]'
     permissions:
       pull-requests: read
+      members: read
     steps:
-      - name: Enforce Approvals for Major Releases
-        uses: actions/github-script@v7
+      - name: Enforce Multiple Approvals for Major Releases
+        uses: actions/github-script@v8
         with:
           script: |
             const prTitle = context.payload.pull_request.title;
@@ -43,27 +44,52 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            // 3. Fetch reviews for the PR
+            // 3. Fetch reviews for the PR (with pagination safety)
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner,
               repo,
               pull_number: prNumber,
+              per_page: 100,
             });
 
-            // 4. Count unique approvals from authorized maintainers (Googlers)
+            // 4. Handle potential API delay by including the triggering review if missing
+            if (context.eventName === 'pull_request_review' && context.payload.action === 'submitted') {
+              const currentReview = context.payload.review;
+              if (currentReview && !reviews.some(r => r.id === currentReview.id)) {
+                reviews.push(currentReview);
+              }
+            }
+
+            // 5. Gather unique approvals
             const approvals = {};
             for (const review of reviews) {
-              const isAuthorizedGoogler = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(review.author_association);
-
-              if (review.state === 'APPROVED' && isAuthorizedGoogler) {
+              if (review.state === 'APPROVED') {
                 approvals[review.user.login] = true;
               } else if (review.state === 'CHANGES_REQUESTED' || review.state === 'DISMISSED') {
                 delete approvals[review.user.login];
               }
             }
 
-            const approvalCount = Object.keys(approvals).length;
-            console.log(`Current approved reviews by authorized maintainers: ${Object.keys(approvals).join(', ')} (${approvalCount})`);
+            // 6. Verify team membership in the 'googlers' team for each unique approver
+            const approvers = Object.keys(approvals);
+            const verifiedGooglers = [];
+            for (const username of approvers) {
+              try {
+                const membership = await github.rest.teams.getMembershipForUserInOrg({
+                  org: owner,
+                  team_slug: 'googlers',
+                  username: username,
+                });
+                if (membership.data.state === 'active') {
+                  verifiedGooglers.push(username);
+                }
+              } catch (e) {
+                console.log(`Could not verify organization membership for ${username}:`, e.message);
+              }
+            }
+
+            const approvalCount = verifiedGooglers.length;
+            console.log(`Current approved reviews by authorized Googlers: ${verifiedGooglers.join(', ')} (${approvalCount})`);
 
             if (approvalCount < 2) {
               core.setFailed(`Major version releases (${version}) require at least 2 approvals from authorized maintainers. Current approval count: ${approvalCount}.`);
