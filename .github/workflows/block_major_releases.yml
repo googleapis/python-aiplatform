@@ -13,7 +13,6 @@ jobs:
     if: github.event.pull_request.user.login == 'release-please[bot]'
     permissions:
       pull-requests: read
-      members: read
     steps:
       - name: Enforce Multiple Approvals for Major Releases
         uses: actions/github-script@v8
@@ -70,21 +69,24 @@ jobs:
               }
             }
 
-            // 6. Verify team membership in the 'googlers' team for each unique approver
+            // 6. Verify repository write/admin permissions for each unique approver
             const approvers = Object.keys(approvals);
             const verifiedGooglers = [];
             for (const username of approvers) {
               try {
-                const membership = await github.rest.teams.getMembershipForUserInOrg({
-                  org: owner,
-                  team_slug: 'googlers',
+                const response = await github.rest.repos.getCollaboratorPermissionLevel({
+                  owner,
+                  repo,
                   username: username,
                 });
-                if (membership.data.state === 'active') {
+                const permission = response.data.permission; // 'admin', 'write', 'read', or 'none'
+                if (['admin', 'write'].includes(permission)) {
                   verifiedGooglers.push(username);
+                } else {
+                  console.log(`User ${username} has permission level '${permission}', which is insufficient (requires 'write' or 'admin').`);
                 }
               } catch (e) {
-                console.log(`Could not verify organization membership for ${username}:`, e.message);
+                console.log(`Could not verify repository permissions for ${username}:`, e.message);
               }
             }
 
