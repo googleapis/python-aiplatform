@@ -1,0 +1,72 @@
+# This workflow blocks release-please PRs for major versions unless they have at least 2 approvals.
+name: Enforce Multiple Approvals for Major Releases
+
+on:
+  pull_request_review:
+    types: [submitted, dismissed]
+  pull_request:
+    types: [opened, synchronized, reopened]
+
+jobs:
+  check-major-approval:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'release-please[bot]'
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Enforce Approvals for Major Releases
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prTitle = context.payload.pull_request.title;
+            console.log(`PR Title: ${prTitle}`);
+
+            // 1. Extract proposed version securely from the PR title
+            const versionMatch = prTitle.match(/\b\d+\.\d+\.\d+\b/);
+            if (!versionMatch) {
+              console.log("No version pattern found in the PR title. Skipping check.");
+              return;
+            }
+
+            const version = versionMatch[0];
+            console.log(`Extracted Version: ${version}`);
+
+            // 2. Identify if this is a major release (ends with .0.0)
+            if (!version.endsWith('.0.0')) {
+              console.log("This is a minor or patch version release. Skipping check.");
+              return;
+            }
+
+            console.log(`MAJOR version release detected (${version})! Verifying approvals...`);
+
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // 3. Fetch reviews for the PR
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            // 4. Count unique approvals from authorized maintainers (Googlers)
+            const approvals = {};
+            for (const review of reviews) {
+              const isAuthorizedGoogler = ['OWNER', 'MEMBER', 'COLLABORATOR'].includes(review.author_association);
+
+              if (review.state === 'APPROVED' && isAuthorizedGoogler) {
+                approvals[review.user.login] = true;
+              } else if (review.state === 'CHANGES_REQUESTED' || review.state === 'DISMISSED') {
+                delete approvals[review.user.login];
+              }
+            }
+
+            const approvalCount = Object.keys(approvals).length;
+            console.log(`Current approved reviews by authorized maintainers: ${Object.keys(approvals).join(', ')} (${approvalCount})`);
+
+            if (approvalCount < 2) {
+              core.setFailed(`Major version releases (${version}) require at least 2 approvals from authorized maintainers. Current approval count: ${approvalCount}.`);
+            } else {
+              console.log("Approval requirements successfully met.");
+            }
