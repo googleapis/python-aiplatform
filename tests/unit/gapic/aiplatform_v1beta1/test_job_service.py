@@ -2051,6 +2051,9 @@ def test_list_custom_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, custom_job.CustomJob)
@@ -2137,6 +2140,8 @@ async def test_list_custom_jobs_async_pager():
         )
         async_pager = await client.list_custom_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -3872,6 +3877,9 @@ def test_list_data_labeling_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, data_labeling_job.DataLabelingJob)
@@ -3958,6 +3966,8 @@ async def test_list_data_labeling_jobs_async_pager():
         )
         async_pager = await client.list_data_labeling_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -5683,6 +5693,9 @@ def test_list_hyperparameter_tuning_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, hyperparameter_tuning_job.HyperparameterTuningJob)
@@ -5769,6 +5782,8 @@ async def test_list_hyperparameter_tuning_jobs_async_pager():
         )
         async_pager = await client.list_hyperparameter_tuning_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -7478,6 +7493,9 @@ def test_list_nas_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, nas_job.NasJob)
@@ -7564,6 +7582,8 @@ async def test_list_nas_jobs_async_pager():
         )
         async_pager = await client.list_nas_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -8916,6 +8936,9 @@ def test_list_nas_trial_details_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, nas_job.NasTrialDetail)
@@ -9002,6 +9025,8 @@ async def test_list_nas_trial_details_async_pager():
         )
         async_pager = await client.list_nas_trial_details(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -10123,6 +10148,9 @@ def test_list_batch_prediction_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, batch_prediction_job.BatchPredictionJob)
@@ -10209,6 +10237,8 @@ async def test_list_batch_prediction_jobs_async_pager():
         )
         async_pager = await client.list_batch_prediction_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -11617,6 +11647,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_pager(transport_name
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies)
@@ -11703,6 +11736,8 @@ async def test_search_model_deployment_monitoring_stats_anomalies_async_pager():
         )
         async_pager = await client.search_model_deployment_monitoring_stats_anomalies(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -12469,6 +12504,9 @@ def test_list_model_deployment_monitoring_jobs_pager(transport_name: str = "grpc
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_deployment_monitoring_job.ModelDeploymentMonitoringJob)
@@ -12555,6 +12593,8 @@ async def test_list_model_deployment_monitoring_jobs_async_pager():
         )
         async_pager = await client.list_model_deployment_monitoring_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -14416,6 +14456,9 @@ def test_list_custom_jobs_rest_pager(transport: str = 'rest'):
 
         pager = client.list_custom_jobs(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, custom_job.CustomJob)
@@ -15312,6 +15355,9 @@ def test_list_data_labeling_jobs_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_data_labeling_jobs(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -16210,6 +16256,9 @@ def test_list_hyperparameter_tuning_jobs_rest_pager(transport: str = 'rest'):
 
         pager = client.list_hyperparameter_tuning_jobs(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, hyperparameter_tuning_job.HyperparameterTuningJob)
@@ -17107,6 +17156,9 @@ def test_list_nas_jobs_rest_pager(transport: str = 'rest'):
 
         pager = client.list_nas_jobs(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, nas_job.NasJob)
@@ -17834,6 +17886,9 @@ def test_list_nas_trial_details_rest_pager(transport: str = 'rest'):
 
         pager = client.list_nas_trial_details(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, nas_job.NasTrialDetail)
@@ -18401,6 +18456,9 @@ def test_list_batch_prediction_jobs_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_batch_prediction_jobs(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -19137,6 +19195,9 @@ def test_search_model_deployment_monitoring_stats_anomalies_rest_pager(transport
 
         pager = client.search_model_deployment_monitoring_stats_anomalies(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, gca_model_deployment_monitoring_job.ModelMonitoringStatsAnomalies)
@@ -19534,6 +19595,9 @@ def test_list_model_deployment_monitoring_jobs_rest_pager(transport: str = 'rest
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_model_deployment_monitoring_jobs(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

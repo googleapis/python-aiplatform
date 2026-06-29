@@ -2360,6 +2360,9 @@ def test_list_tensorboards_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard.Tensorboard)
@@ -2446,6 +2449,8 @@ async def test_list_tensorboards_async_pager():
         )
         async_pager = await client.list_tensorboards(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -4805,6 +4810,9 @@ def test_list_tensorboard_experiments_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_experiment.TensorboardExperiment)
@@ -4891,6 +4899,8 @@ async def test_list_tensorboard_experiments_async_pager():
         )
         async_pager = await client.list_tensorboard_experiments(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6939,6 +6949,9 @@ def test_list_tensorboard_runs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_run.TensorboardRun)
@@ -7025,6 +7038,8 @@ async def test_list_tensorboard_runs_async_pager():
         )
         async_pager = await client.list_tensorboard_runs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -9099,6 +9114,9 @@ def test_list_tensorboard_time_series_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_time_series.TensorboardTimeSeries)
@@ -9185,6 +9203,8 @@ async def test_list_tensorboard_time_series_async_pager():
         )
         async_pager = await client.list_tensorboard_time_series(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -11474,6 +11494,9 @@ def test_export_tensorboard_time_series_data_pager(transport_name: str = "grpc")
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_data.TimeSeriesDataPoint)
@@ -11560,6 +11583,8 @@ async def test_export_tensorboard_time_series_data_async_pager():
         )
         async_pager = await client.export_tensorboard_time_series_data(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -12338,6 +12363,9 @@ def test_list_tensorboards_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_tensorboards(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -13589,6 +13617,9 @@ def test_list_tensorboard_experiments_rest_pager(transport: str = 'rest'):
 
         pager = client.list_tensorboard_experiments(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_experiment.TensorboardExperiment)
@@ -14675,6 +14706,9 @@ def test_list_tensorboard_runs_rest_pager(transport: str = 'rest'):
 
         pager = client.list_tensorboard_runs(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, tensorboard_run.TensorboardRun)
@@ -15747,6 +15781,9 @@ def test_list_tensorboard_time_series_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5'}
 
         pager = client.list_tensorboard_time_series(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -17007,6 +17044,9 @@ def test_export_tensorboard_time_series_data_rest_pager(transport: str = 'rest')
         sample_request = {'tensorboard_time_series': 'projects/sample1/locations/sample2/tensorboards/sample3/experiments/sample4/runs/sample5/timeSeries/sample6'}
 
         pager = client.export_tensorboard_time_series_data(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

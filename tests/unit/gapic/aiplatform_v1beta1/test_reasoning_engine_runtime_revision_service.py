@@ -1668,6 +1668,9 @@ def test_list_reasoning_engine_runtime_revisions_pager(transport_name: str = "gr
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, reasoning_engine_runtime_revision.ReasoningEngineRuntimeRevision)
@@ -1754,6 +1757,8 @@ async def test_list_reasoning_engine_runtime_revisions_async_pager():
         )
         async_pager = await client.list_reasoning_engine_runtime_revisions(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -2513,6 +2518,9 @@ def test_list_reasoning_engine_runtime_revisions_rest_pager(transport: str = 're
         sample_request = {'parent': 'projects/sample1/locations/sample2/reasoningEngines/sample3'}
 
         pager = client.list_reasoning_engine_runtime_revisions(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
