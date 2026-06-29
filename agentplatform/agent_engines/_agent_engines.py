@@ -1635,7 +1635,9 @@ def _wrap_stream_query_operation(*, method_name: str) -> Callable[..., Iterable[
             ),
         )
         for chunk in response:
-            for parsed_json in _agent_engines_utils._yield_parsed_json(chunk):
+            for parsed_json in _agent_engines_utils._yield_parsed_json_from_httpbody(
+                chunk
+            ):
                 if parsed_json is not None:
                     yield parsed_json
 
@@ -1669,7 +1671,9 @@ def _wrap_async_stream_query_operation(
             ),
         )
         for chunk in response:
-            for parsed_json in _agent_engines_utils._yield_parsed_json(chunk):
+            for parsed_json in _agent_engines_utils._yield_parsed_json_from_httpbody(
+                chunk
+            ):
                 if parsed_json is not None:
                     yield parsed_json
 

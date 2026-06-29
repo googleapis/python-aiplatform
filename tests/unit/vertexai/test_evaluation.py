@@ -804,12 +804,16 @@ def mock_storage_blob_from_string():
     if hasattr(blob_from_uri.__globals__["storage"].Blob, "from_uri"):
         with mock.patch.object(
             blob_from_uri.__globals__["storage"].Blob, "from_uri"
-        ) as mock_blob_from_uri:
+        ) as mock_blob_from_uri, mock.patch(
+            "google.cloud.storage.Client"
+        ) as mock_storage_client:
             yield mock_blob_from_uri
     else:
         with mock.patch.object(
             blob_from_uri.__globals__["storage"].Blob, "from_string"
-        ) as mock_blob_from_string:
+        ) as mock_blob_from_string, mock.patch(
+            "google.cloud.storage.Client"
+        ) as mock_storage_client:
             yield mock_blob_from_string
 
 

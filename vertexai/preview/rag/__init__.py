@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+import warnings
+
 from vertexai.preview.rag.rag_data import (
     batch_create_data_schemas,
     batch_create_metadata,
@@ -169,4 +172,19 @@ __all__ = (
     "update_metadata",
     "update_rag_engine_config",
     "get_rag_engine_config",
+)
+
+_RAG_DEPRECATION_WARNING_MESSAGE = (
+    "The `vertexai.preview.rag` module is deprecated and will be removed in a future version. "
+    "Please migrate to the `agentplatform` client. For example:\n\n"
+    "    import agentplatform\n\n"
+    '    client = agentplatform.Client(project="your-project", location="us-central1")\n'
+    "    client.rag.create_corpus(...)\n"
+)
+
+
+warnings.warn(
+    _RAG_DEPRECATION_WARNING_MESSAGE,
+    category=UserWarning,
+    stacklevel=2,
 )

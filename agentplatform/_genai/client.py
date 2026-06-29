@@ -39,6 +39,9 @@ if TYPE_CHECKING:
     )
     from agentplatform._genai import prompts as prompts_module
     from agentplatform._genai import skills as skills_module
+    from agentplatform._genai import (
+        model_garden as model_garden_module,
+    )
     from agentplatform._genai import live as live_module
     from agentplatform._genai import rag as rag_module
 
@@ -85,6 +88,7 @@ class AsyncClient:
         self._datasets: Optional[ModuleType] = None
         self._skills: Optional[ModuleType] = None
         self._rag: Optional[ModuleType] = None
+        self._model_garden: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -178,6 +182,18 @@ class AsyncClient:
                 __package__,
             )
         return self._rag.AsyncRag(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    @_common.experimental_warning(
+        "The Model Garden module is experimental, and may change in future " "versions."
+    )
+    def model_garden(self) -> "model_garden_module.AsyncModelGarden":
+        if self._model_garden is None:
+            self._model_garden = importlib.import_module(
+                ".model_garden",
+                __package__,
+            )
+        return self._model_garden.AsyncModelGarden(self._api_client)  # type: ignore[no-any-return]
 
     async def aclose(self) -> None:
         """Closes the async client explicitly.
@@ -284,6 +300,7 @@ class Client:
         self._datasets: Optional[ModuleType] = None
         self._skills: Optional[ModuleType] = None
         self._rag: Optional[ModuleType] = None
+        self._model_garden: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -402,3 +419,15 @@ class Client:
                 __package__,
             )
         return self._rag.Rag(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    @_common.experimental_warning(
+        "The Model Garden module is experimental, and may change in future " "versions."
+    )
+    def model_garden(self) -> "model_garden_module.ModelGarden":
+        if self._model_garden is None:
+            self._model_garden = importlib.import_module(
+                ".model_garden",
+                __package__,
+            )
+        return self._model_garden.ModelGarden(self._api_client)  # type: ignore[no-any-return]

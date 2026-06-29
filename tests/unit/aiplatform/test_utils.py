@@ -95,6 +95,8 @@ def mock_storage_blob_upload_from_filename():
         "google.cloud.storage.Blob.upload_from_filename"
     ) as mock_blob_upload_from_filename, patch(
         "google.cloud.storage.Bucket.exists", return_value=True
+    ), patch(
+        "google.cloud.storage.Client.__init__", return_value=None
     ):
         yield mock_blob_upload_from_filename
 
@@ -125,7 +127,9 @@ def mock_storage_client_list_blob():
 def mock_storage_blob_download_to_filename():
     with patch(
         "google.cloud.storage.Blob.download_to_filename"
-    ) as mock_blob_download_to_filename:
+    ) as mock_blob_download_to_filename, patch(
+        "google.cloud.storage.Client.__init__", return_value=None
+    ):
         yield mock_blob_download_to_filename
 
 
@@ -644,7 +648,8 @@ class TestGcsUtils:
                 filename=destination_path
             )
 
-    def test_download_from_gcs_invalid_source_uri(self):
+    @mock.patch("google.cloud.storage.Client.__init__", return_value=None)
+    def test_download_from_gcs_invalid_source_uri(self, _mock_client_init):
         with tempfile.TemporaryDirectory() as temp_dir:
             source_uri = f"{GCS_BUCKET}/{GCS_PREFIX}"
             destination_path = f"{temp_dir}/test-dir"

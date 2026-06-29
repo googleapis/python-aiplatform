@@ -280,6 +280,63 @@ async def save_dataframe_to_bigquery_async(
     await asyncio.to_thread(bq_client.delete_table, temp_table_id)
 
 
+def load_dataframe_from_bigquery(
+    *,
+    bigquery_uri: str,
+    project: str,
+    location: str,
+    credentials: google.auth.credentials.Credentials,
+) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+    """Loads a BigQuery table into a BigFrames DataFrame.
+
+    Args:
+      bigquery_uri: The URI of the BigQuery table, with or without the `bq://`
+        prefix.
+      project: The project to use for the BigFrames session.
+      location: The location to use for the BigFrames session.
+      credentials: The credentials to use for the BigFrames session.
+
+    Returns:
+      A BigFrames DataFrame backed by the BigQuery table.
+    """
+    bigframes = _try_import_bigframes()
+    session_options = bigframes.BigQueryOptions(
+        credentials=credentials,
+        project=project,
+        location=location,
+    )
+    with bigframes.connect(session_options) as session:
+        return session.read_gbq(bigquery_uri.removeprefix("bq://"))
+
+
+async def load_dataframe_from_bigquery_async(
+    *,
+    bigquery_uri: str,
+    project: str,
+    location: str,
+    credentials: google.auth.credentials.Credentials,
+) -> "bigframes.pandas.DataFrame":  # type: ignore # noqa: F821
+    """Loads a BigQuery table into a BigFrames DataFrame.
+
+    Args:
+      bigquery_uri: The URI of the BigQuery table, with or without the `bq://`
+        prefix.
+      project: The project to use for the BigFrames session.
+      location: The location to use for the BigFrames session.
+      credentials: The credentials to use for the BigFrames session.
+
+    Returns:
+      A BigFrames DataFrame backed by the BigQuery table.
+    """
+    return await asyncio.to_thread(
+        load_dataframe_from_bigquery,
+        bigquery_uri=bigquery_uri,
+        project=project,
+        location=location,
+        credentials=credentials,
+    )
+
+
 def resolve_dataset_name(resource_name_or_id: str, project: str, location: str) -> str:
     """Resolves a dataset name or ID to a full resource name."""
     if "/" not in resource_name_or_id:

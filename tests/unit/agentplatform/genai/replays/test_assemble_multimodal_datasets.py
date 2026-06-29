@@ -14,9 +14,13 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
+from unittest import mock
+
 from tests.unit.agentplatform.genai.replays import pytest_helper
+from agentplatform._genai import _datasets_utils
 from agentplatform._genai import types
 
+import pandas as pd
 import pytest
 
 METADATA_SCHEMA_URI = (
@@ -24,6 +28,25 @@ METADATA_SCHEMA_URI = (
 )
 BIGQUERY_TABLE_NAME = "vertex-sdk-dev.multimodal_dataset.test-table"
 DATASET = "projects/vertex-sdk-dev/locations/us-central1/datasets/8810841321427173376"
+
+
+@pytest.fixture
+def mock_import_bigframes(is_replay_mode):
+    if is_replay_mode:
+        with mock.patch.object(
+            _datasets_utils, "_try_import_bigframes"
+        ) as mock_try_import:
+            bigframes = mock.MagicMock()
+            dataframe = (
+                bigframes.connect.return_value.__enter__.return_value.read_gbq.return_value
+            )
+            dataframe.head.return_value.to_pandas.return_value = pd.DataFrame(
+                {"request": ["What is the capital of France?"]}
+            )
+            mock_try_import.return_value = bigframes
+            yield mock_try_import
+    else:
+        yield None
 
 
 def test_assemble_dataset(client):
@@ -38,8 +61,8 @@ def test_assemble_dataset(client):
     assert isinstance(operation, types.MultimodalDatasetOperation)
 
 
-def test_assemble_dataset_public(client):
-    bigquery_destination = client.datasets.assemble(
+def test_assemble_dataset_public(client, mock_import_bigframes):
+    table_id, dataframe = client.datasets.assemble(
         name=DATASET,
         gemini_request_read_config=types.GeminiRequestReadConfig(
             template_config=types.GeminiTemplateConfig(
@@ -54,8 +77,13 @@ def test_assemble_dataset_public(client):
                 ),
             )
         ),
+        load_dataframe=True,
     )
-    assert bigquery_destination.startswith(f"bq://{BIGQUERY_TABLE_NAME}")
+    assert table_id.startswith(BIGQUERY_TABLE_NAME)
+    assert not table_id.startswith("bq://")
+    assert dataframe is not None
+    head_rows = dataframe.head().to_pandas()
+    assert head_rows["request"].tolist() == ["What is the capital of France?"]
 
 
 pytestmark = pytest_helper.setup(
@@ -80,8 +108,8 @@ async def test_assemble_dataset_async(client):
 
 
 @pytest.mark.asyncio
-async def test_assemble_dataset_public_async(client):
-    bigquery_destination = await client.aio.datasets.assemble(
+async def test_assemble_dataset_public_async(client, mock_import_bigframes):
+    table_id, dataframe = await client.aio.datasets.assemble(
         name=DATASET,
         gemini_request_read_config=types.GeminiRequestReadConfig(
             template_config=types.GeminiTemplateConfig(
@@ -96,5 +124,10 @@ async def test_assemble_dataset_public_async(client):
                 ),
             )
         ),
+        load_dataframe=True,
     )
-    assert bigquery_destination.startswith(f"bq://{BIGQUERY_TABLE_NAME}")
+    assert table_id.startswith(BIGQUERY_TABLE_NAME)
+    assert not table_id.startswith("bq://")
+    assert dataframe is not None
+    head_rows = dataframe.head().to_pandas()
+    assert head_rows["request"].tolist() == ["What is the capital of France?"]

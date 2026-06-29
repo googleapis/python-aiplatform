@@ -120,6 +120,7 @@ from .common import _ListDatasetsRequestParameters
 from .common import _ListDatasetVersionsRequestParameters
 from .common import _ListEvaluationMetricsParameters
 from .common import _ListMultimodalDatasetsRequestParameters
+from .common import _ListPublisherModelsRequestParameters
 from .common import _ListRagCorporaRequestParameters
 from .common import _ListRagFilesRequestParameters
 from .common import _ListSandboxEnvironmentSnapshotsRequestParameters
@@ -237,6 +238,12 @@ from .common import AssessDatasetConfigOrDict
 from .common import AttackCategoryResult
 from .common import AttackCategoryResultDict
 from .common import AttackCategoryResultOrDict
+from .common import AutomaticResources
+from .common import AutomaticResourcesDict
+from .common import AutomaticResourcesOrDict
+from .common import AutoscalingMetricSpec
+from .common import AutoscalingMetricSpecDict
+from .common import AutoscalingMetricSpecOrDict
 from .common import BatchPredictionResourceUsageAssessmentConfig
 from .common import BatchPredictionResourceUsageAssessmentConfigDict
 from .common import BatchPredictionResourceUsageAssessmentConfigOrDict
@@ -378,6 +385,12 @@ from .common import DatasetOrDict
 from .common import DatasetVersion
 from .common import DatasetVersionDict
 from .common import DatasetVersionOrDict
+from .common import DedicatedResources
+from .common import DedicatedResourcesDict
+from .common import DedicatedResourcesOrDict
+from .common import DedicatedResourcesScaleToZeroSpec
+from .common import DedicatedResourcesScaleToZeroSpecDict
+from .common import DedicatedResourcesScaleToZeroSpecOrDict
 from .common import DefaultContainerCategory
 from .common import DeleteAgentEngineConfig
 from .common import DeleteAgentEngineConfigDict
@@ -594,6 +607,9 @@ from .common import FailedRubricOrDict
 from .common import FileStatus
 from .common import FileStatusDict
 from .common import FileStatusOrDict
+from .common import FlexStart
+from .common import FlexStartDict
+from .common import FlexStartOrDict
 from .common import Framework
 from .common import GcsDestination
 from .common import GcsDestinationDict
@@ -786,6 +802,10 @@ from .common import KeepAliveProbeHttpGetDict
 from .common import KeepAliveProbeHttpGetOrDict
 from .common import KeepAliveProbeOrDict
 from .common import Language
+from .common import LargeModelReference
+from .common import LargeModelReferenceDict
+from .common import LargeModelReferenceOrDict
+from .common import LaunchStage
 from .common import ListAgentEngineConfig
 from .common import ListAgentEngineConfigDict
 from .common import ListAgentEngineConfigOrDict
@@ -834,12 +854,18 @@ from .common import ListDatasetsResponseOrDict
 from .common import ListDatasetVersionsResponse
 from .common import ListDatasetVersionsResponseDict
 from .common import ListDatasetVersionsResponseOrDict
+from .common import ListDeployableModelsConfig
+from .common import ListDeployableModelsConfigDict
+from .common import ListDeployableModelsConfigOrDict
 from .common import ListEvaluationMetricsConfig
 from .common import ListEvaluationMetricsConfigDict
 from .common import ListEvaluationMetricsConfigOrDict
 from .common import ListEvaluationMetricsResponse
 from .common import ListEvaluationMetricsResponseDict
 from .common import ListEvaluationMetricsResponseOrDict
+from .common import ListModelGardenModelsConfig
+from .common import ListModelGardenModelsConfigDict
+from .common import ListModelGardenModelsConfigOrDict
 from .common import ListMultimodalDatasetsConfig
 from .common import ListMultimodalDatasetsConfigDict
 from .common import ListMultimodalDatasetsConfigOrDict
@@ -849,6 +875,12 @@ from .common import ListMultimodalDatasetsResponseOrDict
 from .common import ListPromptsConfig
 from .common import ListPromptsConfigDict
 from .common import ListPromptsConfigOrDict
+from .common import ListPublisherModelsConfig
+from .common import ListPublisherModelsConfigDict
+from .common import ListPublisherModelsConfigOrDict
+from .common import ListPublisherModelsResponse
+from .common import ListPublisherModelsResponseDict
+from .common import ListPublisherModelsResponseOrDict
 from .common import ListRagCorporaConfig
 from .common import ListRagCorporaConfigDict
 from .common import ListRagCorporaConfigOrDict
@@ -1020,6 +1052,9 @@ from .common import MetricSourceOrDict
 from .common import MetricxResult
 from .common import MetricxResultDict
 from .common import MetricxResultOrDict
+from .common import ModelContainerSpec
+from .common import ModelContainerSpecDict
+from .common import ModelContainerSpecOrDict
 from .common import MultimodalDataset
 from .common import MultimodalDatasetDict
 from .common import MultimodalDatasetOperation
@@ -1032,6 +1067,7 @@ from .common import NfsMountOrDict
 from .common import ObservabilityEvalCase
 from .common import ObservabilityEvalCaseDict
 from .common import ObservabilityEvalCaseOrDict
+from .common import OpenSourceCategory
 from .common import Operator
 from .common import OptimizationMethod
 from .common import OptimizeConfig
@@ -1060,7 +1096,31 @@ from .common import PointwiseMetricInputOrDict
 from .common import PointwiseMetricInstance
 from .common import PointwiseMetricInstanceDict
 from .common import PointwiseMetricInstanceOrDict
+from .common import Port
+from .common import PortDict
+from .common import PortOrDict
 from .common import PostSnapshotAction
+from .common import PredictSchemata
+from .common import PredictSchemataDict
+from .common import PredictSchemataOrDict
+from .common import Probe
+from .common import ProbeDict
+from .common import ProbeExecAction
+from .common import ProbeExecActionDict
+from .common import ProbeExecActionOrDict
+from .common import ProbeGrpcAction
+from .common import ProbeGrpcActionDict
+from .common import ProbeGrpcActionOrDict
+from .common import ProbeHttpGetAction
+from .common import ProbeHttpGetActionDict
+from .common import ProbeHttpGetActionOrDict
+from .common import ProbeHttpHeader
+from .common import ProbeHttpHeaderDict
+from .common import ProbeHttpHeaderOrDict
+from .common import ProbeOrDict
+from .common import ProbeTcpSocketAction
+from .common import ProbeTcpSocketActionDict
+from .common import ProbeTcpSocketActionOrDict
 from .common import Prompt
 from .common import PromptData
 from .common import PromptDataDict
@@ -1087,6 +1147,45 @@ from .common import Protocol
 from .common import PscInterfaceConfig
 from .common import PscInterfaceConfigDict
 from .common import PscInterfaceConfigOrDict
+from .common import PublisherModel
+from .common import PublisherModelCallToAction
+from .common import PublisherModelCallToActionDeploy
+from .common import PublisherModelCallToActionDeployDeployMetadata
+from .common import PublisherModelCallToActionDeployDeployMetadataDict
+from .common import PublisherModelCallToActionDeployDeployMetadataOrDict
+from .common import PublisherModelCallToActionDeployDict
+from .common import PublisherModelCallToActionDeployGke
+from .common import PublisherModelCallToActionDeployGkeDict
+from .common import PublisherModelCallToActionDeployGkeOrDict
+from .common import PublisherModelCallToActionDeployOrDict
+from .common import PublisherModelCallToActionDeployVertex
+from .common import PublisherModelCallToActionDeployVertexDict
+from .common import PublisherModelCallToActionDeployVertexOrDict
+from .common import PublisherModelCallToActionDict
+from .common import PublisherModelCallToActionOpenFineTuningPipelines
+from .common import PublisherModelCallToActionOpenFineTuningPipelinesDict
+from .common import PublisherModelCallToActionOpenFineTuningPipelinesOrDict
+from .common import PublisherModelCallToActionOpenNotebooks
+from .common import PublisherModelCallToActionOpenNotebooksDict
+from .common import PublisherModelCallToActionOpenNotebooksOrDict
+from .common import PublisherModelCallToActionOrDict
+from .common import PublisherModelCallToActionRegionalResourceReferences
+from .common import PublisherModelCallToActionRegionalResourceReferencesDict
+from .common import PublisherModelCallToActionRegionalResourceReferencesOrDict
+from .common import PublisherModelCallToActionViewRestApi
+from .common import PublisherModelCallToActionViewRestApiDict
+from .common import PublisherModelCallToActionViewRestApiOrDict
+from .common import PublisherModelDict
+from .common import PublisherModelDocumentation
+from .common import PublisherModelDocumentationDict
+from .common import PublisherModelDocumentationOrDict
+from .common import PublisherModelOrDict
+from .common import PublisherModelParent
+from .common import PublisherModelParentDict
+from .common import PublisherModelParentOrDict
+from .common import PublisherModelResourceReference
+from .common import PublisherModelResourceReferenceDict
+from .common import PublisherModelResourceReferenceOrDict
 from .common import PurgeAgentEngineMemoriesConfig
 from .common import PurgeAgentEngineMemoriesConfigDict
 from .common import PurgeAgentEngineMemoriesConfigOrDict
@@ -1774,6 +1873,7 @@ from .common import UploadRagFileRequestConfigOrDict
 from .common import UploadRagFileResponse
 from .common import UploadRagFileResponseDict
 from .common import UploadRagFileResponseOrDict
+from .common import VersionState
 from .common import VertexAiSearchConfig
 from .common import VertexAiSearchConfigDict
 from .common import VertexAiSearchConfigOrDict
@@ -3264,6 +3364,96 @@ __all__ = [
     "ListSkillRevisionsResponse",
     "ListSkillRevisionsResponseDict",
     "ListSkillRevisionsResponseOrDict",
+    "ListPublisherModelsConfig",
+    "ListPublisherModelsConfigDict",
+    "ListPublisherModelsConfigOrDict",
+    "PublisherModelResourceReference",
+    "PublisherModelResourceReferenceDict",
+    "PublisherModelResourceReferenceOrDict",
+    "PublisherModelParent",
+    "PublisherModelParentDict",
+    "PublisherModelParentOrDict",
+    "PredictSchemata",
+    "PredictSchemataDict",
+    "PredictSchemataOrDict",
+    "PublisherModelCallToActionRegionalResourceReferences",
+    "PublisherModelCallToActionRegionalResourceReferencesDict",
+    "PublisherModelCallToActionRegionalResourceReferencesOrDict",
+    "AutomaticResources",
+    "AutomaticResourcesDict",
+    "AutomaticResourcesOrDict",
+    "Port",
+    "PortDict",
+    "PortOrDict",
+    "ProbeExecAction",
+    "ProbeExecActionDict",
+    "ProbeExecActionOrDict",
+    "ProbeGrpcAction",
+    "ProbeGrpcActionDict",
+    "ProbeGrpcActionOrDict",
+    "ProbeHttpHeader",
+    "ProbeHttpHeaderDict",
+    "ProbeHttpHeaderOrDict",
+    "ProbeHttpGetAction",
+    "ProbeHttpGetActionDict",
+    "ProbeHttpGetActionOrDict",
+    "ProbeTcpSocketAction",
+    "ProbeTcpSocketActionDict",
+    "ProbeTcpSocketActionOrDict",
+    "Probe",
+    "ProbeDict",
+    "ProbeOrDict",
+    "ModelContainerSpec",
+    "ModelContainerSpecDict",
+    "ModelContainerSpecOrDict",
+    "AutoscalingMetricSpec",
+    "AutoscalingMetricSpecDict",
+    "AutoscalingMetricSpecOrDict",
+    "FlexStart",
+    "FlexStartDict",
+    "FlexStartOrDict",
+    "DedicatedResourcesScaleToZeroSpec",
+    "DedicatedResourcesScaleToZeroSpecDict",
+    "DedicatedResourcesScaleToZeroSpecOrDict",
+    "DedicatedResources",
+    "DedicatedResourcesDict",
+    "DedicatedResourcesOrDict",
+    "PublisherModelCallToActionDeployDeployMetadata",
+    "PublisherModelCallToActionDeployDeployMetadataDict",
+    "PublisherModelCallToActionDeployDeployMetadataOrDict",
+    "LargeModelReference",
+    "LargeModelReferenceDict",
+    "LargeModelReferenceOrDict",
+    "PublisherModelCallToActionDeploy",
+    "PublisherModelCallToActionDeployDict",
+    "PublisherModelCallToActionDeployOrDict",
+    "PublisherModelCallToActionDeployGke",
+    "PublisherModelCallToActionDeployGkeDict",
+    "PublisherModelCallToActionDeployGkeOrDict",
+    "PublisherModelCallToActionDeployVertex",
+    "PublisherModelCallToActionDeployVertexDict",
+    "PublisherModelCallToActionDeployVertexOrDict",
+    "PublisherModelCallToActionOpenFineTuningPipelines",
+    "PublisherModelCallToActionOpenFineTuningPipelinesDict",
+    "PublisherModelCallToActionOpenFineTuningPipelinesOrDict",
+    "PublisherModelCallToActionOpenNotebooks",
+    "PublisherModelCallToActionOpenNotebooksDict",
+    "PublisherModelCallToActionOpenNotebooksOrDict",
+    "PublisherModelDocumentation",
+    "PublisherModelDocumentationDict",
+    "PublisherModelDocumentationOrDict",
+    "PublisherModelCallToActionViewRestApi",
+    "PublisherModelCallToActionViewRestApiDict",
+    "PublisherModelCallToActionViewRestApiOrDict",
+    "PublisherModelCallToAction",
+    "PublisherModelCallToActionDict",
+    "PublisherModelCallToActionOrDict",
+    "PublisherModel",
+    "PublisherModelDict",
+    "PublisherModelOrDict",
+    "ListPublisherModelsResponse",
+    "ListPublisherModelsResponseDict",
+    "ListPublisherModelsResponseOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -3357,6 +3547,12 @@ __all__ = [
     "AgentEngineRuntimeRevision",
     "AgentEngineRuntimeRevisionDict",
     "AgentEngineRuntimeRevisionOrDict",
+    "ListDeployableModelsConfig",
+    "ListDeployableModelsConfigDict",
+    "ListDeployableModelsConfigOrDict",
+    "ListModelGardenModelsConfig",
+    "ListModelGardenModelsConfigDict",
+    "ListModelGardenModelsConfigOrDict",
     "A2aTaskState",
     "State",
     "Strategy",
@@ -3379,6 +3575,9 @@ __all__ = [
     "Framework",
     "SkillState",
     "SkillSource",
+    "LaunchStage",
+    "OpenSourceCategory",
+    "VersionState",
     "EvaluationItemType",
     "SamplingMethod",
     "EvaluationRunState",
@@ -3536,6 +3735,7 @@ __all__ = [
     "_GetSkillOperationParameters",
     "_GetSkillRevisionRequestParameters",
     "_ListSkillRevisionsRequestParameters",
+    "_ListPublisherModelsRequestParameters",
     "evals",
     "agent_engines",
     "prompts",

@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import warnings
+
 from vertexai.rag.rag_data import (
     add_inline_citations_and_references,
     create_corpus,
@@ -126,4 +128,19 @@ __all__ = (
     "update_corpus",
     "update_rag_engine_config",
     "add_inline_citations_and_references",
+)
+
+_RAG_DEPRECATION_WARNING_MESSAGE = (
+    "The `vertexai.rag` module is deprecated and will be removed in a future version. "
+    "Please migrate to the `agentplatform` client. For example:\n\n"
+    "    import agentplatform\n\n"
+    '    client = agentplatform.Client(project="your-project", location="us-central1")\n'
+    "    client.rag.create_corpus(...)\n"
+)
+
+
+warnings.warn(
+    _RAG_DEPRECATION_WARNING_MESSAGE,
+    category=UserWarning,
+    stacklevel=2,
 )

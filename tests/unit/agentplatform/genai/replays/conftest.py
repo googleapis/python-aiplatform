@@ -74,6 +74,30 @@ _replay_api_client.ReplayInteraction = PatchedReplayInteraction
 _replay_api_client.ReplayFile = PatchedReplayFile
 
 
+original_redact_request_body = _replay_api_client._redact_request_body
+
+
+def patched_redact_request_body(body: Any) -> None:
+  _redact_version_in_python_spec(body)
+  original_redact_request_body(body)
+
+
+def _redact_version_in_python_spec(body: Any) -> None:
+  if isinstance(body, dict):
+    for k, v in body.items():
+      if k == "python_spec" and isinstance(v, dict):
+        if "version" in v:
+          v["version"] = "{PYTHON_VERSION}"
+      else:
+        _redact_version_in_python_spec(v)
+  elif isinstance(body, list):
+    for item in body:
+      _redact_version_in_python_spec(item)
+
+
+_replay_api_client._redact_request_body = patched_redact_request_body
+
+
 IS_KOKORO = os.getenv("KOKORO_BUILD_NUMBER") is not None
 
 
@@ -272,10 +296,15 @@ def client(use_vertex, replays_prefix, http_options, request):
     if http_options.headers is None:
         http_options.headers = {}
 
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    location = os.environ.get("GOOGLE_CLOUD_LOCATION")
+
     replay_client = _replay_api_client.ReplayApiClient(
         mode=mode,
         replay_id=replay_id,
         vertexai=use_vertex,
+        project=project,
+        location=location,
         http_options=http_options,
     )
 
