@@ -2051,6 +2051,9 @@ def test_list_notebook_runtime_templates_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, notebook_runtime.NotebookRuntimeTemplate)
@@ -2137,6 +2140,8 @@ async def test_list_notebook_runtime_templates_async_pager():
         )
         async_pager = await client.list_notebook_runtime_templates(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -3934,6 +3939,9 @@ def test_list_notebook_runtimes_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, notebook_runtime.NotebookRuntime)
@@ -4020,6 +4028,8 @@ async def test_list_notebook_runtimes_async_pager():
         )
         async_pager = await client.list_notebook_runtimes(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6378,6 +6388,9 @@ def test_list_notebook_execution_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, notebook_execution_job.NotebookExecutionJob)
@@ -6464,6 +6477,8 @@ async def test_list_notebook_execution_jobs_async_pager():
         )
         async_pager = await client.list_notebook_execution_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -7397,6 +7412,9 @@ def test_list_notebook_runtime_templates_rest_pager(transport: str = 'rest'):
 
         pager = client.list_notebook_runtime_templates(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, notebook_runtime.NotebookRuntimeTemplate)
@@ -8304,6 +8322,9 @@ def test_list_notebook_runtimes_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_notebook_runtimes(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -9544,6 +9565,9 @@ def test_list_notebook_execution_jobs_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_notebook_execution_jobs(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

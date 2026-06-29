@@ -2020,6 +2020,9 @@ def test_list_feature_groups_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature_group.FeatureGroup)
@@ -2106,6 +2109,8 @@ async def test_list_feature_groups_async_pager():
         )
         async_pager = await client.list_feature_groups(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -4180,6 +4185,9 @@ def test_list_features_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature.Feature)
@@ -4266,6 +4274,8 @@ async def test_list_features_async_pager():
         )
         async_pager = await client.list_features(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -5535,6 +5545,9 @@ def test_list_feature_groups_rest_pager(transport: str = 'rest'):
 
         pager = client.list_feature_groups(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature_group.FeatureGroup)
@@ -6621,6 +6634,9 @@ def test_list_features_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2/featureGroups/sample3'}
 
         pager = client.list_features(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

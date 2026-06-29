@@ -2031,6 +2031,9 @@ def test_list_feature_online_stores_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature_online_store.FeatureOnlineStore)
@@ -2117,6 +2120,8 @@ async def test_list_feature_online_stores_async_pager():
         )
         async_pager = await client.list_feature_online_stores(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -3860,6 +3865,9 @@ def test_list_feature_views_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature_view.FeatureView)
@@ -3946,6 +3954,8 @@ async def test_list_feature_views_async_pager():
         )
         async_pager = await client.list_feature_views(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -5637,6 +5647,9 @@ def test_list_feature_view_syncs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature_view_sync.FeatureViewSync)
@@ -5723,6 +5736,8 @@ async def test_list_feature_view_syncs_async_pager():
         )
         async_pager = await client.list_feature_view_syncs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6350,6 +6365,9 @@ def test_list_feature_online_stores_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_feature_online_stores(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -7269,6 +7287,9 @@ def test_list_feature_views_rest_pager(transport: str = 'rest'):
 
         pager = client.list_feature_views(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, feature_view.FeatureView)
@@ -8166,6 +8187,9 @@ def test_list_feature_view_syncs_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2/featureOnlineStores/sample3/featureViews/sample4'}
 
         pager = client.list_feature_view_syncs(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

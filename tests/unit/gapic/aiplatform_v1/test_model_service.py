@@ -2082,6 +2082,9 @@ def test_list_models_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model.Model)
@@ -2168,6 +2171,8 @@ async def test_list_models_async_pager():
         )
         async_pager = await client.list_models(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -2591,6 +2596,9 @@ def test_list_model_versions_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model.Model)
@@ -2677,6 +2685,8 @@ async def test_list_model_versions_async_pager():
         )
         async_pager = await client.list_model_versions(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -3096,6 +3106,9 @@ def test_list_model_version_checkpoints_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_service.ModelVersionCheckpoint)
@@ -3182,6 +3195,8 @@ async def test_list_model_version_checkpoints_async_pager():
         )
         async_pager = await client.list_model_version_checkpoints(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -7294,6 +7309,9 @@ def test_list_model_evaluations_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_evaluation.ModelEvaluation)
@@ -7380,6 +7398,8 @@ async def test_list_model_evaluations_async_pager():
         )
         async_pager = await client.list_model_evaluations(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -8114,6 +8134,9 @@ def test_list_model_evaluation_slices_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_evaluation_slice.ModelEvaluationSlice)
@@ -8200,6 +8223,8 @@ async def test_list_model_evaluation_slices_async_pager():
         )
         async_pager = await client.list_model_evaluation_slices(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -8813,6 +8838,9 @@ def test_list_models_rest_pager(transport: str = 'rest'):
 
         pager = client.list_models(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model.Model)
@@ -9044,6 +9072,9 @@ def test_list_model_versions_rest_pager(transport: str = 'rest'):
 
         pager = client.list_model_versions(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model.Model)
@@ -9274,6 +9305,9 @@ def test_list_model_version_checkpoints_rest_pager(transport: str = 'rest'):
         sample_request = {'name': 'projects/sample1/locations/sample2/models/sample3'}
 
         pager = client.list_model_version_checkpoints(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -11365,6 +11399,9 @@ def test_list_model_evaluations_rest_pager(transport: str = 'rest'):
 
         pager = client.list_model_evaluations(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_evaluation.ModelEvaluation)
@@ -11762,6 +11799,9 @@ def test_list_model_evaluation_slices_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2/models/sample3/evaluations/sample4'}
 
         pager = client.list_model_evaluation_slices(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

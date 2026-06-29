@@ -2393,6 +2393,9 @@ def test_list_datasets_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, dataset.Dataset)
@@ -2479,6 +2482,8 @@ async def test_list_datasets_async_pager():
         )
         async_pager = await client.list_datasets(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -5191,6 +5196,9 @@ def test_list_dataset_versions_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, dataset_version.DatasetVersion)
@@ -5277,6 +5285,8 @@ async def test_list_dataset_versions_async_pager():
         )
         async_pager = await client.list_dataset_versions(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6017,6 +6027,9 @@ def test_list_data_items_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, data_item.DataItem)
@@ -6103,6 +6116,8 @@ async def test_list_data_items_async_pager():
         )
         async_pager = await client.list_data_items(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6452,6 +6467,9 @@ def test_search_data_items_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, dataset_service.DataItemView)
@@ -6538,6 +6556,8 @@ async def test_search_data_items_async_pager():
         )
         async_pager = await client.search_data_items(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6961,6 +6981,9 @@ def test_list_saved_queries_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, saved_query.SavedQuery)
@@ -7047,6 +7070,8 @@ async def test_list_saved_queries_async_pager():
         )
         async_pager = await client.list_saved_queries(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -8104,6 +8129,9 @@ def test_list_annotations_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, annotation.Annotation)
@@ -8190,6 +8218,8 @@ async def test_list_annotations_async_pager():
         )
         async_pager = await client.list_annotations(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -8971,6 +9001,9 @@ def test_list_datasets_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_datasets(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -10378,6 +10411,9 @@ def test_list_dataset_versions_rest_pager(transport: str = 'rest'):
 
         pager = client.list_dataset_versions(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, dataset_version.DatasetVersion)
@@ -10775,6 +10811,9 @@ def test_list_data_items_rest_pager(transport: str = 'rest'):
 
         pager = client.list_data_items(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, data_item.DataItem)
@@ -10951,6 +10990,9 @@ def test_search_data_items_rest_pager(transport: str = 'rest'):
         sample_request = {'dataset': 'projects/sample1/locations/sample2/datasets/sample3'}
 
         pager = client.search_data_items(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -11182,6 +11224,9 @@ def test_list_saved_queries_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2/datasets/sample3'}
 
         pager = client.list_saved_queries(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -11748,6 +11793,9 @@ def test_list_annotations_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2/datasets/sample3/dataItems/sample4'}
 
         pager = client.list_annotations(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6

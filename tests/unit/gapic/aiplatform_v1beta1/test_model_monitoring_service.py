@@ -2350,6 +2350,9 @@ def test_list_model_monitors_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitor.ModelMonitor)
@@ -2436,6 +2439,8 @@ async def test_list_model_monitors_async_pager():
         )
         async_pager = await client.list_model_monitors(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -3828,6 +3833,9 @@ def test_list_model_monitoring_jobs_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitoring_job.ModelMonitoringJob)
@@ -3914,6 +3922,8 @@ async def test_list_model_monitoring_jobs_async_pager():
         )
         async_pager = await client.list_model_monitoring_jobs(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -4650,6 +4660,9 @@ def test_search_model_monitoring_stats_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitoring_stats.ModelMonitoringStats)
@@ -4736,6 +4749,8 @@ async def test_search_model_monitoring_stats_async_pager():
         )
         async_pager = await client.search_model_monitoring_stats(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -5165,6 +5180,9 @@ def test_search_model_monitoring_alerts_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitoring_alert.ModelMonitoringAlert)
@@ -5251,6 +5269,8 @@ async def test_search_model_monitoring_alerts_async_pager():
         )
         async_pager = await client.search_model_monitoring_alerts(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -6032,6 +6052,9 @@ def test_list_model_monitors_rest_pager(transport: str = 'rest'):
 
         pager = client.list_model_monitors(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitor.ModelMonitor)
@@ -6770,6 +6793,9 @@ def test_list_model_monitoring_jobs_rest_pager(transport: str = 'rest'):
 
         pager = client.list_model_monitoring_jobs(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitoring_job.ModelMonitoringJob)
@@ -7166,6 +7192,9 @@ def test_search_model_monitoring_stats_rest_pager(transport: str = 'rest'):
 
         pager = client.search_model_monitoring_stats(request=sample_request)
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, model_monitoring_stats.ModelMonitoringStats)
@@ -7395,6 +7424,9 @@ def test_search_model_monitoring_alerts_rest_pager(transport: str = 'rest'):
         sample_request = {'model_monitor': 'projects/sample1/locations/sample2/modelMonitors/sample3'}
 
         pager = client.search_model_monitoring_alerts(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
