@@ -37,6 +37,7 @@ from agentplatform._genai import agent_engines
 from agentplatform._genai import types as _genai_types
 from google.genai import client as genai_client
 from google.genai import types as genai_types
+from google.api import httpbody_pb2
 import pytest
 
 
@@ -1766,6 +1767,49 @@ class TestAgentEngineHelpers:
     def test_to_parsed_json(self, obj, expected):
         for got, want in zip(_agent_engines_utils._yield_parsed_json(obj), expected):
             assert got == want
+
+    # pytest does not allow absl.testing.parameterized.named_parameters.
+    @pytest.mark.parametrize(
+        "obj, expected",
+        [
+            (
+                # "valid_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": 1, "b": "hello"}'
+                ),
+                [{"a": 1, "b": "hello"}],
+            ),
+            (
+                # "invalid_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json", data=b'{"a": 1, "b": "hello"'
+                ),
+                ['{"a": 1, "b": "hello"'],  # returns the unparsed string
+            ),
+            (
+                # "empty_data",
+                httpbody_pb2.HttpBody(content_type="application/json", data=b""),
+                [None],
+            ),
+            (
+                # "multiline_json",
+                httpbody_pb2.HttpBody(
+                    content_type="application/json",
+                    data=b'{"a": {"b": 1}}\n{"a": {"b": 2}}',
+                ),
+                [{"a": {"b": 1}}, {"a": {"b": 2}}],
+            ),
+        ],
+    )
+    def test_yield_parsed_json_from_httpbody(self, obj, expected):
+        got = list(_agent_engines_utils._yield_parsed_json_from_httpbody(obj))
+        assert got == expected
+
+    def test_yield_parsed_json_from_httpbody_non_json_content_type(self):
+        body = httpbody_pb2.HttpBody(content_type="text/plain", data=b"hello")
+        assert list(_agent_engines_utils._yield_parsed_json_from_httpbody(body)) == [
+            body
+        ]
 
     def test_create_base64_encoded_tarball(self):
         with tempfile.TemporaryDirectory() as tmpdir:

@@ -53,6 +53,7 @@ import proto
 
 from google.api_core import exceptions
 from google.genai import types as google_genai_types
+from google.api import httpbody_pb2
 from google.protobuf import struct_pb2
 from google.protobuf import json_format
 
@@ -1907,6 +1908,50 @@ def _yield_parsed_json(http_response: google_genai_types.HttpResponse) -> Iterat
 
     # Handle the case of multiple dictionaries delimited by newlines.
     for line in http_response.body.split("\n"):
+        if line:
+            try:
+                line = json.loads(line)
+            except Exception as e:
+                logger.warning(f"failed to parse json: {line}. Exception: {e}")
+            yield line
+
+
+def _yield_parsed_json_from_httpbody(body: httpbody_pb2.HttpBody) -> Iterator[Any]:
+    """Converts the contents of an `HttpBody` proto message to JSON format.
+
+    Unlike `_yield_parsed_json`, which parses a `google.genai.types.HttpResponse`
+    (with a `body` attribute), this helper parses the gRPC `httpbody_pb2.HttpBody`
+    protos yielded by `stream_query_reasoning_engine`, which expose
+    `content_type` and `data` instead.
+
+    Args:
+        body (httpbody_pb2.HttpBody):
+            Required. The httpbody proto to be converted to JSON object(s).
+
+    Yields:
+        Any: A JSON object, a line of the original body, or the original body if
+            it is not JSON, or None.
+    """
+    content_type = getattr(body, "content_type", None)
+    data = getattr(body, "data", None)
+
+    if content_type is None or data is None or "application/json" not in content_type:
+        yield body
+        return
+
+    try:
+        utf8_data = data.decode("utf-8")
+    except Exception as e:
+        logger.warning(f"Failed to decode data: {data!r}. Exception: {e}")
+        yield body
+        return
+
+    if not utf8_data:
+        yield None
+        return
+
+    # Handle the case of multiple dictionaries delimited by newlines.
+    for line in utf8_data.split("\n"):
         if line:
             try:
                 line = json.loads(line)
