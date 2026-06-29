@@ -1650,7 +1650,15 @@ class Rag(_api_module.BaseModule):
         config: Optional[types.AskContextsConfigOrDict] = None,
     ) -> types.AskContextsResponse:
         """
-        Asks a RAG Contexts.
+        Agentic Retrieval Ask API for RAG.
+
+        Args:
+          query: The query to ask.
+          config: Optional configuration for the request.
+
+        Returns:
+          The AskContextsResponse.
+
         """
 
         parameter_model = types._AskContextsRequestParameters(
@@ -1863,6 +1871,14 @@ class Rag(_api_module.BaseModule):
     ) -> types.RagCorpus:
         """
         Gets a RAG Corpus.
+
+        Args:
+          name: The name of the RagCorpus to retrieve.
+          config: Optional configuration for the request.
+
+        Returns:
+          The requested RagCorpus.
+
         """
 
         parameter_model = types._GetRagCorpusRequestParameters(
@@ -1934,7 +1950,14 @@ class Rag(_api_module.BaseModule):
         self, *, config: Optional[types.ListRagCorporaConfigOrDict] = None
     ) -> types.ListRagCorporaResponse:
         """
-        Lists RagCorpora.
+        Lists RagCorpora for a project.
+
+        Args:
+          config: Optional configuration for listing corpora.
+
+        Returns:
+          A ListRagCorporaResponse containing the corpora.
+
         """
 
         parameter_model = types._ListRagCorporaRequestParameters(
@@ -2006,6 +2029,14 @@ class Rag(_api_module.BaseModule):
     ) -> types.RagFile:
         """
         Gets a RagFile.
+
+        Args:
+          name: The name of the RagFile to retrieve.
+          config: Optional configuration for the request.
+
+        Returns:
+          The requested RagFile.
+
         """
 
         parameter_model = types._GetRagFileRequestParameters(
@@ -2075,6 +2106,14 @@ class Rag(_api_module.BaseModule):
     ) -> types.ListRagFilesResponse:
         """
         Lists RagFile instances within a RagCorpus.
+
+        Args:
+          name: The name of the RagCorpus to list files from.
+          config: Optional configuration for the request (e.g., pagination details).
+
+        Returns:
+          A ListRagFilesResponse containing the files.
+
         """
 
         parameter_model = types._ListRagFilesRequestParameters(
@@ -2143,7 +2182,14 @@ class Rag(_api_module.BaseModule):
         self, *, config: Optional[types.GetRagConfigOrDict] = None
     ) -> types.RagEngineConfig:
         """
-        Gets a RAG Engine Config.
+        Gets the project-level RAG Engine Config.
+
+        Args:
+          config: Optional configuration for the request.
+
+        Returns:
+          The requested RagEngineConfig.
+
         """
 
         parameter_model = types._GetRagConfigRequestParameters(
@@ -2505,7 +2551,16 @@ class Rag(_api_module.BaseModule):
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
         """
-        Retrieves a RAG Contexts.
+        Retrieves contexts from a Vertex RAG store based on a query.
+
+        Args:
+          vertex_rag_store: The Vertex RAG store to retrieve contexts from.
+          query: The query to retrieve contexts for.
+          config: Optional configuration for the request.
+
+        Returns:
+          The RetrieveContextsResponse containing the relevant contexts.
+
         """
 
         parameter_model = types._RetrieveRagContextsRequestParameters(
@@ -2893,7 +2948,13 @@ class Rag(_api_module.BaseModule):
     ) -> None:
         """
         Deletes a RAG Corpus and waits for the delete operation to complete.
+
+        Args:
+          name: The name of the RagCorpus to delete, formatted as
+            `projects/{project}/locations/{location}/ragCorpora/{corpus_id}`.
+          config: The configuration to use for the RagCorpus delete request.
         """
+
         operation = self._delete_corpus(name=name, config=config)
 
         operation = _operations_utils.await_operation(
@@ -2916,6 +2977,11 @@ class Rag(_api_module.BaseModule):
     ) -> None:
         """
         Deletes a file from a RAG Corpus and waits for the delete operation to complete.
+
+        Args:
+          name: The name of the RagFile to delete, formatted as
+            `projects/{project}/locations/{location}/ragCorpora/{corpus_id}/ragFiles/{file_id}`.
+          config: The configuration to use for the RagFile delete request.
         """
         operation = self._delete_file(name=name, config=config)
 
@@ -3158,7 +3224,15 @@ class AsyncRag(_api_module.BaseModule):
         config: Optional[types.AskContextsConfigOrDict] = None,
     ) -> types.AskContextsResponse:
         """
-        Asks a RAG Contexts.
+        Agentic Retrieval Ask API for RAG.
+
+        Args:
+          query: The query to ask.
+          config: Optional configuration for the request.
+
+        Returns:
+          The AskContextsResponse.
+
         """
 
         parameter_model = types._AskContextsRequestParameters(
@@ -3377,6 +3451,14 @@ class AsyncRag(_api_module.BaseModule):
     ) -> types.RagCorpus:
         """
         Gets a RAG Corpus.
+
+        Args:
+          name: The name of the RagCorpus to retrieve.
+          config: Optional configuration for the request.
+
+        Returns:
+          The requested RagCorpus.
+
         """
 
         parameter_model = types._GetRagCorpusRequestParameters(
@@ -3450,7 +3532,14 @@ class AsyncRag(_api_module.BaseModule):
         self, *, config: Optional[types.ListRagCorporaConfigOrDict] = None
     ) -> types.ListRagCorporaResponse:
         """
-        Lists RagCorpora.
+        Lists RagCorpora for a project.
+
+        Args:
+          config: Optional configuration for listing corpora.
+
+        Returns:
+          A ListRagCorporaResponse containing the corpora.
+
         """
 
         parameter_model = types._ListRagCorporaRequestParameters(
@@ -3524,6 +3613,14 @@ class AsyncRag(_api_module.BaseModule):
     ) -> types.RagFile:
         """
         Gets a RagFile.
+
+        Args:
+          name: The name of the RagFile to retrieve.
+          config: Optional configuration for the request.
+
+        Returns:
+          The requested RagFile.
+
         """
 
         parameter_model = types._GetRagFileRequestParameters(
@@ -3595,6 +3692,14 @@ class AsyncRag(_api_module.BaseModule):
     ) -> types.ListRagFilesResponse:
         """
         Lists RagFile instances within a RagCorpus.
+
+        Args:
+          name: The name of the RagCorpus to list files from.
+          config: Optional configuration for the request (e.g., pagination details).
+
+        Returns:
+          A ListRagFilesResponse containing the files.
+
         """
 
         parameter_model = types._ListRagFilesRequestParameters(
@@ -3665,7 +3770,14 @@ class AsyncRag(_api_module.BaseModule):
         self, *, config: Optional[types.GetRagConfigOrDict] = None
     ) -> types.RagEngineConfig:
         """
-        Gets a RAG Engine Config.
+        Gets the project-level RAG Engine Config.
+
+        Args:
+          config: Optional configuration for the request.
+
+        Returns:
+          The requested RagEngineConfig.
+
         """
 
         parameter_model = types._GetRagConfigRequestParameters(
@@ -4037,7 +4149,16 @@ class AsyncRag(_api_module.BaseModule):
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
         """
-        Retrieves a RAG Contexts.
+        Retrieves contexts from a Vertex RAG store based on a query.
+
+        Args:
+          vertex_rag_store: The Vertex RAG store to retrieve contexts from.
+          query: The query to retrieve contexts for.
+          config: Optional configuration for the request.
+
+        Returns:
+          The RetrieveContextsResponse containing the relevant contexts.
+
         """
 
         parameter_model = types._RetrieveRagContextsRequestParameters(
@@ -4435,6 +4556,11 @@ class AsyncRag(_api_module.BaseModule):
     ) -> None:
         """
         Deletes a RAG Corpus and waits for the delete operation to complete asynchronously.
+
+        Args:
+          name: The name of the RagCorpus to delete, formatted as
+            `projects/{project}/locations/{location}/ragCorpora/{corpus_id}`.
+          config: The configuration to use for the RagCorpus delete request.
         """
         operation = await self._delete_corpus(name=name, config=config)
 
@@ -4457,7 +4583,12 @@ class AsyncRag(_api_module.BaseModule):
         config: Optional[types.DeleteRagFileConfigOrDict] = None,
     ) -> None:
         """
-        Deletes a file from a RAG Corpus and waits for the delete operation to complete asynchronously.
+        Deletes a file from a RAG Corpus and waits for the delete operation to complete.
+
+        Args:
+          name: The name of the RagFile to delete, formatted as
+            `projects/{project}/locations/{location}/ragCorpora/{corpus_id}/ragFiles/{file_id}`.
+          config: The configuration to use for the RagFile delete request.
         """
         operation = await self._delete_file(name=name, config=config)
 
