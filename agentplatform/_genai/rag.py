@@ -2879,7 +2879,9 @@ class Rag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to create RagCorpus: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to create RagCorpus: {operation.error}"
+            )
 
         return self.get_corpus(name=operation.response.name)
 
@@ -2900,7 +2902,9 @@ class Rag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to delete RagCorpus: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to delete RagCorpus: {operation.error}"
+            )
 
         return None
 
@@ -2922,7 +2926,7 @@ class Rag(_api_module.BaseModule):
 
         if operation.error:
             raise RuntimeError(
-                f"Failed to delete file from RagCorpus: {operation.error}"
+                f"Operation {operation.name} failed to delete file from RagCorpus: {operation.error}"
             )
 
         return None
@@ -2954,7 +2958,9 @@ class Rag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to update RagCorpus: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to update RagCorpus: {operation.error}"
+            )
 
         return self.get_corpus(name=operation.response.name)
 
@@ -2984,7 +2990,9 @@ class Rag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to update RagEngineConfig: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to update RagEngineConfig: {operation.error}"
+            )
 
         return self.get_config()
 
@@ -3047,7 +3055,7 @@ class Rag(_api_module.BaseModule):
 
         if operation.error:
             raise RuntimeError(
-                f"Failed to import files into RagCorpus: {operation.error}"
+                f"Operation {operation.name} failed to import files into RagCorpus: {operation.error}"
             )
 
         return operation.response
@@ -4413,7 +4421,9 @@ class AsyncRag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to create RagCorpus: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to create RagCorpus: {operation.error}"
+            )
 
         return await self.get_corpus(name=operation.response.name)
 
@@ -4434,7 +4444,9 @@ class AsyncRag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to delete RagCorpus: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to delete RagCorpus: {operation.error}"
+            )
 
         return None
 
@@ -4456,7 +4468,7 @@ class AsyncRag(_api_module.BaseModule):
 
         if operation.error:
             raise RuntimeError(
-                f"Failed to delete file from RagCorpus: {operation.error}"
+                f"Operation {operation.name} failed to delete file from RagCorpus: {operation.error}"
             )
 
         return None
@@ -4490,7 +4502,9 @@ class AsyncRag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to update RagCorpus: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to update RagCorpus: {operation.error}"
+            )
 
         return await self.get_corpus(name=operation.response.name)
 
@@ -4520,7 +4534,9 @@ class AsyncRag(_api_module.BaseModule):
         )
 
         if operation.error:
-            raise RuntimeError(f"Failed to update RagEngineConfig: {operation.error}")
+            raise RuntimeError(
+                f"Operation {operation.name} failed to update RagEngineConfig: {operation.error}"
+            )
 
         return await self.get_config()
 
@@ -4584,7 +4600,7 @@ class AsyncRag(_api_module.BaseModule):
 
         if operation.error:
             raise RuntimeError(
-                f"Failed to import files into RagCorpus: {operation.error}"
+                f"Operation {operation.name} failed to import files into RagCorpus: {operation.error}"
             )
 
         return operation.response
