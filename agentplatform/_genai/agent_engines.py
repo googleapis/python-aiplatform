@@ -2272,6 +2272,29 @@ class AgentEngines(_api_module.BaseModule):
             for class_method_spec in class_methods_spec_list
         ]
 
+    def _resolve_context_spec(
+        self, *, context_spec: Optional[types.ReasoningEngineContextSpecDict] = None
+    ) -> Optional[types.ReasoningEngineContextSpecDict]:
+        if context_spec is None:
+            return None
+        context_spec_obj = types.ReasoningEngineContextSpec(**context_spec)
+        if context_spec_obj.memory_bank_config is None:
+            return context_spec
+        if context_spec_obj.memory_bank_config.structured_memory_configs is None:
+            return context_spec
+        for schema in context_spec_obj.memory_bank_config.structured_memory_configs:
+            for schema_config in schema.schema_configs:
+                if not schema_config.memory_json_schema:
+                    continue
+                # `from_json_schema` handles the resolution of `$ref` paths.
+                schema_config.memory_schema = genai_types.Schema.from_json_schema(
+                    json_schema=genai_types.JSONSchema(
+                        **schema_config.memory_json_schema
+                    )
+                )
+
+        return json.loads(context_spec_obj.model_dump_json())
+
     def _create_config(
         self,
         *,
@@ -2338,6 +2361,7 @@ class AgentEngines(_api_module.BaseModule):
             config["description"] = description
         if context_spec is not None:
             update_masks.append("context_spec")
+            context_spec = self._resolve_context_spec(context_spec=context_spec)
             config["context_spec"] = context_spec
         if encryption_spec is not None:
             update_masks.append("encryption_spec")
@@ -2720,6 +2744,9 @@ class AgentEngines(_api_module.BaseModule):
           IOError: If `config.requirements` is a string that corresponds to a
           nonexistent file.
         """
+        # Access context spec if available and convert to dict.
+        # "Fix" context spec if needed.
+        # Then run model_validate.
         if isinstance(config, dict):
             config = types.AgentEngineConfig.model_validate(config)
         elif not isinstance(config, types.AgentEngineConfig):

@@ -7540,6 +7540,10 @@ class StructuredMemorySchemaConfig(_common.BaseModel):
         default=None,
         description="""Optional. Represents the type of the structured memories associated with the schema. If not set, then `STRUCTURED_PROFILE` will be used.""",
     )
+    memory_json_schema: Optional[Any] = Field(
+        default=None,
+        description="""Required. Represents the OpenAPI schema of the structured memories.""",
+    )
 
 
 class StructuredMemorySchemaConfigDict(TypedDict, total=False):
@@ -7553,6 +7557,9 @@ class StructuredMemorySchemaConfigDict(TypedDict, total=False):
 
     memory_type: Optional[MemoryType]
     """Optional. Represents the type of the structured memories associated with the schema. If not set, then `STRUCTURED_PROFILE` will be used."""
+
+    memory_json_schema: Optional[Any]
+    """Required. Represents the OpenAPI schema of the structured memories."""
 
 
 StructuredMemorySchemaConfigOrDict = Union[

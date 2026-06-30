@@ -14,15 +14,43 @@
 #
 # pylint: disable=protected-access,bad-continuation,missing-function-docstring
 
-from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
+from tests.unit.agentplatform.genai.replays import pytest_helper
+import pydantic
 
 
 def test_generate_and_retrieve_profile(client):
-    # TODO: Use prod once available.
-    client._api_client._http_options.base_url = (
-        "https://us-central1-autopush-aiplatform.sandbox.googleapis.com"
-    )
+
+    class ProfileSchema(pydantic.BaseModel):
+
+        class DemographicDetails(pydantic.BaseModel):
+            hometown: str
+
+        name: str = pydantic.Field(description="User's name")
+        demographics: DemographicDetails
+
+    expected_schema = {
+        "title": "ProfileSchema",
+        "type": "object",
+        "required": ["name", "demographics"],
+        "properties": {
+            "name": {
+                "title": "Name",
+                "description": "User's name",
+                "type": "string",
+            },
+            "demographics": {
+                "type": "object",
+                "properties": {
+                    "hometown": {
+                        "type": "string",
+                    },
+                },
+                "required": ["hometown"],
+            },
+        },
+    }
+
     customization_config = {"disable_natural_language_memories": True}
     memory_bank_customization_config = types.MemoryBankCustomizationConfig(
         **customization_config
@@ -31,14 +59,17 @@ def test_generate_and_retrieve_profile(client):
         "scope_keys": ["user_id"],
         "schema_configs": [
             {
-                "id": "user-profile",
-                "memory_schema": {
-                    "properties": {
-                        "name": {"description": "User's name", "type": "string"}
-                    },
-                    "type": "object",
-                },
-            }
+                "id": "user-profile-1",
+                "memory_json_schema": ProfileSchema.model_json_schema(),
+            },
+            {
+                "id": "user-profile-2",
+                "memory_schema": expected_schema,
+            },
+            {
+                "id": "user-profile-3",
+                "memory_json_schema": expected_schema,
+            },
         ],
     }
     structured_memory_config_obj = types.StructuredMemoryConfig(
@@ -61,8 +92,25 @@ def test_generate_and_retrieve_profile(client):
         assert memory_bank_config.customization_configs == [
             memory_bank_customization_config
         ]
+
         assert memory_bank_config.structured_memory_configs == [
-            structured_memory_config_obj
+            types.StructuredMemoryConfig(
+                scope_keys=["user_id"],
+                schema_configs=[
+                    types.StructuredMemorySchemaConfig(
+                        id="user-profile-1",
+                        memory_schema=expected_schema,
+                    ),
+                    types.StructuredMemorySchemaConfig(
+                        id="user-profile-2",
+                        memory_schema=expected_schema,
+                    ),
+                    types.StructuredMemorySchemaConfig(
+                        id="user-profile-3",
+                        memory_schema=expected_schema,
+                    ),
+                ],
+            )
         ]
 
         scope = {"user_id": "123"}
@@ -86,7 +134,8 @@ def test_generate_and_retrieve_profile(client):
         response = client.agent_engines.memories.retrieve_profiles(
             name=agent_engine.api_resource.name, scope=scope
         )
-        assert len(response.profiles) == 1
+        # One profile is generated for each schema config.
+        assert len(response.profiles) == 3
 
     finally:
         # Clean up resources.
