@@ -2059,6 +2059,9 @@ def test_list_endpoints_pager(transport_name: str = "grpc"):
         assert pager._retry == retry
         assert pager._timeout == timeout
 
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
+
         results = list(pager)
         assert len(results) == 6
         assert all(isinstance(i, endpoint.Endpoint)
@@ -2145,6 +2148,8 @@ async def test_list_endpoints_async_pager():
         )
         async_pager = await client.list_endpoints(request={},)
         assert async_pager.next_page_token == 'abc'
+        assert str(async_pager).startswith(f'{async_pager.__class__.__name__}<')
+
         responses = []
         async for response in async_pager: # pragma: no branch
             responses.append(response)
@@ -4553,6 +4558,7 @@ def test_fetch_publisher_model_config(request_type, transport: str = 'grpc'):
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = endpoint.PublisherModelConfig(
+            data_sharing_enabled_provider=endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC,
         )
         response = client.fetch_publisher_model_config(request)
 
@@ -4564,6 +4570,7 @@ def test_fetch_publisher_model_config(request_type, transport: str = 'grpc'):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, endpoint.PublisherModelConfig)
+    assert response.data_sharing_enabled_provider == endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC
 
 
 def test_fetch_publisher_model_config_non_empty_request_with_auto_populated_field():
@@ -4681,6 +4688,7 @@ async def test_fetch_publisher_model_config_async(request_type, transport: str =
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value =grpc_helpers_async.FakeUnaryUnaryCall(endpoint.PublisherModelConfig(
+            data_sharing_enabled_provider=endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC,
         ))
         response = await client.fetch_publisher_model_config(request)
 
@@ -4692,6 +4700,7 @@ async def test_fetch_publisher_model_config_async(request_type, transport: str =
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, endpoint.PublisherModelConfig)
+    assert response.data_sharing_enabled_provider == endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC
 
 def test_fetch_publisher_model_config_field_headers():
     client = EndpointServiceClient(
@@ -5398,6 +5407,9 @@ def test_list_endpoints_rest_pager(transport: str = 'rest'):
         sample_request = {'parent': 'projects/sample1/locations/sample2'}
 
         pager = client.list_endpoints(request=sample_request)
+
+        assert pager.next_page_token == 'abc'
+        assert str(pager).startswith(f'{pager.__class__.__name__}<')
 
         results = list(pager)
         assert len(results) == 6
@@ -7413,6 +7425,7 @@ async def test_fetch_publisher_model_config_empty_call_grpc_asyncio():
             '__call__') as call:
         # Designate an appropriate return value for the call.
         call.return_value = grpc_helpers_async.FakeUnaryUnaryCall(endpoint.PublisherModelConfig(
+            data_sharing_enabled_provider=endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC,
         ))
         await client.fetch_publisher_model_config(request=None)
 
@@ -8667,6 +8680,7 @@ def test_fetch_publisher_model_config_rest_call_success(request_type):
     with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = endpoint.PublisherModelConfig(
+              data_sharing_enabled_provider=endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC,
         )
 
         # Wrap the value into a proper Response obj
@@ -8683,6 +8697,7 @@ def test_fetch_publisher_model_config_rest_call_success(request_type):
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, endpoint.PublisherModelConfig)
+    assert response.data_sharing_enabled_provider == endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC
 
 
 @pytest.mark.parametrize("null_interceptor", [True, False])
@@ -10836,6 +10851,7 @@ async def test_fetch_publisher_model_config_rest_asyncio_call_success(request_ty
     with mock.patch.object(type(client.transport._session), 'request') as req:
         # Designate an appropriate value for the returned response.
         return_value = endpoint.PublisherModelConfig(
+              data_sharing_enabled_provider=endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC,
         )
 
         # Wrap the value into a proper Response obj
@@ -10852,6 +10868,7 @@ async def test_fetch_publisher_model_config_rest_asyncio_call_success(request_ty
 
     # Establish that the response is the type that we expect.
     assert isinstance(response, endpoint.PublisherModelConfig)
+    assert response.data_sharing_enabled_provider == endpoint.PublisherModelConfig.ModelProvider.ANTHROPIC
 
 
 @pytest.mark.asyncio
