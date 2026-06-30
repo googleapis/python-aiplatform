@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.159.0](https://github.com/googleapis/python-aiplatform/compare/v1.158.0...v1.159.0) (2026-06-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* `datasets.assemble` now returns `tuple[str, Optional[bigframes.pandas.DataFrame]]` (the BigQuery table id without the `bq://` prefix, and the assembled table as a BigFrames DataFrame) instead of the BigQuery URI `str`. By default no DataFrame is loaded (`load_dataframe=False`): the second element is `None`, no BigQuery read is performed, and `bigframes` is not required. Pass `load_dataframe=True` to load the assembled table.
+
+### Features
+
+* Add data_sharing_enabled_provider field (ModelProvider enum) to PublisherModelConfig ([51c4d78](https://github.com/googleapis/python-aiplatform/commit/51c4d78542616d8089db33a108c116da97a8e68b))
+* Add deprecation warning to vertexai.rag module in favor of agentplatform.Client().rag ([9ffcbce](https://github.com/googleapis/python-aiplatform/commit/9ffcbcea85df210d4b78ff51e4d12a7f90fd94c9))
+* Add support for session TTL and expiration in Vertex AI session service ([a2af300](https://github.com/googleapis/python-aiplatform/commit/a2af3007b48be3e0289bdd7b88de8675d891b5c8))
+* GenAI client - Add upload_file method to RAG module ([13b685b](https://github.com/googleapis/python-aiplatform/commit/13b685bd617cbcce36025625590a3ecb28494247))
+* GenAI client - Log operation name when RAG operation fails ([e368858](https://github.com/googleapis/python-aiplatform/commit/e36885811eb982a49d3ffa69ecf09f0c133ea0be))
+* GenAI SDK client(multimodal) - Return the assembled table as a DataFrame from `datasets.assemble`. ([8e52bd2](https://github.com/googleapis/python-aiplatform/commit/8e52bd27063e82cff1aa53214d0180231d10e178))
+* Onboard Vertex Model Garden to GenAI Python SDK: Add list_models and list_deployable_models support ([9cd63ab](https://github.com/googleapis/python-aiplatform/commit/9cd63abe95393491aab5a1d1949de1a70fcbe433))
+
+
+### Bug Fixes
+
+* Added safety checks in download_from_gcs ([2f5c8f8](https://github.com/googleapis/python-aiplatform/commit/2f5c8f81c272215951a35ca3334728427263e77b))
+* **ai_platform:** Black check ([97ee94a](https://github.com/googleapis/python-aiplatform/commit/97ee94a01fb9f255f9ad6ba29f445a3619cf929f))
+* **aiplatform:** Safely parse bq:// URIs using removeprefix ([97ee94a](https://github.com/googleapis/python-aiplatform/commit/97ee94a01fb9f255f9ad6ba29f445a3619cf929f))
+* **feature_store:** Safely parse bq:// URIs using removeprefix ([97ee94a](https://github.com/googleapis/python-aiplatform/commit/97ee94a01fb9f255f9ad6ba29f445a3619cf929f))
+* Fix the async_stream_query method. Restore yield_parsed_json method lost during vertex -&gt; agentplatform migration ([2eb0fcb](https://github.com/googleapis/python-aiplatform/commit/2eb0fcb95970eef9e5ef63f5cbeae1ec271149c0))
+* GenAI client - Update RagFile.file_status.state to use correct enum ([548d897](https://github.com/googleapis/python-aiplatform/commit/548d8973b7d1e6ec725db106d23ae589ca84081f))
+* Google_auth_mock universe domain ([35edd83](https://github.com/googleapis/python-aiplatform/commit/35edd832a0f275c24ae96f7f76eee007ff771031))
+* **offline_store:** Safely parse bq:// URIs using removeprefix ([97ee94a](https://github.com/googleapis/python-aiplatform/commit/97ee94a01fb9f255f9ad6ba29f445a3619cf929f))
+* **offline_store:** Safely parse bq:// URIs using removeprefix ([97ee94a](https://github.com/googleapis/python-aiplatform/commit/97ee94a01fb9f255f9ad6ba29f445a3619cf929f))
+* Redact python_spec version in replay tests ([8bc007b](https://github.com/googleapis/python-aiplatform/commit/8bc007b17cef272a3c58eb2d539e032278423eb3))
+* Resolve AttributeError by supporting both Pydantic and Protobuf AgentCard serialization ([4c0c368](https://github.com/googleapis/python-aiplatform/commit/4c0c36807a5ac98c79cd4bf158654534cc625d00))
+
+
+### Documentation
+
+* Fix typos across docstrings ([dd52cad](https://github.com/googleapis/python-aiplatform/commit/dd52cad9c72b93f108d7c4f3074b8de9c5cf1ba7))
+* GenAI client - Update docstrings for RAG GenAI Module ([9dbdc9c](https://github.com/googleapis/python-aiplatform/commit/9dbdc9c3d9b3840795b51584f58d53753de1b13f))
+
+
+### Miscellaneous Chores
+
+* Release 1.159.0 ([e17e0fc](https://github.com/googleapis/python-aiplatform/commit/e17e0fce4416d2c8795da5f51a9dab36662dbe41))
+
 ## [1.158.0](https://github.com/googleapis/python-aiplatform/compare/v1.157.0...v1.158.0) (2026-06-16)
 
 
