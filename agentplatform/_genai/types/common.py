@@ -23808,6 +23808,71 @@ ListPublisherModelsResponseOrDict = Union[
 ]
 
 
+class GetPublisherModelConfig(_common.BaseModel):
+    """Config for getting a publisher model."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    hugging_face_token: Optional[str] = Field(
+        default=None,
+        description="""Optional. Hugging Face access token for gated models.""",
+    )
+    include_equivalent_model_garden_model_deployment_configs: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether to include the deploy options of equivalent
+      Model Garden models.""",
+    )
+    is_hugging_face_model: Optional[bool] = Field(
+        default=None,
+        description="""Optional. Whether the requested model is a Hugging Face model.""",
+    )
+
+
+class GetPublisherModelConfigDict(TypedDict, total=False):
+    """Config for getting a publisher model."""
+
+    http_options: Optional[genai_types.HttpOptionsDict]
+    """Used to override HTTP request options."""
+
+    hugging_face_token: Optional[str]
+    """Optional. Hugging Face access token for gated models."""
+
+    include_equivalent_model_garden_model_deployment_configs: Optional[bool]
+    """Optional. Whether to include the deploy options of equivalent
+      Model Garden models."""
+
+    is_hugging_face_model: Optional[bool]
+    """Optional. Whether the requested model is a Hugging Face model."""
+
+
+GetPublisherModelConfigOrDict = Union[
+    GetPublisherModelConfig, GetPublisherModelConfigDict
+]
+
+
+class _GetPublisherModelRequestParameters(_common.BaseModel):
+    """Parameters for getting a publisher model."""
+
+    name: Optional[str] = Field(default=None, description="""""")
+    config: Optional[GetPublisherModelConfig] = Field(default=None, description="""""")
+
+
+class _GetPublisherModelRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting a publisher model."""
+
+    name: Optional[str]
+    """"""
+
+    config: Optional[GetPublisherModelConfigDict]
+    """"""
+
+
+_GetPublisherModelRequestParametersOrDict = Union[
+    _GetPublisherModelRequestParameters, _GetPublisherModelRequestParametersDict
+]
+
+
 class PromptOptimizerConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
@@ -25854,3 +25919,105 @@ class ListModelGardenModelsConfigDict(TypedDict, total=False):
 ListModelGardenModelsConfigOrDict = Union[
     ListModelGardenModelsConfig, ListModelGardenModelsConfigDict
 ]
+
+
+class ListPublisherModelDeployOptionsConfig(_common.BaseModel):
+    """Config for listing the deploy options of a publisher model."""
+
+    machine_type_filter: Optional[Union[str, list[str]]] = Field(
+        default=None,
+        description="""Optional. Case-insensitive substring filter on the machine type.
+      Accepts a single keyword (e.g. ``'g2'``) or a list of keywords (e.g.
+      ``['n1', 'g2']``); an option matches if it contains any of them.""",
+    )
+    accelerator_type_filter: Optional[Union[str, list[str]]] = Field(
+        default=None,
+        description="""Optional. Case-insensitive substring filter on the accelerator
+      type. Accepts a single keyword (e.g. ``'L4'``) or a list of keywords
+      (e.g. ``['T4', 'L4']``); an option matches if it contains any of them.""",
+    )
+    serving_container_image_uri_filter: Optional[Union[str, list[str]]] = Field(
+        default=None,
+        description="""Optional. Case-insensitive substring filter on the serving
+      container image URI. Accepts a single keyword (e.g. ``'vllm'``) or a list
+      of keywords (e.g. ``['vllm', 'tgi']``); an option matches if it contains
+      any of them.""",
+    )
+    concise: Optional[bool] = Field(
+        default=None,
+        description="""Optional. If True, returns a human-readable string describing the
+      deploy options (container and machine specs) instead of a list of
+      ``DeployOption`` objects.""",
+    )
+
+
+class ListPublisherModelDeployOptionsConfigDict(TypedDict, total=False):
+    """Config for listing the deploy options of a publisher model."""
+
+    machine_type_filter: Optional[Union[str, list[str]]]
+    """Optional. Case-insensitive substring filter on the machine type.
+      Accepts a single keyword (e.g. ``'g2'``) or a list of keywords (e.g.
+      ``['n1', 'g2']``); an option matches if it contains any of them."""
+
+    accelerator_type_filter: Optional[Union[str, list[str]]]
+    """Optional. Case-insensitive substring filter on the accelerator
+      type. Accepts a single keyword (e.g. ``'L4'``) or a list of keywords
+      (e.g. ``['T4', 'L4']``); an option matches if it contains any of them."""
+
+    serving_container_image_uri_filter: Optional[Union[str, list[str]]]
+    """Optional. Case-insensitive substring filter on the serving
+      container image URI. Accepts a single keyword (e.g. ``'vllm'``) or a list
+      of keywords (e.g. ``['vllm', 'tgi']``); an option matches if it contains
+      any of them."""
+
+    concise: Optional[bool]
+    """Optional. If True, returns a human-readable string describing the
+      deploy options (container and machine specs) instead of a list of
+      ``DeployOption`` objects."""
+
+
+ListPublisherModelDeployOptionsConfigOrDict = Union[
+    ListPublisherModelDeployOptionsConfig, ListPublisherModelDeployOptionsConfigDict
+]
+
+
+class DeployOption(_common.BaseModel):
+    """A verified deploy option for a model."""
+
+    option_name: Optional[str] = Field(
+        default=None, description="""The name of the deploy task."""
+    )
+    serving_container_image_uri: Optional[str] = Field(
+        default=None, description="""The URI of the serving container."""
+    )
+    machine_type: Optional[str] = Field(
+        default=None, description="""The machine type."""
+    )
+    accelerator_type: Optional[str] = Field(
+        default=None, description="""The accelerator type."""
+    )
+    accelerator_count: Optional[int] = Field(
+        default=None, description="""The number of accelerators."""
+    )
+
+
+class DeployOptionDict(TypedDict, total=False):
+    """A verified deploy option for a model."""
+
+    option_name: Optional[str]
+    """The name of the deploy task."""
+
+    serving_container_image_uri: Optional[str]
+    """The URI of the serving container."""
+
+    machine_type: Optional[str]
+    """The machine type."""
+
+    accelerator_type: Optional[str]
+    """The accelerator type."""
+
+    accelerator_count: Optional[int]
+    """The number of accelerators."""
+
+
+DeployOptionOrDict = Union[DeployOption, DeployOptionDict]

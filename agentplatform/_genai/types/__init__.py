@@ -95,6 +95,7 @@ from .common import _GetEvaluationSetParameters
 from .common import _GetImportFilesOperationParameters
 from .common import _GetMultimodalDatasetOperationParameters
 from .common import _GetMultimodalDatasetParameters
+from .common import _GetPublisherModelRequestParameters
 from .common import _GetRagConfigOperationParameters
 from .common import _GetRagConfigRequestParameters
 from .common import _GetRagCorpusRequestParameters
@@ -470,6 +471,9 @@ from .common import DeleteSkillConfigOrDict
 from .common import DeleteSkillOperation
 from .common import DeleteSkillOperationDict
 from .common import DeleteSkillOperationOrDict
+from .common import DeployOption
+from .common import DeployOptionDict
+from .common import DeployOptionOrDict
 from .common import DirectUploadSource
 from .common import DirectUploadSourceDict
 from .common import DirectUploadSourceOrDict
@@ -723,6 +727,9 @@ from .common import GetMultimodalDatasetOperationConfigOrDict
 from .common import GetPromptConfig
 from .common import GetPromptConfigDict
 from .common import GetPromptConfigOrDict
+from .common import GetPublisherModelConfig
+from .common import GetPublisherModelConfigDict
+from .common import GetPublisherModelConfigOrDict
 from .common import GetRagConfig
 from .common import GetRagConfigDict
 from .common import GetRagConfigOperationConfig
@@ -875,6 +882,9 @@ from .common import ListMultimodalDatasetsResponseOrDict
 from .common import ListPromptsConfig
 from .common import ListPromptsConfigDict
 from .common import ListPromptsConfigOrDict
+from .common import ListPublisherModelDeployOptionsConfig
+from .common import ListPublisherModelDeployOptionsConfigDict
+from .common import ListPublisherModelDeployOptionsConfigOrDict
 from .common import ListPublisherModelsConfig
 from .common import ListPublisherModelsConfigDict
 from .common import ListPublisherModelsConfigOrDict
@@ -3455,6 +3465,9 @@ __all__ = [
     "ListPublisherModelsResponse",
     "ListPublisherModelsResponseDict",
     "ListPublisherModelsResponseOrDict",
+    "GetPublisherModelConfig",
+    "GetPublisherModelConfigDict",
+    "GetPublisherModelConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -3554,6 +3567,12 @@ __all__ = [
     "ListModelGardenModelsConfig",
     "ListModelGardenModelsConfigDict",
     "ListModelGardenModelsConfigOrDict",
+    "ListPublisherModelDeployOptionsConfig",
+    "ListPublisherModelDeployOptionsConfigDict",
+    "ListPublisherModelDeployOptionsConfigOrDict",
+    "DeployOption",
+    "DeployOptionDict",
+    "DeployOptionOrDict",
     "A2aTaskState",
     "State",
     "Strategy",
@@ -3738,6 +3757,7 @@ __all__ = [
     "_GetSkillRevisionRequestParameters",
     "_ListSkillRevisionsRequestParameters",
     "_ListPublisherModelsRequestParameters",
+    "_GetPublisherModelRequestParameters",
     "evals",
     "agent_engines",
     "prompts",

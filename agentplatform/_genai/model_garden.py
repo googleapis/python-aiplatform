@@ -30,6 +30,56 @@ from . import types
 logger = logging.getLogger("agentplatform_genai.modelgarden")
 
 
+def _GetPublisherModelConfig_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+
+    if getv(from_object, ["hugging_face_token"]) is not None:
+        setv(
+            parent_object,
+            ["_query", "huggingFaceToken"],
+            getv(from_object, ["hugging_face_token"]),
+        )
+
+    if (
+        getv(from_object, ["include_equivalent_model_garden_model_deployment_configs"])
+        is not None
+    ):
+        setv(
+            parent_object,
+            ["_query", "includeEquivalentModelGardenModelDeploymentConfigs"],
+            getv(
+                from_object,
+                ["include_equivalent_model_garden_model_deployment_configs"],
+            ),
+        )
+
+    if getv(from_object, ["is_hugging_face_model"]) is not None:
+        setv(
+            parent_object,
+            ["_query", "isHuggingFaceModel"],
+            getv(from_object, ["is_hugging_face_model"]),
+        )
+
+    return to_object
+
+
+def _GetPublisherModelRequestParameters_to_vertex(
+    from_object: Union[dict[str, Any], object],
+    parent_object: Optional[dict[str, Any]] = None,
+) -> dict[str, Any]:
+    to_object: dict[str, Any] = {}
+    if getv(from_object, ["name"]) is not None:
+        setv(to_object, ["_url", "name"], getv(from_object, ["name"]))
+
+    if getv(from_object, ["config"]) is not None:
+        _GetPublisherModelConfig_to_vertex(getv(from_object, ["config"]), to_object)
+
+    return to_object
+
+
 def _ListPublisherModelsConfig_to_vertex(
     from_object: Union[dict[str, Any], object],
     parent_object: Optional[dict[str, Any]] = None,
@@ -146,6 +196,77 @@ class ModelGarden(_api_module.BaseModule):
         self._api_client._verify_response(return_value)
         return return_value
 
+    def _get_publisher_model(
+        self, *, name: str, config: Optional[types.GetPublisherModelConfigOrDict] = None
+    ) -> types.PublisherModel:
+        """
+        Gets a publisher model (internal).
+        """
+
+        parameter_model = types._GetPublisherModelRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetPublisherModelRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = self._api_client.request("get", path, request_dict, http_options)
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.PublisherModel._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
     @staticmethod
     def _build_filter_str(
         model_filter: Optional[str],
@@ -230,6 +351,238 @@ class ModelGarden(_api_module.BaseModule):
             and model.supported_actions.multi_deploy_vertex.multi_deploy_vertex
         )
 
+    @staticmethod
+    def _reconcile_model_name(model_name: str) -> str:
+        """Normalizes a model name into a publisher model resource name.
+
+        Args:
+          model_name: A Model Garden model resource name in the format
+            ``'publishers/{publisher}/models/{model}@{version}'``, a simplified name
+            in the format ``'{publisher}/{model}@{version}'`` (or without
+            ``@{version}``), or a Hugging Face model ID ``'{organization}/{model}'``.
+
+        Returns:
+          The resource name in the format
+          ``'publishers/{publisher}/models/{model}@{version}'``.
+
+        Raises:
+          ValueError: If ``model_name`` is not a valid publisher model name.
+        """
+        import re
+
+        model_name = model_name.lower()  # Hugging Face IDs are lower-case.
+        # A full resource name must carry an @version, matching the legacy SDK; a
+        # versionless full name is not accepted.
+        full_match = re.match(
+            r"^publishers/(?P<publisher>[^/]+)/models/(?P<model>[^@]+)@(?P<version>[^@]+)$",
+            model_name,
+        )
+        if full_match:
+            return (
+                f"publishers/{full_match.group('publisher')}/models/"
+                f"{full_match.group('model')}@{full_match.group('version')}"
+            )
+        # Reject Model Registry names; they would otherwise match the simplified
+        # branch and be silently mangled.
+        if re.match(r"^projects/.+/locations/.+/models/.+$", model_name):
+            raise ValueError(f"`{model_name}` is not a valid publisher model name")
+        simplified_match = re.match(
+            r"^(?P<publisher>[^/]+)/(?P<model>[^@]+)(?:@(?P<version>.+))?$",
+            model_name,
+        )
+        if simplified_match:
+            model = simplified_match.group("model")
+            if simplified_match.group("version"):
+                model = f"{model}@{simplified_match.group('version')}"
+            return f"publishers/{simplified_match.group('publisher')}/models/{model}"
+        raise ValueError(f"`{model_name}` is not a valid publisher model name")
+
+    @staticmethod
+    def _is_hugging_face_model(model_name: str) -> bool:
+        """Returns whether a model name looks like a Hugging Face model ID.
+
+        Matches the bare ``'{organization}/{model}'`` shape (a single slash and no
+        ``@version``), e.g. ``'meta-llama/Llama-3.3-70B-Instruct'``.
+
+        Args:
+          model_name: The model name to inspect.
+
+        Returns:
+          True if ``model_name`` matches the Hugging Face ID shape.
+        """
+        import re
+
+        return bool(re.match(r"^(?P<publisher>[^/]+)/(?P<model>[^/@]+)$", model_name))
+
+    @staticmethod
+    def _matches_filter(
+        value: Optional[str],
+        model_filter: Optional[Union[str, list[str]]],
+    ) -> bool:
+        """Returns whether ``value`` matches the (optional) keyword filter.
+
+        Mirrors the legacy SDK: the filter may be a single keyword or a list of
+        keywords, and matching is a case-insensitive substring test where the value
+        matches if it contains *any* of the keywords.
+
+        Args:
+          value: The field value to test (e.g. a machine type), or None.
+          model_filter: A keyword, a list of keywords, or None (no filtering).
+
+        Returns:
+          True if there is no filter, or if ``value`` contains any of the keywords.
+        """
+        if not model_filter:
+            return True
+        if value is None:
+            return False
+        keywords = [model_filter] if isinstance(model_filter, str) else model_filter
+        value_lower = value.lower()
+        return any(keyword.lower() in value_lower for keyword in keywords)
+
+    @staticmethod
+    def _extract_and_filter_deploy_options(
+        publisher_model: types.PublisherModel,
+        machine_type_filter: Optional[Union[str, list[str]]] = None,
+        accelerator_type_filter: Optional[Union[str, list[str]]] = None,
+        serving_container_image_uri_filter: Optional[Union[str, list[str]]] = None,
+    ) -> list[types.DeployOption]:
+        """Extracts and filters deploy options from a publisher model.
+
+        Args:
+          publisher_model: The publisher model to extract deploy options from.
+          machine_type_filter: Optional case-insensitive keyword (or list of
+            keywords) matched against the machine type; an option is kept if its
+            machine type contains any of them (e.g. ``'g2'`` or ``['n1', 'g2']``).
+          accelerator_type_filter: Optional case-insensitive keyword (or list of
+            keywords) matched against the accelerator type (e.g. ``'L4'`` or
+            ``['T4', 'L4']``).
+          serving_container_image_uri_filter: Optional case-insensitive keyword (or
+            list of keywords) matched against the serving container image URI
+            (e.g. ``'vllm'`` or ``['vllm', 'tgi']``).
+
+        Returns:
+          A list of ``DeployOption`` objects matching the provided filters.
+
+        Raises:
+          ValueError: If the model does not support deployment, or if no deploy
+            options remain after applying the filters.
+        """
+        if not (
+            publisher_model.supported_actions
+            and publisher_model.supported_actions.multi_deploy_vertex
+            and publisher_model.supported_actions.multi_deploy_vertex.multi_deploy_vertex
+        ):
+            raise ValueError(
+                "Model does not support deployment. "
+                "Use `list_deployable_models()` to find supported models."
+            )
+
+        options = (
+            publisher_model.supported_actions.multi_deploy_vertex.multi_deploy_vertex
+        )
+        result = []
+        for opt in options:
+            container = opt.container_spec.image_uri if opt.container_spec else None
+            machine = (
+                opt.dedicated_resources.machine_spec
+                if opt.dedicated_resources
+                else None
+            )
+            machine_type = machine.machine_type if machine else None
+
+            # Restore the proto3 defaults the JSON transport drops, so structured
+            # output matches the gRPC SDK on CPU/TPU machines.
+            accelerator_enum = machine.accelerator_type if machine else None
+            accelerator_value = accelerator_enum.value if accelerator_enum else None
+            has_accelerator = (
+                accelerator_value is not None
+                and accelerator_value != "ACCELERATOR_TYPE_UNSPECIFIED"
+            )
+            if machine:
+                accelerator_type = (
+                    accelerator_value
+                    if accelerator_value is not None
+                    else "ACCELERATOR_TYPE_UNSPECIFIED"
+                )
+                accelerator_count = (
+                    machine.accelerator_count
+                    if machine.accelerator_count is not None
+                    else 0
+                )
+            else:
+                accelerator_type = None
+                accelerator_count = None
+
+            if not ModelGarden._matches_filter(machine_type, machine_type_filter):
+                continue
+            # ACCELERATOR_TYPE_UNSPECIFIED means "no accelerator" and never matches.
+            if accelerator_type_filter and not has_accelerator:
+                continue
+            if not ModelGarden._matches_filter(
+                accelerator_type, accelerator_type_filter
+            ):
+                continue
+            if not ModelGarden._matches_filter(
+                container, serving_container_image_uri_filter
+            ):
+                continue
+
+            result.append(
+                types.DeployOption(
+                    option_name=opt.deploy_task_name,
+                    serving_container_image_uri=container,
+                    machine_type=machine_type,
+                    accelerator_type=accelerator_type,
+                    accelerator_count=accelerator_count,
+                )
+            )
+
+        if not result:
+            raise ValueError("No deploy options found.")
+
+        return result
+
+    @staticmethod
+    def _format_concise_deploy_options(
+        options: list[types.DeployOption],
+    ) -> str:
+        """Formats deploy options into a human-readable string.
+
+        Mirrors the legacy ``vertexai.model_garden`` SDK output: each option is
+        rendered as a ``[Option N: <option_name>]`` block followed by its non-null
+        fields (container image, machine type, accelerator type/count).
+
+        Args:
+          options: The deploy options to format.
+
+        Returns:
+          A human-readable, multi-line string describing the deploy options.
+        """
+        fields = [
+            "serving_container_image_uri",
+            "machine_type",
+            "accelerator_type",
+            "accelerator_count",
+        ]
+        blocks = []
+        for i, option in enumerate(options):
+            if option.option_name:
+                header = f"[Option {i + 1}: {option.option_name}]\n"
+            else:
+                header = f"[Option {i + 1}]\n"
+            lines = []
+            for field in fields:
+                value = getattr(option, field)
+                if value is None:
+                    continue
+                if field == "accelerator_count":
+                    lines.append(f"    {field}={value},")
+                else:
+                    lines.append(f'    {field}="{value}",')
+            blocks.append(header + "\n".join(lines))
+        return "\n\n".join(blocks)
+
     def _list_all_publisher_models(
         self,
         api_config: types.ListPublisherModelsConfig,
@@ -292,10 +645,8 @@ class ModelGarden(_api_module.BaseModule):
         models = self._list_all_publisher_models(api_config)
 
         if deployable_only:
-            # The VERIFIED_DEPLOYMENT_SUCCEED label filter is only applied
-            # server-side for HF models. For native models, the server returns all
-            # models and we must filter client-side by checking for
-            # multi_deploy_vertex configs.
+            # The VERIFIED_DEPLOYMENT_SUCCEED server filter only applies to HF
+            # models; filter native models client-side via multi_deploy_vertex.
             models = [m for m in models if self._has_deploy_config(m)]
 
         return [self._format_model_name(m, include_hf) for m in models]
@@ -362,6 +713,64 @@ class ModelGarden(_api_module.BaseModule):
             deployable_only=False,
         )
 
+    def list_publisher_model_deploy_options(
+        self,
+        model: str,
+        config: Optional[types.ListPublisherModelDeployOptionsConfigOrDict] = None,
+    ) -> Union[str, list[types.DeployOption]]:
+        """Lists the verified deploy options for a Model Garden publisher model.
+
+        Supports Google open models (e.g. ``'google/gemma3@gemma-3-12b-it'``),
+        partner publisher models (e.g.
+        ``'mistralai/mistral-7b@mistral-7b-instruct-v0.2'``), and Hugging Face
+        model IDs (e.g. ``'meta-llama/Llama-3.3-70B-Instruct'``).
+
+        Args:
+          model: The publisher model to list deploy options for. Accepts the full
+            resource name ``'publishers/{publisher}/models/{model}@{version}'``, a
+            simplified ``'{publisher}/{model}@{version}'`` (or without the
+            ``@{version}``), or a Hugging Face model ID ``'{organization}/{model}'``.
+          config: Optional configuration for filtering the deploy options. Accepts a
+            ``ListPublisherModelDeployOptionsConfig`` instance or an equivalent
+            dict.
+
+        Returns:
+          A list of ``DeployOption`` objects, one per verified deployment
+          configuration (container image URI, machine type, accelerator type and
+          count). If ``config.concise`` is True, returns a human-readable string
+          describing those deploy options instead.
+
+        Raises:
+          ValueError: If ``model`` is not a valid publisher model name, if the
+            model does not support deployment, or if no deploy options match the
+            provided filters.
+        """
+        if config is None:
+            config = types.ListPublisherModelDeployOptionsConfig()
+        if isinstance(config, dict):
+            config = types.ListPublisherModelDeployOptionsConfig.model_validate(config)
+
+        get_publisher_model_config = types.GetPublisherModelConfig(
+            is_hugging_face_model=self._is_hugging_face_model(model),
+            include_equivalent_model_garden_model_deployment_configs=True,
+        )
+        publisher_model = self._get_publisher_model(
+            name=self._reconcile_model_name(model),
+            config=get_publisher_model_config,
+        )
+
+        options = self._extract_and_filter_deploy_options(
+            publisher_model,
+            machine_type_filter=config.machine_type_filter,
+            accelerator_type_filter=config.accelerator_type_filter,
+            serving_container_image_uri_filter=config.serving_container_image_uri_filter,
+        )
+
+        if config.concise is True:
+            return self._format_concise_deploy_options(options)
+
+        return options
+
 
 class AsyncModelGarden(_api_module.BaseModule):
     """Model Garden module."""
@@ -419,6 +828,79 @@ class AsyncModelGarden(_api_module.BaseModule):
         response_dict = {} if not response.body else json.loads(response.body)
 
         return_value = types.ListPublisherModelsResponse._from_response(
+            response=response_dict,
+            kwargs=(
+                {
+                    "config": {
+                        "response_schema": getattr(
+                            parameter_model.config, "response_schema", None
+                        ),
+                        "response_json_schema": getattr(
+                            parameter_model.config, "response_json_schema", None
+                        ),
+                        "include_all_fields": getattr(
+                            parameter_model.config, "include_all_fields", None
+                        ),
+                    }
+                }
+                if getattr(parameter_model, "config", None)
+                else {}
+            ),
+        )
+
+        self._api_client._verify_response(return_value)
+        return return_value
+
+    async def _get_publisher_model(
+        self, *, name: str, config: Optional[types.GetPublisherModelConfigOrDict] = None
+    ) -> types.PublisherModel:
+        """
+        Gets a publisher model (internal).
+        """
+
+        parameter_model = types._GetPublisherModelRequestParameters(
+            name=name,
+            config=config,
+        )
+
+        request_url_dict: Optional[dict[str, str]]
+        if not self._api_client.vertexai:
+            raise ValueError(
+                "This method is only supported in Gemini Enterprise Agent Platform mode, not in Gemini Developer API mode."
+            )
+        else:
+            request_dict = _GetPublisherModelRequestParameters_to_vertex(
+                parameter_model
+            )
+            request_url_dict = request_dict.get("_url")
+            if request_url_dict:
+                path = "{name}".format_map(request_url_dict)
+            else:
+                path = "{name}"
+
+        query_params = request_dict.get("_query")
+        if query_params:
+            path = f"{path}?{urlencode(query_params)}"
+        # TODO: remove the hack that pops config.
+        request_dict.pop("config", None)
+
+        http_options: Optional[types.HttpOptions] = None
+        if (
+            parameter_model.config is not None
+            and parameter_model.config.http_options is not None
+        ):
+            http_options = parameter_model.config.http_options
+
+        request_dict = _common.convert_to_dict(request_dict)
+        request_dict = _common.encode_unserializable_types(request_dict)
+
+        response = await self._api_client.async_request(
+            "get", path, request_dict, http_options
+        )
+
+        response_dict = {} if not response.body else json.loads(response.body)
+
+        return_value = types.PublisherModel._from_response(
             response=response_dict,
             kwargs=(
                 {
@@ -569,3 +1051,60 @@ class AsyncModelGarden(_api_module.BaseModule):
             config.include_hugging_face_models,
             deployable_only=False,
         )
+
+    async def list_publisher_model_deploy_options(
+        self,
+        model: str,
+        config: Optional[types.ListPublisherModelDeployOptionsConfigOrDict] = None,
+    ) -> Union[str, list[types.DeployOption]]:
+        """Lists the verified deploy options for a Model Garden publisher model.
+
+        Supports Google open models (e.g. ``'google/gemma3@gemma-3-12b-it'``),
+        partner publisher models (e.g.
+        ``'mistralai/mistral-7b@mistral-7b-instruct-v0.2'``), and Hugging Face
+        model IDs (e.g. ``'meta-llama/Llama-3.3-70B-Instruct'``).
+
+        Args:
+          model: The publisher model to list deploy options for. Accepts the full
+            resource name ``'publishers/{publisher}/models/{model}@{version}'``, a
+            simplified ``'{publisher}/{model}@{version}'`` (or without the
+            ``@{version}``), or a Hugging Face model ID ``'{organization}/{model}'``.
+          config: Optional configuration for filtering the deploy options. Accepts a
+            ``ListPublisherModelDeployOptionsConfig`` instance or an equivalent
+            dict.
+
+        Returns:
+          A list of ``DeployOption`` objects, one per verified deployment
+          configuration (container image URI, machine type, accelerator type and
+          count). If ``config.concise`` is True, returns a human-readable string
+          describing those deploy options instead.
+
+        Raises:
+          ValueError: If ``model`` is not a valid publisher model name, if the
+            model does not support deployment, or if no deploy options match the
+            provided filters.
+        """
+        if config is None:
+            config = types.ListPublisherModelDeployOptionsConfig()
+        if isinstance(config, dict):
+            config = types.ListPublisherModelDeployOptionsConfig.model_validate(config)
+
+        api_config = types.GetPublisherModelConfig(
+            is_hugging_face_model=ModelGarden._is_hugging_face_model(model),
+            include_equivalent_model_garden_model_deployment_configs=True,
+        )
+        publisher_model = await self._get_publisher_model(
+            name=ModelGarden._reconcile_model_name(model), config=api_config
+        )
+
+        options = ModelGarden._extract_and_filter_deploy_options(
+            publisher_model,
+            machine_type_filter=config.machine_type_filter,
+            accelerator_type_filter=config.accelerator_type_filter,
+            serving_container_image_uri_filter=config.serving_container_image_uri_filter,
+        )
+
+        if config.concise is True:
+            return ModelGarden._format_concise_deploy_options(options)
+
+        return options

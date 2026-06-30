@@ -34,16 +34,72 @@ def test_list_deployable_models(client):
 
 
 def test_list_models(client):
-    """Tests listing all baseline models in Model Garden."""
-    models = client.model_garden.list_models(
+  """Tests listing all baseline models in Model Garden."""
+  models = client.model_garden.list_models(
         config=types.ListModelGardenModelsConfig(
             include_hugging_face_models=False,
             model_filter="timesfm",
         )
     )
-    assert len(models) > 0
-    assert isinstance(models[0], str)
-    assert "timesfm" in models[0].lower()
+  assert len(models) > 0
+  assert isinstance(models[0], str)
+  assert "timesfm" in models[0].lower()
+
+
+def test_list_publisher_model_deploy_options(client):
+  """Tests listing the verified deploy options for an open model."""
+  options = client.model_garden.list_publisher_model_deploy_options(
+      model="google/gemma3@gemma-3-12b-it"
+  )
+  assert len(options) > 0
+  assert isinstance(options[0], types.DeployOption)
+  # Every verified deploy option exposes a serving container image.
+  assert options[0].serving_container_image_uri
+
+
+def test_list_publisher_model_deploy_options_with_filter(client):
+  """Tests filtering an open model's deploy options by accelerator type."""
+  options = client.model_garden.list_publisher_model_deploy_options(
+      model="google/gemma3@gemma-3-12b-it",
+      config=types.ListPublisherModelDeployOptionsConfig(
+          accelerator_type_filter="NVIDIA"
+      ),
+  )
+  assert len(options) > 0
+  for option in options:
+    assert "NVIDIA" in (option.accelerator_type or "")
+
+
+def test_list_publisher_model_deploy_options_concise(client):
+  """Tests the concise (human-readable string) output for an open model."""
+  options = client.model_garden.list_publisher_model_deploy_options(
+      model="google/gemma3@gemma-3-12b-it",
+      config=types.ListPublisherModelDeployOptionsConfig(concise=True),
+  )
+  assert isinstance(options, str)
+  assert "[Option 1" in options
+
+
+def test_list_publisher_model_deploy_options_hugging_face(client):
+  """Tests deploy options for a Hugging Face model.
+
+    Exercises the distinct GetPublisherModel request path where
+    is_hugging_face_model=True is sent.
+    """
+  options = client.model_garden.list_publisher_model_deploy_options(
+      model="codellama/codellama-7b-hf"
+  )
+  assert len(options) > 0
+  assert isinstance(options[0], types.DeployOption)
+  assert options[0].serving_container_image_uri
+
+
+def test_list_publisher_model_deploy_options_no_deploy_support(client):
+  """Tests a model with no verified deployment config raises ValueError."""
+  with pytest.raises(ValueError, match="does not support deployment"):
+    client.model_garden.list_publisher_model_deploy_options(
+        model="google/gemini-embedding-001@default"
+    )
 
 
 pytestmark = pytest_helper.setup(
@@ -80,3 +136,14 @@ async def test_list_models_async(client):
     assert len(models) > 0
     assert isinstance(models[0], str)
     assert "timesfm" in models[0].lower()
+
+
+@pytest.mark.asyncio
+async def test_list_publisher_model_deploy_options_async(client):
+  """Tests listing the deploy options for an open model asynchronously."""
+  options = await client.aio.model_garden.list_publisher_model_deploy_options(
+      model="google/gemma3@gemma-3-12b-it"
+  )
+  assert len(options) > 0
+  assert isinstance(options[0], types.DeployOption)
+  assert options[0].serving_container_image_uri
