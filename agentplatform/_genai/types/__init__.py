@@ -1273,6 +1273,7 @@ from .common import RagFileParsingConfigLlmParser
 from .common import RagFileParsingConfigLlmParserDict
 from .common import RagFileParsingConfigLlmParserOrDict
 from .common import RagFileParsingConfigOrDict
+from .common import RagFileState
 from .common import RagFileTransformationConfig
 from .common import RagFileTransformationConfigDict
 from .common import RagFileTransformationConfigOrDict
@@ -2794,12 +2795,12 @@ __all__ = [
     "GetRagFileConfig",
     "GetRagFileConfigDict",
     "GetRagFileConfigOrDict",
-    "DirectUploadSource",
-    "DirectUploadSourceDict",
-    "DirectUploadSourceOrDict",
     "FileStatus",
     "FileStatusDict",
     "FileStatusOrDict",
+    "DirectUploadSource",
+    "DirectUploadSourceDict",
+    "DirectUploadSourceOrDict",
     "GcsSource",
     "GcsSourceDict",
     "GcsSourceOrDict",
@@ -3584,6 +3585,7 @@ __all__ = [
     "OptimizeTarget",
     "MemoryMetadataMergeStrategy",
     "GenerateMemoriesResponseGeneratedMemoryAction",
+    "RagFileState",
     "SkillRevisionState",
     "PromptOptimizerMethod",
     "EvaluationExperimentMergeStrategy",

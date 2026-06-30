@@ -556,6 +556,17 @@ class GenerateMemoriesResponseGeneratedMemoryAction(_common.CaseInSensitiveEnum)
     """The memory was deleted."""
 
 
+class RagFileState(_common.CaseInSensitiveEnum):
+    """The status of a RAG file."""
+
+    STATE_UNSPECIFIED = "STATE_UNSPECIFIED"
+    """RagFile state is unspecified."""
+    ACTIVE = "ACTIVE"
+    """RagFile resource has been created and indexed successfully."""
+    ERROR = "ERROR"
+    """RagFile resource is in a problematic state. See `error_message` field for details."""
+
+
 class SkillRevisionState(_common.CaseInSensitiveEnum):
     """State of the Skill Revision."""
 
@@ -13479,6 +13490,31 @@ _GetRagFileRequestParametersOrDict = Union[
 ]
 
 
+class FileStatus(_common.BaseModel):
+    """RagFile status."""
+
+    error_status: Optional[str] = Field(
+        default=None,
+        description="""Output only. Only when the `state` field is ERROR.""",
+    )
+    state: Optional[RagFileState] = Field(
+        default=None, description="""The state of the RagFile."""
+    )
+
+
+class FileStatusDict(TypedDict, total=False):
+    """RagFile status."""
+
+    error_status: Optional[str]
+    """Output only. Only when the `state` field is ERROR."""
+
+    state: Optional[RagFileState]
+    """The state of the RagFile."""
+
+
+FileStatusOrDict = Union[FileStatus, FileStatusDict]
+
+
 class DirectUploadSource(_common.BaseModel):
     """The input content is encapsulated and uploaded in the request."""
 
@@ -13492,31 +13528,6 @@ class DirectUploadSourceDict(TypedDict, total=False):
 
 
 DirectUploadSourceOrDict = Union[DirectUploadSource, DirectUploadSourceDict]
-
-
-class FileStatus(_common.BaseModel):
-    """RagFile status."""
-
-    error_status: Optional[str] = Field(
-        default=None,
-        description="""Output only. Only when the `state` field is ERROR.""",
-    )
-    state: Optional[State] = Field(
-        default=None, description="""Output only. RagFile state."""
-    )
-
-
-class FileStatusDict(TypedDict, total=False):
-    """RagFile status."""
-
-    error_status: Optional[str]
-    """Output only. Only when the `state` field is ERROR."""
-
-    state: Optional[State]
-    """Output only. RagFile state."""
-
-
-FileStatusOrDict = Union[FileStatus, FileStatusDict]
 
 
 class GcsSource(_common.BaseModel):
