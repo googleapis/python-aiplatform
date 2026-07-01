@@ -25,6 +25,7 @@ from urllib.parse import urlencode
 from google.genai import _api_module
 from google.genai import _common
 from google.genai import _extra_utils
+from google.genai import types as genai_types
 from google.genai._common import get_value_by_path as getv
 from google.genai._common import set_value_by_path as setv
 
@@ -2546,7 +2547,7 @@ class Rag(_api_module.BaseModule):
     def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: types.VertexRagStoreOrDict,
+        vertex_rag_store: genai_types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:
@@ -4144,7 +4145,7 @@ class AsyncRag(_api_module.BaseModule):
     async def retrieve_contexts(
         self,
         *,
-        vertex_rag_store: types.VertexRagStoreOrDict,
+        vertex_rag_store: genai_types.VertexRagStoreOrDict,
         query: types.RagQueryOrDict,
         config: Optional[types.RetrieveContextsConfigOrDict] = None,
     ) -> types.RetrieveContextsResponse:

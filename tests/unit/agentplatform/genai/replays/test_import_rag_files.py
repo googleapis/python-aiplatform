@@ -17,6 +17,7 @@ import pytest
 
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
+from google.genai import types as genai_types
 
 
 pytestmark = pytest_helper.setup(
@@ -31,7 +32,7 @@ def test_rag_import_private(client):
         name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/3671559596213796864",
         import_rag_files_request=types.ImportRagFilesRequest(
             import_rag_files_config=types.ImportRagFilesConfig(
-                gcs_source=types.GcsSource(
+                gcs_source=genai_types.GcsSource(
                     uris=["gs://sararob_test/test-rag-file.pdf"]
                 ),
             ),
@@ -48,7 +49,7 @@ def test_rag_import(client):
     import_file_response = client.rag.import_files(
         name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/6301661778598166528",
         import_config=types.ImportRagFilesConfig(
-            gcs_source=types.GcsSource(uris=[gcs_filepath]),
+            gcs_source=genai_types.GcsSource(uris=[gcs_filepath]),
         ),
     )
 
@@ -65,7 +66,7 @@ def test_rag_import_wrong_project_raises(client):
         client.rag.import_files(
             name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/6301661778598166528",
             import_config=types.ImportRagFilesConfig(
-                gcs_source=types.GcsSource(uris=[gcs_filepath]),
+                gcs_source=genai_types.GcsSource(uris=[gcs_filepath]),
             ),
         )
 
@@ -81,7 +82,7 @@ async def test_import_files_async(client):
     import_file_response = await client.aio.rag.import_files(
         name="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/3671559596213796864",
         import_config=types.ImportRagFilesConfig(
-            gcs_source=types.GcsSource(uris=[gcs_filepath]),
+            gcs_source=genai_types.GcsSource(uris=[gcs_filepath]),
         ),
     )
 

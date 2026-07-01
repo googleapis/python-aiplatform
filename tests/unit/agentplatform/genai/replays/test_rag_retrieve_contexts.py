@@ -18,6 +18,7 @@ import pytest
 
 from tests.unit.agentplatform.genai.replays import pytest_helper
 from agentplatform._genai import types
+from google.genai import types as genai_types
 
 
 pytestmark = pytest_helper.setup(
@@ -29,9 +30,9 @@ pytestmark = pytest_helper.setup(
 def test_retrieve_contexts(client):
 
     rag_contexts = client.rag.retrieve_contexts(
-        vertex_rag_store=types.VertexRagStore(
+        vertex_rag_store=genai_types.VertexRagStore(
             rag_resources=[
-                types.VertexRagStoreRagResource(
+                genai_types.VertexRagStoreRagResource(
                     rag_corpus="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/6301661778598166528"
                 )
             ],
@@ -51,9 +52,9 @@ pytest_plugins = ("pytest_asyncio",)
 @pytest.mark.asyncio
 async def test_retrieve_contexts_async(client):
     rag_contexts = await client.aio.rag.retrieve_contexts(
-        vertex_rag_store=types.VertexRagStore(
+        vertex_rag_store=genai_types.VertexRagStore(
             rag_resources=[
-                types.VertexRagStoreRagResource(
+                genai_types.VertexRagStoreRagResource(
                     rag_corpus="projects/vertex-sdk-dev/locations/us-central1/ragCorpora/6301661778598166528"
                 )
             ],

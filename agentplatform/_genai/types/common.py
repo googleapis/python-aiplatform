@@ -622,7 +622,7 @@ class DeleteAgentEngineTaskConfig(_common.BaseModel):
 class DeleteAgentEngineTaskConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Task."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -668,7 +668,7 @@ class GetAgentEngineTaskConfig(_common.BaseModel):
 class GetAgentEngineTaskConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Task."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -740,7 +740,7 @@ class TaskArtifactDict(TypedDict, total=False):
     metadata: Optional[dict[str, Any]]
     """Optional. Additional metadata for the artifact. For A2A, the URIs of the extensions that were used to produce this artifact will be stored here."""
 
-    parts: Optional[list[genai_types.PartDict]]
+    parts: Optional[list[genai_types.Part]]
     """The parts of the artifact."""
 
 
@@ -793,7 +793,7 @@ class TaskMessageDict(TypedDict, total=False):
     metadata: Optional[dict[str, Any]]
     """Optional. A2A message may have extension_uris or reference_task_ids. They will be stored under metadata."""
 
-    parts: Optional[list[genai_types.PartDict]]
+    parts: Optional[list[genai_types.Part]]
     """The parts of the message."""
 
     role: Optional[str]
@@ -937,7 +937,7 @@ class ListAgentEngineTasksConfig(_common.BaseModel):
 class ListAgentEngineTasksConfigDict(TypedDict, total=False):
     """Config for listing agent engine tasks."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -1009,7 +1009,7 @@ class ListAgentEngineTasksResponse(_common.BaseModel):
 class ListAgentEngineTasksResponseDict(TypedDict, total=False):
     """Response for listing agent engine tasks."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -1047,7 +1047,7 @@ class CreateAgentEngineTaskConfig(_common.BaseModel):
 class CreateAgentEngineTaskConfigDict(TypedDict, total=False):
     """Config for creating a Session."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     context_id: Optional[str]
@@ -1297,7 +1297,7 @@ class AppendAgentEngineTaskEventConfig(_common.BaseModel):
 class AppendAgentEngineTaskEventConfigDict(TypedDict, total=False):
     """Config for appending Agent Engine task events."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -1388,7 +1388,7 @@ class ListAgentEngineTaskEventsConfig(_common.BaseModel):
 class ListAgentEngineTaskEventsConfigDict(TypedDict, total=False):
     """Config for listing agent engine tasks."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -1461,7 +1461,7 @@ class ListAgentEngineTaskEventsResponse(_common.BaseModel):
 class ListAgentEngineTaskEventsResponseDict(TypedDict, total=False):
     """Response for listing Agent Engine tasks events."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -1487,7 +1487,7 @@ class CreateEvaluationItemConfig(_common.BaseModel):
 class CreateEvaluationItemConfigDict(TypedDict, total=False):
     """Config to create an evaluation item."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -1545,7 +1545,7 @@ class PromptTemplateDataDict(TypedDict, total=False):
     Message to hold a prompt template and the values to populate the template.
     """
 
-    values: Optional[dict[str, genai_types.ContentDict]]
+    values: Optional[dict[str, genai_types.Content]]
     """The values for fields in the prompt template."""
 
 
@@ -1625,7 +1625,7 @@ class CandidateResponseDict(TypedDict, total=False):
     value: Optional[dict[str, Any]]
     """Fields and values that can be used to populate the response template."""
 
-    events: Optional[list[genai_types.ContentDict]]
+    events: Optional[list[genai_types.Content]]
     """Intermediate events (such as tool calls and responses) that led to the final response."""
 
     agent_data: Optional[evals_types.AgentData]
@@ -1814,7 +1814,7 @@ class EvaluationItemDict(TypedDict, total=False):
     create_time: Optional[datetime.datetime]
     """Timestamp when this item was created."""
 
-    error: Optional[genai_types.GoogleRpcStatusDict]
+    error: Optional[genai_types.GoogleRpcStatus]
     """Error for the evaluation item."""
 
 
@@ -2085,7 +2085,7 @@ class MetricDict(TypedDict, total=False):
     judge_model: Optional[str]
     """The judge model for the metric."""
 
-    judge_model_generation_config: Optional[genai_types.GenerationConfigDict]
+    judge_model_generation_config: Optional[genai_types.GenerationConfig]
     """The generation config for the judge LLM (temperature, top_k, top_p, etc)."""
 
     judge_model_sampling_count: Optional[int]
@@ -2115,7 +2115,7 @@ class CreateEvaluationMetricConfig(_common.BaseModel):
 class CreateEvaluationMetricConfigDict(TypedDict, total=False):
     """Config for creating an evaluation metric."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -2245,25 +2245,25 @@ class UnifiedMetric(_common.BaseModel):
 class UnifiedMetricDict(TypedDict, total=False):
     """The unified metric used for evaluation."""
 
-    bleu_spec: Optional[genai_types.BleuSpecDict]
+    bleu_spec: Optional[genai_types.BleuSpec]
     """The Bleu metric spec."""
 
-    rouge_spec: Optional[genai_types.RougeSpecDict]
+    rouge_spec: Optional[genai_types.RougeSpec]
     """The rouge metric spec."""
 
-    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpecDict]
+    pointwise_metric_spec: Optional[genai_types.PointwiseMetricSpec]
     """The pointwise metric spec."""
 
-    llm_based_metric_spec: Optional[genai_types.LLMBasedMetricSpecDict]
+    llm_based_metric_spec: Optional[genai_types.LLMBasedMetricSpec]
     """The spec for an LLM based metric."""
 
     custom_code_execution_spec: Optional[CustomCodeExecutionSpecDict]
     """The spec for a custom code execution metric."""
 
-    predefined_metric_spec: Optional[genai_types.PredefinedMetricSpecDict]
+    predefined_metric_spec: Optional[genai_types.PredefinedMetricSpec]
     """The spec for a pre-defined metric."""
 
-    computation_based_metric_spec: Optional[genai_types.ComputationBasedMetricSpecDict]
+    computation_based_metric_spec: Optional[genai_types.ComputationBasedMetricSpec]
     """The spec for a computation based metric."""
 
 
@@ -2551,10 +2551,10 @@ class EvaluationRunConfigDict(TypedDict, total=False):
     metrics: Optional[list[EvaluationRunMetricDict]]
     """The metrics to be calculated in the evaluation run."""
 
-    output_config: Optional[genai_types.OutputConfigDict]
+    output_config: Optional[genai_types.OutputConfig]
     """The output config for the evaluation run."""
 
-    autorater_config: Optional[genai_types.AutoraterConfigDict]
+    autorater_config: Optional[genai_types.AutoraterConfig]
     """The autorater config for the evaluation run. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     prompt_template: Optional[EvaluationRunPromptTemplateDict]
@@ -2595,10 +2595,10 @@ class EvaluationRunAgentConfigDict(TypedDict, total=False):
     Agent config for an evaluation run.
     """
 
-    developer_instruction: Optional[genai_types.ContentDict]
+    developer_instruction: Optional[genai_types.Content]
     """The developer instruction for the agent."""
 
-    tools: Optional[list[genai_types.ToolDict]]
+    tools: Optional[list[genai_types.Tool]]
     """The tools available to the agent."""
 
 
@@ -2794,7 +2794,7 @@ class CreateEvaluationRunConfig(_common.BaseModel):
 class CreateEvaluationRunConfigDict(TypedDict, total=False):
     """Config to create an evaluation run."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     allow_cross_region_model: Optional[bool]
@@ -3363,7 +3363,7 @@ class ResponseCandidate(_common.BaseModel):
 class ResponseCandidateDict(TypedDict, total=False):
     """A model-generated content to the prompt."""
 
-    response: Optional[genai_types.ContentDict]
+    response: Optional[genai_types.Content]
     """The final model-generated response to the `prompt`."""
 
 
@@ -3421,7 +3421,7 @@ class EvalCase(_common.BaseModel):
 class EvalCaseDict(TypedDict, total=False):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
-    prompt: Optional[genai_types.ContentDict]
+    prompt: Optional[genai_types.Content]
     """The most recent user message (current input)."""
 
     responses: Optional[list[ResponseCandidateDict]]
@@ -3430,7 +3430,7 @@ class EvalCaseDict(TypedDict, total=False):
     reference: Optional[ResponseCandidateDict]
     """User-provided, golden reference model reply to prompt in context of chat history; Reference for last response in a conversation."""
 
-    system_instruction: Optional[genai_types.ContentDict]
+    system_instruction: Optional[genai_types.Content]
     """System instruction for the model."""
 
     conversation_history: Optional[list[evals_types.Message]]
@@ -3553,10 +3553,10 @@ class EvaluationDataset(_common.BaseModel):
 class EvaluationDatasetDict(TypedDict, total=False):
     """The dataset used for evaluation."""
 
-    bigquery_source: Optional[genai_types.BigQuerySourceDict]
+    bigquery_source: Optional[genai_types.BigQuerySource]
     """The BigQuery source for the evaluation dataset."""
 
-    gcs_source: Optional[genai_types.GcsSourceDict]
+    gcs_source: Optional[genai_types.GcsSource]
     """The GCS source for the evaluation dataset."""
 
     eval_cases: Optional[list[EvalCaseDict]]
@@ -3791,7 +3791,7 @@ class EvaluationRunDict(TypedDict, total=False):
     evaluation_set_snapshot: Optional[str]
     """"""
 
-    error: Optional[genai_types.GoogleRpcStatusDict]
+    error: Optional[genai_types.GoogleRpcStatus]
     """"""
 
     data_source: Optional[EvaluationRunDataSourceDict]
@@ -3830,7 +3830,7 @@ class CreateEvaluationSetConfig(_common.BaseModel):
 class CreateEvaluationSetConfigDict(TypedDict, total=False):
     """Config to create an evaluation set."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -3927,7 +3927,7 @@ class DeleteEvaluationMetricConfig(_common.BaseModel):
 class DeleteEvaluationMetricConfigDict(TypedDict, total=False):
     """Config for deleting an evaluation metric."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -4042,7 +4042,7 @@ class BleuInputDict(TypedDict, total=False):
     instances: Optional[list[BleuInstanceDict]]
     """Required. Repeated bleu instances."""
 
-    metric_spec: Optional[genai_types.BleuSpecDict]
+    metric_spec: Optional[genai_types.BleuSpec]
     """Required. Spec for bleu score metric."""
 
 
@@ -4153,7 +4153,7 @@ class RougeInputDict(TypedDict, total=False):
     instances: Optional[list[RougeInstanceDict]]
     """Required. Repeated rouge instances."""
 
-    metric_spec: Optional[genai_types.RougeSpecDict]
+    metric_spec: Optional[genai_types.RougeSpec]
     """Required. Spec for rouge score metric."""
 
 
@@ -4223,7 +4223,7 @@ class PointwiseMetricInputDict(TypedDict, total=False):
     instance: Optional[PointwiseMetricInstanceDict]
     """Required. Pointwise metric instance."""
 
-    metric_spec: Optional[genai_types.PointwiseMetricSpecDict]
+    metric_spec: Optional[genai_types.PointwiseMetricSpec]
     """Required. Spec for pointwise metric."""
 
 
@@ -4266,7 +4266,7 @@ class PairwiseMetricInputDict(TypedDict, total=False):
     instance: Optional[PairwiseMetricInstanceDict]
     """Required. Pairwise metric instance."""
 
-    metric_spec: Optional[genai_types.PairwiseMetricSpecDict]
+    metric_spec: Optional[genai_types.PairwiseMetricSpec]
     """Required. Spec for pairwise metric."""
 
 
@@ -4631,7 +4631,7 @@ class EvaluateInstancesConfig(_common.BaseModel):
 class EvaluateInstancesConfigDict(TypedDict, total=False):
     """Config for evaluate instances."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -4674,7 +4674,7 @@ class RubricBasedMetricSpecDict(TypedDict, total=False):
     """Template for the prompt used by the judge model to evaluate against
       rubrics."""
 
-    judge_autorater_config: Optional[genai_types.AutoraterConfigDict]
+    judge_autorater_config: Optional[genai_types.AutoraterConfig]
     """Optional configuration for the judge LLM (Autorater)."""
 
     inline_rubrics: Optional[list[evals_types.Rubric]]
@@ -4685,7 +4685,7 @@ class RubricBasedMetricSpecDict(TypedDict, total=False):
       This refers to a key in the `rubric_groups` map of
       `RubricEnhancedContents`."""
 
-    rubric_generation_spec: Optional[genai_types.RubricGenerationSpecDict]
+    rubric_generation_spec: Optional[genai_types.RubricGenerationSpec]
     """Dynamically generate rubrics for evaluation using this specification."""
 
 
@@ -4719,14 +4719,14 @@ class RubricEnhancedContents(_common.BaseModel):
 class RubricEnhancedContentsDict(TypedDict, total=False):
     """Rubric-enhanced contents for evaluation."""
 
-    prompt: Optional[list[genai_types.ContentDict]]
+    prompt: Optional[list[genai_types.Content]]
     """User prompt, using the standard Content type from the Gen AI SDK."""
 
     rubric_groups: Optional[dict[str, "RubricGroup"]]
     """Named groups of rubrics associated with this prompt.
       The key is a user-defined name for the rubric group."""
 
-    response: Optional[list[genai_types.ContentDict]]
+    response: Optional[list[genai_types.Content]]
     """Response, using the standard Content type from the Gen AI SDK."""
 
     other_content: Optional[ContentMapDict]
@@ -4913,7 +4913,7 @@ class _EvaluateInstancesRequestParametersDict(TypedDict, total=False):
     rubric_based_metric_input: Optional[RubricBasedMetricInputDict]
     """"""
 
-    autorater_config: Optional[genai_types.AutoraterConfigDict]
+    autorater_config: Optional[genai_types.AutoraterConfig]
     """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     metrics: Optional[list[MetricDict]]
@@ -4967,7 +4967,7 @@ class MetricResultDict(TypedDict, total=False):
     explanation: Optional[str]
     """The explanation for the metric result."""
 
-    error: Optional[genai_types.GoogleRpcStatusDict]
+    error: Optional[genai_types.GoogleRpcStatus]
     """The error status for the metric result."""
 
 
@@ -4985,7 +4985,7 @@ class BleuResults(_common.BaseModel):
 class BleuResultsDict(TypedDict, total=False):
     """Result of evaluating a bleu metric."""
 
-    bleu_metric_values: Optional[list[genai_types.BleuMetricValueDict]]
+    bleu_metric_values: Optional[list[genai_types.BleuMetricValue]]
     """Output only. Bleu metric values."""
 
 
@@ -5003,7 +5003,7 @@ class ExactMatchResults(_common.BaseModel):
 class ExactMatchResultsDict(TypedDict, total=False):
     """Result of evaluating an exact match metric."""
 
-    exact_match_metric_values: Optional[list[genai_types.ExactMatchMetricValueDict]]
+    exact_match_metric_values: Optional[list[genai_types.ExactMatchMetricValue]]
     """Output only. Exact match metric values."""
 
 
@@ -5021,7 +5021,7 @@ class RougeResults(_common.BaseModel):
 class RougeResultsDict(TypedDict, total=False):
     """Result of evaluating a rouge metric."""
 
-    rouge_metric_values: Optional[list[genai_types.RougeMetricValueDict]]
+    rouge_metric_values: Optional[list[genai_types.RougeMetricValue]]
     """Output only. Rouge metric values."""
 
 
@@ -5329,10 +5329,10 @@ class EvaluateInstancesResponseDict(TypedDict, total=False):
     metricx_result: Optional[MetricxResultDict]
     """Result for Metricx metric."""
 
-    pairwise_metric_result: Optional[genai_types.PairwiseMetricResultDict]
+    pairwise_metric_result: Optional[genai_types.PairwiseMetricResult]
     """Result for pairwise metric."""
 
-    pointwise_metric_result: Optional[genai_types.PointwiseMetricResultDict]
+    pointwise_metric_result: Optional[genai_types.PointwiseMetricResult]
     """Generic metrics. Result for pointwise metric."""
 
     rouge_results: Optional[RougeResultsDict]
@@ -5365,7 +5365,7 @@ class GenerateUserScenariosConfig(_common.BaseModel):
 
 class GenerateUserScenariosConfigDict(TypedDict, total=False):
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5452,7 +5452,7 @@ class GenerateLossClustersConfig(_common.BaseModel):
 class GenerateLossClustersConfigDict(TypedDict, total=False):
     """Config for generating loss clusters."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5602,7 +5602,7 @@ class RubricGenerationConfig(_common.BaseModel):
 class RubricGenerationConfigDict(TypedDict, total=False):
     """Config for generating rubrics."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5641,10 +5641,10 @@ class _GenerateInstanceRubricsRequest(_common.BaseModel):
 class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
     """Parameters for generating rubrics."""
 
-    contents: Optional[list[genai_types.ContentDict]]
+    contents: Optional[list[genai_types.Content]]
     """The prompt to generate rubrics from. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
 
-    predefined_rubric_generation_spec: Optional[genai_types.PredefinedMetricSpecDict]
+    predefined_rubric_generation_spec: Optional[genai_types.PredefinedMetricSpec]
     """Specification for using the rubric generation configs of a pre-defined
           metric, e.g. "generic_quality_v1" and "instruction_following_v1".
           Some of the configs may be only used in rubric generation and not
@@ -5652,7 +5652,7 @@ class _GenerateInstanceRubricsRequestDict(TypedDict, total=False):
           If this field is set, the `rubric_generation_spec` field will be ignored.
           """
 
-    rubric_generation_spec: Optional[genai_types.RubricGenerationSpecDict]
+    rubric_generation_spec: Optional[genai_types.RubricGenerationSpec]
     """Specification for how the rubrics should be generated."""
 
     metric_resource_name: Optional[str]
@@ -5698,7 +5698,7 @@ class GetEvaluationMetricConfig(_common.BaseModel):
 class GetEvaluationMetricConfigDict(TypedDict, total=False):
     """Config for getting an evaluation metric."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5742,7 +5742,7 @@ class GetEvaluationRunConfig(_common.BaseModel):
 class GetEvaluationRunConfigDict(TypedDict, total=False):
     """Config for get evaluation run."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5782,7 +5782,7 @@ class GetEvaluationSetConfig(_common.BaseModel):
 class GetEvaluationSetConfigDict(TypedDict, total=False):
     """Config for get evaluation set."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5822,7 +5822,7 @@ class GetEvaluationItemConfig(_common.BaseModel):
 class GetEvaluationItemConfigDict(TypedDict, total=False):
     """Config for get evaluation item."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -5879,7 +5879,7 @@ class ListEvaluationMetricsConfig(_common.BaseModel):
 class ListEvaluationMetricsConfigDict(TypedDict, total=False):
     """Config for listing evaluation metrics."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -5942,7 +5942,7 @@ class ListEvaluationMetricsResponse(_common.BaseModel):
 class ListEvaluationMetricsResponseDict(TypedDict, total=False):
     """Response for listing evaluation metrics."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -5977,7 +5977,7 @@ class OptimizeConfig(_common.BaseModel):
 class OptimizeConfigDict(TypedDict, total=False):
     """Config for Prompt Optimizer."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     optimization_target: Optional[OptimizeTarget]
@@ -6000,7 +6000,7 @@ class _OptimizeRequestParameters(_common.BaseModel):
 class _OptimizeRequestParametersDict(TypedDict, total=False):
     """Request for the optimize_prompt method."""
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """"""
 
     config: Optional[OptimizeConfigDict]
@@ -6021,7 +6021,7 @@ class OptimizeResponseEndpoint(_common.BaseModel):
 class OptimizeResponseEndpointDict(TypedDict, total=False):
     """Response for the optimize_prompt method."""
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """"""
 
 
@@ -6565,7 +6565,7 @@ class CustomJobSpec(_common.BaseModel):
 class CustomJobSpecDict(TypedDict, total=False):
     """Represents a job that runs custom workloads such as a Docker container or a Python package."""
 
-    base_output_directory: Optional[genai_types.GcsDestinationDict]
+    base_output_directory: Optional[genai_types.GcsDestination]
     """The Cloud Storage location to store the output of this CustomJob or HyperparameterTuningJob. For HyperparameterTuningJob, the baseOutputDirectory of each child CustomJob backing a Trial is set to a subdirectory of name id under its parent HyperparameterTuningJob's baseOutputDirectory. The following Vertex AI environment variables will be passed to containers or python modules when this field is set: For CustomJob: * AIP_MODEL_DIR = `/model/` * AIP_CHECKPOINT_DIR = `/checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `/logs/` For CustomJob backing a Trial of HyperparameterTuningJob: * AIP_MODEL_DIR = `//model/` * AIP_CHECKPOINT_DIR = `//checkpoints/` * AIP_TENSORBOARD_LOG_DIR = `//logs/`"""
 
     enable_dashboard_access: Optional[bool]
@@ -6679,13 +6679,13 @@ class CustomJobDict(TypedDict, total=False):
     job_spec: Optional[CustomJobSpecDict]
     """Required. Job spec."""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key options for a CustomJob. If this is set, then all resources created by the CustomJob will be encrypted with the provided encryption key."""
 
     state: Optional[genai_types.JobState]
     """Output only. The detailed state of the job."""
 
-    error: Optional[genai_types.GoogleRpcStatusDict]
+    error: Optional[genai_types.GoogleRpcStatus]
     """Output only. Only populated when job's state is `JOB_STATE_FAILED` or `JOB_STATE_CANCELLED`."""
 
     create_time: Optional[datetime.datetime]
@@ -6730,7 +6730,7 @@ class VertexBaseConfig(_common.BaseModel):
 class VertexBaseConfigDict(TypedDict, total=False):
     """Base config for Vertex AI."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -6794,7 +6794,7 @@ class CancelQueryJobAgentEngineConfig(_common.BaseModel):
 class CancelQueryJobAgentEngineConfigDict(TypedDict, total=False):
     """Config for canceling async querying agent engines."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     operation_name: Optional[str]
@@ -6844,7 +6844,7 @@ class CancelQueryJobResult(_common.BaseModel):
 class CancelQueryJobResultDict(TypedDict, total=False):
     """Result of canceling a query job."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -6866,7 +6866,7 @@ class CheckQueryJobAgentEngineConfig(_common.BaseModel):
 class CheckQueryJobAgentEngineConfigDict(TypedDict, total=False):
     """Config for async querying agent engines."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     retrieve_result: Optional[bool]
@@ -6926,7 +6926,7 @@ class CheckQueryJobResult(_common.BaseModel):
 class CheckQueryJobResultDict(TypedDict, total=False):
     """Result of checking a query job."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     operation_name: Optional[str]
@@ -6962,7 +6962,7 @@ class _RunQueryJobAgentEngineConfig(_common.BaseModel):
 class _RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
     """Config for running a query job on an agent engine."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     input_gcs_uri: Optional[str]
@@ -7019,7 +7019,7 @@ class MemoryBankCustomizationConfigGenerateMemoriesExampleConversationSourceEven
 ):
     """The conversation source event for generating memories."""
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """Required. Represents the content of the event."""
 
 
@@ -7545,7 +7545,7 @@ class StructuredMemorySchemaConfig(_common.BaseModel):
 class StructuredMemorySchemaConfigDict(TypedDict, total=False):
     """Represents the OpenAPI schema of the structured memories."""
 
-    memory_schema: Optional[genai_types.SchemaDict]
+    memory_schema: Optional[genai_types.Schema]
     """Required. Represents the OpenAPI schema of the structured memories."""
 
     id: Optional[str]
@@ -8514,7 +8514,7 @@ class ReasoningEngine(_common.BaseModel):
 class ReasoningEngineDict(TypedDict, total=False):
     """An agent engine."""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for a ReasoningEngine. If set, this ReasoningEngine and all sub-resources of this ReasoningEngine will be secured by this key."""
 
     context_spec: Optional[ReasoningEngineContextSpecDict]
@@ -8760,7 +8760,7 @@ class CreateAgentEngineConfig(_common.BaseModel):
 class CreateAgentEngineConfigDict(TypedDict, total=False):
     """Config for create agent engine."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -8806,7 +8806,7 @@ class CreateAgentEngineConfigDict(TypedDict, total=False):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """The encryption spec to be used for the Agent Engine."""
 
     labels: Optional[dict[str, str]]
@@ -8931,7 +8931,7 @@ class DeleteAgentEngineConfig(_common.BaseModel):
 class DeleteAgentEngineConfigDict(TypedDict, total=False):
     """Config for deleting agent engine."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -9024,7 +9024,7 @@ class GetAgentEngineConfig(_common.BaseModel):
 class GetAgentEngineConfigDict(TypedDict, total=False):
     """Config for create agent engine."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -9073,7 +9073,7 @@ class ListAgentEngineConfig(_common.BaseModel):
 class ListAgentEngineConfigDict(TypedDict, total=False):
     """Config for listing agent engines."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -9125,7 +9125,7 @@ class ListReasoningEnginesResponse(_common.BaseModel):
 class ListReasoningEnginesResponseDict(TypedDict, total=False):
     """Response for listing agent engines."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -9150,7 +9150,7 @@ class GetAgentEngineOperationConfig(_common.BaseModel):
 
 class GetAgentEngineOperationConfigDict(TypedDict, total=False):
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -9203,7 +9203,7 @@ class QueryAgentEngineConfig(_common.BaseModel):
 class QueryAgentEngineConfigDict(TypedDict, total=False):
     """Config for querying agent engines."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     class_method: Optional[str]
@@ -9436,7 +9436,7 @@ class UpdateAgentEngineConfig(_common.BaseModel):
 class UpdateAgentEngineConfigDict(TypedDict, total=False):
     """Config for updating agent engine."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -9482,7 +9482,7 @@ class UpdateAgentEngineConfigDict(TypedDict, total=False):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """The encryption spec to be used for the Agent Engine."""
 
     labels: Optional[dict[str, str]]
@@ -9700,7 +9700,7 @@ class AgentEngineMemoryConfig(_common.BaseModel):
 class AgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for creating a Memory."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -10013,7 +10013,7 @@ class DeleteAgentEngineMemoryConfig(_common.BaseModel):
 class DeleteAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Memory."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -10137,7 +10137,7 @@ class GenerateMemoriesRequestDirectContentsSourceEvent(_common.BaseModel):
 
 class GenerateMemoriesRequestDirectContentsSourceEventDict(TypedDict, total=False):
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """Required. A single piece of content from which to generate memories."""
 
 
@@ -10278,7 +10278,7 @@ class GenerateAgentEngineMemoriesConfig(_common.BaseModel):
 class GenerateAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for generating memories."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     disable_consolidation: Optional[bool]
@@ -10509,7 +10509,7 @@ class GetAgentEngineMemoryConfig(_common.BaseModel):
 class GetAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Memory."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -10563,7 +10563,7 @@ class IngestionDirectContentsSourceEvent(_common.BaseModel):
 class IngestionDirectContentsSourceEventDict(TypedDict, total=False):
     """The direct contents source event for ingesting events."""
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """Required. The content of the event."""
 
     event_id: Optional[str]
@@ -10618,7 +10618,7 @@ class IngestEventsConfig(_common.BaseModel):
 class IngestEventsConfigDict(TypedDict, total=False):
     """Config for ingesting events."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -10760,7 +10760,7 @@ class ListAgentEngineMemoryConfig(_common.BaseModel):
 class ListAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for listing agent engine memories."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -10830,7 +10830,7 @@ class ListReasoningEnginesMemoriesResponse(_common.BaseModel):
 class ListReasoningEnginesMemoriesResponseDict(TypedDict, total=False):
     """Response for listing agent engine memories."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -11062,7 +11062,7 @@ class RetrieveAgentEngineMemoriesConfig(_common.BaseModel):
 class RetrieveAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for retrieving memories."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     filter: Optional[str]
@@ -11231,7 +11231,7 @@ class RetrieveMemoryProfilesConfig(_common.BaseModel):
 class RetrieveMemoryProfilesConfigDict(TypedDict, total=False):
     """Config for retrieving memory profiles."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -11350,7 +11350,7 @@ class RollbackAgentEngineMemoryConfig(_common.BaseModel):
 class RollbackAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for rolling back a memory."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -11496,7 +11496,7 @@ class UpdateAgentEngineMemoryConfig(_common.BaseModel):
 class UpdateAgentEngineMemoryConfigDict(TypedDict, total=False):
     """Config for updating agent engine memory."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -11612,7 +11612,7 @@ class PurgeAgentEngineMemoriesConfig(_common.BaseModel):
 class PurgeAgentEngineMemoriesConfigDict(TypedDict, total=False):
     """Config for purging memories."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -11777,7 +11777,7 @@ class GetAgentEngineMemoryRevisionConfig(_common.BaseModel):
 class GetAgentEngineMemoryRevisionConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Memory Revision."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -11927,7 +11927,7 @@ class ListAgentEngineMemoryRevisionsConfig(_common.BaseModel):
 class ListAgentEngineMemoryRevisionsConfigDict(TypedDict, total=False):
     """Config for listing Agent Engine memory revisions."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -11988,7 +11988,7 @@ class ListAgentEngineMemoryRevisionsResponse(_common.BaseModel):
 class ListAgentEngineMemoryRevisionsResponseDict(TypedDict, total=False):
     """Response for listing agent engine memory revisions."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -12015,173 +12015,14 @@ class AskContextsConfig(_common.BaseModel):
 class AskContextsConfigDict(TypedDict, total=False):
     """Config for asking RAG Contexts."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
-    tools: Optional[list[genai_types.ToolDict]]
+    tools: Optional[list[genai_types.Tool]]
     """"""
 
 
 AskContextsConfigOrDict = Union[AskContextsConfig, AskContextsConfigDict]
-
-
-class RagRetrievalConfigFilter(_common.BaseModel):
-    """Config for filters."""
-
-    metadata_filter: Optional[str] = Field(
-        default=None, description="""Optional. String for metadata filtering."""
-    )
-    vector_distance_threshold: Optional[float] = Field(
-        default=None,
-        description="""Optional. Only returns contexts with vector distance smaller than the threshold.""",
-    )
-    vector_similarity_threshold: Optional[float] = Field(
-        default=None,
-        description="""Optional. Only returns contexts with vector similarity larger than the threshold.""",
-    )
-
-
-class RagRetrievalConfigFilterDict(TypedDict, total=False):
-    """Config for filters."""
-
-    metadata_filter: Optional[str]
-    """Optional. String for metadata filtering."""
-
-    vector_distance_threshold: Optional[float]
-    """Optional. Only returns contexts with vector distance smaller than the threshold."""
-
-    vector_similarity_threshold: Optional[float]
-    """Optional. Only returns contexts with vector similarity larger than the threshold."""
-
-
-RagRetrievalConfigFilterOrDict = Union[
-    RagRetrievalConfigFilter, RagRetrievalConfigFilterDict
-]
-
-
-class RagRetrievalConfigHybridSearch(_common.BaseModel):
-    """Config for Hybrid Search."""
-
-    alpha: Optional[float] = Field(
-        default=None,
-        description="""Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally.""",
-    )
-
-
-class RagRetrievalConfigHybridSearchDict(TypedDict, total=False):
-    """Config for Hybrid Search."""
-
-    alpha: Optional[float]
-    """Optional. Alpha value controls the weight between dense and sparse vector search results. The range is [0, 1], while 0 means sparse vector search only and 1 means dense vector search only. The default value is 0.5 which balances sparse and dense vector search equally."""
-
-
-RagRetrievalConfigHybridSearchOrDict = Union[
-    RagRetrievalConfigHybridSearch, RagRetrievalConfigHybridSearchDict
-]
-
-
-class RagRetrievalConfigRankingLlmRanker(_common.BaseModel):
-    """Config for LlmRanker."""
-
-    model_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. The model name used for ranking. See [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported-models).""",
-    )
-
-
-class RagRetrievalConfigRankingLlmRankerDict(TypedDict, total=False):
-    """Config for LlmRanker."""
-
-    model_name: Optional[str]
-    """Optional. The model name used for ranking. See [Supported models](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/inference#supported-models)."""
-
-
-RagRetrievalConfigRankingLlmRankerOrDict = Union[
-    RagRetrievalConfigRankingLlmRanker, RagRetrievalConfigRankingLlmRankerDict
-]
-
-
-class RagRetrievalConfigRankingRankService(_common.BaseModel):
-    """Config for Rank Service."""
-
-    model_name: Optional[str] = Field(
-        default=None,
-        description="""Optional. The model name of the rank service. Format: `semantic-ranker-512@latest`""",
-    )
-
-
-class RagRetrievalConfigRankingRankServiceDict(TypedDict, total=False):
-    """Config for Rank Service."""
-
-    model_name: Optional[str]
-    """Optional. The model name of the rank service. Format: `semantic-ranker-512@latest`"""
-
-
-RagRetrievalConfigRankingRankServiceOrDict = Union[
-    RagRetrievalConfigRankingRankService, RagRetrievalConfigRankingRankServiceDict
-]
-
-
-class RagRetrievalConfigRanking(_common.BaseModel):
-    """Config for ranking and reranking."""
-
-    llm_ranker: Optional[RagRetrievalConfigRankingLlmRanker] = Field(
-        default=None, description="""Optional. Config for LlmRanker."""
-    )
-    rank_service: Optional[RagRetrievalConfigRankingRankService] = Field(
-        default=None, description="""Optional. Config for Rank Service."""
-    )
-
-
-class RagRetrievalConfigRankingDict(TypedDict, total=False):
-    """Config for ranking and reranking."""
-
-    llm_ranker: Optional[RagRetrievalConfigRankingLlmRankerDict]
-    """Optional. Config for LlmRanker."""
-
-    rank_service: Optional[RagRetrievalConfigRankingRankServiceDict]
-    """Optional. Config for Rank Service."""
-
-
-RagRetrievalConfigRankingOrDict = Union[
-    RagRetrievalConfigRanking, RagRetrievalConfigRankingDict
-]
-
-
-class RagRetrievalConfig(_common.BaseModel):
-    """Specifies the context retrieval config."""
-
-    filter: Optional[RagRetrievalConfigFilter] = Field(
-        default=None, description="""Optional. Config for filters."""
-    )
-    hybrid_search: Optional[RagRetrievalConfigHybridSearch] = Field(
-        default=None, description="""Optional. Config for Hybrid Search."""
-    )
-    ranking: Optional[RagRetrievalConfigRanking] = Field(
-        default=None, description="""Optional. Config for ranking and reranking."""
-    )
-    top_k: Optional[int] = Field(
-        default=None, description="""Optional. The number of contexts to retrieve."""
-    )
-
-
-class RagRetrievalConfigDict(TypedDict, total=False):
-    """Specifies the context retrieval config."""
-
-    filter: Optional[RagRetrievalConfigFilterDict]
-    """Optional. Config for filters."""
-
-    hybrid_search: Optional[RagRetrievalConfigHybridSearchDict]
-    """Optional. Config for Hybrid Search."""
-
-    ranking: Optional[RagRetrievalConfigRankingDict]
-    """Optional. Config for ranking and reranking."""
-
-    top_k: Optional[int]
-    """Optional. The number of contexts to retrieve."""
-
-
-RagRetrievalConfigOrDict = Union[RagRetrievalConfig, RagRetrievalConfigDict]
 
 
 class RagQueryRanking(_common.BaseModel):
@@ -12206,7 +12047,7 @@ RagQueryRankingOrDict = Union[RagQueryRanking, RagQueryRankingDict]
 class RagQuery(_common.BaseModel):
     """A query to retrieve relevant contexts."""
 
-    rag_retrieval_config: Optional[RagRetrievalConfig] = Field(
+    rag_retrieval_config: Optional[genai_types.RagRetrievalConfig] = Field(
         default=None, description="""Optional. The retrieval config for the query."""
     )
     ranking: Optional[RagQueryRanking] = Field(
@@ -12225,7 +12066,7 @@ class RagQuery(_common.BaseModel):
 class RagQueryDict(TypedDict, total=False):
     """A query to retrieve relevant contexts."""
 
-    rag_retrieval_config: Optional[RagRetrievalConfigDict]
+    rag_retrieval_config: Optional[genai_types.RagRetrievalConfigDict]
     """Optional. The retrieval config for the query."""
 
     ranking: Optional[RagQueryRankingDict]
@@ -12263,73 +12104,10 @@ _AskContextsRequestParametersOrDict = Union[
 ]
 
 
-class RagChunkPageSpan(_common.BaseModel):
-    """Represents where the chunk starts and ends in the document."""
-
-    first_page: Optional[int] = Field(
-        default=None,
-        description="""Page where chunk starts in the document. Inclusive. 1-indexed.""",
-    )
-    last_page: Optional[int] = Field(
-        default=None,
-        description="""Page where chunk ends in the document. Inclusive. 1-indexed.""",
-    )
-
-
-class RagChunkPageSpanDict(TypedDict, total=False):
-    """Represents where the chunk starts and ends in the document."""
-
-    first_page: Optional[int]
-    """Page where chunk starts in the document. Inclusive. 1-indexed."""
-
-    last_page: Optional[int]
-    """Page where chunk ends in the document. Inclusive. 1-indexed."""
-
-
-RagChunkPageSpanOrDict = Union[RagChunkPageSpan, RagChunkPageSpanDict]
-
-
-class RagChunk(_common.BaseModel):
-    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
-
-    chunk_id: Optional[str] = Field(
-        default=None, description="""The ID of the chunk."""
-    )
-    file_id: Optional[str] = Field(
-        default=None, description="""The ID of the file that the chunk belongs to."""
-    )
-    page_span: Optional[RagChunkPageSpan] = Field(
-        default=None,
-        description="""If populated, represents where the chunk starts and ends in the document.""",
-    )
-    text: Optional[str] = Field(
-        default=None, description="""The content of the chunk."""
-    )
-
-
-class RagChunkDict(TypedDict, total=False):
-    """A RagChunk includes the content of a chunk of a RagFile, and associated metadata."""
-
-    chunk_id: Optional[str]
-    """The ID of the chunk."""
-
-    file_id: Optional[str]
-    """The ID of the file that the chunk belongs to."""
-
-    page_span: Optional[RagChunkPageSpanDict]
-    """If populated, represents where the chunk starts and ends in the document."""
-
-    text: Optional[str]
-    """The content of the chunk."""
-
-
-RagChunkOrDict = Union[RagChunk, RagChunkDict]
-
-
 class RagContextsContext(_common.BaseModel):
     """A context of the query."""
 
-    chunk: Optional[RagChunk] = Field(
+    chunk: Optional[genai_types.RagChunk] = Field(
         default=None, description="""Context of the retrieved chunk."""
     )
     distance: Optional[float] = Field(
@@ -12357,7 +12135,7 @@ class RagContextsContext(_common.BaseModel):
 class RagContextsContextDict(TypedDict, total=False):
     """A context of the query."""
 
-    chunk: Optional[RagChunkDict]
+    chunk: Optional[genai_types.RagChunkDict]
     """Context of the retrieved chunk."""
 
     distance: Optional[float]
@@ -12552,25 +12330,6 @@ RagCorpusCorpusTypeConfigOrDict = Union[
 ]
 
 
-class EncryptionSpec(_common.BaseModel):
-    """Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource."""
-
-    kms_key_name: Optional[str] = Field(
-        default=None,
-        description="""Required. Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`.""",
-    )
-
-
-class EncryptionSpecDict(TypedDict, total=False):
-    """Represents a customer-managed encryption key specification that can be applied to a Vertex AI resource."""
-
-    kms_key_name: Optional[str]
-    """Required. Resource name of the Cloud KMS key used to protect the resource. The Cloud KMS key must be in the same region as the resource. It must have the format `projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}`."""
-
-
-EncryptionSpecOrDict = Union[EncryptionSpec, EncryptionSpecDict]
-
-
 class RagEmbeddingModelConfigVertexPredictionEndpoint(_common.BaseModel):
     """Config representing a model hosted on Vertex Prediction Endpoint."""
 
@@ -12728,50 +12487,6 @@ class RagEmbeddingModelConfigDict(TypedDict, total=False):
 RagEmbeddingModelConfigOrDict = Union[
     RagEmbeddingModelConfig, RagEmbeddingModelConfigDict
 ]
-
-
-class ApiAuthApiKeyConfig(_common.BaseModel):
-    """The API secret."""
-
-    api_key_secret_version: Optional[str] = Field(
-        default=None,
-        description="""Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}""",
-    )
-    api_key_string: Optional[str] = Field(
-        default=None,
-        description="""The API key string. Either this or `api_key_secret_version` must be set.""",
-    )
-
-
-class ApiAuthApiKeyConfigDict(TypedDict, total=False):
-    """The API secret."""
-
-    api_key_secret_version: Optional[str]
-    """Required. The SecretManager secret version resource name storing API key. e.g. projects/{project}/secrets/{secret}/versions/{version}"""
-
-    api_key_string: Optional[str]
-    """The API key string. Either this or `api_key_secret_version` must be set."""
-
-
-ApiAuthApiKeyConfigOrDict = Union[ApiAuthApiKeyConfig, ApiAuthApiKeyConfigDict]
-
-
-class ApiAuth(_common.BaseModel):
-    """The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead."""
-
-    api_key_config: Optional[ApiAuthApiKeyConfig] = Field(
-        default=None, description="""The API secret."""
-    )
-
-
-class ApiAuthDict(TypedDict, total=False):
-    """The generic reusable api auth config. Deprecated. Please use AuthConfig (google/cloud/aiplatform/master/auth.proto) instead."""
-
-    api_key_config: Optional[ApiAuthApiKeyConfigDict]
-    """The API secret."""
-
-
-ApiAuthOrDict = Union[ApiAuth, ApiAuthDict]
 
 
 class RagVectorDbConfigPinecone(_common.BaseModel):
@@ -12970,7 +12685,7 @@ RagVectorDbConfigWeaviateOrDict = Union[
 class RagVectorDbConfig(_common.BaseModel):
     """Config for the Vector DB to use for RAG."""
 
-    api_auth: Optional[ApiAuth] = Field(
+    api_auth: Optional[genai_types.ApiAuth] = Field(
         default=None, description="""Authentication config for the chosen Vector DB."""
     )
     pinecone: Optional[RagVectorDbConfigPinecone] = Field(
@@ -13003,7 +12718,7 @@ class RagVectorDbConfig(_common.BaseModel):
 class RagVectorDbConfigDict(TypedDict, total=False):
     """Config for the Vector DB to use for RAG."""
 
-    api_auth: Optional[ApiAuthDict]
+    api_auth: Optional[genai_types.ApiAuthDict]
     """Authentication config for the chosen Vector DB."""
 
     pinecone: Optional[RagVectorDbConfigPineconeDict]
@@ -13073,7 +12788,7 @@ class RagCorpus(_common.BaseModel):
         default=None,
         description="""Required. The display name of the RagCorpus. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
     )
-    encryption_spec: Optional[EncryptionSpec] = Field(
+    encryption_spec: Optional[genai_types.EncryptionSpec] = Field(
         default=None,
         description="""Optional. Immutable. The CMEK key name used to encrypt at-rest data related to this Corpus. Only applicable to RagManagedDb option for Vector DB. This field can only be set at corpus creation time, and cannot be updated or deleted.""",
     )
@@ -13130,7 +12845,7 @@ class RagCorpusDict(TypedDict, total=False):
     display_name: Optional[str]
     """Required. The display name of the RagCorpus. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
 
-    encryption_spec: Optional[EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpecDict]
     """Optional. Immutable. The CMEK key name used to encrypt at-rest data related to this Corpus. Only applicable to RagManagedDb option for Vector DB. This field can only be set at corpus creation time, and cannot be updated or deleted."""
 
     name: Optional[str]
@@ -13175,7 +12890,7 @@ class CreateRagCorpusConfig(_common.BaseModel):
 class CreateRagCorpusConfigDict(TypedDict, total=False):
     """Config for creating a RAG corpus."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -13257,7 +12972,7 @@ class GetCorpusOperationConfig(_common.BaseModel):
 class GetCorpusOperationConfigDict(TypedDict, total=False):
     """Config for getting a corpus operation."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -13349,7 +13064,7 @@ class GetRagCorpusConfig(_common.BaseModel):
 class GetRagCorpusConfigDict(TypedDict, total=False):
     """Config for getting a RAG corpus."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -13391,7 +13106,7 @@ class ListRagCorporaConfig(_common.BaseModel):
 class ListRagCorporaConfigDict(TypedDict, total=False):
     """Config for listing RagCorpora."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -13437,7 +13152,7 @@ class ListRagCorporaResponse(_common.BaseModel):
 class ListRagCorporaResponseDict(TypedDict, total=False):
     """Response for listing RagCorpora."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -13461,7 +13176,7 @@ class GetRagFileConfig(_common.BaseModel):
 class GetRagFileConfigDict(TypedDict, total=False):
     """Config for getting a RAG corpus."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -13490,31 +13205,6 @@ _GetRagFileRequestParametersOrDict = Union[
 ]
 
 
-class FileStatus(_common.BaseModel):
-    """RagFile status."""
-
-    error_status: Optional[str] = Field(
-        default=None,
-        description="""Output only. Only when the `state` field is ERROR.""",
-    )
-    state: Optional[RagFileState] = Field(
-        default=None, description="""The state of the RagFile."""
-    )
-
-
-class FileStatusDict(TypedDict, total=False):
-    """RagFile status."""
-
-    error_status: Optional[str]
-    """Output only. Only when the `state` field is ERROR."""
-
-    state: Optional[RagFileState]
-    """The state of the RagFile."""
-
-
-FileStatusOrDict = Union[FileStatus, FileStatusDict]
-
-
 class DirectUploadSource(_common.BaseModel):
     """The input content is encapsulated and uploaded in the request."""
 
@@ -13528,25 +13218,6 @@ class DirectUploadSourceDict(TypedDict, total=False):
 
 
 DirectUploadSourceOrDict = Union[DirectUploadSource, DirectUploadSourceDict]
-
-
-class GcsSource(_common.BaseModel):
-    """The Google Cloud Storage location for the input content."""
-
-    uris: Optional[list[str]] = Field(
-        default=None,
-        description="""Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards.""",
-    )
-
-
-class GcsSourceDict(TypedDict, total=False):
-    """The Google Cloud Storage location for the input content."""
-
-    uris: Optional[list[str]]
-    """Required. Google Cloud Storage URI(-s) to the input file(s). May contain wildcards. For more information on wildcards, see https://cloud.google.com/storage/docs/wildcards."""
-
-
-GcsSourceOrDict = Union[GcsSource, GcsSourceDict]
 
 
 class GoogleDriveSourceResourceId(_common.BaseModel):
@@ -13596,7 +13267,7 @@ GoogleDriveSourceOrDict = Union[GoogleDriveSource, GoogleDriveSourceDict]
 class JiraSourceJiraQueries(_common.BaseModel):
     """JiraQueries contains the Jira queries and corresponding authentication."""
 
-    api_key_config: Optional[ApiAuthApiKeyConfig] = Field(
+    api_key_config: Optional[genai_types.ApiAuthApiKeyConfig] = Field(
         default=None,
         description="""Required. The SecretManager secret version resource name (e.g. projects/{project}/secrets/{secret}/versions/{version}) storing the Jira API key. See [Manage API tokens for your Atlassian account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/).""",
     )
@@ -13619,7 +13290,7 @@ class JiraSourceJiraQueries(_common.BaseModel):
 class JiraSourceJiraQueriesDict(TypedDict, total=False):
     """JiraQueries contains the Jira queries and corresponding authentication."""
 
-    api_key_config: Optional[ApiAuthApiKeyConfigDict]
+    api_key_config: Optional[genai_types.ApiAuthApiKeyConfigDict]
     """Required. The SecretManager secret version resource name (e.g. projects/{project}/secrets/{secret}/versions/{version}) storing the Jira API key. See [Manage API tokens for your Atlassian account](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/)."""
 
     custom_queries: Optional[list[str]]
@@ -13663,7 +13334,7 @@ class SharePointSourcesSharePointSource(_common.BaseModel):
         default=None,
         description="""The Application ID for the app registered in Microsoft Azure Portal. The application must also be configured with MS Graph permissions "Files.ReadAll", "Sites.ReadAll" and BrowserSiteLists.Read.All.""",
     )
-    client_secret: Optional[ApiAuthApiKeyConfig] = Field(
+    client_secret: Optional[genai_types.ApiAuthApiKeyConfig] = Field(
         default=None,
         description="""The application secret for the app registered in Azure.""",
     )
@@ -13701,7 +13372,7 @@ class SharePointSourcesSharePointSourceDict(TypedDict, total=False):
     client_id: Optional[str]
     """The Application ID for the app registered in Microsoft Azure Portal. The application must also be configured with MS Graph permissions "Files.ReadAll", "Sites.ReadAll" and BrowserSiteLists.Read.All."""
 
-    client_secret: Optional[ApiAuthApiKeyConfigDict]
+    client_secret: Optional[genai_types.ApiAuthApiKeyConfigDict]
     """The application secret for the app registered in Azure."""
 
     drive_id: Optional[str]
@@ -13786,7 +13457,7 @@ SlackSourceSlackChannelsSlackChannelOrDict = Union[
 class SlackSourceSlackChannels(_common.BaseModel):
     """SlackChannels contains the Slack channels and corresponding access token."""
 
-    api_key_config: Optional[ApiAuthApiKeyConfig] = Field(
+    api_key_config: Optional[genai_types.ApiAuthApiKeyConfig] = Field(
         default=None,
         description="""Required. The SecretManager secret version resource name (e.g. projects/{project}/secrets/{secret}/versions/{version}) storing the Slack channel access token that has access to the slack channel IDs. See: https://api.slack.com/tutorials/tracks/getting-a-token.""",
     )
@@ -13798,7 +13469,7 @@ class SlackSourceSlackChannels(_common.BaseModel):
 class SlackSourceSlackChannelsDict(TypedDict, total=False):
     """SlackChannels contains the Slack channels and corresponding access token."""
 
-    api_key_config: Optional[ApiAuthApiKeyConfigDict]
+    api_key_config: Optional[genai_types.ApiAuthApiKeyConfigDict]
     """Required. The SecretManager secret version resource name (e.g. projects/{project}/secrets/{secret}/versions/{version}) storing the Slack channel access token that has access to the slack channel IDs. See: https://api.slack.com/tutorials/tracks/getting-a-token."""
 
     channels: Optional[list[SlackSourceSlackChannelsSlackChannelDict]]
@@ -13846,10 +13517,10 @@ class RagFile(_common.BaseModel):
         default=None,
         description="""Required. The display name of the RagFile. The name can be up to 128 characters long and can consist of any UTF-8 characters.""",
     )
-    file_status: Optional[FileStatus] = Field(
+    file_status: Optional[genai_types.FileStatus] = Field(
         default=None, description="""Output only. State of the RagFile."""
     )
-    gcs_source: Optional[GcsSource] = Field(
+    gcs_source: Optional[genai_types.GcsSource] = Field(
         default=None,
         description="""Output only. Google Cloud Storage location of the RagFile. It does not support wildcards in the Cloud Storage uri for now.""",
     )
@@ -13901,10 +13572,10 @@ class RagFileDict(TypedDict, total=False):
     display_name: Optional[str]
     """Required. The display name of the RagFile. The name can be up to 128 characters long and can consist of any UTF-8 characters."""
 
-    file_status: Optional[FileStatusDict]
+    file_status: Optional[genai_types.FileStatusDict]
     """Output only. State of the RagFile."""
 
-    gcs_source: Optional[GcsSourceDict]
+    gcs_source: Optional[genai_types.GcsSourceDict]
     """Output only. Google Cloud Storage location of the RagFile. It does not support wildcards in the Cloud Storage uri for now."""
 
     google_drive_source: Optional[GoogleDriveSourceDict]
@@ -13951,7 +13622,7 @@ class ListRagFilesConfig(_common.BaseModel):
 class ListRagFilesConfigDict(TypedDict, total=False):
     """Config for listing RagFile instances within a RagCorpus."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -14001,7 +13672,7 @@ class ListRagFilesResponse(_common.BaseModel):
 class ListRagFilesResponseDict(TypedDict, total=False):
     """Response for listing RagFile instances within a RagCorpus."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -14025,7 +13696,7 @@ class GetRagConfig(_common.BaseModel):
 class GetRagConfigDict(TypedDict, total=False):
     """Config for getting a RAG Config."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14258,7 +13929,7 @@ class UpdateRagCorpusConfig(_common.BaseModel):
 class UpdateRagCorpusConfigDict(TypedDict, total=False):
     """Config for updating a RAG corpus."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14344,7 +14015,7 @@ class DeleteRagCorpusConfig(_common.BaseModel):
 class DeleteRagCorpusConfigDict(TypedDict, total=False):
     """Config for deleting a RAG corpus."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14426,7 +14097,7 @@ class DeleteRagFileConfig(_common.BaseModel):
 class DeleteRagFileConfigDict(TypedDict, total=False):
     """Config for deleting a RAG File."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14506,7 +14177,7 @@ class UpdateRagConfig(_common.BaseModel):
 class UpdateRagConfigDict(TypedDict, total=False):
     """Config for updating a RAG Config."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14588,99 +14259,19 @@ class RetrieveContextsConfig(_common.BaseModel):
 class RetrieveContextsConfigDict(TypedDict, total=False):
     """Config for retrieving RAG Contexts."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
 RetrieveContextsConfigOrDict = Union[RetrieveContextsConfig, RetrieveContextsConfigDict]
 
 
-class VertexRagStoreRagResource(_common.BaseModel):
-    """The definition of the Rag resource."""
-
-    rag_corpus: Optional[str] = Field(
-        default=None,
-        description="""Optional. RagCorpora resource name. Format: `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`""",
-    )
-    rag_file_ids: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. rag_file_id. The files should be in the same rag_corpus set in rag_corpus field.""",
-    )
-
-
-class VertexRagStoreRagResourceDict(TypedDict, total=False):
-    """The definition of the Rag resource."""
-
-    rag_corpus: Optional[str]
-    """Optional. RagCorpora resource name. Format: `projects/{project}/locations/{location}/ragCorpora/{rag_corpus}`"""
-
-    rag_file_ids: Optional[list[str]]
-    """Optional. rag_file_id. The files should be in the same rag_corpus set in rag_corpus field."""
-
-
-VertexRagStoreRagResourceOrDict = Union[
-    VertexRagStoreRagResource, VertexRagStoreRagResourceDict
-]
-
-
-class VertexRagStore(_common.BaseModel):
-    """Retrieve from Vertex RAG Store for grounding."""
-
-    rag_corpora: Optional[list[str]] = Field(
-        default=None,
-        description="""Optional. Deprecated. Please use rag_resources instead.""",
-    )
-    rag_resources: Optional[list[VertexRagStoreRagResource]] = Field(
-        default=None,
-        description="""Optional. The representation of the rag source. It can be used to specify corpus only or ragfiles. Currently only support one corpus or multiple files from one corpus. In the future we may open up multiple corpora support.""",
-    )
-    rag_retrieval_config: Optional[RagRetrievalConfig] = Field(
-        default=None,
-        description="""Optional. The retrieval config for the Rag query.""",
-    )
-    similarity_top_k: Optional[int] = Field(
-        default=None,
-        description="""Optional. Number of top k results to return from the selected corpora.""",
-    )
-    store_context: Optional[bool] = Field(
-        default=None,
-        description="""Optional. Currently only supported for Gemini Multimodal Live API. In Gemini Multimodal Live API, if `store_context` bool is specified, Gemini will leverage it to automatically memorize the interactions between the client and Gemini, and retrieve context when needed to augment the response generation for users' ongoing and future interactions.""",
-    )
-    vector_distance_threshold: Optional[float] = Field(
-        default=None,
-        description="""Optional. Only return results with vector distance smaller than the threshold.""",
-    )
-
-
-class VertexRagStoreDict(TypedDict, total=False):
-    """Retrieve from Vertex RAG Store for grounding."""
-
-    rag_corpora: Optional[list[str]]
-    """Optional. Deprecated. Please use rag_resources instead."""
-
-    rag_resources: Optional[list[VertexRagStoreRagResourceDict]]
-    """Optional. The representation of the rag source. It can be used to specify corpus only or ragfiles. Currently only support one corpus or multiple files from one corpus. In the future we may open up multiple corpora support."""
-
-    rag_retrieval_config: Optional[RagRetrievalConfigDict]
-    """Optional. The retrieval config for the Rag query."""
-
-    similarity_top_k: Optional[int]
-    """Optional. Number of top k results to return from the selected corpora."""
-
-    store_context: Optional[bool]
-    """Optional. Currently only supported for Gemini Multimodal Live API. In Gemini Multimodal Live API, if `store_context` bool is specified, Gemini will leverage it to automatically memorize the interactions between the client and Gemini, and retrieve context when needed to augment the response generation for users' ongoing and future interactions."""
-
-    vector_distance_threshold: Optional[float]
-    """Optional. Only return results with vector distance smaller than the threshold."""
-
-
-VertexRagStoreOrDict = Union[VertexRagStore, VertexRagStoreDict]
-
-
 class _RetrieveRagContextsRequestParameters(_common.BaseModel):
     """Parameters for retrieving RAG Contexts."""
 
-    vertex_rag_store: Optional[VertexRagStore] = Field(default=None, description="""""")
+    vertex_rag_store: Optional[genai_types.VertexRagStore] = Field(
+        default=None, description=""""""
+    )
     query: Optional[RagQuery] = Field(default=None, description="""""")
     config: Optional[RetrieveContextsConfig] = Field(default=None, description="""""")
 
@@ -14688,7 +14279,7 @@ class _RetrieveRagContextsRequestParameters(_common.BaseModel):
 class _RetrieveRagContextsRequestParametersDict(TypedDict, total=False):
     """Parameters for retrieving RAG Contexts."""
 
-    vertex_rag_store: Optional[VertexRagStoreDict]
+    vertex_rag_store: Optional[genai_types.VertexRagStoreDict]
     """"""
 
     query: Optional[RagQueryDict]
@@ -14732,7 +14323,7 @@ class GetRagConfigOperationConfig(_common.BaseModel):
 class GetRagConfigOperationConfigDict(TypedDict, total=False):
     """Config for getting a RAG config operation."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14820,7 +14411,7 @@ class ImportRagFilesRequestConfig(_common.BaseModel):
 class ImportRagFilesRequestConfigDict(TypedDict, total=False):
     """Config for importing RAG files."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -14846,25 +14437,6 @@ class BigQueryDestinationDict(TypedDict, total=False):
 
 
 BigQueryDestinationOrDict = Union[BigQueryDestination, BigQueryDestinationDict]
-
-
-class GcsDestination(_common.BaseModel):
-    """The Google Cloud Storage location where the output is to be written to."""
-
-    output_uri_prefix: Optional[str] = Field(
-        default=None,
-        description="""Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist.""",
-    )
-
-
-class GcsDestinationDict(TypedDict, total=False):
-    """The Google Cloud Storage location where the output is to be written to."""
-
-    output_uri_prefix: Optional[str]
-    """Required. Google Cloud Storage URI to output directory. If the uri doesn't end with '/', a '/' will be automatically appended. The directory is created if it doesn't exist."""
-
-
-GcsDestinationOrDict = Union[GcsDestination, GcsDestinationDict]
 
 
 class RagFileChunkingConfigFixedLengthChunking(_common.BaseModel):
@@ -14927,11 +14499,11 @@ RagFileChunkingConfigOrDict = Union[RagFileChunkingConfig, RagFileChunkingConfig
 class RagFileMetadataConfig(_common.BaseModel):
     """Metadata config for RagFile."""
 
-    gcs_metadata_schema_source: Optional[GcsSource] = Field(
+    gcs_metadata_schema_source: Optional[genai_types.GcsSource] = Field(
         default=None,
         description="""Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata_schema.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata schema will be read from the files that ends with "metadata_schema.json" in the directory.""",
     )
-    gcs_metadata_source: Optional[GcsSource] = Field(
+    gcs_metadata_source: Optional[genai_types.GcsSource] = Field(
         default=None,
         description="""Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata will be read from the files that ends with "metadata.json" in the directory.""",
     )
@@ -14955,10 +14527,10 @@ class RagFileMetadataConfig(_common.BaseModel):
 class RagFileMetadataConfigDict(TypedDict, total=False):
     """Metadata config for RagFile."""
 
-    gcs_metadata_schema_source: Optional[GcsSourceDict]
+    gcs_metadata_schema_source: Optional[genai_types.GcsSourceDict]
     """Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata_schema.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata schema will be read from the files that ends with "metadata_schema.json" in the directory."""
 
-    gcs_metadata_source: Optional[GcsSourceDict]
+    gcs_metadata_source: Optional[genai_types.GcsSourceDict]
     """Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/metadata.json` - `gs://bucket_name/my_directory` If the user provides a directory, the metadata will be read from the files that ends with "metadata.json" in the directory."""
 
     google_drive_metadata_schema_source: Optional[GoogleDriveSourceDict]
@@ -15091,7 +14663,7 @@ RagFileTransformationConfigOrDict = Union[
 class ImportRagFilesConfig(_common.BaseModel):
     """Config for importing RagFiles."""
 
-    gcs_source: Optional[GcsSource] = Field(
+    gcs_source: Optional[genai_types.GcsSource] = Field(
         default=None,
         description="""Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/my_file.txt` - `gs://bucket_name/my_directory`""",
     )
@@ -15107,7 +14679,7 @@ class ImportRagFilesConfig(_common.BaseModel):
         default=None,
         description="""The BigQuery destination to write import result to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table.""",
     )
-    import_result_gcs_sink: Optional[GcsDestination] = Field(
+    import_result_gcs_sink: Optional[genai_types.GcsDestination] = Field(
         default=None,
         description="""The Cloud Storage path to write import result to.""",
     )
@@ -15123,7 +14695,7 @@ class ImportRagFilesConfig(_common.BaseModel):
         default=None,
         description="""The BigQuery destination to write partial failures to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table. Deprecated. Prefer to use `import_result_bq_sink`.""",
     )
-    partial_failure_gcs_sink: Optional[GcsDestination] = Field(
+    partial_failure_gcs_sink: Optional[genai_types.GcsDestination] = Field(
         default=None,
         description="""The Cloud Storage path to write partial failures to. Deprecated. Prefer to use `import_result_gcs_sink`.""",
     )
@@ -15159,7 +14731,7 @@ class ImportRagFilesConfig(_common.BaseModel):
 class ImportRagFilesConfigDict(TypedDict, total=False):
     """Config for importing RagFiles."""
 
-    gcs_source: Optional[GcsSourceDict]
+    gcs_source: Optional[genai_types.GcsSourceDict]
     """Google Cloud Storage location. Supports importing individual files as well as entire Google Cloud Storage directories. Sample formats: - `gs://bucket_name/my_directory/object_name/my_file.txt` - `gs://bucket_name/my_directory`"""
 
     global_max_embedding_requests_per_min: Optional[int]
@@ -15171,7 +14743,7 @@ class ImportRagFilesConfigDict(TypedDict, total=False):
     import_result_bigquery_sink: Optional[BigQueryDestinationDict]
     """The BigQuery destination to write import result to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table."""
 
-    import_result_gcs_sink: Optional[GcsDestinationDict]
+    import_result_gcs_sink: Optional[genai_types.GcsDestinationDict]
     """The Cloud Storage path to write import result to."""
 
     jira_source: Optional[JiraSourceDict]
@@ -15183,7 +14755,7 @@ class ImportRagFilesConfigDict(TypedDict, total=False):
     partial_failure_bigquery_sink: Optional[BigQueryDestinationDict]
     """The BigQuery destination to write partial failures to. It should be a bigquery table resource name (e.g. "bq://projectId.bqDatasetId.bqTableId"). The dataset must exist. If the table does not exist, it will be created with the expected schema. If the table exists, the schema will be validated and data will be added to this existing table. Deprecated. Prefer to use `import_result_bq_sink`."""
 
-    partial_failure_gcs_sink: Optional[GcsDestinationDict]
+    partial_failure_gcs_sink: Optional[genai_types.GcsDestinationDict]
     """The Cloud Storage path to write partial failures to. Deprecated. Prefer to use `import_result_gcs_sink`."""
 
     rag_file_chunking_config: Optional[RagFileChunkingConfigDict]
@@ -15366,7 +14938,7 @@ class GetImportFilesOperationConfig(_common.BaseModel):
 class GetImportFilesOperationConfigDict(TypedDict, total=False):
     """Config for getting an import files operation."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -15412,7 +14984,7 @@ class UploadRagFileRequestConfig(_common.BaseModel):
 class UploadRagFileRequestConfigDict(TypedDict, total=False):
     """Config for the request to upload a Rag File."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -15501,43 +15073,10 @@ _UploadRagFileParametersOrDict = Union[
 ]
 
 
-class GoogleRpcStatus(_common.BaseModel):
-    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."""
-
-    code: Optional[int] = Field(
-        default=None,
-        description="""The status code, which should be an enum value of google.rpc.Code.""",
-    )
-    details: Optional[list[dict[str, Any]]] = Field(
-        default=None,
-        description="""A list of messages that carry the error details. There is a common set of message types for APIs to use.""",
-    )
-    message: Optional[str] = Field(
-        default=None,
-        description="""A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client.""",
-    )
-
-
-class GoogleRpcStatusDict(TypedDict, total=False):
-    """The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors)."""
-
-    code: Optional[int]
-    """The status code, which should be an enum value of google.rpc.Code."""
-
-    details: Optional[list[dict[str, Any]]]
-    """A list of messages that carry the error details. There is a common set of message types for APIs to use."""
-
-    message: Optional[str]
-    """A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the google.rpc.Status.details field, or localized by the client."""
-
-
-GoogleRpcStatusOrDict = Union[GoogleRpcStatus, GoogleRpcStatusDict]
-
-
 class UploadRagFileResponse(_common.BaseModel):
     """Response for uploading a Rag File."""
 
-    error: Optional[GoogleRpcStatus] = Field(
+    error: Optional[genai_types.GoogleRpcStatus] = Field(
         default=None,
         description="""The error that occurred while processing the RagFile.""",
     )
@@ -15550,7 +15089,7 @@ class UploadRagFileResponse(_common.BaseModel):
 class UploadRagFileResponseDict(TypedDict, total=False):
     """Response for uploading a Rag File."""
 
-    error: Optional[GoogleRpcStatusDict]
+    error: Optional[genai_types.GoogleRpcStatusDict]
     """The error that occurred while processing the RagFile."""
 
     rag_file: Optional[RagFileDict]
@@ -15571,7 +15110,7 @@ class GetAgentEngineRuntimeRevisionConfig(_common.BaseModel):
 class GetAgentEngineRuntimeRevisionConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Runtime Revision."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -15666,7 +15205,7 @@ class ListAgentEngineRuntimeRevisionsConfig(_common.BaseModel):
 class ListAgentEngineRuntimeRevisionsConfigDict(TypedDict, total=False):
     """Config for listing reasoning engine runtime revisions."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -15729,7 +15268,7 @@ class ListReasoningEnginesRuntimeRevisionsResponse(_common.BaseModel):
 class ListReasoningEnginesRuntimeRevisionsResponseDict(TypedDict, total=False):
     """Response for listing agent engine runtime revisions."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -15762,7 +15301,7 @@ class DeleteAgentEngineRuntimeRevisionConfig(_common.BaseModel):
 class DeleteAgentEngineRuntimeRevisionConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Runtime Revision."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -15854,7 +15393,7 @@ class GetDeleteAgentEngineRuntimeRevisionOperationConfig(_common.BaseModel):
 
 class GetDeleteAgentEngineRuntimeRevisionOperationConfigDict(TypedDict, total=False):
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -15911,7 +15450,7 @@ class QueryAgentEngineRuntimeRevisionConfig(_common.BaseModel):
 class QueryAgentEngineRuntimeRevisionConfigDict(TypedDict, total=False):
     """Config for querying agent engine runtime revisions."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     class_method: Optional[str]
@@ -16068,7 +15607,7 @@ class CreateAgentEngineSandboxConfig(_common.BaseModel):
 class CreateAgentEngineSandboxConfigDict(TypedDict, total=False):
     """Config for creating a Sandbox."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -16338,7 +15877,7 @@ class DeleteAgentEngineSandboxConfig(_common.BaseModel):
 class DeleteAgentEngineSandboxConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Sandbox."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -16478,7 +16017,7 @@ class ExecuteCodeAgentEngineSandboxConfig(_common.BaseModel):
 class ExecuteCodeAgentEngineSandboxConfigDict(TypedDict, total=False):
     """Config for executing code in an Agent Engine sandbox."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -16552,7 +16091,7 @@ class GetAgentEngineSandboxConfig(_common.BaseModel):
 class GetAgentEngineSandboxConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Memory."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -16605,7 +16144,7 @@ class ListAgentEngineSandboxesConfig(_common.BaseModel):
 class ListAgentEngineSandboxesConfigDict(TypedDict, total=False):
     """Config for listing agent engine sandboxes."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -16666,7 +16205,7 @@ class ListAgentEngineSandboxesResponse(_common.BaseModel):
 class ListAgentEngineSandboxesResponseDict(TypedDict, total=False):
     """Response for listing agent engine sandboxes."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -16899,7 +16438,7 @@ class CreateSandboxEnvironmentTemplateConfig(_common.BaseModel):
 class CreateSandboxEnvironmentTemplateConfigDict(TypedDict, total=False):
     """Config for creating a Sandbox Template."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -17115,7 +16654,7 @@ class DeleteSandboxEnvironmentTemplateConfig(_common.BaseModel):
 class DeleteSandboxEnvironmentTemplateConfigDict(TypedDict, total=False):
     """Config for deleting a Sandbox Template."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -17205,7 +16744,7 @@ class GetSandboxEnvironmentTemplateConfig(_common.BaseModel):
 class GetSandboxEnvironmentTemplateConfigDict(TypedDict, total=False):
     """Config for getting a Sandbox Template."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -17258,7 +16797,7 @@ class ListSandboxEnvironmentTemplatesConfig(_common.BaseModel):
 class ListSandboxEnvironmentTemplatesConfigDict(TypedDict, total=False):
     """Config for listing sandbox templates."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -17318,7 +16857,7 @@ class ListSandboxEnvironmentTemplatesResponse(_common.BaseModel):
 class ListSandboxEnvironmentTemplatesResponseDict(TypedDict, total=False):
     """Response for listing sandbox templates."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -17385,7 +16924,7 @@ class CreateAgentEngineSandboxSnapshotConfig(_common.BaseModel):
 class CreateAgentEngineSandboxSnapshotConfigDict(TypedDict, total=False):
     """Config for creating a Sandbox Environment Snapshot."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -17585,7 +17124,7 @@ class DeleteSandboxEnvironmentSnapshotConfig(_common.BaseModel):
 class DeleteSandboxEnvironmentSnapshotConfigDict(TypedDict, total=False):
     """Config for deleting a Sandbox Environment Snapshot."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -17676,7 +17215,7 @@ class GetSandboxEnvironmentSnapshotConfig(_common.BaseModel):
 class GetSandboxEnvironmentSnapshotConfigDict(TypedDict, total=False):
     """Config for getting a Sandbox Environment Snapshot."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -17729,7 +17268,7 @@ class ListSandboxEnvironmentSnapshotsConfig(_common.BaseModel):
 class ListSandboxEnvironmentSnapshotsConfigDict(TypedDict, total=False):
     """Config for listing sandbox environment snapshots."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -17790,7 +17329,7 @@ class ListSandboxEnvironmentSnapshotsResponse(_common.BaseModel):
 class ListSandboxEnvironmentSnapshotsResponseDict(TypedDict, total=False):
     """Response for listing sandbox environment snapshots."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -17872,7 +17411,7 @@ class CreateAgentEngineSessionConfig(_common.BaseModel):
 class CreateAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for creating a Session."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -18071,7 +17610,7 @@ class DeleteAgentEngineSessionConfig(_common.BaseModel):
 class DeleteAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for deleting an Agent Engine Session."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -18160,7 +17699,7 @@ class GetAgentEngineSessionConfig(_common.BaseModel):
 class GetAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for getting an Agent Engine Session."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -18213,7 +17752,7 @@ class ListAgentEngineSessionsConfig(_common.BaseModel):
 class ListAgentEngineSessionsConfigDict(TypedDict, total=False):
     """Config for listing agent engine sessions."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -18274,7 +17813,7 @@ class ListReasoningEnginesSessionsResponse(_common.BaseModel):
 class ListReasoningEnginesSessionsResponseDict(TypedDict, total=False):
     """Response for listing agent engine sessions."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -18364,7 +17903,7 @@ class UpdateAgentEngineSessionConfig(_common.BaseModel):
 class UpdateAgentEngineSessionConfigDict(TypedDict, total=False):
     """Config for updating agent engine session."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     display_name: Optional[str]
@@ -18525,7 +18064,7 @@ class EventMetadata(_common.BaseModel):
 class EventMetadataDict(TypedDict, total=False):
     """Metadata relating to a LLM response event."""
 
-    grounding_metadata: Optional[genai_types.GroundingMetadataDict]
+    grounding_metadata: Optional[genai_types.GroundingMetadata]
     """Optional. Metadata returned to client when grounding is enabled."""
 
     branch: Optional[str]
@@ -18546,10 +18085,10 @@ class EventMetadataDict(TypedDict, total=False):
     turn_complete: Optional[bool]
     """Optional. Indicates whether the response from the model is complete. Only used for streaming mode."""
 
-    input_transcription: Optional[genai_types.TranscriptionDict]
+    input_transcription: Optional[genai_types.Transcription]
     """Optional. Audio transcription of user input."""
 
-    output_transcription: Optional[genai_types.TranscriptionDict]
+    output_transcription: Optional[genai_types.Transcription]
     """Optional. Audio transcription of model output."""
 
 
@@ -18587,10 +18126,10 @@ class AppendAgentEngineSessionEventConfig(_common.BaseModel):
 class AppendAgentEngineSessionEventConfigDict(TypedDict, total=False):
     """Config for appending agent engine session event."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """The content of the session event."""
 
     actions: Optional[EventActionsDict]
@@ -18694,7 +18233,7 @@ class ListAgentEngineSessionEventsConfig(_common.BaseModel):
 class ListAgentEngineSessionEventsConfigDict(TypedDict, total=False):
     """Config for listing agent engine session events."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -18786,7 +18325,7 @@ class SessionEvent(_common.BaseModel):
 class SessionEventDict(TypedDict, total=False):
     """A session event."""
 
-    content: Optional[genai_types.ContentDict]
+    content: Optional[genai_types.Content]
     """Optional. Content of the event provided by the author."""
 
     actions: Optional[EventActionsDict]
@@ -18835,7 +18374,7 @@ class ListAgentEngineSessionEventsResponse(_common.BaseModel):
 class ListAgentEngineSessionEventsResponseDict(TypedDict, total=False):
     """Response for listing agent engine session events."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -18889,28 +18428,28 @@ class GeminiExampleDict(TypedDict, total=False):
     model: Optional[str]
     """The model used to generate the Gemini example."""
 
-    contents: Optional[list[genai_types.ContentDict]]
+    contents: Optional[list[genai_types.Content]]
     """Contents of the Gemini example."""
 
-    system_instruction: Optional[genai_types.ContentDict]
+    system_instruction: Optional[genai_types.Content]
     """System instruction for the Gemini example."""
 
     cached_content: Optional[str]
     """Cached content for the Gemini example."""
 
-    tools: Optional[list[genai_types.ToolDict]]
+    tools: Optional[list[genai_types.Tool]]
     """Tools for the Gemini example."""
 
-    tool_config: Optional[genai_types.ToolConfigDict]
+    tool_config: Optional[genai_types.ToolConfig]
     """Tools for the Gemini example."""
 
-    safety_settings: Optional[list[genai_types.SafetySettingDict]]
+    safety_settings: Optional[list[genai_types.SafetySetting]]
     """Safety settings for the Gemini example."""
 
-    generation_config: Optional[genai_types.GenerationConfigDict]
+    generation_config: Optional[genai_types.GenerationConfig]
     """Generation config for the Gemini example."""
 
-    model_armor_config: Optional[genai_types.ModelArmorConfigDict]
+    model_armor_config: Optional[genai_types.ModelArmorConfig]
     """Optional. Settings for prompt and response sanitization using the Model Armor service. If supplied, safety_settings must not be supplied."""
 
 
@@ -19072,7 +18611,7 @@ class AssembleDatasetConfig(_common.BaseModel):
 class AssembleDatasetConfigDict(TypedDict, total=False):
     """Config for assembling a multimodal dataset resource."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     timeout: Optional[int]
@@ -19253,7 +18792,7 @@ class AssessDatasetConfig(_common.BaseModel):
 class AssessDatasetConfigDict(TypedDict, total=False):
     """Config for assessing a multimodal dataset resource."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     timeout: Optional[int]
@@ -19409,7 +18948,7 @@ class CreateMultimodalDatasetConfig(_common.BaseModel):
 class CreateMultimodalDatasetConfigDict(TypedDict, total=False):
     """Config for creating a dataset resource to store multimodal dataset."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     timeout: Optional[int]
@@ -19458,7 +18997,7 @@ class _CreateMultimodalDatasetParametersDict(TypedDict, total=False):
     description: Optional[str]
     """"""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """"""
 
     config: Optional[CreateMultimodalDatasetConfigDict]
@@ -19663,7 +19202,7 @@ class GetMultimodalDatasetOperationConfig(_common.BaseModel):
 class GetMultimodalDatasetOperationConfigDict(TypedDict, total=False):
     """Config for getting a multimodal dataset operation."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -19719,7 +19258,7 @@ class ListMultimodalDatasetsConfig(_common.BaseModel):
 class ListMultimodalDatasetsConfigDict(TypedDict, total=False):
     """Config for listing multimodal datasets."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -19781,7 +19320,7 @@ class ListMultimodalDatasetsResponse(_common.BaseModel):
 class ListMultimodalDatasetsResponseDict(TypedDict, total=False):
     """Response for listing multimodal datasets."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -19831,7 +19370,7 @@ class _UpdateMultimodalDatasetParametersDict(TypedDict, total=False):
     description: Optional[str]
     """"""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """"""
 
     config: Optional[VertexBaseConfigDict]
@@ -19970,25 +19509,25 @@ class SchemaPromptSpecPromptMessage(_common.BaseModel):
 class SchemaPromptSpecPromptMessageDict(TypedDict, total=False):
     """Represents a prompt message."""
 
-    generation_config: Optional[genai_types.GenerationConfigDict]
+    generation_config: Optional[genai_types.GenerationConfig]
     """Generation config."""
 
-    tool_config: Optional[genai_types.FunctionCallingConfigDict]
+    tool_config: Optional[genai_types.FunctionCallingConfig]
     """Tool config. This config is shared for all tools provided in the request."""
 
-    tools: Optional[list[genai_types.ToolDict]]
+    tools: Optional[list[genai_types.Tool]]
     """A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model."""
 
-    safety_settings: Optional[list[genai_types.SafetySettingDict]]
+    safety_settings: Optional[list[genai_types.SafetySetting]]
     """Per request settings for blocking unsafe content. Enforced on GenerateContentResponse.candidates."""
 
-    contents: Optional[list[genai_types.ContentDict]]
+    contents: Optional[list[genai_types.Content]]
     """The content of the current conversation with the model. For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request."""
 
-    system_instruction: Optional[genai_types.ContentDict]
+    system_instruction: Optional[genai_types.Content]
     """The user provided system instructions for the model. Note: only text should be used in parts and content in each part will be in a separate paragraph."""
 
-    variables: Optional[list[dict[str, genai_types.PartDict]]]
+    variables: Optional[list[dict[str, genai_types.Part]]]
     """"""
 
     model: Optional[str]
@@ -20104,7 +19643,7 @@ class SchemaPromptSpecPartList(_common.BaseModel):
 class SchemaPromptSpecPartListDict(TypedDict, total=False):
     """Represents a prompt spec part list."""
 
-    parts: Optional[list[genai_types.PartDict]]
+    parts: Optional[list[genai_types.Part]]
     """A list of elements that can be part of a prompt."""
 
 
@@ -20178,7 +19717,7 @@ class SchemaPromptSpecStructuredPrompt(_common.BaseModel):
 class SchemaPromptSpecStructuredPromptDict(TypedDict, total=False):
     """Represents a structured prompt."""
 
-    context: Optional[genai_types.ContentDict]
+    context: Optional[genai_types.Content]
     """Preamble: The context of the prompt."""
 
     app_builder_data: Optional[SchemaPromptSpecAppBuilderDataDict]
@@ -20619,7 +20158,7 @@ class CreateDatasetConfig(_common.BaseModel):
 class CreateDatasetConfigDict(TypedDict, total=False):
     """Config for creating a dataset resource to store prompts."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -20661,7 +20200,7 @@ class _CreateDatasetParametersDict(TypedDict, total=False):
     description: Optional[str]
     """"""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """"""
 
     model_reference: Optional[str]
@@ -20733,7 +20272,7 @@ class CreateDatasetVersionConfig(_common.BaseModel):
 class CreateDatasetVersionConfigDict(TypedDict, total=False):
     """Config for creating a dataset version resource to store prompts."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -20972,7 +20511,7 @@ class DatasetDict(TypedDict, total=False):
     metadata: Optional[SchemaTextPromptDatasetMetadataDict]
     """Required. Additional information about the Dataset."""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for a Dataset. If set, this Dataset and all sub-resources of this Dataset will be secured by this key."""
 
     create_time: Optional[datetime.datetime]
@@ -21153,7 +20692,7 @@ class GetDatasetOperationConfig(_common.BaseModel):
 class GetDatasetOperationConfigDict(TypedDict, total=False):
     """Config for getting a dataset version operation."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -21208,7 +20747,7 @@ class ListPromptsConfig(_common.BaseModel):
 class ListPromptsConfigDict(TypedDict, total=False):
     """Config for listing prompt datasets and dataset versions."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -21275,7 +20814,7 @@ class ListDatasetsResponse(_common.BaseModel):
 class ListDatasetsResponseDict(TypedDict, total=False):
     """Response for listing prompt datasets."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -21347,7 +20886,7 @@ class ListDatasetVersionsResponse(_common.BaseModel):
 class ListDatasetVersionsResponseDict(TypedDict, total=False):
     """Response for listing prompt datasets."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -21378,7 +20917,7 @@ class DeletePromptConfig(_common.BaseModel):
 class DeletePromptConfigDict(TypedDict, total=False):
     """Config for deleting a prompt."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     timeout: Optional[int]
@@ -21536,7 +21075,7 @@ class RestoreVersionConfig(_common.BaseModel):
 class RestoreVersionConfigDict(TypedDict, total=False):
     """Config for restoring a prompt version."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -21641,7 +21180,7 @@ class UpdatePromptConfig(_common.BaseModel):
 class UpdatePromptConfigDict(TypedDict, total=False):
     """Config for creating a dataset resource to store prompts."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     prompt_display_name: Optional[str]
@@ -21653,7 +21192,7 @@ class UpdatePromptConfigDict(TypedDict, total=False):
     timeout: Optional[int]
     """The timeout for the update_dataset_resource request in seconds. If not set, the default timeout is 90 seconds."""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
 
 
@@ -21695,7 +21234,7 @@ class _UpdateDatasetParametersDict(TypedDict, total=False):
     description: Optional[str]
     """"""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """"""
 
     model_reference: Optional[str]
@@ -21721,7 +21260,7 @@ class GetSkillConfig(_common.BaseModel):
 class GetSkillConfigDict(TypedDict, total=False):
     """Config for getting a skill."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -21871,7 +21410,7 @@ class RetrieveSkillsConfig(_common.BaseModel):
 class RetrieveSkillsConfigDict(TypedDict, total=False):
     """Config for retrieving skills."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     top_k: Optional[int]
@@ -21974,7 +21513,7 @@ class CreateSkillConfig(_common.BaseModel):
 class CreateSkillConfigDict(TypedDict, total=False):
     """Config for creating a skill."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -22112,7 +21651,7 @@ class UpdateSkillConfig(_common.BaseModel):
 class UpdateSkillConfigDict(TypedDict, total=False):
     """Config for updating a skill."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -22180,7 +21719,7 @@ class ListSkillsConfig(_common.BaseModel):
 class ListSkillsConfigDict(TypedDict, total=False):
     """Config for listing skills."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -22229,7 +21768,7 @@ class ListSkillsResponse(_common.BaseModel):
 class ListSkillsResponseDict(TypedDict, total=False):
     """Response for listing skills."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -22257,7 +21796,7 @@ class DeleteSkillConfig(_common.BaseModel):
 class DeleteSkillConfigDict(TypedDict, total=False):
     """Config for deleting a skill."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     wait_for_completion: Optional[bool]
@@ -22341,7 +21880,7 @@ class GetSkillOperationConfig(_common.BaseModel):
 
 class GetSkillOperationConfigDict(TypedDict, total=False):
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -22387,7 +21926,7 @@ class GetSkillRevisionConfig(_common.BaseModel):
 class GetSkillRevisionConfigDict(TypedDict, total=False):
     """Configuration for getting a Skill Revision."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -22471,7 +22010,7 @@ class ListSkillRevisionsConfig(_common.BaseModel):
 class ListSkillRevisionsConfigDict(TypedDict, total=False):
     """Configuration for listing Skill Revisions."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -22526,7 +22065,7 @@ class ListSkillRevisionsResponse(_common.BaseModel):
 class ListSkillRevisionsResponseDict(TypedDict, total=False):
     """Response for listing Skill Revisions."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -22560,7 +22099,7 @@ class ListPublisherModelsConfig(_common.BaseModel):
 class ListPublisherModelsConfigDict(TypedDict, total=False):
     """Config for listing publisher models."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     page_size: Optional[int]
@@ -23793,7 +23332,7 @@ class ListPublisherModelsResponse(_common.BaseModel):
 class ListPublisherModelsResponseDict(TypedDict, total=False):
     """Response for listing publisher models."""
 
-    sdk_http_response: Optional[genai_types.HttpResponseDict]
+    sdk_http_response: Optional[genai_types.HttpResponse]
     """Used to retain the full HTTP response."""
 
     next_page_token: Optional[str]
@@ -23832,7 +23371,7 @@ class GetPublisherModelConfig(_common.BaseModel):
 class GetPublisherModelConfigDict(TypedDict, total=False):
     """Config for getting a publisher model."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     hugging_face_token: Optional[str]
@@ -23953,7 +23492,7 @@ class ContentMapContents(_common.BaseModel):
 class ContentMapContentsDict(TypedDict, total=False):
     """Map of placeholder in metric prompt template to contents of model input."""
 
-    contents: Optional[list[genai_types.ContentDict]]
+    contents: Optional[list[genai_types.Content]]
     """Contents of the model input."""
 
 
@@ -23986,7 +23525,7 @@ class EvaluateMethodConfig(_common.BaseModel):
 class EvaluateMethodConfigDict(TypedDict, total=False):
     """Optional parameters for the evaluate method."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     dataset_schema: Optional[Literal["GEMINI", "FLATTEN", "OPENAI"]]
@@ -24017,7 +23556,7 @@ class EvaluateDatasetConfig(_common.BaseModel):
 class EvaluateDatasetConfigDict(TypedDict, total=False):
     """Config for evaluate instances."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 
@@ -24092,10 +23631,10 @@ class EvaluateDatasetRequestParametersDict(TypedDict, total=False):
     metrics: Optional[list[MetricDict]]
     """"""
 
-    output_config: Optional[genai_types.OutputConfigDict]
+    output_config: Optional[genai_types.OutputConfig]
     """"""
 
-    autorater_config: Optional[genai_types.AutoraterConfigDict]
+    autorater_config: Optional[genai_types.AutoraterConfig]
     """Autorater config used for evaluation. Not applicable for predefined metrics (PredefinedMetricSpec); the server uses its own model configuration for predefined metrics and this field is ignored."""
 
     config: Optional[EvaluateDatasetConfigDict]
@@ -24684,7 +24223,7 @@ class EvalRunInferenceConfigDict(TypedDict, total=False):
     prompt_template: Optional[Union[str, PromptTemplateDict]]
     """The prompt template to use for inference."""
 
-    generate_content_config: Optional[genai_types.GenerateContentConfigDict]
+    generate_content_config: Optional[genai_types.GenerateContentConfig]
     """The config for the generate content call."""
 
     user_simulator_config: Optional[evals_types.UserSimulatorConfig]
@@ -25013,7 +24552,7 @@ class AgentEngineConfig(_common.BaseModel):
 class AgentEngineConfigDict(TypedDict, total=False):
     """Config for agent engine methods."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     staging_bucket: Optional[str]
@@ -25088,7 +24627,7 @@ class AgentEngineConfigDict(TypedDict, total=False):
       Recommended value: 2 * cpu + 1. Defaults to 9.
       """
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """The encryption spec to be used for the Agent Engine."""
 
     labels: Optional[dict[str, str]]
@@ -25222,7 +24761,7 @@ class RunQueryJobAgentEngineConfig(_common.BaseModel):
 class RunQueryJobAgentEngineConfigDict(TypedDict, total=False):
     """Config for checking a query job on an agent engine."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     query: Optional[str]
@@ -25263,7 +24802,7 @@ class RunQueryJobResult(_common.BaseModel):
 class RunQueryJobResultDict(TypedDict, total=False):
     """Result of running a query job."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     job_name: Optional[str]
@@ -25293,7 +24832,7 @@ class CheckQueryJobResponse(_common.BaseModel):
 class CheckQueryJobResponseDict(TypedDict, total=False):
     """Response from LRO."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     output_gcs_uri: Optional[str]
@@ -25627,7 +25166,7 @@ class CreatePromptConfig(_common.BaseModel):
 class CreatePromptConfigDict(TypedDict, total=False):
     """Config for creating a prompt."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     prompt_display_name: Optional[str]
@@ -25636,7 +25175,7 @@ class CreatePromptConfigDict(TypedDict, total=False):
     timeout: Optional[int]
     """The timeout for the create_version request in seconds. If not set, the default timeout is 90 seconds."""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
 
     version_display_name: Optional[str]
@@ -25673,7 +25212,7 @@ class CreatePromptVersionConfig(_common.BaseModel):
 class CreatePromptVersionConfigDict(TypedDict, total=False):
     """Config for creating a prompt version."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
     version_display_name: Optional[str]
@@ -25685,7 +25224,7 @@ class CreatePromptVersionConfigDict(TypedDict, total=False):
     prompt_display_name: Optional[str]
     """The display name for the prompt. If not set, a default name with a timestamp will be used."""
 
-    encryption_spec: Optional[genai_types.EncryptionSpecDict]
+    encryption_spec: Optional[genai_types.EncryptionSpec]
     """Customer-managed encryption key spec for a prompt dataset. If set, this prompt dataset and all sub-resources of this prompt dataset will be secured by this key."""
 
 
@@ -25705,7 +25244,7 @@ class GetPromptConfig(_common.BaseModel):
 class GetPromptConfigDict(TypedDict, total=False):
     """Config for getting a prompt."""
 
-    http_options: Optional[genai_types.HttpOptionsDict]
+    http_options: Optional[genai_types.HttpOptions]
     """Used to override HTTP request options."""
 
 

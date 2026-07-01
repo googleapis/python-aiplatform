@@ -203,12 +203,6 @@ from .common import AggregatedMetricResultOrDict
 from .common import AnalysisConfig
 from .common import AnalysisConfigDict
 from .common import AnalysisConfigOrDict
-from .common import ApiAuth
-from .common import ApiAuthApiKeyConfig
-from .common import ApiAuthApiKeyConfigDict
-from .common import ApiAuthApiKeyConfigOrDict
-from .common import ApiAuthDict
-from .common import ApiAuthOrDict
 from .common import AppendAgentEngineSessionEventConfig
 from .common import AppendAgentEngineSessionEventConfigDict
 from .common import AppendAgentEngineSessionEventConfigOrDict
@@ -483,9 +477,6 @@ from .common import DiskSpecOrDict
 from .common import DnsPeeringConfig
 from .common import DnsPeeringConfigDict
 from .common import DnsPeeringConfigOrDict
-from .common import EncryptionSpec
-from .common import EncryptionSpecDict
-from .common import EncryptionSpecOrDict
 from .common import EnvVar
 from .common import EnvVarDict
 from .common import EnvVarOrDict
@@ -608,19 +599,10 @@ from .common import ExecuteSandboxEnvironmentResponseOrDict
 from .common import FailedRubric
 from .common import FailedRubricDict
 from .common import FailedRubricOrDict
-from .common import FileStatus
-from .common import FileStatusDict
-from .common import FileStatusOrDict
 from .common import FlexStart
 from .common import FlexStartDict
 from .common import FlexStartOrDict
 from .common import Framework
-from .common import GcsDestination
-from .common import GcsDestinationDict
-from .common import GcsDestinationOrDict
-from .common import GcsSource
-from .common import GcsSourceDict
-from .common import GcsSourceOrDict
 from .common import GeminiExample
 from .common import GeminiExampleDict
 from .common import GeminiExampleOrDict
@@ -763,9 +745,6 @@ from .common import GoogleDriveSourceOrDict
 from .common import GoogleDriveSourceResourceId
 from .common import GoogleDriveSourceResourceIdDict
 from .common import GoogleDriveSourceResourceIdOrDict
-from .common import GoogleRpcStatus
-from .common import GoogleRpcStatusDict
-from .common import GoogleRpcStatusOrDict
 from .common import IdentityType
 from .common import Importance
 from .common import ImportRagFilesConfig
@@ -1214,12 +1193,6 @@ from .common import QueryAgentEngineRuntimeRevisionConfigOrDict
 from .common import QueryReasoningEngineResponse
 from .common import QueryReasoningEngineResponseDict
 from .common import QueryReasoningEngineResponseOrDict
-from .common import RagChunk
-from .common import RagChunkDict
-from .common import RagChunkOrDict
-from .common import RagChunkPageSpan
-from .common import RagChunkPageSpanDict
-from .common import RagChunkPageSpanOrDict
 from .common import RagContexts
 from .common import RagContextsContext
 from .common import RagContextsContextDict
@@ -1315,24 +1288,6 @@ from .common import RagQueryOrDict
 from .common import RagQueryRanking
 from .common import RagQueryRankingDict
 from .common import RagQueryRankingOrDict
-from .common import RagRetrievalConfig
-from .common import RagRetrievalConfigDict
-from .common import RagRetrievalConfigFilter
-from .common import RagRetrievalConfigFilterDict
-from .common import RagRetrievalConfigFilterOrDict
-from .common import RagRetrievalConfigHybridSearch
-from .common import RagRetrievalConfigHybridSearchDict
-from .common import RagRetrievalConfigHybridSearchOrDict
-from .common import RagRetrievalConfigOrDict
-from .common import RagRetrievalConfigRanking
-from .common import RagRetrievalConfigRankingDict
-from .common import RagRetrievalConfigRankingLlmRanker
-from .common import RagRetrievalConfigRankingLlmRankerDict
-from .common import RagRetrievalConfigRankingLlmRankerOrDict
-from .common import RagRetrievalConfigRankingOrDict
-from .common import RagRetrievalConfigRankingRankService
-from .common import RagRetrievalConfigRankingRankServiceDict
-from .common import RagRetrievalConfigRankingRankServiceOrDict
 from .common import RagVectorDbConfig
 from .common import RagVectorDbConfigDict
 from .common import RagVectorDbConfigOrDict
@@ -1891,12 +1846,6 @@ from .common import VertexAiSearchConfigOrDict
 from .common import VertexBaseConfig
 from .common import VertexBaseConfigDict
 from .common import VertexBaseConfigOrDict
-from .common import VertexRagStore
-from .common import VertexRagStoreDict
-from .common import VertexRagStoreOrDict
-from .common import VertexRagStoreRagResource
-from .common import VertexRagStoreRagResourceDict
-from .common import VertexRagStoreRagResourceOrDict
 from .common import VulnerableTool
 from .common import VulnerableToolDict
 from .common import VulnerableToolOrDict
@@ -2670,36 +2619,12 @@ __all__ = [
     "AskContextsConfig",
     "AskContextsConfigDict",
     "AskContextsConfigOrDict",
-    "RagRetrievalConfigFilter",
-    "RagRetrievalConfigFilterDict",
-    "RagRetrievalConfigFilterOrDict",
-    "RagRetrievalConfigHybridSearch",
-    "RagRetrievalConfigHybridSearchDict",
-    "RagRetrievalConfigHybridSearchOrDict",
-    "RagRetrievalConfigRankingLlmRanker",
-    "RagRetrievalConfigRankingLlmRankerDict",
-    "RagRetrievalConfigRankingLlmRankerOrDict",
-    "RagRetrievalConfigRankingRankService",
-    "RagRetrievalConfigRankingRankServiceDict",
-    "RagRetrievalConfigRankingRankServiceOrDict",
-    "RagRetrievalConfigRanking",
-    "RagRetrievalConfigRankingDict",
-    "RagRetrievalConfigRankingOrDict",
-    "RagRetrievalConfig",
-    "RagRetrievalConfigDict",
-    "RagRetrievalConfigOrDict",
     "RagQueryRanking",
     "RagQueryRankingDict",
     "RagQueryRankingOrDict",
     "RagQuery",
     "RagQueryDict",
     "RagQueryOrDict",
-    "RagChunkPageSpan",
-    "RagChunkPageSpanDict",
-    "RagChunkPageSpanOrDict",
-    "RagChunk",
-    "RagChunkDict",
-    "RagChunkOrDict",
     "RagContextsContext",
     "RagContextsContextDict",
     "RagContextsContextOrDict",
@@ -2724,9 +2649,6 @@ __all__ = [
     "RagCorpusCorpusTypeConfig",
     "RagCorpusCorpusTypeConfigDict",
     "RagCorpusCorpusTypeConfigOrDict",
-    "EncryptionSpec",
-    "EncryptionSpecDict",
-    "EncryptionSpecOrDict",
     "RagEmbeddingModelConfigVertexPredictionEndpoint",
     "RagEmbeddingModelConfigVertexPredictionEndpointDict",
     "RagEmbeddingModelConfigVertexPredictionEndpointOrDict",
@@ -2742,12 +2664,6 @@ __all__ = [
     "RagEmbeddingModelConfig",
     "RagEmbeddingModelConfigDict",
     "RagEmbeddingModelConfigOrDict",
-    "ApiAuthApiKeyConfig",
-    "ApiAuthApiKeyConfigDict",
-    "ApiAuthApiKeyConfigOrDict",
-    "ApiAuth",
-    "ApiAuthDict",
-    "ApiAuthOrDict",
     "RagVectorDbConfigPinecone",
     "RagVectorDbConfigPineconeDict",
     "RagVectorDbConfigPineconeOrDict",
@@ -2805,15 +2721,9 @@ __all__ = [
     "GetRagFileConfig",
     "GetRagFileConfigDict",
     "GetRagFileConfigOrDict",
-    "FileStatus",
-    "FileStatusDict",
-    "FileStatusOrDict",
     "DirectUploadSource",
     "DirectUploadSourceDict",
     "DirectUploadSourceOrDict",
-    "GcsSource",
-    "GcsSourceDict",
-    "GcsSourceOrDict",
     "GoogleDriveSourceResourceId",
     "GoogleDriveSourceResourceIdDict",
     "GoogleDriveSourceResourceIdOrDict",
@@ -2904,12 +2814,6 @@ __all__ = [
     "RetrieveContextsConfig",
     "RetrieveContextsConfigDict",
     "RetrieveContextsConfigOrDict",
-    "VertexRagStoreRagResource",
-    "VertexRagStoreRagResourceDict",
-    "VertexRagStoreRagResourceOrDict",
-    "VertexRagStore",
-    "VertexRagStoreDict",
-    "VertexRagStoreOrDict",
     "RetrieveContextsResponse",
     "RetrieveContextsResponseDict",
     "RetrieveContextsResponseOrDict",
@@ -2925,9 +2829,6 @@ __all__ = [
     "BigQueryDestination",
     "BigQueryDestinationDict",
     "BigQueryDestinationOrDict",
-    "GcsDestination",
-    "GcsDestinationDict",
-    "GcsDestinationOrDict",
     "RagFileChunkingConfigFixedLengthChunking",
     "RagFileChunkingConfigFixedLengthChunkingDict",
     "RagFileChunkingConfigFixedLengthChunkingOrDict",
@@ -2970,9 +2871,6 @@ __all__ = [
     "UploadRagFileConfig",
     "UploadRagFileConfigDict",
     "UploadRagFileConfigOrDict",
-    "GoogleRpcStatus",
-    "GoogleRpcStatusDict",
-    "GoogleRpcStatusOrDict",
     "UploadRagFileResponse",
     "UploadRagFileResponseDict",
     "UploadRagFileResponseOrDict",
