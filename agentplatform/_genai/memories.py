@@ -270,6 +270,40 @@ def _IngestEventsConfig_to_vertex(
     if getv(from_object, ["force_flush"]) is not None:
         setv(parent_object, ["forceFlush"], getv(from_object, ["force_flush"]))
 
+    if getv(from_object, ["revision_labels"]) is not None:
+        setv(parent_object, ["revisionLabels"], getv(from_object, ["revision_labels"]))
+
+    if getv(from_object, ["revision_expire_time"]) is not None:
+        setv(
+            parent_object,
+            ["revisionExpireTime"],
+            getv(from_object, ["revision_expire_time"]),
+        )
+
+    if getv(from_object, ["revision_ttl"]) is not None:
+        setv(parent_object, ["revisionTtl"], getv(from_object, ["revision_ttl"]))
+
+    if getv(from_object, ["disable_memory_revisions"]) is not None:
+        setv(
+            parent_object,
+            ["disableMemoryRevisions"],
+            getv(from_object, ["disable_memory_revisions"]),
+        )
+
+    if getv(from_object, ["metadata"]) is not None:
+        setv(
+            parent_object,
+            ["metadata"],
+            {k: v for k, v in getv(from_object, ["metadata"]).items()},
+        )
+
+    if getv(from_object, ["metadata_merge_strategy"]) is not None:
+        setv(
+            parent_object,
+            ["metadataMergeStrategy"],
+            getv(from_object, ["metadata_merge_strategy"]),
+        )
+
     return to_object
 
 

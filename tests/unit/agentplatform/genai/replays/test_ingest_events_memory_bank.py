@@ -40,7 +40,12 @@ def test_ingest_events(client):
                 }
             ]
         },
-        generation_trigger_config={"generation_rule": {"idle_duration": "60s"}},
+        # `overlap_event_count` re-includes trailing events from one generation
+        # window in the next so context is preserved across GenerateMemories
+        # calls.
+        generation_trigger_config={
+            "generation_rule": {"idle_duration": "60s", "overlap_event_count": 1}
+        },
     )
     memories = list(
         client.agent_engines.memories.retrieve(
@@ -66,7 +71,17 @@ def test_ingest_events(client):
                 }
             ]
         },
-        config={"wait_for_completion": True, "force_flush": True},
+        # `revision_labels`, `metadata`, and `metadata_merge_strategy` are
+        # applied to the memories generated from the ingested events. Because
+        # `force_flush` makes generation synchronous, the user-provided metadata
+        # is observable on the retrieved memory below.
+        config={
+            "wait_for_completion": True,
+            "force_flush": True,
+            "revision_labels": {"source": "ingest-events-test"},
+            "metadata": {"topic": {"string_value": "jobs"}},
+            "metadata_merge_strategy": "OVERWRITE",
+        },
     )
     memories = list(
         client.agent_engines.memories.retrieve(
@@ -80,6 +95,18 @@ def test_ingest_events(client):
     # With `wait_for_completion` and `force_flush` set to True, there should be
     # memories immediately after the call.
     assert len(memories) >= 1
+    # The user-provided `metadata` should be applied to the generated memory.
+    assert memories[0].memory.metadata["topic"].string_value == "jobs"
+
+    # The user-provided `revision_labels` are applied to the generated memory's
+    # revision (not the Memory itself), so list the memory's revisions to verify.
+    revisions = list(
+        client.agent_engines.memories.revisions.list(
+            name=memories[0].memory.name,
+        )
+    )
+    assert revisions
+    assert revisions[0].labels == {"source": "ingest-events-test"}
 
     client.agent_engines.delete(name=agent_engine.api_resource.name, force=True)
 
