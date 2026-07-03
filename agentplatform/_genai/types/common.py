@@ -2607,6 +2607,35 @@ EvaluationRunAgentConfigOrDict = Union[
 ]
 
 
+class GeminiAgentConfig(_common.BaseModel):
+    """Config for scraping a Gemini Agent.
+
+    A Gemini Agent is a Vertex AI Agent resource scraped via the Vertex
+    Interactions API.
+    """
+
+    gemini_agent: Optional[str] = Field(
+        default=None,
+        description="""The resource name of the Gemini Agent.
+      Format: `projects/{project}/locations/{location}/agents/{agent}`.""",
+    )
+
+
+class GeminiAgentConfigDict(TypedDict, total=False):
+    """Config for scraping a Gemini Agent.
+
+    A Gemini Agent is a Vertex AI Agent resource scraped via the Vertex
+    Interactions API.
+    """
+
+    gemini_agent: Optional[str]
+    """The resource name of the Gemini Agent.
+      Format: `projects/{project}/locations/{location}/agents/{agent}`."""
+
+
+GeminiAgentConfigOrDict = Union[GeminiAgentConfig, GeminiAgentConfigDict]
+
+
 class AgentRunConfig(_common.BaseModel):
     """Configuration for an Agent Run."""
 
@@ -2621,6 +2650,11 @@ class AgentRunConfig(_common.BaseModel):
         description="""Used for multi-turn agent run.
         Contains configuration for a user simulator that
         uses an LLM to generate messages on behalf of the user.""",
+    )
+    gemini_agent_config: Optional[GeminiAgentConfig] = Field(
+        default=None,
+        description="""Config for scraping a Gemini Agent (Vertex AI Agent resource).
+      Used to target a Gemini agent for an evaluation run.""",
     )
 
 
@@ -2637,6 +2671,10 @@ class AgentRunConfigDict(TypedDict, total=False):
     """Used for multi-turn agent run.
         Contains configuration for a user simulator that
         uses an LLM to generate messages on behalf of the user."""
+
+    gemini_agent_config: Optional[GeminiAgentConfigDict]
+    """Config for scraping a Gemini Agent (Vertex AI Agent resource).
+      Used to target a Gemini agent for an evaluation run."""
 
 
 AgentRunConfigOrDict = Union[AgentRunConfig, AgentRunConfigDict]
@@ -3370,6 +3408,38 @@ class ResponseCandidateDict(TypedDict, total=False):
 ResponseCandidateOrDict = Union[ResponseCandidate, ResponseCandidateDict]
 
 
+class InteractionsDataSource(_common.BaseModel):
+    """Source for populating agent data from an Interactions API interaction."""
+
+    gemini_agent_config: Optional[GeminiAgentConfig] = Field(
+        default=None,
+        description="""The Gemini Agent (Vertex AI Agent resource) that produced the
+      interaction.""",
+    )
+    interaction: Optional[str] = Field(
+        default=None,
+        description="""The interaction to evaluate. Required by the backend.
+      Format:
+      `projects/{project}/locations/{location}/interactions/{interaction}`.""",
+    )
+
+
+class InteractionsDataSourceDict(TypedDict, total=False):
+    """Source for populating agent data from an Interactions API interaction."""
+
+    gemini_agent_config: Optional[GeminiAgentConfigDict]
+    """The Gemini Agent (Vertex AI Agent resource) that produced the
+      interaction."""
+
+    interaction: Optional[str]
+    """The interaction to evaluate. Required by the backend.
+      Format:
+      `projects/{project}/locations/{location}/interactions/{interaction}`."""
+
+
+InteractionsDataSourceOrDict = Union[InteractionsDataSource, InteractionsDataSourceDict]
+
+
 class EvalCase(_common.BaseModel):
     """A comprehensive representation of a GenAI interaction for evaluation."""
 
@@ -3414,6 +3484,10 @@ class EvalCase(_common.BaseModel):
         default=None,
         description="""This field is experimental and may change in future versions. The user scenario for the evaluation case.""",
     )
+    interactions_data_source: Optional[InteractionsDataSource] = Field(
+        default=None,
+        description="""This field is experimental and may change in future versions. Source for populating agent data from an Interactions API interaction. When set, the backend fetches the interaction (and the Gemini Agent config) and parses it into agent data for evaluation; agent_data must not also be set.""",
+    )
     # Allow extra fields to support custom metric prompts and stay backward compatible.
     model_config = ConfigDict(frozen=True, extra="allow")
 
@@ -3453,6 +3527,9 @@ class EvalCaseDict(TypedDict, total=False):
 
     user_scenario: Optional[evals_types.UserScenario]
     """This field is experimental and may change in future versions. The user scenario for the evaluation case."""
+
+    interactions_data_source: Optional[InteractionsDataSourceDict]
+    """This field is experimental and may change in future versions. Source for populating agent data from an Interactions API interaction. When set, the backend fetches the interaction (and the Gemini Agent config) and parses it into agent data for evaluation; agent_data must not also be set."""
 
 
 EvalCaseOrDict = Union[EvalCase, EvalCaseDict]
@@ -4593,6 +4670,13 @@ class EvaluationInstance(_common.BaseModel):
         default=None,
         description="""Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group.""",
     )
+    interactions_data_source: Optional[InteractionsDataSource] = Field(
+        default=None,
+        description="""Source for populating agent data from an Interactions API
+      interaction. If set, no other agent data source may be set. The backend
+      fetches the interaction (and the agent that produced it) and parses it
+      into agent data for grading.""",
+    )
 
 
 class EvaluationInstanceDict(TypedDict, total=False):
@@ -4615,6 +4699,12 @@ class EvaluationInstanceDict(TypedDict, total=False):
 
     rubric_groups: Optional[dict[str, "RubricGroupDict"]]
     """Named groups of rubrics associated with this prompt. The key is a user-defined name for the rubric group."""
+
+    interactions_data_source: Optional[InteractionsDataSourceDict]
+    """Source for populating agent data from an Interactions API
+      interaction. If set, no other agent data source may be set. The backend
+      fetches the interaction (and the agent that produced it) and parses it
+      into agent data for grading."""
 
 
 EvaluationInstanceOrDict = Union[EvaluationInstance, EvaluationInstanceDict]

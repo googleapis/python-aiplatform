@@ -340,6 +340,13 @@ def _EvaluationInstance_to_vertex(
     if getv(from_object, ["rubric_groups"]) is not None:
         setv(to_object, ["rubricGroups"], getv(from_object, ["rubric_groups"]))
 
+    if getv(from_object, ["interactions_data_source"]) is not None:
+        setv(
+            to_object,
+            ["interactionsDataSource"],
+            getv(from_object, ["interactions_data_source"]),
+        )
+
     return to_object
 
 
@@ -2645,10 +2652,15 @@ class Evals(_api_module.BaseModule):
           display_name: The display name of the evaluation run.
           agent_info: The agent info to evaluate. Mutually exclusive with
               `inference_configs`.
-          agent: The agent engine resource name in str type, with format
-              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.
-              If provided, runs inference with the deployed agent to get agent responses
-              for evaluation. This is required if `agent_info` is provided.
+          agent: The agent resource name in str type. Accepts either an Agent
+              Engine resource name
+              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`
+              or a Gemini Agent (Vertex AI Agent) resource name
+              `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
+              Agent resource is provided, the backend scrapes the agent to produce
+              agent responses. If an Agent Engine resource name is provided, runs
+              inference with the deployed agent to get agent responses for evaluation.
+              The `agent` parameter is required if `agent_info` is provided.
           user_simulator_config: The user simulator configuration for agent evaluation.
               If `agent_info` is provided without `inference_configs`, this config is used
               to automatically construct the inference configuration. If not specified,
@@ -2730,13 +2742,20 @@ class Evals(_api_module.BaseModule):
                 parsed_user_simulator_config.max_turn = 5
 
             candidate_name = parsed_agent_info.name or "candidate-1"
+            if agent and _evals_common._is_gemini_agent_resource(agent):
+                agent_run_config = types.AgentRunConfig(
+                    gemini_agent_config=types.GeminiAgentConfig(gemini_agent=agent),
+                    user_simulator_config=parsed_user_simulator_config,
+                )
+            else:
+                agent_run_config = types.AgentRunConfig(
+                    agent_engine=agent,
+                    user_simulator_config=parsed_user_simulator_config,
+                )
             inference_configs = {
                 candidate_name: types.EvaluationRunInferenceConfig(
                     agent_configs=parsed_agent_info.agents,
-                    agent_run_config=types.AgentRunConfig(
-                        agent_engine=agent,
-                        user_simulator_config=parsed_user_simulator_config,
-                    ),
+                    agent_run_config=agent_run_config,
                 )
             }
 
@@ -4439,10 +4458,15 @@ class AsyncEvals(_api_module.BaseModule):
           display_name: The display name of the evaluation run.
           agent_info: The agent info to evaluate. Mutually exclusive with
               `inference_configs`.
-          agent: The agent engine resource name in str type, with format
-              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`.
-              If provided, runs inference with the deployed agent to get agent responses
-              for evaluation. This is required if `agent_info` is provided.
+          agent: The agent resource name in str type. Accepts either an Agent
+              Engine resource name
+              `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine_id}`
+              or a Gemini Agent (Vertex AI Agent) resource name
+              `projects/{project}/locations/{location}/agents/{agent}`. When a Gemini
+              Agent resource is provided, the backend scrapes the agent to produce
+              agent responses. If an Agent Engine resource name is provided, runs
+              inference with the deployed agent to get agent responses for evaluation.
+              The `agent` parameter is required if `agent_info` is provided.
           user_simulator_config: The user simulator configuration for agent evaluation.
               If `agent_info` is provided without `inference_configs`, this config is used
               to automatically construct the inference configuration. If not specified,
@@ -4524,13 +4548,20 @@ class AsyncEvals(_api_module.BaseModule):
                 parsed_user_simulator_config.max_turn = 5
 
             candidate_name = parsed_agent_info.name or "candidate-1"
+            if agent and _evals_common._is_gemini_agent_resource(agent):
+                agent_run_config = types.AgentRunConfig(
+                    gemini_agent_config=types.GeminiAgentConfig(gemini_agent=agent),
+                    user_simulator_config=parsed_user_simulator_config,
+                )
+            else:
+                agent_run_config = types.AgentRunConfig(
+                    agent_engine=agent,
+                    user_simulator_config=parsed_user_simulator_config,
+                )
             inference_configs = {
                 candidate_name: types.EvaluationRunInferenceConfig(
                     agent_configs=parsed_agent_info.agents,
-                    agent_run_config=types.AgentRunConfig(
-                        agent_engine=agent,
-                        user_simulator_config=parsed_user_simulator_config,
-                    ),
+                    agent_run_config=agent_run_config,
                 )
             }
 
