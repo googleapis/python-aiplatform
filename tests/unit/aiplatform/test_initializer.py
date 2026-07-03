@@ -310,6 +310,19 @@ class TestInit:
         assert isinstance(client, utils.PredictionClientWithOverride)
         assert client._transport._host == f"https://{constants.API_BASE_PATH}"
 
+    def test_create_client_with_global_location_and_api_endpoint(self):
+        initializer.global_config.init(
+            project=_TEST_PROJECT,
+            location="global",
+            api_endpoint="test.aiplatform.googleapis.com",
+        )
+        client = initializer.global_config.create_client(
+            client_class=utils.PredictionClientWithOverride
+        )
+        assert initializer.global_config.location == "global"
+        assert isinstance(client, utils.PredictionClientWithOverride)
+        assert client._transport._host == "https://test.aiplatform.googleapis.com"
+
     def test_create_client_with_global_location_and_grpc_transport(self):
         initializer.global_config.init(
             project=_TEST_PROJECT, location="global", api_transport="grpc"
@@ -433,6 +446,12 @@ class TestInit:
             ),
             (
                 "us-central1",
+                None,
+                "test.aiplatform.googleapis.com",
+                "test.aiplatform.googleapis.com",
+            ),
+            (
+                "global",
                 None,
                 "test.aiplatform.googleapis.com",
                 "test.aiplatform.googleapis.com",
