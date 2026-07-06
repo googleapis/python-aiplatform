@@ -603,6 +603,9 @@ from .common import FlexStart
 from .common import FlexStartDict
 from .common import FlexStartOrDict
 from .common import Framework
+from .common import GeminiAgentConfig
+from .common import GeminiAgentConfigDict
+from .common import GeminiAgentConfigOrDict
 from .common import GeminiExample
 from .common import GeminiExampleDict
 from .common import GeminiExampleOrDict
@@ -771,6 +774,9 @@ from .common import IngestionDirectContentsSourceEvent
 from .common import IngestionDirectContentsSourceEventDict
 from .common import IngestionDirectContentsSourceEventOrDict
 from .common import IngestionDirectContentsSourceOrDict
+from .common import InteractionsDataSource
+from .common import InteractionsDataSourceDict
+from .common import InteractionsDataSourceOrDict
 from .common import IntermediateExtractedMemory
 from .common import IntermediateExtractedMemoryDict
 from .common import IntermediateExtractedMemoryOrDict
@@ -1980,6 +1986,9 @@ __all__ = [
     "EvaluationRunAgentConfig",
     "EvaluationRunAgentConfigDict",
     "EvaluationRunAgentConfigOrDict",
+    "GeminiAgentConfig",
+    "GeminiAgentConfigDict",
+    "GeminiAgentConfigOrDict",
     "AgentRunConfig",
     "AgentRunConfigDict",
     "AgentRunConfigOrDict",
@@ -2043,6 +2052,9 @@ __all__ = [
     "ResponseCandidate",
     "ResponseCandidateDict",
     "ResponseCandidateOrDict",
+    "InteractionsDataSource",
+    "InteractionsDataSourceDict",
+    "InteractionsDataSourceOrDict",
     "EvalCase",
     "EvalCaseDict",
     "EvalCaseOrDict",

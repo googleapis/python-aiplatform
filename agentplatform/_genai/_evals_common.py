@@ -556,12 +556,31 @@ def _resolve_inference_configs(
     return inference_configs
 
 
+def _is_gemini_agent_resource(agent: str) -> bool:
+    """Returns True if `agent` is a Gemini Agent resource name.
+
+    A Gemini Agent resource name has the format
+    `projects/{project}/locations/{location}/agents/{agent}`, as opposed to an
+    Agent Engine resource name which uses `.../reasoningEngines/{id}`.
+    """
+    parts = agent.split("/")
+    return (
+        len(parts) == 6
+        and parts[0] == "projects"
+        and parts[2] == "locations"
+        and parts[4] == "agents"
+        and bool(parts[1])
+        and bool(parts[3])
+        and bool(parts[5])
+    )
+
+
 def _add_evaluation_run_labels(
     labels: Optional[dict[str, str]] = None,
     agent: Optional[str] = None,
 ) -> Optional[dict[str, str]]:
     """Adds labels to the evaluation run."""
-    if agent:
+    if agent and "reasoningEngines/" in agent and not _is_gemini_agent_resource(agent):
         labels = labels or {}
         labels["vertex-ai-evaluation-agent-engine-id"] = agent.split(
             "reasoningEngines/"
