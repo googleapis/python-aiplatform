@@ -5,9 +5,7 @@
 
 ### Features
 
-* Add response_format and Translation_config in GenerationConfig ([62a8324](https://github.com/googleapis/python-aiplatform/commit/62a832436340640f1adc3611ae57b70a487b2820))
 * Add revision_labels, revision_expire_time, revision_ttl, disable_memory_revisions, metadata, metadata_merge_strategy and overlap_event_count to Memory Bank IngestEvents API ([e169af9](https://github.com/googleapis/python-aiplatform/commit/e169af9ac0f56603be763466694b95fc2fd64e8c))
-* Add Tool.exa_ai_search for Gemini Enterprise API ([62a8324](https://github.com/googleapis/python-aiplatform/commit/62a832436340640f1adc3611ae57b70a487b2820))
 * GenAI Client(evals) - add Gemini Agents API related eval types ([c8a38a0](https://github.com/googleapis/python-aiplatform/commit/c8a38a085931b01f4d6071f0ab7a64cb42851829))
 * Onboard Vertex Model Garden to GenAI Python SDK: Add list_publisher_model_deploy_options support ([ce463e6](https://github.com/googleapis/python-aiplatform/commit/ce463e6820b7a92dfb312ad6d0a8d3da8314567c))
 
