@@ -405,17 +405,6 @@ class Framework(_common.CaseInSensitiveEnum):
     """Angular framework."""
 
 
-class SkillSource(_common.CaseInSensitiveEnum):
-    """Output only. The source of the Skill."""
-
-    SKILL_SOURCE_UNSPECIFIED = "SKILL_SOURCE_UNSPECIFIED"
-    """The skill source is unspecified."""
-    USER = "USER"
-    """The skill is created by a user."""
-    SYSTEM = "SYSTEM"
-    """The skill is a system skill."""
-
-
 class SkillState(_common.CaseInSensitiveEnum):
     """State of the Skill."""
 
@@ -429,6 +418,17 @@ class SkillState(_common.CaseInSensitiveEnum):
     """The Skill was created, but failed to process."""
     DELETING = "DELETING"
     """The Skill is being deleted."""
+
+
+class SkillSource(_common.CaseInSensitiveEnum):
+    """Output only. The source of the Skill."""
+
+    SKILL_SOURCE_UNSPECIFIED = "SKILL_SOURCE_UNSPECIFIED"
+    """The skill source is unspecified."""
+    USER = "USER"
+    """The skill is created by a user."""
+    SYSTEM = "SYSTEM"
+    """The skill is a system skill."""
 
 
 class LaunchStage(_common.CaseInSensitiveEnum):
@@ -6393,7 +6393,7 @@ class MachineSpec(_common.BaseModel):
 
     accelerator_count: Optional[int] = Field(
         default=None,
-        description="""The number of accelerators to attach to the machine. For [accelerator optimized machine types](https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Agent Platform co-schedules the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Agent Platform co-schedules 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled.""",
+        description="""The number of accelerators to attach to the machine. For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled.""",
     )
     accelerator_type: Optional[AcceleratorType] = Field(
         default=None,
@@ -6405,7 +6405,7 @@ class MachineSpec(_common.BaseModel):
     )
     machine_type: Optional[str] = Field(
         default=None,
-        description="""Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/gemini-enterprise-agent-platform/machine-learning/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.""",
+        description="""Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required.""",
     )
     min_gpu_driver_version: Optional[str] = Field(
         default=None,
@@ -6429,7 +6429,7 @@ class MachineSpecDict(TypedDict, total=False):
     """Specification of a single machine."""
 
     accelerator_count: Optional[int]
-    """The number of accelerators to attach to the machine. For [accelerator optimized machine types](https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Agent Platform co-schedules the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Agent Platform co-schedules 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled."""
+    """The number of accelerators to attach to the machine. For accelerator optimized machine types (https://cloud.google.com/compute/docs/accelerator-optimized-machines), One may set the accelerator_count from 1 to N for machine with N GPUs. If accelerator_count is less than or equal to N / 2, Vertex will co-schedule the replicas of the model into the same VM to save cost. For example, if the machine type is a3-highgpu-8g, which has 8 H100 GPUs, one can set accelerator_count to 1 to 8. If accelerator_count is 1, 2, 3, or 4, Vertex will co-schedule 8, 4, 2, or 2 replicas of the model into the same VM to save cost. When co-scheduling, CPU, memory and storage on the VM will be distributed to replicas on the VM. For example, one can expect a co-scheduled replica requesting 2 GPUs out of a 8-GPU VM will receive 25% of the CPU, memory and storage of the VM. Note that the feature is not compatible with multihost_gpu_node_count. When multihost_gpu_node_count is set, the co-scheduling will not be enabled."""
 
     accelerator_type: Optional[AcceleratorType]
     """Immutable. The type of accelerator(s) that may be attached to the machine as per accelerator_count."""
@@ -6438,7 +6438,7 @@ class MachineSpecDict(TypedDict, total=False):
     """Optional. Immutable. The Nvidia GPU partition size. When specified, the requested accelerators will be partitioned into smaller GPU partitions. For example, if the request is for 8 units of NVIDIA A100 GPUs, and gpu_partition_size="1g.10gb", the service will create 8 * 7 = 56 partitioned MIG instances. The partition size must be a value supported by the requested accelerator. Refer to [Nvidia GPU Partitioning](https://cloud.google.com/kubernetes-engine/docs/how-to/gpus-multi#multi-instance_gpu_partitions) for the available partition sizes. If set, the accelerator_count should be set to 1."""
 
     machine_type: Optional[str]
-    """Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/gemini-enterprise-agent-platform/machine-learning/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required."""
+    """Immutable. The type of the machine. See the [list of machine types supported for prediction](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#machine-types) See the [list of machine types supported for custom training](https://cloud.google.com/vertex-ai/docs/training/configure-compute#machine-types). For DeployedModel this field is optional, and the default value is `n1-standard-2`. For BatchPredictionJob or as part of WorkerPoolSpec this field is required."""
 
     min_gpu_driver_version: Optional[str]
     """Optional. Immutable. The minimum GPU driver version that this machine requires. For example, "535.104.06". If not specified, the default GPU driver version will be used by the underlying infrastructure."""
@@ -15906,7 +15906,7 @@ class SandboxEnvironment(_common.BaseModel):
     )
     sandbox_environment_template: Optional[str] = Field(
         default=None,
-        description="""Optional. The name of the SandboxEnvironmentTemplate specified in the parent Agent Engine resource that this SandboxEnvironment is created from.""",
+        description="""Optional. The name of the SandboxEnvironmentTemplate specified in the parent Agent Engine resource that this SandboxEnvironment is created from. Only one of `sandbox_environment_template` and `spec` should be set.""",
     )
 
 
@@ -15951,7 +15951,7 @@ class SandboxEnvironmentDict(TypedDict, total=False):
     """Optional. The resource name of the SandboxEnvironmentSnapshot to use for creating this SandboxEnvironment. Format: `projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/sandboxEnvironmentSnapshots/{sandbox_environment_snapshot}`"""
 
     sandbox_environment_template: Optional[str]
-    """Optional. The name of the SandboxEnvironmentTemplate specified in the parent Agent Engine resource that this SandboxEnvironment is created from."""
+    """Optional. The name of the SandboxEnvironmentTemplate specified in the parent Agent Engine resource that this SandboxEnvironment is created from. Only one of `sandbox_environment_template` and `spec` should be set."""
 
 
 SandboxEnvironmentOrDict = Union[SandboxEnvironment, SandboxEnvironmentDict]
@@ -16508,10 +16508,6 @@ class SandboxEnvironmentTemplateDefaultContainerEnvironment(_common.BaseModel):
         default=None,
         description="""Required. The category of the default container image.""",
     )
-    resources: Optional[SandboxEnvironmentTemplateResourceRequirements] = Field(
-        default=None,
-        description="""Optional. Resource requests and limits for the default container.""",
-    )
 
 
 class SandboxEnvironmentTemplateDefaultContainerEnvironmentDict(TypedDict, total=False):
@@ -16519,9 +16515,6 @@ class SandboxEnvironmentTemplateDefaultContainerEnvironmentDict(TypedDict, total
 
     default_container_category: Optional[DefaultContainerCategory]
     """Required. The category of the default container image."""
-
-    resources: Optional[SandboxEnvironmentTemplateResourceRequirementsDict]
-    """Optional. Resource requests and limits for the default container."""
 
 
 SandboxEnvironmentTemplateDefaultContainerEnvironmentOrDict = Union[
@@ -22117,7 +22110,7 @@ class SkillRevision(_common.BaseModel):
     )
     skill: Optional[Skill] = Field(
         default=None,
-        description="""Output only. The state of the Skill at this revision.""",
+        description="""Output only. The state of the Skill at this revision. TODO(b/503772996) Use a different proto for skill data included in skill revision""",
     )
     state: Optional[SkillRevisionState] = Field(
         default=None, description="""Output only. The state of the Skill Revision."""
@@ -22134,7 +22127,7 @@ class SkillRevisionDict(TypedDict, total=False):
     """Output only. Timestamp when this Skill Revision was created."""
 
     skill: Optional[SkillDict]
-    """Output only. The state of the Skill at this revision."""
+    """Output only. The state of the Skill at this revision. TODO(b/503772996) Use a different proto for skill data included in skill revision"""
 
     state: Optional[SkillRevisionState]
     """Output only. The state of the Skill Revision."""
@@ -22443,11 +22436,11 @@ PublisherModelCallToActionRegionalResourceReferencesOrDict = Union[
 
 
 class AutomaticResources(_common.BaseModel):
-    """A description of resources that to large degree are decided by Agent Platform, and require only a modest additional configuration. Each Model supporting these resources documents its specific guidelines."""
+    """A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration. Each Model supporting these resources documents its specific guidelines."""
 
     max_replica_count: Optional[int] = Field(
         default=None,
-        description="""Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Agent Platform may be unable to scale beyond certain replica number.""",
+        description="""Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number.""",
     )
     min_replica_count: Optional[int] = Field(
         default=None,
@@ -22456,10 +22449,10 @@ class AutomaticResources(_common.BaseModel):
 
 
 class AutomaticResourcesDict(TypedDict, total=False):
-    """A description of resources that to large degree are decided by Agent Platform, and require only a modest additional configuration. Each Model supporting these resources documents its specific guidelines."""
+    """A description of resources that to large degree are decided by Vertex AI, and require only a modest additional configuration. Each Model supporting these resources documents its specific guidelines."""
 
     max_replica_count: Optional[int]
-    """Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Agent Platform may be unable to scale beyond certain replica number."""
+    """Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, a no upper bound for scaling under heavy traffic will be assume, though Vertex AI may be unable to scale beyond certain replica number."""
 
     min_replica_count: Optional[int]
     """Immutable. The minimum number of replicas that will be always deployed on. If traffic against it increases, it may dynamically be deployed onto more replicas up to max_replica_count, and as traffic decreases, some of these extra replicas may be freed. If the requested value is too large, the deployment will error."""
@@ -22913,7 +22906,7 @@ class DedicatedResources(_common.BaseModel):
     )
     max_replica_count: Optional[int] = Field(
         default=None,
-        description="""Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Agent Platform CPU and GPU quotas. Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).""",
+        description="""Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Vertex CPU and GPU quotas. Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type).""",
     )
     min_replica_count: Optional[int] = Field(
         default=None,
@@ -22949,7 +22942,7 @@ class DedicatedResourcesDict(TypedDict, total=False):
     """Required. Immutable. The specification of a single machine being used."""
 
     max_replica_count: Optional[int]
-    """Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Agent Platform CPU and GPU quotas. Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type)."""
+    """Immutable. The maximum number of replicas that may be deployed on when the traffic against it increases. If the requested value is too large, the deployment will error, but if deployment succeeds then the ability to scale to that many replicas is guaranteed (barring service outages). If traffic increases beyond what its replicas at maximum may handle, a portion of the traffic will be dropped. If this value is not provided, will use min_replica_count as the default value. The value of this field impacts the charge against Vertex CPU and GPU quotas. Specifically, you will be charged for (max_replica_count * number of cores in the selected machine type) and (max_replica_count * number of GPUs per replica in the selected machine type)."""
 
     min_replica_count: Optional[int]
     """Required. Immutable. The minimum number of machine replicas that will be always deployed on. This value must be greater than or equal to 1. If traffic increases, it may dynamically be deployed onto more replicas, and as traffic decreases, some of these extra replicas may be freed."""
