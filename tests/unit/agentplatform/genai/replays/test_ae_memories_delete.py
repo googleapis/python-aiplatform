@@ -30,3 +30,5 @@ pytestmark = pytest_helper.setup(
     globals_for_file=globals(),
     test_method="agent_engines.memories.delete",
 )
+
+# no-op baseline edit to trigger Kokoro Python-GenAI-SDK presubmit
