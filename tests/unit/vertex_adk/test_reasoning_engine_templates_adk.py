@@ -26,6 +26,7 @@ import vertexai
 from google.cloud.aiplatform import initializer
 from vertexai.agent_engines import _utils
 from vertexai.preview import reasoning_engines
+from vertexai.preview.reasoning_engines.templates import adk as adk_template
 from google.genai import types
 import pytest
 import uuid
@@ -894,6 +895,7 @@ class TestAdkApp:
         ):
             app.set_up()
 
+        import opentelemetry.sdk.version
         expected_attributes = {
             "cloud.account.id": _TEST_PROJECT_ID,
             "cloud.platform": "gcp.agent_engine",
@@ -906,8 +908,7 @@ class TestAdkApp:
             "some-attribute": "some-value",
             "telemetry.sdk.language": "python",
             "telemetry.sdk.name": "opentelemetry",
-            "telemetry.sdk.version": "1.39.0",
-            "some-attribute": "some-value",
+            "telemetry.sdk.version": opentelemetry.sdk.version.__version__,
         }
 
         otlp_span_exporter_mock.assert_called_once_with(
@@ -1104,3 +1105,60 @@ class TestAdkAppErrors:
         ):
             async for _ in app.bidi_stream_query(request_queue):
                 pass
+
+
+class TestAdkAppMtls:
+    """Test cases for mTLS functionality in preview AdkApp."""
+
+    def test_use_client_cert_effective_with_should_use_client_cert(self):
+        """Verifies that it respects the google-auth mTLS enablement check."""
+        with mock.patch.object(
+            adk_template.mtls,
+            "should_use_client_cert",
+            return_value=True,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is True
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "true"})
+    def test_use_client_cert_effective_with_env_var_true(self):
+        """Verifies that it falls back to the environment variable if google-auth check fails."""
+        with mock.patch.object(
+            adk_template.mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is True
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_CLIENT_CERTIFICATE": "false"})
+    def test_use_client_cert_effective_with_env_var_false(self):
+        """Verifies that it respects the environment variable being set to false."""
+        with mock.patch.object(
+            adk_template.mtls,
+            "should_use_client_cert",
+            side_effect=AttributeError,
+            create=True,
+        ):
+            assert adk_template._use_client_cert_effective() is False
+
+    def test_get_api_endpoint_default(self):
+        """Verifies the default telemetry endpoint is returned when no mTLS is configured."""
+        assert (
+            adk_template._get_api_endpoint() == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "always"})
+    def test_get_api_endpoint_always_with_cert(self):
+        """Verifies the mTLS endpoint is used when forced and a certificate is available."""
+        assert (
+            adk_template._get_api_endpoint(client_cert_source=b"cert")
+            == adk_template._DEFAULT_MTLS_TELEMETRY_ENDPOINT
+        )
+
+    @mock.patch.dict(os.environ, {"GOOGLE_API_USE_MTLS_ENDPOINT": "auto"})
+    def test_get_api_endpoint_auto_no_cert(self):
+        """Verifies it falls back to regular endpoint even if forced if no certificate is provided."""
+        assert (
+            adk_template._get_api_endpoint() == adk_template._DEFAULT_TELEMETRY_ENDPOINT
+        )
