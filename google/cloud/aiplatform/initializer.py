@@ -466,12 +466,10 @@ class _Config:
 
         api_endpoint = self.api_endpoint
 
-        if (
-            api_endpoint is None
-            and not self._project
-            and not self._location
-            and not location_override
-        ) or (self._location == "global"):
+        if api_endpoint is None and (
+            (not self._project and not self._location and not location_override)
+            or self._location == "global"
+        ):
             # Default endpoint is location invariant if using API key or global
             # location.
             api_endpoint = "aiplatform.googleapis.com"
