@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.160.0](https://github.com/googleapis/python-aiplatform/compare/v1.159.0...v1.160.0) (2026-07-07)
+
+
+### Features
+
+* Add response_format and Translation_config in GenerationConfig ([62a8324](https://github.com/googleapis/python-aiplatform/commit/62a832436340640f1adc3611ae57b70a487b2820))
+* Add revision_labels, revision_expire_time, revision_ttl, disable_memory_revisions, metadata, metadata_merge_strategy and overlap_event_count to Memory Bank IngestEvents API ([e169af9](https://github.com/googleapis/python-aiplatform/commit/e169af9ac0f56603be763466694b95fc2fd64e8c))
+* Add Tool.exa_ai_search for Gemini Enterprise API ([62a8324](https://github.com/googleapis/python-aiplatform/commit/62a832436340640f1adc3611ae57b70a487b2820))
+* GenAI Client(evals) - add Gemini Agents API related eval types ([c8a38a0](https://github.com/googleapis/python-aiplatform/commit/c8a38a085931b01f4d6071f0ab7a64cb42851829))
+* Onboard Vertex Model Garden to GenAI Python SDK: Add list_publisher_model_deploy_options support ([ce463e6](https://github.com/googleapis/python-aiplatform/commit/ce463e6820b7a92dfb312ad6d0a8d3da8314567c))
+
+
+### Bug Fixes
+
+* Add mTLS and telemetry endpoint configurations to preview AdkApp ([c3c1836](https://github.com/googleapis/python-aiplatform/commit/c3c1836b5aad5d3d38b961231b55b096787e983e))
+* Avoid shadowing of built-in list in Python 3.14 ([195ca27](https://github.com/googleapis/python-aiplatform/commit/195ca275c0ec94a6e1f1b73872807e4774a29a4e))
+* Honor explicitly passed api_endpoint when location is "global" ([f9e3c6e](https://github.com/googleapis/python-aiplatform/commit/f9e3c6ea96ef38c67ace5e876db269f3580a66ed)), closes [#6958](https://github.com/googleapis/python-aiplatform/issues/6958)
+
 ## [1.159.0](https://github.com/googleapis/python-aiplatform/compare/v1.158.0...v1.159.0) (2026-06-30)
 
 
