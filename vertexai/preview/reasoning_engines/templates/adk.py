@@ -27,8 +27,12 @@ from typing import (
 import asyncio
 from collections.abc import Awaitable
 import queue
+import os
 import sys
 import threading
+import enum
+from google.auth.transport import mtls
+from google.auth.transport import requests as requests_auth
 
 
 if TYPE_CHECKING:
@@ -97,6 +101,18 @@ if TYPE_CHECKING:
 
 _DEFAULT_APP_NAME = "default-app-name"
 _DEFAULT_USER_ID = "default-user-id"
+_DEFAULT_TELEMETRY_ENDPOINT = "https://telemetry.googleapis.com/v1/traces"
+_DEFAULT_MTLS_TELEMETRY_ENDPOINT = "https://telemetry.mtls.googleapis.com/v1/traces"
+
+
+class _MtlsEndpoint(enum.Enum):
+    """The mTLS endpoint setting."""
+
+    AUTO = "auto"
+    ALWAYS = "always"
+    NEVER = "never"
+
+
 _TELEMETRY_API_DISABLED_WARNING = (
     "Tracing integration for Agent Engine has migrated to a new API.\n"
     "The 'telemetry.googleapis.com' has not been enabled in project %s. \n"
@@ -250,6 +266,64 @@ def _warn(msg: str):
     _warn._LOGGER.warning(msg)  # pyright: ignore[reportFunctionMemberAccess]
 
 
+def _get_api_endpoint(client_cert_source: bytes | None = None) -> str:
+    """Returns API endpoint based on mTLS configuration and cert availability.
+
+    Args:
+        client_cert_source (bytes | None): The client certificate source.
+
+    Returns:
+        str: The API endpoint to be used.
+    """
+    use_mtls_endpoint_str = os.getenv(
+        "GOOGLE_API_USE_MTLS_ENDPOINT", _MtlsEndpoint.AUTO.value
+    ).lower()
+
+    try:
+        use_mtls_endpoint = _MtlsEndpoint(use_mtls_endpoint_str)
+    except ValueError:
+        _warn(
+            f"Environment variable `GOOGLE_API_USE_MTLS_ENDPOINT` must be one of "
+            f"{[e.value for e in _MtlsEndpoint]}. Defaulting to"
+            f" {_MtlsEndpoint.AUTO.value}."
+        )
+        use_mtls_endpoint = _MtlsEndpoint.AUTO
+
+    if (use_mtls_endpoint == _MtlsEndpoint.ALWAYS) or (
+        use_mtls_endpoint == _MtlsEndpoint.AUTO and client_cert_source
+    ):
+        return _DEFAULT_MTLS_TELEMETRY_ENDPOINT
+
+    return _DEFAULT_TELEMETRY_ENDPOINT
+
+
+def _use_client_cert_effective() -> bool:
+    """Returns whether client certificate should be used for mTLS.
+
+    This checks if the google-auth version supports should_use_client_cert
+    automatic mTLS enablement. Alternatively, it reads from the
+    GOOGLE_API_USE_CLIENT_CERTIFICATE env var.
+
+    Returns:
+        bool: whether client certificate should be used for mTLS.
+    """
+    # check if google-auth version supports should_use_client_cert for automatic
+    # mTLS enablement
+    try:
+        return mtls.should_use_client_cert()
+    except (ImportError, AttributeError):
+        # if unsupported, fallback to reading from env var
+        use_client_cert_str = os.getenv(
+            "GOOGLE_API_USE_CLIENT_CERTIFICATE", "false"
+        ).lower()
+        if use_client_cert_str not in ("true", "false"):
+            _warn(
+                "Environment variable `GOOGLE_API_USE_CLIENT_CERTIFICATE` must be"
+                " either `true` or `false`"
+            )
+        return use_client_cert_str == "true"
+
+
 async def _force_flush_otel(tracing_enabled: bool, logging_enabled: bool):
     try:
         import opentelemetry.trace
@@ -393,12 +467,24 @@ def _default_instrumentor_builder(
         otlp_http_version = opentelemetry.exporter.otlp.proto.http.version.__version__
         user_agent = f"Vertex-Agent-Engine/{vertex_sdk_version} OTel-OTLP-Exporter-Python/{otlp_http_version}"
 
+        session = requests_auth.AuthorizedSession(credentials=credentials)
+
+        use_client_cert = _use_client_cert_effective()
+        if use_client_cert:
+            client_cert_source = (
+                mtls.default_client_cert_source()
+                if mtls.has_default_client_cert_source()
+                else None
+            )
+            session.configure_mtls_channel()
+            endpoint = _get_api_endpoint(client_cert_source)
+        else:
+            endpoint = _DEFAULT_TELEMETRY_ENDPOINT
+
         span_exporter = (
             opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter(
-                session=google.auth.transport.requests.AuthorizedSession(
-                    credentials=credentials
-                ),
-                endpoint="https://telemetry.googleapis.com/v1/traces",
+                session=session,
+                endpoint=endpoint,
                 headers={"User-Agent": user_agent},
             )
         )
@@ -1620,10 +1706,20 @@ class AdkApp:
         except (ImportError, AttributeError):
             return
         credentials, project = google.auth.default()
-        session = google.auth.transport.requests.AuthorizedSession(
-            credentials=credentials
-        )
-        r = session.post("https://telemetry.googleapis.com/v1/traces", data=None)
+        session = requests_auth.AuthorizedSession(credentials=credentials)
+
+        use_client_cert = _use_client_cert_effective()
+        if use_client_cert:
+            client_cert_source = (
+                mtls.default_client_cert_source()
+                if mtls.has_default_client_cert_source()
+                else None
+            )
+            session.configure_mtls_channel()
+            endpoint = _get_api_endpoint(client_cert_source)
+        else:
+            endpoint = _DEFAULT_TELEMETRY_ENDPOINT
+        r = session.post(endpoint, data=None)
         if "Telemetry API has not been used in project" in r.text:
             _warn(_TELEMETRY_API_DISABLED_WARNING % (project, project))
 
