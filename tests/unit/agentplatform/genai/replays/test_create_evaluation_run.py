@@ -871,6 +871,33 @@ async def test_create_eval_run_async_with_inference_configs(client):
     assert evaluation_run.error is None
 
 
+def test_create_eval_run_with_gemini_agent(client):
+    gemini_agent = (
+        "projects/model-evaluation-dev/locations/global/agents/"
+        "test-agent-eval"
+    )
+    eval_set = (
+        "projects/model-evaluation-dev/locations/global/evaluationSets/"
+        "7392342128979869696"
+    )
+    evaluation_run = client.evals.create_evaluation_run(
+        name="test_gemini_agent",
+        display_name="test_gemini_agent",
+        dataset=types.EvaluationRunDataSource(evaluation_set=eval_set),
+        dest=GCS_DEST,
+        metrics=[GENERAL_QUALITY_METRIC],
+        agent_info=types.evals.AgentInfo(name="gemini-agent"),
+        agent=gemini_agent,
+        user_simulator_config=types.evals.UserSimulatorConfig(max_turn=3),
+    )
+    assert isinstance(evaluation_run, types.EvaluationRun)
+    inference_config = evaluation_run.inference_configs["gemini-agent"]
+    assert (
+        inference_config.agent_run_config.gemini_agent_config.gemini_agent
+        == gemini_agent
+    )
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),

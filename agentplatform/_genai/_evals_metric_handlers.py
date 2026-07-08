@@ -703,6 +703,16 @@ def _build_evaluation_instance(
                     )
                 )
 
+    # An interactions data source is mutually exclusive with agent_data: when
+    # set, the backend fetches the interaction + Gemini Agent config and parses
+    # them into agent data server-side, so we must not also send agent_data.
+    interactions_data_source = getattr(eval_case, "interactions_data_source", None)
+    agent_data = (
+        None
+        if interactions_data_source is not None
+        else _eval_case_to_agent_data(eval_case, extracted_prompt, response_content)
+    )
+
     return types.EvaluationInstance(
         prompt=prompt_instance_data,
         response=_content_to_instance_data(response_content),
@@ -715,9 +725,8 @@ def _build_evaluation_instance(
         other_data=(
             types.MapInstance(map_instance=other_data_map) if other_data_map else None
         ),
-        agent_data=_eval_case_to_agent_data(
-            eval_case, extracted_prompt, response_content
-        ),
+        agent_data=agent_data,
+        interactions_data_source=interactions_data_source,
     )
 
 
@@ -992,7 +1001,11 @@ class PredefinedMetricHandler(MetricHandler[types.Metric]):
             eval_case, response_index, self.metric.name
         )
 
-        if not response_content and not getattr(eval_case, "agent_data", None):
+        if (
+            not response_content
+            and not getattr(eval_case, "agent_data", None)
+            and not getattr(eval_case, "interactions_data_source", None)
+        ):
             raise ValueError(
                 f"Response content missing for candidate {response_index}."
             )
@@ -1591,7 +1604,10 @@ def compute_metrics_and_aggregate(
                     num_responses = (
                         len(eval_case.responses) if eval_case.responses else 0
                     )
-                    if num_responses == 0 and getattr(eval_case, "agent_data", None):
+                    if num_responses == 0 and (
+                        getattr(eval_case, "agent_data", None)
+                        or getattr(eval_case, "interactions_data_source", None)
+                    ):
                         num_responses = 1
 
                     actual_num_candidates_for_case = min(

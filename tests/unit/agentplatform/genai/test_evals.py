@@ -5913,12 +5913,16 @@ class TestAgentInfo:
 
         assert len(agent_info.agents["mock_agent"].tools) == 2
         # First tool: ADK tool with _get_declaration
-        adk_declarations = agent_info.agents["mock_agent"].tools[0].function_declarations
+        adk_declarations = (
+            agent_info.agents["mock_agent"].tools[0].function_declarations
+        )
         assert len(adk_declarations) == 1
         assert adk_declarations[0] is mock_adk_declaration
         mock_adk_tool._get_declaration.assert_called_once()
         # Second tool: plain callable converted to FunctionDeclaration
-        plain_declarations = agent_info.agents["mock_agent"].tools[1].function_declarations
+        plain_declarations = (
+            agent_info.agents["mock_agent"].tools[1].function_declarations
+        )
         assert len(plain_declarations) == 1
         assert isinstance(plain_declarations[0], genai_types.FunctionDeclaration)
         assert plain_declarations[0].name == "my_plain_tool"
@@ -8335,7 +8339,7 @@ class TestEvalsRunEvaluation:
         with mock.patch(
             "agentplatform._genai._evals_metric_handlers.LLMMetricHandler.get_metric_result"
         ) as mock_llm_process:
-        # fmt: on
+            # fmt: on
             mock_llm_process.side_effect = [
                 agentplatform_genai_types.EvalCaseMetricResult(
                     metric_name="error_fallback_quality", score=0.9
@@ -8381,7 +8385,7 @@ class TestEvalsRunEvaluation:
         with mock.patch(
             "agentplatform._genai._evals_metric_handlers.LLMMetricHandler.get_metric_result"
         ) as mock_llm_process:
-        # fmt: on
+            # fmt: on
             mock_llm_process.return_value = (
                 agentplatform_genai_types.EvalCaseMetricResult(
                     metric_name="invalid_type_fallback", score=0.8
@@ -8415,7 +8419,7 @@ class TestEvalsRunEvaluation:
         with mock.patch(
             "agentplatform._genai.evals.Evals._evaluate_instances"
         ) as mock_evaluate_instances_unified:
-        # fmt: on
+            # fmt: on
             mock_evaluate_instances_unified.return_value = (
                 agentplatform_genai_types.EvaluateInstancesResponse(
                     metric_results=[
@@ -8461,7 +8465,7 @@ class TestEvalsRunEvaluation:
         with mock.patch(
             "agentplatform._genai.evals.Evals._evaluate_instances"
         ) as mock_evaluate_instances_unified:
-        # fmt: on
+            # fmt: on
             mock_evaluate_instances_unified.return_value = (
                 agentplatform_genai_types.EvaluateInstancesResponse(
                     metric_results=[
@@ -9839,3 +9843,149 @@ class TestAllowCrossRegionModel:
             request_body.get("evaluationConfig", {}).get("allowCrossRegionModel")
             is True
         )
+
+
+_TEST_INTERACTION = (
+    "projects/test-project/locations/us-central1/interactions/test-interaction"
+)
+_TEST_GEMINI_AGENT = "projects/test-project/locations/us-central1/agents/test-agent"
+_TEST_AGENT_ENGINE = "projects/test-project/locations/us-central1/reasoningEngines/123"
+
+
+class TestIsGeminiAgentResource:
+    """Tests for the _is_gemini_agent_resource helper."""
+
+    def test_gemini_agent_resource_is_detected(self):
+        assert _evals_common._is_gemini_agent_resource(_TEST_GEMINI_AGENT) is True
+
+    def test_agent_engine_resource_is_not_gemini(self):
+        assert _evals_common._is_gemini_agent_resource(_TEST_AGENT_ENGINE) is False
+
+    def test_non_resource_string_is_not_gemini(self):
+        assert _evals_common._is_gemini_agent_resource("test-agent") is False
+
+
+class TestEvaluateInstancesInteractionsDataSource:
+    """CUJ1: BYO interaction id evaluated via evaluate_instances."""
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps({})
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def test_evaluate_instances_sends_interactions_data_source(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        instance = agentplatform_genai_types.EvaluationInstance(
+            interactions_data_source=agentplatform_genai_types.InteractionsDataSource(
+                interaction=_TEST_INTERACTION,
+                gemini_agent_config=agentplatform_genai_types.GeminiAgentConfig(
+                    gemini_agent=_TEST_GEMINI_AGENT,
+                ),
+            )
+        )
+        metric_config = agentplatform_genai_types._EvaluateInstancesRequestParameters(
+            metrics=[
+                agentplatform_genai_types.Metric(name="multi_turn_task_success_v1")
+            ],
+            instance=instance,
+        )
+
+        evals_module.evaluate_instances(metric_config=metric_config)
+
+        self.mock_api_client.request.assert_called_once()
+        call_args = self.mock_api_client.request.call_args
+        path = call_args[0][1]
+        request_body = call_args[0][2]
+        assert path.endswith(":evaluateInstances")
+        data_source = request_body["instance"]["interactionsDataSource"]
+        assert data_source["interaction"] == _TEST_INTERACTION
+        assert data_source["gemini_agent_config"]["gemini_agent"] == _TEST_GEMINI_AGENT
+
+
+class TestCreateEvaluationRunGeminiAgent:
+    """CUJ2: scrape a Gemini agent via create_evaluation_run."""
+
+    def setup_method(self, method):
+        self.mock_api_client = mock.MagicMock()
+        self.mock_api_client.vertexai = True
+        self.mock_response = mock.MagicMock()
+        self.mock_response.body = json.dumps(
+            {
+                "name": "projects/123/locations/us-central1/evaluationRuns/456",
+                "displayName": "test_run",
+                "state": "PENDING",
+            }
+        )
+        self.mock_api_client.request.return_value = self.mock_response
+
+    def _get_create_run_body(self):
+        for call_args in self.mock_api_client.request.call_args_list:
+            method, path = call_args[0][0], call_args[0][1]
+            if method == "post" and path == "evaluationRuns":
+                return call_args[0][2]
+        raise AssertionError("evaluationRuns create call was not made")
+
+    def _agent_run_config(self, request_body):
+        inference_configs = request_body["inferenceConfigs"]
+        candidate = next(iter(inference_configs.values()))
+        return candidate["agentRunConfig"]
+
+    def test_create_evaluation_run_builds_gemini_agent_config(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                agentplatform_genai_types.EvaluationRunMetric(
+                    metric="multi_turn_task_success_v1",
+                    metric_config=agentplatform_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="multi_turn_task_success_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            agent_info=agentplatform_genai_types.evals.AgentInfo(name="gemini-agent"),
+            agent=_TEST_GEMINI_AGENT,
+        )
+
+        request_body = self._get_create_run_body()
+        agent_run_config = self._agent_run_config(request_body)
+        assert (
+            agent_run_config["gemini_agent_config"]["gemini_agent"]
+            == _TEST_GEMINI_AGENT
+        )
+        assert "agent_engine" not in agent_run_config
+
+    def test_create_evaluation_run_agent_engine_does_not_set_gemini(self):
+        evals_module = evals.Evals(api_client_=self.mock_api_client)
+
+        evals_module.create_evaluation_run(
+            dataset=agentplatform_genai_types.EvaluationRunDataSource(
+                evaluation_set="projects/123/locations/us-central1/evaluationSets/789"
+            ),
+            metrics=[
+                agentplatform_genai_types.EvaluationRunMetric(
+                    metric="multi_turn_task_success_v1",
+                    metric_config=agentplatform_genai_types.UnifiedMetric(
+                        predefined_metric_spec=genai_types.PredefinedMetricSpec(
+                            metric_spec_name="multi_turn_task_success_v1",
+                        )
+                    ),
+                )
+            ],
+            dest="gs://test-bucket/output",
+            agent_info=agentplatform_genai_types.evals.AgentInfo(name="ae-agent"),
+            agent=_TEST_AGENT_ENGINE,
+        )
+
+        request_body = self._get_create_run_body()
+        agent_run_config = self._agent_run_config(request_body)
+        assert "gemini_agent_config" not in agent_run_config
+        assert agent_run_config["agent_engine"] == _TEST_AGENT_ENGINE

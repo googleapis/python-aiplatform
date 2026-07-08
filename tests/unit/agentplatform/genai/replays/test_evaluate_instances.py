@@ -184,6 +184,63 @@ def test_run_inference_with_agent(client):
     assert inference_result.gcs_source is None
 
 
+def test_evaluation_with_interaction(client):
+    instance = types.EvaluationInstance(
+        interactions_data_source=types.InteractionsDataSource(
+            interaction=(
+                "projects/977012026409/locations/global/interactions/"
+                "ChAzMDY5YjBkOGE5ODcwMDM0EAgaATAqBG1haW4"
+            ),
+            gemini_agent_config=types.GeminiAgentConfig(
+                gemini_agent=(
+                    "projects/977012026409/locations/global/agents/"
+                    "test-agent-eval"
+                ),
+            ),
+        )
+    )
+    response = client.evals.evaluate_instances(
+        metric_config=types._EvaluateInstancesRequestParameters(
+            metrics=[types.Metric(name="multi_turn_task_success_v1")],
+            instance=instance,
+        )
+    )
+    assert response is not None
+
+def test_evaluate_method_with_interaction(client):
+    eval_case = types.EvalCase(
+        interactions_data_source=types.InteractionsDataSource(
+            interaction=(
+                "projects/model-evaluation-dev/locations/global/interactions/"
+                "ChAzMDY5YjBkOGE5ODcwMDM0EAgaATAqBG1haW4"
+            ),
+            gemini_agent_config=types.GeminiAgentConfig(
+                gemini_agent=(
+                    "projects/model-evaluation-dev/locations/global/agents/"
+                    "test-agent-eval"
+                ),
+            ),
+        )
+    )
+    eval_dataset = types.EvaluationDataset(eval_cases=[eval_case])
+
+    evaluation_result = client.evals.evaluate(
+        dataset=eval_dataset,
+        metrics=[types.RubricMetric.MULTI_TURN_TASK_SUCCESS],
+    )
+
+    assert isinstance(evaluation_result, types.EvaluationResult)
+    assert evaluation_result.summary_metrics is not None
+    assert len(evaluation_result.summary_metrics) > 0
+    for summary in evaluation_result.summary_metrics:
+        assert isinstance(summary, types.AggregatedMetricResult)
+        assert summary.metric_name is not None
+        assert summary.mean_score is not None
+
+    assert evaluation_result.eval_case_results is not None
+    assert len(evaluation_result.eval_case_results) == 1
+
+
 pytestmark = pytest_helper.setup(
     file=__file__,
     globals_for_file=globals(),
