@@ -1873,6 +1873,10 @@ class Metric(_common.BaseModel):
         default=None,
         description="""The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}""",
     )
+    result_parsing_function: Optional[str] = Field(
+        default=None,
+        description="""Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys.""",
+    )
 
     # Allow extra fields to support metric-specific config fields.
     model_config = ConfigDict(extra="allow")
@@ -1957,6 +1961,11 @@ class LLMMetric(Metric):
     rubric_group_name: Optional[str] = Field(
         default=None,
         description="""Optional. The name of the column in the EvaluationDataset containing the list of rubrics to use for this metric.""",
+    )
+
+    result_parsing_function: Optional[str] = Field(
+        default=None,
+        description="""Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys.""",
     )
 
     @field_validator("prompt_template", mode="before")
@@ -2099,6 +2108,9 @@ class MetricDict(TypedDict, total=False):
 
     metric_resource_name: Optional[str]
     """The resource name of the metric definition. Example: projects/{project}/locations/{location}/evaluationMetrics/{evaluation_metric_id}"""
+
+    result_parsing_function: Optional[str]
+    """Optional. A Python function string used to parse the raw output of the LLM judge model. The function must be named `parse_results` and accept a list of model response strings. It should return a dictionary with `score` (float) and `explanation` (str) keys."""
 
 
 MetricOrDict = Union[Metric, MetricDict]
