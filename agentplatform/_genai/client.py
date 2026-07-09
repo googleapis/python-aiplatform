@@ -44,7 +44,9 @@ if TYPE_CHECKING:
     )
     from agentplatform._genai import live as live_module
     from agentplatform._genai import rag as rag_module
-
+    from agentplatform._genai import (
+        feedback_entries as feedback_entries_module,
+    )
 
 _GENAI_MODULES_TELEMETRY_HEADER = "vertex-genai-modules"
 
@@ -89,6 +91,7 @@ class AsyncClient:
         self._skills: Optional[ModuleType] = None
         self._rag: Optional[ModuleType] = None
         self._model_garden: Optional[ModuleType] = None
+        self._feedback_entries: Optional[ModuleType] = None
 
     @property
     @_common.experimental_warning(
@@ -169,6 +172,15 @@ class AsyncClient:
                 __package__,
             )
         return self._skills.AsyncSkills(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def feedback_entries(self) -> "feedback_entries_module.AsyncFeedbackEntries":
+        if self._feedback_entries is None:
+            self._feedback_entries = importlib.import_module(
+                ".feedback_entries",
+                __package__,
+            )
+        return self._feedback_entries.AsyncFeedbackEntries(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(
@@ -301,6 +313,7 @@ class Client:
         self._skills: Optional[ModuleType] = None
         self._rag: Optional[ModuleType] = None
         self._model_garden: Optional[ModuleType] = None
+        self._feedback_entries: Optional[ModuleType] = None
 
     @property
     def evals(self) -> "evals_module.Evals":
@@ -406,6 +419,15 @@ class Client:
                 __package__,
             )
         return self._skills.Skills(self._api_client)  # type: ignore[no-any-return]
+
+    @property
+    def feedback_entries(self) -> "feedback_entries_module.FeedbackEntries":
+        if self._feedback_entries is None:
+            self._feedback_entries = importlib.import_module(
+                ".feedback_entries",
+                __package__,
+            )
+        return self._feedback_entries.FeedbackEntries(self._api_client)  # type: ignore[no-any-return]
 
     @property
     @_common.experimental_warning(

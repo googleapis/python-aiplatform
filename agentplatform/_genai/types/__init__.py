@@ -29,6 +29,7 @@ from .common import _AssembleDatasetParameters
 from .common import _AssessDatasetParameters
 from .common import _CancelQueryJobAgentEngineRequestParameters
 from .common import _CheckQueryJobAgentEngineRequestParameters
+from .common import _CreateAgentEngineFeedbackEntryRequestParameters
 from .common import _CreateAgentEngineMemoryRequestParameters
 from .common import _CreateAgentEngineRequestParameters
 from .common import _CreateAgentEngineSandboxRequestParameters
@@ -47,6 +48,7 @@ from .common import _CreateSandboxEnvironmentTemplateRequestParameters
 from .common import _CreateSkillRequestParameters
 from .common import _CustomJobParameters
 from .common import _CustomJobParameters
+from .common import _DeleteAgentEngineFeedbackEntryRequestParameters
 from .common import _DeleteAgentEngineMemoryRequestParameters
 from .common import _DeleteAgentEngineRequestParameters
 from .common import _DeleteAgentEngineRuntimeRevisionRequestParameters
@@ -68,6 +70,9 @@ from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
 from .common import _GenerateLossClustersParameters
 from .common import _GenerateUserScenariosParameters
+from .common import _GetAgentEngineFeedbackOperationParameters
+from .common import _GetAgentEngineFeedbackOperationParameters
+from .common import _GetAgentEngineFeedbackRequestParameters
 from .common import _GetAgentEngineGenerateMemoriesOperationParameters
 from .common import _GetAgentEngineMemoryOperationParameters
 from .common import _GetAgentEngineMemoryRequestParameters
@@ -108,6 +113,7 @@ from .common import _GetSkillRequestParameters
 from .common import _GetSkillRevisionRequestParameters
 from .common import _ImportRagFilesRequestParameters
 from .common import _IngestEventsRequestParameters
+from .common import _ListAgentEngineFeedbackEntriesRequestParameters
 from .common import _ListAgentEngineMemoryRequestParameters
 from .common import _ListAgentEngineMemoryRevisionsRequestParameters
 from .common import _ListAgentEngineRequestParameters
@@ -143,6 +149,7 @@ from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
 from .common import _RunQueryJobAgentEngineConfigOrDict
 from .common import _RunQueryJobAgentEngineRequestParameters
+from .common import _UpdateAgentEngineFeedbackEntryRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
 from .common import _UpdateAgentEngineSessionRequestParameters
@@ -162,6 +169,9 @@ from .common import AgentEngineConfig
 from .common import AgentEngineConfigDict
 from .common import AgentEngineConfigOrDict
 from .common import AgentEngineDict
+from .common import AgentEngineFeedbackEntryOperation
+from .common import AgentEngineFeedbackEntryOperationDict
+from .common import AgentEngineFeedbackEntryOperationOrDict
 from .common import AgentEngineGenerateMemoriesOperation
 from .common import AgentEngineGenerateMemoriesOperationDict
 from .common import AgentEngineGenerateMemoriesOperationOrDict
@@ -311,6 +321,9 @@ from .common import CorpusStatusOrDict
 from .common import CreateAgentEngineConfig
 from .common import CreateAgentEngineConfigDict
 from .common import CreateAgentEngineConfigOrDict
+from .common import CreateAgentEngineFeedbackEntryConfig
+from .common import CreateAgentEngineFeedbackEntryConfigDict
+from .common import CreateAgentEngineFeedbackEntryConfigOrDict
 from .common import CreateAgentEngineSandboxConfig
 from .common import CreateAgentEngineSandboxConfigDict
 from .common import CreateAgentEngineSandboxConfigOrDict
@@ -390,6 +403,12 @@ from .common import DefaultContainerCategory
 from .common import DeleteAgentEngineConfig
 from .common import DeleteAgentEngineConfigDict
 from .common import DeleteAgentEngineConfigOrDict
+from .common import DeleteAgentEngineFeedbackEntryConfig
+from .common import DeleteAgentEngineFeedbackEntryConfigDict
+from .common import DeleteAgentEngineFeedbackEntryConfigOrDict
+from .common import DeleteAgentEngineFeedbackEntryOperation
+from .common import DeleteAgentEngineFeedbackEntryOperationDict
+from .common import DeleteAgentEngineFeedbackEntryOperationOrDict
 from .common import DeleteAgentEngineMemoryConfig
 from .common import DeleteAgentEngineMemoryConfigDict
 from .common import DeleteAgentEngineMemoryConfigOrDict
@@ -599,6 +618,10 @@ from .common import ExecuteSandboxEnvironmentResponseOrDict
 from .common import FailedRubric
 from .common import FailedRubricDict
 from .common import FailedRubricOrDict
+from .common import FeedbackEntry
+from .common import FeedbackEntryDict
+from .common import FeedbackEntryOrDict
+from .common import FeedbackType
 from .common import FlexStart
 from .common import FlexStartDict
 from .common import FlexStartOrDict
@@ -661,6 +684,9 @@ from .common import GenerateUserScenariosResponseOrDict
 from .common import GetAgentEngineConfig
 from .common import GetAgentEngineConfigDict
 from .common import GetAgentEngineConfigOrDict
+from .common import GetAgentEngineFeedbackConfig
+from .common import GetAgentEngineFeedbackConfigDict
+from .common import GetAgentEngineFeedbackConfigOrDict
 from .common import GetAgentEngineMemoryConfig
 from .common import GetAgentEngineMemoryConfigDict
 from .common import GetAgentEngineMemoryConfigOrDict
@@ -801,6 +827,12 @@ from .common import LaunchStage
 from .common import ListAgentEngineConfig
 from .common import ListAgentEngineConfigDict
 from .common import ListAgentEngineConfigOrDict
+from .common import ListAgentEngineFeedbackEntriesConfig
+from .common import ListAgentEngineFeedbackEntriesConfigDict
+from .common import ListAgentEngineFeedbackEntriesConfigOrDict
+from .common import ListAgentEngineFeedbackEntriesResponse
+from .common import ListAgentEngineFeedbackEntriesResponseDict
+from .common import ListAgentEngineFeedbackEntriesResponseOrDict
 from .common import ListAgentEngineMemoryConfig
 from .common import ListAgentEngineMemoryConfigDict
 from .common import ListAgentEngineMemoryConfigOrDict
@@ -1812,6 +1844,9 @@ from .common import UnifiedMetricOrDict
 from .common import UpdateAgentEngineConfig
 from .common import UpdateAgentEngineConfigDict
 from .common import UpdateAgentEngineConfigOrDict
+from .common import UpdateAgentEngineFeedbackEntryConfig
+from .common import UpdateAgentEngineFeedbackEntryConfigDict
+from .common import UpdateAgentEngineFeedbackEntryConfigOrDict
 from .common import UpdateAgentEngineMemoryConfig
 from .common import UpdateAgentEngineMemoryConfigDict
 from .common import UpdateAgentEngineMemoryConfigOrDict
@@ -3378,6 +3413,33 @@ __all__ = [
     "GetPublisherModelConfig",
     "GetPublisherModelConfigDict",
     "GetPublisherModelConfigOrDict",
+    "CreateAgentEngineFeedbackEntryConfig",
+    "CreateAgentEngineFeedbackEntryConfigDict",
+    "CreateAgentEngineFeedbackEntryConfigOrDict",
+    "FeedbackEntry",
+    "FeedbackEntryDict",
+    "FeedbackEntryOrDict",
+    "AgentEngineFeedbackEntryOperation",
+    "AgentEngineFeedbackEntryOperationDict",
+    "AgentEngineFeedbackEntryOperationOrDict",
+    "DeleteAgentEngineFeedbackEntryConfig",
+    "DeleteAgentEngineFeedbackEntryConfigDict",
+    "DeleteAgentEngineFeedbackEntryConfigOrDict",
+    "DeleteAgentEngineFeedbackEntryOperation",
+    "DeleteAgentEngineFeedbackEntryOperationDict",
+    "DeleteAgentEngineFeedbackEntryOperationOrDict",
+    "GetAgentEngineFeedbackConfig",
+    "GetAgentEngineFeedbackConfigDict",
+    "GetAgentEngineFeedbackConfigOrDict",
+    "ListAgentEngineFeedbackEntriesConfig",
+    "ListAgentEngineFeedbackEntriesConfigDict",
+    "ListAgentEngineFeedbackEntriesConfigOrDict",
+    "ListAgentEngineFeedbackEntriesResponse",
+    "ListAgentEngineFeedbackEntriesResponseDict",
+    "ListAgentEngineFeedbackEntriesResponseOrDict",
+    "UpdateAgentEngineFeedbackEntryConfig",
+    "UpdateAgentEngineFeedbackEntryConfigDict",
+    "UpdateAgentEngineFeedbackEntryConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -3508,6 +3570,7 @@ __all__ = [
     "LaunchStage",
     "OpenSourceCategory",
     "VersionState",
+    "FeedbackType",
     "EvaluationItemType",
     "SamplingMethod",
     "EvaluationRunState",
@@ -3668,6 +3731,13 @@ __all__ = [
     "_ListSkillRevisionsRequestParameters",
     "_ListPublisherModelsRequestParameters",
     "_GetPublisherModelRequestParameters",
+    "_CreateAgentEngineFeedbackEntryRequestParameters",
+    "_DeleteAgentEngineFeedbackEntryRequestParameters",
+    "_GetAgentEngineFeedbackRequestParameters",
+    "_ListAgentEngineFeedbackEntriesRequestParameters",
+    "_UpdateAgentEngineFeedbackEntryRequestParameters",
+    "_GetAgentEngineFeedbackOperationParameters",
+    "_GetAgentEngineFeedbackOperationParameters",
     "evals",
     "agent_engines",
     "prompts",

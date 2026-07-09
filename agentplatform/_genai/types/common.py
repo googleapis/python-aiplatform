@@ -476,6 +476,17 @@ class VersionState(_common.CaseInSensitiveEnum):
     """Used to indicate the version is unstable."""
 
 
+class FeedbackType(_common.CaseInSensitiveEnum):
+    """The type of the feedback."""
+
+    FEEDBACK_TYPE_UNSPECIFIED = "FEEDBACK_TYPE_UNSPECIFIED"
+    """Default value."""
+    THUMBS_UP = "THUMBS_UP"
+    """Indicates positive feedback (e.g., a "thumbs up")."""
+    THUMBS_DOWN = "THUMBS_DOWN"
+    """Indicates a thumbs down feedback (e.g., a "thumbs down")."""
+
+
 class EvaluationItemType(_common.CaseInSensitiveEnum):
     """The type of the EvaluationItem."""
 
@@ -23567,6 +23578,634 @@ class _GetPublisherModelRequestParametersDict(TypedDict, total=False):
 
 _GetPublisherModelRequestParametersOrDict = Union[
     _GetPublisherModelRequestParameters, _GetPublisherModelRequestParametersDict
+]
+
+
+class CreateAgentEngineFeedbackEntryConfig(_common.BaseModel):
+    """Config for creating a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    feedback_labels: Optional[list[str]] = Field(
+        default=None,
+        description="""Specific labels for feedback (non-factual, offensive, etc.).""",
+    )
+    feedback_text: Optional[str] = Field(
+        default=None,
+        description="""Qualitative free-form comments provided by the user.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""User provided identifier."""
+    )
+    source: Optional[str] = Field(
+        default=None, description="""Originating UI surface (e.g. 'ADK Web UI')."""
+    )
+    custom_metadata: Optional[dict[str, str]] = Field(
+        default=None,
+        description=""" Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class CreateAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
+    """Config for creating a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    feedback_labels: Optional[list[str]]
+    """Specific labels for feedback (non-factual, offensive, etc.)."""
+
+    feedback_text: Optional[str]
+    """Qualitative free-form comments provided by the user."""
+
+    user_id: Optional[str]
+    """User provided identifier."""
+
+    source: Optional[str]
+    """Originating UI surface (e.g. 'ADK Web UI')."""
+
+    custom_metadata: Optional[dict[str, str]]
+    """ Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+CreateAgentEngineFeedbackEntryConfigOrDict = Union[
+    CreateAgentEngineFeedbackEntryConfig, CreateAgentEngineFeedbackEntryConfigDict
+]
+
+
+class _CreateAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
+    """Parameters for creating a Feedback Entry."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Resource name of the reasoning engine to create the feedback entry in.""",
+    )
+    feedback_type: Optional[FeedbackType] = Field(
+        default=None, description="""The type of feedback provided."""
+    )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""The ID of the session to which the feedback relates to.""",
+    )
+    event_id: Optional[str] = Field(
+        default=None,
+        description="""The ID of the event to which the feedback relates to.""",
+    )
+    config: Optional[CreateAgentEngineFeedbackEntryConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _CreateAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=False):
+    """Parameters for creating a Feedback Entry."""
+
+    name: Optional[str]
+    """Resource name of the reasoning engine to create the feedback entry in."""
+
+    feedback_type: Optional[FeedbackType]
+    """The type of feedback provided."""
+
+    session_id: Optional[str]
+    """The ID of the session to which the feedback relates to."""
+
+    event_id: Optional[str]
+    """The ID of the event to which the feedback relates to."""
+
+    config: Optional[CreateAgentEngineFeedbackEntryConfigDict]
+    """"""
+
+
+_CreateAgentEngineFeedbackEntryRequestParametersOrDict = Union[
+    _CreateAgentEngineFeedbackEntryRequestParameters,
+    _CreateAgentEngineFeedbackEntryRequestParametersDict,
+]
+
+
+class FeedbackEntry(_common.BaseModel):
+    """A feedback entry."""
+
+    create_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the feedback entry was created.""",
+    )
+    custom_metadata: Optional[dict[str, str]] = Field(
+        default=None,
+        description="""Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc.""",
+    )
+    event_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The ID of the event to which the feedback relates to.""",
+    )
+    feedback_labels: Optional[list[str]] = Field(
+        default=None,
+        description="""Optional. Specific labels for feedback (non-factual, offensive, etc.).""",
+    )
+    feedback_text: Optional[str] = Field(
+        default=None,
+        description="""Optional. Qualitative free-form comments provided by the user.""",
+    )
+    feedback_type: Optional[FeedbackType] = Field(
+        default=None, description="""Required. The type of feedback provided."""
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'.""",
+    )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""Required. The ID of the session to which the feedback relates to.""",
+    )
+    source: Optional[str] = Field(
+        default=None,
+        description="""Optional. Originating UI surface (e.g. 'ADK Web UI').""",
+    )
+    update_time: Optional[datetime.datetime] = Field(
+        default=None,
+        description="""Output only. Timestamp when the feedback entry was last updated.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""Optional. User provided identifier."""
+    )
+
+
+class FeedbackEntryDict(TypedDict, total=False):
+    """A feedback entry."""
+
+    create_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the feedback entry was created."""
+
+    custom_metadata: Optional[dict[str, str]]
+    """Optional. Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc."""
+
+    event_id: Optional[str]
+    """Required. The ID of the event to which the feedback relates to."""
+
+    feedback_labels: Optional[list[str]]
+    """Optional. Specific labels for feedback (non-factual, offensive, etc.)."""
+
+    feedback_text: Optional[str]
+    """Optional. Qualitative free-form comments provided by the user."""
+
+    feedback_type: Optional[FeedbackType]
+    """Required. The type of feedback provided."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the feedback entry. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}'."""
+
+    session_id: Optional[str]
+    """Required. The ID of the session to which the feedback relates to."""
+
+    source: Optional[str]
+    """Optional. Originating UI surface (e.g. 'ADK Web UI')."""
+
+    update_time: Optional[datetime.datetime]
+    """Output only. Timestamp when the feedback entry was last updated."""
+
+    user_id: Optional[str]
+    """Optional. User provided identifier."""
+
+
+FeedbackEntryOrDict = Union[FeedbackEntry, FeedbackEntryDict]
+
+
+class AgentEngineFeedbackEntryOperation(_common.BaseModel):
+    """Operation that has an agent engine feedback entry as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[FeedbackEntry] = Field(
+        default=None, description="""The Agent Engine Feedback Entry."""
+    )
+
+
+class AgentEngineFeedbackEntryOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine feedback entry as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[FeedbackEntryDict]
+    """The Agent Engine Feedback Entry."""
+
+
+AgentEngineFeedbackEntryOperationOrDict = Union[
+    AgentEngineFeedbackEntryOperation, AgentEngineFeedbackEntryOperationDict
+]
+
+
+class DeleteAgentEngineFeedbackEntryConfig(_common.BaseModel):
+    """Config for deleting a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class DeleteAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
+    """Config for deleting a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+DeleteAgentEngineFeedbackEntryConfigOrDict = Union[
+    DeleteAgentEngineFeedbackEntryConfig, DeleteAgentEngineFeedbackEntryConfigDict
+]
+
+
+class _DeleteAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
+    """Parameters for deleting a Feedback Entry."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the feedback entry to delete."""
+    )
+    config: Optional[DeleteAgentEngineFeedbackEntryConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _DeleteAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=False):
+    """Parameters for deleting a Feedback Entry."""
+
+    name: Optional[str]
+    """Name of the feedback entry to delete."""
+
+    config: Optional[DeleteAgentEngineFeedbackEntryConfigDict]
+    """"""
+
+
+_DeleteAgentEngineFeedbackEntryRequestParametersOrDict = Union[
+    _DeleteAgentEngineFeedbackEntryRequestParameters,
+    _DeleteAgentEngineFeedbackEntryRequestParametersDict,
+]
+
+
+class DeleteAgentEngineFeedbackEntryOperation(_common.BaseModel):
+    """Operation for deleting a Feedback Entry."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+
+
+class DeleteAgentEngineFeedbackEntryOperationDict(TypedDict, total=False):
+    """Operation for deleting a Feedback Entry."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+
+DeleteAgentEngineFeedbackEntryOperationOrDict = Union[
+    DeleteAgentEngineFeedbackEntryOperation, DeleteAgentEngineFeedbackEntryOperationDict
+]
+
+
+class GetAgentEngineFeedbackConfig(_common.BaseModel):
+    """Config for getting a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineFeedbackConfigDict(TypedDict, total=False):
+    """Config for getting a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineFeedbackConfigOrDict = Union[
+    GetAgentEngineFeedbackConfig, GetAgentEngineFeedbackConfigDict
+]
+
+
+class _GetAgentEngineFeedbackRequestParameters(_common.BaseModel):
+    """Parameters for getting Agent Engine Feedback."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The name of the feedback entry to retrieve."""
+    )
+    config: Optional[GetAgentEngineFeedbackConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineFeedbackRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting Agent Engine Feedback."""
+
+    name: Optional[str]
+    """The name of the feedback entry to retrieve."""
+
+    config: Optional[GetAgentEngineFeedbackConfigDict]
+    """"""
+
+
+_GetAgentEngineFeedbackRequestParametersOrDict = Union[
+    _GetAgentEngineFeedbackRequestParameters,
+    _GetAgentEngineFeedbackRequestParametersDict,
+]
+
+
+class ListAgentEngineFeedbackEntriesConfig(_common.BaseModel):
+    """Config for listing feedback entries."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    page_size: Optional[int] = Field(default=None, description="""""")
+    page_token: Optional[str] = Field(default=None, description="""""")
+    filter: Optional[str] = Field(
+        default=None,
+        description="""An expression for filtering the results of the request.""",
+    )
+    order_by: Optional[str] = Field(
+        default=None, description="""A comma-separated list of fields to order by."""
+    )
+
+
+class ListAgentEngineFeedbackEntriesConfigDict(TypedDict, total=False):
+    """Config for listing feedback entries."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    page_size: Optional[int]
+    """"""
+
+    page_token: Optional[str]
+    """"""
+
+    filter: Optional[str]
+    """An expression for filtering the results of the request."""
+
+    order_by: Optional[str]
+    """A comma-separated list of fields to order by."""
+
+
+ListAgentEngineFeedbackEntriesConfigOrDict = Union[
+    ListAgentEngineFeedbackEntriesConfig, ListAgentEngineFeedbackEntriesConfigDict
+]
+
+
+class _ListAgentEngineFeedbackEntriesRequestParameters(_common.BaseModel):
+    """Parameters for listing feedback entries."""
+
+    parent: Optional[str] = Field(
+        default=None,
+        description="""Resource name of the reasoning engine to list the feedback entries from.""",
+    )
+    config: Optional[ListAgentEngineFeedbackEntriesConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _ListAgentEngineFeedbackEntriesRequestParametersDict(TypedDict, total=False):
+    """Parameters for listing feedback entries."""
+
+    parent: Optional[str]
+    """Resource name of the reasoning engine to list the feedback entries from."""
+
+    config: Optional[ListAgentEngineFeedbackEntriesConfigDict]
+    """"""
+
+
+_ListAgentEngineFeedbackEntriesRequestParametersOrDict = Union[
+    _ListAgentEngineFeedbackEntriesRequestParameters,
+    _ListAgentEngineFeedbackEntriesRequestParametersDict,
+]
+
+
+class ListAgentEngineFeedbackEntriesResponse(_common.BaseModel):
+    """Response for listing feedback entries."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse] = Field(
+        default=None, description="""Used to retain the full HTTP response."""
+    )
+    next_page_token: Optional[str] = Field(default=None, description="""""")
+    feedback_entries: Optional[list[FeedbackEntry]] = Field(
+        default=None, description="""List of feedback entries."""
+    )
+
+
+class ListAgentEngineFeedbackEntriesResponseDict(TypedDict, total=False):
+    """Response for listing feedback entries."""
+
+    sdk_http_response: Optional[genai_types.HttpResponse]
+    """Used to retain the full HTTP response."""
+
+    next_page_token: Optional[str]
+    """"""
+
+    feedback_entries: Optional[list[FeedbackEntryDict]]
+    """List of feedback entries."""
+
+
+ListAgentEngineFeedbackEntriesResponseOrDict = Union[
+    ListAgentEngineFeedbackEntriesResponse, ListAgentEngineFeedbackEntriesResponseDict
+]
+
+
+class UpdateAgentEngineFeedbackEntryConfig(_common.BaseModel):
+    """Config for updating a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
+    )
+    feedback_type: Optional[FeedbackType] = Field(
+        default=None, description="""The type of feedback provided."""
+    )
+    session_id: Optional[str] = Field(
+        default=None,
+        description="""The ID of the session to which the feedback relates to.""",
+    )
+    event_id: Optional[str] = Field(
+        default=None,
+        description="""The ID of the event to which the feedback relates to.""",
+    )
+    feedback_labels: Optional[list[str]] = Field(
+        default=None,
+        description="""Specific labels for feedback (non-factual, offensive, etc.).""",
+    )
+    feedback_text: Optional[str] = Field(
+        default=None,
+        description="""Qualitative free-form comments provided by the user.""",
+    )
+    user_id: Optional[str] = Field(
+        default=None, description="""User provided identifier."""
+    )
+    source: Optional[str] = Field(
+        default=None, description="""Originating UI surface (e.g. 'ADK Web UI')."""
+    )
+    custom_metadata: Optional[dict[str, str]] = Field(
+        default=None,
+        description=""" Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class UpdateAgentEngineFeedbackEntryConfigDict(TypedDict, total=False):
+    """Config for updating a Feedback Entry."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    update_mask: Optional[str]
+    """The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
+
+    feedback_type: Optional[FeedbackType]
+    """The type of feedback provided."""
+
+    session_id: Optional[str]
+    """The ID of the session to which the feedback relates to."""
+
+    event_id: Optional[str]
+    """The ID of the event to which the feedback relates to."""
+
+    feedback_labels: Optional[list[str]]
+    """Specific labels for feedback (non-factual, offensive, etc.)."""
+
+    feedback_text: Optional[str]
+    """Qualitative free-form comments provided by the user."""
+
+    user_id: Optional[str]
+    """User provided identifier."""
+
+    source: Optional[str]
+    """Originating UI surface (e.g. 'ADK Web UI')."""
+
+    custom_metadata: Optional[dict[str, str]]
+    """ Additional key-value metadata associated with the feedback. Allows the collect data for which there is no dedicated field in the resource, ex. version, LLM temperature etc."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+UpdateAgentEngineFeedbackEntryConfigOrDict = Union[
+    UpdateAgentEngineFeedbackEntryConfig, UpdateAgentEngineFeedbackEntryConfigDict
+]
+
+
+class _UpdateAgentEngineFeedbackEntryRequestParameters(_common.BaseModel):
+    """Parameters for updating a Feedback Entry."""
+
+    name: Optional[str] = Field(
+        default=None, description="""Name of the Feedback Entry."""
+    )
+    config: Optional[UpdateAgentEngineFeedbackEntryConfig] = Field(
+        default=None, description="""Config for updating a Feedback Entry."""
+    )
+
+
+class _UpdateAgentEngineFeedbackEntryRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a Feedback Entry."""
+
+    name: Optional[str]
+    """Name of the Feedback Entry."""
+
+    config: Optional[UpdateAgentEngineFeedbackEntryConfigDict]
+    """Config for updating a Feedback Entry."""
+
+
+_UpdateAgentEngineFeedbackEntryRequestParametersOrDict = Union[
+    _UpdateAgentEngineFeedbackEntryRequestParameters,
+    _UpdateAgentEngineFeedbackEntryRequestParametersDict,
+]
+
+
+class _GetAgentEngineFeedbackOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a feedback entry as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetAgentEngineFeedbackOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a feedback entry as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineFeedbackOperationParametersOrDict = Union[
+    _GetAgentEngineFeedbackOperationParameters,
+    _GetAgentEngineFeedbackOperationParametersDict,
 ]
 
 
