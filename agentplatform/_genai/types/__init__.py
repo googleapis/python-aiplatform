@@ -70,6 +70,8 @@ from .common import _GenerateAgentEngineMemoriesRequestParameters
 from .common import _GenerateInstanceRubricsRequest
 from .common import _GenerateLossClustersParameters
 from .common import _GenerateUserScenariosParameters
+from .common import _GetAgentEngineFeedbackContextOperationParameters
+from .common import _GetAgentEngineFeedbackContextRequestParameters
 from .common import _GetAgentEngineFeedbackOperationParameters
 from .common import _GetAgentEngineFeedbackOperationParameters
 from .common import _GetAgentEngineFeedbackRequestParameters
@@ -149,6 +151,7 @@ from .common import _RunQueryJobAgentEngineConfig
 from .common import _RunQueryJobAgentEngineConfigDict
 from .common import _RunQueryJobAgentEngineConfigOrDict
 from .common import _RunQueryJobAgentEngineRequestParameters
+from .common import _UpdateAgentEngineFeedbackContextRequestParameters
 from .common import _UpdateAgentEngineFeedbackEntryRequestParameters
 from .common import _UpdateAgentEngineMemoryRequestParameters
 from .common import _UpdateAgentEngineRequestParameters
@@ -169,6 +172,9 @@ from .common import AgentEngineConfig
 from .common import AgentEngineConfigDict
 from .common import AgentEngineConfigOrDict
 from .common import AgentEngineDict
+from .common import AgentEngineFeedbackContextOperation
+from .common import AgentEngineFeedbackContextOperationDict
+from .common import AgentEngineFeedbackContextOperationOrDict
 from .common import AgentEngineFeedbackEntryOperation
 from .common import AgentEngineFeedbackEntryOperationDict
 from .common import AgentEngineFeedbackEntryOperationOrDict
@@ -618,6 +624,9 @@ from .common import ExecuteSandboxEnvironmentResponseOrDict
 from .common import FailedRubric
 from .common import FailedRubricDict
 from .common import FailedRubricOrDict
+from .common import FeedbackContext
+from .common import FeedbackContextDict
+from .common import FeedbackContextOrDict
 from .common import FeedbackEntry
 from .common import FeedbackEntryDict
 from .common import FeedbackEntryOrDict
@@ -687,6 +696,9 @@ from .common import GetAgentEngineConfigOrDict
 from .common import GetAgentEngineFeedbackConfig
 from .common import GetAgentEngineFeedbackConfigDict
 from .common import GetAgentEngineFeedbackConfigOrDict
+from .common import GetAgentEngineFeedbackContextConfig
+from .common import GetAgentEngineFeedbackContextConfigDict
+from .common import GetAgentEngineFeedbackContextConfigOrDict
 from .common import GetAgentEngineMemoryConfig
 from .common import GetAgentEngineMemoryConfigDict
 from .common import GetAgentEngineMemoryConfigOrDict
@@ -1844,6 +1856,9 @@ from .common import UnifiedMetricOrDict
 from .common import UpdateAgentEngineConfig
 from .common import UpdateAgentEngineConfigDict
 from .common import UpdateAgentEngineConfigOrDict
+from .common import UpdateAgentEngineFeedbackContextConfig
+from .common import UpdateAgentEngineFeedbackContextConfigDict
+from .common import UpdateAgentEngineFeedbackContextConfigOrDict
 from .common import UpdateAgentEngineFeedbackEntryConfig
 from .common import UpdateAgentEngineFeedbackEntryConfigDict
 from .common import UpdateAgentEngineFeedbackEntryConfigOrDict
@@ -3440,6 +3455,18 @@ __all__ = [
     "UpdateAgentEngineFeedbackEntryConfig",
     "UpdateAgentEngineFeedbackEntryConfigDict",
     "UpdateAgentEngineFeedbackEntryConfigOrDict",
+    "GetAgentEngineFeedbackContextConfig",
+    "GetAgentEngineFeedbackContextConfigDict",
+    "GetAgentEngineFeedbackContextConfigOrDict",
+    "FeedbackContext",
+    "FeedbackContextDict",
+    "FeedbackContextOrDict",
+    "AgentEngineFeedbackContextOperation",
+    "AgentEngineFeedbackContextOperationDict",
+    "AgentEngineFeedbackContextOperationOrDict",
+    "UpdateAgentEngineFeedbackContextConfig",
+    "UpdateAgentEngineFeedbackContextConfigDict",
+    "UpdateAgentEngineFeedbackContextConfigOrDict",
     "PromptOptimizerConfig",
     "PromptOptimizerConfigDict",
     "PromptOptimizerConfigOrDict",
@@ -3738,6 +3765,9 @@ __all__ = [
     "_UpdateAgentEngineFeedbackEntryRequestParameters",
     "_GetAgentEngineFeedbackOperationParameters",
     "_GetAgentEngineFeedbackOperationParameters",
+    "_GetAgentEngineFeedbackContextRequestParameters",
+    "_GetAgentEngineFeedbackContextOperationParameters",
+    "_UpdateAgentEngineFeedbackContextRequestParameters",
     "evals",
     "agent_engines",
     "prompts",

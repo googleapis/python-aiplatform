@@ -24209,6 +24209,225 @@ _GetAgentEngineFeedbackOperationParametersOrDict = Union[
 ]
 
 
+class GetAgentEngineFeedbackContextConfig(_common.BaseModel):
+    """Config for getting a Feedback Context."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+
+
+class GetAgentEngineFeedbackContextConfigDict(TypedDict, total=False):
+    """Config for getting a Feedback Context."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+
+GetAgentEngineFeedbackContextConfigOrDict = Union[
+    GetAgentEngineFeedbackContextConfig, GetAgentEngineFeedbackContextConfigDict
+]
+
+
+class _GetAgentEngineFeedbackContextRequestParameters(_common.BaseModel):
+    """Parameters for getting Agent Engine Feedback Context."""
+
+    name: Optional[str] = Field(
+        default=None, description="""The name of the feedback context to retrieve."""
+    )
+    config: Optional[GetAgentEngineFeedbackContextConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _GetAgentEngineFeedbackContextRequestParametersDict(TypedDict, total=False):
+    """Parameters for getting Agent Engine Feedback Context."""
+
+    name: Optional[str]
+    """The name of the feedback context to retrieve."""
+
+    config: Optional[GetAgentEngineFeedbackContextConfigDict]
+    """"""
+
+
+_GetAgentEngineFeedbackContextRequestParametersOrDict = Union[
+    _GetAgentEngineFeedbackContextRequestParameters,
+    _GetAgentEngineFeedbackContextRequestParametersDict,
+]
+
+
+class FeedbackContext(_common.BaseModel):
+    """A feedback context."""
+
+    context_events: Optional[list[SessionEvent]] = Field(
+        default=None,
+        description="""Optional. Events from the conversation relevant to the parent feedback entry.""",
+    )
+    name: Optional[str] = Field(
+        default=None,
+        description="""Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'.""",
+    )
+
+
+class FeedbackContextDict(TypedDict, total=False):
+    """A feedback context."""
+
+    context_events: Optional[list[SessionEventDict]]
+    """Optional. Events from the conversation relevant to the parent feedback entry."""
+
+    name: Optional[str]
+    """Identifier. The resource name of the feedback context. Format: 'projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext'."""
+
+
+FeedbackContextOrDict = Union[FeedbackContext, FeedbackContextDict]
+
+
+class _GetAgentEngineFeedbackContextOperationParameters(_common.BaseModel):
+    """Parameters for getting an operation with a feedback context as a response."""
+
+    operation_name: Optional[str] = Field(
+        default=None, description="""The server-assigned name for the operation."""
+    )
+    config: Optional[GetAgentEngineOperationConfig] = Field(
+        default=None, description="""Used to override the default configuration."""
+    )
+
+
+class _GetAgentEngineFeedbackContextOperationParametersDict(TypedDict, total=False):
+    """Parameters for getting an operation with a feedback context as a response."""
+
+    operation_name: Optional[str]
+    """The server-assigned name for the operation."""
+
+    config: Optional[GetAgentEngineOperationConfigDict]
+    """Used to override the default configuration."""
+
+
+_GetAgentEngineFeedbackContextOperationParametersOrDict = Union[
+    _GetAgentEngineFeedbackContextOperationParameters,
+    _GetAgentEngineFeedbackContextOperationParametersDict,
+]
+
+
+class AgentEngineFeedbackContextOperation(_common.BaseModel):
+    """Operation that has an agent engine feedback context as a response."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`.""",
+    )
+    metadata: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any.""",
+    )
+    done: Optional[bool] = Field(
+        default=None,
+        description="""If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available.""",
+    )
+    error: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="""The error result of the operation in case of failure or cancellation.""",
+    )
+    response: Optional[FeedbackContext] = Field(
+        default=None, description="""The Agent Engine Feedback Context."""
+    )
+
+
+class AgentEngineFeedbackContextOperationDict(TypedDict, total=False):
+    """Operation that has an agent engine feedback context as a response."""
+
+    name: Optional[str]
+    """The server-assigned name, which is only unique within the same service that originally returns it. If you use the default HTTP mapping, the `name` should be a resource name ending with `operations/{unique_id}`."""
+
+    metadata: Optional[dict[str, Any]]
+    """Service-specific metadata associated with the operation. It typically contains progress information and common metadata such as create time. Some services might not provide such metadata.  Any method that returns a long-running operation should document the metadata type, if any."""
+
+    done: Optional[bool]
+    """If the value is `false`, it means the operation is still in progress. If `true`, the operation is completed, and either `error` or `response` is available."""
+
+    error: Optional[dict[str, Any]]
+    """The error result of the operation in case of failure or cancellation."""
+
+    response: Optional[FeedbackContextDict]
+    """The Agent Engine Feedback Context."""
+
+
+AgentEngineFeedbackContextOperationOrDict = Union[
+    AgentEngineFeedbackContextOperation, AgentEngineFeedbackContextOperationDict
+]
+
+
+class UpdateAgentEngineFeedbackContextConfig(_common.BaseModel):
+    """Config for updating a Feedback Context."""
+
+    http_options: Optional[genai_types.HttpOptions] = Field(
+        default=None, description="""Used to override HTTP request options."""
+    )
+    update_mask: Optional[str] = Field(
+        default=None,
+        description="""The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask.""",
+    )
+    wait_for_completion: Optional[bool] = Field(
+        default=True,
+        description="""Waits for the operation to complete before returning.""",
+    )
+
+
+class UpdateAgentEngineFeedbackContextConfigDict(TypedDict, total=False):
+    """Config for updating a Feedback Context."""
+
+    http_options: Optional[genai_types.HttpOptions]
+    """Used to override HTTP request options."""
+
+    update_mask: Optional[str]
+    """The update mask to apply. For the `FieldMask` definition, see
+      https://protobuf.dev/reference/protobuf/google.protobuf/#field-mask."""
+
+    wait_for_completion: Optional[bool]
+    """Waits for the operation to complete before returning."""
+
+
+UpdateAgentEngineFeedbackContextConfigOrDict = Union[
+    UpdateAgentEngineFeedbackContextConfig, UpdateAgentEngineFeedbackContextConfigDict
+]
+
+
+class _UpdateAgentEngineFeedbackContextRequestParameters(_common.BaseModel):
+    """Parameters for updating a Feedback Context."""
+
+    name: Optional[str] = Field(
+        default=None,
+        description="""Name of the Feedback Context. Format: projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext""",
+    )
+    context_events: Optional[list[SessionEvent]] = Field(
+        default=None,
+        description="""Events from the conversation relevant to the parent feedback entry.""",
+    )
+    config: Optional[UpdateAgentEngineFeedbackContextConfig] = Field(
+        default=None, description=""""""
+    )
+
+
+class _UpdateAgentEngineFeedbackContextRequestParametersDict(TypedDict, total=False):
+    """Parameters for updating a Feedback Context."""
+
+    name: Optional[str]
+    """Name of the Feedback Context. Format: projects/{project}/locations/{location}/reasoningEngines/{reasoning_engine}/feedbackEntries/{feedback_entry}/feedbackContext"""
+
+    context_events: Optional[list[SessionEventDict]]
+    """Events from the conversation relevant to the parent feedback entry."""
+
+    config: Optional[UpdateAgentEngineFeedbackContextConfigDict]
+    """"""
+
+
+_UpdateAgentEngineFeedbackContextRequestParametersOrDict = Union[
+    _UpdateAgentEngineFeedbackContextRequestParameters,
+    _UpdateAgentEngineFeedbackContextRequestParametersDict,
+]
+
+
 class PromptOptimizerConfig(_common.BaseModel):
     """VAPO Prompt Optimizer Config."""
 
